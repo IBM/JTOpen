@@ -93,9 +93,16 @@ public class HTMLTableRowBeanInfo extends SimpleBeanInfo
         dir.setConstrained(true);                                                                            //$B1A
         dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B1A
         dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B1A
+
+        PropertyDescriptor useFO = new PropertyDescriptor("useFO", beanClass, "isUseFO", "setUseFO");           //@C1A
+        useFO.setBound(true);                                                                                   //@C1A
+        useFO.setConstrained(false);                                                                            //@C1A
+        useFO.setDisplayName(loader_.getText("PROP_NAME_FORMATTING_OBJECT"));                                   //@C1A
+        useFO.setShortDescription(loader_.getText("PROP_DESC_FORMATTING_OBJECT"));                              //@C1A
+
         
         properties_ = new PropertyDescriptor[] { columnCount, horizontalAlignment, verticalAlignment, 
-                                                 lang, dir };                                                //$B1C
+                                                 lang, dir, useFO };                                                //$B1C                //@C1C
       }
       catch (Exception e)
       {

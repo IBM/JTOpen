@@ -46,6 +46,19 @@ import java.beans.PropertyChangeSupport;
 *  &lt;li&gt;my list item&lt;/li&gt;
 *  &lt;/ol&gt;
 *  </PRE></BLOCKQUOTE>
+*  <p>Here is the output of the OrderedListItem tag using XSL Formatting Objects:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:block-container&gt;
+*  &lt;fo:list-block&gt;
+*  &lt;fo:list-item&gt;
+*  &lt;fo:list-item-label&gt;A.&lt;/fo:list-item-label&gt;
+*  &lt;fo:list-item-body&gt;&lt;fo:block-container&gt;&lt;fo:block&gt;my list item&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:list-item-body&gt;
+*  &lt;/fo:list-item&gt;
+*  &lt;/fo:list-block&gt;
+*  &lt;/fo:block-container&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <p>OrderedListItem objects generate the following events:
 *  <ul>
@@ -136,6 +149,127 @@ public class OrderedListItem extends HTMLListItem
         return s.toString();
     }
 
+
+    /**
+    *  Returns the label for the XSL-FO list-label.
+    *  @return The label.
+    **/
+    String getTypeAttributeFO(String type, int label)         //@C1A
+    {
+        if(value_ > 0)
+        {
+            label = value_;
+        }
+        
+        StringBuffer s = new StringBuffer("");
+        if (type != null)
+        {
+            if (type.equals(HTMLConstants.NUMBERS))
+            {
+                s.append(String.valueOf(label));
+                s.append(".");
+            }
+            else if (type.equals(HTMLConstants.CAPITALS))
+            {   
+                char c = (char)(64 + label);
+                s.append(c);
+                s.append(".");
+            }
+            else if (type.equals(HTMLConstants.LOWER_CASE))
+            {
+                char c = (char)(96 + label);
+                s.append(c);
+                s.append(".");
+            }
+            else if (type.equals(HTMLConstants.LARGE_ROMAN))
+            {
+                s.append(toRoman(label));
+                s.append(".");
+            }
+            else if (type.equals(HTMLConstants.SMALL_ROMAN))
+            {    
+                s.append(toRoman(label).toLowerCase());
+                s.append(".");
+            }
+        }
+        return s.toString();
+    }
+
+    /**
+    *  Returns a number's Roman numeral equivalent.
+    *  @param n, The number to get the roman numeral for.
+    *  @return The roman numeral.
+    **/
+    String toRoman(int n)                                 //@C1A
+    {
+        StringBuffer numeral=new StringBuffer(20);
+        while (n >= 1000)
+        {
+            numeral.append("M"); 
+            n -= 1000;
+        }
+        if (n >= 900)
+        {
+            numeral.append("CM"); 
+            n -= 900;
+        }
+        if (n >= 500)
+        {
+            numeral.append("D"); 
+            n -= 500;
+        }
+        if (n >= 400)
+        {
+            numeral.append("CD"); 
+            n -= 400;
+        }
+        while (n >= 100)
+        {
+            numeral.append("C"); 
+            n -= 100;
+        }
+        if (n >= 90)
+        {
+            numeral.append("XC"); 
+            n -= 90;
+        }
+        if (n >= 50)
+        {
+            numeral.append("L"); 
+            n -= 50;
+        }
+        if (n >= 40)
+        {
+            numeral.append("XL"); 
+            n -= 40;
+        }
+        while (n >= 10)
+        {
+            numeral.append("X"); 
+            n -= 10;
+        }
+        if (n >= 9)
+        {
+            numeral.append("IX"); 
+            n -= 9;
+        }
+        if (n >= 5)
+        {
+            numeral.append("V"); 
+            n -= 5;
+        }
+        if (n >= 4)
+        {
+            numeral.append("IV"); 
+            n -= 4;
+        }
+        while (n >= 1)
+        {
+            numeral.append("I"); 
+            n -= 1;
+        }
+        return numeral.toString();
+    }
 
     /**
     *  Deserializes and initializes transient data.

@@ -111,7 +111,13 @@ public class HTMLImageBeanInfo extends SimpleBeanInfo
             height.setDisplayName(loader_.getText("PROP_NAME_HEIGHT"));                                          
             height.setShortDescription(loader_.getText("PROP_DESC_HEIGHT"));
 
-            properties_ = new PropertyDescriptor[] {align, src, alt, border, name, hspace, vspace, width, height};                              
+            PropertyDescriptor useFO = new PropertyDescriptor("useFO", beanClass, "isUseFO", "setUseFO");           //@B1A
+            useFO.setBound(true);                                                                                   //@B1A
+            useFO.setConstrained(false);                                                                            //@B1A
+            useFO.setDisplayName(loader_.getText("PROP_NAME_FORMATTING_OBJECT"));                                   //@B1A
+            useFO.setShortDescription(loader_.getText("PROP_DESC_FORMATTING_OBJECT"));                              //@B1A
+
+            properties_ = new PropertyDescriptor[] {align, src, alt, border, name, hspace, vspace, width, height, useFO};   //@B1C                            
         }
         catch (Exception e)
         {

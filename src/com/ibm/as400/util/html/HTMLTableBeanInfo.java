@@ -140,8 +140,14 @@ public class HTMLTableBeanInfo extends SimpleBeanInfo
         dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B1A
         dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B1A
 
+        PropertyDescriptor useFO = new PropertyDescriptor("useFO", beanClass, "isUseFO", "setUseFO");           //@C1A
+        useFO.setBound(true);                                                                                   //@C1A
+        useFO.setConstrained(false);                                                                            //@C1A
+        useFO.setDisplayName(loader_.getText("PROP_NAME_FORMATTING_OBJECT"));                                   //@C1A
+        useFO.setShortDescription(loader_.getText("PROP_DESC_FORMATTING_OBJECT"));                              //@C1A
+
         properties_ = new PropertyDescriptor[] { alignment, borderWidth, caption, cellPadding, cellSpacing, 
-                                                 header, useHeader, width, widthInPercent, lang, dir };      //$B1C
+                                                 header, useHeader, width, widthInPercent, lang, dir, useFO};      //$B1C     //@C1A
       }
       catch (Exception e)
       {

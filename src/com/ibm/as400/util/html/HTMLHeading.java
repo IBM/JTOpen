@@ -36,6 +36,14 @@ import java.beans.PropertyChangeListener;
 *  &lt;h1 align=&quot;center&quot;&gt;My Heading&lt;/h1&gt;
 *  </PRE></BLOCKQUOTE>
 *
+*  <p>
+*  Calling getFOTag() would produce the following XSL Formatting Object tag:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:block-container&gt;
+*  &lt;fo:block font-size='25pt' text-align='center'&gt;My Heading&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  </PRE></BLOCKQUOTE>
+*
 *  <p>HTMLHeading objects generate the following events:
 *  <ul>
 *    <li>PropertyChangeEvent
@@ -52,6 +60,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+    private boolean useFO_ = false; //Indicates if XSL-FO tags are outputted.                //@C1A
 
 
 
@@ -140,12 +149,28 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@B4D
+        if(useFO_ )                                                                      //@C1A
+        {                                                                                //@C1A
+            if((dir_ != null) && (dir_.length()>0))                                      //@C1A
+            {                                                                            //@C1A
+                if(dir_.equals(HTMLConstants.RTL))                                       //@C1A
+                    return " writing-mode='rl'";                                         //@C1A
+                else                                                                     //@C1A
+                    return " writing-mode='lr'";                                         //@C1A
+            }                                                                            //@C1A
+            else                                                                         //@C1A
+                return "";                                                               //@C1A
+        }                                                                                //@C1A
+        else                                                                             //@C1A
+        {                                                                                //@C1A
+            //@B4D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-            return " dir=\"" + dir_ + "\"";
-        else
-            return "";
+            if ((dir_ != null) && (dir_.length() > 0))
+                return " dir=\"" + dir_ + "\"";
+            else
+                return "";
+        }                                                                                //@C1A
+
     }
 
 
@@ -202,6 +227,9 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     {
         //@B4D
 
+        if(useFO_)                      //@C1A
+            return getFOTag();          //@C1A
+
         if (text_ == null)
         {
             Trace.log(Trace.ERROR, "Attempting to get tag before setting heading text.");
@@ -236,6 +264,79 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
         return s.toString();
     }
 
+
+    /**
+    *  Returns the tag for the XSL-FO heading.
+    *  The language attribute is not supported by XSL-FO.
+    *  @return The tag.
+    **/
+    public String getFOTag()                                    //@C1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;
+
+        //Indicate Formatting Object tags are outputted.
+        setUseFO(true);
+
+        if (text_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before setting heading text.");
+            throw new ExtendedIllegalStateException(
+                                               "text", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+
+        StringBuffer s = new StringBuffer("<fo:block-container");
+        s.append(getDirectionAttributeTag());
+        s.append(">\n");
+        s.append("<fo:block");
+
+        switch(level_)
+        {
+            case 1: s.append(" font-size='25pt'");
+                break;
+            case 2:  s.append(" font-size='20pt'");
+                break;
+            case 3:  s.append(" font-size='15pt'");
+                break;
+            case 4:  s.append(" font-size='13pt'");
+                break;
+            case 5: s.append(" font-size='11pt'");
+                break;
+            case 6: s.append(" font-size='9pt'");
+                break;
+        }
+
+        if (align_ != null)
+        {
+            if (align_.equals(HTMLConstants.LEFT))
+                s.append(" text-align='start'");
+            else if (align_.equals(HTMLConstants.RIGHT))
+                s.append(" text-align='end'");
+            else if (align_.equals(HTMLConstants.CENTER))
+                s.append(" text-align='center'");
+        }
+
+        s.append(">");
+        s.append(text_);
+        s.append("</fo:block>\n");
+        s.append("</fo:block-container>\n");
+        
+        //Set useFO_ to previous state.
+        setUseFO(useFO);
+
+        return s.toString();
+    }
+
+    /**
+     *  Returns if Formatting Object tags are outputted.
+     *  The default value is false.
+     *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+     **/
+    public boolean isUseFO()                                //@C1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Deserializes and initializes transient data.
@@ -372,6 +473,20 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
         if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
     }
 
+
+    /** 
+    * Sets if Formatting Object tags should be used. 
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/  
+    public void setUseFO(boolean useFO)                    //@C1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
+    }
 
     /**
     *  Returns a String representation for the HTMLHeading tag.

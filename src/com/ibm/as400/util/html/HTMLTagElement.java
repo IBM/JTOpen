@@ -13,6 +13,7 @@
 
 package com.ibm.as400.util.html;
 
+ 
 /**
   The HTMLTagElement class represents an HTML tag element.
 **/
@@ -23,4 +24,12 @@ public interface HTMLTagElement
     *  @return The tag.
     **/
     public abstract String getTag();
+
+    /**
+    *  Returns the element tag in XSL-FO.  Returns a comment tag if there is no associated XSL-FO tag for the element.
+    *  @return The tag.
+    **/
+    public abstract String getFOTag();  //@B1A
+
+    
 }

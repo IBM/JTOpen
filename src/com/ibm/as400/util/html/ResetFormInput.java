@@ -58,6 +58,17 @@ public class ResetFormInput extends FormInput
     }
 
     /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@D1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- A ResetFormInput was here -->";
+    }
+
+    /**
     *  Returns the tag for the reset form input type.
     *  @return The tag.
     **/

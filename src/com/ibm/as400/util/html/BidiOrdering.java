@@ -33,6 +33,14 @@ import java.util.Vector;
 *  &lt;/bdo&gt;
 *  </PRE></BLOCKQUOTE>
 *
+*  <p>
+*  The equivalent tag using XSL Formatting Objects looks like this:
+*  <BLOCKQUOTE><PRE>
+*  &lt;fo:block-container writing-mode='rl'&gt;
+*  &lt;fo:block&gt;Some Hebrew Text&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  </PRE></BLOCKQUOTE>
+*
 *  <p>BidiOrdering objects generate the following events:
 *  <ul>
 *  <LI><A HREF="ElementEvent.html">ElementEvent</A> - The events fired are:
@@ -49,6 +57,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
 
     private String lang_;        // The primary language used to display the tags contents.
     private String dir_;         // The direction of the text interpretation.
+    private boolean useFO_ = false; //Indicates if XSL-FO tags are outputted.                   //@D1A
 
     private Vector list_ = new Vector();
 
@@ -202,6 +211,9 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public String getTag()
     {
+        if(useFO_)                                        //@D1A
+            return getFOTag();                            //@D1A
+
         // the direction is the only required tag
         if (dir_ == null)
         {
@@ -237,6 +249,61 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
         return s.toString();
     }
 
+    /**
+    *  Returns the XSL formatting object's tag for the Bi-Directional Ordering.
+    *  The language attribute is not supported in XSL-FO.
+    *  @return The tag.
+    **/
+    public String getFOTag()                                    //@D1A
+    {
+        //Output an XSL-FO Tag
+
+        // the direction is the only required tag
+        if (dir_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before setting direction.");
+            throw new ExtendedIllegalStateException(
+                                                   "dir", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        if (list_.isEmpty())
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before adding items to list.");
+            throw new ExtendedIllegalStateException(
+                                                   "data", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        StringBuffer s = new StringBuffer("\n<fo:block-container");
+
+        //Get direction of text
+        s.append(" writing-mode='");
+        if(dir_.equals(HTMLConstants.RTL))
+                s.append("rl'");
+        else
+                s.append("lr'");
+        
+        s.append(">\n");
+
+        for (int i=0; i < list_.size(); i++)
+        {
+            HTMLTagElement data = (HTMLTagElement)list_.elementAt(i);
+            s.append(data.getFOTag());
+        }
+
+        s.append("</fo:block-container>\n");
+        
+        return s.toString();
+    }
+
+    /**
+     *  Returns if Formatting Object tags are outputted.
+     *  The default value is false.
+     *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+     **/
+    public boolean isUseFO()                                            //@D1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Removess an HTMLTagElement from the list.
@@ -327,6 +394,19 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
         if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
+    /** 
+    *  Sets if Formatting Object tags should be outputted.  
+    *  The default value is false.
+    *  @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML.
+    **/ 
+    public void setUseFO(boolean useFO)                                    //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
+    }
 
     /**
     *  Returns a String representation for the BidiOrdering tag.

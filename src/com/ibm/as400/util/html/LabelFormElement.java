@@ -110,6 +110,17 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     }
 
     /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@C1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- A LabelFormElement was here -->";
+    }
+
+    /**
     *  Returns the label tag.
     *  @return The tag.
     **/

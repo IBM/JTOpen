@@ -48,6 +48,28 @@ import java.util.Vector;
 *  &lt;td&gt;data4&lt;/td&gt;
 *  &lt;/tr&gt;
 *  </PRE></BLOCKQUOTE>
+*  <p>
+*  Using XSL Formatting Objects, the output generated is:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:table-row text-align="center"&gt;
+*  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px'&gt;&lt;fo:block-container&gt;
+*  &lt;fo:block&gt;data1&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:table-cell&gt;
+*  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px'&gt;&lt;fo:block-container&gt;
+*  &lt;fo:block&gt;data2&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:table-cell&gt;
+*  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px'&gt;&lt;fo:block-container&gt;
+*  &lt;fo:block&gt;data3&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:table-cell&gt;
+*  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px'&gt;&lt;fo:block-container&gt;
+*  &lt;fo:block&gt;data4&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:table-cell&gt;
+*  &lt;/fo:table-row&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <p>HTMLTableRow objects generate the following events:
 *  <ul>
@@ -74,6 +96,10 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+
+    private boolean useFO_ = false;    // Sets use fo tag.                                     //@D1A
+    private int borderWidth_ = 1;      // The border width                                     //@D1A
+    private int cellPadding_ = 1;      // The cell padding                                     //@D1A
 
     transient private Vector columnListeners_;      // The list of column listeners. @CRS
     transient private VetoableChangeSupport vetos_; //@CRS
@@ -326,6 +352,9 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     {
         //@C1D
 
+        if(useFO_)                      //@D1A
+            return getFOTag();          //@D1A
+
         if (row_.size() == 0)
         {
             Trace.log(Trace.ERROR, "Attempting to get tag before adding a column to the row.");
@@ -358,7 +387,71 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
         }
         tag.append("</tr>\n");
 
-        return new String(tag);
+        
+        return tag.toString();                          //@D1C
+        
+    }
+
+    /** 
+    *  Returns the XSL-FO table row tag.
+    *  The valign, halign, and language attributes are not supported in XSL-FO.
+    *  @return The xsl-fo tag.
+    **/
+    public String getFOTag()                            //@D1A
+    {
+        //Store the current state of useFO_
+        boolean useFO = useFO_;
+
+        setUseFO(true);
+        
+        int size = row_.size();
+        if (size == 0)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before adding a column to the row.");
+            throw new ExtendedIllegalStateException("column", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        StringBuffer tag = new StringBuffer("");
+        
+        tag.append("<fo:table-row");
+        if (hAlign_ != null)
+        {
+            tag.append(" text-align=\"");
+            if(hAlign_.equalsIgnoreCase("center"))
+                tag.append("center");
+            else if(hAlign_.equalsIgnoreCase("left"))
+                tag.append("start");
+            else if(hAlign_.equalsIgnoreCase("right"))
+                tag.append("end");
+            tag.append("\"");
+        } 
+        tag.append(">\n");
+
+        for (int i=0; i< size; i++)
+        {
+            //Must specify the cell border width and padding for each cell
+            HTMLTableCell cell = (HTMLTableCell)row_.elementAt(i);
+            cell.setBorderWidth(borderWidth_);
+            if(cellPadding_ > -1)
+                cell.setCellPadding(cellPadding_);
+            if ((dir_ != null) && (dir_.length() > 0))
+            {
+                try
+                {
+                    cell.setDirection(dir_);
+                }
+                catch(PropertyVetoException p)
+                {
+                }
+            }
+            tag.append(cell.getFOTag());
+        }
+        tag.append("</fo:table-row>\n");
+        
+        //Set useFO_ to previous state
+        setUseFO(useFO);
+
+        return tag.toString();                                                          //@D1C
     }
 
     /**
@@ -373,6 +466,16 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     }
 
 
+
+    /**
+    *  Returns if Formatting Object tags are outputted.
+    *  The default value is false.
+    *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+    **/
+    public boolean isUseFO()                                      //@D1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Deserializes and initializes transient data.
@@ -562,6 +665,51 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
         lang_ = lang;
 
         if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
+    }
+
+    /**
+    *  Sets the border width in pixels.  A value of zero indicates no border.
+    *  The default value is one.
+    *  @param borderWidth The border width.
+    **/
+    public void setBorderWidth(int borderWidth)             //@D1A
+    {
+        Integer oldWidth = new Integer(borderWidth_);
+        Integer newWidth = new Integer(borderWidth);
+
+        borderWidth_ = borderWidth;
+
+        if (changes_ != null) changes_.firePropertyChange("borderWidth", oldWidth, newWidth);
+    }
+
+    /**
+    *  Sets the global table cell padding.  The cell padding is the spacing between
+    *  data in a table cell and the border of the cell.
+    *  The default value is 1.                     
+    *  @param cellPadding The cell padding.
+    **/
+    public void setCellPadding(int cellPadding)                   //@D1A
+    {
+        Integer oldPadding = new Integer(cellPadding_);
+        Integer newPadding = new Integer(cellPadding);
+
+        cellPadding_ = cellPadding;
+
+        if (changes_ != null) changes_.firePropertyChange("cellPadding", oldPadding, newPadding);
+    }
+
+    /** 
+    * Sets if Formatting Object tags should be used.
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/
+    public void setUseFO(boolean useFO)        //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
     }
 
     /**

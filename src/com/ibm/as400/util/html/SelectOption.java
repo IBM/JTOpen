@@ -112,7 +112,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
         }
     }
 
-    
+
     /**
     Adds the VetoableChangeListener.  The specified VetoableChangeListener's
     <b>vetoableChange</b> method will be called each time the value of any
@@ -148,6 +148,17 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
         return lang_;
     }
 
+
+    /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@D1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- A SelectOption was here -->";
+    }
 
     /**
     *  Returns the select option tag.

@@ -76,8 +76,14 @@ public class HTMLAlignBeanInfo extends SimpleBeanInfo
         dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B3A
         dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B3A
 
+        PropertyDescriptor useFO = new PropertyDescriptor("useFO", beanClass, "isUseFO", "setUseFO");           //@C1A
+        useFO.setBound(true);                                                                                   //@C1A
+        useFO.setConstrained(false);                                                                            //@C1A
+        useFO.setDisplayName(loader_.getText("PROP_NAME_FORMATTING_OBJECT"));                                   //@C1A
+        useFO.setShortDescription(loader_.getText("PROP_DESC_FORMATTING_OBJECT"));                              //@C1A
+
                                                                                                              //$B3C
-        properties_ = new PropertyDescriptor[] {align, lang, dir};
+        properties_ = new PropertyDescriptor[] {align, lang, dir, useFO};                                       //@C1A
       }
       catch (Exception e)
       {

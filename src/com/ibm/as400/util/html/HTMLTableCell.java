@@ -42,6 +42,13 @@ import java.io.Serializable;
 *  <P><BLOCKQUOTE><PRE>
 *  <BR>&lt;td align="center"&gt;&lt;b&gt;&lt;i&gt;IBM&lt;/i&gt;&lt;/b&gt;&lt;/td&gt;
 *  <P></PRE></BLOCKQUOTE>  
+*  <P>Calling getFOTag() produces the following:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:table-cell border-style='solid' border-width='1px' padding='1px' text-align='center'&gt;&lt;fo:block-container&gt;
+*  &lt;fo:block font-weight='bold' font-style='italic'&gt;IBM&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:table-cell&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <P>This example creates an HTMLTableCell object with the element as an HTMLForm
 *  object containing a submit button.
@@ -93,6 +100,9 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     private boolean heightPercent_ = false; // Indicates if the height is in percent.
     private boolean widthPercent_ = false;  // Indicates if the width is in percent.
 
+    private boolean useFO_ = false;            // Indicates if XSL-FO tags are used            //@D1A
+    private int borderWidth_ = 1;              // The width of the cell border                 //@D1A
+    private int cellPadding_ = 1;              // The padding for the cell                     //@D1A
     transient private VetoableChangeSupport vetos_; //@CRS
 
     /**
@@ -155,12 +165,28 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@C1D
+        if(useFO_ )                                                                      //@D1A
+        {                                                                                //@D1A
+            if((dir_ != null) && (dir_.length()>0))                                      //@D1A
+            {                                                                            //@D1A
+                if(dir_.equals(HTMLConstants.RTL))                                       //@D1A
+                    return " writing-mode='rl'";                                         //@D1A
+                else                                                                     //@D1A
+                    return " writing-mode='lr'";                                         //@D1A
+            }                                                                            //@D1A
+            else                                                                         //@D1A
+                return "";                                                               //@D1A
+        }                                                                                //@D1A
+        else                                                                             //@D1A
+        {                                                                                //@D1A
+            //@C1D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-            return " dir=\"" + dir_ + "\"";
-        else
-            return "";
+            if ((dir_ != null) && (dir_.length() > 0))
+                return " dir=\"" + dir_ + "\"";
+            else
+                return "";
+        }                                                                                //@D1A
+        
     }
 
 
@@ -179,7 +205,10 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     String getEndTag()
     {
-        return "</td>\n";
+        if(!useFO_)        //@D1A
+            return "</td>\n";
+        else
+            return "</fo:table-cell>\n"; // @D1A
     }
 
     /**
@@ -241,7 +270,10 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     String getStartTag()
     {
-        return "<td";
+        if(!useFO_)        //@D1A
+            return "<td";
+        else                       //must indicate border and padding for each cell     //@D1A
+            return "<fo:table-cell border-style='solid' border-width='" + borderWidth_ + "px' padding='" + cellPadding_ +"px'";    //@D1A
     }
 
     /**
@@ -257,62 +289,115 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         // Add the alignment attributes.
         if (align_ != null)
         {
-            tag.append(" align=\"");
-            tag.append(align_);
-            tag.append("\"");
+            if(!useFO_ )                //@D1A
+            {
+                tag.append(" align=\"");
+                tag.append(align_);
+                tag.append("\"");
+            }
+            else                                            //@D1A
+            {                                               //@D1A
+                tag.append(" text-align='");                //@D1A
+                if(align_.equalsIgnoreCase("center"))       //@D1A
+                    tag.append("center");                   //@D1A
+                else if(align_.equalsIgnoreCase("left"))    //@D1A
+                    tag.append("start");                    //@D1A
+                else if(align_.equalsIgnoreCase("right"))   //@D1A
+                    tag.append("end");                      //@D1A
+                tag.append("'");                            //@D1A
+            }                                               //@D1A
         }
-        if (vAlign_ != null)
+        if(!useFO_ )            //@D1A
         {
-            tag.append(" valign=\"");
-            tag.append(vAlign_ );
-            tag.append("\"");
-        }
+            
+            if (vAlign_ != null)    //@D1A
+            {
+                tag.append(" valign=\"");
+                tag.append(vAlign_ );
+                tag.append("\"");
+            }
 
-        // Add the span attributes.
-        if (rowSpan_ > 1)
+            // Add the span attributes.
+            if (rowSpan_ > 1)   //@D1A
+            {
+                tag.append(" rowspan=\"");
+                tag.append(rowSpan_);
+                tag.append("\"");
+            }
+            if (colSpan_ > 1)  //@D1A
+            {
+                tag.append(" colspan=\"");
+                tag.append(colSpan_);
+                tag.append("\"");
+            }
+
+            // Add the size attributes.
+            if (height_ > 0)    //@D1A
+            {
+                tag.append(" height=\"");
+                tag.append(height_);
+
+                if (heightPercent_)
+                    tag.append("%");
+                tag.append("\"");
+            }
+            if (width_ > 0)     //@D1A
+            {
+                tag.append(" width=\"");
+                tag.append(width_);
+
+                if (widthPercent_)
+                    tag.append("%");
+                tag.append("\"");
+            }
+
+            // Add the wrap attribute.
+            if (!wrap_)         //@D1A
+                tag.append(" nowrap=\"nowrap\"");
+
+            tag.append(getLanguageAttributeTag());    //$B1A
+            tag.append(getDirectionAttributeTag());   //$B1A
+            tag.append(getAttributeString());         // @Z1A
+        }
+        else                 //@D1A
         {
-            tag.append(" rowspan=\"");
-            tag.append(rowSpan_);
-            tag.append("\"");
+            // Add the span attributes.
+            if (rowSpan_ > 1)   
+            {
+                tag.append(" number-rows-spanned='");
+                tag.append(rowSpan_);
+                tag.append("'");
+            }
+            if (colSpan_ > 1)  
+            {
+                tag.append(" number-columns-spanned='");
+                tag.append(colSpan_);
+                tag.append("'");
+            }
+            // Add the size attributes.
+            if (height_ > 0)    //@D1A
+            {
+                tag.append(" height='");
+                tag.append(height_);
+
+                if (heightPercent_)
+                    tag.append("%");
+                tag.append("'");
+            }
+            if (width_ > 0)     
+            {
+                tag.append(" width='");
+                tag.append(width_);
+
+                if (widthPercent_)
+                    tag.append("%");
+                tag.append("'");
+            }
         }
-        if (colSpan_ > 1)
-        {
-            tag.append(" colspan=\"");
-            tag.append(colSpan_);
-            tag.append("\"");
-        }
-
-        // Add the size attributes.
-        if (height_ > 0)
-        {
-            tag.append(" height=\"");
-            tag.append(height_);
-
-            if (heightPercent_)
-                tag.append("%");
-            tag.append("\"");
-        }
-        if (width_ > 0)
-        {
-            tag.append(" width=\"");
-            tag.append(width_);
-
-            if (widthPercent_)
-                tag.append("%");
-            tag.append("\"");
-        }
-
-        // Add the wrap attribute.
-        if (!wrap_)
-            tag.append(" nowrap=\"nowrap\"");
-
-        tag.append(getLanguageAttributeTag());    //$B1A
-        tag.append(getDirectionAttributeTag());   //$B1A
-        tag.append(getAttributeString());         // @Z1A
 
         tag.append(">");
 
-        return new String(tag);
+        return tag.toString();              //@D1C
     }
 
     /**
@@ -325,6 +410,48 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     }
 
     /**
+    *  Returns the XSL-FO table cell tag.
+    *  @return The cell tag.
+    **/
+    public String getFOTag()        //@D1A
+    {
+        return getFOTag(element_);
+    }
+
+    /**
+    *  Returns the XSL-FO table cell tag with the specified <i>element</i>.
+    *  It does not change the cell object's element attribute.
+    *  The valign, wrap and laguage attributes are not supported in XSL-FO.
+    *  @param element The table cell element.
+    *  @return The XSL-FO cell tag.
+    **/
+    public String getFOTag(HTMLTagElement element)                      //@D1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;                                         
+
+        setUseFO(true);
+        
+        // Verify that the element is set.
+        if (element == null)
+            throw new NullPointerException("element");
+
+        StringBuffer tag = new StringBuffer(getStartTag());
+        tag.append(getAttributeTag());
+        tag.append("<fo:block-container");                         
+        tag.append(getDirectionAttributeTag());                    
+        tag.append(">\n");                                        
+        tag.append(element.getFOTag());                            
+        tag.append("</fo:block-container>\n");                      
+        tag.append(getEndTag());
+
+        //Set useFO_ to previous state                                                 
+        setUseFO(useFO);                                           
+
+        return tag.toString();                                          
+    }
+
+    /**
     *  Returns the table cell tag with the specified <i>element</i>.
     *  It does not change the cell object's element attribute.
     *  @param element The table cell element.
@@ -333,6 +460,9 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     public String getTag(HTMLTagElement element)
     {
         //@C1D
+
+        if(useFO_)                      //@D1A
+            return getFOTag(element);          //@D1A
 
         // Verify that the element is set.
         if (element == null)
@@ -343,7 +473,7 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         tag.append(element.getTag());
         tag.append(getEndTag());
 
-        return new String(tag);
+        return tag.toString();                                          //@D1C
     }
 
     /**
@@ -376,6 +506,17 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     public boolean isHeightInPercent()
     {
         return heightPercent_;
+    }
+
+    /**
+    *  Returns if Formatting Object tags are outputted.
+    *  The default value is false.
+    *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+    **/
+    public boolean isUseFO()
+    {
+        //@D1A
+        return useFO_;
     }
 
     /**
@@ -641,6 +782,50 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         rowSpan_ = span;
 
         if (changes_ != null) changes_.firePropertyChange("span", new Integer(oldSpan), new Integer(span)); //@CRS
+    }
+
+    /** 
+    * Sets if Formatting Object tags should be used.
+    *  The default value is false.
+    * @param useFO - true if output generated is a XSL formatting object, false if the output generated is HTML. 
+    **/
+    public void setUseFO(boolean useFO)                // @D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
+    }
+
+    /**
+    *  Sets the border width in pixels.  A value of zero indicates no border.
+    *  The default value is one.
+    *  @param borderWidth The border width.
+    **/
+    public void setBorderWidth(int borderWidth)                // @D1A
+    {
+        Integer oldWidth = new Integer(borderWidth_);
+        Integer newWidth = new Integer(borderWidth);
+
+        borderWidth_ = borderWidth;
+
+        if (changes_ != null) changes_.firePropertyChange("borderWidth", oldWidth, newWidth);
+    }
+
+    /**
+    *  Sets the global table cell padding.  The cell padding is the spacing between
+    *  data in a table cell and the border of the cell.
+    *  @param cellPadding The cell padding.
+    **/
+    public void setCellPadding(int cellPadding)         // @D1A
+    {
+        Integer oldPadding = new Integer(cellPadding_);
+        Integer newPadding = new Integer(cellPadding);
+
+        cellPadding_ = cellPadding;
+
+        if (changes_ != null) changes_.firePropertyChange("cellPadding", oldPadding, newPadding);
     }
 
     /**

@@ -37,6 +37,14 @@ import java.beans.PropertyChangeSupport;
 *  &lt;img src=&quot;http://myWebPage/pic.gif&quot; alt=&quot;alternate text&quot; height=&quot;50&quot; width=&quot;50&quot; /&gt;
 *  </PRE></BLOCKQUOTE>
 *
+*  <p>
+*  The equivalent tag using XSL Formatting Objects looks like the following:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:block&gt;
+*  &lt;fo:external-graphic src="file:http://myWebPage/pic.gif" content-height="50px" content-width="50px"/&gt;
+*  &lt;/fo:block&gt;
+*  </PRE></BLOCKQUOTE>
+*
 *  <p>HTMLImage objects generate the following events:
 *  <ul>
 *    <li>PropertyChangeEvent
@@ -56,6 +64,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
     private int hspace_ = 0;
     private int width_ = 0;
     private int vspace_ = 0;
+    private boolean useFO_ = false;  //Indicates if XSL-FO tags are outputted.                  //@A1A
 
 
     /**
@@ -183,6 +192,9 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
      **/
     public String getTag()
     {
+        if(useFO_)                      //@A1A
+            return getFOTag();          //@A1A
+
         if (source_ == null)
         {
             Trace.log(Trace.ERROR, "Attempting to get tag before setting image source.");
@@ -277,6 +289,98 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
         return tag.toString();
     }
 
+
+    /**
+     * Returns the element tag for the XSL-FO image.
+     * The alternate text and name attributes are not supported by XSL-FO.
+     * @return The tag.
+     **/
+    public String getFOTag()                //@A1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;
+
+        //Indicate Formatting Object tags are outputted.
+        setUseFO(true);
+
+        if (source_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before setting image source.");
+            throw new ExtendedIllegalStateException("source", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        StringBuffer tag = new StringBuffer("");                
+
+        tag.append("<fo:block" );
+        if (align_ != null)
+        {
+            if(align_.equals(HTMLConstants.LEFT))
+                tag.append(" text-align='start'");
+            else if(align_.equals(HTMLConstants.RIGHT))
+                tag.append(" text-align='end'");
+            else if(align_.equals(HTMLConstants.CENTER))
+                tag.append(" text-align='center'");
+        }
+        tag.append(">\n");
+        tag.append("<fo:external-graphic" );
+        tag.append(" src=\"file:");
+        tag.append( source_ );
+        tag.append("\"");
+
+        if (border_ > -1)
+        {
+            tag.append(" border-width=\"");
+            tag.append( border_ );
+            tag.append("mm\"");
+            tag.append(" border-style='solid'");
+        }
+
+        if (height_ > 0)
+        {
+            tag.append(" content-height=\"");
+            tag.append( height_ );
+            tag.append("px\"");
+        }
+
+        if (width_ > 0)
+        {
+            tag.append(" content-width=\"");
+            tag.append( width_ );
+            tag.append("px\"");
+        }
+
+        if (hspace_ > 0)
+        {
+            tag.append(" width=\"");
+            tag.append( hspace_ );
+            tag.append("px\"");
+        }
+
+        if (vspace_ > 0)
+        {
+            tag.append(" height=\"");
+            tag.append( vspace_ );
+            tag.append("px\"");
+        }
+
+        tag.append("/>\n");
+        tag.append("</fo:block>\n");
+        
+        //Set useFO_ to previous state.
+        setUseFO(useFO);
+
+        return tag.toString();
+    }
+
+    /**
+     *  Returns if Formatting Object tags are outputted.
+     *  The default value is false.
+     *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+     **/
+    public boolean isUseFO()                                                //@A1A
+    {
+        return useFO_;
+    }
 
     /**
      *  Deserializes and initializes transient data.
@@ -462,6 +566,20 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
         width_ = width;
 
         if (changes_ != null) changes_.firePropertyChange("width", new Integer(old), new Integer(width) ); //@CRS
+    }
+
+    /** 
+    * Sets if Formatting Object tags should be used.
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/    
+    public void setUseFO(boolean useFO)                                //@A1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
     }
 
     /**

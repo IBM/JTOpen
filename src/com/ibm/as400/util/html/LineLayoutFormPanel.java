@@ -43,6 +43,18 @@ public class LineLayoutFormPanel extends LayoutFormPanel
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+    
+    /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@B1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- A LineLayoutFormPanel was here -->";
+    }
+
     /**
     *  Returns the line layout panel tag.
     *  @return The tag.

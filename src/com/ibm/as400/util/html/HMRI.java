@@ -16,7 +16,7 @@ package com.ibm.as400.util.html;
 import java.util.ListResourceBundle;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for the IBM Toolbox for Java.
 **/
 public class HMRI extends ListResourceBundle
 {
@@ -338,6 +338,22 @@ public class HMRI extends ListResourceBundle
       { "PROP_NAME_EXPAND", "Expand"},                                                          // @D3A
       { "PROP_NAME_COMPRESS", "Compress"},                                                   // @D3A
       { "PROP_NAME_WORK", "Work with document"},                                           // @D3A
+
+      { "PROP_NAME_FORMATTING_OBJECT", "useFO"},                                                                            //@E1A
+      { "PROP_DESC_FORMATTING_OBJECT", "Indicates if formatting object tags are outputted."},                               //@E1A
+      { "PROP_NAME_HD_HEIGHT", "height"},                                                                                   //@E1A
+      { "PROP_HD_DESC_HEIGHT", "The height of the page in inches."},                                                        //@E1A
+      { "PROP_NAME_HD_WIDTH", "width"},                                                                                     //@E1A
+      { "PROP_HD_DESC_WIDTH", "The width of the page in inches."},                                                          //@E1A
+      { "PROP_NAME_MARGIN_TOP", "marginTop"},                                                                               //@E1A
+      { "PROP_DESC_MARGIN_TOP", "The width, in inches, of the top margin of the page."},                                    //@E1A
+      { "PROP_NAME_MARGIN_BOTTOM", "marginBottom"},                                                                         //@E1A
+      { "PROP_DESC_MARGIN_BOTTOM", "The width, in inches, of the bottom margin of the page."},                              //@E1A
+      { "PROP_NAME_MARGIN_LEFT", "marginLeft"},                                                                             //@E1A
+      { "PROP_DESC_MARGIN_LEFT", "The width, in inches, of the left margin of the page."},                                  //@E1A
+      { "PROP_NAME_MARGIN_RIGHT", "marginRight"},                                                                           //@E1A
+      { "PROP_DESC_MARGIN_RIGHT", "The width, in inches, of the right margin of the page."},                                //@E1A
+
 
 
    };

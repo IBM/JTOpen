@@ -20,6 +20,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import java.util.Vector;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import java.util.*;
 
 
 /**
@@ -44,8 +45,10 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     private boolean compact_ = false;
     private Vector listItems_;
 
-    private String lang_;        // The primary language used to display the tags contents.  //$B1A
-    private String dir_;         // The direction of the text interpretation.                //$B1A
+    private String lang_;           // The primary language used to display the tags contents.  //$B1A
+    private String dir_;            // The direction of the text interpretation.                //$B1A
+    private boolean useFO_ = false; // Indicates if XSL-FO tags are outputted.               //@D1A
+    private int value_ = -1;        //The number other than the incremented value for the current List Item (LI)  //@D1A
 
     transient private Vector elementListeners;      // The list of element listeners @CRS
 
@@ -158,18 +161,35 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@C1D
+        
+        if(useFO_)                                                              //@D1A
+        {                                                                       //@D1A
+            if((dir_!=null) && (dir_.length()>0))                               //@D1A
+            {                                                                   //@D1A
+                if(dir_.equals(HTMLConstants.RTL))                              //@D1A
+                    return " writing-mode='rl'";                                //@D1A
+                else                                                            //@D1A
+                    return " writing-mode='lr'";                                //@D1A
+            }                                                                   //@D1A
+            else                                                                //@D1A
+                return "";                                                      //@D1A
+        }                                                                       //@D1A
+        else                                                                    //@D1A
+        {                                                                       //@D1A
+            //@C1D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-        {
-            StringBuffer buffer = new StringBuffer(" dir=\"");
-            buffer.append(dir_);
-            buffer.append("\"");
+            if ((dir_ != null) && (dir_.length() > 0))
+            {
+                StringBuffer buffer = new StringBuffer(" dir=\"");
+                buffer.append(dir_);
+                buffer.append("\"");
 
-            return buffer.toString();
-        }
-        else
-            return "";
+                return buffer.toString();
+            }
+            else
+                return "";
+        }                                                                       //@D1A
+        
     }
 
 
@@ -205,6 +225,55 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
         {
             HTMLTagElement item = (HTMLTagElement)listItems_.elementAt(i);
             s.append(item.getTag());
+        }
+
+        return s.toString();
+    }
+
+
+    /**
+    *  Returns the item attribute tags.
+    *  @param type, The type of numbering or bulleting used as defined in HTMLConstants
+    *  @return The item tags.
+    **/
+    String getItemAttributeFOTag(String type)               //@D1A
+    {
+        String itemType = null;
+        int listItemCounter = 0;
+        StringBuffer s = new StringBuffer("");
+        int size = listItems_.size();
+        for (int i=0; i < size; i++)
+        {
+            s.append("<fo:list-item>\n<fo:list-item-label>");
+            HTMLTagElement item = (HTMLTagElement)listItems_.elementAt(i);
+            if(listItems_.elementAt(i) instanceof HTMLListItem)
+            {   
+                listItemCounter++;
+                if(listItems_.elementAt(i) instanceof OrderedListItem)
+                {
+                    OrderedListItem listItem = (OrderedListItem)listItems_.elementAt(i);
+                    //Check to see if the user specified a starting value for the list item
+                    value_ = listItem.getValue();
+                    if(value_ > 0)
+                        listItemCounter = value_;
+                    //Check to see if the user specified a new type for the label
+                    itemType = listItem.getType();
+                }
+                else
+                {
+                    UnorderedListItem listItem = (UnorderedListItem)listItems_.elementAt(i);
+                    //Check to see if the user specified a new type for the label
+                    itemType = listItem.getType();
+                }
+                if(itemType == null)                //User didn't specify a type for the specific list item, use list's type for label
+                    itemType = type;
+                HTMLListItem listItem = (HTMLListItem)listItems_.elementAt(i);
+                s.append(listItem.getTypeAttributeFO(itemType, listItemCounter));
+            }
+            s.append("</fo:list-item-label>\n<fo:list-item-body>");
+            s.append(item.getFOTag());
+            s.append("</fo:list-item-body>\n</fo:list-item>\n");
+
         }
 
         return s.toString();
@@ -251,6 +320,16 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
         return compact_;
     }
 
+
+    /**
+     *  Returns if Formatting Object tags are outputted.
+     *  The default value is false.
+     *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+     **/
+    public boolean isUseFO()            //@D1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Deserializes and initializes transient data.
@@ -393,6 +472,20 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
         if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
+
+    /** 
+    * Sets if Formatting Object tags should be used. 
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/
+    public void setUseFO(boolean useFO)                                        //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
+    }
 
     /**
     *  Returns a String representation for the HTMLList tag.

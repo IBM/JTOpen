@@ -49,6 +49,23 @@ import java.beans.PropertyChangeListener;
 *  &lt;/div&gt;
 *  </PRE></BLOCKQUOTE>
 *
+*  <p>
+*  Calling getFOTag() would produce the following:
+*  <BLOCKQUOTE><PRE>
+*  &lt;fo:block text-align='center'&gt;
+*  &lt;fo:block-container&gt;
+*  &lt;fo:list-block&gt;
+*  &lt;fo:list-item&gt;
+*  &lt;fo:list-item-label&gt;I.&lt;/fo:list-item-label&gt;
+*  &lt;fo:list-item-body&gt;&lt;fo:block-container&gt;&lt;fo:block&gt;my list item&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:list-item-body&gt;
+*  &lt;/fo:list-item&gt;
+*  &lt;/fo:list-block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:block&gt;
+*  </PRE></BLOCKQUOTE>
+*
 *  <p>HTMLAlign objects generate the following events:
 *  <ul>
 *  <LI><A HREF="ElementEvent.html">ElementEvent</A> - The events fired are:
@@ -67,6 +84,7 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+    private boolean useFO_ = false;  //Indicates if XSL-FO tags are outputted.               //@D1A
 
     private Vector list_ = new Vector();
 
@@ -194,12 +212,31 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@C1D
+        
 
-        if ((dir_ != null) && (dir_.length() > 0))
-            return " dir=\"" + dir_ + "\"";
-        else
-            return "";
+        if(useFO_)                                                                    //@D1A  
+        {                                                                             //@D1A
+            //If outputting XSL-FO Tags                                               //@D1A
+            if((dir_!=null) && (dir_.length()>0))                                     //@D1A
+            {                                                                         //@D1A
+                if(dir_.equals(HTMLConstants.RTL))                                    //@D1A
+                    return " writing-mode='rl'";                                      //@D1A
+                else                                                                  //@D1A
+                    return " writing-mode='lr'";                                      //@D1A
+            }                                                                         //@D1A
+            else                                                                      //@D1A
+                return "";                                                            //@D1A
+        }                                                                             //@D1A
+        else                                                                          //@D1A
+        {                                                                             //@D1A
+            
+            //@C1D
+
+            if ((dir_ != null) && (dir_.length() > 0))
+                return " dir=\"" + dir_ + "\"";
+            else
+                return "";        
+        }                                                                             //@D1A
     }
 
 
@@ -235,6 +272,9 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     public String getTag()
     {
         //@C1D
+
+        if(useFO_)                                          //@D1A
+            return getFOTag();                              //@D1A
 
         if (list_.isEmpty())
         {
@@ -275,6 +315,56 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
 
 
     /**
+    *  Returns the tag for the XSL-FO alignment.
+    *  The language attribute is not supported in XSL-FO.
+    *  @return The tag.
+    **/
+    public String getFOTag()                                //@D1A
+    {
+        //Save current useFO_ value
+        boolean useFO = useFO_;
+
+        //Indicate that XSL-FO tags are outputted.
+        setUseFO(true);
+
+        if (list_.isEmpty())
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before adding items to list.");
+            throw new ExtendedIllegalStateException(
+                                                   "data", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        StringBuffer s = new StringBuffer("");
+
+        if (align_ != null)                                             
+        {                                                               
+            if(align_.equals(HTMLConstants.LEFT))                       
+                s.append("<fo:block text-align='start'");               
+            else if(align_.equals(HTMLConstants.RIGHT))                 
+                s.append("<fo:block text-align='end'");                 
+            else if(align_.equals(HTMLConstants.CENTER))                
+                s.append("<fo:block text-align='center'");              
+        }                                                               
+
+        s.append(getDirectionAttributeTag());                           
+        s.append(">\n");                                                
+
+        for (int i = 0; i<list_.size(); i++)                            
+        {                                                               
+            HTMLTagElement data = (HTMLTagElement)list_.elementAt(i);   
+            s.append(data.getFOTag());                                  
+            s.append("\n");                                             
+        }                                                               
+        
+        s.append("</fo:block>\n");                                      
+
+        //Set useFO_ to previous state.
+        setUseFO(useFO);    
+
+        return s.toString();
+    }
+
+    /**
      *  Removes this ElementListener.
      *
      *  @param listener The ElementListener.
@@ -287,6 +377,16 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
         if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
+
+    /**
+     *  Returns if Formatting Object tags are outputted.
+     *  The default value is false.
+     *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+     **/
+    public boolean isUseFO()                                          //@D1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Deserializes and initializes transient data.
@@ -391,6 +491,21 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
         lang_ = lang;
 
         if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
+    }
+
+
+    /** 
+    * Sets if Formatting Object tags should be used.  
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML.
+    **/     
+    public void setUseFO(boolean useFO)                            //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
     }
 
 

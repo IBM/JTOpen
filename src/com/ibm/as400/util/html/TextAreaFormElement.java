@@ -212,6 +212,17 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     }
 
     /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@D1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- A TextAreaFormElement was here -->";
+    }
+
+    /**
     *  Returns the text area tag.
     *  @return The tag.
     **/

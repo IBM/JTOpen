@@ -28,7 +28,7 @@ import java.beans.PropertyChangeListener;
 *  This example creates an HTMLHead tag:
 *  <BLOCKQUOTE><PRE>
 *  // Create an HTMLHead with a title.
-*  HTMLHead head = new HTMLHead("My HTML Document);
+*  HTMLHead head = new HTMLHead("My HTML Document");
 *  <p>
 *  // Create an HTMLMeta.
 *  HTMLMeta meta = new HTMLMeta("expires", "Mon, 01 Jun 2000 12:00:00 CST");
@@ -48,6 +48,17 @@ import java.beans.PropertyChangeListener;
 *  &lt;/head&gt;
 *  </PRE></BLOCKQUOTE>
 *
+*  Using XSL Formatting Objects, the head tag represents a page header.
+*  <p>
+*  Calling getFOTag() would produce the following.  
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:static-content flow-name='xsl-region-before'&gt;
+*  &lt;fo:block-container&gt;
+*  My HTML Document&lt;/fo:block-container&gt;
+*  &lt;/fo:static-content&gt;
+*  </PRE></BLOCKQUTOE>
+*
+*
 *  <p>HTMLHead objects generate the following events:
 *  <ul>
 *  <LI><A HREF="ElementEvent.html">ElementEvent</A> - The events fired are:
@@ -65,6 +76,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     private String title_;       // The title to use for HTML document.
     private String lang_;        // The primary language used to display the tags contents.
     private String dir_;         // The direction of the text interpretation.
+    private boolean useFO_ = false;      // Indicates if XSL-FO tags are outputted.   //@C1A
 
     private Vector list_ = new Vector();
 
@@ -178,12 +190,27 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     String getDirectionAttributeTag()
     {
-        //@B1D
+        if(useFO_)                                                  //@C1A
+        {                                                           //@C1A
+            if((dir_!=null) && (dir_.length()>0))                   //@C1A
+            {                                                       //@C1A
+                if(dir_.equals(HTMLConstants.RTL))                  //@C1A
+                    return " writing-mode='rl'";                    //@C1A
+                else                                                //@C1A
+                    return " writing-mode='lr'";                    //@C1A
+            }                                                       //@C1A
+            else                                                    //@C1A
+                return "";                                          //@C1A
+        }                                                           //@C1A
+        else                                                        //@C1A
+        {                                                           //@C1A
+            //@B1D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-            return " dir=\"" + dir_ + "\"";
-        else
-            return "";
+            if ((dir_ != null) && (dir_.length() > 0))
+                return " dir=\"" + dir_ + "\"";
+            else
+                return "";
+        }                                                           //@C1A
     }
 
 
@@ -219,6 +246,8 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     public String getTag()
     {
         //@B1D
+        if(useFO_)                                      //@C1A
+            return getFOTag();                          //@C1A
 
         if (title_ == null && list_.isEmpty())
         {
@@ -258,12 +287,64 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
 
     /**
+    *  Returns the tag for the XSL-FO header.
+    *  The language attribute and Meta tags are not supported in XSL-FO.
+    *  @return The tag.
+    **/
+    public String getFOTag()                                              //@C1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;
+
+        //Indicate that Formatting Object tag is outputted
+        setUseFO(true);
+
+        if (title_ == null && list_.isEmpty())
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before setting the title for the head.");
+            throw new ExtendedIllegalStateException("title", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        StringBuffer s = new StringBuffer("<fo:static-content flow-name='xsl-region-before'>\n");
+        s.append("<fo:block-container");
+        s.append(getDirectionAttributeTag());
+        s.append(">\n");
+
+        //Add the title
+        if(title_ != null)
+        {
+            s.append(title_);
+        }
+        
+        s.append("</fo:block-container>\n");
+        s.append("</fo:static-content>\n");
+
+        //Set useFO_ to previous state.
+        setUseFO(useFO);
+        
+        return s.toString();
+
+    }
+
+
+    /**
      *  Returns the title of the HTMLHead object.
      *  @return The title.
      **/
     public String getTitle()
     {
         return title_;
+    }
+
+
+    /**
+    *  Returns if Formatting Object tags are outputted.
+    *  The default value is false.
+    *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+    **/
+    public boolean isUseFO()                                        //@C1A
+    {
+        return useFO_;
     }
 
 
@@ -384,6 +465,21 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
         if (changes_ != null) changes_.firePropertyChange("title", old, title ); //@CRS
 
+    }
+
+
+    /** 
+    * Sets if Formatting Object tags should be used. 
+    * The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/    
+    public void setUseFO(boolean useFO)                                //@C1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
     }
 
 

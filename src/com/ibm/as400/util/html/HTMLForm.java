@@ -242,6 +242,17 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
         return method_;
     }
 
+   /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@D1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- An HTMLForm was here -->";
+    }
+
     /**
     *  Returns the HTML form tag.
     *  @return The tag.

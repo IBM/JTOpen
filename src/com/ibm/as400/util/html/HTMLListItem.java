@@ -18,6 +18,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import java.io.*;
 
 
 /**
@@ -39,14 +40,22 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+    boolean useFO_ = false;      // Indicates if XSL-FO tags are outputted.                  //@D1A
 
-
+    private String type_;           //The labeling scheme used to display the list item.     //@D1A
 
     /**
     *  Returns the type attribute.
     *  @return The type attribute.
     **/
     abstract String getTypeAttribute();
+
+
+    /**
+    *  Returns the type attribute.
+    *  @return The type attribute.
+    **/
+    abstract String getTypeAttributeFO(String itemType, int counter);
 
 
     /**
@@ -76,18 +85,33 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@C1D
+        if(useFO_)                                          //@D1A
+        {                                                   //@D1A
+            if((dir_!=null) && (dir_.length()>0))           //@D1A
+            {                                               //@D1A
+                if(dir_.equals(HTMLConstants.RTL))          //@D1A
+                    return " writing-mode='rl'";            //@D1A
+                else                                        //@D1A
+                    return " writing-mode='lr'";            //@D1A
+            }                                               //@D1A
+            else                                            //@D1A
+                return "";                                  //@D1A
+        }                                                   //@D1A
+        else                                                //@D1A
+        {                                                   //@D1A
+            //@C1D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-        {
-            StringBuffer buffer = new StringBuffer(" dir=\"");
-            buffer.append(dir_);
-            buffer.append("\"");
+            if ((dir_ != null) && (dir_.length() > 0))
+            {
+                StringBuffer buffer = new StringBuffer(" dir=\"");
+                buffer.append(dir_);
+                buffer.append("\"");
 
-            return buffer.toString();
-        }
-        else
-            return "";
+                return buffer.toString();
+            }
+            else
+                return "";
+        }                                                   //@D1A
     }
 
 
@@ -140,6 +164,9 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     {
         //@C1D
 
+        if(useFO_)                      //@D1A
+            return getFOTag();          //@D1A
+
         StringBuffer s = new StringBuffer("<li");
 
         s.append(getTypeAttribute());
@@ -154,6 +181,42 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     }
 
 
+
+    /**
+    *  Returns the tag for the XSL-FO list item.
+    *  The language attribute is not supported in XSL-FO.
+    *  @return The tag.
+    **/
+    public String getFOTag()     //@D1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;
+
+        //Indicate Formatting Object tags are outputted.
+        setUseFO(true);
+
+        StringBuffer s = new StringBuffer("");
+        s.append("<fo:block-container");
+        s.append(getDirectionAttributeTag());                                         
+        s.append(">");
+        s.append(listData_.getFOTag());
+        s.append("</fo:block-container>\n");
+        
+        //Set useFO_ to previous state.
+        setUseFO(useFO);
+
+        return s.toString();
+    }
+
+    /**
+    *  Returns if Formatting Object tags are outputted.
+    *  The default value is false.
+    *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+    **/
+    public boolean isUseFO()                //@D1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Sets the <i>direction</i> of the text interpretation.
@@ -219,6 +282,20 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
         if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
+
+    /** 
+    * Sets if Formatting Object tags should be used. 
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/
+    public void setUseFO(boolean useFO)                //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
+    }
 
     /**
     *  Returns a String representation for the HTMLList tag.

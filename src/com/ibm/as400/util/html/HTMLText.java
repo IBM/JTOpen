@@ -40,6 +40,11 @@ import java.io.Serializable;
 *  <P><BLOCKQUOTE><PRE>
 *  &lt;font size="3"&gt;&lt;b&gt;IBM&lt;/b&gt;&lt;/font&gt;
 *  </PRE></BLOCKQUOTE>
+*  <p>
+*  Here is the output of calling getFOTag():
+*  <P><BLOCKQUOTE><PRE>
+*  &lt;fo:block font-size='9pt' font-weight='bold'&gt;IBM&lt;/fo:block&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <p>HTMLText objects generate the following events:
 *  <ul>
@@ -62,6 +67,7 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+    private boolean useFO_;      // Indicates if XSL-FO tags are outputted.                  //@D1A
 
     transient private VetoableChangeSupport vetos_; //@CRS
 
@@ -144,12 +150,27 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@C1D
+        if(useFO_ )                                                                      //@D1A
+        {                                                                                //@D1A
+            if((dir_ != null) && (dir_.length()>0))                                      //@D1A
+            {                                                                            //@D1A
+                if(dir_.equals(HTMLConstants.RTL))                                       //@D1A
+                    return " writing-mode='rl'";                                         //@D1A
+                else                                                                     //@D1A
+                    return " writing-mode='lr'";                                         //@D1A
+            }                                                                            //@D1A
+            else                                                                         //@D1A
+                return "";                                                               //@D1A
+        }                                                                                //@D1A
+        else                                                                             //@D1A
+        {                                                                                //@D1A
+            //@C1D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-            return " dir=\"" + dir_ + "\"";
-        else
-            return "";
+           if ((dir_ != null) && (dir_.length() > 0))
+                return " dir=\"" + dir_ + "\"";
+            else
+                return "";
+        }                                                                                //@D1A
     }
 
 
@@ -195,22 +216,28 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
 
         if (fixed_)
         {
-            tag.append("</tt>");
+            if( !useFO_ )                           //@D1A
+                tag.append("</tt>");
         }
         if (underscore_)
         {
-            tag.append("</u>");
+            if( !useFO_ )                   //@D1A
+                tag.append("</u>");
+            else                                    //@D1A
+                tag.append("</fo:inline>\n");       //@D1A
         }
         if (italic_)
         {
-            tag.append("</i>");
+            if( !useFO_ )                   //@D1A
+                tag.append("</i>");
         }
         if (bold_)
         {
-            tag.append("</b>");
+            if( !useFO_ )                   //@D1A
+                tag.append("</b>");
         }
 
-        return new String(tag);
+        return tag.toString();                      //@D1C
     }
 
     /**
@@ -244,11 +271,21 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         StringBuffer tag = new StringBuffer("");
         if (size_ != 0)
         {
-            tag.append(" size=\"");
-            tag.append(size_);
-            tag.append("\"");           
+            if(!useFO_ )                                                     //@D1A
+            {
+                tag.append(" size=\"");
+                tag.append(size_);
+                tag.append("\"");           
+            }
+            else
+            {
+                //@D1A
+                tag.append(" font-size='");
+                tag.append(size_*3);
+                tag.append("pt'");
+            }
         }
-        return new String(tag);
+        return tag.toString();                                      //@D1C
     }
 
 
@@ -297,6 +334,16 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     }
 
     /**
+    *  Returns the XSL-FO text tag.  The alignment tag is not included.
+    *  @return The tag.
+    **/
+    public String getFOTag()      
+    {
+        //@D1A
+        return getFOTag(text_, false);
+    }
+
+    /**
     *  Returns the text tag.
     *  @param useAlignment true if the alignment tag should be included; false otherwise.
     *  @return The tag.
@@ -304,6 +351,17 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     public String getTag(boolean useAlignment)
     {
         return getTag(text_, useAlignment);
+    }
+
+    /**
+    *  Returns the XSL-FO text tag.
+    *  @param useAlignment true if the alignment tag should be included; false otherwise.
+    *  @return The tag.
+    **/
+    public String getFOTag(boolean useAlignment)
+    {
+        //@D1A
+        return getFOTag(text_, useAlignment);
     }
 
     /**
@@ -318,6 +376,18 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     }
 
     /**
+    *  Returns the XSL-FO text tag with the specified <i>text</i>.
+    *  The alignment tag is not included.
+    *  @param text The text.
+    *  @return The tag.
+    **/
+    public String getFOTag(String text)
+    {
+        //@D1A
+        return getFOTag(text, false);
+    }
+
+    /**
     *  Returns the text tag with the specified <i>text</i>.
     *  @param text The text.
     *  @param useAlignment true if the alignment tag should be included; false otherwise.
@@ -326,6 +396,9 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     public String getTag(String text, boolean useAlignment)
     {
         //@C1D
+
+        if(useFO_)                      //@D1A
+            return getFOTag(text, useAlignment);          //@D1A
 
         if (text == null)
             throw new NullPointerException("text");
@@ -360,8 +433,57 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         tag.append(getEndTextFontTag());
         if (useAlignment)
             tag.append(getEndTextAlignmentTag());
+        return tag.toString();                                      //@D1C
 
-        return new String(tag);
+    }
+
+    /**
+    *  Returns the XSL-FO text tag with the specified <i>text</i>.
+    *  The fixed pitch and language attributes are not supported by XSL-FO.
+    *  @param text The text.
+    *  @param useAlignment true if the alignment tag should be included; false otherwise.
+    *  @return The tag.
+    **/
+    public String getFOTag(String text, boolean useAlignment)               //@D1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;
+
+        setUseFO(true);
+        
+        if (text == null)
+            throw new NullPointerException("text");
+
+        StringBuffer tag = new StringBuffer();
+
+        if (dir_ != null)
+        {
+            tag.append("<fo:block-container");                         
+            tag.append(getDirectionAttributeTag());                    
+            tag.append(">\n");                                         
+        }
+        
+        tag.append("<fo:block");                                
+     
+        if (useAlignment)
+            tag.append(getTextAlignmentTag());
+
+        tag.append(getTextFontTag());
+
+        tag.append(getTextStyleTag());
+        tag.append(">");                                    
+        tag.append(text);
+        tag.append(getEndTextStyleTag());
+        tag.append("</fo:block>\n");                            
+
+        if (dir_ != null)                           
+        {
+            tag.append("</fo:block-container>\n");                                      
+        }
+
+        //Set useFO_ to previous state
+        setUseFO(useFO);
+        return tag.toString();
 
     }
 
@@ -381,18 +503,44 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     **/
     String getTextAlignmentTag()
     {
-        //@C1D
+        if(!useFO_ )                                                     //@D1A
+        {                                                                       //@D1A
+            //@C1D
 
-        if (alignment_ != null)
-        {
-            StringBuffer tag = new StringBuffer();
-            tag.append("<div align=\"");
-            tag.append(alignment_);
-            tag.append("\">");
-            return new String(tag);
-        }
+            if (alignment_ != null)
+            {
+                StringBuffer tag = new StringBuffer();
+                tag.append("<div align=\"");
+                tag.append(alignment_);
+                tag.append("\">");
+            
+                return tag.toString();                                          //@D1C
+            }
+            else
+                return "";
+        }                                                                       //@D1A    
         else
-            return "";
+        {
+            //@D1A
+            if (alignment_!= null)
+            {
+                StringBuffer tag = new StringBuffer();
+                tag.append(" text-align='");
+                if(alignment_.equals("center"))
+                    tag.append("center'");
+                else if(alignment_.equals("right"))
+                    tag.append("end'");
+                else if(alignment_.equals("left"))
+                    tag.append("start'");
+                else if(alignment_.equals("justify"))
+                    tag.append("justify'");
+                return tag.toString();          
+
+            }
+            else
+                return "";
+
+        }
     }
 
     /**
@@ -407,13 +555,22 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
 
         if (size_ != 0 || color_ != null || extraAttributes.length() != 0)     // @Z1C
         {
-            tag.append("<font");
-            tag.append(getFontSizeAttribute());
-            tag.append(getFontColorAttribute());
-            tag.append(extraAttributes);                       // @Z1A
-            tag.append(">");
+            if( !useFO_ )                                   //@D1A
+            {
+                tag.append("<font");
+                tag.append(getFontSizeAttribute());
+                tag.append(getFontColorAttribute());
+                tag.append(extraAttributes);                       // @Z1A
+                tag.append(">");
+            }                                                      //@D1A
+            else
+            {
+                //@D1A
+                tag.append(getFontSizeAttribute());
+                tag.append(getFontColorAttribute());
+            }
         }
-        return new String(tag);
+        return tag.toString();                                     //@D1C
     }
 
     /**
@@ -430,22 +587,32 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
 
         if (bold_)
         {
-            tag.append("<b>");
+            if(!useFO_)                               //@D1A
+                tag.append("<b>");
+            else                                            //@D1A
+                tag.append(" font-weight='bold'");          //@d1
         }
         if (italic_)
         {
-            tag.append("<i>");
+            if(!useFO_ )                             //@D1A
+                tag.append("<i>");
+            else                                            //@D1A
+                tag.append(" font-style='italic'");         //@D1A
         }
         if (underscore_)
         {
-            tag.append("<u>");
+            if(!useFO_)                             //@D1A
+                tag.append("<u>");
+            else                                            //@D1A
+                tag.append(">\n<fo:inline text-decoration='underline'");  //@D1A
         }
         if (fixed_)
         {
-            tag.append("<tt>");
+            if(!useFO_ )                             //@D1A
+                tag.append("<tt>");
         }
 
-        return new String(tag);
+        return tag.toString();                              //@D1C
     }
 
 
@@ -485,6 +652,16 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         return underscore_;
     }
 
+
+    /**
+    *  Returns if Formatting Object tags are outputted.
+    *  The default value is false.
+    *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+    **/
+    public boolean isUseFO()                                              //@D1A
+    {
+        return useFO_;
+    }
 
     /**
     *  Deserializes and initializes transient data.
@@ -727,6 +904,20 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         underscore_ = underscore;
 
         if (changes_ != null) changes_.firePropertyChange("underscore", new Boolean(oldUnderscore), new Boolean(underscore)); //@CRS
+    }
+
+    /** 
+    * Sets if Formatting Object tags should be used.
+    * The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/ 
+    public void setUseFO(boolean useFO)                                //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
     }
 
     /**

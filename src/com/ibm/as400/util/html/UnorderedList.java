@@ -49,6 +49,19 @@ import java.beans.PropertyChangeSupport;
 *  &lt;li&gt;my list item&lt;/li&gt;
 *  &lt;/ul&gt;
 *  </PRE></BLOCKQUOTE>
+*  <P>Here is the output of the UnorderedList tag using XSL-Formatting Objects:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:block-container&gt;
+*  &lt;fo:list-block&gt;
+*  &lt;fo:list-item&gt;
+*  &lt;fo:list-item-label&gt;&amp;#202;&lt;/fo:list-item-label&gt;
+*  &lt;fo:list-item-body&gt;&lt;fo:block-container&gt;&lt;fo:block&gt;my list item&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:list-item-body&gt;
+*  &lt;/fo:list-item&gt;
+*  &lt;/fo:list-block&gt;
+*  &lt;/fo:block-container&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <p>UnorderedList objects generate the following events:
 *  <ul>
@@ -130,6 +143,9 @@ public class UnorderedList extends HTMLList
     {
         //@C1D
 
+        if(isUseFO())                      //@D1A
+            return getFOTag();          //@D1A
+
         if (getItems().isEmpty())
         {
             Trace.log(Trace.ERROR, "Attempting to get tag before setting items in list.");
@@ -152,6 +168,41 @@ public class UnorderedList extends HTMLList
         s.append(getItemAttributeTag());
         s.append("</ul>\n");
 
+        return s.toString();
+    }
+
+
+    /**
+    *  Returns the XSL-FO tag for the unordered list.
+    *  @return The tag.
+    **/
+    public String getFOTag()                //@D1A
+    {
+        //Save current state of useFO_
+        boolean useFO = isUseFO();
+
+        setUseFO(true);
+        if (getItems().isEmpty())
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before setting items in list.");
+            throw new ExtendedIllegalStateException(
+                                                   "items", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        if(type_ == null)
+            type_ = HTMLConstants.DISC;
+        StringBuffer s = new StringBuffer("<fo:block-container");
+        s.append(getDirectionAttributeTag());
+        s.append(">\n");
+        s.append("<fo:list-block");
+        s.append(">\n");
+        s.append(getItemAttributeFOTag(type_));
+        s.append("</fo:list-block>\n");
+        s.append("</fo:block-container>\n");
+        
+        //Set useFO_ to previous state
+        setUseFO(useFO);
+        
         return s.toString();
     }
 

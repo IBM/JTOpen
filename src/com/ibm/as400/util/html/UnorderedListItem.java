@@ -44,6 +44,19 @@ import java.beans.PropertyChangeSupport;
 *  &lt;li&gt;my list item&lt;/li&gt;
 *  &lt;/ul&gt;
 *  </PRE></BLOCKQUOTE>
+*  <P>Here is the output of the UnorderedListItem tag using XSL-Formatting Objects:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:block-container&gt;
+*  &lt;fo:list-block&gt;
+*  &lt;fo:list-item&gt;
+*  &lt;fo:list-item-label&gt;&amp;#197;&lt;/fo:list-item-label&gt;
+*  &lt;fo:list-item-body&gt;&lt;fo:block-container&gt;&lt;fo:block&gt;my list item&lt;/fo:block&gt;
+*  &lt;/fo:block-container&gt;
+*  &lt;/fo:list-item-body&gt;
+*  &lt;/fo:list-item&gt;
+*  &lt;/fo:list-block&gt;
+*  &lt;/fo:block-container&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <p>UnorderedListItem objects generate the following events:
 *  <ul>
@@ -103,6 +116,25 @@ public class UnorderedListItem extends HTMLListItem
 
     }
 
+
+    /**
+    *  Returns the label for the XSL-FO list-label.
+    *  @return The label.
+    **/
+    String getTypeAttributeFO(String type, int label)         //@C1A
+    {
+        StringBuffer s = new StringBuffer("");
+        if (type != null)
+        {
+            if (type.equals(HTMLConstants.DISC))
+                s.append("&#183;");
+            else if (type.equals(HTMLConstants.SQUARE))
+                s.append("&#197;");
+            else if (type.equals(HTMLConstants.CIRCLE))
+                s.append("&#202;");
+        }
+        return s.toString();
+    }
 
     /**
     *  Returns the type of the labeling scheme.

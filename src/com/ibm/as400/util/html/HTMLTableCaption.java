@@ -40,6 +40,12 @@ import java.io.Serializable;
 *  <P><BLOCKQUOTE><PRE>
 *  &lt;caption&gt;MY TABLE&lt;/caption&gt;
 *  </PRE></BLOCKQUOTE>
+*  <P>
+*  The equivalent tag using XSL Formatting Objects is:
+*  <PRE><BLOCKQUOTE>
+*  &lt;fo:block&gt;&lt;fo:block&gt;MY TABLE&lt;/fo:block&gt;
+*  &lt;/fo:block&gt;
+*  </PRE></BLOCKQUOTE>
 *
 *  <P>This example creates an HTMLTableCaption object with an HTMLHyperlink object for the caption element.
 *  <BLOCKQUOTE><PRE>
@@ -72,6 +78,7 @@ public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+    private boolean useFO_ = false;    // Indicates if XSL-FO tags are outputted.            //@D1A
 
     transient private VetoableChangeSupport vetos_; //@CRS
 
@@ -138,18 +145,35 @@ public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        //@C1D
+        
+        if(useFO_)                                                                       //@D1A
+        {                                                                                //@D1A
+            if((dir_ != null) && (dir_.length()>0))                                      //@D1A
+            {                                                                            //@D1A
+                if(dir_.equals(HTMLConstants.RTL))                                       //@D1A
+                    return " writing-mode='rl'";                                         //@D1A
+                else                                                                     //@D1A
+                    return " writing-mode='lr'";                                         //@D1A
+            }                                                                            //@D1A
+            else                                                                         //@D1A
+                return "";                                                               //@D1A
+        }                                                                                //@D1A
+        else                                                                             //@D1A
+        {                                                                                //@D1A
+            //@C1D
 
-        if ((dir_ != null) && (dir_.length() > 0))
-        {
-            StringBuffer buffer = new StringBuffer(" dir=\"");
-            buffer.append(dir_);
-            buffer.append("\"");
+            if ((dir_ != null) && (dir_.length() > 0))
+            {
+                StringBuffer buffer = new StringBuffer(" dir=\"");
+                buffer.append(dir_);
+                buffer.append("\"");
 
-            return buffer.toString();
-        }
-        else
-            return "";
+                return buffer.toString();
+            }
+            else
+                return "";
+        }                                                                                //@D1A
+        
     }
 
 
@@ -200,6 +224,9 @@ public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants
     {
         //@C1D
 
+        if(useFO_)                      //@D1A
+            return getFOTag();          //@D1A
+
         if (element_ == null)
         {
             Trace.log(Trace.ERROR, "Attempting to get tag before setting the 'element' parameter.");
@@ -220,7 +247,67 @@ public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants
         tag.append(element_.getTag());      
         tag.append("</caption>\n");
 
-        return new String(tag);
+        
+        return tag.toString();                              //@D1C
+
+    }
+
+    /**
+    *  Returns the XSL-FO caption tag.
+    *  The language attribute is not supported in XSL-FO.  The table caption will appear at the
+    *  left of the page if align=left, right of the page if align=right, or at the center
+    *  of the page for the rest of the alignments.
+    *  @return The caption tag.
+    **/
+    public String getFOTag()                    //@D1A
+    {
+        //Save current state of useFO_
+        boolean useFO = useFO_;
+
+        //Indicate Formatting Object tags are used.
+        setUseFO(true);
+
+        if (element_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get XSL-FO tag before setting the 'element' parameter.");
+            throw new ExtendedIllegalStateException("element", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        
+        StringBuffer tag = new StringBuffer("");
+
+        tag.append("<fo:block");
+        if(align_!=null)
+        {
+            tag.append(" text-align=\"");
+            if(align_.equals(HTMLConstants.CENTER))
+                tag.append("center\"");
+            else if(align_.equals(HTMLConstants.RIGHT))
+                tag.append("end\"");
+            else if(align_.equals(HTMLConstants.LEFT))
+                tag.append("start\"");
+            else
+                tag.append("center\"");
+        }
+        tag.append(getDirectionAttributeTag());             
+        tag.append(">");
+        tag.append(element_.getFOTag());
+        tag.append("</fo:block>\n");
+
+        //Set useFO_ to previous state
+        setUseFO(useFO);
+        
+        return tag.toString();
+
+    }
+
+    /**
+    *  Returns if Formatting Object tags are outputted.
+    *  The default value is false.
+    *  @return true if the output generated is an XSL formatting object, false if the output generated is HTML.
+    **/
+    public boolean isUseFO()                        //@D1A
+    {
+        return useFO_;
     }
 
     /**
@@ -364,6 +451,20 @@ public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants
         if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
+
+    /** 
+    * Sets if Formatting Object tags should be used. 
+    *  The default value is false.
+    * @param useFO - true if output generated is an XSL formatting object, false if the output generated is HTML. 
+    **/
+    public void setUseFO(boolean useFO)                        //@D1A
+    {
+        boolean old = useFO_;
+
+        useFO_ = useFO;
+
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
+    }
 
     /**
     *  Returns the HTML caption tag.

@@ -99,6 +99,17 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
 
 
     /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@C1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- An HTMLParameter was here -->";
+    }
+
+    /**
     *  Returns the tag for the HTML parameter.
     *  @return The tag.
     **/

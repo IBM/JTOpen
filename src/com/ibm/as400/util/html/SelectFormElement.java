@@ -288,6 +288,17 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
 
 
     /**
+    *  Returns a comment tag.
+    *  This method should not be called.  There is no XSL-FO support for this class.
+    *  @return The comment tag.
+    **/
+    public String getFOTag()                                                //@D1A
+    {
+        Trace.log(Trace.ERROR, "Attempting to getFOTag() for an object that doesn't support it.");
+        return "<!-- A SelectFormElement was here -->";
+    }
+
+    /**
     *  Returns the select form element tag.
     *  @return The tag.
     **/
