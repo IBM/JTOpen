@@ -141,7 +141,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
     static final long serialVersionUID = 4L;
 
-
   private IFSFile ifsFile_ = new IFSFile();
   private static final char AS400_SEPARATOR = '/';
   private static final String strFile = "file";
@@ -150,12 +149,15 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 // Because pathSeparator, pathSeparatorChar, separator and separatorChar are declared final in java.io.File, we cannot override them.
 
+  private boolean absolute_;
+
 /**
  * Creates a default IFSJavaFile instance.
 **/
   public IFSJavaFile()
   {
     this(separator); // Default to the root directory.        @A2C
+    absolute_ = false;  // No path, so it can't be absolute.
   }
 
 /**
@@ -170,9 +172,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     try
     {
       ifsFile_.setPath(replace_ ? path.replace(separatorChar, AS400_SEPARATOR) : path); //@P2C
+      absolute_ = isAbsolutePath(path);
     }
     catch (PropertyVetoException e) {}  // will never happen
   }
+
 
 /**
  * Creates a new IFSJavaFile instance from a parent pathname string and a child pathname string.
@@ -188,6 +192,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     {
       String canon = canonicalizeDirectory(path) + name; //@P2A
       ifsFile_.setPath(replace_ ? canon.replace(separatorChar, AS400_SEPARATOR) : canon); //@P2C
+      absolute_ = isAbsolutePath(canon);
     }
     catch (PropertyVetoException e) {}   // will never happen
   }
@@ -205,6 +210,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       throw new NullPointerException("system");
 
     setSystem(system);
+    absolute_ = isAbsolutePath(path);
   }
 
 /**
@@ -221,6 +227,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       throw new NullPointerException("system");
 
     setSystem(system);
+    absolute_ = isAbsolutePath(path);
   }
 
 /**
@@ -262,6 +269,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     {
       setSystem(localSystem);
     }
+    absolute_ = directory.isAbsolute();
   }
 
 /**
@@ -278,6 +286,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       throw new NullPointerException("system");
 
     setSystem(system);
+    absolute_ = directory.isAbsolute();
   }
 
 
@@ -290,6 +299,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   {
     super(file.getPath(), file.getName());
     ifsFile_ = file;
+    absolute_ = true;  // all IFSFile objects have absolute paths
   }
 
   /* if the directory doesn't end in a file separator, add one */
@@ -819,7 +829,21 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 **/
   public boolean isAbsolute()
   {
-    return ifsFile_.isAbsolute();
+    // Formerly, this method always reported true, since IFSFile.isAbsolute always reports true.
+    // In order for JFileChooser to work properly (when used in combination with IFSFileSystemView), instances of IFSJavaFile must remember whether they were created with an absolute path.  The underlying IFSFile instance assumes it was created with an absolute path, so we can't rely on the IFSFile to keep track of that for us.
+    // More details: There is logic in javax.swing.plaf.basic.BasicFileChooserUI#ApproveSelectionAction.actionPerformed() that calls File.isAbsolute().  If not absolute, BasicFileChooserUI prepends the directory path and creates a new (absolute) File object.  For that reason, each instance of IFSJavaFile needs to remember whether it was created with an absolute path or not.
+
+    //return ifsFile_.isAbsolute();
+    return absolute_;
+  }
+
+
+  // Utility method for determining whether a path is absolute.
+  static boolean isAbsolutePath(String path) {
+    if (path != null && path.length() != 0 && path.charAt(0) == separatorChar) {
+      return true;
+    }
+    else return false;
   }
 
 /**
@@ -1722,6 +1746,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     try
     {
       ifsFile_.setPath(replace_ ? path.replace(separatorChar, AS400_SEPARATOR) : path); //@P2C
+      absolute_ = isAbsolutePath(path);
     }
     catch (PropertyVetoException e) {}  // will never happen
     return true;
