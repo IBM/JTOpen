@@ -355,10 +355,12 @@ void loadTables()
             while (results.next())
             {
                 // Do not add catalog.
-                row[0]=results.getString(2).trim(); // schema
+                //@KBA Changed per JTOpen Bug 3801 to check for null values.  This class could be used
+                // by other JDBC drivers besides AS400JDBCDriver.
+                row[0]=(results.getString(2) != null) ? results.getString(2).trim() : ""; // schema
                 row[1]=results.getString(3).trim(); // table
                 row[2]=results.getString(4);        // type
-                row[3]=results.getString(5).trim(); // description
+                row[3]=(results.getString(5) != null) ? results.getString(5).trim() : ""; // description
                 tablesTableModel_.addRow(row);
             }
         }
