@@ -753,6 +753,26 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t5">&quot;false&quot; </TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;hold input locators&quot;</TD>
+    <TD HEADERS="t2">Specifies whether input locators should be allocated as type hold locators or not hold locators.  If the 
+    locators are of type hold, they will not be released when a commit is done.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot; (type hold)<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;hold statements&quot;</TD>
+    <TD HEADERS="t2">Specifies if statements should remain open until a transaction boundary when
+	autocommit is off and they are associated with a LOB locator.  By default, all the resources 
+	associated with a statement are released when the statement is closed.  Set this property to true 
+	only when access to a LOB locator is needed after a statement has been closed.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot; </TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;key ring name&quot;</TD>
     <TD HEADERS="t2">Specifies the key ring class name used for SSL connections 
       with the server. This property has no effect unless &quot;secure&quot; is 
