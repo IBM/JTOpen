@@ -138,7 +138,7 @@ public class QSYSObjectTypeTable
         add("QMQRY", new String[] { "PROMPT", "SQL" });
         add("QRYDFN", new String[] { "QRY" });
         add("RCT");
-        // @A1D add("SBSD");
+        add("SBSD");    // @D1c (was originally commended out under @A1d)
         add("SCHIDX");
         add("SOCKET");
         add("SPADCT", new String[] { "", "AFRIKAAN", "AKTUEEL", "BRASIL", "CATALA", "DANSK",
