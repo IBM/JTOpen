@@ -16,7 +16,7 @@
 
 <!ELEMENT pcml (struct | program)+>
 <!ATTLIST pcml
-          version  (1.0 | 2.0 | 3.0) #REQUIRED
+          version  (1.0 | 2.0 | 3.0 | 4.0) #REQUIRED
 >
 
 <!ELEMENT struct (data | struct)+>
@@ -41,6 +41,8 @@
           entrypoint   CDATA #IMPLIED
           returnvalue  (void | integer) #IMPLIED
           threadsafe   (false | true) #IMPLIED
+          
+          epccsid CDATA #IMPLIED
 >
 
 <!ELEMENT data EMPTY>
@@ -64,6 +66,9 @@
 
           passby (reference | value) #IMPLIED
           bidistringtype (ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT) #IMPLIED
+
+          trim (none | right | left | both) #IMPLIED
+          chartype (onebyte | twobyte) #IMPLIED
 >
 
 ]>
