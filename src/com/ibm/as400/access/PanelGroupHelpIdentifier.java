@@ -59,7 +59,7 @@ public class PanelGroupHelpIdentifier
                            String found, String anchor)
   {
     helpID_ = helpID;
-    System.out.println(":"+object+","+library+","+type);
+//    System.out.println(":"+object+","+library+","+type);
     path_ = QSYSObjectPathName.toPath(object, library, type);
     found_ = found;
     anchor_ = anchor;
