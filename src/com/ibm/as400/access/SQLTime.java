@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLTime.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ import java.util.Calendar;
 class SQLTime
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -74,7 +74,7 @@ implements SQLData
 
             // Parse the string according to the format and separator.
             // else if (format.equalsIgnoreCase (JDProperties.TIME_FORMAT_USA)) {
-
+            if (calendar == null) calendar = Calendar.getInstance(); //@P0A
             switch (settings.getTimeFormat ()) {                                          // @A0A
             case SQLConversionSettings.TIME_FORMAT_USA:                                                  // @A0A
                 int hour = Integer.parseInt (s.substring (0, 2));
@@ -123,9 +123,23 @@ implements SQLData
 	                                   SQLConversionSettings dataFormat,
 	                                   Calendar calendar)
 	{
+          return timeToString(t, dataFormat, calendar, -1);      // @E3C
+     }
+
+     // @E3A - This contains the logic from the original timeToString(), with new arg "hourIn".
+	private static String timeToString (Time t,
+	                                   SQLConversionSettings dataFormat,
+	                                   Calendar calendar,
+                                        int hourIn)
+	{
 	    StringBuffer buffer = new StringBuffer ();
         String separator = dataFormat.getTimeSeparator ();
+        if (calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.setTime (t);
+
+        int hour = calendar.get (Calendar.HOUR_OF_DAY);  // @E3A
+        int minute = calendar.get (Calendar.MINUTE);     // @E3A
+        int second = 0;                                  // @E3A
 
         // Note: No matter what format is being used,
         // ensure that exactly 8 characters are in the
@@ -133,7 +147,7 @@ implements SQLData
 
         switch (dataFormat.getTimeFormat ()) {                                           // @A0A
         case SQLConversionSettings.TIME_FORMAT_USA:                                                   // @A0A
-            int hour = calendar.get (Calendar.HOUR_OF_DAY);
+            // @E3D int hour = calendar.get (Calendar.HOUR_OF_DAY);
             char amPm;
             if (hour > 12) {
                 hour -= 12;
@@ -143,7 +157,7 @@ implements SQLData
                 amPm = 'A';
             buffer.append (JDUtilities.padZeros (hour, 2));
             buffer.append (':');
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MINUTE), 2));
+            buffer.append (JDUtilities.padZeros (minute, 2));            // @E3C
             buffer.append (' ');
             buffer.append (amPm);
             buffer.append ('M');
@@ -151,28 +165,39 @@ implements SQLData
 
         case SQLConversionSettings.TIME_FORMAT_EUR:                                                   // @A0A
         case SQLConversionSettings.TIME_FORMAT_ISO:                                                   // @A0A
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.HOUR_OF_DAY), 2));
+            second = calendar.get (Calendar.SECOND);             // @E3A
+            buffer.append (JDUtilities.padZeros (hour, 2));      // @E3C
             buffer.append ('.');
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MINUTE), 2));
+            buffer.append (JDUtilities.padZeros (minute, 2));    // @E3C
             buffer.append ('.');
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.SECOND), 2));
+            buffer.append (JDUtilities.padZeros (second, 2));    // @E3C
             break;                                                       // @A0A
 
         case SQLConversionSettings.TIME_FORMAT_JIS:                                                   // @A0A
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.HOUR_OF_DAY), 2));
+            second = calendar.get (Calendar.SECOND);             // @F3A
+            buffer.append (JDUtilities.padZeros (hour, 2));      // @E3C
             buffer.append (':');
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MINUTE), 2));
+            buffer.append (JDUtilities.padZeros (minute, 2));    // @E3C
             buffer.append (':');
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.SECOND), 2));
+            buffer.append (JDUtilities.padZeros (second, 2));    // @E3C
             break;                                                       // @A0A
 
         case SQLConversionSettings.TIME_FORMAT_HMS:                                                   // @A0A
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.HOUR_OF_DAY), 2));
+            second = calendar.get (Calendar.SECOND);             // @E3A
+            buffer.append (JDUtilities.padZeros (hour, 2));      // @E3C
             buffer.append (separator);
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MINUTE), 2));
+            buffer.append (JDUtilities.padZeros (minute, 2));    // @E3C
             buffer.append (separator);
-            buffer.append (JDUtilities.padZeros (calendar.get (Calendar.SECOND), 2));
+            buffer.append (JDUtilities.padZeros (second, 2));    // @E3C
             break;                                                       // @A0A
+        }
+
+        // The Calendar class represents 24:00:00 as 00:00:00.        // @E3A
+        if (hourIn == 24 && hour==0 /* && minute==0 && second==0 */)  // @E3A
+        {
+          buffer.setCharAt(0,'2');                                    // @E3A
+          buffer.setCharAt(1,'4');                                    // @E3A
+          // Note: StringBuffer.replace() is available in Java2.
         }
 
 	    return buffer.toString ();
@@ -188,7 +213,7 @@ implements SQLData
 
 
 
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         switch (settings_.getTimeFormat ()) {
@@ -218,7 +243,7 @@ implements SQLData
 
 
 
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         StringBuffer buffer = new StringBuffer (8);
@@ -251,6 +276,7 @@ implements SQLData
     public void set (Object object, Calendar calendar, int scale)
         throws SQLException
     {
+      if (calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if (object instanceof String) {
             stringToTime ((String) object, settings_, calendar);
             hour_   = calendar.get (Calendar.HOUR_OF_DAY);
@@ -297,6 +323,11 @@ implements SQLData
         return 8;
     }
 
+    //@F1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "java.sql.Time";
+    }
 
     public String getLiteralPrefix ()
     {
@@ -564,7 +595,7 @@ implements SQLData
 	    Calendar calendar = Calendar.getInstance ();
 	    calendar.set (0, 0, 0, hour_, minute_, second_);
 	    Time t = new Time (calendar.getTime ().getTime ());
-	    return timeToString (t, settings_, calendar);
+	    return timeToString (t, settings_, calendar, hour_);        // @E3C
 	}
 
 
@@ -572,7 +603,19 @@ implements SQLData
 	public Time toTime (Calendar calendar)
 	    throws SQLException
 	{
-	    calendar.set (0, 0, 0, hour_, minute_, second_);
+	  if (calendar == null) calendar = Calendar.getInstance(); //@P0A  
+         // @F2A
+	    // You are supposed to normalize the time to the epoch,
+	    // not set its extra fields to 0.  This produces totally different
+	    // results.  See JDBC API Reference and Tutorial, pg 860 for complete
+	    // details.
+	    calendar.set (1970, Calendar.JANUARY, 1, hour_, minute_, second_);  // @F2C
+	    // @F2D calendar.set (0, 0, 0, hour_, minute_, second_);
+
+	    // Make sure to set the millisecond value from the time too as
+	    // SQL Time objects do not track this field.
+	    calendar.set(calendar.MILLISECOND, 0);  // @F2A
+
 	    return new Time (calendar.getTime ().getTime ());
 	}
 

@@ -1,18 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBSQLRPBDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import java.sql.SQLException;                                            //@E9a
 
 
 /**
@@ -22,13 +23,13 @@ package com.ibm.as400.access;
 class DBSQLRPBDS
 extends DBBaseRequestDS
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-  public static final int	FUNCTIONID_CHANGE_RPB             = 0x1D03;
-  public static final int	FUNCTIONID_CREATE_RPB             = 0x1D00;
-  public static final int	FUNCTIONID_CREATE_RPB_BASED_ON    = 0x1D01;
-  public static final int	FUNCTIONID_DELETE_RPB             = 0x1D02;
-  public static final int	FUNCTIONID_RESET_RPB              = 0x1D04;
+  public static final int FUNCTIONID_CHANGE_RPB             = 0x1D03;
+  public static final int FUNCTIONID_CREATE_RPB             = 0x1D00;
+  public static final int FUNCTIONID_CREATE_RPB_BASED_ON    = 0x1D01;
+  public static final int FUNCTIONID_DELETE_RPB             = 0x1D02;
+  public static final int FUNCTIONID_RESET_RPB              = 0x1D04;
 
 /**
    Constructs a datastream for the SQL Server RPB functions.
@@ -39,42 +40,34 @@ extends DBBaseRequestDS
 **/
 
   public DBSQLRPBDS(int requestId,
-		     int rpbId,
-		     int operationResultsBitmap,
-		     int parameterMarkerDescriptorHandle)
+                    int rpbId,
+                    int operationResultsBitmap,
+                    int parameterMarkerDescriptorHandle)
 
   {
     // Create the datastream header and template
     super(requestId, rpbId, operationResultsBitmap,
-		  parameterMarkerDescriptorHandle);
-	setServerID(SERVER_SQL);
+          parameterMarkerDescriptorHandle);
+    setServerID(SERVER_SQL);
   }
 
 
 
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-
-
-       //--------------------------------------------------//
-       // Create the data stream optional /         	   //
-       // variable length data section via addParameters   //
-       //--------------------------------------------------//
+  //--------------------------------------------------//
+  // Create the data stream optional /         	   //
+  // variable length data section via addParameters   //
+  //--------------------------------------------------//
 
 /**
    Sets the Based on RPB Handle parameter in the data stream.
    @param value	the name of the handle of the RPB to copy from.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setBasedOnRPBHandle (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3800, (short)value);
-	}
+  void setBasedOnRPBHandle (int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3800, (short)value);
+  }
 
 
 
@@ -83,11 +76,11 @@ extends DBBaseRequestDS
    @param value	the blocking factor to be used on the fetch.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setBlockingFactor(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380C, value);
-	}
+  void setBlockingFactor(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x380C, value);
+  }
 
 
 
@@ -97,11 +90,11 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setCursorName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
-	{
-		addParameter (0x380B, converter, value);
-	}
+  void setCursorName(String value, ConvTable converter) //@P0C
+  throws DBDataStreamException, SQLException                      // @E9c
+  {
+    addParameter (0x380B, converter, value);
+  }
 
 
 
@@ -110,11 +103,11 @@ extends DBBaseRequestDS
    @param value	the describe option to be used.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setDescribeOption(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380A, (byte)value);
-	}
+  void setDescribeOption(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x380A, (byte)value);
+  }
 
 
 
@@ -123,11 +116,11 @@ extends DBBaseRequestDS
    @param value	the scroll options to use with the cursor.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setFetchScrollOption(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380E, (short) value);
-	}
+  void setFetchScrollOption(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x380E, (short) value);
+  }
 
 
 
@@ -136,11 +129,11 @@ extends DBBaseRequestDS
    @param value	the commit operation that is to be performed.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-    void setHoldIndicator(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380F, (byte)value);
-	}
+  void setHoldIndicator(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x380F, (byte)value);
+  }
 
 
 
@@ -150,11 +143,11 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-  	void setLibraryName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
-	{
-		addParameter (0x3801, converter, value);
-	}
+  void setLibraryName(String value, ConvTable converter) //@P0C
+  throws DBDataStreamException, SQLException                      // @E9c
+  {
+    addParameter (0x3801, converter, value);
+  }
 
 
 
@@ -163,11 +156,11 @@ extends DBBaseRequestDS
    @param value	the open attributes of the referenced file.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-    void setOpenAttributes(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3809, (byte)value);
-	}
+  void setOpenAttributes(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3809, (byte)value);
+  }
 
 
 
@@ -177,25 +170,28 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setPackageName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
-	{
-		addParameter (0x3804, converter, value);
-	}
+  void setPackageName(String value, ConvTable converter) //@P0C
+  throws DBDataStreamException, SQLException                      // @E9c
+  {
+    addParameter (0x3804, converter, value);
+  }
 
 
 
-/**
-   Sets the Package Threshold Value parameter in the data stream.
-   @param value	the value used to determine if the package
-   should be cleared.
-   @exception DBDataStreamException If there is not enough space left in the data byte array.
-**/
-	void setPackageThresholdValue(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3813, (short) value);
-	}
+// $F1 This parameter no longer needs to be passed on a data stream.  Package clearing
+// $F1 and the decision for the threshold where package clearing is needed is now handled
+// $F1 automatically by the database.  Passing this code point results in a no-op.
+//@F1D /**
+//@F1D    Sets the Package Threshold Value parameter in the data stream.
+//@F1D    @param value	the value used to determine if the package
+//@F1D    should be cleared.
+//@F1D    @exception DBDataStreamException If there is not enough space left in the data byte array.
+//@F1D **/
+//@F1D	void setPackageThresholdValue(int value)
+//@F1D		throws DBDataStreamException
+//@F1D	{
+//@F1D		addParameter (0x3813, (short)value);
+//@F1D	}
 
 
 
@@ -206,11 +202,11 @@ extends DBBaseRequestDS
    operation.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setParameterMarkerBlockIndicator(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3814, (short) value);
-	}
+  void setParameterMarkerBlockIndicator(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3814, (short) value);
+  }
 
 
 
@@ -219,11 +215,11 @@ extends DBBaseRequestDS
    @param value	the prepare option.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-    void setPrepareOption(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3808, (byte)value);
-	}
+  void setPrepareOption(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3808, (byte)value);
+  }
 
 
 
@@ -233,11 +229,11 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-    void setPrepareStatementName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
-	{
-		addParameter (0x3806, converter, value);
-	}
+  void setPrepareStatementName(String value, ConvTable converter) //@P0C
+  throws DBDataStreamException, SQLException                      // @E9c
+  {
+    addParameter (0x3806, converter, value);
+  }
 
 
 
@@ -250,11 +246,26 @@ extends DBBaseRequestDS
 //
 // Implementation note: This only works for servers V4R1 and later.
 //
-	void setQueryTimeout(int value)
+  void setQueryTimeout(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3817, value);
+  }
+
+
+  //@F2A
+/**
+   Sets the ResultSet Holdability Option parameter in the data stream.
+   @param value	the value that contains the option to indicate how the cursor should
+   be opened.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+	void setResultSetHoldabilityOption(byte value)
 		throws DBDataStreamException
 	{
-		addParameter (0x3817, value);
+		addParameter (0x3830, value);
 	}
+
 
 
 /**
@@ -263,11 +274,11 @@ extends DBBaseRequestDS
    intends to open the cursor again for the same statement or not.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setReuseIndicator(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3810, (byte)value);
-	}
+  void setReuseIndicator(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3810, (byte)value);
+  }
 
 
 
@@ -277,11 +288,11 @@ extends DBBaseRequestDS
    scrolling is supported.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setScrollableCursorFlag(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380D, (short) value);
-	}
+  void setScrollableCursorFlag(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x380D, (short) value);
+  }
 
 
 
@@ -291,11 +302,11 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setStatementText(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
-	{
-		addParameter (0x3807, converter, value);
-	}
+  void setStatementText(String value, ConvTable converter) //@P0C
+  throws DBDataStreamException, SQLException                      // @E9c
+  {
+    addParameter (0x3807, converter, value);
+  }
 
 
 
@@ -304,11 +315,11 @@ extends DBBaseRequestDS
    @param value	the statement type.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setStatementType(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3812, (short) value);
-	}
+  void setStatementType(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3812, (short) value);
+  }
 
 
 
@@ -319,11 +330,11 @@ extends DBBaseRequestDS
    translated to the client's CCSID before the data is returned.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setTranslateIndicator(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3805, (byte)value);
-	}
+  void setTranslateIndicator(int value)
+  throws DBDataStreamException
+  {
+    addParameter (0x3805, (byte)value);
+  }
 
 
 }  // End of DBSQLRPBDS class

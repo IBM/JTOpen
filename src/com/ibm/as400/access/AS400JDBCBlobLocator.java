@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCBlobLocator.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,8 +14,10 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
+import java.io.OutputStream;   //@G4A
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.Vector;       //@D3A
 
 
 
@@ -28,15 +30,15 @@ transaction.
 public class AS400JDBCBlobLocator
 implements Blob
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
-
-
+          
+          
     // Private data.
     private JDLobLocator    locator_;
 
-
+            
 
 /**
 Constructs an AS400JDBCBlob object.  The data for the
@@ -175,6 +177,107 @@ This method is not supported.
         // @A1D else
         // @A1D     return locator_.position ("?", pattern.getBytes(0, (int) pattern.length()), start);
     }
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Retrieves a stream that can be used to write to the BLOB value that this Blob object 
+    represents. The stream begins at position pos.
+
+    @param pos the position in the BLOB value at which to start writing.
+    @return a java.io.OutputStream object to which data can be written.
+    @exception SQLException if there is an error accessing the BLOB value.
+    
+    @since Modification 5
+    **/
+    public OutputStream setBinaryStream(long pos)
+    throws SQLException
+    {
+        if ((pos <= 0) || (pos > locator_.getLength()))
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        //Currently, this method is not supported for lob locators
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+
+        return new AS400JDBCLobOutputStream (this, pos);
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Writes the array of bytes to this Blob object starting at position pos.
+
+    @param pos The position in the BLOB object at which to start writing (1-based).
+    @param bytes The array of bytes to be written to the BLOB value that this Blob object 
+    represents.
+    @return the number of bytes written.
+
+    @exception SQLException if there is an error accessing the BLOB value.
+    
+    @since Modification 5
+    **/
+    public int setBytes (long pos, byte[] bytes)
+    throws SQLException
+    {
+        pos--;
+
+        //Currently, this method is not supported for lob locators
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        
+        return bytes.length;
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Writes all or part of the given byte array to the BLOB value that this Blob object
+    represents.  Writing starts at position pos in the BLOB value; len bytes
+    from the given byte array are written.
+
+    @param pos the position in the BLOB object at which to start writing (1-based).
+    @param bytes the array of bytes to be written to the BLOB value that this Blob object represents.
+    @param offset the offset into the array bytes at which to start reading the bytes to be set 
+    (1-based).
+    @param len the number of bytes to be written to the BLOB value from the array of bytes bytes.
+    @return the number of bytes written.
+
+    @exception SQLException if there is an error accessing the BLOB value.
+    
+    @since Modification 5
+    **/
+    public int setBytes (long pos, byte[] bytes, int offset, int len)
+    throws SQLException
+    {
+        offset--;
+        if ((len < 0) || (offset < 0) || (bytes == null) || (bytes.length < 0))
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        byte[] newData = new byte[len];
+        System.arraycopy(bytes, offset, newData, 0, len);
+        return setBytes(pos, newData);
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Truncates the BLOB value that this Blob object represents to be len bytes in length.
+     
+    @param len the length, in bytes, to which the BLOB value that this Blob object 
+    represents should be truncated.
+     
+    @exception SQLException if there is an error accessing the BLOB value. 
+    
+    @since Modification 5   
+    **/
+    public void truncate(long len)
+    throws SQLException
+    {
+        //parameter validation will be done in setBytes
+        setBytes(len, new byte[0]);
+    }
+
 
 
 

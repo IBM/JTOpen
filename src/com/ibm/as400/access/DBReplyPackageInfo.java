@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBReplyPackageInfo.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ package com.ibm.as400.access;
    Provides access to the package info portion of the reply data stream.
 **/
 class DBReplyPackageInfo {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -42,14 +42,6 @@ class DBReplyPackageInfo {
         offset_ = offset;
         length_ = length;
         jobCCSID_ = jobCCSID;                                               // @D1A
-    }
-
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 
@@ -105,7 +97,7 @@ class DBReplyPackageInfo {
 
 
 
-    public String getDefaultCollection (ConverterImplRemote converter)
+    public String getDefaultCollection (ConvTable converter) //@P0C
     throws DBDataStreamException
     {
         return converter.byteArrayToString (data_, offset_ + 6, 18);
@@ -152,7 +144,7 @@ class DBReplyPackageInfo {
 
 
 
-    public String getStatementName (int statementIndex, ConverterImplRemote converter)
+    public String getStatementName (int statementIndex, ConvTable converter) //@P0C
     throws DBDataStreamException
     {
         return converter.byteArrayToString (data_, offset_ + getPackageEntryInfoOffset (statementIndex) + 3, 18);
@@ -168,7 +160,7 @@ class DBReplyPackageInfo {
 
 
 
-    public String getStatementText (int statementIndex, ConverterImplRemote converter)
+    public String getStatementText (int statementIndex, ConvTable converter) //@P0C
     throws DBDataStreamException
     {
         int offset = BinaryConverter.byteArrayToInt (data_, offset_ + getPackageEntryInfoOffset (statementIndex) + 48);

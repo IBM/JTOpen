@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLChar.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ import java.util.Calendar;
 class SQLChar
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -75,7 +75,7 @@ implements SQLData
 //                                                         //
 //---------------------------------------------------------//
 
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         // @C3D int length = maxLength_;
@@ -88,8 +88,8 @@ implements SQLData
 	    int bidiStringType = settings_.getBidiStringType();  //@E3A
 	    // if bidiStringType is not set by user, use ccsid to get value
 	    if (bidiStringType == -1)			         //@E3A
-		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
-	    
+		//@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
+	    bidiStringType = ccsidConverter.bidiStringType_; //@P0A
 	    value_ = ccsidConverter.byteArrayToString (rawBytes, offset, length, bidiStringType); //@E3C
         }                                                                       // @C3A
         else {                                                                  // @A0A
@@ -114,13 +114,14 @@ implements SQLData
 
     }
 
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
 	int bidiStringType = settings_.getBidiStringType();  //@E3A
 	// if bidiStringType is not set by user, use ccsid to get value
 	if (bidiStringType == -1)			     //@E3A
-	    bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
+	    //@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
+      bidiStringType = ccsidConverter.bidiStringType_; //@P0A
             
         try {
 	    ccsidConverter.stringToByteArray (value_, rawBytes,
@@ -157,14 +158,14 @@ implements SQLData
         else if (object instanceof Boolean)
             value = object.toString();                                              // @C2C
 
-        else if (object instanceof Date)
-            value = SQLDate.dateToString ((Date) object, settings_, calendar);      // @C2C
-
         else if (object instanceof Time)
             value = SQLTime.timeToString ((Time) object, settings_, calendar);      // @C2C
 
         else if (object instanceof Timestamp)
             value = SQLTimestamp.timestampToString ((Timestamp) object, calendar);  // @C2C
+
+        else if (object instanceof java.util.Date)                                  // @F5M @F5C
+            value = SQLDate.dateToString ((java.util.Date) object, settings_, calendar); // @C2C @F5C
 
         else {                                                                      // @C2C
             try {                                                                   // @C2C
@@ -225,6 +226,12 @@ implements SQLData
             return maxLength_;
     }
 
+
+    //@F1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "java.lang.String";
+    }
 
 
     public String getLiteralPrefix ()
@@ -374,7 +381,7 @@ implements SQLData
 	    throws SQLException
 	{
 	    try {
-    	    BigDecimal bigDecimal = new BigDecimal (value_.trim ());
+    	    BigDecimal bigDecimal = new BigDecimal (SQLDataFactory.convertScientificNotation(value_.trim ())); // @F3C
     	    if (scale >= 0) {
                 if (scale >= bigDecimal.scale()) {
                     truncated_ = 0;

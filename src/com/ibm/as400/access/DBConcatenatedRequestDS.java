@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBConcatenatedRequestDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ DBBaseRequestDS datastreams.
 class DBConcatenatedRequestDS 
 extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -115,10 +115,13 @@ Write the datastream.
         for(int i = 0; i < count_; ++i) {
             requests_[i].write(concatented);
         }
-
-        out.write(concatented.toByteArray());
-        out.flush();
-	if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", concatented.toByteArray()); //@A1A
+                                                
+        synchronized(out)                                     // @W1a
+        {                                                     // @W1a
+           out.write(concatented.toByteArray());
+           out.flush();       
+        }                                                     // @W1a
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", concatented.toByteArray()); //@A1A @P0C
 	}
 
 

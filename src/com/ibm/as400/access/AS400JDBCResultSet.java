@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCResultSet.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;      //@G4A JDBC 3.0
+import java.net.URL;                        //@G4A JDBC 3.0
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -94,6 +96,11 @@ regardless of the type set in the statement:
 generated it when the statement is closed, run again, or used
 to retrieve the next result set from a sequence of multiple
 result sets.
+
+<p>The new JDK 1.4 methods add the ability to 
+retrieve information by column name in addition to column index.
+Be aware you will see better performance accessing columns by their
+index rather than accessing them by their name.
 **/
 //
 // Implementation notes:
@@ -122,18 +129,22 @@ result sets.
 //
 // 2. We need to know the total number of rows in the result set
 //    in order to make getRow() work in all cases (e.g. after
-//    a last() or absolute(-).  The only way we could think of
-//    to do this is to issue a SELECT COUNT(*) using the same
-//    where clause as the original.  However there are 2 problems:
+//    a last() or absolute(-).  In mod 5 the code was changed to
+//    loop through the rows if we need a count.  This will be
+//    slow but seemed to be the best way to do it.  
+//    The mod 4 comment is:
+//         The only way we could think of
+//         to do this is to issue a SELECT COUNT(*) using the same
+//         where clause as the original.  However there are 2 problems:
 //
-//    * There is a window of time between the original query
-//      and the SELECT COUNT(*), so the value may not be
-//      accurate.
-//    * There is overhead in issuing another SELECT and getRow()
-//      seems like it probably won't be used that often.
+//         * There is a window of time between the original query
+//           and the SELECT COUNT(*), so the value may not be
+//           accurate.
+//         * There is overhead in issuing another SELECT and getRow()
+//           seems like it probably won't be used that often.
 //
-//    Given these problems, I have decided to make getRow() not
-//    work in some documented cases.
+//         Given these problems, I have decided to make getRow() not
+//         work in some documented cases.
 //
 // 3. In JDBC 2.0, there are some date/time/timestamp related
 //    methods that take calendar parameters and some that don't.
@@ -151,10 +162,13 @@ result sets.
 //
 public class AS400JDBCResultSet
 implements ResultSet {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
-
+    //New constants for JDBC 3.0.
+    static final int HOLDABILITY_NOT_SPECIFIED = -9999;  //@G4A
+    static final int HOLD_CURSORS_OVER_COMMIT = 1;       //@G4A
+    static final int CLOSE_CURSORS_AT_COMMIT = 2;        //@G4A
 
     // Private data.
     private String                      catalog_;
@@ -184,33 +198,32 @@ implements ResultSet {
     private boolean                     wasNull_;
 
 
-
-/*---------------------------------------------------------*/
-/*                                                         */
-/* MISCELLANEOUS METHODS.                                  */
-/*                                                         */
-/*---------------------------------------------------------*/
-
+    /*---------------------------------------------------------*/
+    /*                                                         */
+    /* MISCELLANEOUS METHODS.                                  */
+    /*                                                         */
+    /*---------------------------------------------------------*/
 
 
-/**
-Constructs an AS400JDBCResultSet object.
 
-@param  statement       The owning statement.
-@param  sqlStatement    The SQL statement.
-@param  rowCache        The row cache.
-@param  catalog         The catalog.
-@param  cursorName      The cursor name.
-@param  maxRows         The maximum rows limit, or
-                        0 for no limit.
-@param  type            The type.
-@param  concurrency     The concurrency.
-@param  fetchDirection  The fetch direction.
-@param  fetchSize       The fetch size.
-@param  tableName       The table name, if any.
-
-@exception              SQLException    If an error occurs.
-**/
+    /**
+    Constructs an AS400JDBCResultSet object.
+    
+    @param  statement       The owning statement.
+    @param  sqlStatement    The SQL statement.
+    @param  rowCache        The row cache.
+    @param  catalog         The catalog.
+    @param  cursorName      The cursor name.
+    @param  maxRows         The maximum rows limit, or
+                            0 for no limit.
+    @param  type            The type.
+    @param  concurrency     The concurrency.
+    @param  fetchDirection  The fetch direction.
+    @param  fetchSize       The fetch size.
+    @param  tableName       The table name, if any.
+    
+    @exception              SQLException    If an error occurs.
+    **/
     AS400JDBCResultSet (AS400JDBCStatement statement,
                         JDSQLStatement sqlStatement,
                         JDRowCache rowCache,
@@ -250,15 +263,21 @@ Constructs an AS400JDBCResultSet object.
         // If no connection or SQL statement was provided,
         // or a SELECT with multiple tables or views was
         // specified, or the SELECT does not specify FOR UPDATE,
-        // then we cannot do updates.
-        if ((connection_ == null)
-            || (sqlStatement == null)
-            || (! sqlStatement.isForUpdate ())) {
+        // then we cannot do updates.  (@J3 In case you have
+        // paraenthesis overload, the added check in mod 5
+        // is if we are connected to a v5r1 or earlier system and 
+        // "for update" is not specified)
+        if ((connection_  == null) ||
+            (sqlStatement == null) ||
+            (((((AS400JDBCConnection) connection_).getVRM() < JDUtilities.vrm520) &&   // @J3a
+              (! sqlStatement.isForUpdate()))))
+        {
             selectTable_        = null;
             correlationName_    = null;
-            concurrency_        = CONCUR_READ_ONLY;
-        } 
-        else {
+            concurrency_        = CONCUR_READ_ONLY;               
+        }
+        else
+        {
             selectTable_        = sqlStatement.getSelectTable ();
             correlationName_    = sqlStatement.getCorrelationName ();
         }
@@ -282,7 +301,7 @@ Constructs an AS400JDBCResultSet object.
 
         // Trace messages.
         if (JDTrace.isTraceOn()) {
-            JDTrace.logOpen (this);
+            JDTrace.logOpen (this, statement_);                           // @J33a
             JDTrace.logProperty (this, "Conncurrency", concurrency_);
             JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
             JDTrace.logProperty (this, "Fetch size", fetchSize_);
@@ -293,19 +312,19 @@ Constructs an AS400JDBCResultSet object.
 
 
 
-/**
-Constructs an AS400JDBCResultSet object.
-
-@param  rowCache        The row cache.
-@param  catalog         The catalog.
-@param  cursorName      The cursor name.
-
-@exception              SQLException    If an error occurs.
-**/
-//
-// This constructor is specifically for DatabaseMetaData
-// result sets.
-//
+    /**
+    Constructs an AS400JDBCResultSet object.
+    
+    @param  rowCache        The row cache.
+    @param  catalog         The catalog.
+    @param  cursorName      The cursor name.
+    
+    @exception              SQLException    If an error occurs.
+    **/
+    //
+    // This constructor is specifically for DatabaseMetaData
+    // result sets.
+    //
     AS400JDBCResultSet (JDRowCache rowCache,
                         String catalog,
                         String cursorName)
@@ -318,12 +337,12 @@ Constructs an AS400JDBCResultSet object.
 
 
 
-/**
-Checks that the result set is open.  Public methods
-that require an open result set should call this first.
-
-@exception  SQLException    If the result set is not open.
-**/
+    /**
+    Checks that the result set is open.  Public methods
+    that require an open result set should call this first.
+    
+    @exception  SQLException    If the result set is not open.
+    **/
     void checkOpen ()
     throws SQLException
     {
@@ -333,10 +352,10 @@ that require an open result set should call this first.
 
 
 
-/**
-Clears any information associated with the current row.
-In addition, all warnings are cleared.
-**/
+    /**
+    Clears any information associated with the current row.
+    In addition, all warnings are cleared.
+    **/
     private void clearCurrentRow ()
     throws SQLException
     {
@@ -353,26 +372,28 @@ In addition, all warnings are cleared.
 
 
 
-/**
-Clears any information associated with the current value.
-**/
+    /**
+    Clears any information associated with the current value.
+    **/
     private void clearCurrentValue ()
     {
         // Implicitly close the InputStream if left open.
         if (openInputStream_ != null) {
             try {
                 openInputStream_.close ();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 // Ignore the exception.              
             }
             openInputStream_ = null;
         }
-    
+
         // Implicitly close the InputStream if left open.
         if (openReader_ != null) {
             try {
                 openReader_.close ();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 // Ignore the exception.           
             }
             openReader_ = null;
@@ -382,13 +403,13 @@ Clears any information associated with the current value.
 
 
 
-/**
-Clears all warnings that have been reported for the result set.
-After this call, getWarnings() returns null until a new warning
-is reported for the result set.
-
-@exception SQLException If an error occurs.
-**/
+    /**
+    Clears all warnings that have been reported for the result set.
+    After this call, getWarnings() returns null until a new warning
+    is reported for the result set.
+    
+    @exception SQLException If an error occurs.
+    **/
     public void clearWarnings ()
     throws SQLException
     {
@@ -397,12 +418,12 @@ is reported for the result set.
 
 
 
-/**
-Releases the result set's resources immediately instead of
-waiting for them to be automatically released.
-
-@exception SQLException If an error occurs.
-**/
+    /**
+    Releases the result set's resources immediately instead of
+    waiting for them to be automatically released.
+    
+    @exception SQLException If an error occurs.
+    **/
     public void close ()
     throws SQLException
     {
@@ -416,16 +437,16 @@ waiting for them to be automatically released.
             // non-portable." 
             if (isClosed ())
                 return;
-    
+
             rowCache_.close ();
             closed_ = true;
             if (statement_ != null)
                 statement_.notifyClose ();
-    
+
             // Close the delete statement if opened.
             if (deleteStatement_ != null)
                 deleteStatement_.close ();
-    
+
             if (JDTrace.isTraceOn())
                 JDTrace.logClose (this);
         }
@@ -433,11 +454,11 @@ waiting for them to be automatically released.
 
 
 
-/**
-Closes the result set if not explicitly closed by the caller.
-
-@exception   Throwable      If an error occurs.
-**/
+    /**
+    Closes the result set if not explicitly closed by the caller.
+    
+    @exception   Throwable      If an error occurs.
+    **/
     protected void finalize ()
     throws Throwable
     {
@@ -448,15 +469,15 @@ Closes the result set if not explicitly closed by the caller.
 
 
 
-/**
-Returns the column index for the specified column name.
-
-@param      columnName      The column name.
-@return                     The column index (1-based).
-
-@exception  SQLException    If the result set is not open
-                            or the column name is not found.
-**/
+    /**
+    Returns the column index for the specified column name.
+    
+    @param      columnName      The column name.
+    @return                     The column index (1-based).
+    
+    @exception  SQLException    If the result set is not open
+                                or the column name is not found.
+    **/
     public int findColumn (String columnName)
     throws SQLException
     {
@@ -468,19 +489,19 @@ Returns the column index for the specified column name.
 
 
 
-// JDBC 2.0
-/**
-Returns the result set concurrency.
-
-@return The result set concurrency. Valid values are:
-                                <ul>
-                                  <li>CONCUR_READ_ONLY
-                                  <li>CONCUR_UPDATABLE
-                                </ul>
-
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0
+    /**
+    Returns the result set concurrency.
+    
+    @return The result set concurrency. Valid values are:
+                                    <ul>
+                                      <li>CONCUR_READ_ONLY
+                                      <li>CONCUR_UPDATABLE
+                                    </ul>
+    
+    
+    @exception SQLException If the result set is not open.
+    **/
     public int getConcurrency ()
     throws SQLException
     {
@@ -492,24 +513,24 @@ Returns the result set concurrency.
 
 
 
-// @D3C
-/**
-Returns the name of the SQL cursor in use by the result set.
-In SQL, results are retrieved through a named cursor.  The
-current row of a result can be updated or deleted using a
-positioned UPDATE or DELETE statement that references a
-cursor name.
-       
-<p>Cursor names are case sensitive.  However, when using a cursor
-name within other SQL positioned UPDATE or DELETE statements,
-the cursor name will be uppercased.  If you use a cursor name
-with lowercase characters, you need to enclose it in double
-quotes when referring to it in other SQL statements.
-
-@return     The cursor name.
-
-@exception  SQLException    If the result is not open.
-**/
+    // @D3C
+    /**
+    Returns the name of the SQL cursor in use by the result set.
+    In SQL, results are retrieved through a named cursor.  The
+    current row of a result can be updated or deleted using a
+    positioned UPDATE or DELETE statement that references a
+    cursor name.
+           
+    <p>Cursor names are case sensitive.  However, when using a cursor
+    name within other SQL positioned UPDATE or DELETE statements,
+    the cursor name will be uppercased.  If you use a cursor name
+    with lowercase characters, you need to enclose it in double
+    quotes when referring to it in other SQL statements.
+    
+    @return     The cursor name.
+    
+    @exception  SQLException    If the result is not open.
+    **/
     public String getCursorName ()
     throws SQLException
     {
@@ -521,22 +542,22 @@ quotes when referring to it in other SQL statements.
 
 
 
-// JDBC 2.0
-/**
-Returns the fetch direction.
-
-@return The fetch direction. 
-        Valid values are:
-                            <ul>
-                              <li>FETCH_FORWARD
-                              <li>FETCH_REVERSE
-                              <li>FETCH_UNKNOWN
-                            </ul>
-
-
-
-@exception  SQLException    If the result is not open.
-**/
+    // JDBC 2.0
+    /**
+    Returns the fetch direction.
+    
+    @return The fetch direction. 
+            Valid values are:
+                                <ul>
+                                  <li>FETCH_FORWARD
+                                  <li>FETCH_REVERSE
+                                  <li>FETCH_UNKNOWN
+                                </ul>
+    
+    
+    
+    @exception  SQLException    If the result is not open.
+    **/
     public int getFetchDirection ()
     throws SQLException
     {
@@ -548,14 +569,14 @@ Returns the fetch direction.
 
 
 
-// JDBC 2.0
-/**
-Returns the fetch size.
-
-@return The fetch size.
-
-@exception  SQLException    If the result is not open.
-**/
+    // JDBC 2.0
+    /**
+    Returns the fetch size.
+    
+    @return The fetch size.
+    
+    @exception  SQLException    If the result is not open.
+    **/
     public int getFetchSize ()
     throws SQLException
     {
@@ -567,11 +588,11 @@ Returns the fetch size.
 
 
 
-/**
-Returns the row cache.
-
-@return     The row cache.
-**/
+    /**
+    Returns the row cache.
+    
+    @return     The row cache.
+    **/
     JDRowCache getRowCache ()
     {
         return rowCache_;
@@ -579,23 +600,23 @@ Returns the row cache.
 
 
 
-// JDBC 2.0
-/**
-Returns the statement for this result set.
-
-@return The statement for this result set, or null if the
-        result set was returned by a DatabaseMetaData
-        catalog method.
-
-@exception SQLException If an error occurs.
-**/
-// Implementation note:
-//
-// * I made a conscious decision not to return the
-//   DatabaseMetaData's statement, if any, since I do
-//   not want users to be able to execute their own
-//   statements using this.
-//
+    // JDBC 2.0
+    /**
+    Returns the statement for this result set.
+    
+    @return The statement for this result set, or null if the
+            result set was returned by a DatabaseMetaData
+            catalog method.
+    
+    @exception SQLException If an error occurs.
+    **/
+    // Implementation note:
+    //
+    // * I made a conscious decision not to return the
+    //   DatabaseMetaData's statement, if any, since I do
+    //   not want users to be able to execute their own
+    //   statements using this.
+    //
     public Statement getStatement ()
     throws SQLException
     {
@@ -604,20 +625,21 @@ Returns the statement for this result set.
 
 
 
-// JDBC 2.0
-/**
-Returns the result set type.
-
-@return The result set type. Valid values are:
-                                <ul>
-                                  <li>TYPE_FORWARD_ONLY
-                                  <li>TYPE_SCROLL_INSENSITIVE
-                                  <li>TYPE_SCROLL_SENSITIVE
-                                </ul>
-
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0
+    /**
+    Returns the result set type.
+    
+    @return The result set type. Valid values are:
+                                    <ul>
+                                      <li>TYPE_FORWARD_ONLY
+                                      <li>TYPE_SCROLL_INSENSITIVE
+                                      <li>TYPE_SCROLL_SENSITIVE
+                                    </ul>
+    
+    
+    @exception SQLException If the result set is not open.
+    @since Modification 5
+    **/
     public int getType ()
     throws SQLException
     {
@@ -629,15 +651,71 @@ Returns the result set type.
 
 
 
-/**
-Returns the first warning reported for the result set.
-Subsequent warnings may be chained to this warning.
+    //@G4A JDBC 3.0
+    /**
+    Returns the value of an SQL DATALINK output parameter as a
+    java.net.URL object.
+        
+    @param  columnIndex     The column index (1-based).
+    @return                 The parameter value or null if the value is SQL NULL.
+        
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter name is
+                                not registered as an output parameter,
+                                the statement was not executed or
+                                the requested conversion is not valid.
+    @since Modification 5
+    **/
+    public URL getURL (int columnIndex)
+    throws SQLException   
+    {
+        synchronized(internalLock_) {                                           
+            checkOpen ();
+            try
+            {
+                return new java.net.URL(getString(columnIndex));
+            }
+            catch (MalformedURLException e)
+            {
+                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID, e);
+                return null;
+            }
+        }
+    }
 
-@return     The first warning or null if no warnings
-            have been reported.
 
-@exception  SQLException    If an error occurs.
-**/
+
+    //@G4A JDBC 3.0
+    /**
+    Returns the value of an SQL DATALINK output parameter as a
+    java.net.URL object.
+        
+    @param  columnName      The column name.
+    @return                 The parameter value or null if the value is SQL NULL.
+        
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter name is
+                                not registered as an output parameter,
+                                the statement was not executed or
+                                the requested conversion is not valid.
+    **/
+    public URL getURL (String columnName)
+    throws SQLException
+    {
+        return getURL(findColumn(columnName));
+    }
+
+
+
+    /**
+    Returns the first warning reported for the result set.
+    Subsequent warnings may be chained to this warning.
+    
+    @return     The first warning or null if no warnings
+                have been reported.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public SQLWarning getWarnings ()
     throws SQLException
     {
@@ -646,12 +724,12 @@ Subsequent warnings may be chained to this warning.
 
 
 
-/**
-Indicates if the result set is closed.
-
-@return     true if this result set is closed;
-            false otherwise.
-**/
+    /**
+    Indicates if the result set is closed.
+    
+    @return     true if this result set is closed;
+                false otherwise.
+    **/
     boolean isClosed ()
     {
         return closed_;
@@ -659,11 +737,11 @@ Indicates if the result set is closed.
 
 
 
-/**
-Posts a warning for this result set.
-
-@param   sqlWarning  The warning.
-**/
+    /**
+    Posts a warning for this result set.
+    
+    @param   sqlWarning  The warning.
+    **/
     void postWarning (SQLWarning sqlWarning)
     {
         if (sqlWarning_ == null)
@@ -674,38 +752,38 @@ Posts a warning for this result set.
 
 
 
-// JDBC 2.0
-/**
-Sets the direction in which the rows in a result set are
-processed.
-
-@param      fetchDirection  The fetch direction for processing rows.
-                            Valid values are:
-                            <ul>
-                              <li>FETCH_FORWARD
-                              <li>FETCH_REVERSE
-                              <li>FETCH_UNKNOWN
-                            </ul>
-                            The default is the statement's fetch
-                            direction.
-
-@exception          SQLException    If the result set is not open,
-                                    the result set is scrollable
-                                    and the input value is not
-                                    ResultSet.FETCH_FORWARD,
-                                    or the input value is not valid.
-**/
-//
-// Implementation note:
-//
-// The fetch direction is intended to be a hint for the driver
-// to do some optimization (like fetch size helps with record
-// blocking).  However, we currently don't do anything with it.
-// I attempted to document this fact in the javadoc, but could
-// not come up with a wording that is not confusing.  I think it
-// is okay NOT to document the fact that we ignore this setting,
-// since it would not affect the behavior of the driver anyway.
-//
+    // JDBC 2.0
+    /**
+    Sets the direction in which the rows in a result set are
+    processed.
+    
+    @param      fetchDirection  The fetch direction for processing rows.
+                                Valid values are:
+                                <ul>
+                                  <li>FETCH_FORWARD
+                                  <li>FETCH_REVERSE
+                                  <li>FETCH_UNKNOWN
+                                </ul>
+                                The default is the statement's fetch
+                                direction.
+    
+    @exception          SQLException    If the result set is not open,
+                                        the result set is scrollable
+                                        and the input value is not
+                                        ResultSet.FETCH_FORWARD,
+                                        or the input value is not valid.
+    **/
+    //
+    // Implementation note:
+    //
+    // The fetch direction is intended to be a hint for the driver
+    // to do some optimization (like fetch size helps with record
+    // blocking).  However, we currently don't do anything with it.
+    // I attempted to document this fact in the javadoc, but could
+    // not come up with a wording that is not confusing.  I think it
+    // is okay NOT to document the fact that we ignore this setting,
+    // since it would not affect the behavior of the driver anyway.
+    //
     public void setFetchDirection (int fetchDirection)
     throws SQLException
     {
@@ -716,10 +794,10 @@ processed.
                 || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
                     && (fetchDirection != ResultSet.FETCH_FORWARD)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    
+
             checkOpen ();
             fetchDirection_ = fetchDirection;
-    
+
             if (JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
         }
@@ -727,25 +805,25 @@ processed.
 
 
 
-// JDBC 2.0
-/**
-Sets the number of rows to be fetched from the database when more
-rows are needed.  This may be changed at any time. If the value
-specified is zero, then the driver will choose an appropriate
-fetch size.
-
-<p>This setting only affects statements that meet the criteria
-specified in the "block criteria" property.  The fetch size
-is only used if the "block size" property is set to "0".
-
-@param fetchSize    The number of rows.  This must be greater than
-                    or equal to 0 and less than or equal to the
-                    maximum rows limit.  The default is the
-                    statement's fetch size.
-
-@exception          SQLException    If the result set is not open
-                                    or the input value is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Sets the number of rows to be fetched from the database when more
+    rows are needed.  This may be changed at any time. If the value
+    specified is zero, then the driver will choose an appropriate
+    fetch size.
+    
+    <p>This setting only affects statements that meet the criteria
+    specified in the "block criteria" property.  The fetch size
+    is only used if the "block size" property is set to "0".
+    
+    @param fetchSize    The number of rows.  This must be greater than
+                        or equal to 0 and less than or equal to the
+                        maximum rows limit.  The default is the
+                        statement's fetch size.
+    
+    @exception          SQLException    If the result set is not open
+                                        or the input value is not valid.
+    **/
     public void setFetchSize (int fetchSize)
     throws SQLException
     {
@@ -753,16 +831,16 @@ is only used if the "block size" property is set to "0".
             if ((fetchSize < 0)
                 || ((fetchSize > maxRows_) && (maxRows_ > 0)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    
+
             checkOpen ();
             fetchSize_ = fetchSize;
-    
+
             // This is a kludgy way of keeping the fetch size
             // out of the JDRowCache interface.  It only applies
             // to JDServerRowCache anyway.
             if (rowCache_ instanceof JDServerRowCache)
                 ((JDServerRowCache) rowCache_).setFetchSize (fetchSize_);
-    
+
             if (JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Fetch size", fetchSize_);
         }
@@ -770,11 +848,11 @@ is only used if the "block size" property is set to "0".
 
 
 
-/**
-Returns the name of the SQL cursor in use by the result set.
-
-@return     The cursor name.
-**/
+    /**
+    Returns the name of the SQL cursor in use by the result set.
+    
+    @return     The cursor name.
+    **/
     public String toString ()
     {
         return cursorName_;
@@ -782,11 +860,11 @@ Returns the name of the SQL cursor in use by the result set.
 
 
 
-/*---------------------------------------------------------*/
-/*                                                         */
-/* CURSOR POSITIONING.                                     */
-/*                                                         */
-/*---------------------------------------------------------*/
+    /*---------------------------------------------------------*/
+    /*                                                         */
+    /* CURSOR POSITIONING.                                     */
+    /*                                                         */
+    /*---------------------------------------------------------*/
 
 
 
@@ -800,135 +878,273 @@ Returns the name of the SQL cursor in use by the result set.
     //
     // For both of these values, 0 means after the last or
     // before the first.  -1 means not able to determine.
+    // @E1: a new constant is added which also means we
+    // don't know the value.  -1 is not used because it
+    // is easy to incorrectly add 1 to -1 and make it look 
+    // like a valid value (and a very hard bug to find).
+    // Adding 1 to -9999 results in a strange value which
+    // should be easier to debug. 
     //
     // The position insert flag is set when the cursor
     // is moved to the insert row.
-    //
+    //                            
+    // @E1: Fully supporting getRow() means at times
+    // looping through the rows to count them.  Two
+    // values are added to reduce the amount rows we
+    // loop through.  We update highestKnownRow and
+    // totalRows whenever possible to reduce the number
+    // of rows we loop through.  Once set, these 
+    // values do not change.  That means if rows are added      
+    // or deleted during the life of the rs, these
+    // constants will not reflect the change.  I talked
+    // to the developer of the native driver and 
+    // he feels it is safe (and much faster) to harden
+    // the values once they are set.  The alternative
+    // is to create a property where the app can tell us
+    // to re-get the total at appropriate times.  The
+    // performance of that would probably be unacceptably
+    // slow. 
+    // 
+
+    private static final int NOT_KNOWN = -9999;                      // @E1a
+
     private int     positionFromFirst_  = 0;
     private int     positionFromLast_   = -1;
     private boolean positionInsert_     = false;
-    private boolean positionValid_      = false;
+    private boolean positionValid_      = false;             
+
+    // totalRows_ is the number of rows in the RS.  Highest
+    // known row is the biggest row we have reached so far.  Eventually
+    // they will be the same but until there is a need to figure
+    // out how many rows are in the RS, total will be not-known and
+    // highest will increase.
+    private int     totalRows_          = NOT_KNOWN;                 // @E1a
+    private int     highestKnownRow_    = NOT_KNOWN;                 // @E1a
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor to an absolute row number.
-
-<p>Attempting to move beyond the first row positions the
-cursor before the first row. Attempting to move beyond the last
-row positions the cursor after the last row.
-
-<p>If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@param  rowNumber   The absolute row number.  If the absolute row
-                    number is positive, this positions the cursor
-                    with respect to the beginning of the result set.
-                    If the absolute row number is negative, this
-                    positions the cursor with respect to the end
-                    of result set.
-@return             true if the requested cursor position is
-                    valid; false otherwise.
-
-@exception SQLException  If the result set is not open,
-                         the result set is not scrollable,
-                         the row number is 0,
-                         or an error occurs.
-*/
+    // JDBC 2.0
+    /**
+    Positions the cursor to an absolute row number.
+    
+    <p>Attempting to move any number of positions before
+    the first row positions the cursor to before the first row. 
+    Attempting to move beyond the last
+    row positions the cursor after the last row.
+    
+    <p>If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @param  rowNumber   The absolute row number.  If the absolute row
+                        number is positive, this positions the cursor
+                        with respect to the beginning of the result set.
+                        If the absolute row number is negative, this
+                        positions the cursor with respect to the end
+                        of result set.
+    @return             true if the requested cursor position is
+                        valid; false otherwise.
+    
+    @exception SQLException  If the result set is not open,
+                             the result set is not scrollable,
+                             the row number is 0,
+                             or an error occurs.
+    */
     public boolean absolute (int rowNumber)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)                                              // @D1A
+        {      
+            // @E2a absolute(0) moves you to before the first row
+            if (rowNumber == 0)                                     // @E2a
+            {                                                       // @E2a
+                beforeFirst();                                       // @E2a
+                return false;                                        // @E2a
+            }                                                       // @E2a
+
+
             // Initialization.
             beforePositioning (true);
-            if (rowNumber == 0)
-                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
-    
+            // @E2d if (rowNumber == 0)                                                    
+            // @E2d    JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);   
+
             // Handle max rows.
-            if ((rowNumber > maxRows_) && (maxRows_ > 0)) {
-                afterLast ();
-                return false;
-            }
-    
+            // @E3, fixes to correctly handle maxRows,  (1) Make sure
+            //      we don't go before first when absolute < 0, and (2) make sure
+            //      we get the row number right because the server and row cache
+            //      do not deal with maxRows.  They always deal with the entire
+            //      result set.  
+            //
+            //      old code:
+            //
+            // if ((rowNumber > maxRows_) && (maxRows_ > 0)) 
+            // {
+            //     afterLast ();
+            //     return false;
+            // }
+            //
+            //      new code:
+            if (maxRows_ > 0)                                        // @E3a
+            {                                                        // @E3a
+                if (rowNumber > 0)                                    // @E3a
+                {                                                     // @E3a
+                    if (rowNumber > maxRows_)                          // @E3a
+                    {                                                  // @E3a
+                        afterLast();                                    // @E3a
+                        return false;                                   // @E3a
+                    }                                                  // @E3a
+                    // Don't need an else.  Drop through and call the rowCache as if maxRows not set.  
+                }                                                     // @E3a
+                else
+                {                                                  // @E3a                                                     // @E3a
+                    if (totalRows_ == NOT_KNOWN)                       // @E3a
+                    {                                                  // @E3a
+                        findLastRow();                                  // @E3a
+                    }                                                  // @E3a
+                    int distanceFromFirst = totalRows_ + rowNumber;    // @E3a
+                    if (distanceFromFirst < 0)                         // @E3a
+                    {                                                  // @E3a
+                        beforeFirst();                                  // @E3a
+                        return false;                                   // @E3a
+                    }                                                  // @E3a
+                    else                                               // @E3a
+                        rowNumber = distanceFromFirst + 1;              // @E3a
+                    // don't return.  Drop through and call the rowCache as if maxRows not set.
+                }                                                     // @E3a
+            }                                                        // @E3a
+
+
             // Position the cursor.
             rowCache_.absolute (rowNumber);
-            boolean validPosition = (rowCache_.isValid ());
-            if (rowNumber > 0) {
-                positionFromFirst_ = validPosition ? rowNumber : -1;
-                positionFromLast_ = validPosition ? -1 : 0;
-            } else {
-                positionFromFirst_ = validPosition ? -1 : 0;
-                positionFromLast_ = validPosition ? -rowNumber : -1;
+            positionValid_ = (rowCache_.isValid ());
+            if (rowNumber > 0)
+            {
+                positionFromFirst_ = positionValid_ ? rowNumber : -1;
+                positionFromLast_ = positionValid_ ? -1 : 0;         
+
+                if (positionValid_)                                 // @E1a
+                {                                                   // @E1a
+                    if (highestKnownRow_ < rowNumber)                // @E1a             
+                        highestKnownRow_ = rowNumber;                 // @E1a      
+
+                    if (totalRows_ != NOT_KNOWN)                         // @E2a
+                        positionFromLast_ = totalRows_ - rowNumber + 1;   // @E2a
+                }                                                   // @E1a
             }
-    
-            positionValid_ = rowCache_.isValid ();
+            else
+            {
+                positionFromFirst_ = positionValid_ ? -1 : 0;
+                positionFromLast_ = positionValid_ ? -rowNumber : -1;
+
+                if (positionValid_)                                 // @E1a
+                {                                                   // @E1a
+                    if (totalRows_ != NOT_KNOWN)                     // @E2a
+                    {                                                // @E2a
+                        int currentRow = totalRows_ + rowNumber;      // @E1a
+
+                        if (highestKnownRow_ < currentRow)            // @E1a
+                            highestKnownRow_ = currentRow;             // @E1a
+
+                        positionFromFirst_ = currentRow + 1;          // @E2a
+                    }                                                // @E1a
+                }                                                   // @E1a
+            }
+
             return positionValid_;
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor after the last row.
-If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Positions the cursor after the last row.
+    If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                or an error occurs.
+    **/
     public void afterLast ()
     throws SQLException
-    {
-        synchronized(internalLock_) {                                            // @D1A
-            beforePositioning (true);
-            rowCache_.afterLast ();
-            positionFromFirst_ = -1;
-            positionFromLast_ = 0;
-            positionValid_ = false;
+    {      
+        //   @E1: Implementation simplified.  Now do work in other methods 
+        //        that have to do the work anyway. 
+        //                                       
+        //   Old code (v5r1 and older);
+        //
+        // synchronized(internalLock_)                               // @D1a
+        // {                                         
+        //     beforePositioning (true);
+        //     rowCache_.afterLast ();
+        //     positionFromFirst_ = -1;
+        //     positionFromLast_ = 0;
+        //     positionValid_ = false;
+        // }
+        //
+        //   New code (note we don't do beforePositioning(true) because that is
+        //   done in last())
+        //   
+        synchronized(internalLock_)                             
+        {                                         
+            last();
+            next();
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor before the first row.
-If an InputStream from the current row is open, it is implicitly
-closed.  In addition, all warnings and pending updates are cleared.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Positions the cursor before the first row.
+    If an InputStream from the current row is open, it is implicitly
+    closed.  In addition, all warnings and pending updates are cleared.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                or an error occurs.
+    **/
     public void beforeFirst ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
-            beforePositioning (true);
-            rowCache_.beforeFirst ();
-            positionFromFirst_ = 0;
-            positionFromLast_ = -1;
-            positionValid_ = false;
+        //   @E1: Implementation simplified.  Now do work in other methods 
+        //        that have to do the work anyway. 
+        //                                       
+        //   Old code (v5r1 and older);
+        //
+        // synchronized(internalLock_)                                              // @D1A
+        // {
+        //     beforePositioning (true);
+        //     rowCache_.beforeFirst ();
+        //     positionFromFirst_ = 0;
+        //     positionFromLast_ = -1;
+        //     positionValid_ = false;
+        // }
+        //
+        //   New code (note we don't do beforePositioning(true) because that is
+        //   done in last())
+        //   
+        synchronized(internalLock_)                             
+        {                                         
+            first();
+            previous();
         }
     }
 
 
 
-/**
-Checks necessary conditions before positioning a row.  All
-positioning methods should call this before changing the
-position.
-
-@param scrollable   Indicates if the result set must be
-                    scrollable.
-
-@exception  SQLException    If the position cannot be done.
-**/
+    /**
+    Checks necessary conditions before positioning a row.  All
+    positioning methods should call this before changing the
+    position.
+    
+    @param scrollable   Indicates if the result set must be
+                        scrollable.
+    
+    @exception  SQLException    If the position cannot be done.
+    **/
     private void beforePositioning (boolean scrollable)
     throws SQLException
     {
@@ -944,224 +1160,466 @@ position.
     }
 
 
+    // @E3 new method!
+    /**                         
+    Counts the number of rows in the result set.  That number 
+    is the number of rows that meet criteria or maxRows, 
+    whichever is smaller.  The result of this method is
+    internal variable "totalRows_" is set.
+    
+    **** Callers of this method must reposition the rowCache
+    **** after calling this method!  This method moves the only the 
+    **** rowCache cursor.  Since it no longer matches the result set cursor,
+    **** the caller must re-sync the two cursors.
+    
+    @exception  SQLException    If it doesn't work.
+    **/
+    private void findLastRow ()
+    throws SQLException
+    {
+        checkOpen ();
 
-// JDBC 2.0
-/**
-Positions the cursor to the first row.
-If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
+        // if we already know how many rows are in the result set simply return.
+        if (totalRows_ != NOT_KNOWN)
+            return;
 
-@return             true if the requested cursor position is
-                    valid; false otherwise.
 
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            or an error occurs.
-**/
+        if (highestKnownRow_ > 0)
+        {
+            // If we are already past the maximum number of rows (probably
+            // an error condition) simply re-set highestKnownRow (total
+            // Rows is reset at the end of this routine).
+            if (highestKnownRow_ >= maxRows_)
+            {
+                highestKnownRow_ = maxRows_;      
+            }
+            else
+            {                                            
+                // As a last resort set the cursor to the highest known
+                // row then loop through the rows until we hit the end. 
+                rowCache_.absolute(highestKnownRow_);
+                rowCache_.next();
+
+                while (rowCache_.isValid())
+                {
+                    highestKnownRow_ ++;    
+
+                    if ((maxRows_ > 0) && (highestKnownRow_ == maxRows_))
+                        break;
+
+                    rowCache_.next();
+                }
+            }
+        }
+        // worst case, we don't have any idea how many rows are in the rs.  
+        // Start at the beginning and loop through the rows until we hit the
+        // end or maxRows.
+        else
+        {
+            rowCache_.first();
+
+            if (! rowCache_.isValid())
+            {
+                return;
+            }
+            else
+            {
+                highestKnownRow_ = 0;              
+                while (rowCache_.isValid())
+                {
+                    highestKnownRow_ ++;    
+
+                    if ((maxRows_ > 0) && (highestKnownRow_ == maxRows_))
+                        break;
+
+                    rowCache_.next();
+                }
+            }
+        }
+        totalRows_ = highestKnownRow_;
+    }
+
+
+
+    // JDBC 2.0
+    /**
+    Positions the cursor to the first row.
+    If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @return             true if the requested cursor position is
+                        valid; false otherwise.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                or an error occurs.
+    **/
     public boolean first ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)                                              // @D1A
+        {
             beforePositioning (true);
             rowCache_.first ();
-    
+
             // If the result set is not empty, then mark the
             // position as being on the first row.
-            if (rowCache_.isValid ()) {
-                positionFromFirst_ = 1;
-                positionFromLast_ = -1;
-                positionValid_ = true;
+            if (rowCache_.isValid ())
+            {
+                positionFromFirst_ = 1;               
+
+                if (totalRows_ == NOT_KNOWN)                     // @E1a
+                    positionFromLast_ = -1;
+                else                                             // @E1a
+                    positionFromLast_ = totalRows_;               // @E1a
+
+                positionValid_ = true;                                  
+
+                if (highestKnownRow_ < 1)                        // @E1a
+                    highestKnownRow_ = 1;                         // @E1a
             }
-    
-            // Otherwise, there is no first row.
-            else {
+
+            // Otherwise, there is no first row (only true if ResultSet is empty)
+            else
+            {
                 positionFromFirst_ = -1;
                 positionFromLast_ = -1;
                 positionValid_ = false;
+                totalRows_ = 0;                                  // @E1a
+                highestKnownRow_ = NOT_KNOWN;                    // @E1a
             }
-    
+
             return positionValid_;
         }
     }
 
 
 
-// JDBC 2.0 @D2C
-/**
-Returns the current row number.  Depending on the cursor position within
-the result set, the current row number may not be available.  Specifically,
-the use of last(), afterLast(), and absolute() with a negative value will
-make the current row number not available.
-
-@return The current row number (1-based), or 0 if there is no
-        current row, if the cursor is positioned on the insert
-        row, or the current row number is not known.
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0 @D2C                                     
+    // @E1 entire method re-worked
+    /**
+    Returns the current row number, or 0.  
+    <P>
+    0 is returned if the cursor is not on a valid row (such as
+    before the first row, after the last row, or on the insert row),
+    or if the result set is empty.                              
+    <P>
+    This method may be slow if cursor movement based on the end
+    of the result set is used.  Methods such as last(), afterLast()
+    and absolute() with a negative value will move the cursor based
+    on the end of the result set.  This method will be slow in these
+    cases because internally the method must get every row to determine
+    how many rows are in the result set before calculating the current
+    row.  The server does not know how many rows are in the result
+    set until every row is touched.  That is why this method may
+    start at the highest row retrieve so far, then do next() until
+    the last row is retrieved.  
+    <P>
+    Once the maximum number of rows in the result set is determined, 
+    it does not change until the result set is closed.  
+    
+    @return The current row number (1-based), or 0 if the current row
+            is not valid.
+    
+    @exception SQLException If the result set is not open.
+    **/
     public int getRow ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)                                         // @D1A
+        {  
             checkOpen ();
-            return ((positionFromFirst_ > 0) && (positionInsert_ == false))
-            ? positionFromFirst_ : 0;
+
+            // @E1
+            // Old Code:
+            // return ((positionFromFirst_ > 0) && (positionInsert_ == false))
+            //   ? positionFromFirst_ : 0;
+            //
+            // Old code in more readable format:
+            // if ((positionFromFirst_ > 0) && (positionInsert_ == false))
+            //    return positionFromFirst_;
+            // else
+            //    return 0;
+            //          
+            // case 1: return 0 if not on a valid row.
+            if ((positionInsert_ == true)  ||
+                (positionValid_  == false) ||
+                (isBeforeFirst())          ||
+                (isAfterLast()))
+                return 0;
+
+            // case 2: we know what the current row is because scrolling has been
+            //         from the beginning of the result set, or because previous
+            //         method calls calculated the value.
+            if (positionFromFirst_ > 0)
+                return positionFromFirst_;
+
+            // case 3a: don't know the current row because negative scrolling or
+            //          scrolling from end has been used, *** and we are currently
+            //          at the end of the rs ***.  If we don't know the number of 
+            //          rows in the rs we will move the cursor to the highest
+            //          known row then do next() until we get to the end.
+            if (isLast())
+            {
+                if (totalRows_ != NOT_KNOWN)
+                {                                     
+                    positionFromFirst_ = totalRows_;       
+                    return positionFromFirst_;
+                }
+                else
+                {
+                    if (highestKnownRow_ == NOT_KNOWN)
+                        first();
+                    else
+                        absolute(highestKnownRow_);
+
+                    while (next()) {
+                    } 
+                    previous();
+
+                    return positionFromFirst_;   
+                }
+            }
+
+            // case 3b: don't know the current row because negative scrolling or
+            //          scrolling from end has been used, *** but we are not currently
+            //          at the end of the rs ***.  If we don't know how many rows are 
+            //          in the result set we will move the cursor to the highest known
+            //          row then do next() until we get back to where we were.
+            if (positionFromLast_ > 0)
+            {  
+                if (totalRows_ != NOT_KNOWN)
+                {
+                    positionFromFirst_ = totalRows_ - positionFromLast_ + 1;
+                    return positionFromFirst_;
+                }
+                else
+                {
+                    int currentPositionFromLast = positionFromLast_;
+
+                    if (highestKnownRow_ == NOT_KNOWN)
+                        first();
+                    else
+                        absolute(highestKnownRow_);
+
+                    while (next()) {
+                    }
+                    absolute(totalRows_ - currentPositionFromLast + 1);
+
+                    return positionFromFirst_;   
+                }   
+            }
+
+            // case 4: We don't have a clue how to figure out what the current row is.  Return 0;
+            if (JDTrace.isTraceOn ())
+                JDTrace.logInformation (this, "Could not determine row number in getRow().");
+
+            return 0;
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Indicates if the cursor is positioned after the last row.
-
-@return true if the cursor is positioned after the last row;
-        false if the cursor is not positioned after the last
-        row or if the result set contains no rows.
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the cursor is positioned after the last row.
+    
+    @return true if the cursor is positioned after the last row;
+            false if the cursor is not positioned after the last
+            row or if the result set contains no rows.
+    
+    @exception SQLException If the result set is not open.
+    **/
     public boolean isAfterLast ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
             checkOpen ();
-            return ((positionFromLast_ == 0)
-                    && (positionFromFirst_ != 0)
-                    && (positionInsert_ == false)
-                    && (! rowCache_.isEmpty ()));
+            return((positionFromLast_ == 0)
+                   && (positionFromFirst_ != 0)
+                   && (positionInsert_ == false)
+                   && (! rowCache_.isEmpty ()));
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Indicates if the cursor is positioned before the first row.
-
-@return true if the cursor is positioned before the first row;
-        false if the cursor is not positioned before the first
-        row or if the result set contains no rows.
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the cursor is positioned before the first row.
+    
+    @return true if the cursor is positioned before the first row;
+            false if the cursor is not positioned before the first
+            row or if the result set contains no rows.
+    
+    @exception SQLException If the result set is not open.
+    **/
     public boolean isBeforeFirst ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
             checkOpen ();
-            return ((positionFromFirst_ == 0)
-                    && (positionFromLast_ != 0)
-                    && (positionInsert_ == false)
-                    && (! rowCache_.isEmpty ()));
+            return((positionFromFirst_ == 0)
+                   && (positionFromLast_ != 0)
+                   && (positionInsert_ == false)
+                   && (! rowCache_.isEmpty ()));
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Indicates if the cursor is positioned on the first row.
-
-@return true if the cursor is positioned on the first row;
-        false if the cursor is not positioned on the first
-        row or the row number can not be determined.
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the cursor is positioned on the first row.
+    
+    @return true if the cursor is positioned on the first row;
+            false if the cursor is not positioned on the first
+            row or the row number can not be determined.
+    
+    @exception SQLException If the result set is not open.
+    **/
     public boolean isFirst ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
-            checkOpen ();
-            return ((positionFromFirst_ == 1) && (positionInsert_ == false));
+            checkOpen ();              
+            return((positionFromFirst_ == 1) && (positionInsert_ == false));
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Indicates if the cursor is positioned on the last row.
-
-@return true if the cursor is positioned on the last row;
-        false if the cursor is not positioned on the last
-        row or the row number can not be determined.
-
-@exception SQLException If the result set is not open.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the cursor is positioned on the last row.
+    
+    @return true if the cursor is positioned on the last row;
+            false if the cursor is not positioned on the last
+            row or the row number can not be determined.
+    
+    @exception SQLException If the result set is not open.
+    **/
     public boolean isLast ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)                                              // @D1A
+        {
             checkOpen ();
-            return (((positionFromLast_ == 1)
-                     || ((positionFromFirst_ == maxRows_)
-                         && (maxRows_ > 0)))
-                    && (positionInsert_ == false));
+            // @E2c -- Problem: if scrolling forward we don't know
+            //         if we are on the last row until next() is called.
+            //         In this case isLast() never returns true because
+            //         by the time we figure out we are out of rows we
+            //         are afterLast.  The fix is to internally call
+            //         next then previous if we don't figure out we
+            //         are on the last row some othe way.  This will be
+            //         slower but accurate.  
+            //  
+            //    Old code:
+            //
+            // return (((positionFromLast_ == 1) || 
+            //         ((positionFromFirst_ == maxRows_) && (maxRows_ > 0)))
+            //         && (positionInsert_ == false));
+            //
+            //    New code:
+            if ((positionInsert_ == true) || (positionFromLast_ > 1) || (positionValid_ == false))
+                return false;
+
+            if (( positionFromLast_ == 1) || 
+                ((positionFromFirst_ == maxRows_) && (maxRows_ > 0)))
+                return true;
+
+            boolean returnValue = ! next();
+            previous();     
+
+            return returnValue;                        
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor to the last row.
-If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@return             true if the requested cursor position is
-                    valid; false otherwise.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Positions the cursor to the last row.
+    If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @return             true if the requested cursor position is
+                        valid; false otherwise.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                or an error occurs.
+    **/
     public boolean last ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
-            beforePositioning (true);
-            rowCache_.last ();
-    
+        synchronized(internalLock_)                                              // @D1A
+        {
+            beforePositioning (true);         
+
+            if (maxRows_ > 0)                                    // @E3a
+            {                                                    // @E3a
+                findLastRow();                                    // @E3a     
+                                                                  // @E3a
+                if (totalRows_ >= maxRows_)                       // @E3a    
+                {
+                    rowCache_.absolute(maxRows_);                  // @E3a
+                }
+                else
+                {                                              // @E3a
+                    rowCache_.last ();                             // @E3a
+                }   
+            }                                                    // @E3a
+            else
+                rowCache_.last();      
+
             // If the result set is not empty, then mark the
             // position as being on the last row.
-            if (rowCache_.isValid ()) {
+            if (rowCache_.isValid ())
+            {
                 positionFromFirst_ = -1;
                 positionFromLast_ = 1;
-                positionValid_ = true;
+                positionValid_ = true;     
+
+                if (totalRows_ != NOT_KNOWN)                     // @E1a
+                {                                                // @E1a
+                    positionFromFirst_ = totalRows_;              // @E1a
+                }                                                // @E1a
             }
-    
-            // Otherwise, there is no last row.
-            else {
+
+            // Otherwise, there is no last row (only when result set is empty?)
+            else
+            {
                 positionFromFirst_ = -1;
                 positionFromLast_ = -1;
                 positionValid_ = false;
+                totalRows_ = 0;                                  // @E1a
+                highestKnownRow_ = NOT_KNOWN;                    // @E1a
             }
-    
+
             return positionValid_;
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor to the current row.  This is the row
-where the cursor was positioned before moving it to the insert
-row.  If the cursor is not on the insert row, then this
-has no effect.
-
-<p>If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Positions the cursor to the current row.  This is the row
+    where the cursor was positioned before moving it to the insert
+    row.  If the cursor is not on the insert row, then this
+    has no effect.
+    
+    <p>If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                or an error occurs.
+    **/
     public void moveToCurrentRow ()
     throws SQLException
     {
@@ -1172,18 +1630,18 @@ are cleared.
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor to the insert row.
-If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            the result set is not updatable,
-                            or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Positions the cursor to the insert row.
+    If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                the result set is not updatable,
+                                or an error occurs.
+    **/
     public void moveToInsertRow ()
     throws SQLException
     {
@@ -1196,120 +1654,163 @@ are cleared.
 
 
 
-/**
-Positions the cursor to the next row.
-If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@return     true if the requested cursor position is valid; false
-            if there are no more rows.
-
-@exception  SQLException    If the result set is not open,
-                            or an error occurs.
-**/
+    /**
+    Positions the cursor to the next row.
+    If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @return     true if the requested cursor position is valid; false
+                if there are no more rows.
+    
+    @exception  SQLException    If the result set is not open,
+                                or an error occurs.
+    **/
     public boolean next ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
             // Initialization.
             beforePositioning (false);
-    
+
             // Handle max rows.
-            if ((positionFromFirst_ >= maxRows_) && (maxRows_ > 0)) {
+            if ((maxRows_ > 0) && (positionFromFirst_ >= maxRows_))
+            {
                 // @B3D afterLast ();
-                rowCache_.afterLast ();         // @B3A
-                positionFromFirst_ = -1;        // @B3A
-                positionFromLast_ = 0;          // @B3A
-                positionValid_ = false;         // @B3A
+                // @E3D rowCache_.afterLast ();         // @B3a
+                rowCache_.absolute(maxRows_ + 1);  // @E3a
+                positionFromFirst_ = -1;           // @B3A
+                positionFromLast_ = 0;             // @B3A
+                positionValid_ = false;            // @B3A
+
+                totalRows_ = maxRows_;                           // @E1a
+                highestKnownRow_ = maxRows_;                     // @E1a
+
                 return false;                   
             }
-    
+
             // Normal case. If the row is null after a next, then
             // the cursor is positioned after the last row.
             rowCache_.next();
-            if (rowCache_.isValid ()) {
+
+            if (rowCache_.isValid ())
+            {
                 if (positionFromFirst_ >= 0)
                     ++positionFromFirst_;
+
                 if (positionFromLast_ > 0)
                     --positionFromLast_;
+
+                if (positionFromFirst_ >= 0)                    // @E1a
+                    if (highestKnownRow_ < positionFromFirst_)   // @E1a             
+                        highestKnownRow_ = positionFromFirst_;    // @E1a
+
                 positionValid_ = true;
-            } else {
+
+            }
+            else
+            {
                 // If this is the first time row has been null,
-                // then increment one more time.
-                if (positionFromLast_ != 0)
-                    if (positionFromFirst_ >= 0)
-                        ++positionFromFirst_;
-                positionFromLast_ = 0;
+                // then increment one more time.    
+                // @E2a only if there are rows in the rs!
+                if (! rowCache_.isEmpty ())                        // @E2a
+                {
+                    if (positionFromLast_ != 0)
+                    {
+                        if (positionFromFirst_ >= 0)
+                        {
+                            totalRows_ = positionFromFirst_;        // @E2a
+                            ++positionFromFirst_;
+                        }
+                    }
+                    positionFromLast_ = 0;
+                }                                                  // @E2a   
+                else
+                {                                               // @E1a                                                  // @E1a
+                    if (highestKnownRow_ > 0)                       // @E1a
+                    {                                               // @E1a
+                        totalRows_ = highestKnownRow_;               // @E1a
+                        positionFromFirst_ = totalRows_;             // @E1a
+                        positionFromLast_ = 0;                       // @E1a
+                    }                                               // @E1a
+                }                                                  // @E1a
                 positionValid_ = false;
             }
-    
+
             return positionValid_;
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor to the previous row.
-If an InputStream from the current row is open, it is implicitly
-closed.  In addition, all warnings and pending updates
-are cleared.
-
-@return             true if the requested cursor position is
-                    valid; false otherwise.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Positions the cursor to the previous row.
+    If an InputStream from the current row is open, it is implicitly
+    closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @return             true if the requested cursor position is
+                        valid; false otherwise.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                or an error occurs.
+    **/
     public boolean previous ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)                                              // @D1A
+        {
             // Initialization.
             beforePositioning (true);
-    
+
             // Normal case. If the row is null after a previous, then
             // the cursor is positioned before the first row.
-            rowCache_.previous();
-            if (rowCache_.isValid ()) {
+            rowCache_.previous();  
+
+            if (rowCache_.isValid ())
+            {
                 if (positionFromFirst_ > 0)
                     --positionFromFirst_;
+
                 if (positionFromLast_ >= 0)
                     ++positionFromLast_;
+
                 positionValid_ = true;
-            } else {
+            }
+            else
+            {
                 // If this is the first time row has been null,
                 // then increment one more time.
                 if (positionFromFirst_ != 0)
                     if (positionFromLast_ >= 0)
                         ++positionFromLast_;
+
                 positionFromFirst_ = 0;
                 positionValid_ = false;
             }
-    
+
             return positionValid_;
         }
     }
 
 
-// JDBC 2.0
-/**
-Refreshes the current row from the database and cancels all 
-pending updates that have been made since the last call to 
-updateRow().  This method provides a way for an application 
-to explicitly refetch a row from the database.  If an InputStream 
-from the current row is open, it is implicitly closed.  In 
-addition, all warnings and pending updates are cleared.
-
-@exception SQLException If the result set is not open,
-                        the result set is not scrollable,
-                        the cursor is not positioned on a row,
-                        the cursor is positioned on the
-                        insert row or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Refreshes the current row from the database and cancels all 
+    pending updates that have been made since the last call to 
+    updateRow().  This method provides a way for an application 
+    to explicitly refetch a row from the database.  If an InputStream 
+    from the current row is open, it is implicitly closed.  In 
+    addition, all warnings and pending updates are cleared.
+    
+    @exception SQLException If the result set is not open,
+                            the result set is not scrollable,
+                            the cursor is not positioned on a row,
+                            the cursor is positioned on the
+                            insert row or an error occurs.
+    **/
     public void refreshRow ()
     throws SQLException
     {
@@ -1318,45 +1819,45 @@ addition, all warnings and pending updates are cleared.
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
             beforePositioning (true);
             if (positionValid_ == false)
-                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);       
-            
+                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
+
             if (concurrency_ == CONCUR_UPDATABLE)
                 for (int i = 0; i < columnCount_; ++i)
                     updateSet_[i] = false;
-    
+
             rowCache_.refreshRow ();
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Positions the cursor to a relative row number.
-
-<p>Attempting to move beyond the first row positions the
-cursor before the first row. Attempting to move beyond the last
-row positions the cursor after the last row.
-
-<p>If an InputStream from the current row is open, it is
-implicitly closed.  In addition, all warnings and pending updates
-are cleared.
-
-@param  rowNumber   The relative row number.  If the relative row
-                    number is positive, this positions the cursor
-                    after the current position.  If the relative
-                    row number is negative, this positions the
-                    cursor before the current position.  If the
-                    relative row number is 0, then the cursor
-                    position does not change.
-@return             true if the requested cursor position is
-                    valid, false otherwise.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not scrollable,
-                            the cursor is not positioned on a valid row,
-                            or an error occurs.
-*/
+    // JDBC 2.0
+    /**
+    Positions the cursor to a relative row number.
+    
+    <p>Attempting to move beyond the first row positions the
+    cursor before the first row. Attempting to move beyond the last
+    row positions the cursor after the last row.
+    
+    <p>If an InputStream from the current row is open, it is
+    implicitly closed.  In addition, all warnings and pending updates
+    are cleared.
+    
+    @param  rowNumber   The relative row number.  If the relative row
+                        number is positive, this positions the cursor
+                        after the current position.  If the relative
+                        row number is negative, this positions the
+                        cursor before the current position.  If the
+                        relative row number is 0, then the cursor
+                        position does not change.
+    @return             true if the requested cursor position is
+                        valid, false otherwise.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not scrollable,
+                                the cursor is not positioned on a valid row,
+                                or an error occurs.
+    */
     public boolean relative (int rowNumber)
     throws SQLException
     {
@@ -1365,58 +1866,79 @@ are cleared.
             beforePositioning (true);
             if ((positionFromFirst_ == 0) || (positionFromLast_ == 0))
                 return false;
-    
+
             // Handle max rows.
+            if ((maxRows_ > 0) && (positionFromFirst_ == -1))                // @E3a
+                getRow();                                                     // @E3a
+
             if ((positionFromFirst_ >= 0)
                 && (positionFromFirst_ + rowNumber > maxRows_)
                 && (maxRows_ > 0))
-                return false;
-    
+            {                                                  // @E3a
+                afterLast();  // should this be absolute(max+1) // @E3a
+                return false;                              
+            }                                                  // @E3a
+
+
             // Normal case.  If the row is null after relative,
             // then we are off the edge of the result set.
             rowCache_.relative (rowNumber);
-            if (rowCache_.isValid ()) {
+
+            if (rowCache_.isValid ())
+            {
                 if (positionFromFirst_ >= 0)
                     positionFromFirst_ += rowNumber;
+
                 if (positionFromLast_ >= 0)
                     positionFromLast_ -= rowNumber;
+
                 positionValid_ = true;
-            } else {
-                if (rowNumber >= 0) {
+
+                if (positionFromFirst_ >= 0)                    // @E1a
+                    if (highestKnownRow_ < positionFromFirst_)   // @E1a             
+                        highestKnownRow_ = positionFromFirst_;    // @E1a
+
+            }
+            else
+            {
+                if (rowNumber >= 0)
+                {
                     positionFromFirst_ = -1;
                     positionFromLast_ = 0;
-                } else {
+                }
+                else
+                {                
                     positionFromFirst_ = 0;
                     positionFromLast_ = -1;
                 }
                 positionValid_ = false;
             }
-    
+
             return positionValid_;
         }
     }
 
 
 
-/*---------------------------------------------------------*/
-/*                                                         */
-/* GET DATA METHODS.                                       */
-/*                                                         */
-/*---------------------------------------------------------*/
+    /*---------------------------------------------------------*/
+    /*                                                         */
+    /* GET DATA METHODS.                                       */
+    /*                                                         */
+    /*---------------------------------------------------------*/
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as an Array object.
-DB2 for OS/400 does not support arrays.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    Always thrown because DB2
-                            for OS/400 does not support arrays.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as an Array object.
+    DB2 UDB for iSeries does not support arrays.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support arrays.
+    **/
     public Array getArray (int columnIndex)
     throws SQLException
     {
@@ -1426,17 +1948,17 @@ DB2 for OS/400 does not support arrays.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as an Array object.
-DB2 for OS/400 does not support arrays.
-
-@param  columnName    The column name.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    Always thrown because DB2
-                            for OS/400 does not support arrays.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as an Array object.
+    DB2 UDB for iSeries does not support arrays.
+    
+    @param  columnName    The column name.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support arrays.
+    **/
     public Array getArray (String columnName)
     throws SQLException
     {
@@ -1445,22 +1967,22 @@ DB2 for OS/400 does not support arrays.
 
 
 
-/**
-Returns the value of a column as a stream of ASCII
-characters.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and
-BLOB.  All of the data in the returned stream must be read 
-prior to getting the value of any other column.  The next 
-call to a get method implicitly closes the stream.
-
-@param  columnIndex     The column index (1-based).
-@return                 The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            or the requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a stream of ASCII
+    characters.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and
+    BLOB.  All of the data in the returned stream must be read 
+    prior to getting the value of any other column.  The next 
+    call to a get method implicitly closes the stream.
+    
+    @param  columnIndex     The column index (1-based).
+    @return                 The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                or the requested conversion is not valid.
+    **/
     public InputStream getAsciiStream (int columnIndex)
     throws SQLException
     {
@@ -1476,22 +1998,22 @@ call to a get method implicitly closes the stream.
 
 
 
-/**
-Returns the value of a column as a stream of ASCII
-characters. This can be used to get values from columns
-with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and
-BLOB.  All of the data in the returned stream must be read 
-prior to getting the value of any other column.  The next 
-call to a get method implicitly closes the stream.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a stream of ASCII
+    characters. This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and
+    BLOB.  All of the data in the returned stream must be read 
+    prior to getting the value of any other column.  The next 
+    call to a get method implicitly closes the stream.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public InputStream getAsciiStream (String columnName)
     throws SQLException
     {
@@ -1500,22 +2022,22 @@ call to a get method implicitly closes the stream.
 
 
 
-// JDBC 2.0
-// @D0C
-/**
-Returns the value of a column as a BigDecimal object.  This
-can be used to get values from columns with SQL types
-SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex     The column index (1-based).
-@return                 The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            or the requested conversion is not valid.
-**/
+    // JDBC 2.0
+    // @D0C
+    /**
+    Returns the value of a column as a BigDecimal object.  This
+    can be used to get values from columns with SQL types
+    SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex     The column index (1-based).
+    @return                 The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                or the requested conversion is not valid.
+    **/
     public BigDecimal getBigDecimal (int columnIndex)
     throws SQLException
     {
@@ -1530,22 +2052,22 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// JDBC 2.0
-// @D0C    
-/**
-Returns the value of a column as a BigDecimal object. This
-can be used to get values from columns with SQL types
-SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found,
-                            or the requested conversion is not valid.
-**/
+    // JDBC 2.0
+    // @D0C    
+    /**
+    Returns the value of a column as a BigDecimal object. This
+    can be used to get values from columns with SQL types
+    SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found,
+                                or the requested conversion is not valid.
+    **/
     public BigDecimal getBigDecimal (String columnName)
     throws SQLException
     {
@@ -1554,26 +2076,26 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a BigDecimal object.  This
-can be used to get values from columns with SQL types
-SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex     The column index (1-based).
-@param  scale           The number of digits after the decimal.
-@return                 The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            the scale is not valid, or the
-                            requested conversion is not valid.
-
-@deprecated Use getBigDecimal(int) instead.
-@see #getBigDecimal(int)
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a BigDecimal object.  This
+    can be used to get values from columns with SQL types
+    SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex     The column index (1-based).
+    @param  scale           The number of digits after the decimal.
+    @return                 The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                the scale is not valid, or the
+                                requested conversion is not valid.
+    
+    @deprecated Use getBigDecimal(int) instead.
+    @see #getBigDecimal(int)
+    **/
     public BigDecimal getBigDecimal (int columnIndex, int scale)
     throws SQLException
     {
@@ -1592,26 +2114,26 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a BigDecimal object. This
-can be used to get values from columns with SQL types
-SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@param  scale       The number of digits after the decimal.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found,
-                            the scale is not valid, or the
-                            requested conversion is not valid.
-
-@deprecated Use getBigDecimal(String) instead.
-@see #getBigDecimal(String)
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a BigDecimal object. This
+    can be used to get values from columns with SQL types
+    SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @param  scale       The number of digits after the decimal.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found,
+                                the scale is not valid, or the
+                                requested conversion is not valid.
+    
+    @deprecated Use getBigDecimal(String) instead.
+    @see #getBigDecimal(String)
+    **/
     public BigDecimal getBigDecimal (String columnName, int scale)
     throws SQLException
     {
@@ -1620,22 +2142,22 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-/**
-Returns the value of a column as a stream of uninterpreted
-bytes.  This can be used to get values from columns
-with SQL types BINARY, VARBINARY, and BLOB.  All of the data in
-the returned stream must be read prior to getting the
-value of any other column.  The next call to a get method
-implicitly closes the stream.
-
-@param  columnIndex     The column index (1-based).
-@return                 The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a stream of uninterpreted
+    bytes.  This can be used to get values from columns
+    with SQL types BINARY, VARBINARY, and BLOB.  All of the data in
+    the returned stream must be read prior to getting the
+    value of any other column.  The next call to a get method
+    implicitly closes the stream.
+    
+    @param  columnIndex     The column index (1-based).
+    @return                 The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public InputStream getBinaryStream (int columnIndex)
     throws SQLException
     {
@@ -1651,22 +2173,22 @@ implicitly closes the stream.
 
 
 
-/**
-Returns the value of a column as a stream of uninterpreted
-bytes.  This can be used to get values from columns
-with SQL types BINARY, VARBINARY, and BLOB.  All of the data in
-the returned stream must be read prior to getting the
-value of any other column.  The next call to a get method
-implicitly closes the stream.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a stream of uninterpreted
+    bytes.  This can be used to get values from columns
+    with SQL types BINARY, VARBINARY, and BLOB.  All of the data in
+    the returned stream must be read prior to getting the
+    value of any other column.  The next call to a get method
+    implicitly closes the stream.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public InputStream getBinaryStream (String columnName)
     throws SQLException
     {
@@ -1675,20 +2197,20 @@ implicitly closes the stream.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Blob object.
-This can be used to get values from columns with SQL
-types BINARY, VARBINARY, and BLOB.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Blob object.
+    This can be used to get values from columns with SQL
+    types BINARY, VARBINARY, and BLOB.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public Blob getBlob (int columnIndex)
     throws SQLException
     {
@@ -1703,20 +2225,20 @@ types BINARY, VARBINARY, and BLOB.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Blob object.
-This can be used to get values from columns with SQL
-types BINARY, VARBINARY, and BLOB.
-
-@param  columnName    The column name.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Blob object.
+    This can be used to get values from columns with SQL
+    types BINARY, VARBINARY, and BLOB.
+    
+    @param  columnName    The column name.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public Blob getBlob (String columnName)
     throws SQLException
     {
@@ -1725,21 +2247,21 @@ types BINARY, VARBINARY, and BLOB.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java boolean value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or false if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java boolean value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or false if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public boolean getBoolean (int columnIndex)
     throws SQLException
     {
@@ -1754,21 +2276,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java boolean value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or false if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java boolean value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or false if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public boolean getBoolean (String columnName)
     throws SQLException
     {
@@ -1777,21 +2299,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java byte value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex     The column index (1-based).
-@return                 The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java byte value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex     The column index (1-based).
+    @return                 The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public byte getByte (int columnIndex)
     throws SQLException
     {
@@ -1806,21 +2328,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java byte value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java byte value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public byte getByte (String columnName)
     throws SQLException
     {
@@ -1829,24 +2351,24 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-/**
-Returns the value of a column as a Java byte array.
-This can be used to get values from columns with SQL
-types BINARY and VARBINARY.  
-
-<p>This can also be used to get values from columns 
-with other types.  The values are returned in their
-native AS/400 format.  This is not supported for
-result sets returned by a DatabaseMetaData object.
-
-@param  columnIndex     The column index (1-based).
-@return                 The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a Java byte array.
+    This can be used to get values from columns with SQL
+    types BINARY and VARBINARY.  
+    
+    <p>This can also be used to get values from columns 
+    with other types.  The values are returned in their
+    native OS/400 format.  This is not supported for
+    result sets returned by a DatabaseMetaData object.
+    
+    @param  columnIndex     The column index (1-based).
+    @return                 The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public byte[] getBytes (int columnIndex)
     throws SQLException
     {
@@ -1854,7 +2376,7 @@ result sets returned by a DatabaseMetaData object.
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             byte[] value;                                                               // @C1C
-            
+
             // Treat this differently from the other get's.  If the data is not a       // @C1A
             // BINARY, VARBINARY, or BLOB, and we have access to the bytes, then return // @C1A @D4C
             // the bytes directly.                                                      // @C1A
@@ -1876,24 +2398,24 @@ result sets returned by a DatabaseMetaData object.
 
 
 
-/**
-Returns the value of a column as a Java byte array.
-This can be used to get values from columns with SQL
-types BINARY and VARBINARY.
-
-<p>This can also be used to get values from columns 
-with other types.  The values are returned in their
-native AS/400 format.  This is not supported for
-result sets returned by a DatabaseMetaData object.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a Java byte array.
+    This can be used to get values from columns with SQL
+    types BINARY and VARBINARY.
+    
+    <p>This can also be used to get values from columns 
+    with other types.  The values are returned in their
+    native OS/400 format.  This is not supported for
+    result sets returned by a DatabaseMetaData object.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public byte[] getBytes (String columnName)
     throws SQLException
     {
@@ -1902,23 +2424,23 @@ result sets returned by a DatabaseMetaData object.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a character stream.
-This can be used to to get values from columns with SQL
-types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and BLOB.  
-All of the data in the returned stream must be read prior to 
-getting the value of any other column.  The next call to a get 
-method implicitly closes the stream.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-*/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a character stream.
+    This can be used to to get values from columns with SQL
+    types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and BLOB.  
+    All of the data in the returned stream must be read prior to 
+    getting the value of any other column.  The next call to a get 
+    method implicitly closes the stream.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    */
     public Reader getCharacterStream (int columnIndex)
     throws SQLException
     {
@@ -1934,23 +2456,23 @@ method implicitly closes the stream.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a character stream.
-This can be used to to get values from columns with SQL
-types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and BLOB.  
-All of the data in the returned stream must be read prior 
-to getting the value of any other column.  The next call 
-to a get method implicitly closes the stream.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not valid, or the
-                            requested conversion is not valid.
-*/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a character stream.
+    This can be used to to get values from columns with SQL
+    types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and BLOB.  
+    All of the data in the returned stream must be read prior 
+    to getting the value of any other column.  The next call 
+    to a get method implicitly closes the stream.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not valid, or the
+                                requested conversion is not valid.
+    */
     public Reader getCharacterStream (String columnName)
     throws SQLException
     {
@@ -1959,20 +2481,20 @@ to a get method implicitly closes the stream.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Clob object.
-This can be used to get values from columns with SQL
-types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Clob object.
+    This can be used to get values from columns with SQL
+    types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public Clob getClob (int columnIndex)
     throws SQLException
     {
@@ -1987,20 +2509,20 @@ types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Clob object.
-This can be used to get values from columns with SQL
-types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
-
-@param  columnName    The column name.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Clob object.
+    This can be used to get values from columns with SQL
+    types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
+    
+    @param  columnName    The column name.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public Clob getClob (String columnName)
     throws SQLException
     {
@@ -2009,72 +2531,55 @@ types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
 
 
 
-/**
-Returns the value of a column as a java.sql.Date object using
-the default calendar.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a java.sql.Date object using
+    the default calendar.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public Date getDate (int columnIndex)
     throws SQLException
     {
-        return getDate (columnIndex, Calendar.getInstance ());
+        //@P0D return getDate (columnIndex, Calendar.getInstance ());
+        return internalGetDate(columnIndex, null); //@P0A
     }
 
 
 
-/**
-Returns the value of a column as a java.sql.Date object using
-the default calendar.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a java.sql.Date object using
+    the default calendar.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public Date getDate (String columnName)
     throws SQLException
     {
-        return getDate (findColumn (columnName), Calendar.getInstance ());
+        //@P0D return getDate (findColumn (columnName), Calendar.getInstance ());
+        return internalGetDate(findColumn(columnName), null); //@P0A
     }
 
 
-
-// JDBC 2.0
-/**
-Returns the value of a column as a java.sql.Date object using
-a calendar other than the default.  This can be used to get values
-from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
-
-@param  columnIndex   The column index (1-based).
-@param  calendar      The calendar.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            the calendar is null, or the
-                            requested conversion is not valid.
-**/
-    public Date getDate (int columnIndex, Calendar calendar)
+    //@P0A - Moved out of getDate()
+    private Date internalGetDate(int columnIndex, Calendar calendar)
     throws SQLException
     {
-        // Check for null calendar.
-        if (calendar == null)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Date value = (data == null) ? null : data.toDate (calendar);
@@ -2083,24 +2588,58 @@ from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
         }
     }
 
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a java.sql.Date object using
+    a calendar other than the default.  This can be used to get values
+    from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  calendar      The calendar.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                the calendar is null, or the
+                                requested conversion is not valid.
+    **/
+    public Date getDate (int columnIndex, Calendar calendar)
+    throws SQLException
+    {
+        // Check for null calendar.
+        if (calendar == null)
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        return internalGetDate(columnIndex, calendar); //@P0C
+        /*@P0M
+            synchronized(internalLock_) {                                            // @D1A
+                // Get the data and check for SQL NULL.
+                SQLData data = getValue (columnIndex);
+                Date value = (data == null) ? null : data.toDate (calendar);
+                testDataTruncation (columnIndex, data);
+                return value;
+            }
+         *///@P0M
+    }
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a java.sql.Date object using
-a calendar other than the default.  This can be used to get values
-from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
 
-@param  columnName  The column name.
-@param  calendar    The calendar.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found,
-                            the calendar is null, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a java.sql.Date object using
+    a calendar other than the default.  This can be used to get values
+    from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    
+    @param  columnName  The column name.
+    @param  calendar    The calendar.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found,
+                                the calendar is null, or the
+                                requested conversion is not valid.
+    **/
     public Date getDate (String columnName, Calendar calendar)
     throws SQLException
     {
@@ -2109,21 +2648,21 @@ from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java double value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java double value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public double getDouble (int columnIndex)
     throws SQLException
     {
@@ -2138,21 +2677,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java double value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java double value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public double getDouble (String columnName)
     throws SQLException
     {
@@ -2161,21 +2700,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java float value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java float value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public float getFloat (int columnIndex)
     throws SQLException
     {
@@ -2190,21 +2729,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java float value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java float value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public float getFloat (String columnName)
     throws SQLException
     {
@@ -2213,21 +2752,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java int value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java int value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public int getInt (int columnIndex)
     throws SQLException
     {
@@ -2242,21 +2781,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java int value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java int value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public int getInt (String columnName)
     throws SQLException
     {
@@ -2265,21 +2804,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java long value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java long value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public long getLong (int columnIndex)
     throws SQLException
     {
@@ -2294,21 +2833,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java long value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java long value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public long getLong (String columnName)
     throws SQLException
     {
@@ -2317,39 +2856,53 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-/**
-Returns the ResultSetMetaData object that describes the
-result set's columns.
-
-@return     The metadata object.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Returns the ResultSetMetaData object that describes the
+    result set's columns.
+    
+    @return     The metadata object.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public ResultSetMetaData getMetaData ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
+            ConvTable convTable = null;                                                              // @G5A
+            DBExtendedColumnDescriptors extendedDescriptors = null;                                  // @G5A
+            // If a DMD method (internal call), statement_ will be null because we don't really have // @G5A
+            // a statement object                                                                    // @G5A
+            if (statement_ != null)                                                                  // @G5A
+            {                                                                                        // @G5A
+                extendedDescriptors = statement_.getExtendedColumnDescriptors();                     // @G5A 
+                // If we have extendedDescriptors, send a ConvTable to convert them, else pass null  // @G5A
+                if (extendedDescriptors != null)                                                     // @G5A
+                {                                                                                    // @G5A
+                    convTable = ((AS400JDBCConnection)connection_).converter_;                       // @G5A
+                }                                                                                    // @G5A
+            }                                                                                        // @G5A
             return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
-                cursorName_, row_);
+                                                   cursorName_, row_, 
+                                                   extendedDescriptors, convTable);                  // @G5A
         }
     }
 
 
 
-/**
-Returns the value of a column as a Java Object.
-This can be used to get values from columns with all
-SQL types.   If the column is a user-defined type, then the
-connection's type map is used to created the object.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a Java Object.
+    This can be used to get values from columns with all
+    SQL types.   If the column is a user-defined type, then the
+    connection's type map is used to created the object.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public Object getObject (int columnIndex)
     throws SQLException
     {
@@ -2364,20 +2917,20 @@ connection's type map is used to created the object.
 
 
 
-/**
-Returns the value of a column as a Java Object.
-This can be used to get values from columns with all
-SQL types.   If the column is a user-defined type, then the
-connection's type map is used to created the object.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a Java Object.
+    This can be used to get values from columns with all
+    SQL types.   If the column is a user-defined type, then the
+    connection's type map is used to created the object.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public Object getObject (String columnName)
     throws SQLException
     {
@@ -2386,20 +2939,20 @@ connection's type map is used to created the object.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Java Object.
-
-@param  columnIndex   The column index (1-based).
-@param  typeMap       The type map.  This is not used.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            the type map is null, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Java Object.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  typeMap       The type map.  This is not used.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                the type map is null, or the
+                                requested conversion is not valid.
+    **/
     public Object getObject (int columnIndex, Map typeMap)
     throws SQLException
     {
@@ -2412,20 +2965,20 @@ Returns the value of a column as a Java Object.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Java Object.
-
-@param  columnName    The column name.
-@param  typeMap       The type map.  This is not used.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, 
-                            the type map is null, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Java Object.
+    
+    @param  columnName    The column name.
+    @param  typeMap       The type map.  This is not used.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, 
+                                the type map is null, or the
+                                requested conversion is not valid.
+    **/
     public Object getObject (String columnName, Map typeMap)
     throws SQLException
     {
@@ -2438,17 +2991,17 @@ Returns the value of a column as a Java Object.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Ref object.
-DB2 for OS/400 does not support structured types.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    Always thrown because DB2
-                            for OS/400 does not support structured types.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Ref object.
+    DB2 UDB for iSeries does not support structured types.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support structured types.
+    **/
     public Ref getRef (int columnIndex)
     throws SQLException
     {
@@ -2458,17 +3011,17 @@ DB2 for OS/400 does not support structured types.
 
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a Ref object.
-DB2 for OS/400 does not support structured types.
-
-@param  columnName    The column name.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    Always thrown because DB2
-                            for OS/400 does not support structured types.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a Ref object.
+    DB2 UDB for iSeries does not support structured types.
+    
+    @param  columnName    The column name.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support structured types.
+    **/
     public Ref getRef (String columnName)
     throws SQLException
     {
@@ -2477,21 +3030,21 @@ DB2 for OS/400 does not support structured types.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java short value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java short value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public short getShort (int columnIndex)
     throws SQLException
     {
@@ -2506,21 +3059,21 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-// @D0C
-/**
-Returns the value of a column as a Java short value.
-This can be used to get values from columns with SQL
-types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
-NUMERIC, CHAR, and VARCHAR.
-
-@param  columnName  The column name.
-@return             The column value or 0 if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // @D0C
+    /**
+    Returns the value of a column as a Java short value.
+    This can be used to get values from columns with SQL
+    types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
+    NUMERIC, CHAR, and VARCHAR.
+    
+    @param  columnName  The column name.
+    @return             The column value or 0 if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public short getShort (String columnName)
     throws SQLException
     {
@@ -2529,19 +3082,19 @@ NUMERIC, CHAR, and VARCHAR.
 
 
 
-/**
-Returns the value of a column as a String object.
-This can be used to get values from columns with any SQL
-type.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a String object.
+    This can be used to get values from columns with any SQL
+    type.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public String getString (int columnIndex)
     throws SQLException
     {
@@ -2556,19 +3109,19 @@ type.
 
 
 
-/**
-Returns the value of a column as a String object.
-This can be used to get values from columns with any SQL
-type.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a String object.
+    This can be used to get values from columns with any SQL
+    type.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public String getString (String columnName)
     throws SQLException
     {
@@ -2577,72 +3130,54 @@ type.
 
 
 
-/**
-Returns the value of a column as a java.sql.Time object using the
-default calendar.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a java.sql.Time object using the
+    default calendar.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public Time getTime (int columnIndex)
     throws SQLException
     {
-        return getTime (columnIndex, Calendar.getInstance ());
+        //@P0D return getTime (columnIndex, Calendar.getInstance ());
+        return internalGetTime(columnIndex, null); //@P0A
     }
 
 
 
-/**
-Returns the value of a column as a java.sql.Time object using the
-default calendar.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a java.sql.Time object using the
+    default calendar.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public Time getTime (String columnName)
     throws SQLException
     {
-        return getTime (findColumn (columnName), Calendar.getInstance ());
+        //@P0D return getTime (findColumn (columnName), Calendar.getInstance ());
+        return internalGetTime(findColumn(columnName), null); //@P0A
     }
 
-
-
-// JDBC 2.0
-/**
-Returns the value of a column as a java.sql.Time object using a
-calendar other than the default.  This can be used to get values
-from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
-
-@param  columnIndex   The column index (1-based).
-@param  calendar      The calendar.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            the calendar is null, or the
-                            requested conversion is not valid.
-**/
-    public Time getTime (int columnIndex, Calendar calendar)
+    //@P0M - Moved out of getTime()
+    private Time internalGetTime(int columnIndex, Calendar calendar)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
-            // Check for null calendar.
-            if (calendar == null)
-                JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-    
+        synchronized(internalLock_)
+        {
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Time value = (data == null) ? null : data.toTime (calendar);
@@ -2651,24 +3186,58 @@ from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
         }
     }
 
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a java.sql.Time object using a
+    calendar other than the default.  This can be used to get values
+    from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  calendar      The calendar.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                the calendar is null, or the
+                                requested conversion is not valid.
+    **/
+    public Time getTime (int columnIndex, Calendar calendar)
+    throws SQLException
+    {
+        //@P0D synchronized(internalLock_) {                                            // @D1A
+        // Check for null calendar.
+        if (calendar == null)
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        return internalGetTime(columnIndex, calendar); //@P0C
+        /*@P0M
+              // Get the data and check for SQL NULL.
+              SQLData data = getValue (columnIndex);
+              Time value = (data == null) ? null : data.toTime (calendar);
+              testDataTruncation (columnIndex, data);
+              return value;
+          }
+        *///@P0M
+    }
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a java.sql.Time object using a
-calendar other than the default.  This can be used to get values
-from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
 
-@param  columnName  The column name.
-@param  calendar    The calendar.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found,
-                            the calendar is null, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a java.sql.Time object using a
+    calendar other than the default.  This can be used to get values
+    from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
+    
+    @param  columnName  The column name.
+    @param  calendar    The calendar.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found,
+                                the calendar is null, or the
+                                requested conversion is not valid.
+    **/
     public Time getTime (String columnName, Calendar calendar)
     throws SQLException
     {
@@ -2677,73 +3246,54 @@ from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
 
 
 
-/**
-Returns the value of a column as a java.sql.Timestamp object
-using the default calendar.  This can be used to get values
-from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a java.sql.Timestamp object
+    using the default calendar.  This can be used to get values
+    from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public Timestamp getTimestamp (int columnIndex)
     throws SQLException
     {
-        return getTimestamp (columnIndex, Calendar.getInstance ());
+        //@P0D return getTimestamp (columnIndex, Calendar.getInstance ());
+        return internalGetTimestamp(columnIndex, null); //@P0A
     }
 
 
 
-/**
-Returns the value of a column as a java.sql.Timestamp object
-using the default calendar.  This can be used to get values
-from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns the value of a column as a java.sql.Timestamp object
+    using the default calendar.  This can be used to get values
+    from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public Timestamp getTimestamp (String columnName)
     throws SQLException
     {
-        return getTimestamp (findColumn (columnName), Calendar.getInstance ());
+        //@P0D return getTimestamp (findColumn (columnName), Calendar.getInstance ());
+        return internalGetTimestamp(findColumn(columnName), null); //@P0A
     }
 
-
-
-// JDBC 2.0
-/**
-Returns the value of a column as a java.sql.Timestamp object
-using a calendar other than the default.  This can be used to
-get values from columns with SQL types CHAR, VARCHAR, DATE,
-and TIMESTAMP.
-
-@param  columnIndex   The column index (1-based).
-@param  calendar      The calendar.
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            the calendar is null, or the
-                            requested conversion is not valid.
-**/
-    public Timestamp getTimestamp (int columnIndex, Calendar calendar)
+    //@P0M - Moved out of getTimestamp()
+    private Timestamp internalGetTimestamp(int columnIndex, Calendar calendar)
     throws SQLException
     {
-        // Check for null calendar.
-        if (calendar == null)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
@@ -2752,25 +3302,60 @@ and TIMESTAMP.
         }
     }
 
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a java.sql.Timestamp object
+    using a calendar other than the default.  This can be used to
+    get values from columns with SQL types CHAR, VARCHAR, DATE,
+    and TIMESTAMP.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  calendar      The calendar.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                the calendar is null, or the
+                                requested conversion is not valid.
+    **/
+    public Timestamp getTimestamp (int columnIndex, Calendar calendar)
+    throws SQLException
+    {
+        // Check for null calendar.
+        if (calendar == null)
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        return internalGetTimestamp(columnIndex, calendar);
+        /*@P0M
+          synchronized(internalLock_) {                                            // @D1A
+              // Get the data and check for SQL NULL.
+              SQLData data = getValue (columnIndex);
+              Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
+              testDataTruncation (columnIndex, data);
+              return value;
+          }
+        *///@P0M
+    }
 
 
-// JDBC 2.0
-/**
-Returns the value of a column as a java.sql.Timestamp object
-using a calendar other than the default.  This can be used to
-get values from columns with SQL types CHAR, VARCHAR, DATE,
-and TIMESTAMP.
 
-@param  columnName  The column name.
-@param  calendar    The calendar.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found,
-                            the calendar is null, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Returns the value of a column as a java.sql.Timestamp object
+    using a calendar other than the default.  This can be used to
+    get values from columns with SQL types CHAR, VARCHAR, DATE,
+    and TIMESTAMP.
+    
+    @param  columnName  The column name.
+    @param  calendar    The calendar.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found,
+                                the calendar is null, or the
+                                requested conversion is not valid.
+    **/
     public Timestamp getTimestamp (String columnName, Calendar calendar)
     throws SQLException
     {
@@ -2779,25 +3364,25 @@ and TIMESTAMP.
 
 
 
-/**
-Returns the value of a column as a stream of Unicode
-characters.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and
-BLOB.  All of the data in the returned stream must be read 
-prior to getting the value of any other column.  The next 
-call to a get method implicitly closes the stream.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-
-@deprecated Use getCharacterStream(int) instead.
-@see #getCharacterStream(int)
-**/
+    /**
+    Returns the value of a column as a stream of Unicode
+    characters.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB, and
+    BLOB.  All of the data in the returned stream must be read 
+    prior to getting the value of any other column.  The next 
+    call to a get method implicitly closes the stream.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    
+    @deprecated Use getCharacterStream(int) instead.
+    @see #getCharacterStream(int)
+    **/
     public InputStream getUnicodeStream (int columnIndex)
     throws SQLException
     {
@@ -2813,25 +3398,25 @@ call to a get method implicitly closes the stream.
 
 
 
-/**
-Returns the value of a column as a stream of Unicode
-characters.  This can be used to get values from columns
-with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB,
-and BLOB.  All of the data in the returned stream must be 
-read prior to getting the value of any other column.  The 
-next call to a get method implicitly closes the stream.
-
-@param  columnName  The column name.
-@return             The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-
-@deprecated Use getCharacterStream(String) instead.
-@see #getCharacterStream(String)
-**/
+    /**
+    Returns the value of a column as a stream of Unicode
+    characters.  This can be used to get values from columns
+    with SQL types CHAR, VARCHAR, BINARY, VARBINARY, CLOB,
+    and BLOB.  All of the data in the returned stream must be 
+    read prior to getting the value of any other column.  The 
+    next call to a get method implicitly closes the stream.
+    
+    @param  columnName  The column name.
+    @return             The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    
+    @deprecated Use getCharacterStream(String) instead.
+    @see #getCharacterStream(String)
+    **/
     public InputStream getUnicodeStream (String columnName)
     throws SQLException
     {
@@ -2840,19 +3425,19 @@ next call to a get method implicitly closes the stream.
 
 
 
-/**
-Returns a piece of row data for the specified index,
-and perform all appropriate validation.  Also check
-for SQL NULL.
-
-@param  columnIndex   The column index (1-based).
-@return               The column value or null if the value is SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Returns a piece of row data for the specified index,
+    and perform all appropriate validation.  Also check
+    for SQL NULL.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     private SQLData getValue (int columnIndex)
     throws SQLException
     {
@@ -2873,9 +3458,9 @@ for SQL NULL.
             if ((updateSet_[columnIndex-1] == true)
                 || (positionInsert_ == true)) {
                 wasNull_ = updateNulls_[columnIndex-1];
-                if (wasNull_) 
+                if (wasNull_)
                     return null;
-                else 
+                else
                     return updateRow_.getSQLData (columnIndex);
             }
         }
@@ -2890,13 +3475,13 @@ for SQL NULL.
 
 
 
-/**
-Tests if a DataTruncation occurred on the read of a piece of
-data and posts a DataTruncation warning if so.
-
-@param  columnIndex   The column index (1-based).
-@param  data         The data that was read, or null for SQL NULL.
-**/
+    /**
+    Tests if a DataTruncation occurred on the read of a piece of
+    data and posts a DataTruncation warning if so.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  data         The data that was read, or null for SQL NULL.
+    **/
     private void testDataTruncation (int columnIndex, SQLData data)
     {
         if (data != null) {
@@ -2911,14 +3496,14 @@ data and posts a DataTruncation warning if so.
 
 
 
-/**
-Indicates if the last column read has the value of SQL NULL.
-
-@return     true if the value is SQL NULL;
-            false otherwise.
-
-@exception  SQLException    If the result set is not open.
-**/
+    /**
+    Indicates if the last column read has the value of SQL NULL.
+    
+    @return     true if the value is SQL NULL;
+                false otherwise.
+    
+    @exception  SQLException    If the result set is not open.
+    **/
     public boolean wasNull ()
     throws SQLException
     {
@@ -2930,21 +3515,21 @@ Indicates if the last column read has the value of SQL NULL.
 
 
 
-/*---------------------------------------------------------*/
-/*                                                         */
-/* UPDATE DATA METHODS.                                    */
-/*                                                         */
-/*---------------------------------------------------------*/
+    /*---------------------------------------------------------*/
+    /*                                                         */
+    /* UPDATE DATA METHODS.                                    */
+    /*                                                         */
+    /*---------------------------------------------------------*/
 
 
 
-/**
-Checks necessary conditions before updating a row.  All
-update methods should call this before updating.
-
-@exception  SQLException    If the result set is not open
-                            or the result set is not updatable.
-**/
+    /**
+    Checks necessary conditions before updating a row.  All
+    update methods should call this before updating.
+    
+    @exception  SQLException    If the result set is not open
+                                or the result set is not updatable.
+    **/
     private void beforeUpdate ()
     throws SQLException
     {
@@ -2956,15 +3541,15 @@ update methods should call this before updating.
 
 
 
-// JDBC 2.0
-/**
-Cancels all pending updates that have been made since the last 
-call to updateRow().  If no updates have been made or updateRow() 
-has already been called, then this method has no effect.
-
-@exception  SQLException    If the result set is not open
-                            or the result set is not updatable.
-**/                            
+    // JDBC 2.0
+    /**
+    Cancels all pending updates that have been made since the last 
+    call to updateRow().  If no updates have been made or updateRow() 
+    has already been called, then this method has no effect.
+    
+    @exception  SQLException    If the result set is not open
+                                or the result set is not updatable.
+    **/                            
     public void cancelRowUpdates ()
     throws SQLException
     {
@@ -2978,30 +3563,30 @@ has already been called, then this method has no effect.
 
 
 
-// JDBC 2.0
-/**
-Deletes the current row from the result set and the database.
-After deleting a row, the cursor position is no longer valid,
-so it must be explicitly repositioned.
-
-@exception SQLException If the result set is not open,
-                        the result set is not updatable,
-                        the cursor is not positioned on a row,
-                        the cursor is positioned on the insert row,
-                        or an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Deletes the current row from the result set and the database.
+    After deleting a row, the cursor position is no longer valid,
+    so it must be explicitly repositioned.
+    
+    @exception SQLException If the result set is not open,
+                            the result set is not updatable,
+                            the cursor is not positioned on a row,
+                            the cursor is positioned on the insert row,
+                            or an error occurs.
+    **/
     public void deleteRow ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
             beforeUpdate ();
-    
+
             if (positionInsert_ == true)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-    
+
             if (JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Deleting a row.");
-    
+
             // Prepare the delete statement the first time
             // we need it.
             if (deleteStatement_ == null) {                                             // @D3C
@@ -3013,9 +3598,9 @@ so it must be explicitly repositioned.
                 buffer.append("\"");                                                    // @D3A
                 deleteStatement_ = connection_.prepareStatement(buffer.toString());     // @D3C
             }                                                                           // @D3A
-    
+
             deleteStatement_.execute ();
-    
+
             // Mark the cursor position not valid.
             positionValid_ = false;
             rowCache_.flush ();
@@ -3024,36 +3609,36 @@ so it must be explicitly repositioned.
 
 
 
-// JDBC 2.0
-/**
-Inserts the contents of the insert row into the result set
-and the database.
-
-@exception SQLException If the result set is not open,
-                        the result set is not updatable,
-                        the cursor is not positioned on the insert row,
-                        a column that is not nullable was not specified,
-                        or an error occurs.
-**/
-//
-// Implementation note:
-//
-// * It seems inefficient to prepare and execute a
-//   new statement each time, but we really have no choice,
-//   since (1.) The combination of columns that we want
-//   to insert could change every time and (2.) We need
-//   to use parameter markers to be able to set columns
-//   not representable using SQL literals.
-//
+    // JDBC 2.0
+    /**
+    Inserts the contents of the insert row into the result set
+    and the database.
+    
+    @exception SQLException If the result set is not open,
+                            the result set is not updatable,
+                            the cursor is not positioned on the insert row,
+                            a column that is not nullable was not specified,
+                            or an error occurs.
+    **/
+    //
+    // Implementation note:
+    //
+    // * It seems inefficient to prepare and execute a
+    //   new statement each time, but we really have no choice,
+    //   since (1.) The combination of columns that we want
+    //   to insert could change every time and (2.) We need
+    //   to use parameter markers to be able to set columns
+    //   not representable using SQL literals.
+    //
     public void insertRow ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @D1A
             beforeUpdate ();
-    
+
             if (positionInsert_ == false)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-    
+
             // Build up the SQL statement.  Make sure a correlation name
             // is not used.
             StringBuffer buffer = new StringBuffer ();
@@ -3068,7 +3653,9 @@ and the database.
                         buffer.append (",");
                         values.append (",");
                     }
+                    buffer.append ("\"");                       // @D6a
                     buffer.append (row_.getFieldName (i+1));
+                    buffer.append ("\"");                       // @D6a
                     values.append ("?");
                 }
             }
@@ -3080,10 +3667,10 @@ and the database.
             else
                 buffer.append (values);
             buffer.append (")");
-    
+
             if (JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Inserting a row: " + buffer);
-    
+
             // Prepare the statement and set the parameters.
             PreparedStatement insertStatement = connection_.prepareStatement (buffer.toString ());
             for (int i = 0, columnsSet2 = 0; i < columnCount_; ++i) {
@@ -3096,7 +3683,7 @@ and the database.
                     updateSet_[i] = false;
                 }
             }
-    
+
             // Execute and close the statement.  Dispatch the warnings,
             // if any.
             insertStatement.executeUpdate ();
@@ -3104,23 +3691,23 @@ and the database.
             if (warnings != null)
                 postWarning (warnings); // The whole link gets added.
             insertStatement.close ();
-    
+
             rowCache_.flush ();
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Indicates if the current row has been deleted. A result set
-of type TYPE_SCROLL_INSENSITIVE may contain rows that have
-been deleted.
-
-@return true if current row has been deleted; false otherwise.
-
-@exception SQLException If an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the current row has been deleted. A result set
+    of type TYPE_SCROLL_INSENSITIVE may contain rows that have
+    been deleted.
+    
+    @return true if current row has been deleted; false otherwise.
+    
+    @exception SQLException If an error occurs.
+    **/
     public boolean rowDeleted ()
     throws SQLException
     {
@@ -3132,22 +3719,22 @@ been deleted.
             // The only case where this may be true is if they call
             // it immediately after deleting a row and then don't
             // reposition the cursor.
-            return ((positionValid_ == false) && (positionInsert_ == false)
-                    && ((positionFromFirst_ > 0) || (positionFromLast_ > 0)));
+            return((positionValid_ == false) && (positionInsert_ == false)
+                   && ((positionFromFirst_ > 0) || (positionFromLast_ > 0)));
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Indicates if the current row has been inserted.  This driver does
-not support this method.
-
-@return Always false.  
-
-@exception SQLException If an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the current row has been inserted.  This driver does
+    not support this method.
+    
+    @return Always false.  
+    
+    @exception SQLException If an error occurs.
+    **/
     public boolean rowInserted ()
     throws SQLException
     {
@@ -3160,15 +3747,15 @@ not support this method.
 
 
 
-// JDBC 2.0
-/**
-Indicates if the current row has been updated.   This driver does
-not support this method.
-
-@return Always false.
-
-@exception SQLException If an error occurs.
-**/
+    // JDBC 2.0
+    /**
+    Indicates if the current row has been updated.   This driver does
+    not support this method.
+    
+    @return Always false.
+    
+    @exception SQLException If an error occurs.
+    **/
     public boolean rowUpdated ()
     throws SQLException
     {
@@ -3181,54 +3768,94 @@ not support this method.
 
 
 
-/**
-Tests if a DataTruncation occurred on the write of a piece of
-data and posts a DataTruncation warning if so.
-
-@param  columnIndex   The column index (1-based).
-@param  data          The data that was written, or null for SQL NULL.
-**/
+    /**
+    Tests if a DataTruncation occurred on the write of a piece of
+    data and posts a DataTruncation warning if so.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  data          The data that was written, or null for SQL NULL.
+    @since Modification 5
+    **/
     private void testDataTruncation2 (int columnIndex, SQLData data)
-        throws DataTruncation                                                               // @D5A
+    throws DataTruncation                                                               // @D5A
     {
         if (data != null) {
             int truncated = data.getTruncated ();
             if (truncated > 0) {
                 int actualSize = data.getActualSize ();
                 throw new DataTruncation (columnIndex, false, false,                        // @D5C
-                                                 actualSize + truncated, actualSize);       // @D5C
+                                          actualSize + truncated, actualSize);       // @D5C
             }
         }
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using an ASCII stream value.
-The driver reads the data from the stream as needed until no more
-bytes are available.  The driver converts this to an SQL VARCHAR
-value.
+    //@G4A JDBC 3.0
+    /**
+    Updates the value of a column as an Array object.
+    DB2 UDB for iSeries does not support arrays.
+    
+    @param  columnIndex   The column index (1-based).
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support arrays.
+    @since Modification 5
+    **/
+    public void updateArray (int columnIndex, Array columnValue)
+    throws SQLException
+    {
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+    }
 
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
 
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  length        The length.
 
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, the
-                            requested conversion is not valid,
-                            the length is not
-                            valid, the input stream does not contain
-                            ASCII characters, or an error happens
-                            while reading the input stream.
-**/
+    //@G4A JDBC 3.0
+    /**
+    Updates the value of a column as an Array object.
+    DB2 UDB for iSeries does not support arrays.
+    
+    @param  columnIndex   The column name.
+    @return               The column value or null if the value is SQL NULL.
+    
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support arrays.
+    **/
+    public void updateArray (String columnName, Array columnValue)
+    throws SQLException
+    {
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+    }
+
+
+
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using an ASCII stream value.
+    The driver reads the data from the stream as needed until no more
+    bytes are available.  The driver converts this to an SQL VARCHAR
+    value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  length        The length.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, the
+                                requested conversion is not valid,
+                                the length is not
+                                valid, the input stream does not contain
+                                ASCII characters, or an error happens
+                                while reading the input stream.
+    **/
     public void updateAsciiStream (int columnIndex,
                                    InputStream columnValue,
                                    int length)
@@ -3241,37 +3868,37 @@ update the database.
 
         updateValue (columnIndex, 
                      (columnValue == null) ? null : JDUtilities.streamToString (columnValue, length, "ISO8859_1"), // @B1C
-                     Calendar.getInstance (), -1);
+                     null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using an ASCII stream value.
-The driver reads the data from the stream as needed until no more
-bytes are available.  The driver converts this to an SQL VARCHAR
-value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  length        The length.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, the
-                            requested conversion is not valid,
-                            the length is not valid, 
-                            the input stream does not contain
-                            ASCII characters, or an error happens
-                            while reading the input stream.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using an ASCII stream value.
+    The driver reads the data from the stream as needed until no more
+    bytes are available.  The driver converts this to an SQL VARCHAR
+    value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  length        The length.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, the
+                                requested conversion is not valid,
+                                the length is not valid, 
+                                the input stream does not contain
+                                ASCII characters, or an error happens
+                                while reading the input stream.
+    **/
     public void updateAsciiStream (String columnName,
                                    InputStream columnValue,
                                    int length)
@@ -3282,25 +3909,25 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a BigDecimal value.  The
-driver converts this to an SQL NUMERIC value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a BigDecimal value.  The
+    driver converts this to an SQL NUMERIC value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateBigDecimal (int columnIndex, BigDecimal columnValue)
     throws SQLException
     {
@@ -3312,25 +3939,25 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a BigDecimal value.  The
-driver converts this to an SQL NUMERIC value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a BigDecimal value.  The
+    driver converts this to an SQL NUMERIC value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateBigDecimal (String columnName, BigDecimal columnValue)
     throws SQLException
     {
@@ -3339,30 +3966,30 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a binary stream value.
-The driver reads the data from the stream as needed until no more
-bytes are available.  The driver converts this to an SQL
-VARBINARY value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  length        The length.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid,
-                            the length is not valid, or an error 
-                            happens while reading the input stream.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a binary stream value.
+    The driver reads the data from the stream as needed until no more
+    bytes are available.  The driver converts this to an SQL
+    VARBINARY value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  length        The length.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid,
+                                the length is not valid, or an error 
+                                happens while reading the input stream.
+    **/
     public void updateBinaryStream (int columnIndex,
                                     InputStream columnValue,
                                     int length)
@@ -3380,30 +4007,30 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a binary stream value.
-The driver reads the data from the stream as needed until no more
-bytes are available.  The driver converts this to an SQL
-VARBINARY value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  length        The length.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid,
-                            the length is not valid, or an error 
-                            happens while reading the input stream.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a binary stream value.
+    The driver reads the data from the stream as needed until no more
+    bytes are available.  The driver converts this to an SQL
+    VARBINARY value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  length        The length.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid,
+                                the length is not valid, or an error 
+                                happens while reading the input stream.
+    **/
     public void updateBinaryStream (String columnName,
                                     InputStream columnValue,
                                     int length)
@@ -3414,30 +4041,30 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java boolean value.
-The driver converts this to an SQL SMALLINT value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
-//
-// Implementation note:
-//
-// The spec defines this in terms of SQL BIT, but DB2 for OS/400
-// does not support that.
-//
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java boolean value.
+    The driver converts this to an SQL SMALLINT value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    //
+    // Implementation note:
+    //
+    // The spec defines this in terms of SQL BIT, but DB2 for OS/400
+    // does not support that.
+    //
     public void updateBoolean (int columnIndex, boolean columnValue)
     throws SQLException
     {
@@ -3446,30 +4073,31 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java boolean value.
-The driver converts this to an SQL SMALLINT value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
-//
-// Implementation note:
-//
-// The spec defines this in terms of SQL BIT, but DB2 for OS/400
-// does not support that.
-//
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java boolean value.
+    The driver converts this to an SQL SMALLINT value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    @since Modification 5
+    **/
+    //
+    // Implementation note:
+    //
+    // The spec defines this in terms of SQL BIT, but DB2 for OS/400
+    // does not support that.
+    //
     public void updateBoolean (String columnName, boolean columnValue)
     throws SQLException
     {
@@ -3478,30 +4106,83 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java byte value.
-The driver converts this to an SQL SMALLINT value.
+    //@G4A JDBC 3.0
+    /**
+    Updates a column in the current row using a Java Blob value.
+    The driver converts this to an SQL BLOB value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    @since Modification 5
+    **/
+    public void updateBlob (int columnIndex, Blob columnValue)
+    throws SQLException
+    {
+        updateValue (columnIndex, columnValue, null, -1);
+    }
 
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
 
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
 
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
-//
-// Implementation note:
-//
-// The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
-// does not support that.
-//
+    //@G4A JDBC 3.0
+    /**
+    Updates a column in the current row using a Java Blob value.
+    The driver converts this to an SQL BLOB value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    public void updateBlob (String columnName, Blob columnValue)
+    throws SQLException
+    {
+        updateValue (findColumn (columnName), columnValue, null, -1);
+    }
+
+
+
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java byte value.
+    The driver converts this to an SQL SMALLINT value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    //
+    // Implementation note:
+    //
+    // The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
+    // does not support that.
+    //
     public void updateByte (int columnIndex, byte columnValue)
     throws SQLException
     {
@@ -3510,30 +4191,30 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java byte value.
-The driver converts this to an SQL SMALLINT value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
-//
-// Implementation note:
-//
-// The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
-// does not support that.
-//
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java byte value.
+    The driver converts this to an SQL SMALLINT value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    //
+    // Implementation note:
+    //
+    // The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
+    // does not support that.
+    //
     public void updateByte (String columnName, byte columnValue)
     throws SQLException
     {
@@ -3542,25 +4223,25 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java byte array value.
-The driver converts this to an SQL VARBINARY value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java byte array value.
+    The driver converts this to an SQL VARBINARY value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateBytes (int columnIndex, byte[] columnValue)
     throws SQLException
     {
@@ -3572,25 +4253,25 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java byte array value.
-The driver converts this to an SQL VARBINARY value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java byte array value.
+    The driver converts this to an SQL VARBINARY value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateBytes (String columnName, byte[] columnValue)
     throws SQLException
     {
@@ -3599,30 +4280,30 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Reader value.
-The driver reads the data from the Reader as needed until no more
-characters are available.  The driver converts this to an SQL VARCHAR
-value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  length        The length.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid,
-                            the length is not valid, or an error 
-                            happens while reading the input stream.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Reader value.
+    The driver reads the data from the Reader as needed until no more
+    characters are available.  The driver converts this to an SQL VARCHAR
+    value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  length        The length.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid,
+                                the length is not valid, or an error 
+                                happens while reading the input stream.
+    **/
     public void updateCharacterStream (int columnIndex,
                                        Reader columnValue,
                                        int length)
@@ -3635,35 +4316,36 @@ update the database.
 
         updateValue (columnIndex, 
                      (columnValue == null) ? null : JDUtilities.readerToString (columnValue, length), // @B1C
-                     Calendar.getInstance (), -1);
+                     null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Reader value.
-The driver reads the data from the Reader as needed until no more
-characters are available.  The driver converts this to an SQL VARCHAR
-value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  length        The length.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid,
-                            the length is not valid, or an error 
-                            happens while reading the input stream.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Reader value.
+    The driver reads the data from the Reader as needed until no more
+    characters are available.  The driver converts this to an SQL VARCHAR
+    value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  length        The length.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid,
+                                the length is not valid, or an error 
+                                happens while reading the input stream.
+    @since Modification 5
+    **/
     public void updateCharacterStream (String columnName,
                                        Reader columnValue,
                                        int length)
@@ -3674,55 +4356,108 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a java.sql.Date value.
-The driver converts this to an SQL DATE value.
+    //@G4A JDBC 3.0
+    /**
+    Updates a column in the current row using a Java Clob value.
+    The driver converts this to an SQL CLOB value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex    The column index (1-based).
+    @param  columnValue    The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    @since Modification 5
+    **/
+    public void updateClob (int columnIndex, Clob columnValue)
+    throws SQLException
+    {
+        updateValue (columnIndex, columnValue, null, -1);
+    }
 
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
 
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
 
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    //@G4A JDBC 3.0
+    /**
+    Updates a column in the current row using a Java Clob value.
+    The driver converts this to an SQL CLOB value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    public void updateClob (String columnName, Clob columnValue)
+    throws SQLException
+    {
+        updateValue (findColumn (columnName), columnValue, null, -1);
+    }
+
+
+
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a java.sql.Date value.
+    The driver converts this to an SQL DATE value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateDate (int columnIndex, Date columnValue)
     throws SQLException
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
-        updateValue (columnIndex, columnValue, Calendar.getInstance (), -1);
+        updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a java.sql.Date value.
-The driver converts this to an SQL DATE value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a java.sql.Date value.
+    The driver converts this to an SQL DATE value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateDate (String columnName, Date columnValue)
     throws SQLException
     {
@@ -3731,24 +4466,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java double value.
-The driver converts this to an SQL DOUBLE value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java double value.
+    The driver converts this to an SQL DOUBLE value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateDouble (int columnIndex, double columnValue)
     throws SQLException
     {
@@ -3757,24 +4492,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java double value.
-The driver converts this to an SQL DOUBLE value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java double value.
+    The driver converts this to an SQL DOUBLE value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateDouble (String columnName, double columnValue)
     throws SQLException
     {
@@ -3783,24 +4518,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java float value.
-The driver converts this to an SQL REAL value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java float value.
+    The driver converts this to an SQL REAL value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateFloat (int columnIndex, float columnValue)
     throws SQLException
     {
@@ -3809,24 +4544,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java float value.
-The driver converts this to an SQL REAL value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java float value.
+    The driver converts this to an SQL REAL value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateFloat (String columnName, float columnValue)
     throws SQLException
     {
@@ -3835,24 +4570,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java int value.
-The driver converts this to an SQL INTEGER value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java int value.
+    The driver converts this to an SQL INTEGER value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateInt (int columnIndex, int columnValue)
     throws SQLException
     {
@@ -3861,24 +4596,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java int value.
-The driver converts this to an SQL INTEGER value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java int value.
+    The driver converts this to an SQL INTEGER value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateInt (String columnName, int columnValue)
     throws SQLException
     {
@@ -3887,34 +4622,34 @@ update the database.
 
 
 
-// JDBC 2.0
-// @D0C
-/**
-Updates a column in the current row using a Java long value.
-If the connected AS/400 supports SQL BIGINT data, the driver
-converts this to an SQL BIGINT value.  Otherwise, the driver
-converts this to an SQL INTEGER value.  SQL BIGINT data is
-supported on V4R5 and later.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
-//
-// Implementation note:
-//
-// The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
-// does not support that until V4R5.
-//
+    // JDBC 2.0
+    // @D0C
+    /**
+    Updates a column in the current row using a Java long value.
+    If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    converts this to an SQL BIGINT value.  Otherwise, the driver
+    converts this to an SQL INTEGER value.  SQL BIGINT data is
+    supported on V4R5 and later.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    //
+    // Implementation note:
+    //
+    // The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
+    // does not support that until V4R5.
+    //
     public void updateLong (int columnIndex, long columnValue)
     throws SQLException
     {        
@@ -3923,34 +4658,34 @@ update the database.
 
 
 
-// JDBC 2.0
-// @D0C
-/**
-Updates a column in the current row using a Java long value.
-If the connected AS/400 supports SQL BIGINT data, the driver
-converts this to an SQL BIGINT value.  Otherwise, the driver
-converts this to an SQL INTEGER value.  SQL BIGINT data is
-supported on V4R5 and later.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
-//
-// Implementation note:
-//
-// The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
-// does not support that until V4R5.
-//
+    // JDBC 2.0
+    // @D0C
+    /**
+    Updates a column in the current row using a Java long value.
+    If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    converts this to an SQL BIGINT value.  Otherwise, the driver
+    converts this to an SQL INTEGER value.  SQL BIGINT data is
+    supported on V4R5 and later.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
+    //
+    // Implementation note:
+    //
+    // The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
+    // does not support that until V4R5.
+    //
     public void updateLong (String columnName, long columnValue)
     throws SQLException
     {
@@ -3959,22 +4694,22 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using SQL NULL.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using SQL NULL.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateNull (int columnIndex)
     throws SQLException
     {
@@ -3983,22 +4718,22 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using SQL NULL.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName  The column name.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using SQL NULL.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName  The column name.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateNull (String columnName)
     throws SQLException
     {
@@ -4007,65 +4742,65 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using an Object value.
-The driver converts this to a value of an SQL type, depending on
-the type of the specified value.  The JDBC specification defines
-a standard mapping from Java types to SQL types.  In the cases
-where an SQL type is not supported by DB2 for OS/400, the 
-<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
-is used.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, 
-                            or the requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using an Object value.
+    The driver converts this to a value of an SQL type, depending on
+    the type of the specified value.  The JDBC specification defines
+    a standard mapping from Java types to SQL types.  In the cases
+    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    is used.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, 
+                                or the requested conversion is not valid.
+    **/
     public void updateObject (int columnIndex, Object columnValue)
     throws SQLException
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
 
-        updateValue (columnIndex, columnValue, Calendar.getInstance (), -1);
+        updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using an Object value.
-The driver converts this to a value of an SQL type, depending on
-the type of the specified value.  The JDBC specification defines
-a standard mapping from Java types to SQL types.  In the cases
-where an SQL type is not supported by DB2 for OS/400, the 
-<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
-is used.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, 
-                            or the requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using an Object value.
+    The driver converts this to a value of an SQL type, depending on
+    the type of the specified value.  The JDBC specification defines
+    a standard mapping from Java types to SQL types.  In the cases
+    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    is used.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, 
+                                or the requested conversion is not valid.
+    **/
     public void updateObject (String columnName, Object columnValue)
     throws SQLException
     {
@@ -4074,33 +4809,33 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using an Object value.
-The driver converts this to a value of an SQL type, depending on
-the type of the specified value.  The JDBC specification defines
-a standard mapping from Java types to SQL types.  In the cases
-where an SQL type is not supported by DB2 for OS/400, the 
-<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
-is used.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  scale         The number of digits after the decimal
-                      if SQL type is DECIMAL or NUMERIC.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, 
-                            the scale is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using an Object value.
+    The driver converts this to a value of an SQL type, depending on
+    the type of the specified value.  The JDBC specification defines
+    a standard mapping from Java types to SQL types.  In the cases
+    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    is used.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  scale         The number of digits after the decimal
+                          if SQL type is DECIMAL or NUMERIC.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, 
+                                the scale is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateObject (int columnIndex,
                               Object columnValue,
                               int scale)
@@ -4112,38 +4847,39 @@ update the database.
         if (scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-        updateValue (columnIndex, columnValue, Calendar.getInstance (), scale);
+        updateValue (columnIndex, columnValue, null, scale); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using an Object value.
-The driver converts this to a value of an SQL type, depending on
-the type of the specified value.  The JDBC specification defines
-a standard mapping from Java types to SQL types.  In the cases
-where an SQL type is not supported by DB2 for OS/400, the 
-<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
-is used.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-@param  scale         The number of digits after the decimal
-                      if SQL type is DECIMAL or NUMERIC.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, 
-                            the scale is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using an Object value.
+    The driver converts this to a value of an SQL type, depending on
+    the type of the specified value.  The JDBC specification defines
+    a standard mapping from Java types to SQL types.  In the cases
+    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    is used.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    @param  scale         The number of digits after the decimal
+                          if SQL type is DECIMAL or NUMERIC.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, 
+                                the scale is not valid, or the
+                                requested conversion is not valid.
+    @since Modification 5
+    **/
     public void updateObject (String columnName,
                               Object columnValue,
                               int scale)
@@ -4154,27 +4890,70 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates the database with the new contents of the current
-row.
+    //@G4A JDBC 3.0
+    /**
+    Updates the value of an SQL REF output parameter as a Ref value.
+    DB2 UDB for iSeries does not support structured types.
+       
+    @param  columnIndex     The column index (1-based).
+    @param  columnValue     The column value or null to update
+                                      the value to SQL NULL.
+    @return                 The parameter value or 0 if the value is SQL NULL.
+        
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support REFs.
+    @since Modification 5
+    **/
+    public void updateRef (int columnIndex, Ref columnValue)
+    throws SQLException
+    {
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+    }
 
-@exception SQLException If the result set is not open,
-                        the result set is not updatable,
-                        the cursor is not positioned on a row,
-                        the cursor is positioned on the insert row,
-                        or an error occurs.
-**/
-//
-// Implementation note:
-//
-// * It seems inefficient to prepare and execute a
-//   new statement each time, but we really have no choice,
-//   since (1.) The combination of columns that we want
-//   to update could change every time and (2.) We need
-//   to use parameter markers to be able to set columns
-//   not representable using SQL literals.
-//
+
+
+    //@G4A JDBC 3.0
+    /**
+    Updates the value of an SQL REF output parameter as a Ref value.
+    DB2 UDB for iSeries does not support structured types.
+       
+    @param  columnIndex     The column name.
+    @param  columnValue     The column value or null to update
+                            the value to SQL NULL.
+    @return                 The parameter value or 0 if the value is SQL NULL.
+        
+    @exception  SQLException    Always thrown because DB2
+                                UDB for iSeries does not support REFs.
+    **/
+    public void updateRef (String columnName, Ref columnValue)
+    throws SQLException
+    {
+        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+    }
+
+
+
+    // JDBC 2.0
+    /**
+    Updates the database with the new contents of the current
+    row.
+    
+    @exception SQLException If the result set is not open,
+                            the result set is not updatable,
+                            the cursor is not positioned on a row,
+                            the cursor is positioned on the insert row,
+                            or an error occurs.
+    **/
+    //
+    // Implementation note:
+    //
+    // * It seems inefficient to prepare and execute a
+    //   new statement each time, but we really have no choice,
+    //   since (1.) The combination of columns that we want
+    //   to update could change every time and (2.) We need
+    //   to use parameter markers to be able to set columns
+    //   not representable using SQL literals.
+    //
     public void updateRow ()
     throws SQLException
     {
@@ -4197,8 +4976,9 @@ row.
             if (updateSet_[i] == true) {
                 if (columnsSet++ > 0)
                     buffer.append (",");
+                buffer.append ("\"");                       // @D6a
                 buffer.append (row_.getFieldName (i+1));
-                buffer.append ("=?");
+                buffer.append ("\"=?");                     // @D6c
             }
         }
         buffer.append (" WHERE CURRENT OF \"");                                 // @D3C
@@ -4237,24 +5017,24 @@ row.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java short value.
-The driver converts this to an SQL SMALLINT value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java short value.
+    The driver converts this to an SQL SMALLINT value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateShort (int columnIndex, short columnValue)
     throws SQLException
     {
@@ -4263,24 +5043,24 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a Java short value.
-The driver converts this to an SQL SMALLINT value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a Java short value.
+    The driver converts this to an SQL SMALLINT value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateShort (String columnName, short columnValue)
     throws SQLException
     {
@@ -4289,55 +5069,55 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a String value.
-The driver converts this to an SQL VARCHAR value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid,
-                            or the requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a String value.
+    The driver converts this to an SQL VARCHAR value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid,
+                                or the requested conversion is not valid.
+    **/
     public void updateString (int columnIndex, String columnValue)
     throws SQLException
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
 
-        updateValue (columnIndex, columnValue, Calendar.getInstance (), -1);
+        updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a String value.
-The driver converts this to an SQL VARCHAR value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a String value.
+    The driver converts this to an SQL VARCHAR value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateString (String columnName, String columnValue)
     throws SQLException
     {
@@ -4346,55 +5126,55 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a java.sql.Time value.
-The driver converts this to an SQL TIME value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a java.sql.Time value.
+    The driver converts this to an SQL TIME value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateTime (int columnIndex, Time columnValue)
     throws SQLException
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
-        updateValue (columnIndex, columnValue, Calendar.getInstance (), -1);
+        updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a java.sql.Time value.
-The driver converts this to an SQL TIME value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a java.sql.Time value.
+    The driver converts this to an SQL TIME value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateTime (String columnName, Time columnValue)
     throws SQLException
     {
@@ -4403,55 +5183,55 @@ update the database.
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a java.sql.Timestamp value.
-The driver converts this to an SQL TIMESTAMP value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a java.sql.Timestamp value.
+    The driver converts this to an SQL TIMESTAMP value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     public void updateTimestamp (int columnIndex, Timestamp columnValue)
     throws SQLException
     {
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
-        updateValue (columnIndex, columnValue, Calendar.getInstance (), -1);
+        updateValue (columnIndex, columnValue, null, -1); //@P0C
     }
 
 
 
-// JDBC 2.0
-/**
-Updates a column in the current row using a java.sql.Timestamp value.
-The driver converts this to an SQL TIMESTAMP value.
-
-<p>This does not update the database directly.  Instead, it updates
-a copy of the data in memory.  Call updateRow() or insertRow() to
-update the database.
-
-@param  columnName    The column name.
-@param  columnValue   The column value or null to update
-			          the value to SQL NULL.
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column name is not found, or the
-                            requested conversion is not valid.
-**/
+    // JDBC 2.0
+    /**
+    Updates a column in the current row using a java.sql.Timestamp value.
+    The driver converts this to an SQL TIMESTAMP value.
+    
+    <p>This does not update the database directly.  Instead, it updates
+    a copy of the data in memory.  Call updateRow() or insertRow() to
+    update the database.
+    
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null to update
+                                      the value to SQL NULL.
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column name is not found, or the
+                                requested conversion is not valid.
+    **/
     public void updateTimestamp (String columnName, Timestamp columnValue)
     throws SQLException
     {
@@ -4460,23 +5240,23 @@ update the database.
 
 
 
-/**
-Updates a column for the specified index, and performs all
-appropriate validation.
-
-@param  columnIndex   The column index (1-based).
-@param  columnValue   The column value or null if the value
-                      is SQL NULL.
-@param  calendar      The calendar, or null if not
-                      applicable.
-@param  scale         The scale, or -1 if not applicable.                      
-
-@exception  SQLException    If the result set is not open,
-                            the result set is not updatable,
-                            the cursor is not positioned on a row,
-                            the column index is not valid, or the
-                            requested conversion is not valid.
-**/
+    /**
+    Updates a column for the specified index, and performs all
+    appropriate validation.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The column value or null if the value
+                          is SQL NULL.
+    @param  calendar      The calendar, or null if not
+                          applicable.
+    @param  scale         The scale, or -1 if not applicable.                      
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
     private void updateValue (int columnIndex,
                               Object columnValue,
                               Calendar calendar,
@@ -4485,24 +5265,24 @@ appropriate validation.
     {
         synchronized(internalLock_) {                                            // @D1A
             beforeUpdate ();
-    
+
             // Check that there is a current row.
             if ((positionValid_ == false) && (positionInsert_ == false))
                 JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
-    
+
             // Validate The column index.
             if ((columnIndex < 1) || (columnIndex > columnCount_))
                 JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-    
+
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.
-            SQLData sqlData = updateRow_.getSQLData (columnIndex);
+            SQLData sqlData = updateRow_.getSQLType(columnIndex); //@P0C
             int columnIndex0 = columnIndex - 1;
             if (columnValue != null)
                 sqlData.set (columnValue, calendar, scale);
             updateNulls_[columnIndex0] = (columnValue == null);
             updateSet_[columnIndex0] = true;
-    
+
             if (dataTruncation_)                                    // @B2A
                 testDataTruncation2 (columnIndex, sqlData);         // @B2C
         }
@@ -4511,3 +5291,4 @@ appropriate validation.
 
 
 }
+

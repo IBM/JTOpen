@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBByteSubarray.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ making a copy.
 class DBByteSubarray
 implements DBOverlay
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -58,13 +58,13 @@ when it was not previously set by the constructor.
 
 
 
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
+//E1D /**
+//E1D Copyright.
+//E1D **/
+//E1D     static private String getCopyright ()
+//E1D     {
+//E1D         return Copyright.copyright;
+//E1D     }
     
 
 
@@ -85,6 +85,14 @@ Copyright.
     public byte[] getRawBytes ()
     {
         return rawBytes_;
+    }
+
+
+    //@E1A Added this for updateable lobs, because we actually change
+    //@E1A the number of bytes while updating.
+    public void setLength (int length)
+    {
+        length_ = length;
     }
 
 

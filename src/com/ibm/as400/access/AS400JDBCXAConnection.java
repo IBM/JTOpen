@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCXAConnection.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,8 @@ transaction manager, the caller cannot explicitly commit
 or rollback on connections pooled by this object.  In addition, 
 auto commit is initialized to false and cannot be set to true.
 
-<p>This support is only available on AS/400s running the release after v4r5, or later.
+<p>
+This support is only available when connecting to servers running OS/400 V5R1 or later.
 
 <p>The following example creates an AS400JDBCXAConnection object 
 that can be used to manage XA transactions.
@@ -61,7 +62,7 @@ public class AS400JDBCXAConnection
 extends AS400JDBCPooledConnection
 implements XAConnection
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 

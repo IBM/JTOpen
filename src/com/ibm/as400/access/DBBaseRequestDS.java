@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBBaseRequestDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Enumeration; // @B1A
 import java.util.Hashtable; // @B0A
+import java.sql.SQLException;                                            //@E9a
 
 
 
@@ -60,7 +61,8 @@ import java.util.Hashtable; // @B0A
 //                        Bit 12: Package Information
 //                        Bit 13: Request is RLE compressed                         @E3A
 //                        Bit 14: RLE compression reply desired                     @E3A
-//                        Bit 15-32: Reserved                                       @E3C
+//                        Bit 15: Extended column descriptors                       @F1C
+//                        Bit 16-32: Reserved                                       @E3C @F1C
 //                Reserved Area:
 //                RTNORS:  Numeric value of the Operation Results Set
 //                         (ORS) that contains the data to be returned
@@ -187,7 +189,7 @@ import java.util.Hashtable; // @B0A
 abstract class DBBaseRequestDS
 extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -198,27 +200,29 @@ extends ClientAccessDataStream
   private int                    operationResultBitmap_;
   private int                    parameterCount_;
   private boolean                rleCompressed_ = false;              // @E3A
-  private DBStorage              storage_= null;                      // @E7c (make sure null)
+  private final DBStorage storage_ = DBDSPool.storagePool_.getUnusedStorage(); //@P0A
+  //@P0D private DBStorage              storage_= null;                      // @E7c (make sure null)
   // @B3D private static Hashtable       storagePoolManager_;         // @B0A
-  private static DBStoragePool   storagePool_ = null;                 // @B0C @B1C @B3C
+  //@P0D private static DBStoragePool   storagePool_ = null;                 // @B0C @B1C @B3C
 
 
 
   // Values for operation result bitmap.
-  public static final int       ORS_BITMAP_RETURN_DATA               = 0x80000000;    // Bit 1
-  public static final int       ORS_BITMAP_MESSAGE_ID                = 0x40000000;    // Bit 2
-  public static final int       ORS_BITMAP_FIRST_LEVEL_TEXT          = 0x20000000;    // Bit 3
-  public static final int       ORS_BITMAP_SECOND_LEVEL_TEXT         = 0x10000000;    // Bit 4
-  public static final int       ORS_BITMAP_DATA_FORMAT               = 0x08000000;    // Bit 5
-  public static final int       ORS_BITMAP_RESULT_DATA               = 0x04000000;    // Bit 6
-  public static final int       ORS_BITMAP_SQLCA                     = 0x02000000;    // Bit 7
-  public static final int       ORS_BITMAP_SERVER_ATTRIBUTES         = 0x01000000;    // Bit 8
-  public static final int       ORS_BITMAP_PARAMETER_MARKER_FORMAT   = 0x00800000;    // Bit 9
-  // public static final int       ORS_BITMAP_TRANSLATION_TABLES        = 0x00400000;    // Bit 10
-  // public static final int       ORS_BITMAP_DATA_SOURCE_INFORMATION   = 0x00200000;    // Bit 11
-  public static final int       ORS_BITMAP_PACKAGE_INFO              = 0x00100000;    // Bit 12
-  public static final int       ORS_BITMAP_REQUEST_RLE_COMPRESSION   = 0x00080000;    // Bit 13       @E3A
-  public static final int       ORS_BITMAP_REPLY_RLE_COMPRESSION     = 0x00040000;    // Bit 14       @E3A
+  public static final int       ORS_BITMAP_RETURN_DATA                 = 0x80000000;    // Bit 1
+  public static final int       ORS_BITMAP_MESSAGE_ID                  = 0x40000000;    // Bit 2
+  public static final int       ORS_BITMAP_FIRST_LEVEL_TEXT            = 0x20000000;    // Bit 3
+  public static final int       ORS_BITMAP_SECOND_LEVEL_TEXT           = 0x10000000;    // Bit 4
+  public static final int       ORS_BITMAP_DATA_FORMAT                 = 0x08000000;    // Bit 5
+  public static final int       ORS_BITMAP_RESULT_DATA                 = 0x04000000;    // Bit 6
+  public static final int       ORS_BITMAP_SQLCA                       = 0x02000000;    // Bit 7
+  public static final int       ORS_BITMAP_SERVER_ATTRIBUTES           = 0x01000000;    // Bit 8
+  public static final int       ORS_BITMAP_PARAMETER_MARKER_FORMAT     = 0x00800000;    // Bit 9
+  // public static final int       ORS_BITMAP_TRANSLATION_TABLES          = 0x00400000;    // Bit 10
+  // public static final int       ORS_BITMAP_DATA_SOURCE_INFORMATION     = 0x00200000;    // Bit 11
+  public static final int       ORS_BITMAP_PACKAGE_INFO                = 0x00100000;    // Bit 12
+  public static final int       ORS_BITMAP_REQUEST_RLE_COMPRESSION     = 0x00080000;    // Bit 13       @E3A
+  public static final int       ORS_BITMAP_REPLY_RLE_COMPRESSION       = 0x00040000;    // Bit 14       @E3A
+  public static final int       ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS = 0x00020000;    // Bit 15       @F1A    
 
 
 
@@ -237,23 +241,23 @@ extends ClientAccessDataStream
 /**
 Static initializer.
 **/
-  static
-  {
-    storagePool_ = new DBStoragePool ();                    // @B0D @B3C
-    // @B3D storagePoolManager_ = new Hashtable ();         // @B0A
-  }
+//@P0D  static
+//@P0D  {
+//@P0D    storagePool_ = new DBStoragePool ();                    // @B0D @B3C
+  // @B3D storagePoolManager_ = new Hashtable ();         // @B0A
+//@P0D  }
 
 
 
 /**
 Constructor.
 **/
-  protected DBBaseRequestDS (int requestId,
-                             int rpbId,
-                             int operationResultBitmap,
-                             int parameterMarkerDescriptorHandle)
+  protected DBBaseRequestDS(int requestId,
+                            int rpbId,
+                            int operationResultBitmap,
+                            int parameterMarkerDescriptorHandle)
   {
-    super ();
+    super();
 
     /* @B3D
     // @B0A
@@ -295,6 +299,7 @@ Constructor.
 
     // Allocate the large byte array for storage of the
     // data stream.
+/*@P0M - Moved to initialize().    
     storage_ = storagePool_.getUnusedStorage ();
     data_ = storage_.getReference ();
 
@@ -316,17 +321,57 @@ Constructor.
     currentOffset_          = HEADER_LENGTH + 20;
     parameterCount_         = 0;
     operationResultBitmap_  = operationResultBitmap;
+*///@P0M
+
+    initialize(requestId, rpbId, operationResultBitmap, parameterMarkerDescriptorHandle); //@P0A
   }
 
+
+
+  //@P0A - This code used to be in the constructor.
+  // Now, just call initialize() instead of constructing a new datastream.
+  void initialize(int requestId,
+                  int rpbId,
+                  int operationResultBitmap,
+                  int parameterMarkerDescriptorHandle)
+  {
+    // Allocate the large byte array for storage of the
+    // data stream.
+    //@P0D storage_ = storagePool_.getUnusedStorage ();
+
+    data_ = storage_.data_; //@P0C
+
+    // Initialization.
+    currentOffset_          = HEADER_LENGTH + 20;
+    parameterCount_         = 0;
+    operationResultBitmap_  = operationResultBitmap;
+    rleCompressed_ = false; //@P0A
+    lockedLength_ = 0; //@P0A
+
+    // Data stream header.
+    setHeaderID(0);
+    setCSInstance(0);
+    setTemplateLen(20);
+    setReqRepID(requestId);
+
+    // Data stream template.
+    set32bit(operationResultBitmap, 20);   // Operation result bitmap.
+    set16bit(rpbId, 28);                   // Return ORS handle.
+    set16bit(rpbId, 30);                   // Fill ORS handle.
+    setBasedOnORSHandle(0);                // Based on ORS handle.
+    set16bit(rpbId, 34);                   // RPB handle.
+    setParameterMarkerDescriptorHandle(parameterMarkerDescriptorHandle);
+
+  }
 
 
 /**
 Adds another operation result to the operation result bitmap.
 **/
-  public void addOperationResultBitmap (int value)
+  public void addOperationResultBitmap(int value)
   {
     operationResultBitmap_ |= value;
-    set32bit (operationResultBitmap_, 20);
+    set32bit(operationResultBitmap_, 20);
   }
 
 
@@ -334,14 +379,14 @@ Adds another operation result to the operation result bitmap.
 /**
 Adds a 1 byte parameter.
 **/
-  protected void addParameter (int codePoint, byte value)
+  protected void addParameter(int codePoint, byte value)
   throws DBDataStreamException
   {
-    lock (1, codePoint);
+    lock(1, codePoint);
 
     data_[currentOffset_] = value;
 
-    unlock ();
+    unlock();
   }
 
 
@@ -349,14 +394,14 @@ Adds a 1 byte parameter.
 /**
 Adds a 2 byte parameter.
 **/
-  protected void addParameter (int codePoint, short value)
+  protected void addParameter(int codePoint, short value)
   throws DBDataStreamException
   {
-    lock (2, codePoint);
+    lock(2, codePoint);
 
-    set16bit (value, currentOffset_);
+    set16bit(value, currentOffset_);
 
-    unlock ();
+    unlock();
   }
 
 
@@ -364,15 +409,15 @@ Adds a 2 byte parameter.
 /**
 Adds a 2 byte parameter with an extra 4 byte value.
 **/
-  protected void addParameter (int codePoint, short value, int extra)
+  protected void addParameter(int codePoint, short value, int extra)
   throws DBDataStreamException
   {
-    lock (6, codePoint);
+    lock(6, codePoint);
 
-    set16bit (value, currentOffset_);
-    set32bit (extra, currentOffset_ + 2);
+    set16bit(value, currentOffset_);
+    set32bit(extra, currentOffset_ + 2);
 
-    unlock ();
+    unlock();
   }
 
 
@@ -380,14 +425,14 @@ Adds a 2 byte parameter with an extra 4 byte value.
 /**
 Adds a 4 byte parameter.
 **/
-  protected void addParameter (int codePoint, int value)
+  protected void addParameter(int codePoint, int value)
   throws DBDataStreamException
   {
-    lock (4, codePoint);
+    lock(4, codePoint);
 
-    set32bit (value, currentOffset_);
+    set32bit(value, currentOffset_);
 
-    unlock ();
+    unlock();
   }
 
 
@@ -395,14 +440,14 @@ Adds a 4 byte parameter.
 /**
 Adds a byte array parameter.
 **/
-  protected void addParameter (int codePoint, byte[] value)
+  protected void addParameter(int codePoint, byte[] value)
   throws DBDataStreamException
   {
-    lock (value.length, codePoint);
+    lock(value.length, codePoint);
 
-    System.arraycopy (value, 0, data_, currentOffset_, value.length);
+    System.arraycopy(value, 0, data_, currentOffset_, value.length);
 
-    unlock ();
+    unlock();
   }
 
 
@@ -410,18 +455,18 @@ Adds a byte array parameter.
 /**
 @B2A Adds a byte array parameter including CCSID and length.
 **/
-  protected void addParameter (int codePoint,
-                               byte[] value,
-                               boolean overloadThisMethod)
+  protected void addParameter(int codePoint,
+                              byte[] value,
+                              boolean overloadThisMethod)
   throws DBDataStreamException
   {
-    lock (value.length + 6, codePoint);
+    lock(value.length + 6, codePoint);
 
-    set16bit ((short) 0xFFFF, currentOffset_);              // CCSID
-    set32bit (value.length, currentOffset_ + 2);            // length
-    System.arraycopy (value, 0, data_, currentOffset_ + 6, value.length);
+    set16bit((short) 0xFFFF, currentOffset_);              // CCSID
+    set32bit(value.length, currentOffset_ + 2);            // length
+    System.arraycopy(value, 0, data_, currentOffset_ + 6, value.length);
 
-    unlock ();
+    unlock();
   }
 
 
@@ -448,7 +493,7 @@ This assumption avoids character conversion.
         data_[offset] = (byte)(asChars[i] | 0x00F0);                        // @E4A
     }                                                                           // @E4A
 
-    unlock ();                                                                  // @E4A
+    unlock();                                                                  // @E4A
   }                                                                               // @E4A
 
 
@@ -460,27 +505,27 @@ Adds a fixed length string parameter.
 // This does not need to work with double byte character sets
 // as far as I know.
 //
-  protected void addParameter (int codePoint,
-                               ConverterImplRemote converter,
-                               String value,
-                               int valueLength)
+  protected void addParameter(int codePoint,
+                              ConvTable converter, //@P0C
+                              String value,
+                              int valueLength)
   throws DBDataStreamException
   {
-    lock (valueLength + 2, codePoint);
+    lock(valueLength + 2, codePoint);
 
-    set16bit (converter.getCcsid(), currentOffset_);    // CCSID
+    set16bit(converter.ccsid_, currentOffset_);    // CCSID @P0C
 
     try
     {
-      converter.stringToByteArray (value.substring (0, valueLength),
-                                   data_, currentOffset_ + 2);
+      converter.stringToByteArray(value.substring (0, valueLength),
+                                  data_, currentOffset_ + 2);
     }
     catch (CharConversionException e)
     {
-      throw new DBDataStreamException ();
+      throw new DBDataStreamException();
     }
 
-    unlock ();
+    unlock();
   }
 
 
@@ -488,39 +533,36 @@ Adds a fixed length string parameter.
 /**
 Adds a variable length string parameter.
 **/
-  protected void addParameter (int codePoint,
-                               ConverterImplRemote converter,
-                               String value)
-  throws DBDataStreamException
+  protected void addParameter(int codePoint,
+                              ConvTable converter, //@P0C
+                              String value)
+  throws DBDataStreamException, SQLException                              // @E9a
   {
     // @A1C
     // Changed code to use the converter to find out the exact
     // number of bytes the string needs to occupy so that it works
     // for both single-byte and double-byte strings.
-    byte[] rawBytes = converter.stringToByteArray (value);
-                                   
-        if (rawBytes.length > 65535)                                            // @E9a
-        {                                                                       // @E9a
-            if (JDTrace.isTraceOn())                                            // @E9a
-                JDTrace.logInformation (this, "Warning, SQL statement probably too long"); // @E9a
-        }                                                                       // @E9a
+    byte[] rawBytes = converter.stringToByteArray(value);
 
-    lock (rawBytes.length + 4, codePoint);
+    if (rawBytes.length > 65535)                                            // @E9a
+      JDError.throwSQLException (JDError.EXC_SQL_STATEMENT_TOO_LONG);      // @E9a 
 
-    set16bit (converter.getCcsid(), currentOffset_);        // CCSID
-    set16bit (rawBytes.length, currentOffset_ + 2);         // SL
+    lock(rawBytes.length + 4, codePoint);
+
+    set16bit(converter.ccsid_, currentOffset_);        // CCSID @P0C
+    set16bit(rawBytes.length, currentOffset_ + 2);         // SL
 
     try
     {
-      System.arraycopy (rawBytes, 0, data_, currentOffset_ + 4,
-                        rawBytes.length);
+      System.arraycopy(rawBytes, 0, data_, currentOffset_ + 4,
+                       rawBytes.length);
     }
     catch (Exception e)
     {
-      throw new DBDataStreamException ();
+      throw new DBDataStreamException();
     }
 
-    unlock ();
+    unlock();
   }
 
 
@@ -528,39 +570,39 @@ Adds a variable length string parameter.
 /**
 Adds a library list parameter.
 **/
-  protected void addParameter (int codePoint,
-                               ConverterImplRemote converter,
-                               char[] indicators,
-                               String[] libraries)
+  protected void addParameter(int codePoint,
+                              ConvTable converter, //@P0C
+                              char[] indicators,
+                              String[] libraries)
   throws DBDataStreamException
   {
-    int  parameterLength = 4;
+    int parameterLength = 4;
     for (int i = 0; i < libraries.length; ++i)
       parameterLength += 3 + libraries[i].length();
 
-    lock (parameterLength, codePoint);
+    lock(parameterLength, codePoint);
 
-    set16bit (converter.getCcsid(), currentOffset_);    // CCSID
-    set16bit (libraries.length, currentOffset_ + 2);    // number of libraries
+    set16bit(converter.ccsid_, currentOffset_);    // CCSID @P0C
+    set16bit(libraries.length, currentOffset_ + 2);    // number of libraries
 
     int offset = 4;
     try
     {
       for (int i = 0; i < libraries.length; ++i)
       {
-        Character ch = new Character (indicators[i]);
-        converter.stringToByteArray (ch.toString(), data_, currentOffset_ + offset);
-        set16bit (libraries[i].length(), currentOffset_ + offset + 1);
-        converter.stringToByteArray (libraries[i], data_, currentOffset_ + offset + 3);
+        Character ch = new Character(indicators[i]);
+        converter.stringToByteArray(ch.toString(), data_, currentOffset_ + offset);
+        set16bit(libraries[i].length(), currentOffset_ + offset + 1);
+        converter.stringToByteArray(libraries[i], data_, currentOffset_ + offset + 3);
         offset += 3 + libraries[i].length();
       }
     }
     catch (CharConversionException e)
     {
-      throw new DBDataStreamException ();
+      throw new DBDataStreamException();
     }
 
-    unlock ();
+    unlock();
   }
 
 
@@ -568,12 +610,12 @@ Adds a library list parameter.
 /**
 Adds a NLSS indicator parameter.
 **/
-  protected void addParameter (int codePoint,
-                               ConverterImplRemote converter,
-                               int type,
-                               String tableFile,
-                               String tableLibrary,
-                               String languageId)
+  protected void addParameter(int codePoint,
+                              ConvTable converter, //@P0C
+                              int type,
+                              String tableFile,
+                              String tableLibrary,
+                              String languageId)
   throws DBDataStreamException
   {
     int parameterLength;
@@ -588,13 +630,13 @@ Adds a NLSS indicator parameter.
         parameterLength = 7;
         break;
       case 3:
-        parameterLength = 8 + tableFile.length () + tableLibrary.length ();
+        parameterLength = 8 + tableFile.length() + tableLibrary.length();
         break;
     }
 
-    lock (parameterLength, codePoint);
+    lock(parameterLength, codePoint);
 
-    set16bit (type, currentOffset_);            // sort value
+    set16bit(type, currentOffset_);            // sort value
 
     try
     {
@@ -605,29 +647,29 @@ Adds a NLSS indicator parameter.
           break;
         case 1:
         case 2:
-          set16bit (converter.getCcsid(), currentOffset_ + 2);    // CCSID
-          converter.stringToByteArray (languageId, data_,
-                                       currentOffset_ + 4);     // sort language id
+          set16bit(converter.ccsid_, currentOffset_ + 2);    // CCSID @P0C
+          converter.stringToByteArray(languageId, data_,
+                                      currentOffset_ + 4);     // sort language id
           break;
         case 3:
-          set16bit (converter.getCcsid(), currentOffset_ + 2);    // CCSID
-          set16bit (tableFile.length(),
-                    currentOffset_ + 4);            // SL
-          converter.stringToByteArray (tableFile, data_,
-                                       currentOffset_ + 6);  // sort table file
-          set16bit (tableLibrary.length(),
-                    currentOffset_ + 6 + tableFile.length()); // SL
-          converter.stringToByteArray (tableLibrary,  data_,
-                                       currentOffset_ + 8 + tableFile.length()); // sort table library
+          set16bit(converter.ccsid_, currentOffset_ + 2);    // CCSID @P0C
+          set16bit(tableFile.length(),
+                   currentOffset_ + 4);            // SL
+          converter.stringToByteArray(tableFile, data_,
+                                      currentOffset_ + 6);  // sort table file
+          set16bit(tableLibrary.length(),
+                   currentOffset_ + 6 + tableFile.length()); // SL
+          converter.stringToByteArray(tableLibrary,  data_,
+                                      currentOffset_ + 8 + tableFile.length()); // sort table library
           break;
       }
     }
     catch (CharConversionException e)
     {
-      throw new DBDataStreamException ();
+      throw new DBDataStreamException();
     }
 
-    unlock ();
+    unlock();
   }
 
 
@@ -635,15 +677,15 @@ Adds a NLSS indicator parameter.
 /**
 Adds a DBOverlay parameter.
 **/
-  protected void addParameter (int codePoint,
-                               DBOverlay value)
+  protected void addParameter(int codePoint,
+                              DBOverlay value)
   throws DBDataStreamException
   {
-    lock (value.getLength (), codePoint);
+    lock(value.getLength(), codePoint);
 
-    value.overlay (data_, currentOffset_);
+    value.overlay(data_, currentOffset_);
 
-    unlock ();
+    unlock();
   }
 
 
@@ -687,9 +729,9 @@ four bytes, and sixteen bytes per line.
 // In addition, we take the opportunity to also print
 // limited character output.
 //
-  void dump (PrintStream ps)
+  void dump(PrintStream ps)
   {
-    dump (ps, data_, currentOffset_);
+    dump(ps, data_, currentOffset_);
 
     // Report whether or not the datastream was compressed.                    @E3A
     if (rleCompressed_)                                                     // @E3A
@@ -707,25 +749,25 @@ four bytes, and sixteen bytes per line.
 @param data the data
 @param length the length
 **/
-  static void dump (PrintStream ps, byte[] data, int length)
+  static void dump(PrintStream ps, byte[] data, int length)
   {
     synchronized(ps)
     {                                                          // @E1A
 
-      StringBuffer hexBuffer  = new StringBuffer ();
-      StringBuffer charBuffer = new StringBuffer ();
+      StringBuffer hexBuffer  = new StringBuffer();
+      StringBuffer charBuffer = new StringBuffer();
       int i;
       for (i = 0; i < length; i++)
       {
 
         // Convert the data to 2 digits of hex.
-        String temp = "00" + Integer.toHexString (data[i]);
-        String hex = temp.substring (temp.length () - 2);
-        hexBuffer.append (hex.toUpperCase ());
+        String temp = "00" + Integer.toHexString(data[i]);
+        String hex = temp.substring(temp.length() - 2);
+        hexBuffer.append(hex.toUpperCase());
 
         // Pad hex output at every 4 bytes.
         if (i % 4 == 3)
-          hexBuffer.append (" ");
+          hexBuffer.append(" ");
 
         // Convert the data to an ASCII character.
         short ascii = (short) ((data[i] >= 0)
@@ -767,24 +809,24 @@ four bytes, and sixteen bytes per line.
             ch = '.';
         }                                                                   // @E1A
 
-        charBuffer.append (ch);
+        charBuffer.append(ch);
 
         // Start a new line at every 16 bytes.
         if (i % 16 == 15)
         {
-          ps.println (hexBuffer + "  [" + charBuffer + "]");
-          hexBuffer  = new StringBuffer ();
-          charBuffer = new StringBuffer ();
+          ps.println(hexBuffer + "  [" + charBuffer + "]");
+          hexBuffer  = new StringBuffer();
+          charBuffer = new StringBuffer();
         }
       }
 
       // Pad out and print the last line if necessary.
       if (i % 16 != 0)
       {
-        int hexBufferLength = hexBuffer.length ();
+        int hexBufferLength = hexBuffer.length();
         for (int j = hexBufferLength; j <= 35; ++j)
-          hexBuffer.append (" ");
-        ps.println (hexBuffer + "  [" + charBuffer + "]");
+          hexBuffer.append(" ");
+        ps.println(hexBuffer + "  [" + charBuffer + "]");
       }
 
     }                                                                           // @E1A
@@ -798,11 +840,13 @@ four bytes, and sixteen bytes per line.
 
   // @E7a new method.
   // Make sure the buffer is free before going away.
-  protected void finalize ()
+  protected void finalize()
   throws Throwable
   {
-    freeCommunicationsBuffer();
-    super.finalize ();
+    //@P0D freeCommunicationsBuffer();
+    if (storage_ != null) storage_.inUse_ = false; //@P0A
+    data_ = null; //@P0A
+    super.finalize();
   }
 
 
@@ -814,13 +858,15 @@ four bytes, and sixteen bytes per line.
   // throws an exception (because user input is bad) before sending it.
   // In that case the requester must manully free the buffer or it will not
   // be returned to the pool (a memory leak).
-  void freeCommunicationsBuffer()
-  {
-    if (storage_ != null)
-      storagePool_.freeStorage (storage_);
+//@P0D - Removed this method as the comm buffers aren't freed, because
+// they each belong to their own datastream, and the datastreams are pooled now.
+//@P0D  void freeCommunicationsBuffer()
+//@P0D  {
+//@P0D    if (storage_ != null)
+//@P0D      storagePool_.freeStorage (storage_);
 
-    storage_ = null;
-  }
+//@P0D    storage_ = null;
+//@P0D  }
 
 
 
@@ -833,15 +879,15 @@ byte array and grow it as needed.
 @param length The length to be added to the data stream,
               in bytes, not including the LL and CP.
 **/
-  private void lock (int length, int codePoint)
+  private void lock(int length, int codePoint)
   throws DBDataStreamException
   {
-    if (storage_.checkSize (currentOffset_ + length + 6))
-      data_ = storage_.getReference ();
+    if (storage_.checkSize(currentOffset_ + length + 6))
+      data_ = storage_.data_; //@P0C
     lockedLength_ = length;
 
-    set32bit (length + 6, currentOffset_);          // LL
-    set16bit (codePoint, currentOffset_ + 4);       // CP
+    set32bit(length + 6, currentOffset_);          // LL
+    set16bit(codePoint, currentOffset_ + 4);       // CP
 
     currentOffset_ += 6;
   }
@@ -865,9 +911,9 @@ Set (ORS) into the request datastream.
 // The based-on ORS handle should be 0 for the first request
 // in a chain.
 //-----------------------------------------------------------
-  public void setBasedOnORSHandle (int value)
+  public void setBasedOnORSHandle(int value)
   {
-    set16bit (value, 32);
+    set16bit(value, 32);
   }
 
 
@@ -875,7 +921,7 @@ Set (ORS) into the request datastream.
 /**
 "Unlocks" the request datastream after addition of a parameter.
 **/
-  private void unlock ()
+  private void unlock()
   {
     currentOffset_ += lockedLength_;
     ++parameterCount_;
@@ -886,9 +932,9 @@ Set (ORS) into the request datastream.
 /**
 Sets the parameter marker descriptor handle.
 **/
-  public void setParameterMarkerDescriptorHandle (int value)
+  public void setParameterMarkerDescriptorHandle(int value)
   {
-    set16bit (value, 36);
+    set16bit(value, 36);
   }
 
 
@@ -898,11 +944,11 @@ Sets the parameter marker descriptor handle.
 /**
 Overrides the superclass to write the datastream.
 **/
-  void write (OutputStream out)
+  void write(OutputStream out)
   throws IOException
   {
-    setLength (currentOffset_);
-    set16bit (parameterCount_, 38);
+    setLength(currentOffset_);
+    set16bit(parameterCount_, 38);
 
     if (rleCompressed_)
     {                                                                   // @E3A
@@ -912,52 +958,58 @@ Overrides the superclass to write the datastream.
       {                                              // @E3A
 
         // Get another piece of storage from the pool.                                     @E3A
-        DBStorage secondaryStorage = storagePool_.getUnusedStorage ();                  // @E3A
-        secondaryStorage.checkSize(currentOffset_);                                     // @E3A
-        byte[] compressedBytes = secondaryStorage.getReference ();                      // @E3A
+        DBStorage secondaryStorage = DBDSPool.storagePool_.getUnusedStorage();                  // @E3A @P0C
+        try //@P0A
+        {
+          secondaryStorage.checkSize(currentOffset_);                                     // @E3A
+          byte[] compressedBytes = secondaryStorage.data_;                      // @E3A @P0C
 
-        // Compress the bytes not including the header (20 bytes) and template             @E3A
-        // (20 bytes).  If the compression was successful, send the compressed             @E3A
-        // bytes.  Otherwise, send the bytes as normal.                                    @E3A
-        //
-        // The format is this:                                                             @E3A
-        // Bytes:           Description:                                                   @E3A
-        //   4              LL - Compressed length of the entire datastream.               @E3A
-        //  36              The rest of the uncompressed header and template.              @E3A
-        //   4              ll - Length of the compressed data + 10.                       @E5A
-        //   2              CP - The compression code point.                               @E5A
-        //   4              Decompressed length of the data.                               @E3A
-        //  ll-10           Compressed data.                                               @E3A @E5C
-        int dataLength = currentOffset_ - 40;                                           // @E3A
+          // Compress the bytes not including the header (20 bytes) and template             @E3A
+          // (20 bytes).  If the compression was successful, send the compressed             @E3A
+          // bytes.  Otherwise, send the bytes as normal.                                    @E3A
+          //
+          // The format is this:                                                             @E3A
+          // Bytes:           Description:                                                   @E3A
+          //   4              LL - Compressed length of the entire datastream.               @E3A
+          //  36              The rest of the uncompressed header and template.              @E3A
+          //   4              ll - Length of the compressed data + 10.                       @E5A
+          //   2              CP - The compression code point.                               @E5A
+          //   4              Decompressed length of the data.                               @E3A
+          //  ll-10           Compressed data.                                               @E3A @E5C
+          int dataLength = currentOffset_ - 40;                                           // @E3A
 
-        int compressedSize = DataStreamCompression.compressRLE(data_, 40,               // @E3A
-                                                               dataLength, compressedBytes, 50,                                            // @E3A @E5C
-                                                               DataStreamCompression.DEFAULT_ESCAPE);                                      // @E3A
-        if (compressedSize > 0)
-        {                                                       // @E3A
-          int compressedSizeWithHeader = compressedSize + 50;                         // @E3A @E5C
-          BinaryConverter.intToByteArray(compressedSizeWithHeader, compressedBytes, 0); // @E3A
-          System.arraycopy(data_, 4, compressedBytes, 4, 36);                         // @E3A
-          BinaryConverter.intToByteArray(compressedSize + 10, compressedBytes, 40);   // @E5A
-          BinaryConverter.shortToByteArray((short)AS400JDBCConnection.DATA_COMPRESSION_RLE_, compressedBytes, 44);       // @E5A
-          BinaryConverter.intToByteArray(dataLength, compressedBytes, 46);            // @E3A @E5C
+          int compressedSize = DataStreamCompression.compressRLE(data_, 40,               // @E3A
+                                                                 dataLength, compressedBytes, 50,                                            // @E3A @E5C
+                                                                 DataStreamCompression.DEFAULT_ESCAPE);                                      // @E3A
+          if (compressedSize > 0)
+          {                                                       // @E3A
+            int compressedSizeWithHeader = compressedSize + 50;                         // @E3A @E5C
+            BinaryConverter.intToByteArray(compressedSizeWithHeader, compressedBytes, 0); // @E3A
+            System.arraycopy(data_, 4, compressedBytes, 4, 36);                         // @E3A
+            BinaryConverter.intToByteArray(compressedSize + 10, compressedBytes, 40);   // @E5A
+            BinaryConverter.shortToByteArray((short)AS400JDBCConnection.DATA_COMPRESSION_RLE_, compressedBytes, 44);       // @E5A
+            BinaryConverter.intToByteArray(dataLength, compressedBytes, 46);            // @E3A @E5C
 
-          // Synchronization is added around the socket                                  @E3A
-          // write so that requests from multiple threads                                @E3A
-          // that use the same socket won't be garbled.                                  @E3A
-          synchronized(out)
-          {                                                         // @E3A
-            out.write(compressedBytes, 0, compressedSizeWithHeader);                // @E3A
-            out.flush();                                                            // @W1A
-          }
-          if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", compressedBytes, 0, compressedSizeWithHeader); //@E6A
-        }                                                                               // @E3A
-        else
-        {                                                                          // @E3A
-          rleCompressed_ = false;   // Compression failed.                            // @E3A
-        }                                                                               // @E3A
-
-        storagePool_.freeStorage(secondaryStorage);                                     // @E3A
+            // Synchronization is added around the socket                                  @E3A
+            // write so that requests from multiple threads                                @E3A
+            // that use the same socket won't be garbled.                                  @E3A
+            synchronized(out)
+            {                                                         // @E3A
+              out.write(compressedBytes, 0, compressedSizeWithHeader);                // @E3A
+              out.flush();                                                            // @W1A
+            }
+            if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", compressedBytes, 0, compressedSizeWithHeader); //@E6A @P0C
+          }                                                                               // @E3A
+          else
+          {                                                                          // @E3A
+            rleCompressed_ = false;   // Compression failed.                            // @E3A
+          }                                                                               // @E3A
+        }
+        finally //@P0A
+        {
+          //@P0D storagePool_.freeStorage(secondaryStorage);                                     // @E3A
+          secondaryStorage.inUse_ = false; //@P0A
+        }
       }                                                                                   // @E3A
       else
       {                                                                              // @E3A
@@ -978,19 +1030,17 @@ Overrides the superclass to write the datastream.
       // that use the same socket won't be garbled.
       synchronized(out)
       {
-        out.write (data_, 0, currentOffset_);
-        out.flush ();                                         //@W1a
+        out.write(data_, 0, currentOffset_);
+        out.flush();                                         //@W1a
       }
-      if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A
+      if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A @P0C
     }                                                                                       // @E3A
 
     // Free the storage for others to use.  We
     // are done with it.
-    storagePool_.freeStorage (storage_);
-    storage_ = null;                                                          //@E7a
+    //@P0D storagePool_.freeStorage (storage_);
+    //@P0D storage_ = null;                                                          //@E7a
   }
-
-
 }
 
 

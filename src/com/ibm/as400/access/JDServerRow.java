@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDServerRow.java
 //                                                                             
@@ -50,39 +50,39 @@ implements JDRow
 
 
 
-/**
-Constructs a JDServerRow object.  Use this constructor
-when the format information has already been retrieved
-from the server.
-
-@param      connection      The connection to the server.
-@param      id              The id.
-@param      serverFormat    The server format information.
-@param      settings        The conversion settings.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Constructs a JDServerRow object.  Use this constructor
+    when the format information has already been retrieved
+    from the server.
+    
+    @param      connection      The connection to the server.
+    @param      id              The id.
+    @param      serverFormat    The server format information.
+    @param      settings        The conversion settings.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     JDServerRow (AS400JDBCConnection connection,
                  int id,
                  DBDataFormat serverFormat,
                  SQLConversionSettings settings)
-        throws SQLException
+    throws SQLException
     {
         initialize (connection, id, serverFormat, settings);
     }
 
 
 
-/**
-Constructs a JDServerRow object.  Use this constructor when format
-information has not yet been retrieved from the server.
-
-@param  connection      The connection to the server.
-@param  id              The id.
-@param  settings        The conversion settings.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Constructs a JDServerRow object.  Use this constructor when format
+    information has not yet been retrieved from the server.
+    
+    @param  connection      The connection to the server.
+    @param  id              The id.
+    @param  settings        The conversion settings.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     /* @C1D
     JDServerRow (AS400JDBCConnection connection,
                  int id,
@@ -90,22 +90,22 @@ information has not yet been retrieved from the server.
         throws SQLException
     {
         DBDataFormat serverFormat = null;
-
+  
         DBSQLRequestDS request = new DBSQLRequestDS (
             DBSQLRequestDS.FUNCTIONID_DESCRIBE,
-			id, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
-			+ DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);
-
-  		DBReplyRequestedDS reply = connection.sendAndReceive (request, id);
-
-    	int errorClass = reply.getErrorClass();
-	    int returnCode = reply.getReturnCode();
-
-   		if (errorClass != 0)
-    		JDError.throwSQLException (connection, id, errorClass, returnCode);
-
+      id, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
+      + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);
+  
+      DBReplyRequestedDS reply = connection.sendAndReceive (request, id);
+  
+      int errorClass = reply.getErrorClass();
+      int returnCode = reply.getReturnCode();
+  
+      if (errorClass != 0)
+        JDError.throwSQLException (connection, id, errorClass, returnCode);
+  
         serverFormat = reply.getDataFormat ();
-
+  
         initialize (connection, id, serverFormat, settings);
     }
     */
@@ -113,12 +113,12 @@ information has not yet been retrieved from the server.
 
 
     // @D1A
-/**
-Returns the raw bytes.
-
-@param      index   The field index (1-based).
-@return             A copy of the bytes.
-**/
+    /**
+    Returns the raw bytes.
+    
+    @param      index   The field index (1-based).
+    @return             A copy of the bytes.
+    **/
     byte[] getRawBytes(int index)
     {
         int index0 = index - 1;
@@ -129,21 +129,21 @@ Returns the raw bytes.
 
 
 
-/**
-Initializes the state of the object.
-
-@param      connection          The connection to the server.
-@param      id                  The id.
-@param      serverFormat        The server format information.
-@param      settings            The conversion settings.
-
-@exception  SQLException        If an error occurs.
-**/
+    /**
+    Initializes the state of the object.
+    
+    @param      connection          The connection to the server.
+    @param      id                  The id.
+    @param      serverFormat        The server format information.
+    @param      settings            The conversion settings.
+    
+    @exception  SQLException        If an error occurs.
+    **/
     private void initialize (AS400JDBCConnection connection,
                              int id,
                              DBDataFormat serverFormat,
                              SQLConversionSettings settings)
-        throws SQLException
+    throws SQLException
     {
         // Initialization.
         connection_         = connection;
@@ -153,7 +153,8 @@ Initializes the state of the object.
         serverData_         = null;
         serverFormat_       = serverFormat;
 
-        try {
+        try
+        {
             int count;
             if (serverFormat_ == null)
                 count = 0;
@@ -173,10 +174,12 @@ Initializes the state of the object.
 
             // Compute the offsets, lengths, and SQL data for
             // each field.
-            if (count > 0) {
+            if (count > 0)
+            {
                 int offset = 0;
                 boolean translateBinary = connection.getProperties().getBoolean (JDProperties.TRANSLATE_BINARY);
-                for (int i = 0; i < count; ++i) {
+                for (int i = 0; i < count; ++i)
+                {
                     ccsids_[i] = serverFormat_.getFieldCCSID (i);
                     dataOffset_[i] = offset;
                     dataLength_[i] = serverFormat_.getFieldLength (i);
@@ -188,64 +191,69 @@ Initializes the state of the object.
                     int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);              // @C2C
 
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
-                        sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
-                        scales_[i], ccsids_[i], translateBinary, settings,
-                        maxLobSize, (i+1));     //@F1C                                               // @C2C
+                                                          sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
+                                                          scales_[i], ccsids_[i], translateBinary, settings,
+                                                          maxLobSize, (i+1));     //@F1C                                               // @C2C
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
                 }
             }
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
     }
 
 
 
-/**
-Sets the server data.  Use this when new data has been retrieved
-from the server.
-
-@param  serverData      The server data.
-
-@exception  SQLException        If an error occurs.
-**/
+    /**
+    Sets the server data.  Use this when new data has been retrieved
+    from the server.
+    
+    @param  serverData      The server data.
+    
+    @exception  SQLException        If an error occurs.
+    **/
     void setServerData (DBData serverData)
-        throws SQLException
+    throws SQLException
     {
         serverData_ = serverData;
 
-        try {
+        try
+        {
             rawBytes_   = serverData_.getRawBytes ();
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
     }
 
 
 
-/**
-Sets the row index within the server data.
-
-@param  rowIndex        The row index (0-based).
-
-@exception  SQLException        If an error occurs.
-**/
+    /**
+    Sets the row index within the server data.
+    
+    @param  rowIndex        The row index (0-based).
+    
+    @exception  SQLException        If an error occurs.
+    **/
     void setRowIndex (int rowIndex)
-        throws SQLException
+    throws SQLException
     {
         rowIndex_ = rowIndex;
 
-        try {
+        try
+        {
             if (serverData_ != null)
                 rowDataOffset_ = serverData_.getRowDataOffset (rowIndex_);
             else
                 rowDataOffset_ = -1;
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
 
@@ -256,27 +264,26 @@ Sets the row index within the server data.
 
 
 
-//-------------------------------------------------------------//
-//                                                             //
-// INTERFACE IMPLEMENTATIONS                                   //
-//                                                             //
-//-------------------------------------------------------------//
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
+    //-------------------------------------------------------------//
+    //                                                             //
+    // INTERFACE IMPLEMENTATIONS                                   //
+    //                                                             //
+    //-------------------------------------------------------------//
 
 
 
     public int findField (String name)
-        throws SQLException
-    {
+    throws SQLException
+    {       
+        if (name.indexOf("\"") >= 0)                              //@D6a
+            name = name.replace('"', ' ').trim();                  //@D6a
+        else                                                      //@D6a
+            name = name.toUpperCase();                             //@D6a
+
         for (int i = 1; i <= sqlData_.length; ++i)
-            if (name.equalsIgnoreCase (getFieldName (i)))
+            if (name.equals (getFieldName (i)))                    //@D6c (used to be equalsIgnoreCase)
                 return i;
+
         JDError.throwSQLException (JDError.EXC_COLUMN_NOT_FOUND);
         return -1;
     }
@@ -289,9 +296,9 @@ Sets the row index within the server data.
     }
 
 
-    
+
     public int getFieldLOBLocatorHandle (int index)         // @C2A
-        throws SQLException                                 // @C2A
+    throws SQLException                                 // @C2A
     {                                                       // @C2A
         return lobLocatorHandles_[index-1];                 // @C2A
     }                                                       // @C2A
@@ -299,9 +306,10 @@ Sets the row index within the server data.
 
 
     public String getFieldName (int index)
-        throws SQLException
+    throws SQLException
     {
-        try {
+        try
+        {
             // We need to trim() the field name before
             // returning it, since in some cases (e.g.
             // stored procedure written in RPG) the
@@ -312,13 +320,14 @@ Sets the row index within the server data.
             int index0 = index-1;
             if (fieldNames_[index0] == null)
                 fieldNames_[index0] = serverFormat_.getFieldName (index0,
-                    connection_.getConverter (serverFormat_.getFieldNameCCSID (index0))).trim();
+                                                                  connection_.getConverter (serverFormat_.getFieldNameCCSID (index0))).trim();
             return fieldNames_[index0];
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return null;
-		}
+        }
     }
 
 
@@ -328,9 +337,9 @@ Sets the row index within the server data.
     {
         return precisions_[index-1];
     }
-
-
-
+  
+  
+  
     public int getFieldScale (int index)
         throws SQLException
     {
@@ -341,9 +350,10 @@ Sets the row index within the server data.
 
 
     public SQLData getSQLData (int index)
-        throws SQLException
+    throws SQLException
     {
-        try {
+        try
+        {
             int index0 = index - 1;
 
             // Translate the first time only, and only when there
@@ -352,7 +362,8 @@ Sets the row index within the server data.
             // this gets called, specifically in the case
             // where result set meta data methods get called
             // before fetching data.)
-            if ((rowIndex_ >= 0) && (translated_[index0] == false)) {
+            if ((rowIndex_ >= 0) && (translated_[index0] == false))
+            {
 
                 // @E1D // The CCSID returned in the data format is not
                 // @E1D // necessarily correct (says the database server
@@ -375,21 +386,23 @@ Sets the row index within the server data.
                 // @E1D }
 
                 // Use the CCSID returned in the data format.                                       // @E1A
-                ConverterImplRemote ccsidConverter = connection_.getConverter(ccsids_[index0]);     // @E1A
+                ConvTable ccsidConverter = connection_.getConverter(ccsids_[index0]);     // @E1A @P0C
 
                 // If there are bytes, then do a translation.
-                if (rawBytes_ != null) {
+                if (rawBytes_ != null)
+                {
                     sqlData_[index0].convertFromRawBytes (rawBytes_,
-                        rowDataOffset_ + dataOffset_[index0],
-                        ccsidConverter);
+                                                          rowDataOffset_ + dataOffset_[index0],
+                                                          ccsidConverter);
                     translated_[index0] = true;
                 }
 
             }
-            
+
             return sqlData_[index0];
         }
-        catch (ArrayIndexOutOfBoundsException e) {
+        catch (ArrayIndexOutOfBoundsException e)
+        {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return null;
         }
@@ -398,83 +411,94 @@ Sets the row index within the server data.
 
 
     public SQLData getSQLType (int index)
-        throws SQLException
+    throws SQLException
     {
         return sqlData_[index - 1];
     }
 
 
 
-/**
-Is the field value SQL NULL?
-
-@param      index   The field index (1-based).
-@return             true or false
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Is the field value SQL NULL?
+    
+    @param      index   The field index (1-based).
+    @return             true or false
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public boolean isNull (int index)
-        throws SQLException
+    throws SQLException
     {
-        try {
+        try
+        {
             if (serverData_ != null)
-                return (serverData_.getIndicator (rowIndex_, index - 1) != 0);
+                return(serverData_.getIndicator (rowIndex_, index - 1) != 0);
             else
                 return false;
         }
-	    catch (DBDataStreamException e) {
-		    JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
-		    return false;
-    	}
+        catch (DBDataStreamException e)
+        {
+            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
+            return false;
+        }
     }
 
 
 
-/**
-Can the field contain a SQL NULL value?
-
-@param  index   The field index (1-based).
-@return         true if nullable.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Can the field contain a SQL NULL value?
+    
+    @param  index   The field index (1-based).
+    @return         true if nullable.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public int isNullable (int index)
-        throws SQLException
+    throws SQLException
     {
-  		return (((sqlTypes_[index-1] & 0x0001) != 0) 
-                ? ResultSetMetaData.columnNullable
-	            : ResultSetMetaData.columnNoNulls);
+        //@F2 Add try/catch block to this method.
+        try
+        {                                                                         //@F2A
+            return(((sqlTypes_[index-1] & 0x0001) != 0) 
+                   ? ResultSetMetaData.columnNullable
+                   : ResultSetMetaData.columnNoNulls);
+        }
+        catch (ArrayIndexOutOfBoundsException e)                                  //@F2A
+        {                                                                         //@F2A
+            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);  //@F2A
+            return 0;                                                             //@F2A
+        }                                                                         //@F2A
     }
 
 
 
-/**
-Return the CCSID for a field.
-
-@param      index   The field index (1-based).
-@return             The CCSID.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Return the CCSID for a field.
+    
+    @param      index   The field index (1-based).
+    @return             The CCSID.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public int getCCSID (int index)
-        throws SQLException
+    throws SQLException
     {
         return ccsids_[index-1];
     }
 
 
 
-/**
-Return the length of a field's data within server
-data.
-
-@param      index   The field index (1-based).
-@return             The data length.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Return the length of a field's data within server
+    data.
+    
+    @param      index   The field index (1-based).
+    @return             The data length.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public int getLength (int index)
-        throws SQLException
+    throws SQLException
     {
         return dataLength_[index-1];
     }
@@ -482,75 +506,81 @@ data.
 
 
 
-/**
-Return the length of the row's data.
-
-@return             The row length.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Return the length of the row's data.
+    
+    @return             The row length.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     int getRowLength ()
-        throws SQLException
+    throws SQLException
     {
-        try {
+        try
+        {
             return serverFormat_.getRecordSize();
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return -1;
-		}
+        }
     }
 
 
 
-/**
-Is the field an input value?
-
-@param  index   The field index (1-based).
-@return         true or false
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Is the field an input value?
+    
+    @param  index   The field index (1-based).
+    @return         true or false
+    
+    @exception  SQLException    If an error occurs.
+    **/
     boolean isInput (int index)
-        throws SQLException
+    throws SQLException
     {
         int parameterType = -1;
 
-        try {
+        try
+        {
             parameterType = serverFormat_.getFieldParameterType (index - 1);
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
-  		}
+        }
 
-        return (((byte) parameterType == (byte) 0xF0)
-                || ((byte) parameterType == (byte) 0xF2));
+        return(((byte) parameterType == (byte) 0xF0)
+               || ((byte) parameterType == (byte) 0xF2));
     }
 
 
 
-/**
-Is the field an output value?
-
-@param  index   The field index (1-based).
-@return         true or false
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Is the field an output value?
+    
+    @param  index   The field index (1-based).
+    @return         true or false
+    
+    @exception  SQLException    If an error occurs.
+    **/
     boolean isOutput (int index)
-        throws SQLException
+    throws SQLException
     {
         int parameterType = -1;
 
-        try {
+        try
+        {
             parameterType = serverFormat_.getFieldParameterType (index - 1);
         }
-        catch (DBDataStreamException e) {
+        catch (DBDataStreamException e)
+        {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
-  		}
+        }
 
-        return (((byte) parameterType == (byte) 0xF1)
-                || ((byte) parameterType == (byte) 0xF2));
+        return(((byte) parameterType == (byte) 0xF1)
+               || ((byte) parameterType == (byte) 0xF2));
     }
 
 

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCXADataSource.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,8 @@ import javax.sql.XADataSource;
 The AS400JDBCXADataSource class represents a factory for 
 AS400JDBCXAConnection objects.
 
-<p>This support is only available on AS/400s running the release after v4r5, or later.
+<p>
+This support is only available when connecting to servers running OS/400 V5R1 or later.
 
 <p>The following example creates an AS400JDBCXADataSource 
 object and creates a connection to the database.
@@ -46,7 +47,7 @@ public class AS400JDBCXADataSource
 extends AS400JDBCDataSource  
 implements XADataSource
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 

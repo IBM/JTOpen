@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLDate.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ import java.util.Calendar;
 class SQLDate
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -68,13 +68,16 @@ implements SQLData
         // then it is likely a NULL, so just set this
         // to a default date.
         String sTrim = s.trim();
+        int sTrimLength = sTrim.length();  // @F2A
         try {
-            if ((sTrim.length() == 0) || (Integer.parseInt (sTrim) == 0))
+            if ((sTrimLength == 0) || (Integer.parseInt (sTrim) == 0))  // @F2C
                 return new Date (0);
         }
         catch (NumberFormatException e) {
             // Ignore.  This just means the value is not NULL.
         }
+
+        if (calendar == null) calendar = Calendar.getInstance(); //@P0A
 
         try {
             // Parse the string according to the format and separator.
@@ -92,26 +95,49 @@ implements SQLData
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_JULIAN:
+                  if (sTrimLength <= 6) {  // YY/DDD      // @F2C
                     calendar.set (Calendar.DAY_OF_YEAR, Integer.parseInt (s.substring (3, 6)));
                     calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (0, 2))));
+                  }
+                  else {  // Assume they've specified a 4-digit year: YYYY/DDD    // @F2A
+                    calendar.set (Calendar.DAY_OF_YEAR, Integer.parseInt (s.substring (5, 8)));
+                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (0, 4)));
+                  }
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_MDY:
+                  if (sTrimLength <= 8) {  // MM/DD/YY     // @F2C
                     calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (6, 8))));
+                  }
+                  else {  // Assume they've specified a 4-digit year: MM/DD/YYYY  // @F2A
+                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (6, 10)));
+                  }
                     calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (0, 2)) - 1);
                     calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (3, 5)));
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_DMY:
+                  if (sTrimLength <= 8) {  // DD/MM/YY     // @F2C
                     calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (6, 8))));
+                  }
+                  else {  // Assume they've specified a 4-digit year: DD/MM/YYYY    // @F2A
+                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (6, 10)));
+                  }
                     calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (3, 5)) - 1);
                     calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (0, 2)));
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_YMD:
+                  if (sTrimLength <= 8) {  // YY/MM/DD     // @F2C
                     calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (0, 2))));
                     calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (3, 5)) - 1);
                     calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (6, 8)));
+                  }
+                  else {  // Assume they've specified a 4-digit year: YYYY/MM/DD  // @F2A
+                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (0, 4)));
+                    calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (5, 7)) - 1);
+                    calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (8, 10)));
+                  }
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_JIS:
@@ -139,17 +165,16 @@ implements SQLData
 
 
 
-	public static String dateToString (Date d,
+	public static String dateToString (java.util.Date d,              // @F5C
 	                                   SQLConversionSettings dataFormat,
 	                                   Calendar calendar)
 	{
 	    StringBuffer buffer = new StringBuffer ();
 	    String separator = dataFormat.getDateSeparator ();
+      if (calendar == null) calendar = Calendar.getInstance(); //@P0A
 	    calendar.setTime (d);
 
-        // Note: No matter what format is being used,
-        // ensure that exactly 10 characters are in the
-        // buffer.
+        // @F3D Note: No matter what format is being used, ensure that exactly 10 characters are in the buffer.
 
         switch (dataFormat.getDateFormat ()) {
 
@@ -173,7 +198,7 @@ implements SQLData
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
                 buffer.append (separator);
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_YEAR), 3));
-                buffer.append ("    ");
+                // @F3D buffer.append ("    ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_MDY:                         // mm/dd/yy
@@ -182,7 +207,7 @@ implements SQLData
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
                 buffer.append (separator);
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
-                buffer.append ("  ");
+                // @F3D buffer.append ("  ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_DMY:                         // dd/mm/yy
@@ -191,7 +216,7 @@ implements SQLData
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
                 buffer.append (separator);
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
-                buffer.append ("  ");
+                // @F3D buffer.append ("  ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_YMD:                         // yy/mm/dd
@@ -200,7 +225,7 @@ implements SQLData
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
                 buffer.append (separator);
                 buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-                buffer.append ("  ");
+                // @F3D buffer.append ("  ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_JIS:                         // yyyy-mm-dd
@@ -235,7 +260,7 @@ implements SQLData
 
 
 
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccisdConverter)
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         switch (settings_.getDateFormat ()) {
@@ -320,7 +345,7 @@ implements SQLData
 
 
 
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         // Always use ISO format here.
@@ -352,6 +377,7 @@ implements SQLData
     public void set (Object object, Calendar calendar, int scale)
         throws SQLException
     {
+      if (calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if (object instanceof String) {
             stringToDate ((String) object, settings_, calendar);
             year_   = calendar.get (Calendar.YEAR);
@@ -359,15 +385,15 @@ implements SQLData
             day_    = calendar.get (Calendar.DAY_OF_MONTH);
         }
 
-        else if (object instanceof Date) {
-            calendar.setTime ((Date) object);
+        else if (object instanceof Timestamp) {    // @F5M
+            calendar.setTime ((Timestamp) object);
             year_   = calendar.get (Calendar.YEAR);
             month_  = calendar.get (Calendar.MONTH);
             day_    = calendar.get (Calendar.DAY_OF_MONTH);
         }
 
-        else if (object instanceof Timestamp) {
-            calendar.setTime ((Timestamp) object);
+        else if (object instanceof java.util.Date) {     // @F5C
+            calendar.setTime ((java.util.Date) object);  // @F5C
             year_   = calendar.get (Calendar.YEAR);
             month_  = calendar.get (Calendar.MONTH);
             day_    = calendar.get (Calendar.DAY_OF_MONTH);
@@ -398,6 +424,11 @@ implements SQLData
         return 10;
     }
 
+    //@F1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "java.sql.Date";
+    }
 
 
     public String getLiteralPrefix ()
@@ -603,6 +634,7 @@ implements SQLData
 	public Date toDate (Calendar calendar)
 	    throws SQLException
 	{
+	  if (calendar == null) calendar = Calendar.getInstance(); //@P0A  
 	    calendar.set (year_, month_, day_, 0, 0, 0);
         calendar.set (Calendar.MILLISECOND, 0);
 	    return new Date (calendar.getTime ().getTime ());
@@ -686,6 +718,7 @@ implements SQLData
 	public Timestamp toTimestamp (Calendar calendar)
 	    throws SQLException
 	{
+	  if (calendar == null) calendar = Calendar.getInstance(); //@P0A  
 	    calendar.set (year_, month_, day_, 0, 0, 0);
 	    Timestamp ts = new Timestamp (calendar.getTime ().getTime ());
 	    ts.setNanos (0);

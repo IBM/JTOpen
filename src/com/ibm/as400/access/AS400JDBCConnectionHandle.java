@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCConnectionHandle.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ import java.util.Map;
 **/
 class AS400JDBCConnectionHandle extends AS400JDBCConnection
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   private AS400JDBCPooledConnection pooledConnection_ = null;
   private AS400JDBCConnection connection_ = null;
@@ -259,11 +259,11 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
   *
   *  @return     The converter.
   **/
-  ConverterImplRemote getConverter ()
+  ConvTable getConverter () //@P0C
   throws SQLException                                      // @A3A
   {
     validateConnection();
-    return connection_.getConverter();
+    return connection_.converter_; //@P0C
   }
 
   /**
@@ -277,7 +277,7 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
   *  @return     The converter.
   *  @exception  SQLException    If the CCSID is not valid.
   **/
-  ConverterImplRemote getConverter (int ccsid)
+  ConvTable getConverter (int ccsid) //@P0C
   throws SQLException
   {
     validateConnection();
@@ -480,12 +480,12 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
   /**
   *  Returns the native form of an SQL statement without
   *  executing it. The JDBC driver converts all SQL statements
-  *  from the JDBC SQL grammar into the native DB2 for OS/400
+  *  from the JDBC SQL grammar into the native DB2 UDB for iSeries
   *  SQL grammar prior to executing them.
   *
   *  @param  sql     The SQL statement in terms of the JDBC SQL grammar.
   *  @return         The translated SQL statement in the native
-  *                  DB2 for OS/400 SQL grammar.
+  *                  DB2 UDB for iSeries SQL grammar.
   *
   *  @exception      SQLException    If the SQL statement has a syntax error.
   **/
@@ -697,23 +697,23 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
     connection_.send(request, id, leavePending);
   }
 
-// @A2D   /**
-// @A2D   *  Sends a request data stream to the server and discards the reply.
-// @A2D   *
-// @A2D   *  @param   request        The request.
-// @A2D   *  @param   id             The id.
-// @A2D   *  @param   leavePending   Indicates if the request should
-// @A2D   *                          be left pending.  This indicates
-// @A2D   *                          whether or not to base the next
-// @A2D   *                          request on this one.
-// @A2D   *
-// @A2D   *  @exception              SQLException   If an error occurs.
-// @A2D   **/
-// @A2D   void sendAndDiscardReply (DBBaseRequestDS request, int id) throws SQLException
-// @A2D  	{
-// @A2D      validateConnection();
-// @A2D      connection_.sendAndDiscardReply(request, id);
-// @A2D  	}
+  // @A2D   /**
+  // @A2D   *  Sends a request data stream to the server and discards the reply.
+  // @A2D   *
+  // @A2D   *  @param   request        The request.
+  // @A2D   *  @param   id             The id.
+  // @A2D   *  @param   leavePending   Indicates if the request should
+  // @A2D   *                          be left pending.  This indicates
+  // @A2D   *                          whether or not to base the next
+  // @A2D   *                          request on this one.
+  // @A2D   *
+  // @A2D   *  @exception              SQLException   If an error occurs.
+  // @A2D   **/
+  // @A2D   void sendAndDiscardReply (DBBaseRequestDS request, int id) throws SQLException
+  // @A2D  	{
+  // @A2D      validateConnection();
+  // @A2D      connection_.sendAndDiscardReply(request, id);
+  // @A2D  	}
 
   /**
   *  Sends a request data stream to the server using the
@@ -858,12 +858,12 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
   *  isolation level cannot be changed while in the middle of
   *  a transaction.
   *
-  *  <p>JDBC and DB2/400 use different terminology for transaction 
+  *  <p>JDBC and DB2 UDB for iSeries use different terminology for transaction 
   *  isolation levels.  The following table provides a terminology 
   *  mapping:
   *
   *  <p><table border>
-  *  <tr><th>AS/400 isolation level</th><th>JDBC transaction isolation level</th></tr>
+  *  <tr><th>AS/400 or iSeries isolation level</th><th>JDBC transaction isolation level</th></tr>
   *  <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
   *  <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
   *  <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
@@ -893,10 +893,10 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
   /**
   *  Sets the type map to be used for distinct and structured types.
   *
-  *  <p>Note: Distinct types are supported by DB2 for OS/400, but
-  *  are not externalized by the AS/400 Toolbox for Java JDBC driver.
+  *  <p>Note: Distinct types are supported by DB2 UDB for iSeries, but
+  *  are not externalized by the IBM Toolbox for Java JDBC driver.
   *  In other words, distinct types behave as if they are the underlying
-  *  type.  Structured types are not supported by DB2 for OS/400.
+  *  type.  Structured types are not supported by DB2 UDB for iSeries.
   *  Consequently, this driver does not support the type map.
   *
   *  @param typeMap  The type map.

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCPooledConnection.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ import java.util.Vector;
 **/
 public class AS400JDBCPooledConnection implements PooledConnection
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
    private Connection connection_;                          // The database connection.
    private AS400JDBCConnectionHandle handle_;               // The handle to the connection.
@@ -113,6 +113,18 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
       if (Trace.isTraceOn()) 
          Trace.log(Trace.INFORMATION, "Pooled Connection closed.");
+   }
+     
+
+   //@G4A JDBC 3.0
+   /**
+   *  Closes all the Statement objects that have been opened by this PooledConnection
+   *  object.  This method is not supported.
+   *  @exception SQLException Always thrown because this method is not supported.
+   **/
+   public void closeAll() throws SQLException
+   {
+      JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
    }
 
    /**

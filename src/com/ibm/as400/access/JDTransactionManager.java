@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDTransactionManager.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,9 +54,7 @@ getIsolation.
 //
 class JDTransactionManager
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // @C6A Server commit mode constants
@@ -144,21 +142,32 @@ Commit the current transaction.
   {
     try
     {
-      DBSQLRequestDS request = new DBSQLRequestDS (
-                                                  DBSQLRequestDS.FUNCTIONID_COMMIT, id_,
-                                                  DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+      DBSQLRequestDS request = null; //@P0A
+      DBReplyRequestedDS reply = null; //@P0A
+      try
+      {
+        request = DBDSPool.getDBSQLRequestDS ( //@P0C
+                                               DBSQLRequestDS.FUNCTIONID_COMMIT, id_,
+                                               DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
 
-      // Set cursor hold.
-      //request.setHoldIndicator (1);                     // @C1
-      request.setHoldIndicator(getHoldIndicator());       // @C1
+        // Set cursor hold.
+        //request.setHoldIndicator (1);                     // @C1
+        request.setHoldIndicator(getHoldIndicator());       // @C1
 
-      DBReplyRequestedDS reply = connection_.sendAndReceive (request);
+        reply = connection_.sendAndReceive (request); //@P0C
 
-      int errorClass = reply.getErrorClass();
-      int returnCode = reply.getReturnCode();
+        int errorClass = reply.getErrorClass();
+        int returnCode = reply.getReturnCode();
 
-      if (errorClass != 0)
-        JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        if (errorClass != 0)
+          JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
+
     }
     catch (DBDataStreamException e)
     {
@@ -222,6 +231,11 @@ Return the current transaction isolation level.
 **/
   int getIsolation ()
   {
+    // If the level is NONE, report back READ_UNCOMMITTED so that no one can
+    // make the assumption that the driver does not support level NONE.   @C7A
+    if (currentIsolationLevel_ == Connection.TRANSACTION_NONE)  // @C7A
+      return Connection.TRANSACTION_READ_UNCOMMITTED;           // @C7A
+
     return currentIsolationLevel_;
   }
 
@@ -399,21 +413,31 @@ enabled, then do nothing.
   {
     try
     {
-      DBSQLRequestDS request = new DBSQLRequestDS (
-                                                  DBSQLRequestDS.FUNCTIONID_ROLLBACK, id_,
-                                                  DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+      DBSQLRequestDS request = null; //@P0A
+      DBReplyRequestedDS reply = null; //@P0A
+      try
+      {
+        request = DBDSPool.getDBSQLRequestDS ( //@P0C
+                                               DBSQLRequestDS.FUNCTIONID_ROLLBACK, id_,
+                                               DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
 
-      // Set cursor hold.
-      //request.setHoldIndicator (1);                     // @C1
-      request.setHoldIndicator(getHoldIndicator());       // @C1
+        // Set cursor hold.
+        //request.setHoldIndicator (1);                     // @C1
+        request.setHoldIndicator(getHoldIndicator());       // @C1
 
-      DBReplyRequestedDS reply = connection_.sendAndReceive (request);
+        reply = connection_.sendAndReceive (request); //@P0C
 
-      int errorClass = reply.getErrorClass();
-      int returnCode = reply.getReturnCode();
+        int errorClass = reply.getErrorClass();
+        int returnCode = reply.getReturnCode();
 
-      if (errorClass != 0)
-        JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        if (errorClass != 0)
+          JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
     }
     catch (DBDataStreamException e)
     {
@@ -515,25 +539,35 @@ Set the commit mode on the server.
       // Send the execute immediate data stream.
       try
       {
-        DBSQLRequestDS request = new DBSQLRequestDS (
-                                                    DBSQLRequestDS.FUNCTIONID_EXECUTE_IMMEDIATE, id_,
-                                                    DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
-                                                    + DBBaseRequestDS.ORS_BITMAP_SQLCA, 0);
+        DBSQLRequestDS request = null; //@P0A
+        DBReplyRequestedDS reply = null; //@P0A
+        try
+        {
+          request = DBDSPool.getDBSQLRequestDS ( //@P0C
+                                                 DBSQLRequestDS.FUNCTIONID_EXECUTE_IMMEDIATE, id_,
+                                                 DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                                                 + DBBaseRequestDS.ORS_BITMAP_SQLCA, 0);
 
-        request.setStatementText (sqlStatement.toString (), connection_.getConverter(AS400JDBCConnection.UNICODE_CCSID_)); // @C3C
-        request.setStatementType (sqlStatement.getNativeType ());
+          request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_); // @C3C @P0C
+          request.setStatementType (sqlStatement.getNativeType ());
 
-        // This statement certainly does not need a cursor, but some
-        // versions of the server choke when none is specified.
-        request.setCursorName ("MURCH", connection_.getConverter ());
+          // This statement certainly does not need a cursor, but some
+          // versions of the server choke when none is specified.
+          request.setCursorName ("MURCH", connection_.converter_); //@P0C
 
-        DBReplyRequestedDS reply = connection_.sendAndReceive (request);
+          reply = connection_.sendAndReceive (request); //@P0C
 
-        int errorClass = reply.getErrorClass();
-        int returnCode = reply.getReturnCode();
+          int errorClass = reply.getErrorClass();
+          int returnCode = reply.getReturnCode();
 
-        if (errorClass != 0)
-          JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+          if (errorClass != 0)
+            JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        }
+        finally
+        {
+          if (request != null) request.inUse_ = false;
+          if (reply != null) reply.inUse_ = false;
+        }
       }
       catch (DBDataStreamException e)
       {
@@ -583,9 +617,9 @@ java.sql.Connection.TRANSACTION_* values.
     if (activeLocal_)                                               // @C4C
       JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);  // @C4C
 
-    // We do not allow TRANSACTION_NONE at this time.
-    if (level == Connection.TRANSACTION_NONE)
-      JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    // @C7D We do not allow TRANSACTION_NONE at this time.
+    // @C7D if (level == Connection.TRANSACTION_NONE)
+    // @C7D   JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
     // Save the isolation level.
     currentCommitMode_     = mapLevelToCommitMode (level);

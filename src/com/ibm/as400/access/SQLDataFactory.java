@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLDataFactory.java
 //                                                                             
@@ -62,9 +62,14 @@ notation.
         int e = scientificNotation.indexOf ('E');
         if (e < 0)
             return scientificNotation;
-
-        // Parse the exponent.
-        int exponent = Integer.parseInt (scientificNotation.substring (e + 1));
+ 
+        // Parse the exponent and ensure that we don't have a number starting with '+'
+        // as the parseInt function will throw a number format exception if we pass that.
+        // @F3D int exponent = Integer.parseInt (scientificNotation.substring (e + 1));
+        String tempValue = scientificNotation.substring (e + 1);                       // @F3a
+        if (tempValue.startsWith("+"))                                                 // @F3a
+            tempValue = tempValue.substring(1);                                        // @F3a
+        int exponent = Integer.parseInt (tempValue);                                   // @F3a
         
         // Parse the sign.
         boolean sign = (scientificNotation.charAt (0) != '-');            

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCInputStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,14 +40,14 @@ transaction.
 public class AS400JDBCInputStream
 extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 
     // Private data.
     private boolean         closed_;
-    private ConverterImplRemote converter_;
+    private ConvTable converter_; //@P0C
     private String          encoding_;
     private JDLobLocator    locator_;
     private int             offset_;
@@ -81,7 +81,7 @@ server, using the locator handle.
 @param  converter           The converter.
 @param  encoding            The encoding. 
 **/
-    AS400JDBCInputStream (JDLobLocator locator, ConverterImplRemote converter, String encoding)
+    AS400JDBCInputStream (JDLobLocator locator, ConvTable converter, String encoding) //@P0C
     {
         closed_         = false;
         converter_      = converter;
@@ -148,6 +148,7 @@ Closes the stream and releases any associated system resources.
 
 
 
+   
 
 
 /**

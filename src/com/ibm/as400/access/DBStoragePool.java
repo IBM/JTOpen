@@ -1,20 +1,20 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBStoragePool.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.util.BitSet;
-import java.util.Vector;
+//@P0D import java.util.BitSet;
+//@P0D import java.util.Vector;
 
 
 
@@ -26,33 +26,33 @@ involved in sending request datastreams.
 **/
 class DBStoragePool
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 
-    private int     count_;
-    private BitSet  lockState_;
-    private Vector  pool_;
+  //@P0D private int     count_;
+  //@P0D private BitSet  lockState_;
+  //@P0D private Vector  pool_;
 
-
+  private DBStorage[] pool_ = new DBStorage[16]; //@P0A
 
 /**
 Constructs a DBStoragePool object.
 **/
-	DBStoragePool ()
-	{
-	    count_ = 0;
+//@P0D	DBStoragePool ()
+//@P0D	{
+//@P0D	    count_ = 0;
 
-	    // The initial capacity is 128.  This is pretty
-	    // large and would only be hit if we had 128 data
-	    // streams being created at the same time.  Even
-	    // if this does happen (an extremely stressed
-	    // scenario), the resizing should not happen too
-	    // often.
-	    lockState_ = new BitSet (128);
-	    pool_ = new Vector (128, 128);
-    }
+  // The initial capacity is 128.  This is pretty
+  // large and would only be hit if we had 128 data
+  // streams being created at the same time.  Even
+  // if this does happen (an extremely stressed
+  // scenario), the resizing should not happen too
+  // often.
+//@P0D	    lockState_ = new BitSet (128);
+//@P0D	    pool_ = new Vector (128, 128);
+//@P0D    }
 
 
 
@@ -61,20 +61,10 @@ Frees a DBStorage object for reuse.
 
 @param      a DBStorage object.
 **/
-    synchronized void freeStorage (DBStorage storage) // @B1C
-    {
-        lockState_.clear (storage.getId ());
-    }
-
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
+//@P0D    synchronized void freeStorage (DBStorage storage) // @B1C
+//@P0D    {
+//@P0D        lockState_.clear (storage.getId ());
+//@P0D    }
 
 
 
@@ -88,31 +78,61 @@ are available, a brand new one will be allocated.
 // Note: This method must be synchronized to make it
 //       threadsafe.
 //
-    synchronized DBStorage getUnusedStorage () // @B0C @B1C
+  final synchronized DBStorage getUnusedStorage() // @B0C @B1C @P0C
+  {
+//@P0D        DBStorage storage;
+    int max = pool_.length; //@P0A
+
+    // Find an unused storage object.
+    for (int i=0; i<max; ++i) //@P0C
     {
-        DBStorage storage;
-
-        // Find an unused storage object.
-        for (int i = 0; i < count_; ++i) {
-            if (lockState_.get (i) == false) {
-                lockState_.set (i);
-                storage = (DBStorage) pool_.elementAt (i);
-                storage.clear ();
-                return storage;
-            }
+      /*@P0D
+        if (lockState_.get (i) == false) {
+            lockState_.set (i);
+            storage = (DBStorage) pool_.elementAt (i);
+            storage.clear ();
+            return storage;
         }
+      *///@P0D
 
-        // If all are being used, then allocate a new one.
-        storage = new DBStorage (count_);
-        pool_.addElement (storage);
-        lockState_.set (count_);
-        ++count_;
-
-        return storage;
+      DBStorage storage = pool_[i]; //@P0A  Local variables are faster. 
+      if (storage == null) //@P0A
+      {
+        storage = new DBStorage(); //@P0A
+        storage.inUse_ = true; //@P0A
+        pool_[i] = storage; //@P0A
+        return storage; //@P0A
+      }
+      else if (!storage.inUse_) //@P0A
+      {
+        storage.inUse_ = true; //@P0A
+        return storage; //@P0A
+      }
     }
 
+    // If all are being used, then allocate a new one.
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating new DBStoragePool of size "+max*2); //@P0A
 
+    DBStorage[] tempPool = new DBStorage[max*2]; //@P0A
 
+    for (int i=0; i<max; ++i) //@P0A
+    {
+      tempPool[i] = pool_[i]; //@P0A
+    }
+    DBStorage storage = new DBStorage(); //@P0A
+    storage.inUse_ = true; //@P0A
+    tempPool[max] = storage; //@P0A
+    pool_ = tempPool; //@P0A
+    
+    /*@P0D
+    storage = new DBStorage (count_);
+    pool_.addElement (storage);
+    lockState_.set (count_);
+    ++count_;
+    *///@P0D
+    
+    return storage;
+  }
 }
 
 

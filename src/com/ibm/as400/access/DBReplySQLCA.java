@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBReplySQLCA.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,70 +22,84 @@ package com.ibm.as400.access;
 **/
 class DBReplySQLCA
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
     private byte[]  data_;
     private int     offset_;
     private int     length_;
+    // Add 96 to offset_ for Errd1, 100 to offset_ for Errd2, etc.
+    private static final int[]   locationFromOffset_ = {96, 100, 104, 108};  //@F1A
 
 
 
-	public DBReplySQLCA (byte[] data,
-					   int offset,
-					   int length)
-	{
-	    data_ = data;
-	    offset_ = offset;
-	    length_ = length;
-	}
+    public DBReplySQLCA (byte[] data,
+                         int offset,
+                         int length)
+    {
+        data_ = data;
+        offset_ = offset;
+        length_ = length;    
+    }
+
+
+
+    //@F1A Combined getErrd1, getErrd2, getErrd3, getErrd4 methods
+    final public int getErrd (int requestedErrd) throws DBDataStreamException
+    {
+        if (length_ <= 6)
+            return 0;
+
+        return BinaryConverter.byteArrayToInt (data_, 
+                                               offset_ + locationFromOffset_[requestedErrd-1]);
+    }
 
 
 
     // @E4A
-    final public int getErrd1 () throws DBDataStreamException           // @E4A
-    {                                                                   // @E4A
-        if (length_ <= 6)                                               // @E4A
-            return 0;                                                   // @E4A
-                                                                        // @E4A
-        return BinaryConverter.byteArrayToInt (data_, offset_ + 96);    // @E4A
-    }                                                                   // @E4A
+    //@F1D final public int getErrd1 () throws DBDataStreamException           // @E4A
+    //@F1D {                                                                   // @E4A
+    //@F1D     if (length_ <= 6)                                               // @E4A
+    //@F1D         return 0;                                                   // @E4A
+    //@F1D                                                                     // @E4A
+    //@F1D     return BinaryConverter.byteArrayToInt (data_, offset_ + 96);    // @E4A
+    //@F1D }                                                                   // @E4A
 
 
 
-    final public int getErrd2 () throws DBDataStreamException
-    {
-        if (length_ <= 6)                                               // @D1A
-            return 0;                                                   // @D1A
-
-        return BinaryConverter.byteArrayToInt (data_, offset_ + 100);
-    }
-
-
-
-    final public int getErrd3 () throws DBDataStreamException
-    {
-        if (length_ <= 6)                                               // @D1A
-            return 0;                                                   // @D1A
-
-        return BinaryConverter.byteArrayToInt (data_, offset_ + 104);
-    }
+    //@F1D final public int getErrd2 () throws DBDataStreamException
+    //@F1D {
+    //@F1D     if (length_ <= 6)                                               // @D1A
+    //@F1D         return 0;                                                   // @D1A
+    //@F1D 
+    //@F1D     return BinaryConverter.byteArrayToInt (data_, offset_ + 100);
+    //@F1D }
 
 
 
-    final public int getErrd4 () throws DBDataStreamException           // @E6A
-    {                                                                   // @E6A
-        if (length_ <= 6)                                               // @E6A
-            return 0;                                                   // @E6A
-                                                                        // @E6A
-        return BinaryConverter.byteArrayToInt (data_, offset_ + 108);   // @E6A
-    }                                                                   // @E6A
+    //@F1D final public int getErrd3 () throws DBDataStreamException
+    //@F1D {
+    //@F1D     if (length_ <= 6)                                               // @D1A
+    //@F1D         return 0;                                                   // @D1A
+    //@F1D 
+    //@F1D     return BinaryConverter.byteArrayToInt (data_, offset_ + 104);
+    //@F1D }
+
+
+
+    //@F1D final public int getErrd4 () throws DBDataStreamException           // @E6A
+    //@F1D {                                                                   // @E6A
+    //@F1D     if (length_ <= 6)                                               // @E6A
+    //@F1D         return 0;                                                   // @E6A
+    //@F1D                                                                     // @E6A
+    //@F1D     return BinaryConverter.byteArrayToInt (data_, offset_ + 108);   // @E6A
+    //@F1D }                                                                   // @E6A
 
 
 
     // @E3A
-    final public String getErrmc(ConverterImplRemote converter) throws DBDataStreamException  // @E3A
+    final public String getErrmc(ConvTable converter) throws DBDataStreamException  // @E3A @P0C
     {                                                                          // @E3A
         if (length_ <= 6)                                                      // @E3A
             return "";                                                         // @E3A
@@ -97,7 +111,7 @@ class DBReplySQLCA
 
     // @E5A
     final public String getErrmc(int substitutionVariable,                     // @E5A
-                                 ConverterImplRemote converter) throws DBDataStreamException  // @E5A
+                                 ConvTable converter) throws DBDataStreamException  // @E5A @P0C
     {                                                                          // @E5A
         if (length_ <= 6)                                                      // @E5A
             return "";                                                         // @E5A
@@ -106,7 +120,7 @@ class DBReplySQLCA
         int i = offset_ + 18;                                                  // @E5A
         int j = 0;                                                             // @E5A
         short currentLength;                                                   // @E5A
-        while((currentVariable < substitutionVariable) && (j < errml)) {       // @E5A
+        while ((currentVariable < substitutionVariable) && (j < errml)) {       // @E5A
             ++currentVariable;                                                 // @E5A
             currentLength = (short)(BinaryConverter.byteArrayToShort(data_, i) + 2); // @E5A
             i += currentLength;                                                // @E5A
@@ -125,31 +139,48 @@ class DBReplySQLCA
             return false;                                                       // @E2A
         // It is actually 6 of Byte 6.                                          // @E2A
         byte b = data_[offset_ + 6];                                            // @E2A
-        return ((b & (byte)0x02) > 0);                                          // @E2A
+        return((b & (byte)0x02) > 0);                                          // @E2A
     }                                                                           // @E2A
+
+        
+    // @F2A Added method for auto-generated key support.
+    //
+    // ONLY call this method after checking if sqlState != 0 because otherwise the error 
+    // message will be in this space.
+    //
+    // Note:  Although we check the length above in getErrmc, we do not have in this method
+    // because the auto-generated key will ALWAYS be in bytes 55 through 70 even if the length
+    // in SQLERRML reports a length other than 70.  This is bytes 72 through 87 from our offset.
+    //
+    // We shouldn't need a "throws DBDataStreamException" because we are not handling 
+    // SIGNAL 443 cases here.
+    final public String getGeneratedKey(ConvTable converter) //@P0C
+    {                                                                                                                                      
+        return converter.byteArrayToString(data_, offset_ + 72, 16);        
+    }      
 
 
     // Returns the SQLState
     // It needs to run thru EbcdicToAscii since it is a string
-   final public String getSQLState (ConverterImplRemote converter) throws DBDataStreamException
-   {
+   final public String getSQLState (ConvTable converter) throws DBDataStreamException //@P0C
+    {
         if (length_ <= 6)
             return null;
 
         return converter.byteArrayToString (data_, offset_ + 131, 5);
-   }
+    }
 
 
 
-   final public byte getWarn5() throws DBDataStreamException            // @E1A
-   {                                                                    // @E1A
-       if (length_ <= 6)                                                // @E1A
-           return 0;                                                    // @E1A
-       return data_[offset_ + 124];                                     // @E1A
-   }                                                                    // @E1A
+    final public byte getWarn5() throws DBDataStreamException            // @E1A
+    {                                                                    // @E1A
+        if (length_ <= 6)                                                // @E1A
+            return 0;                                                    // @E1A
+        return data_[offset_ + 124];                                     // @E1A
+    }                                                                    // @E1A
 
 
 
-}	// End of DBReplySQLCA class
+}   // End of DBReplySQLCA class
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBSQLRequestDS.java
 //                                                                             
@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.sql.SQLException;                                            //@E9a
 
 
 /**
@@ -88,12 +89,6 @@ extends DBBaseRequestDS
 
 
 
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
 
 
 /**
@@ -148,9 +143,10 @@ extends DBBaseRequestDS
    @param value	the name for the open cursor.
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
+   @exception SQLException If the SQL statement is too long.          
 **/
-    void setCursorName (String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+    void setCursorName (String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x380B, converter, value);
 	}
@@ -167,7 +163,6 @@ extends DBBaseRequestDS
 	{
 		addParameter (0x380A, (byte)value);
 	}
-
 
 
 /**
@@ -202,8 +197,8 @@ extends DBBaseRequestDS
 
 
 
-     void setJobIdentifier(String value, ConverterImplRemote converter)  // @E2A
-         throws DBDataStreamException                                    // @E2A
+     void setJobIdentifier(String value, ConvTable converter)  // @E2A @P0C
+         throws DBDataStreamException, SQLException                      // @E9c @E2A
      {                                                                   // @E2A
          addParameter(0x3826, converter, value);                         // @E2A
      }                                                                   // @E2A
@@ -215,9 +210,10 @@ extends DBBaseRequestDS
    @param value	the name of the library.
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
+   @exception SQLException If the SQL statement is too long.          
 **/
-   	void setLibraryName (String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+   	void setLibraryName (String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3801, converter, value);
 	}
@@ -281,26 +277,30 @@ extends DBBaseRequestDS
    @param value	the name of the SQL package to use.
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
+   @exception SQLException If the SQL statement is too long.          
 **/
-   	void setPackageName (String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+   	void setPackageName (String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3804, converter, value);
 	}
 
 
 
-/**
-   Sets the Package Threshold Value parameter in the data stream.
-   @param value	the value used to determine if the package
-   should be cleared.
-   @exception DBDataStreamException If there is not enough space left in the data byte array.
-**/
-	void setPackageThresholdValue(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3813, (short)value);
-	}
+// $F1 This parameter no longer needs to be passed on a data stream.  Package clearing
+// $F1 and the decision for the threshold where package clearing is needed is now handled
+// $F1 automatically by the database.  Passing this code point results in a no-op.
+//@F1D /**
+//@F1D    Sets the Package Threshold Value parameter in the data stream.
+//@F1D    @param value	the value used to determine if the package
+//@F1D    should be cleared.
+//@F1D    @exception DBDataStreamException If there is not enough space left in the data byte array.
+//@F1D **/
+//@F1D	void setPackageThresholdValue(int value)
+//@F1D		throws DBDataStreamException
+//@F1D	{
+//@F1D		addParameter (0x3813, (short)value);
+//@F1D	}
 
 
 
@@ -354,9 +354,10 @@ extends DBBaseRequestDS
    @param value	the name of the parameter statement.
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
+   @exception SQLException If the SQL statement is too long.          
 **/
-   	void setPrepareStatementName (String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+   	void setPrepareStatementName (String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3806, converter, value);
 	}
@@ -372,6 +373,21 @@ extends DBBaseRequestDS
 		throws DBDataStreamException
 	{
   		addParameter (0x3819, value);
+	}
+
+
+
+//@F3A
+/**
+   Sets the ResultSet Holdability Option parameter in the data stream.
+   @param value	the value that contains the option to indicate how the cursor should
+   be opened.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+	void setResultSetHoldabilityOption(byte value)
+		throws DBDataStreamException
+	{
+		addParameter (0x3830, value);
 	}
 
 
@@ -436,9 +452,10 @@ extends DBBaseRequestDS
    @param value	the text for the SQL statement.
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
+   @exception SQLException If the SQL statement is too long.          
 **/
-   	void setStatementText (String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+   	void setStatementText (String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                                // @E9c
 	{
 		addParameter (0x3807, converter, value);
 	}

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBDataFormat.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ extends DBOverlay
     public abstract int getFieldNameCCSID (int fieldIndex)
         throws DBDataStreamException;
 
-    public abstract String getFieldName (int fieldIndex, ConverterImplRemote converter)
+    public abstract String getFieldName (int fieldIndex, ConvTable converter) //@P0C
         throws DBDataStreamException;
 
 
@@ -107,7 +107,7 @@ extends DBOverlay
     public abstract void setFieldNameCCSID (int fieldIndex, int nameCCSID)
         throws DBDataStreamException;
 
-    public abstract void setFieldName (int fieldIndex, String name, ConverterImplRemote converter)
+    public abstract void setFieldName (int fieldIndex, String name, ConvTable converter) //@P0C
         throws DBDataStreamException;
 
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLBigint.java
 //                                                                             
@@ -32,6 +32,7 @@ implements SQLData
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
+
     // Private data.
     private int                 truncated_;
     private long                value_              = 0;
@@ -53,7 +54,7 @@ implements SQLData
 
 
 
-    public void convertFromRawBytes(byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         value_ = BinaryConverter.byteArrayToLong(rawBytes, offset);
@@ -61,7 +62,7 @@ implements SQLData
 
 
 
-    public void convertToRawBytes(byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         BinaryConverter.longToByteArray(value_, rawBytes, offset);
@@ -80,46 +81,68 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
         throws SQLException
     {
-      truncated_ = 0;
+        truncated_ = 0;
 
-      if (object instanceof String) {
-          try {
-              value_ = Long.parseLong((String) object);
-          }
-          catch (NumberFormatException e) {
-              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-          }
-      }
+        if (object instanceof String)
+        {
+            // @D10c new implementation
+            // old ...
+            //
+            // try
+            // {
+            //     value_ = Long.parseLong((String) object);
+            // }
+            // catch (NumberFormatException e)
+            // {
+            //     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            // }
+            // new ...
+            try
+            {
+               // @P1d double doubleValue = (double) Double.parseDouble ((String) object);
+               double doubleValue = Double.valueOf ((String) object).doubleValue ();      // @P1a
 
-      else if (object instanceof Number)
-      {
-          // Compute truncation by getting the value as a double
-          // and comparing it against MAX_VALUE/MIN_VALUE.
-          double doubleValue = ((Number) object).doubleValue ();
+               if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE ))
+               {
+                   truncated_ = 1;
+               }
+               value_ = (long) doubleValue;
+            }
+            catch (NumberFormatException e)
+            {
+               JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
 
-          if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE )) // @D9a
-          {
-              // Note:  Truncated here is set to 1 byte because the
-              //        value has to be something positive in order
-              //        for the code that checks it to do the right
-              //        thing.
-              truncated_ = 1;                                                       // @D9a
-          }
+        else if (object instanceof Number)
+        {
+            // Compute truncation by getting the value as a double
+            // and comparing it against MAX_VALUE/MIN_VALUE.
+            double doubleValue = ((Number) object).doubleValue ();
 
-          value_ = ((Number) object).longValue();
+            if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE )) // @D9a
+            {
+                // Note:  Truncated here is set to 1 byte because the
+                //        value has to be something positive in order
+                //        for the code that checks it to do the right
+                //        thing.
+                truncated_ = 1;                                                       // @D9a
+            }
 
-          // @D9d
-          // Compute truncation. @Wz put the following three lines back in
-          // double doubleValue = ((Number) object).doubleValue();
-          // if (doubleValue != value_)
-          //    truncated_ = Double.toString(doubleValue - value_).length() / 2;
-      }
+            value_ = ((Number) object).longValue();
 
-      else if (object instanceof Boolean)
-          value_ = (((Boolean) object).booleanValue() == true) ? 1 : 0;
+            // @D9d
+            // Compute truncation. @Wz put the following three lines back in
+            // double doubleValue = ((Number) object).doubleValue();
+            // if (doubleValue != value_)
+            //    truncated_ = Double.toString(doubleValue - value_).length() / 2;
+        }
 
-      else
-          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        else if (object instanceof Boolean)
+            value_ = (((Boolean) object).booleanValue() == true) ? 1 : 0;
+
+        else
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
     }
 
 
@@ -131,6 +154,11 @@ implements SQLData
 //---------------------------------------------------------//
 
 
+    //@E1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "java.lang.Long";
+    }
 
     public String getCreateParameters()
     {
@@ -206,16 +234,16 @@ implements SQLData
     }
 
 
-	public int getType ()
-	{
-		return java.sql.Types.BIGINT;
-	}
+     public int getType ()
+     {
+          return java.sql.Types.BIGINT;
+     }
 
 
-	public String getTypeName ()
-	{
-		return "BIGINT";
-	}
+     public String getTypeName ()
+     {
+          return "BIGINT";
+     }
 
 
     // @B1D public boolean isGraphic ()
@@ -261,174 +289,174 @@ implements SQLData
 
 
 
-	public InputStream toAsciiStream ()
-	    throws SQLException
-	{
-		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public InputStream toAsciiStream ()
+         throws SQLException
+     {
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public BigDecimal toBigDecimal (int scale)
-	    throws SQLException
-	{
-        if (scale <= 0)                                                 
-            return BigDecimal.valueOf (value_);                  
-        else                                                            
-            return BigDecimal.valueOf (value_).setScale (scale); 
-	}
+     public BigDecimal toBigDecimal (int scale)
+         throws SQLException
+     {
+        if (scale <= 0)
+            return BigDecimal.valueOf (value_);
+        else
+            return BigDecimal.valueOf (value_).setScale (scale);
+     }
 
 
 
-	public InputStream toBinaryStream ()
-	    throws SQLException
-	{
-		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public InputStream toBinaryStream ()
+         throws SQLException
+     {
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public Blob toBlob ()
-	    throws SQLException
-	{
-		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public Blob toBlob ()
+         throws SQLException
+     {
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public boolean toBoolean ()
-	    throws SQLException
-	{
-	    return (value_ != 0);
-	}
+     public boolean toBoolean ()
+         throws SQLException
+     {
+         return (value_ != 0);
+     }
 
 
 
-	public byte toByte ()
-	    throws SQLException
-	{
-	    return (byte) value_;
-	}
+     public byte toByte ()
+         throws SQLException
+     {
+         return (byte) value_;
+     }
 
 
 
-	public byte[] toBytes ()
-	    throws SQLException
-	{
-	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public byte[] toBytes ()
+         throws SQLException
+     {
+         JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public Reader toCharacterStream ()
-	    throws SQLException
-	{
-		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public Reader toCharacterStream ()
+         throws SQLException
+     {
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public Clob toClob ()
-	    throws SQLException
-	{
-		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public Clob toClob ()
+         throws SQLException
+     {
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public Date toDate (Calendar calendar)
-	    throws SQLException
-	{
-	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public Date toDate (Calendar calendar)
+         throws SQLException
+     {
+         JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public double toDouble ()
-	    throws SQLException
-	{
-        return (double) value_;    
-	}
+     public double toDouble ()
+         throws SQLException
+     {
+        return (double) value_;
+     }
 
 
 
-	public float toFloat ()
-	    throws SQLException
-	{
+     public float toFloat ()
+         throws SQLException
+     {
         return (float) value_;
-	}
+     }
 
 
 
-	public int toInt ()
-	    throws SQLException
-	{
-	    return (int) value_;
-	}
+     public int toInt ()
+         throws SQLException
+     {
+         return (int) value_;
+     }
 
 
 
-	public long toLong ()
-	    throws SQLException
-	{
-	    return value_;
-	}
+     public long toLong ()
+         throws SQLException
+     {
+         return value_;
+     }
 
 
 
-	public Object toObject ()
-	{
-	    return new Long (value_);
-	}
+     public Object toObject ()
+     {
+         return new Long (value_);
+     }
 
 
 
-	public short toShort ()
-	    throws SQLException
-	{
-	    return (short) value_;
-	}
+     public short toShort ()
+         throws SQLException
+     {
+         return (short) value_;
+     }
 
 
 
-	public String toString ()
-	{
+     public String toString ()
+     {
         return Long.toString (value_);
-	}
+     }
 
 
 
-	public Time toTime (Calendar calendar)
-	    throws SQLException
-	{
-	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public Time toTime (Calendar calendar)
+         throws SQLException
+     {
+         JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public Timestamp toTimestamp (Calendar calendar)
-	    throws SQLException
-	{
-	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public Timestamp toTimestamp (Calendar calendar)
+         throws SQLException
+     {
+         JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 
-	public InputStream	toUnicodeStream ()
-	    throws SQLException
-	{
-	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
-	}
+     public InputStream  toUnicodeStream ()
+         throws SQLException
+     {
+         JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          return null;
+     }
 
 
 

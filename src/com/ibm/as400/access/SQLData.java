@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLData.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ in a reply from the server.
 **/
     public abstract void convertFromRawBytes (byte[] rawBytes,
                                               int offset,
-                                              ConverterImplRemote converter)
+                                              ConvTable converter) //@P0C
         throws SQLException;
 
 
@@ -87,7 +87,7 @@ in a request to the server.
 **/
     public abstract void convertToRawBytes (byte[] rawBytes,
                                             int offset,
-                                            ConverterImplRemote ccsidConverter)
+                                            ConvTable ccsidConverter) //@P0C
         throws SQLException;
 
 
@@ -156,6 +156,17 @@ D of the ODBC 2.0 Programmer's Reference.
                             or an error occurs.
 **/
     public abstract int getDisplaySize ();
+
+
+
+//@F1A JDBC 3.0
+/**
+Returns the Java class name for ParameterMetaData.getParameterClassName().
+
+@return                 the Java class name.
+**/
+
+    public abstract String getJavaClassName ();
 
 
 

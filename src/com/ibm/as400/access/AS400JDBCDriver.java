@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCDriver.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,8 +15,8 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.beans.PropertyVetoException;    // @B9A
-import java.net.InetAddress;                // @C2A
+import java.beans.PropertyVetoException;	// @B9A
+import java.net.InetAddress;				// @C2A
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 
 /**
 <p>The AS400JDBCDriver class is a JDBC 2.0 driver that accesses
-DB2 for OS/400 databases.
+DB2 UDB for iSeries databases.
 
 <p>To use this driver, the application or caller must register 
 the driver with the JDBC DriverManager.  This class also registers 
@@ -46,7 +46,7 @@ jdbc:as400://<em>server-name</em>/<em>default-schema</em>;<em>properties</em>
 </pre>
 
 <p>The driver uses the specified server name to connect
-to a corresponding AS/400 server.  If a server name is not
+to a corresponding AS/400 or iSeries server.  If a server name is not
 specified, then the user will be prompted.  
 
 <p>The default schema is optional and the driver uses it to resolve 
@@ -100,15 +100,16 @@ jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
 public class AS400JDBCDriver
 implements java.sql.Driver
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 	// Constants.
-	static final int    MAJOR_VERSION_          = 4;										// @B1C
+     // Update each release.  Was 4 for v5r1.
+	static final int    MAJOR_VERSION_          = 5; // @B1C @C5C 
 	static final int    MINOR_VERSION_          = 0;
-	static final String DATABASE_PROCUCT_NAME_  = "DB2 UDB for AS/400";						// @D0A
-	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver";	// @D0C
+	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
+	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
 
 
 
@@ -127,7 +128,6 @@ implements java.sql.Driver
 	private static ResourceBundle resources_;
 	// Toolbox resources NOT needed in proxy jar file.        @A1A
 	private static ResourceBundle resources2_;
-
 
 
 	/**
@@ -249,7 +249,7 @@ implements java.sql.Driver
 	</pre></blockquote>
 	
 	
-	@param  AS400   The AS/400 to connect.
+	@param  system   The AS/400 or iSeries server to connect.
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
 					to the database.
@@ -261,11 +261,11 @@ implements java.sql.Driver
 	{
 		if (system == null)
 			throw new NullPointerException("system");
-		
+
 		if (system instanceof SecureAS400)
-		   return initializeConnection(new SecureAS400(system));
+			return initializeConnection(new SecureAS400(system));
 		else
-		   return initializeConnection(new AS400(system));
+			return initializeConnection(new AS400(system));
 
 		// Initialize the connection.
 		//@B7D Connection connection = null;                                        
@@ -294,7 +294,7 @@ implements java.sql.Driver
 	Connection c = d.connect (o, p, mySchema);
 	</pre></blockquote>
 	
-	@param  system  The AS/400 to connect.
+	@param  system  The AS/400 or iSeries server to connect.
 	@param  info    The connection properties.
 	@param  schema  The default schema or null meaning no default schema specified.
 	@return         The connection to the database or null if
@@ -335,15 +335,17 @@ implements java.sql.Driver
 		JDProperties jdProperties = new JDProperties (urlProperties, info);
 
 		if (system instanceof SecureAS400)
-		    return initializeConnection(schema, info, new SecureAS400(system));
+			return initializeConnection(schema, info, new SecureAS400(system));
 		else
-		    return initializeConnection(schema, info, new AS400(system));
+			return initializeConnection(schema, info, new AS400(system));
 		// Initialize the connection if the URL is valid.
 		//@B7D Connection connection = null;                                        
 		//@B7D connection = initializeConnection (schema, info, o);  
 
 		//@B7D return connection;
 	}
+
+
 
 
 	/**
@@ -461,7 +463,7 @@ implements java.sql.Driver
 		String serverName = dataSourceUrl.getServerName();
 		String userName   = jdProperties.getString (JDProperties.USER);
 		String password   = jdProperties.getString (JDProperties.PASSWORD);
-		String prompt     = jdProperties.getString (JDProperties.PROMPT);   // @B8C
+		String prompt     = jdProperties.getString (JDProperties.PROMPT);	// @B8C
 		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
 		String keyRingName     = jdProperties.getString (JDProperties.KEY_RING_NAME);  //@B9A
 		String keyRingPassword = jdProperties.getString (JDProperties.KEY_RING_PASSWORD); //@B9A
@@ -480,13 +482,14 @@ implements java.sql.Driver
 				as400 = new SecureAS400 (serverName, userName, password);
 			if (keyRingName != null && keyRingPassword != null && keyRingName != "") //@B9A	@C1C
 			{   
-			    try
-			    {                                                      	      //@B9A
-				((SecureAS400)as400).setKeyRingName(keyRingName, keyRingPassword); //@B9A
-			    }								      //@B9A
-			    catch (PropertyVetoException pve)				      //@B9A
-			    { /*Will never happen*/}					      //@B9A
-			}                                                         	      //@B9A
+				try
+				{															  //@B9A
+					((SecureAS400)as400).setKeyRingName(keyRingName, keyRingPassword); //@B9A
+				}									  //@B9A
+				catch (PropertyVetoException pve)					  //@B9A
+				{ /*Will never happen*/
+				}						   //@B9A
+			}																  //@B9A
 		}
 		else
 		{
@@ -503,8 +506,8 @@ implements java.sql.Driver
 		// Determine when the signon GUI can be presented..
 		try
 		{       
-            if (!prompt.equals(JDProperties.NOT_SPECIFIED))                           // @B8A
-                as400.setGuiAvailable(jdProperties.getBoolean(JDProperties.PROMPT));  // @B8C
+			if (!prompt.equals(JDProperties.NOT_SPECIFIED))							  // @B8A
+				as400.setGuiAvailable(jdProperties.getBoolean(JDProperties.PROMPT));  // @B8C
 		}
 		catch (java.beans.PropertyVetoException e)
 		{
@@ -538,7 +541,7 @@ implements java.sql.Driver
 			{
 				nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
 				if (JDTrace.isTraceOn())																							// @C2A
-					JDTrace.logInformation(this, "Native AS/400 Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
+					JDTrace.logInformation(this, "Native OS/400 Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
 			}
 			catch (Throwable e)
 			{
@@ -580,7 +583,7 @@ implements java.sql.Driver
 						JDTrace.logInformation(this, "Connection is local");				// @C2A
 					String nativeURL = dataSourceUrl.getNativeURL();                       
 					if (JDTrace.isTraceOn())
-						JDTrace.logInformation(this, "Using native AS/400 Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
+						JDTrace.logInformation(this, "Using native OS/400 Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
 					return nativeDriver.connect(nativeURL, info);
 				}																			// @C2A
 			}
@@ -588,7 +591,7 @@ implements java.sql.Driver
 		// @C2D else
 		// @C2D {
 		if (JDTrace.isTraceOn())
-			JDTrace.logInformation (this, "Using AS/400 Toolbox for Java JDBC driver implementation");
+			JDTrace.logInformation (this, "Using IBM Toolbox for Java JDBC driver implementation");
 		// @C2D }
 
 		// @A0A
@@ -663,16 +666,16 @@ implements java.sql.Driver
 		boolean proxyServerWasSpecifiedInUrl        = false;
 
 		String url = null;
-		if (schema != null)						   				//@B6A
+		if (schema != null)										//@B6A
 			url = "jdbc:as400://" + as400.getSystemName() + "/" + schema;
-		else							   						//@B6A
-			url	= "jdbc:as400://" + as400.getSystemName();	    //@B6A
+		else													//@B6A
+			url	= "jdbc:as400://" + as400.getSystemName();		//@B6A
 		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(url);
 
 		JDProperties jdProperties = new JDProperties(null, info);
 
 		if (JDTrace.isTraceOn())
-			JDTrace.logInformation (this, "Using AS/400 Toolbox for Java JDBC driver implementation");
+			JDTrace.logInformation (this, "Using IBM Toolbox for Java JDBC driver implementation");
 
 		// See if a proxy server was specified.
 		if (jdProperties.getString(JDProperties.PROXY_SERVER).length() != 0)
@@ -715,15 +718,14 @@ implements java.sql.Driver
 
 	//@B6A -- This logic was formerly in the initializeConnection() method.
 	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
-					     Properties info, JDProperties jdProperties)
+										 Properties info, JDProperties jdProperties)
 	throws SQLException
 	{
-		// @A0C
 		// Create the appropriate kind of Connection object.
 		Connection connection = (Connection) as400.loadImpl2 (
-						"com.ibm.as400.access.AS400JDBCConnection",
-						"com.ibm.as400.access.JDConnectionProxy");
-
+														 "com.ibm.as400.access.AS400JDBCConnection",                 
+	    												 "com.ibm.as400.access.JDConnectionProxy");
+                                       
 		// Set the properties on the Connection object.
 		if (connection != null)
 		{

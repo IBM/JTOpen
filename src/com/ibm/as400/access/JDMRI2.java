@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDMRI2.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ Locale-specific objects for the AS/400 Toolbox for Java.
 
 public class JDMRI2 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
    public Object[][] getContents()
@@ -70,6 +70,7 @@ public class JDMRI2 extends ListResourceBundle
 //    { "JD08001", "The application requester cannot establish the connection." },
 //    { "JD08004", "The application server rejected the connection." },
       { "JD08003", "The connection does not exist." },
+      { "JD08S01", "Communication link failure." },                   // @F1A
       { "JD22522", "CCSID value is not valid." },
       { "JD22524", "Character conversion resulted in truncation." },
       { "JD24000", "Cursor state not valid." },
@@ -79,6 +80,7 @@ public class JDMRI2 extends ListResourceBundle
       { "JD42505", "Connection authorization failure occurred." },
       { "JD42601", "A character, token, or clause is not valid or is missing." },
       { "JD42703", "An undefined column name was detected." },
+      { "JD42705", "Relational database not in relational database directory." }, // @J2a
       { "JD43617", "A string parameter value with zero length was detected." }, // @A3A
       { "JDHY000", "Internal driver error." },
       { "JDHY001", "Internal server error." },
@@ -93,6 +95,10 @@ public class JDMRI2 extends ListResourceBundle
       { "JDHY108", "Concurrency or type option not valid." },
       { "JDHY109", "Cursor position not valid." },
       { "JDIM001", "The driver does not support this function." },
+      { "JD54001", "SQL statement too long or complex." },               // @E9a
+      { "JD3B001", "Savepoint does not exist or is invalid in this context." },  // @E10a
+      { "JD3B501", "Savepoint already exists." },                                // @E10a     
+      { "JD3B502", "Savepoint does not exist." },                                // @E10a
 
 
 

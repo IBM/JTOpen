@@ -1,17 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBReturnObjectInformationRequestDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
+
+import java.sql.SQLException;                                            //@E9a
 
 
 /**
@@ -21,7 +23,7 @@ package com.ibm.as400.access;
 class DBReturnObjectInformationRequestDS
 extends DBBaseRequestDS
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 	public static final int	FUNCTIONID_FIELD_INFO              = 0x1807;
 	public static final int	FUNCTIONID_FILE_INFO               = 0x1804;
@@ -58,13 +60,6 @@ extends DBBaseRequestDS
     }
 
 
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-
     //--------------------------------------------------//
     // Create the data stream optional /                //
     // variable length data section via addParameters   //
@@ -91,8 +86,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setFieldName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setFieldName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x380C, converter, value);
 	}
@@ -160,8 +155,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-    void setFileName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+    void setFileName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3802, converter, value);
 	}
@@ -188,8 +183,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setFileOwnerName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+   	void setFileOwnerName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3808, converter, value);
 	}
@@ -245,8 +240,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setForeignKeyFileLibraryName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setForeignKeyFileLibraryName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3811, converter, value);
 	}
@@ -259,8 +254,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setForeignKeyFileName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setForeignKeyFileName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3813, converter, value);
 	}
@@ -273,8 +268,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setForeignKeyFileOwner(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setForeignKeyFileOwner(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3812, converter, value);
 	}
@@ -301,8 +296,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setFormatName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setFormatName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x380B, converter, value);
 	}
@@ -370,8 +365,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setLibraryName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setLibraryName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3801, converter, value);
 	}
@@ -413,8 +408,8 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
 
-	void setMemberName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setMemberName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3803, converter, value);
 	}
@@ -455,8 +450,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setPackageName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setPackageName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3804, converter, value);
 	}
@@ -526,8 +521,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setPrimaryKeyFileLibraryName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setPrimaryKeyFileLibraryName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x380E, converter, value);
 	}
@@ -540,8 +535,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setPrimaryKeyFileName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setPrimaryKeyFileName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3810, converter, value);
 	}
@@ -554,8 +549,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setPrimaryKeyFileOwner(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setPrimaryKeyFileOwner(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x380F, converter, value);
 	}
@@ -582,8 +577,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setRelationalDatabaseName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setRelationalDatabaseName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3806, converter, value);
 	}
@@ -696,8 +691,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setUserProfileName(String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+	void setUserProfileName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3815, converter, value);
 	}

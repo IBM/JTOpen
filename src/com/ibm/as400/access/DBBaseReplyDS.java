@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBBaseReplyDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,49 +109,49 @@ import java.io.PrintStream;
 //
 //---------------------------------------------------------------------
 
- /**
-   This is the base class for all database server reply data
-   streams.  Every concrete database server reply data stream
-   should inherit from this class.
+/**
+  This is the base class for all database server reply data
+  streams.  Every concrete database server reply data stream
+  should inherit from this class.
 
-   Here are the steps needed to handle a reply data stream
-   from the server.
+  Here are the steps needed to handle a reply data stream
+  from the server.
 
-     1.  Add a prototype reply data stream to the collection
-	     of reply prototypes.  There must be a prototype reply
-		 for every type of reply that must be constructed
-		 automatically.
+    1.  Add a prototype reply data stream to the collection
+      of reply prototypes.  There must be a prototype reply
+    for every type of reply that must be constructed
+    automatically.
 
-		 static
-	     {
-		   AS400Server.addReplyStream (new DBReplyRequestedDS (),
-		   "as-database");
-	     }
+    static
+      {
+      AS400Server.addReplyStream (new DBReplyRequestedDS (),
+      "as-database");
+      }
 
-      2. Send a request and ask for reply data
+     2. Send a request and ask for reply data
 
-	     DBReplyRequestedDS reply = sendAndReceive (request);
+      DBReplyRequestedDS reply = sendAndReceive (request);
 
-         a. AS400Server run method will call ClientAccessDataStream
-		    construct method.
-		 b.	ClientAccessDataStream construct method will call
-		    readAfterHeader which parses out the data stream
+        a. AS400Server run method will call ClientAccessDataStream
+       construct method.
+    b.	ClientAccessDataStream construct method will call
+       readAfterHeader which parses out the data stream
 
-	  3. Check for errors
-	     An error class and return code are always returned.  These
-		 report on the success or failure of the request.  The
-		 meanings of the various error classes and return codes
-		 are described in the database server specification.
+   3. Check for errors
+      An error class and return code are always returned.  These
+    report on the success or failure of the request.  The
+    meanings of the various error classes and return codes
+    are described in the database server specification.
 
-         int ErrorClass = requestedData.getErrorClass();
-         int ErrorClassReturnCode = requestedData.getReturnCode()
+        int ErrorClass = requestedData.getErrorClass();
+        int ErrorClassReturnCode = requestedData.getReturnCode()
 
-	  4. Use the methods provided to get the information needed from
-	     the data stream. The results returned will depend on the
-		 values in the Operation Results Bitmap.
+   4. Use the methods provided to get the information needed from
+      the data stream. The results returned will depend on the
+    values in the Operation Results Bitmap.
 
 
- **/
+**/
 
 //
 // Performance note:
@@ -178,45 +178,77 @@ import java.io.PrintStream;
 // we could improve on it.
 //
 
+// Performance note:
+//
+// (C. Smith 09/07/01):
+//
+// I am pooling reply datastreams. It is not messy.
+
 abstract class DBBaseReplyDS
 extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 
-    // Constants.
-	private static final String     NODATA_             = "0";
-	private static final int	    TEMPLATE_LENGTH_    = 20;
+  // Constants.
+  private static final String     NODATA_             = "0";
+  private static final int      TEMPLATE_LENGTH_    = 20;
 
 
 
-	// Template variables.
-	private int	                    errorClass_             = 0;
-	private int	                    returnCode_             = 0;
+  // Template variables.
+  private int                     errorClass_             = 0;
+  private int                     returnCode_             = 0;
 
 
 
-	// Optional variables.   
-    private int                     byteCount_              = -1;               // @E2A
-    private long                    currentLOBLength_       = -1;               // @E1A, see @E6 comment below
-    private DBDataFormat            dataFormat_             = null;
-    private String		            firstLevelMessageText_  = null;
-    private DBLobData               lobData_                = null;             // @D2C
-    // @C1D private int                     lobLocatorHandle_       = -1;
-	private String		            messageId_              = null;
-	private DBReplyPackageInfo      packageInfo_            = null;
-	private DBDataFormat	        parameterMarkerFormat_  = null;
-	private DBData	                resultData_             = null;
-    private boolean                 rleCompressed_          = false;            // @E3A
-	private String		            secondLevelMessageText_ = null;
-	private	DBReplyServerAttributes	serverAttributes_       = null;
-	private DBReplySQLCA		    sqlca_                  = null;
-    private DBReplyXids             xids_                   = null;             // @E0A
+  // Optional variables.   
+  private int                     byteCount_              = -1;               // @E2A
+  private long                    currentLOBLength_       = -1;               // @E1A, see @E6 comment below
+  private DBDataFormat            dataFormat_             = null;
+  private DBExtendedColumnDescriptors extendedColumnDescriptors_  = null;     // @G4A
+  private String                firstLevelMessageText_  = null;
+  private DBLobData               lobData_                = null;             // @D2C
+  // @C1D private int                     lobLocatorHandle_       = -1;
+  private String                messageId_              = null;
+  private DBReplyPackageInfo      packageInfo_            = null;
+  private DBDataFormat          parameterMarkerFormat_  = null;
+  private DBData                  resultData_             = null;
+  private boolean                 rleCompressed_          = false;            // @E3A
+  private String                secondLevelMessageText_ = null;
+  private DBReplyServerAttributes serverAttributes_       = null;
+  private DBReplySQLCA        sqlca_                  = null;
+  private DBReplyXids             xids_                   = null;             // @E0A
 
 
+  private final DBStorage storage_ = DBDSPool.storagePool_.getUnusedStorage(); //@P0A
 
+  
+  //@P0A - Call this in place of constructing a new reply datastream.
+  final void initialize()
+  { 
+    data_ = storage_.data_;
+    errorClass_ = 0;
+    returnCode_ = 0;
+    byteCount_ = -1;
+    currentLOBLength_ = -1;
+    dataFormat_ = null;
+    firstLevelMessageText_ = null;
+    lobData_ = null;
+    messageId_ = null;
+    packageInfo_ = null;
+    parameterMarkerFormat_ = null;
+    resultData_ = null;
+    rleCompressed_ = false;
+    secondLevelMessageText_ = null;
+    serverAttributes_ = null;
+    sqlca_ = null;
+    xids_ = null;
+  }
+
+                         
 /**
 Output the byte stream contents to the specified PrintStream.
 The output format is two hex digits per byte, one space every
@@ -224,23 +256,23 @@ four bytes, and sixteen bytes per line.
 
 @param ps the output stream
 **/
-    void dump (PrintStream ps)
-    {
-        DBBaseRequestDS.dump (ps, data_, data_.length);        
-        
-        // Report whether or not the datastream was compressed.                    @E3A
-        if (rleCompressed_)                                                     // @E3A
-            ps.println("Reply was received RLE compressed.");                   // @E3A
+  void dump(PrintStream ps)
+  {
+    DBBaseRequestDS.dump(ps, data_, data_.length);        
 
-    }
+    // Report whether or not the datastream was compressed.                    @E3A
+    if (rleCompressed_)                                                     // @E3A
+      ps.println("Reply was received RLE compressed.");                   // @E3A
+
+  }
 
 
 
-     // See @E6 comment below
-	public long getCurrentLOBLength()                               // @E1A
-	{                                                               // @E1A
-		return currentLOBLength_;                                   // @E1A
-	}                                                               // @E1A
+  // See @E6 comment below
+  public long getCurrentLOBLength()                               // @E1A
+  {                                                               // @E1A
+    return currentLOBLength_;                                   // @E1A
+  }                                                               // @E1A
 
 
 
@@ -249,10 +281,10 @@ Returns the data format.
 
 @return The data format, or null if not included or empty.
 **/
-	public DBDataFormat getDataFormat ()
-	{
-		return dataFormat_;
-	}
+  public DBDataFormat getDataFormat()
+  {
+    return dataFormat_;
+  }
 
 
 
@@ -261,10 +293,23 @@ Returns the error class.
 
 @return The error class.
 **/
-	public int getErrorClass ()
-	{
-		return errorClass_;
-	}
+  public int getErrorClass()
+  {
+    return errorClass_;
+  }
+
+
+
+//@G4A
+/**
+Returns the extended column descriptors.
+
+@return The extended column descriptors, or null if not included or empty.
+**/
+  public DBExtendedColumnDescriptors getExtendedColumnDescriptors ()
+  {
+  	return extendedColumnDescriptors_;
+  }
 
 
 
@@ -273,10 +318,10 @@ Returns the first level message text.
 
 @return The first level message text, or null if not included or empty.
 **/
-	public String getFirstLevelMessageText ()
-	{
-		return firstLevelMessageText_;
-	}
+  public String getFirstLevelMessageText()
+  {
+    return firstLevelMessageText_;
+  }
 
 
 
@@ -285,10 +330,10 @@ Returns the LOB data.
 
 @return The LOB data, or null if not included or empty.
 **/
-	public DBLobData getLOBData ()                              // @D2C
-	{
-		return lobData_;
-	}
+  public DBLobData getLOBData()                              // @D2C
+  {
+    return lobData_;
+  }
 
 
 
@@ -309,10 +354,10 @@ Returns the message id.
 
 @return The message id, or null if not included or empty.
 **/
-	public String getMessageId ()
-	{
-		return messageId_;
-	}
+  public String getMessageId()
+  {
+    return messageId_;
+  }
 
 
 
@@ -321,10 +366,10 @@ Returns the package info.
 
 @return The package info, or null if not included or empty.
 **/
-	public DBReplyPackageInfo getPackageInfo ()
-	{
-		return packageInfo_;
-	}
+  public DBReplyPackageInfo getPackageInfo()
+  {
+    return packageInfo_;
+  }
 
 
 
@@ -333,10 +378,10 @@ Returns the parameter marker format.
 
 @return The parameter marker format, or null if not included or empty.
 **/
-	public DBDataFormat getParameterMarkerFormat ()
-	{
-		return parameterMarkerFormat_;
-	}
+  public DBDataFormat getParameterMarkerFormat()
+  {
+    return parameterMarkerFormat_;
+  }
 
 
 
@@ -345,10 +390,10 @@ Returns the result data.
 
 @return The result data, or null if not included or empty.
 **/
-	public DBData getResultData ()
-	{
-		return resultData_;
-	}
+  public DBData getResultData()
+  {
+    return resultData_;
+  }
 
 
 
@@ -357,10 +402,10 @@ Returns the return code.
 
 @return The return code.
 **/
-	public int getReturnCode ()
-	{
-		return returnCode_;
-	}
+  public int getReturnCode()
+  {
+    return returnCode_;
+  }
 
 
 
@@ -369,10 +414,10 @@ Returns the function id of the corresponding request.
 
 @return The function id of the corresponding request.
 **/
-    public int getReturnDataFunctionId ()
-    {
-        return get16bit (30);
-    }
+  public int getReturnDataFunctionId()
+  {
+    return get16bit(30);
+  }
 
 
 
@@ -382,10 +427,10 @@ Returns the second level message text.
 @return The second level message text, or null if not
         included or empty.
 **/
-	public String getSecondLevelMessageText ()
-	{
-		return secondLevelMessageText_;
-	}
+  public String getSecondLevelMessageText()
+  {
+    return secondLevelMessageText_;
+  }
 
 
 
@@ -394,10 +439,10 @@ Returns the server attributes.
 
 @return The server attributes, or null if not included or empty.
 **/
-	public DBReplyServerAttributes getServerAttributes ()
-	{
-		return serverAttributes_;
-	}
+  public DBReplyServerAttributes getServerAttributes()
+  {
+    return serverAttributes_;
+  }
 
 
 
@@ -406,10 +451,10 @@ Returns the SQLCA.
 
 @return The SQLCA, or null if not included or empty.
 **/
-	public DBReplySQLCA getSQLCA ()
-	{
-		return sqlca_;
-	}
+  public DBReplySQLCA getSQLCA()
+  {
+    return sqlca_;
+  }
 
 
 
@@ -419,257 +464,276 @@ Returns the Xids.
 
 @return The Xids, or null if not included or empty.
 **/
-    public DBReplyXids getXids()
-    {
-        return xids_;
-    }
+  public DBReplyXids getXids()
+  {
+    return xids_;
+  }
 
 
 
 /**
 Parses the datastream.
 **/
-	public int readAfterHeader (InputStream in)
-	 	throws IOException
-	{
-	    byteCount_ = super.readAfterHeader (in);                                    // @E2C
-	 	return byteCount_;                                                          // @E2C
-    }                                                                               
+  public int readAfterHeader(InputStream in)
+  throws IOException
+  {
+    byteCount_ = super.readAfterHeader(in);                                    // @E2C
+    return byteCount_;                                                          // @E2C
+  }                                                                               
 
 
 
-    // @E2A - Moved from readAfterHeader().      
-    void parse(int dataCompression)                                                 // @E2A
-        throws IOException                                                          // @E2A
-    {                                                                               // @E2A
+  // @E2A - Moved from readAfterHeader().      
+  void parse(int dataCompression)                                                 // @E2A
+  throws IOException                                                          // @E2A
+  {                                                                               // @E2A
 
-        boolean dataCompressed  = ((get32bit(24) & 0x80000000) == 0x80000000);      // @D1A
-        boolean oldCompressed = (dataCompressed &&                                  // @E2A
-            (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_OLD_));        // @E2A
+    boolean dataCompressed  = ((get32bit(24) & 0x80000000) == 0x80000000);      // @D1A
+    boolean oldCompressed = (dataCompressed &&                                  // @E2A
+                             (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_OLD_));        // @E2A
 
-        // Check to see if the data is RLE compressed.  If so, expand it.           // @E2A
-        rleCompressed_ = (dataCompressed &&                                         // @E2A
-            (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_RLE_));        // @E2A
-        if (rleCompressed_) {                                                       // @E2A
-            // Decompress the bytes not including the 44 bytes header and template.    @E2A
-            //                                                                         @E2A
-            // The format of the header and template is this:                          @E2A
-            // Bytes:           Description:                                           @E2A
-            //   4              LL - Compressed length of the entire datastream.       @E2A
-            //  36              The rest of the uncompressed header and template.      @E2A
-            //   4              ll - Length of the compressed data + 10.               @E3A
-            //   2              CP - The compression code point.                       @E3A
-            //   4              Decompressed length of the data.                       @E2A
-            //  LL-10           Compressed data.                                       @E2A @E3C
-            //
-            // After decompression, the header and template should look like this:     @E2A
-            // Bytes:           Description:                                           @E2A
-            //   4              LL - Length of the entire datastream after decompress. @E2A
-            //  36              The rest of the uncompressed header and template.      @E2A
-            //  LL-40           Decompressed data.                                     @E2A
-            
-            // Check the CP to determine the compression scheme.  We currently only // @E3A
-            // handle RLE.                                                          // @E3A
-            int compressionSchemeCP = get16bit(44);                                 // @E3A
+    // Check to see if the data is RLE compressed.  If so, expand it.           // @E2A
+    rleCompressed_ = (dataCompressed &&                                         // @E2A
+                      (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_RLE_));        // @E2A
+    if (rleCompressed_)
+    {                                                       // @E2A
+      // Decompress the bytes not including the 44 bytes header and template.    @E2A
+      //                                                                         @E2A
+      // The format of the header and template is this:                          @E2A
+      // Bytes:           Description:                                           @E2A
+      //   4              LL - Compressed length of the entire datastream.       @E2A
+      //  36              The rest of the uncompressed header and template.      @E2A
+      //   4              ll - Length of the compressed data + 10.               @E3A
+      //   2              CP - The compression code point.                       @E3A
+      //   4              Decompressed length of the data.                       @E2A
+      //  LL-10           Compressed data.                                       @E2A @E3C
+      //
+      // After decompression, the header and template should look like this:     @E2A
+      // Bytes:           Description:                                           @E2A
+      //   4              LL - Length of the entire datastream after decompress. @E2A
+      //  36              The rest of the uncompressed header and template.      @E2A
+      //  LL-40           Decompressed data.                                     @E2A
 
-            if (compressionSchemeCP != AS400JDBCConnection.DATA_COMPRESSION_RLE_)   // @E3A
-                throw new IOException();                                            // @E3A
-            int lengthOfDecompressedData = get32bit(46);                            // @E2A @E3C
-            byte[] newData = new byte[lengthOfDecompressedData + 40];               // @E2A
-            BinaryConverter.intToByteArray(newData.length, newData, 0);             // @E2A
-            System.arraycopy(data_, 4, newData, 4, 36);                             // @E2A
-            DataStreamCompression.decompressRLE(data_, 50, get32bit(0)-50,          // @E2A @E3C
-                newData, 40, DataStreamCompression.DEFAULT_ESCAPE);                 // @E2A
-            data_ = newData;                                                        // @E2A
-            byteCount_ = data_.length - 20;                                         // @E2A
-        }                                                                           // @E2A
+      // Check the CP to determine the compression scheme.  We currently only // @E3A
+      // handle RLE.                                                          // @E3A
+      int compressionSchemeCP = get16bit(44);                                 // @E3A
 
-		// Read the template portion of data stream.
-		errorClass_             = get16bit(34);
-		returnCode_             = get32bit(36);
+      if (compressionSchemeCP != AS400JDBCConnection.DATA_COMPRESSION_RLE_)   // @E3A
+        throw new IOException();                                            // @E3A
+      int lengthOfDecompressedData = get32bit(46);                            // @E2A @E3C
+      byte[] newData = new byte[lengthOfDecompressedData + 40];               // @E2A
+      BinaryConverter.intToByteArray(newData.length, newData, 0);             // @E2A
+      System.arraycopy(data_, 4, newData, 4, 36);                             // @E2A
+      DataStreamCompression.decompressRLE(data_, 50, get32bit(0)-50,          // @E2A @E3C
+                                          newData, 40, DataStreamCompression.DEFAULT_ESCAPE);                 // @E2A
+      data_ = newData;                                                        // @E2A
+      byteCount_ = data_.length - 20;                                         // @E2A
+    }                                                                           // @E2A
 
-		// Move offset to the start of the optional - variable
-		// length portion of the data stream.
-		int offset = HEADER_LENGTH + TEMPLATE_LENGTH_;
+    // Read the template portion of data stream.
+    errorClass_             = get16bit(34);
+    returnCode_             = get32bit(36);
 
-		// Using offset as a pointer into the datastream,
-		// walk through the optional - variable length portion
-		// of the data stream.
-		while (offset < byteCount_ + HEADER_LENGTH) {                               // @E2C
+    // Move offset to the start of the optional - variable
+    // length portion of the data stream.
+    int offset = HEADER_LENGTH + TEMPLATE_LENGTH_;
 
-			int parmLength	= get32bit (offset);
-			int codePoint	= get16bit (offset + 4);
+    // Using offset as a pointer into the datastream,
+    // walk through the optional - variable length portion
+    // of the data stream.
+    while (offset < byteCount_ + HEADER_LENGTH)
+    {                               // @E2C
 
-			// There may be times when a length (ll) and a
-			// codepoint were returned but no data.  In this
-			// case the length will be = 6.  We will treat
-			// this as if no such parameter came down.
-			switch (codePoint)
-			{
+      int parmLength  = get32bit (offset);
+      int codePoint = get16bit (offset + 4);
 
-            // Message ID.
-			case 0x3801:
-				// 8 =  length (4) + codePoint (2) + ccsid (2)
-				if (parmLength != 6) {	   //  data was sent
-				    ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
-					messageId_ = converter.byteArrayToString (data_, offset + 8, parmLength - 8);
-				}
-				else				   // no data was sent
-					messageId_ = NODATA_;
-				break;
+      // There may be times when a length (ll) and a
+      // codepoint were returned but no data.  In this
+      // case the length will be = 6.  We will treat
+      // this as if no such parameter came down.
+      switch (codePoint)
+      {
 
-            // First level message text.
-			case 0x3802:
-				// 10 = length (4) + codePoint (2) + ccsid (2) + streamlength (2)
-				if (parmLength != 6) {	   //  data was sent
-				    ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
-					firstLevelMessageText_ = converter.byteArrayToString (data_, offset + 10, parmLength - 10);
-				}
-				else				   // no data was sent
-					firstLevelMessageText_ = NODATA_;
-				break;
+        // Message ID.
+        case 0x3801:
+          // 8 =  length (4) + codePoint (2) + ccsid (2)
+          if (parmLength != 6)
+          {     //  data was sent
+            ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
+            messageId_ = converter.byteArrayToString (data_, offset + 8, parmLength - 8);
+          }
+          else           // no data was sent
+            messageId_ = NODATA_;
+          break;
 
-            // Second level message text.
-			case 0x3803:
-				// 10 = length (4) + codePoint (2) + ccsid (2) + streamlength (2)
-				if (parmLength != 6) {	   // data was sent
-				    ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
-					secondLevelMessageText_ = converter.byteArrayToString (data_, offset + 10, parmLength - 10);
-				}
- 				else				   // no data was sent
-					secondLevelMessageText_ = NODATA_;
-                break;
+          // First level message text.
+        case 0x3802:
+          // 10 = length (4) + codePoint (2) + ccsid (2) + streamlength (2)
+          if (parmLength != 6)
+          {     //  data was sent
+            ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
+            firstLevelMessageText_ = converter.byteArrayToString (data_, offset + 10, parmLength - 10);
+          }
+          else           // no data was sent
+            firstLevelMessageText_ = NODATA_;
+          break;
 
-            // Server attributes.
-			case 0x3804:
-			    try
-			    {
-    			    serverAttributes_	= new DBReplyServerAttributes (data_,
-	    								  offset + 8,
-		    							  parmLength);
-		    	}
-		    	catch (DBDataStreamException x)
-		    	{
-		    	    throw new IOException ();
-		    	}
-				break;
+          // Second level message text.
+        case 0x3803:
+          // 10 = length (4) + codePoint (2) + ccsid (2) + streamlength (2)
+          if (parmLength != 6)
+          {     // data was sent
+            ConverterImplRemote converter = ConverterImplRemote.getConverter (get16bit (offset + 6), system_); // @D0C
+            secondLevelMessageText_ = converter.byteArrayToString (data_, offset + 10, parmLength - 10);
+          }
+          else           // no data was sent
+            secondLevelMessageText_ = NODATA_;
+          break;
 
-            // Data format.
-			case 0x3805:
-			    if (parmLength != 6) {
-			        dataFormat_	= new DBOriginalDataFormat ();
-			        dataFormat_.overlay (data_, offset + 6);
-			    }
-				break;
+          // Server attributes.
+        case 0x3804:
+          try
+          {
+            serverAttributes_ = new DBReplyServerAttributes (data_,
+                                                             offset + 8,
+                                                             parmLength);
+          }
+          catch (DBDataStreamException x)
+          {
+            throw new IOException ();
+          }
+          break;
 
-            // Result data.
-			case 0x3806:
-			    if (parmLength != 6) {
-			        resultData_	= new DBOriginalData (parmLength, oldCompressed);         // @D1C @E2C
-			        resultData_.overlay (data_, offset + 6);
-			    }
-				break;
+          // Data format.
+        case 0x3805:
+          if (parmLength != 6)
+          {
+            dataFormat_ = new DBOriginalDataFormat ();
+            dataFormat_.overlay (data_, offset + 6);
+          }
+          break;
 
-            // SQLCA.
-			case 0x3807:
-				sqlca_		= new DBReplySQLCA (data_, offset + 6, parmLength);
+          // Result data.
+        case 0x3806:
+          if (parmLength != 6)
+          {
+            resultData_ = new DBOriginalData (parmLength, oldCompressed);         // @D1C @E2C
+            resultData_.overlay (data_, offset + 6);
+          }
+          break;
 
-				break;
+          // SQLCA.
+        case 0x3807:
+          sqlca_    = new DBReplySQLCA (data_, offset + 6, parmLength);
 
-            // Parameter marker format.
-			case 0x3808:
-			    if (parmLength != 6) {
-			        parameterMarkerFormat_ = new DBOriginalDataFormat ();
-			        parameterMarkerFormat_.overlay (data_, offset + 6);
-			    }
-				break;
+          break;
 
-            // Translation table information.
-			// case 0x3809:
-			    // We don't care much about translatation
-			    // table information.
-				// break;
+          // Parameter marker format.
+        case 0x3808:
+          if (parmLength != 6)
+          {
+            parameterMarkerFormat_ = new DBOriginalDataFormat ();
+            parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          break;
 
-            // DSN attributes.
-			// case 0x380A:
-			    // We don't care much about DSN attributes.
-				// break;
+          // Translation table information.
+          // case 0x3809:
+          // We don't care much about translatation
+          // table information.
+          // break;
 
-            // Package return information.
-			case 0x380B:
-			    packageInfo_ = new DBReplyPackageInfo (data_,
-							offset + 6, parmLength, system_.getCcsid());        // @D3C
-				break;
+          // DSN attributes.
+          // case 0x380A:
+          // We don't care much about DSN attributes.
+          // break;
 
-            // Extended data format.
-			case 0x380C:
-			    if (parmLength != 6) {
-			        dataFormat_	= new DBExtendedDataFormat ();
-			        dataFormat_.overlay (data_, offset + 6);
-			    }
-				break;
+          // Package return information.
+        case 0x380B:
+          packageInfo_ = new DBReplyPackageInfo (data_,
+                                                 offset + 6, parmLength, system_.getCcsid());        // @D3C
+          break;
 
-            // Extended parameter marker format.
-			case 0x380D:
-			    if (parmLength != 6) {
-			        parameterMarkerFormat_ = new DBExtendedDataFormat ();
-			        parameterMarkerFormat_.overlay (data_, offset + 6);
-			    }
-				break;
+          // Extended data format.
+        case 0x380C:
+          if (parmLength != 6)
+          {
+            dataFormat_ = new DBExtendedDataFormat ();
+            dataFormat_.overlay (data_, offset + 6);
+          }
+          break;
 
-            // Extended result data.
-			case 0x380E:
-			    if (parmLength != 6) {
-			        resultData_	= new DBExtendedData(parmLength, oldCompressed);           // @D1C @E2C
-			        resultData_.overlay (data_, offset + 6);
+          // Extended parameter marker format.
+        case 0x380D:
+          if (parmLength != 6)
+          {
+            parameterMarkerFormat_ = new DBExtendedDataFormat ();
+            parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          break;
 
-			        // @C1D // This doubles as lob data.
-			        // @C1D lobData_ = new DBByteSubarray (parmLength - 6);
-			        // @C1D lobData_.overlay (data_, offset + 6);
-			    }
-				break;
+          // Extended result data.
+        case 0x380E:
+          if (parmLength != 6)
+          {
+            resultData_ = new DBExtendedData(parmLength, oldCompressed);           // @D1C @E2C
+            resultData_.overlay (data_, offset + 6);
 
-            // LOB locator data.                                                    // @C1A
-			case 0x380F:
-                if (parmLength != 6) {                                              // @C1A
-    		        // @C1D lobLocatorHandle_ = get32bit (offset + 6);
-                    // @D2D int ccsid = get16bit (offset + 6);                      // @C1A
-                    int length = get32bit (offset + 8);                             // @C1A
-		    lobData_ = new DBLobData (length, parmLength -12, oldCompressed);  // @C1A @D2C @D4C @E2C @E4C
-                    lobData_.overlay (data_, offset + 12);                          // @C1A
-                }                                                                   // @C1A
-				break;
+            // @C1D // This doubles as lob data.
+            // @C1D lobData_ = new DBByteSubarray (parmLength - 6);
+            // @C1D lobData_.overlay (data_, offset + 6);
+          }
+          break;
 
-            // @E6   Warning, currentLOBLength_ is wrong if the lob is a
-            //       graphic lob (DBClob)!  It is too hard to get that
-            //       information through the collective so this code
-            //       can do the right thing.  At the time of this @E6
-            //       change, the only code that uses this value is JDLobLocator,
-            //       and it fixes it up because it knows the field is a 
-            //       graphic field. 
-            // Current LOB length.                                                  // @E1A
-            case 0x3810:                                                            // @E1A
-                int sl = get16bit(offset + 6);                                      // @E1A
-                if (sl == 4)                                                        // @E1A
-                    currentLOBLength_ = get32bit(offset + 8);                       // @E1A
-                else                                                                // @E1A
-                    currentLOBLength_ = get64bit(offset + 8);                       // @E1A
-                break;                                                              // @E1A
+          // LOB locator data.                                                    // @C1A
+        case 0x380F:
+          if (parmLength != 6)
+          {                                              // @C1A
+            // @C1D lobLocatorHandle_ = get32bit (offset + 6);
+            // @D2D int ccsid = get16bit (offset + 6);                      // @C1A
+            int length = get32bit (offset + 8);                             // @C1A
+            lobData_ = new DBLobData (length, parmLength -12, oldCompressed);  // @C1A @D2C @D4C @E2C @E4C
+            lobData_.overlay (data_, offset + 12);                          // @C1A
+          }                                                                   // @C1A
+          break;
 
-            // Xids.                                                                // @E0A
-            case 0x38A1:                                                            // @E0A
-				xids_ = new DBReplyXids(data_, offset, parmLength);             // @E0A @E5C
-                break;                                                              // @E0A
+          // @E6   Warning, currentLOBLength_ is wrong if the lob is a
+          //       graphic lob (DBClob)!  It is too hard to get that
+          //       information through the collective so this code
+          //       can do the right thing.  At the time of the @E6
+          //       change, the only code that uses this value is JDLobLocator,
+          //       and it fixes it up because it knows the field is a 
+          //       graphic field. 
+          // Current LOB length.                                                  // @E1A
+        case 0x3810:                                                            // @E1A
+          int sl = get16bit(offset + 6);                                      // @E1A
+          if (sl == 0)                                                        // @E7A
+            currentLOBLength_ = 0;                                          // @E7A
+          else if (sl == 4)                                                   // @E1A @E7C
+            currentLOBLength_ = get32bit(offset + 8);                       // @E1A
+          else                                                                // @E1A
+            currentLOBLength_ = get64bit(offset + 8);                       // @E1A
+          break;                                                              // @E1A
 
-			}            
+          // Xids.                                                                // @E0A
+        case 0x38A1:                                                            // @E0A
+          xids_ = new DBReplyXids(data_, offset, parmLength);             // @E0A @E5C
+          break;                                                              // @E0A
 
-			offset += parmLength;
-		}
+        // @G4A Extended column descriptors information (can be turned on and off by the user
+        // @G4A with the "extended metadata" property)
+        case 0x3811:  
+          if (parmLength != 6)                                                // @G4A
+          {                                                                   // @G4A
+            extendedColumnDescriptors_ = new DBExtendedColumnDescriptors(     // @G4A
+               data_, offset + 6);                                            // @G4A
+            break;                                                            // @G4A
+          }                                                                   // @G4A
+      }            
 
-	}
-
-
-
+      offset += parmLength;
+    }
+  }
 }
 
 

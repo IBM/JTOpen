@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCXAResource.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,26 +127,26 @@ xaConnection.close();
 public class AS400JDBCXAResource
 implements XAResource
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 
-    // Private data.
-    private static int              COUNT_                          = 64;
-    private static byte[]           DEFAULT_XA_INFORMATION_         = new byte[256];
+  // Private data.
+  private static int              COUNT_                          = 64;
+  private static byte[]           DEFAULT_XA_INFORMATION_         = new byte[256];
 
-    // Start the resource manager IDs at 0xC0001.  The server does not like 0.
-    // Microsoft starts at 1.  CA ODBC will start with something else.  This will
-    // enable us to quickly identify ours.
-    private static int              nextResourceManagerID_          = 0xC001;
-    private static Object           nextResourceManagerIDLock_      = new Object();
+  // Start the resource manager IDs at 0xC0001.  The server does not like 0.
+  // Microsoft starts at 1.  CA ODBC will start with something else.  This will
+  // enable us to quickly identify ours.
+  private static int              nextResourceManagerID_          = 0xC001;
+  private static Object           nextResourceManagerIDLock_      = new Object();
 
-    private AS400JDBCConnection     connection_;
-    // @A1D private boolean                 closed_                         = false;
-    private int                     resourceManagerID_              = -1;
-    private Xid                     started_                        = null;
-    private JDTransactionManager    transactionManager_;
+  private AS400JDBCConnection     connection_;
+  // @A1D private boolean                 closed_                         = false;
+  private int                     resourceManagerID_              = -1;
+  private Xid                     started_                        = null;
+  private JDTransactionManager    transactionManager_;
 
 
 
@@ -157,18 +157,19 @@ Constructs an AS400JDBCXAResource object.
 
 @exception XAException If an error occurs.
 **/
-    AS400JDBCXAResource(AS400JDBCConnection connection)
-    throws XAException
+  AS400JDBCXAResource(AS400JDBCConnection connection)
+  throws XAException
+  {
+    connection_ = connection;
+    transactionManager_ = connection_.getTransactionManager();
+
+    synchronized(nextResourceManagerIDLock_)
     {
-        connection_ = connection;
-        transactionManager_ = connection_.getTransactionManager();
-
-        synchronized(nextResourceManagerIDLock_) {
-            resourceManagerID_ = nextResourceManagerID_++;
-        }
-
-        // @A1D open();
+      resourceManagerID_ = nextResourceManagerID_++;
     }
+
+    // @A1D open();
+  }
 
 
 
@@ -177,32 +178,32 @@ Closes the resource manager.
 
 @exception XAException If an error occurs.
 **/
-    /* @A1D - The host server team says we should never need to call this.
-    void close()
-    throws XAException
-    {
-        try {
-            if (JDTrace.isTraceOn()) {
-                JDTrace.logInformation(this, "xa_close");
-                JDTrace.logClose(this);
-            }
+  /* @A1D - The host server team says we should never need to call this.
+  void close()
+  throws XAException
+  {
+      try {
+          if (JDTrace.isTraceOn()) {
+              JDTrace.logInformation(this, "xa_close");
+              JDTrace.logClose(this);
+          }
 
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_CLOSE, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXAInformation(DEFAULT_XA_INFORMATION_);
-            request.setFlags(TMNOFLAGS);
+          DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_CLOSE, 0,
+                                                       DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+          request.setResourceManagerID(resourceManagerID_);
+          request.setXAInformation(DEFAULT_XA_INFORMATION_);
+          request.setFlags(TMNOFLAGS);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
+             DBReplyRequestedDS reply = connection_.sendAndReceive (request);
+          processXAReturnCode(reply);
 
-            closed_ = true;
-         }
-          catch (Exception e) {
-            throwXAException(e);
-         }
-    }
-    */
+          closed_ = true;
+       }
+        catch (Exception e) {
+          throwXAException(e);
+       }
+  }
+  */
 
 
 
@@ -218,37 +219,51 @@ Commits a global transaction.
 
 @exception XAException If an error occurs.
 **/
-    public void commit(Xid xid, boolean onePhase)
-    throws XAException
+  public void commit(Xid xid, boolean onePhase)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (xid == null)
-                throw new XAException(XAException.XAER_INVAL);
+      // Parameter validation.
+      if (xid == null)
+        throw new XAException(XAException.XAER_INVAL);
 
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_commit");
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_commit");
 
-            // Send the request.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_COMMIT, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXid(AS400JDBCXid.xidToBytes(xid));
-            request.setFlags(onePhase ? TMONEPHASE : TMNOFLAGS);
+      // Send the request.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_COMMIT, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setXid(AS400JDBCXid.xidToBytes(xid));
+        request.setFlags(onePhase ? TMONEPHASE : TMNOFLAGS);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
+        reply = connection_.sendAndReceive (request);
+        processXAReturnCode(reply);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
 
-            // Mark the transaction state.
-            transactionManager_.markGlobalTransactionBoundary();
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch(Exception e) {
-            throwXAException(e);
-         }
+      // Mark the transaction state.
+      transactionManager_.markGlobalTransactionBoundary();
     }
+    catch (XAException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throwXAException(e);
+    }
+  }
 
 
 
@@ -275,44 +290,58 @@ specified and lets the transaction be completed.
 
 @exception XAException If an error occurs.
 **/
-    public void end(Xid xid, int flags)
-    throws XAException
+  public void end(Xid xid, int flags)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (xid == null)
-                throw new XAException(XAException.XAER_INVAL);
-            if (started_ == null)
-                throw new XAException(XAException.XAER_PROTO);
-            if (!started_.equals(xid))
-                throw new XAException(XAException.XAER_NOTA);
-            if ((flags != TMSUCCESS) && (flags != TMFAIL))
-                throw new XAException(XAException.XAER_INVAL);
+      // Parameter validation.
+      if (xid == null)
+        throw new XAException(XAException.XAER_INVAL);
+      if (started_ == null)
+        throw new XAException(XAException.XAER_PROTO);
+      if (!started_.equals(xid))
+        throw new XAException(XAException.XAER_NOTA);
+      if ((flags != TMSUCCESS) && (flags != TMFAIL))
+        throw new XAException(XAException.XAER_INVAL);
 
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_end");
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_end");
 
-            // Send the request.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_END, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXid(AS400JDBCXid.xidToBytes(xid));
-            request.setFlags(flags);
+      // Send the request.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_END, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setXid(AS400JDBCXid.xidToBytes(xid));
+        request.setFlags(flags);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
+        reply = connection_.sendAndReceive (request);
+        processXAReturnCode(reply);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
 
-            // Mark the transaction state.
-            transactionManager_.setLocalTransaction(true);
-            started_ = null;
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch (Exception e) {
-            throwXAException(e);
-         }
+      // Mark the transaction state.
+      transactionManager_.setLocalTransaction(true);
+      started_ = null;
     }
+    catch (XAException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throwXAException(e);
+    }
+  }
 
 
 
@@ -321,15 +350,15 @@ Closes the resource manager if not explicitly closed by the caller.
 
 @exception   Throwable      If an error occurs.
 **/
-    /* @A1D
-    protected void finalize()
-        throws Throwable
-    {
-        if (!closed_)
-            close();
-        super.finalize();
-    }
-    */
+  /* @A1D
+  protected void finalize()
+      throws Throwable
+  {
+      if (!closed_)
+          close();
+      super.finalize();
+  }
+  */
 
 
 
@@ -347,34 +376,48 @@ transaction branch.
 // When a global transaction has been prepared, it stays around forever.
 // Forget is what gets rid of it.
 //
-    public void forget(Xid xid)
-    throws XAException
+  public void forget(Xid xid)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (xid == null)
-                throw new XAException(XAException.XAER_INVAL);
+      // Parameter validation.
+      if (xid == null)
+        throw new XAException(XAException.XAER_INVAL);
 
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_forget");
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_forget");
 
-            // Send the request.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_FORGET, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXid(AS400JDBCXid.xidToBytes(xid));
-            request.setFlags(TMNOFLAGS);
+      // Send the request.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_FORGET, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setXid(AS400JDBCXid.xidToBytes(xid));
+        request.setFlags(TMNOFLAGS);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch (Exception e) {
-            throwXAException(e);
-         }
+        reply = connection_.sendAndReceive (request);
+        processXAReturnCode(reply);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
     }
+    catch (XAException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throwXAException(e);
+    }
+  }
 
 
 
@@ -385,11 +428,11 @@ Returns the current transaction timeout value.
 
 @exception XAException If an error occurs.
 **/
-    public int getTransactionTimeout()
-    throws XAException
-    {
-        return 0;
-    }
+  public int getTransactionTimeout()
+  throws XAException
+  {
+    return 0;
+  }
 
 
 
@@ -403,15 +446,15 @@ is the same resource manager represented by the specified XA resource.
 
 @exception XAException If an error occurs.
 **/
-    public boolean isSameRM(XAResource xaResource)
-    throws XAException
-    {
-        if (xaResource == null)
-            return false;
-        if (! (xaResource instanceof AS400JDBCXAResource))
-            return false;
-        return (((AS400JDBCXAResource)xaResource).resourceManagerID_ == resourceManagerID_);
-    }
+  public boolean isSameRM(XAResource xaResource)
+  throws XAException
+  {
+    if (xaResource == null)
+      return false;
+    if (! (xaResource instanceof AS400JDBCXAResource))
+      return false;
+    return(((AS400JDBCXAResource)xaResource).resourceManagerID_ == resourceManagerID_);
+  }
 
 
 
@@ -467,35 +510,49 @@ Prepares for a transaction commit.
 // Once a global transaction has been prepared, it is around until it is committed,
 // rolled back, or forgotten.
 //
-    public int prepare(Xid xid)
-    throws XAException
+  public int prepare(Xid xid)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (xid == null)
-                throw new XAException(XAException.XAER_INVAL);
+      // Parameter validation.
+      if (xid == null)
+        throw new XAException(XAException.XAER_INVAL);
 
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_prepare");
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_prepare");
 
-            // Send the request.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_PREPARE, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXid(AS400JDBCXid.xidToBytes(xid));
-            request.setFlags(TMNOFLAGS);
+      // Send the request.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_PREPARE, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setXid(AS400JDBCXid.xidToBytes(xid));
+        request.setFlags(TMNOFLAGS);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            return processXAReturnCode(reply);
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch (Exception e) {
-            throwXAException(e);
-            return -1;
-         }
+        reply = connection_.sendAndReceive (request);
+        return processXAReturnCode(reply);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
     }
+    catch (XAException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throwXAException(e);
+      return -1;
+    }
+  }
 
 
 
@@ -507,26 +564,27 @@ Processes the XA return code.
 
 @exception          XAException If the error class is not 0.
 **/
-    private int processXAReturnCode(DBReplyRequestedDS reply)
-        throws XAException
+  private int processXAReturnCode(DBReplyRequestedDS reply)
+  throws XAException
+  {
+    int errorClass = reply.getErrorClass();
+    int returnValue = reply.getReturnCode();
+
+    if (JDTrace.isTraceOn())
+      JDTrace.logInformation(this, "xa error class = " + errorClass + ", return code = " + returnValue);
+
+    if (returnValue < 0)
     {
-        int errorClass = reply.getErrorClass();
-        int returnValue = reply.getReturnCode();
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logInformation(this, "xa error class = " + errorClass + ", return code = " + returnValue);
-
-        if (returnValue < 0) {
-            if (errorClass == 9)
-                throw new XAException(returnValue);
-            else if (errorClass != 0)
-                throw new XAException(XAException.XAER_RMFAIL);
-            else
-                return returnValue;
-        }
-        else
-            return returnValue;
+      if (errorClass == 9)
+        throw new XAException(returnValue);
+      else if (errorClass != 0)
+        throw new XAException(XAException.XAER_RMFAIL);
+      else
+        return returnValue;
     }
+    else
+      return returnValue;
+  }
 
 
 
@@ -549,41 +607,55 @@ resource manager.
 //
 // This gives a list of all prepared global transactions.
 //
-    public Xid[] recover(int flags)
-    throws XAException
+  public Xid[] recover(int flags)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_recover");
+      // Parameter validation.
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_recover");
 
-            // Send the request.
+      // Send the request.
 
-            // We will return at most COUNT Xids.  It is up to the
-            // caller to call us again if they want more.  Typically,
-            // the first time they call us, they will pass TMSTARTRSCAN.
-            // Subsequent calls, they will pass TMNOFLAGS.  The last time
-            // they will pass TMENDRSCAN.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_RECOVER, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setCount(COUNT_);
-            request.setFlags(flags);
+      // We will return at most COUNT Xids.  It is up to the
+      // caller to call us again if they want more.  Typically,
+      // the first time they call us, they will pass TMSTARTRSCAN.
+      // Subsequent calls, they will pass TMNOFLAGS.  The last time
+      // they will pass TMENDRSCAN.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_RECOVER, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setCount(COUNT_);
+        request.setFlags(flags);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
+        reply = connection_.sendAndReceive (request);
+        processXAReturnCode(reply);
 
-            DBReplyXids xids = reply.getXids();
-            return xids.getXidArray();
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch (Exception e) {
-            throwXAException(e);
-            return null;
-         }
+        DBReplyXids xids = reply.getXids();
+        return xids.getXidArray();
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
     }
+    catch (XAException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throwXAException(e);
+      return null;
+    }
+  }
 
 
 
@@ -594,37 +666,51 @@ Rolls back a transaction branch.
 
 @exception XAException If an error occurs.
 **/
-    public void rollback(Xid xid)
-    throws XAException
+  public void rollback(Xid xid)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (xid == null)
-                throw new XAException(XAException.XAER_INVAL);
+      // Parameter validation.
+      if (xid == null)
+        throw new XAException(XAException.XAER_INVAL);
 
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_rollback");
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_rollback");
 
-            // Send the request.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_ROLLBACK, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXid(AS400JDBCXid.xidToBytes(xid));
-            request.setFlags(TMNOFLAGS);
+      // Send the request.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_ROLLBACK, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setXid(AS400JDBCXid.xidToBytes(xid));
+        request.setFlags(TMNOFLAGS);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
+        reply = connection_.sendAndReceive (request);
+        processXAReturnCode(reply);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
 
-            // Mark the transaction state.
-            transactionManager_.markGlobalTransactionBoundary();
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch (Exception e) {
-            throwXAException(e);
-         }
+      // Mark the transaction state.
+      transactionManager_.markGlobalTransactionBoundary();
     }
+    catch (XAException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throwXAException(e);
+    }
+  }
 
 
 
@@ -640,11 +726,11 @@ Sets the current transaction timeout value.  This is not supported.
 
 @exception XAException If an error occurs.
 **/
-    public boolean setTransactionTimeout(int transactionTimeout)
-    throws XAException
-    {
-        return false;
-    }
+  public boolean setTransactionTimeout(int transactionTimeout)
+  throws XAException
+  {
+    return false;
+  }
 
 
 
@@ -665,56 +751,72 @@ specified.
 
 @exception XAException If an error occurs.
 **/
-    public void start(Xid xid, int flags)
-    throws XAException
+  public void start(Xid xid, int flags)
+  throws XAException
+  {
+    try
     {
-        try {
-            // Parameter validation.
-            if (xid == null)
-                throw new XAException(XAException.XAER_INVAL);
-            if (started_ != null)
-                throw new XAException(XAException.XAER_PROTO);
-            if (flags != TMNOFLAGS)
-                throw new XAException(XAException.XAER_INVAL);
+      // Parameter validation.
+      if (xid == null)
+        throw new XAException(XAException.XAER_INVAL);
+      if (started_ != null)
+        throw new XAException(XAException.XAER_PROTO);
+      if (flags != TMNOFLAGS)
+        throw new XAException(XAException.XAER_INVAL);
 
 
-            if (JDTrace.isTraceOn())
-                JDTrace.logInformation(this, "xa_start");
+      if (JDTrace.isTraceOn())
+        JDTrace.logInformation(this, "xa_start");
 
-            // Send the request.
-            DBXARequestDS request = new DBXARequestDS(DBXARequestDS.REQUESTID_XA_START, 0,
-                                                         DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-            request.setResourceManagerID(resourceManagerID_);
-            request.setXid(AS400JDBCXid.xidToBytes(xid));
-            request.setFlags(flags);
+      // Send the request.
+      //@P0C
+      DBXARequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+        request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_START, 0,
+                                            DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+        request.setResourceManagerID(resourceManagerID_);
+        request.setXid(AS400JDBCXid.xidToBytes(xid));
+        request.setFlags(flags);
 
-               DBReplyRequestedDS reply = connection_.sendAndReceive (request);
-            processXAReturnCode(reply);
+        reply = connection_.sendAndReceive (request);
+        processXAReturnCode(reply);
+      }
+      finally
+      {
+        if (request != null) request.inUse_ = false;
+        if (reply != null) reply.inUse_ = false;
+      }
 
-            // Mark the transaction state.
-            transactionManager_.setLocalTransaction(false);
-            started_ = xid;
-         }
-        catch(XAException e) {
-            throw e;
-        }
-          catch (Exception e) {
-            throwXAException(e);
-         }
+      // Mark the transaction state.
+      transactionManager_.setLocalTransaction(false);
+      started_ = xid;
     }
-
-
-
-    private void throwXAException(Exception e)
-    throws XAException
+    catch (XAException e)
     {
-        if (JDTrace.isTraceOn()) {
-            synchronized(DriverManager.class) {
-                e.printStackTrace(DriverManager.getLogStream ());
-            }
-        }
-        throw new XAException(XAException.XAER_RMFAIL);
+      throw e;
     }
+    catch (Exception e)
+    {
+      throwXAException(e);
+    }
+  }
+
+
+
+  private void throwXAException(Exception e)
+  throws XAException
+  {
+    if (JDTrace.isTraceOn())
+    {
+      synchronized(DriverManager.class)
+      {
+        e.printStackTrace(DriverManager.getLogStream ());
+      }
+    }
+    throw new XAException(XAException.XAER_RMFAIL);
+  }
 
 
 
@@ -723,10 +825,10 @@ Returns the string representation of the XA resource.
 
 @return The string representation.
 **/
-    public String toString()
-    {
-        return connection_.toString() + "-XA:RMID#" + resourceManagerID_;
-    }
+  public String toString()
+  {
+    return connection_.toString() + "-XA:RMID#" + resourceManagerID_;
+  }
 
 
 

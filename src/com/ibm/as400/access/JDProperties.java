@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDProperties.java
 //                                                                             
@@ -64,64 +64,66 @@ class JDProperties implements Serializable {
 
 
     // Callers should access the properties using one of the
-    // following indicies.                                       
+    // following indicies.
     //
     // @W2 New properties must be added to the end of the list!!!
     //
-    static final int              ACCESS                    = 0;
+    static final int              ACCESS                  = 0;
     static final int              BLOCK_SIZE              = 1;
     static final int              BLOCK_CRITERIA          = 2;
     static final int              DATE_FORMAT             = 3;
     static final int              DATE_SEPARATOR          = 4;
     static final int              DECIMAL_SEPARATOR       = 5;
-    static final int            ERRORS                  = 6;
-    static final int            EXTENDED_DYNAMIC        = 7;
-     static final int             LIBRARIES            = 8;
-     static final int             NAMING                    = 9;
-     static final int             PACKAGE                   = 10;
-     static final int            PACKAGE_ADD             = 11;
-     static final int            PACKAGE_CACHE           = 12;
-     static final int            PACKAGE_CLEAR           = 13;
-     static final int            PACKAGE_ERROR           = 14;
-     static final int            PACKAGE_LIBRARY         = 15;
-     static final int             PASSWORD                  = 16;
-     static final int             PREFETCH                  = 17;
-     static final int            PROMPT                  = 18;
-    static final int              REMARKS                    = 19;
-    static final int            SORT                    = 20;
-    static final int            SORT_LANGUAGE           = 21;
-    static final int            SORT_TABLE              = 22;
-    static final int            SORT_WEIGHT             = 23;
+    static final int              ERRORS                  = 6;
+    static final int              EXTENDED_DYNAMIC        = 7;
+    static final int              LIBRARIES               = 8;
+    static final int              NAMING                  = 9;
+    static final int              PACKAGE                 = 10;
+    static final int              PACKAGE_ADD             = 11;
+    static final int              PACKAGE_CACHE           = 12;
+    static final int              PACKAGE_CLEAR           = 13;
+    static final int              PACKAGE_ERROR           = 14;
+    static final int              PACKAGE_LIBRARY         = 15;
+    static final int              PASSWORD                = 16;
+    static final int              PREFETCH                = 17;
+    static final int              PROMPT                  = 18;
+    static final int              REMARKS                 = 19;
+    static final int              SORT                    = 20;
+    static final int              SORT_LANGUAGE           = 21;
+    static final int              SORT_TABLE              = 22;
+    static final int              SORT_WEIGHT             = 23;
     static final int              TIME_FORMAT             = 24;
     static final int              TIME_SEPARATOR          = 25;
-    static final int            TRACE                   = 26;
-     static final int             TRANSACTION_ISOLATION     = 27;
-     static final int            TRANSLATE_BINARY        = 28;
-     static final int             USER                      = 29;
-     static final int             PACKAGE_CRITERIA        = 30;   // @A0A
-     static final int             LOB_THRESHOLD           = 31;
-     static final int             SECURE                  = 32;
-    static final int            DATA_TRUNCATION         = 33;   // @C1A
+    static final int              TRACE                   = 26;
+    static final int              TRANSACTION_ISOLATION   = 27;
+    static final int              TRANSLATE_BINARY        = 28;
+    static final int              USER                    = 29;
+    static final int              PACKAGE_CRITERIA        = 30;   // @A0A
+    static final int              LOB_THRESHOLD           = 31;
+    static final int              SECURE                  = 32;
+    static final int              DATA_TRUNCATION         = 33;   // @C1A
     static final int              PROXY_SERVER            = 34;   // @A3A
     //static final int            PROXY_SERVER_SECURE     = 35;   // @A3A
     static final int              SECONDARY_URL           = 35;   // @A3A
-    static final int            DATA_COMPRESSION        = 36;   // @D0A
-    static final int            BIG_DECIMAL             = 37;   // @E0A
-    static final int            THREAD_USED             = 38;   // @E1A
-    static final int            CURSOR_HOLD             = 39;   // @D1A
-    static final int            LAZY_CLOSE              = 40;   // @E2A
-    static final int            DRIVER                  = 41;   // @E3A
-    static final int            BIDI_STRING_TYPE        = 42;   // @E9A
-    static final int            KEY_RING_NAME           = 43;   // @F1A
-    static final int            KEY_RING_PASSWORD       = 44;   // @F1A
-    static final int            FULL_OPEN               = 45;   // @W1a
-    static final int            TRACE_SERVER            = 46;   // @j1a
+    static final int              DATA_COMPRESSION        = 36;   // @D0A
+    static final int              BIG_DECIMAL             = 37;   // @E0A
+    static final int              THREAD_USED             = 38;   // @E1A
+    static final int              CURSOR_HOLD             = 39;   // @D1A
+    static final int              LAZY_CLOSE              = 40;   // @E2A
+    static final int              DRIVER                  = 41;   // @E3A
+    static final int              BIDI_STRING_TYPE        = 42;   // @E9A
+    static final int              KEY_RING_NAME           = 43;   // @F1A
+    static final int              KEY_RING_PASSWORD       = 44;   // @F1A
+    static final int              FULL_OPEN               = 45;   // @W1a
+    static final int              TRACE_SERVER            = 46;   // @j1a
+    static final int              DATABASE_NAME           = 47;   // @j2a
+    static final int              EXTENDED_METADATA       = 48;   // @F5A
 
                                                                 // @W2 always add to the end of the array!
 
-     private static final int    NUMBER_OF_ATTRIBUTES_ = 47;    // @A0C @C1C @A3A @D0C @E0C
-                                                                // @E1C @D1  @E2C @E3C @E9C @F1C
-                                                                // @W1c @j1
+     private static final int    NUMBER_OF_ATTRIBUTES_ = 49;    // @A0C @C1C @A3A @D0C @E0C
+                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
+                                                                // @W1c @j1c @J2c @F5C
 
 
 
@@ -135,12 +137,14 @@ class JDProperties implements Serializable {
     private static final String CURSORHOLD_             = "CURSORHOLD";             // @D1
     private static final String DATA_COMPRESSION_       = "data compression";       // @D0A
     private static final String DATA_TRUNCATION_        = "data truncation";        // @C1A
+    private static final String DATABASE_NAME_          = "database name";          // @J2A
     private static final String DATE_FORMAT_            = "date format";
     private static final String DATE_SEPARATOR_         = "date separator";
     private static final String DECIMAL_SEPARATOR_      = "decimal separator";
     private static final String DRIVER_                 = "driver";                 // @E3A
     private static final String ERRORS_                 = "errors";
     private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
+    private static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
     private static final String FULL_OPEN_              = "full open";              // @W1a
     private static final String KEY_RING_NAME_          = "key ring name";          // @F1A
     private static final String KEY_RING_PASSWORD_      = "key ring password";      // @F1A
@@ -239,6 +243,7 @@ class JDProperties implements Serializable {
     static final String         DECIMAL_SEPARATOR_PERIOD        = PERIOD_;
     static final String         DECIMAL_SEPARATOR_NOTSET        = EMPTY_;
 
+    //@F4D static final String         DRIVER_DEFAULT                  = "default";        // @E3A
     static final String         DRIVER_NATIVE                   = "native";         // @E3A
     static final String         DRIVER_TOOLBOX                  = "toolbox";        // @E3A
 
@@ -430,6 +435,16 @@ Static initializer.
         dpi_[i].choices[1]    = FALSE_;
         defaults_[i]        = TRUE_;        // @F2C
 
+
+          // Database Name.         //@J2A
+          i = DATABASE_NAME;
+          dpi_[i] = new DriverPropertyInfo (DATABASE_NAME_, "");
+          dpi_[i].description = "DATABASE_NAME_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices     = new String[0];
+          defaults_[i]        = EMPTY_;
+
+
           // Date format.  The order that the choices are listed
           // is significant - the index matches the server value.
           // These also correspond to the constants defined in
@@ -483,7 +498,7 @@ Static initializer.
           //@F4D dpi_[i].choices[0]  = DRIVER_DEFAULT;
           dpi_[i].choices[0]  = DRIVER_TOOLBOX;
           dpi_[i].choices[1]  = DRIVER_NATIVE;
-        defaults_[i]        = DRIVER_TOOLBOX;	//@F4C
+        defaults_[i]        = DRIVER_TOOLBOX;     //@F4C
 
           // Extended dynamic.
           i = EXTENDED_DYNAMIC;
@@ -494,6 +509,18 @@ Static initializer.
           dpi_[i].choices[0]  = TRUE_;
           dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
+
+
+        // Extended metadata.   @F5A
+        i = EXTENDED_METADATA;
+        dpi_[i] = new DriverPropertyInfo (EXTENDED_METADATA_, "");
+        dpi_[i].description = "EXTENDED_METADATA";
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = FALSE_;
+        dpi_[i].choices[1]    = TRUE_;
+        defaults_[i]        = FALSE_;
+
 
           // Errors.
           i = ERRORS;

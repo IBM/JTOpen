@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCClob.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,9 +15,11 @@ package com.ibm.as400.access;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;      //@G4A
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;            //@G4A
 import java.sql.Clob;
 import java.sql.SQLException;
 
@@ -32,7 +34,7 @@ transaction.
 public class AS400JDBCClob
 implements Clob
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -198,6 +200,138 @@ Returns the position at which a pattern is found in the clob.
 
         return data_.indexOf (pattern.getSubString (1, (int) pattern.length ()), (int) start); // @C1C
     }
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Returns a stream to be used to write Ascii characters to the CLOB value 
+    that this Clob designates, starting at position pos.
+    
+    @param pos the position in the CLOB value at which to start writing.
+    @return a java.io.OutputStream object to which data can be written.
+    @exception SQLException if there is an error accessing the CLOB value.
+    
+    @since Modification 5
+    **/
+    public OutputStream setAsciiStream(long pos)
+    throws SQLException
+    {
+        if (pos <= 0 || pos > length_)
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
+
+        //Currently, this method is not supported for lobs
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+
+        return new AS400JDBCLobOutputStream (this, pos); 
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Retrieves a stream to be used to write a stream of Unicode characters to the CLOB value 
+    that this Clob designates, at position pos. The stream begins at position pos.
+
+    @param pos the position in the CLOB value at which to start writing.
+    @return a java.io.OutputStream object to which data can be written.
+    @exception SQLException if there is an error accessing the CLOB value.
+    
+    @since Modification 5
+    **/
+    public Writer setCharacterStream (long pos)
+    throws SQLException
+    {
+        if (pos <= 0 || pos > length_)
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        //Currently, this method is not supported for lobs
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+
+        return new AS400JDBCLobWriter (this, pos);  
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Writes a String to the CLOB value that this Clob object designates at the position pos.
+
+    @param pos The position in the CLOB object at which to start writing.
+    @param string The array of bytes to be written to the CLOB value that this Clob object 
+    represents
+    @return The number of characters written.
+
+    @exception SQLException if there is an error accessing the CLOB value.
+    
+    @since Modification 5
+    **/
+    public int setString (long pos, String str)
+    throws SQLException
+    {
+        // Validate the parameters.
+        pos--;
+
+        if ((pos >= length_) || (pos < 0) || (str == null) || (str.length() < 0))
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        data_ = data_.substring(0, (int)pos) + str;
+
+        length_ = data_.length();
+
+        return str.length();
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Writes len characters of string starting at character offset, to the CLOB value 
+    that this Clob designates.
+
+    @param pos The position in the CLOB object at which to start writing.
+    @param string The array of bytes to be written to the CLOB value that this Clob object 
+    represents
+    @param offset The offset into str to start writing the characters.
+    @param len The number of chracters to be written
+    @return The number of characters written.
+
+    @exception SQLException if there is an error accessing the CLOB value.
+    
+    @since Modification 5
+    **/
+    public int setString (long pos, String str, int offset, int len)
+    throws SQLException
+    {
+        offset--;
+        if ((len < 0) || (offset < 0) || (str == null) || (str.length() < 0))
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        return setString(pos, str.substring(offset,len));
+    }
+
+
+
+    //@G4A  JDBC 3.0
+    /**
+    Truncates the CLOB value that this Clob object represents to be len bytes in length.
+     
+    @param len the length, in bytes, to which the CLOB value that this Clob object 
+    represents should be truncated.
+     
+    @exception SQLException if there is an error accessing the CLOB value. 
+    
+    @since Modification 5   
+    **/
+    public void truncate(long len)
+    throws SQLException
+    {
+        //Currently, this method is not supported for lob locators
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+
+        //parameter checking will be done in setString method 
+        setString(len, "");
+    }
+
 
 
 

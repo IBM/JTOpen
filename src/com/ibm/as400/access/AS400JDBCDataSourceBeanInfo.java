@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCDataSourceBeanInfo.java
 //                                                                             
@@ -55,7 +55,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        events_ = events;
 
        // ***** PROPERTIES
-       PropertyDescriptor access = new PropertyDescriptor("access", beanClass, "getAccess", "setAccess");       
+       PropertyDescriptor access = new PropertyDescriptor("access", beanClass, "getAccess", "setAccess");
        access.setBound(true);
        access.setConstrained(false);
        access.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ACCESS"));
@@ -65,7 +65,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        bidiStringType.setBound(true);                                                                                       // @A3A
        bidiStringType.setConstrained(false);                                                                                // @A3A
        bidiStringType.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_BIDI_STRING_TYPE"));                            // @A3A
-       bidiStringType.setShortDescription(AS400JDBCDriver.getResource("BIDI_STRING_TYPE_DESC"));			    // @A3A
+       bidiStringType.setShortDescription(AS400JDBCDriver.getResource("BIDI_STRING_TYPE_DESC"));                  // @A3A
 
        PropertyDescriptor bigDecimal = new PropertyDescriptor("bigDecimal", beanClass, "isBigDecimal", "setBigDecimal");
        bigDecimal.setBound(true);
@@ -156,6 +156,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        extendedDynamic.setConstrained(false);
        extendedDynamic.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_DYNAMIC"));
        extendedDynamic.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_DYNAMIC_DESC"));
+
+       PropertyDescriptor extendedMetaData = new PropertyDescriptor("extendedMetaData", beanClass, "isExtendedMetaData", "setExtendedMetaData"); // @J2A
+       extendedMetaData.setBound(true);                                                                                     // @J2A
+       extendedMetaData.setConstrained(false);                                                                              // @J2A
+       extendedMetaData.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_METADATA"));                         // @J2A
+       extendedMetaData.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_METADATA_DESC"));                         // @J2A
 
        PropertyDescriptor fullOpen = new PropertyDescriptor("fullOpen", beanClass, "isFullOpen", "setFullOpen");    // @W1A
        fullOpen.setBound(true);                                                                                     // @W1A
@@ -258,6 +264,13 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        remarks.setConstrained(false);
        remarks.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_REMARKS"));
        remarks.setShortDescription(AS400JDBCDriver.getResource("REMARKS_DESC"));
+                   
+       // @J3 New property
+       PropertyDescriptor savePassword = new PropertyDescriptor("savePasswordWhenSerialized", beanClass, "isSavePasswordWhenSerialized", "setSavePasswordWhenSerialized");
+       savePassword.setBound(false);
+       savePassword.setConstrained(false);
+       savePassword.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SAVE_PASSWORD_WHEN_SERIALIZED"));
+       savePassword.setShortDescription(AS400JDBCDriver.getResource("SAVE_PASSWORD_WHEN_SERIALIZED"));
 
        PropertyDescriptor secondaryUrl = new PropertyDescriptor("secondaryUrl", beanClass, "getSecondaryUrl", "setSecondaryUrl");
        secondaryUrl.setBound(true);
@@ -319,7 +332,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        timeSeparator.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TIME_SEPARATOR"));
        timeSeparator.setShortDescription(AS400JDBCDriver.getResource("TIME_SEPARATOR_DESC"));
 
-       PropertyDescriptor trace = new PropertyDescriptor("trace", beanClass, "isTrace", "setTrace");  // @W2c
+       PropertyDescriptor trace = new PropertyDescriptor("trace", beanClass, "isTrace", "setTrace");   // @w2c
        trace.setBound(true);
        trace.setConstrained(false);
        trace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE"));
@@ -349,9 +362,9 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        user.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USER"));
        user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
 
-       properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C 
+       properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C
           decimalSeparator, description, driver, errors, extendedDynamic, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,                                //@W1c
-          packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, secondaryUrl, secure, serverName, sort,
+          packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
           sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user };                                                            //@j1c
      }
      catch (Exception e)
@@ -418,7 +431,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        }
        return image;
    }
-   
+
    /**
      Returns the descriptors for all properties.
      @return The descriptors for all properties.

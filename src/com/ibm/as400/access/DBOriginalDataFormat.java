@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBOriginalDataFormat.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ datastreams for V4R3 and previous servers.
 class DBOriginalDataFormat
 implements DBDataFormat
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -83,16 +83,6 @@ when it was not previously set by the constructor.
         }
     }
 
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-    
 
 
 	public int getLength ()
@@ -197,7 +187,7 @@ Copyright.
 
 
 
-    public String getFieldName (int fieldIndex, ConverterImplRemote converter)
+    public String getFieldName (int fieldIndex, ConvTable converter) //@P0C
 	{
         return converter.byteArrayToString (rawBytes_,
 	        offset_ + 32 + (fieldIndex * REPEATED_LENGTH_),
@@ -301,7 +291,7 @@ Copyright.
 
 
 
-    public void setFieldName (int fieldIndex, String name, ConverterImplRemote converter)
+    public void setFieldName (int fieldIndex, String name, ConvTable converter) //@P0C
         throws DBDataStreamException
     {
     	try {

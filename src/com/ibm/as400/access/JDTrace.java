@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDTrace.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,18 +48,18 @@ basis, not on a driver or connection basis.
 //    call was slowing performance and not necessarily
 //    helpful for debugging.
 //
-// @D0A: 3.  We now synchronize all calls to 
+// @D0A: 3.  We now synchronize all calls to
 //    DriverManager.println(), since we had some garbled
 //    traces for multiple-threaded applications.  Now
 //    there is yet another reason to make sure and call
-//    isTraceOn() before any of the logXXX() methods, 
+//    isTraceOn() before any of the logXXX() methods,
 //    since we have a synchronized block - and synchronized
-//    blocks are slow.  We only want to incur that 
+//    blocks are slow.  We only want to incur that
 //    performance penalty when tracing is on.
 //
 class JDTrace
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     private static PrintStream previousTraceInfo_ = null;   //@E1A
@@ -109,6 +109,57 @@ Logs information about tracing.
           setTraceOn(false);
     }
 
+
+
+
+                                       
+// @J2 new method                                       
+/**
+Logs an information trace message.
+
+@param  information     The information.
+**/
+    static void logInformation (String information)
+    {
+        String data = "as400: " + information;
+
+        synchronized (DriverManager.class) 
+        {                            
+            DriverManager.println (data);
+        }                                                               
+    }
+
+
+// @J3 new method.
+/**
+Logs an information trace message.
+
+@param  object          The object
+@param  information     The information.
+@param  exception       The exception.
+**/
+    static void logException (Object object,
+                              String information, 
+                              Exception e)
+    {
+        StringBuffer buffer = new StringBuffer ();
+        buffer.append ("as400: ");
+ 
+        if (object != null)
+           buffer.append (objectToString (object));
+        else
+           buffer.append ("static method");
+ 
+        buffer.append (": ");
+        buffer.append (information);
+        buffer.append (".");
+
+        synchronized (DriverManager.class)
+        {                        
+            DriverManager.println (buffer.toString());   
+            e.printStackTrace (DriverManager.getLogStream ());
+        }                                                             
+    }
 
 
 
@@ -201,12 +252,19 @@ Logs an open trace message.
 
 @param  object          The object
 **/
-    static void logOpen (Object object)
+    static void logOpen (Object object, Object parent)
     {
         StringBuffer buffer = new StringBuffer ();
         buffer.append ("as400: ");
         buffer.append (objectToString (object));
-        buffer.append (" open.");
+        buffer.append (" open.");                    
+        
+        if (parent != null)                                        // @J3a
+        {                                                          // @J3a
+           buffer.append(" Parent: ");                             // @J3a
+           buffer.append(objectToString(parent));                  // @J3a
+           buffer.append(".");                                     // @J3a
+        }                                                          // @J3a
 
         synchronized (DriverManager.class) {                            // @D0A
             DriverManager.println (buffer.toString());
@@ -240,7 +298,7 @@ Maps an object to a string.
 @param  object      The object.
 @return             The string.
 **/
-    private static String objectToString (Object object)
+    static String objectToString (Object object)               // @J3c (no longer private)
     {
         // Determine the class name.
         String clazz = object.getClass().getName();     // @D3C
@@ -256,6 +314,9 @@ Maps an object to a string.
         buffer.append (className);
         buffer.append (" ");
         buffer.append (object.toString ());
+        buffer.append (" (");                            // @J3a
+        buffer.append (object.hashCode());               // @J3a 
+        buffer.append (") ");                            // @J3a
 
         return buffer.toString ();
     }
@@ -264,32 +325,32 @@ Maps an object to a string.
 
 /**
 Turns trace on, to System.out or what it was previously set to if it was turned off
-by this method.  This method will not initialize trace again if trace is already set 
-on by another method.  
+by this method.  This method will not initialize trace again if trace is already set
+on by another method.
 **/
     static void setTraceOn (boolean traceOn)
     {
-	if (traceOn)					        //@E1A
-	{                                                       //@E1A
-	    if (previousTraceInfo_ == null)                     //@E1A
-	    {                                                   //@E1A
-		if (DriverManager.getLogStream() == null)       //@E1A
-		{                                               //@E1A
-		    DriverManager.setLogStream (System.out);    //@E1A
-		}                                               //@E1A
-	    }                                                   //@E1A
-	    else if (DriverManager.getLogStream() == null)      //@E1A
-	    {                                                   //@E1A
-		DriverManager.setLogStream(previousTraceInfo_); //@E1A
-	    }                                                   //@E1A
-	}                                                       //@E1A
-	else                                                    //@E1A
-	{                                                       //@E1A
-	    previousTraceInfo_ = DriverManager.getLogStream();  //@E1A
-	    if (previousTraceInfo_ != null)			//@E2A
-	       previousTraceInfo_.flush(); 		        //@E1A
-	    DriverManager.setLogStream(null);                   //@E1A
-	}                                                       //@E1A
+     if (traceOn)                               //@E1A
+     {                                                       //@E1A
+         if (previousTraceInfo_ == null)                     //@E1A
+         {                                                   //@E1A
+          if (DriverManager.getLogStream() == null)       //@E1A
+          {                                               //@E1A
+              DriverManager.setLogStream (System.out);    //@E1A
+          }                                               //@E1A
+         }                                                   //@E1A
+         else if (DriverManager.getLogStream() == null)      //@E1A
+         {                                                   //@E1A
+          DriverManager.setLogStream(previousTraceInfo_); //@E1A
+         }                                                   //@E1A
+     }                                                       //@E1A
+     else                                                    //@E1A
+     {                                                       //@E1A
+         previousTraceInfo_ = DriverManager.getLogStream();  //@E1A
+         if (previousTraceInfo_ != null)               //@E2A
+            previousTraceInfo_.flush();                   //@E1A
+         DriverManager.setLogStream(null);                   //@E1A
+     }                                                       //@E1A
         //@E1D if (traceOn == true)   // @D1C
         //@E1D    DriverManager.setLogStream (System.out);
         //@E1D else

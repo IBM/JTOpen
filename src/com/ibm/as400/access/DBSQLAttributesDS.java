@@ -1,17 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBSQLAttributesDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
+
+import java.sql.SQLException;                                            //@E9a
 
 
 /**
@@ -21,7 +23,7 @@ package com.ibm.as400.access;
 class DBSQLAttributesDS
 extends DBBaseRequestDS
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   public static final int	FUNCTIONID_RETRIEVE_ATTRIBUTES   = 0x1F81;
   public static final int	FUNCTIONID_SET_ATTRIBUTES        = 0x1F80;
@@ -39,7 +41,7 @@ extends DBBaseRequestDS
   public DBSQLAttributesDS(int requestId,
 		             int rpbId,
 			     int operationResultsBitmap,
-			     int basedOnORSHandle,
+			     //@P0D int basedOnORSHandle, // This isn't used
 			     int parameterMarkerDescriptorHandle)
 
    {
@@ -52,7 +54,7 @@ extends DBBaseRequestDS
 
 
        //--------------------------------------------------//
-       // Create the data stream optional /         	   //
+       // Create the data stream optional /                //
        // variable length data section via addParameters   //
        //--------------------------------------------------//
 
@@ -195,8 +197,8 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setDefaultSQLLibraryName (String value, ConverterImplRemote converter)
-		throws DBDataStreamException
+   	void setDefaultSQLLibraryName (String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x380F, converter, value);
 	}
@@ -209,7 +211,7 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
    	void setDRDAPackageSize (int value)
-		throws DBDataStreamException
+		throws DBDataStreamException, SQLException                      // @E9c
 	{
 		addParameter (0x3806, (short) value);
 	}
@@ -286,7 +288,7 @@ extends DBBaseRequestDS
 				   String tableFile,
 				   String tableLibrary,
 				   String languageId,
-				   ConverterImplRemote converter)
+				   ConvTable converter) //@P0C
 		throws DBDataStreamException
 	{
 		addParameter (0x3804, converter, type, tableFile, tableLibrary, languageId);
@@ -305,6 +307,19 @@ extends DBBaseRequestDS
 	{
 		addParameter (0x3812, (short) value);
 	}
+
+
+// @J2 new method
+/**
+   Sets the database (IASP) name for this connection.  The RDB name
+   is an 18 byte (blank padded) name.
+**/
+   	void setRDBName(String value, ConvTable converter) //@P0C
+		throws DBDataStreamException, SQLException                      // @E9c
+	{
+		addParameter (0x3826, converter, value, value.length());
+	}
+
 
 
 

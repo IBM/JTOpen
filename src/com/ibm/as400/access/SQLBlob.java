@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLBlob.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ import java.util.Calendar;
 class SQLBlob
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -65,13 +65,6 @@ implements SQLData
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
 //---------------------------------------------------------//
 //                                                         //
 // CONVERSION TO AND FROM RAW BYTES                        //
@@ -80,7 +73,7 @@ implements SQLData
 
 
 
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         length_ = BinaryConverter.byteArrayToInt (rawBytes, offset);
@@ -90,7 +83,7 @@ implements SQLData
 
 
 
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         AS400ByteArray typeConverter = new AS400ByteArray (length_);
@@ -168,6 +161,11 @@ implements SQLData
         return maxLength_;
     }
 
+    //@D1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "com.ibm.as400.access.AS400JDBCBlob";
+    }
 
 
     public String getLiteralPrefix ()

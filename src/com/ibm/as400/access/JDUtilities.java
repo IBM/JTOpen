@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDUtilities.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,17 +26,17 @@ of the JDBC driver.
 **/
 class JDUtilities
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
 
     private static final byte escape        = (byte)0x1B;           // @D0A
 
+    static int vrm520 = AS400.generateVRM(5, 2, 0);                 // @J2a @J3a
 
 
 
-    
 
 
 // @D0A
@@ -48,12 +48,12 @@ Decompresses data from one byte array to another.
 @param sourceLength         The length (compressed) of the bytes to decompress.
 @param destination          The destination (uncompressed) bytes.  It is assumed
                             that this byte array is already created.
-@param destinationOffset    The offset in the destination bytes.                    
+@param destinationOffset    The offset in the destination bytes.
 **/
-    static void decompress (byte[] source, 
-                            int sourceOffset, 
+    static void decompress (byte[] source,
+                            int sourceOffset,
                             int sourceLength,
-                            byte[] destination, 
+                            byte[] destination,
                             int destinationOffset)
     {
         int i = sourceOffset;               // Index into source.
@@ -61,7 +61,7 @@ Decompresses data from one byte array to another.
 
         int sourceEnd = sourceOffset + sourceLength;
         while(i < sourceEnd) {
-            if (source[i] == escape) {                
+            if (source[i] == escape) {
                 if (source[i+1] == escape) {
                     destination[j++] = escape;
                     i += 2;
@@ -103,26 +103,26 @@ Reads a reader and returns its data as a String.
 @param  length      The length.
 @return             The string.
 
-@exception SQLException If the length is not valid or the 
+@exception SQLException If the length is not valid or the
                         conversion is not possible.
 **/
-    static String readerToString (Reader input, 
+    static String readerToString (Reader input,
                                   int length)
         throws SQLException
     {
         StringBuffer buffer = new StringBuffer ();
         try {
             char[] rawChars = new char[(length == 0) ? 1 : length];
-            int actualLength = 0;                        
+            int actualLength = 0;
             while (input.ready ()) {
                 int length2 = input.read (rawChars);
-                if (length2 < 0) 
+                if (length2 < 0)
                     break;
                 buffer.append (new String (rawChars, 0, length2));
                 actualLength += length2;
             }
 
-            // The spec says to throw an exception when the 
+            // The spec says to throw an exception when the
             // actual length does not match the specified length.
             // I think this is strange since this means the length
             // parameter is essentially not needed.  I.e., we always
@@ -151,7 +151,7 @@ stored procedure to run the command
 
 @exception SQLException If the command failed.
 **/
-   static void runCommand(Connection connection, String command)
+   static void runCommand(Connection connection, String command, boolean SQLNaming)
                           throws SQLException
    {
       Statement statement = connection.createStatement();
@@ -163,9 +163,15 @@ stored procedure to run the command
       String commandLength = "0000000000" + command.length();
              commandLength = commandLength.substring(commandLength.length() - 10) +
                                ".00000";
+                                                                                  
+      String commandPreface;
 
-      String SQLCommand = "CALL QSYS.QCMDEXC('" + command  +
-                                 "', " + commandLength + ")";
+      if (SQLNaming)
+         commandPreface = "CALL QSYS.QCMDEXC('";
+      else
+         commandPreface = "CALL QSYS/QCMDEXC('";
+                                                                                  
+      String SQLCommand = commandPreface + command  + "', " + commandLength + ")";
 
       statement.executeUpdate(SQLCommand);
       statement.close();
@@ -183,17 +189,17 @@ Reads an input stream and returns its data as a byte array.
 @param  length      The length.
 @return             The string.
 
-@exception SQLException If the length is not valid or the 
+@exception SQLException If the length is not valid or the
                         conversion is not possible.
 **/
-    static byte[] streamToBytes (InputStream input, 
+    static byte[] streamToBytes (InputStream input,
                                  int length)
         throws SQLException
     {
         byte[] buffer = new byte[length];
         try {
             byte[] rawBytes = new byte[(length == 0) ? 1 : length];
-            int actualLength = 0;                        
+            int actualLength = 0;
             while (input.available () > 0) {
                 int length2 = input.read (rawBytes);
                 if (actualLength + length2 <= length)
@@ -201,7 +207,7 @@ Reads an input stream and returns its data as a byte array.
                 actualLength += length2;
             }
 
-            // The spec says to throw an exception when the 
+            // The spec says to throw an exception when the
             // actual length does not match the specified length.
             // I think this is strange since this means the length
             // parameter is essentially not needed.  I.e., we always
@@ -225,25 +231,25 @@ Reads an input stream and returns its data as a String.
 @param  encoding    The encoding.
 @return             The string.
 
-@exception SQLException If the length is not valid or the 
+@exception SQLException If the length is not valid or the
                         conversion is not possible.
 **/
-    static String streamToString (InputStream input, 
-                                  int length, 
+    static String streamToString (InputStream input,
+                                  int length,
                                   String encoding)
         throws SQLException
     {
         StringBuffer buffer = new StringBuffer ();
         try {
             byte[] rawBytes = new byte[(length == 0) ? 1 : length];
-            int actualLength = 0;                        
+            int actualLength = 0;
             while (input.available () > 0) {
                 int length2 = input.read (rawBytes);
                 buffer.append (new String (rawBytes, 0, length2, encoding));
                 actualLength += length2;
             }
 
-            // The spec says to throw an exception when the 
+            // The spec says to throw an exception when the
             // actual length does not match the specified length.
             // I think this is strange since this means the length
             // parameter is essentially not needed.  I.e., we always

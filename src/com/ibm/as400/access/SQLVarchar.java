@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLVarchar.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ import java.util.Calendar;
 class SQLVarchar
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -100,7 +100,7 @@ implements SQLData
 
 
 
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         length_ = BinaryConverter.byteArrayToUnsignedShort (rawBytes, offset);
@@ -147,7 +147,7 @@ implements SQLData
 
 
 
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         // @BAD BinaryConverter.unsignedShortToByteArray (length_, rawBytes, offset);
@@ -200,14 +200,14 @@ implements SQLData
         else if (object instanceof Boolean)
             value = object.toString();                                              // @C1C
 
-        else if (object instanceof Date)
-            value = SQLDate.dateToString ((Date) object, settings_, calendar);      // @C1C
-
         else if (object instanceof Time)
             value = SQLTime.timeToString ((Time) object, settings_, calendar);      // @C1C
 
         else if (object instanceof Timestamp)
             value = SQLTimestamp.timestampToString ((Timestamp) object, calendar);  // @C1C
+
+        else if (object instanceof java.util.Date)                                  // @F5M @F5C
+            value = SQLDate.dateToString ((java.util.Date) object, settings_, calendar); // @C1C @F5C
 
         else {                                                                      // @C1C
             try {                                                                   // @C1C
@@ -227,9 +227,15 @@ implements SQLData
 
         // Truncate if necessary.
         int valueLength = value_.length ();
-        if (valueLength > maxLength_) {
-            value_ = value_.substring (0, maxLength_);
-            truncated_ = valueLength - maxLength_;
+        
+        int truncLimit = maxLength_;              // @F2a
+        if (graphic_)                             // @F2a
+           truncLimit = maxLength_ / 2;           // @F2a
+        
+        if (valueLength > truncLimit)             // @F2c
+        {
+            value_ = value_.substring (0, truncLimit); // @F2c
+            truncated_ = valueLength - truncLimit;     // @F2c
         }
         else
             truncated_ = 0;
@@ -261,6 +267,12 @@ implements SQLData
             return maxLength_;
     }
 
+
+    //@F1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "java.lang.String";   
+    }
 
     public String getLiteralPrefix ()
     {
@@ -411,7 +423,7 @@ implements SQLData
 	    throws SQLException
 	{
   	    try {
-       	    BigDecimal bigDecimal = new BigDecimal (value_);
+       	    BigDecimal bigDecimal = new BigDecimal (SQLDataFactory.convertScientificNotation(value_)); // @F3C
     	    if (scale >= 0) {
                 if (scale >= bigDecimal.scale()) {
                     truncated_ = 0;

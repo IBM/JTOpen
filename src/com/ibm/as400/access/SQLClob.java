@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SQLClob.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ import java.util.Calendar;
 class SQLClob
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -85,7 +85,7 @@ implements SQLData
 
 
 
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         length_ = BinaryConverter.byteArrayToInt (rawBytes, offset);
@@ -96,7 +96,8 @@ implements SQLData
 	    int bidiStringType = settings_.getBidiStringType();  //@E4A
 	    // if bidiStringType is not set by user, use ccsid to get value
 	    if (bidiStringType == -1)			         //@E4A
-		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+		//@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+        bidiStringType = ccsidConverter.bidiStringType_; //@P0A
             // If the field is DBCLOB, length_ contains the number
             // of characters in the string, while the converter is expecting
             // the number of bytes. Thus, we need to multiply length_ by 2.
@@ -130,14 +131,15 @@ implements SQLData
 
 
 
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
         BinaryConverter.intToByteArray (length_, rawBytes, offset);
         try {
 	    int bidiStringType = settings_.getBidiStringType(); //@E4A
 	    if (bidiStringType == -1)			        //@E4A
-		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+		//@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+        bidiStringType = ccsidConverter.bidiStringType_; //@P0A
 
             ccsidConverter.stringToByteArray (value_, rawBytes, offset + 4, maxLength_, bidiStringType); // @E3C @E4C
         }
@@ -206,6 +208,11 @@ implements SQLData
             return maxLength_;
     }
 
+    //@F1A JDBC 3.0
+    public String getJavaClassName()
+    {
+        return "com.ibm.as400.access.AS400JDBCClob";
+    }
 
     public String getLiteralPrefix ()
     {
@@ -505,7 +512,7 @@ implements SQLData
 	    throws SQLException
 	{
 	    try {
-            return new ByteArrayInputStream (value_.getBytes ("UnicodeBugUnmarked")); // @B1C
+            return new ByteArrayInputStream (value_.getBytes ("UnicodeBigUnmarked")); // @B1C @F2C
         }
         catch (UnsupportedEncodingException e) {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);                    // @E2C

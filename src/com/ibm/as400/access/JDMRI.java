@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: JDMRI.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ Locale-specific objects for the IBM Toolbox for Java.
 
 public class JDMRI extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
    public Object[][] getContents()
@@ -64,9 +64,10 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_DRIVER", "driver" },                         // @E4A
       { "PROP_NAME_ERRORS", "errors" },
       { "PROP_NAME_EXTENDED_DYNAMIC", "extendedDynamic" },
+      { "PROP_NAME_EXTENDED_METADATA", "extendedMetaData" },    // @J2A
       { "PROP_NAME_FULL_OPEN", "fullOpen" },                    // @W1a
-      { "PROP_NAME_KEY_RING_NAME", "keyRingName" },		// @E7A
-      { "PROP_NAME_KEY_RING_PASSWORD", "keyRingPassword" },	// @E7A
+      { "PROP_NAME_KEY_RING_NAME", "keyRingName" },         // @E7A
+      { "PROP_NAME_KEY_RING_PASSWORD", "keyRingPassword" }, // @E7A
       { "PROP_NAME_LAZY_CLOSE", "lazyClose" },                  // @E3A
       { "PROP_NAME_LIBRARIES", "libraries" },
       { "PROP_NAME_LOB_THRESHOLD", "lobThreshold" },
@@ -83,6 +84,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_PROMPT", "prompt" },
       { "PROP_NAME_PROXY_SERVER", "proxyServer" },
       { "PROP_NAME_REMARKS", "remarks" },
+      { "PROP_NAME_SAVE_PASSWORD_WHEN_SERIALIZED", "savePasswordWhenSerialized" },   //@J3a
       { "PROP_NAME_SECONDARY_URL", "secondaryUrl" },
       { "PROP_NAME_SECURE", "secure" },
       { "PROP_NAME_SERVER_NAME", "serverName" },
@@ -117,6 +119,7 @@ public class JDMRI extends ListResourceBundle
       { "DRIVER_DESC", "Specifies the JDBC driver implementation." },      // @E4A
       { "ERRORS_DESC", "Specifies the amount of detail to be returned in the message for errors that occur on the server." },
       { "EXTENDED_DYNAMIC_DESC", "Specifies whether to use extended dynamic support." },
+      { "EXTENDED_METADATA_DESC", "Specifies whether to request extended metadata from the server." },     //@J2A
       { "FULL_OPEN_DESC", "Specifies whether to use an optimized query." },              // @W1
       { "KEY_RING_NAME_DESC", "Specifies the key ring class name used for SSL communications with the server." }, //@E7A
       { "KEY_RING_PASSWORD_DESC", "Specifies the password for the key ring class used for SSL communications with the server." }, //@E7A
@@ -137,6 +140,7 @@ public class JDMRI extends ListResourceBundle
       { "PROXY_SERVER_DESC", "Specifies the host name and (optionally) port number of the middle-tier machine where the proxy server is running." },  //@A2A
     //{ "PROXY_SERVER_SECURE_DESC", "Specifies whether a Secure Sockets Layer (SSL) connection is used for communication between the client and the proxy server." },  //@A2A
       { "REMARKS_DESC", "Specifies the source of the text for REMARKS columns in ResultSet objects returned by DatabaseMetaData methods." },
+      { "SAVE_PASSWORD_WHEN_SERIALIZED", "Specifies whether to save the password when the data source object is serialized." },  //@J3a
       { "SECONDARY_URL_DESC", "Specifies the URL that the proxy server should use when establishing a JDBC connection." },  //@A2A
       { "SECURE_DESC", "Specifies whether a Secure Sockets Layer (SSL) connection is used to communicate with the server." },
       { "SERVER_NAME_DESC", "Specifies the name of the server."},                  // @E2

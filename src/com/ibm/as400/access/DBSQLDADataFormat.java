@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DBSQLDADataFormat.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ the SQLDA, specifically for the package cache.
 class DBSQLDADataFormat
 implements DBDataFormat
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -80,16 +80,6 @@ when it was not previously set by the constructor.
         length_             = 16 + numberOfFields_ * REPEATED_LENGTH_;
     }
 
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-    
 
 
 	public int getLength ()
@@ -247,7 +237,7 @@ Copyright.
 
 
 
-	public String getFieldName (int fieldIndex, ConverterImplRemote converter)	  throws DBDataStreamException
+	public String getFieldName (int fieldIndex, ConvTable converter)	  throws DBDataStreamException //@P0C
 	{
 	    return converter.byteArrayToString (rawBytes_,
 	        offset_ + 66 + (fieldIndex * REPEATED_LENGTH_),
@@ -352,7 +342,7 @@ Copyright.
 
 
 
-    public void setFieldName (int fieldIndex, String name, ConverterImplRemote converter)
+    public void setFieldName (int fieldIndex, String name, ConvTable converter) //@P0C
         throws DBDataStreamException
     {
         // Not applicable.
