@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import javax.sql.ConnectionEvent;
 import java.sql.CallableStatement;
+import java.sql.Connection;        //@A5A
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -50,8 +51,11 @@ import java.util.Map;
 *  </blockquote></pre>
 *
 **/
-class AS400JDBCConnectionHandle extends AS400JDBCConnection
+class AS400JDBCConnectionHandle 
+implements Connection //@A5A
+//@A5D extends AS400JDBCConnection
 {
+  
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   private AS400JDBCPooledConnection pooledConnection_ = null;
@@ -211,9 +215,21 @@ class AS400JDBCConnectionHandle extends AS400JDBCConnection
   protected void finalize ()
   throws Throwable
   {
-    validateConnection();
-    connection_.finalize();
-  }
+        //@A5D Removed validateConnection() because it was throwing SQL08003 exceptions if 
+        //@A5D connection_ was null by the time the garbage collector ran.  From a finalizer, 
+        //@A5D we don't want to be throwing exceptions.
+        //@A5D validateConnection();
+        //@A5D connection_.finalize();
+        try                                 //@A5A
+        {                                   //@A5A
+            close();                        //@A5A
+        }                                   //@A5A
+        catch (SQLException e)              //@A5A
+        {                                   //@A5A
+            if (JDTrace.isTraceOn())        //@A5A
+               JDTrace.logInformation (this, "Finalize on a connection handle threw exception: " + e.getMessage()); //@A5A
+        }                                   //@A5A
+    }
 
   /**
   *  Returns the AS400 object for this connection.

@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -1098,6 +1099,28 @@ implements ResultSet
 
 
 
+// JDBC 3.0
+    public URL getURL (int columnIndex)
+    throws SQLException
+    {
+        return(URL) callMethodRtnObj ("getURL",
+                                      new Class[] { Integer.TYPE},
+                                      new Object[] { new Integer(columnIndex)});
+    }
+
+
+    
+// JDBC 3.0
+    public URL getURL (String columnName)
+    throws SQLException
+    {
+        return(URL) callMethodRtnObj ("getURL",
+                                      new Class[] { String.class},
+                                      new Object[] { columnName});
+    }
+
+
+
     public boolean wasNull ()
     throws SQLException
     {
@@ -1165,6 +1188,46 @@ implements ResultSet
     {
       return callMethodRtnBool ("rowUpdated");
     }
+
+
+
+// JDBC 3.0
+    public void updateArray (int columnIndex, Array columnValue)
+        throws SQLException
+    {
+      if (columnValue != null &&
+          !(columnValue instanceof Serializable) ){
+        if (JDTrace.isTraceOn())
+          JDTrace.logInformation (this, NOT_SERIALIZABLE);
+        throw new SQLException ();
+      }
+
+      callMethod ("updateArray",
+                  new Class[] { Integer.TYPE, Array.class },
+                  new Object[] { new Integer(columnIndex),
+                                 columnValue });
+    }
+
+
+
+// JDBC 3.0
+    public void updateArray (String columnName, Array columnValue)
+        throws SQLException
+    {
+      if (columnValue != null &&
+          !(columnValue instanceof Serializable) ){
+        if (JDTrace.isTraceOn())
+          JDTrace.logInformation (this, NOT_SERIALIZABLE);
+        throw new SQLException ();
+      }
+
+      callMethod ("updateArray",
+                  new Class[] { String.class, Array.class },
+                  new Object[] { columnName,
+                                 columnValue });
+    }
+
+
 
 
 
@@ -1267,6 +1330,30 @@ implements ResultSet
 
 
 
+// JDBC 3.0
+    public void updateBlob (int columnIndex, Blob columnValue)
+        throws SQLException
+    {
+      callMethod ("updateBlob",
+                  new Class[] { Integer.TYPE, Blob.class },
+                  new Object[] { new Integer (columnIndex),
+                                 columnValue });
+    }
+
+
+
+// JDBC 3.0
+    public void updateBlob (String columnName, Blob columnValue)
+        throws SQLException
+    {
+      callMethod ("updateBlob",
+                  new Class[] { String.class, Blob.class },
+                  new Object[] { columnName,
+                                 columnValue });
+    }
+
+
+
 // JDBC 2.0
     public void updateBoolean (int columnIndex, boolean columnValue)
     throws SQLException
@@ -1361,6 +1448,30 @@ implements ResultSet
     throws SQLException
     {
         updateCharacterStream (findColumn (columnName), columnValue, length);
+    }
+
+
+
+// JDBC 3.0
+    public void updateClob (int columnIndex, Clob columnValue)
+        throws SQLException
+    {
+      callMethod ("updateClob",
+                  new Class[] { String.class, Clob.class },
+                  new Object[] { new Integer (columnIndex),
+                                 columnValue });
+    }
+
+
+
+// JDBC 3.0
+    public void updateClob (String columnName, Clob columnValue)
+        throws SQLException
+    {
+      callMethod ("updateClob",
+                  new Class[] { String.class, Clob.class },
+                  new Object[] { columnName,
+                                 columnValue });
     }
 
 
@@ -1547,6 +1658,44 @@ implements ResultSet
     throws SQLException
     {
         updateObject (findColumn (columnName), columnValue, scale);
+    }
+
+
+
+// JDBC 3.0
+    public void updateRef (int columnIndex, Ref columnValue)
+        throws SQLException
+    {
+      if (columnValue != null &&
+          !(columnValue instanceof Serializable) ){
+        if (JDTrace.isTraceOn())
+          JDTrace.logInformation (this, NOT_SERIALIZABLE);
+        throw new SQLException ();
+      }
+
+      callMethod ("updateRef",
+                  new Class[] { Integer.TYPE, Ref.class },
+                  new Object[] { new Integer (columnIndex),
+                                 columnValue });
+    }
+
+
+
+// JDBC 3.0
+    public void updateRef (String columnName, Ref columnValue)
+        throws SQLException
+    {
+      if (columnValue != null &&
+          !(columnValue instanceof Serializable) ){
+        if (JDTrace.isTraceOn())
+          JDTrace.logInformation (this, NOT_SERIALIZABLE);
+        throw new SQLException ();
+      }
+
+      callMethod ("updateRef",
+                  new Class[] { String.class, Ref.class },
+                  new Object[] { columnName,
+                                 columnValue });
     }
 
 

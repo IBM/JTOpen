@@ -182,6 +182,22 @@ implements java.sql.DatabaseMetaData
     }
 
 
+// JDBC 3.0
+    public ResultSet getAttributes (String catalog,
+                                    String schemaPattern,
+                                    String typeNamePattern,
+                                    String attributeNamePattern)
+    throws SQLException
+    {
+        return callMethodRtnRSet ("getAttributes",
+                                  new Class[] { String.class, String.class,
+                                      String.class,
+                                      String.class},
+                                  new Object[] { catalog, schemaPattern, typeNamePattern,
+                                      attributeNamePattern});
+    }
+
+
     public ResultSet getBestRowIdentifier (String catalog,
                                            String schema,
                                            String table,
@@ -269,6 +285,23 @@ implements java.sql.DatabaseMetaData
                                                primaryTable, foreignCatalog,
                                                foreignSchema, foreignTable });
     }
+
+
+// JDBC 3.0
+    public int getDatabaseMajorVersion ()
+    throws SQLException
+    {
+        return callMethodRtnInt ("getDatabaseMajorVersion");
+    }
+
+
+// JDBC 3.0
+    public int getDatabaseMinorVersion ()
+    throws SQLException
+    {
+        return callMethodRtnInt ("getDatabaseMinorVersion");
+    }
+
 
     public String getDatabaseProductName ()
     throws SQLException
@@ -381,6 +414,22 @@ implements java.sql.DatabaseMetaData
                                 new Object[] { catalog, schema,
                                                table, new Boolean (unique),
                                                new Boolean (approximate) });
+    }
+
+
+// JDBC 3.0
+    public int getJDBCMajorVersion ()
+    throws SQLException
+    {
+        return callMethodRtnInt ("getJDBCMajorVersion");
+    }
+
+
+// JDBC 3.0
+    public int getJDBCMinorVersion ()
+    throws SQLException
+    {
+        return callMethodRtnInt ("getJDBCMinorVersion");
     }
 
 
@@ -577,6 +626,14 @@ implements java.sql.DatabaseMetaData
     }
 
 
+// JDBC 3.0
+    public int getResultSetHoldability ()
+    throws SQLException
+    {
+        return callMethodRtnInt ("getResultSetHoldability");
+    }
+
+
     public ResultSet getSchemas ()
     throws SQLException
     {
@@ -605,11 +662,48 @@ implements java.sql.DatabaseMetaData
     }
 
 
+// JDBC 3.0
+    public int getSQLStateType ()
+    throws SQLException
+    {
+        return callMethodRtnInt ("getSQLStateType");
+    }
+
+
     public String getStringFunctions ()
     throws SQLException
     {
       return callMethodRtnStr ("getStringFunctions");
     }
+
+
+// JDBC 3.0
+    public ResultSet getSuperTables (String catalog,
+                                     String schemaPattern,
+                                     String tableNamePattern)
+    throws SQLException
+    {
+        return callMethodRtnRSet ("getSuperTables",
+                                  new Class[] { String.class, String.class,
+                                      String.class},
+                                  new Object[] { catalog, schemaPattern,
+                                      tableNamePattern});
+    }
+
+
+// JDBC 3.0
+    public ResultSet getSuperTypes (String catalog,
+                                    String schemaPattern,
+                                    String typeNamePattern)
+    throws SQLException
+    {
+        return callMethodRtnRSet ("getSuperTypes",
+                                  new Class[] { String.class, String.class,
+                                      String.class},
+                                  new Object[] { catalog, schemaPattern,
+                                      typeNamePattern});
+    }
+
 
 
     public String getSystemFunctions ()
@@ -737,6 +831,14 @@ implements java.sql.DatabaseMetaData
     {
       return callMethodRtnBool ("isReadOnly");
     }
+
+
+// JDBC 3.0
+    public boolean locatorsUpdateCopy ()
+    throws SQLException
+    {
+        return callMethodRtnBool ("locatorsUpdateCopy");
+    } 
 
 
     public boolean nullPlusNonNullIsNull ()
@@ -1022,6 +1124,14 @@ implements java.sql.DatabaseMetaData
     }
 
 
+// JDBC 3.0
+    public boolean supportsGetGeneratedKeys ()
+    throws SQLException
+    {
+        return callMethodRtnBool ("supportsGetGeneratedKeys");
+    }
+
+
     public boolean supportsGroupBy ()
     throws SQLException
     {
@@ -1085,6 +1195,14 @@ implements java.sql.DatabaseMetaData
     }
 
 
+// JDBC 3.0
+    public boolean supportsMultipleOpenResults ()
+    throws SQLException
+    {
+        return callMethodRtnBool ("supportsMultipleOpenResults");
+    }
+
+
     public boolean supportsMultipleResultSets ()
     throws SQLException
     {
@@ -1096,6 +1214,14 @@ implements java.sql.DatabaseMetaData
     throws SQLException
     {
       return callMethodRtnBool ("supportsMultipleTransactions");
+    }
+
+
+// JDBC 3.0
+    public boolean supportsNamedParameters ()
+    throws SQLException
+    {
+        return callMethodRtnBool ("supportsNamedParameters");
     }
 
 
@@ -1173,11 +1299,29 @@ implements java.sql.DatabaseMetaData
     }
 
 
+// JDBC 3.0
+    public boolean supportsResultSetHoldability (int resultSetHoldability)
+    throws SQLException
+    {
+        return callMethodRtnBool ("supportsResultSetHoldability",
+                                  new Class[] { Integer.TYPE},
+                                  new Object[] { new Integer (resultSetHoldability)});
+    }
+
+
 // JDBC 2.0
     public boolean supportsResultSetType (int resultSetType)
     throws SQLException
     {
       return callMethodRtnBool ("supportsResultSetType", resultSetType);
+    }
+
+
+// JDBC 3.0
+    public boolean supportsSavepoints ()
+    throws SQLException
+    {
+        return callMethodRtnBool ("supportsSavepoints");
     }
 
 

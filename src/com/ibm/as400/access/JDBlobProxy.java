@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Blob;
 import java.sql.SQLException;
@@ -31,8 +32,9 @@ extends AbstractProxyImpl
 implements Blob
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
+  
+  // Copied from JDError:
+  private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
 
   public InputStream getBinaryStream ()
@@ -105,5 +107,61 @@ implements Blob
   }
 
 
+// JDBC 3.0
+    public OutputStream setBinaryStream (long pos)
+    throws SQLException
+    {
+        // Avoid dragging in JDError
+        throw new SQLException (
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               EXC_FUNCTION_NOT_SUPPORTED, -99999);
+    }
+
+
+// JDBC 3.0
+    public int setBytes (long pos, byte[] bytes)
+    throws SQLException
+    {
+        try {
+            return connection_.callMethod (pxId_, "setBytes",
+                                           new Class[] { Long.TYPE, byte[].class},
+                                           new Object[] { new Long(pos), bytes})
+            .getReturnValueInt ();
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+
+
+// JDBC 3.0
+    public int setBytes (long pos, byte[] bytes, int offset, int len)
+    throws SQLException
+    {
+        try {
+            return connection_.callMethod (pxId_, "setBytes",
+                                           new Class[] { Long.TYPE, byte[].class, Integer.TYPE, Integer.TYPE},
+                                           new Object[] { new Long(pos), bytes, new Integer(offset), new Integer(len)})
+            .getReturnValueInt ();
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
+
+
+// JDBC 3.0
+    public void truncate (long len)
+    throws SQLException
+    {
+        try {
+            connection_.callMethod (pxId_, "truncate",
+                                                         new Class[] { Long.TYPE},
+                                                         new Object[] { new Long(len)});
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
+    }
 
 }

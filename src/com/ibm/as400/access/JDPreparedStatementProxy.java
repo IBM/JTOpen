@@ -18,12 +18,14 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.net.URL;            
 import java.sql.Array;
 import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
@@ -43,6 +45,9 @@ implements PreparedStatement
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+
+  // Copied from JDError:
+  private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 
 
   private final static String NOT_SERIALIZABLE = "Parameter is not serializable.";
@@ -117,6 +122,19 @@ implements PreparedStatement
         throw JDConnectionProxy.rethrow1 (e);
       }
     }
+
+
+
+// JDBC 3.0
+    public ParameterMetaData getParameterMetaData ()
+		throws SQLException
+    {
+        // Avoid dragging in JDError
+        throw new SQLException (
+                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+                               EXC_FUNCTION_NOT_SUPPORTED, -99999);
+    }
+
 
 
 
@@ -579,5 +597,18 @@ implements PreparedStatement
                                  iStream,
                                  new Integer (length) });
     }
+
+
+// JDBC 3.0
+    public void setURL (int parameterIndex,
+                              URL parameterValue)
+        throws SQLException
+    {
+      callMethod ("setURL",
+                  new Class[] { Integer.TYPE, URL.class},
+                  new Object[] { new Integer (parameterIndex),
+                                 parameterValue });
+    }
+
 
 }

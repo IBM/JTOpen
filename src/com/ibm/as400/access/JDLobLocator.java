@@ -346,10 +346,13 @@ Writes part of the contents of the lob.
   public void writeData (int start, int length, byte[] data)
   throws SQLException
   {
-    // The database flags an error if you pass in a 0              @A1A
-    // length, so do nothing in that case.                         @A1A
-    if (length == 0)                                            // @A1A
-      return;                                                 // @A1A
+        //@G6D The server no longer flags an error and we need to be able to 
+        //@G6D write with a 0 length in order to truncate for updateable lob 
+        //@G6D locators.
+        //@G6D // The database flags an error if you pass in a 0              @A1A
+        //@G6D // length, so do nothing in that case.                         @A1A
+        //@G6D if (length == 0)                                            // @A1A
+        //@G6D     return;                                                 // @A1A
 
     try
     {
