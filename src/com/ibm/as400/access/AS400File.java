@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -67,10 +67,11 @@ import java.beans.PropertyVetoException;
  *<li>PropertyChangeEvent
  *<li>VetoableChangeEvent
  *</ul>
+ *@see AS400FileRecordDescription
  **/
 abstract public class AS400File implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -225,6 +226,8 @@ abstract public class AS400File implements Serializable
     // The readNoUpdate flag is treated like a bean property,
     // even though it's not.
     boolean readNoUpdate_ = false; //@B5A
+
+    boolean ssp_ = false; // Treat the file as an SSP file or a regular DDM file.
 
     // The library name of the file
     String library_ = "";
@@ -425,12 +428,14 @@ abstract public class AS400File implements Serializable
                                    String.class,
                                    RecordFormat.class,
                                    Boolean.TYPE, //@B5A
+                                   Boolean.TYPE,
                                    Boolean.TYPE },
                                    new Object[] { system_.getImpl(), //@B5C
                                    name_,
                                    recordFormat_,
                                    new Boolean(readNoUpdate_), //@B5A
-                                   new Boolean(this instanceof KeyedFile) });
+                                   new Boolean(this instanceof KeyedFile),
+                                   new Boolean(ssp_) });
 
             //      impl_.doItNoExceptions("setSystem", new Class[] { AS400.class }, new Object[] { system_ }); //@B0A
             //      impl_.doItNoExceptions("setPath", new Class[] { String.class }, new Object[] { name_ }); //@B0A
@@ -1372,6 +1377,19 @@ abstract public class AS400File implements Serializable
 
 
     /**
+     * Indicates if this object is being treated as an SSP file.
+     * This method just returns the value set using {@link #setSSPFile setSSPFile()}.
+     * @return true if the file is being treated as an SSP file; false
+     * if it is being treated as a normal DDM file. The default is false.
+     * @see #setSSPFile
+    **/
+    public boolean isSSPFile()
+    {
+      return ssp_;
+    }
+
+
+    /**
      *Indicates if this object is open for write only.
      *@return true if the file is open for write only; false otherwise.
      **/
@@ -2276,6 +2294,34 @@ abstract public class AS400File implements Serializable
         recordFormat_ = recordFormat;
         if (impl_ != null) impl_.doItNoExceptions("setRecordFormat", new Class[] { RecordFormat.class }, new Object[] { recordFormat_ }); //@B0A
         changes_.firePropertyChange("recordFormat", old, recordFormat_);
+    }
+
+
+
+    /**
+     * Sets the SSP flag for this file. This flag indicates
+     * whether or not to treat the file on the server
+     * as a System/36 SSP file. When set to true, the record
+     * format name is ignored. When set to false, the file
+     * is treated as a normal physical or logical DDM file.
+     * The default is false.
+     * @param treatAsSSP The flag indicating how to treat the file.
+     * @see #isSSPFile
+    **/
+    public void setSSPFile(boolean treatAsSSP)
+    {
+      if (isOpen_)
+      { // Cannot set after we have connected
+          throw new ExtendedIllegalStateException("treatAsSSP", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+      }
+
+      ssp_ = treatAsSSP;
+
+      if (impl_ != null)
+      {
+        impl_.doItNoExceptions("setSSPFile", new Class[] { Boolean.TYPE },
+        new Object[] { new Boolean(treatAsSSP) });
+      }
     }
 
 

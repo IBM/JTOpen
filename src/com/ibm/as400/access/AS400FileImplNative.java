@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ import java.util.Vector; //@C1A
 //@C0C: We now extend AS400FileImplBase.
 class AS400FileImplNative extends AS400FileImplBase implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // File handle.
     transient int handle_;
@@ -412,7 +412,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
         try
         {
             src = new AS400FileImplNative();
-            src.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT400DSSRC.FILE", srcRF, false, false);
+            src.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT400DSSRC.FILE", srcRF, false, false, false);
 
             src.openFile2(AS400File.WRITE_ONLY, records.length, AS400File.COMMIT_LOCK_LEVEL_NONE, false);
             src.write(records);

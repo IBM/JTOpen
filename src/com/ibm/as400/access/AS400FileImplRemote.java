@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ import java.math.BigDecimal; //@D0A 7/15/99
 
 class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C0C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -445,7 +445,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       //@B5D { // This is to quiet the compiler
       //@B5D }
       src = new AS400FileImplRemote(); //@D0A 7/15/99
-      src.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT400DSSRC.FILE", srcRF, false, false); //@B5A
+      src.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT400DSSRC.FILE", srcRF, false, false, false); //@B5A
 
       //@B5D src.open(AS400File.WRITE_ONLY, records.length, AS400File.COMMIT_LOCK_LEVEL_NONE);
       src.openFile2(AS400File.WRITE_ONLY, records.length, AS400File.COMMIT_LOCK_LEVEL_NONE, false); //@B5A
@@ -1672,7 +1672,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Record[] returned = processReadReply(replys, false);    // @A1C
 
     if (cacheRecords_) //@C0A
-    {                  //@C0A
+    {
+      //@C0A
       cache_.setIsEmpty(); //@C0A
     }                  //@C0A
 
@@ -1719,7 +1720,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Record[] returned = processReadReply(replys, false);    // @A1C
 
     if (cacheRecords_) //@C0A
-    {                  //@C0A
+    {
+      //@C0A
       cache_.setIsEmpty(); //@C0A
     }                  //@C0A
 

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ import java.text.Collator;
 
 abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   // Is this class an ImplRemote or an ImplNative
   boolean isNative_ = false; //@E2A
@@ -145,6 +145,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // If 'read no update' is true, it allows a file to be opened as read/write, yet
   // reading won't exclusively lock the records being read. The default is false.
   boolean readNoUpdate_ = false;
+
+  // Indicates if this file should be treated as an SSP file or DDM file
+  // when createUFCB() is called.
+  boolean ssp_ = false;
 
   // Manner in which file has been opened.  This value will be set upon open().
   // -1 indicates that the file is not open.
@@ -644,7 +648,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * This is a convenience method for setting all 4 properties at once, so as to
    * avoid 4 separate proxy calls.
   **/
-  public void setAll(AS400Impl system, String pathName, RecordFormat rf, boolean readNoUpdate, boolean isKeyed) //@B5C
+  public void setAll(AS400Impl system, String pathName, RecordFormat rf, boolean readNoUpdate, boolean isKeyed, boolean ssp) //@B5C
     throws IOException //@B5A - 06/08/1999
   {
     setSystem(system);
@@ -652,6 +656,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     setRecordFormat(rf);
     setReadNoUpdate(readNoUpdate); //@B5A
     setIsKeyed(isKeyed);
+    setSSPFile(ssp);
     setConverter(); //@B5A - 06/08/1999
   }
 
@@ -820,6 +825,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
+
+  public void setSSPFile(boolean treatAsSSP)
+  {
+    ssp_ = treatAsSSP;
+  }
+
+
   public void setSystem(AS400Impl system) //@B5C
   {
     system_ = (AS400ImplRemote)system; //@B5C
@@ -846,17 +858,34 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     boolean isCommitmentControlStarted =
       isCommitmentControlStarted();
 
+    boolean isSSPviaDDM = ssp_;                                                               // #SSPDDM
+
     // The length of the byte array depends on which combination of
     // openType and access has been specified and whether commitment
     // control has been started.
-    if (access.equalsIgnoreCase("SEQ") && openType == AS400File.WRITE_ONLY)
-    { // Sequential, write_only
-      ufcb = new byte[isCommitmentControlStarted ? 109 : 106]; //@A1C
+    if (isSSPviaDDM)													                                            // #SSPDDM
+    {                                                                                     // #SSPDDM
+	    if (access.equalsIgnoreCase("SEQ") && openType == AS400File.WRITE_ONLY)             // #SSPDDM
+	    { // Sequential, write_only                                                         // #SSPDDM
+	      ufcb = new byte[isCommitmentControlStarted ? 93 : 90]; //@A1C                     // #SSPDDM
+	    }                                                                                   // #SSPDDM
+	    else                                                                                // #SSPDDM
+	    { // Sequential, read_write or read_only, commitment control has not been started.  // #SSPDDM
+	      // Keyed, any type of open, commitment control has not been started               // #SSPDDM
+	      ufcb = new byte[isCommitmentControlStarted ? 96 : 93]; //@A1C                     // #SSPDDM
+	    }                                                                                   // #SSPDDM
     }
     else
-    { // Sequential, read_write or read_only, commitment control has not been started.
-      // Keyed, any type of open, commitment control has not been started
-      ufcb = new byte[isCommitmentControlStarted ? 112 : 109]; //@A1C
+    {
+      if (access.equalsIgnoreCase("SEQ") && openType == AS400File.WRITE_ONLY)
+      { // Sequential, write_only
+        ufcb = new byte[isCommitmentControlStarted ? 109 : 106]; //@A1C
+      }
+      else
+      { // Sequential, read_write or read_only, commitment control has not been started.
+        // Keyed, any type of open, commitment control has not been started
+        ufcb = new byte[isCommitmentControlStarted ? 112 : 109]; //@A1C
+      }
     }
 
     // Set the open options byte.  This includes bits for turning off user buffering
@@ -868,7 +897,14 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     else if (openType == AS400File.READ_WRITE)
     {
-      openOptions = 0x3C | userBufferingAndODPSharingOff;
+	    if (isSSPviaDDM)                                                                    // #SSPDDM
+	    {                                                                                   // #SSPDDM
+	    	openOptions = 0x2C | userBufferingAndODPSharingOff;                               // #SSPDDM
+	    }                                                                                   // #SSPDDM
+	    else                                                                                // #SSPDDM
+	    {                                                                                   // #SSPDDM
+        openOptions = 0x3C | userBufferingAndODPSharingOff;
+      }
     }
     else
     {
@@ -915,7 +951,14 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     ufcb[56] = 0x20;
 
     // Indicate that we can handle null capable fields
-    ufcb[60] = 0x02;
+    if (isSSPviaDDM && (openType == AS400File.WRITE_ONLY) )                               // #SSPDDM
+    {                                                                                     // #SSPDDM
+      ufcb[60] = 0x00;                                                                    // #SSPDDM
+    }                                                                                     // #SSPDDM
+    else                                                                                  // #SSPDDM
+    {                                                                                     // #SSPDDM
+      ufcb[60] = 0x02;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////
     // The following sections set the variable portion of the UFCB
@@ -1017,17 +1060,20 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     //////////////////////////////////////////////////////////////////////////////////
     // RECORD FORMAT GROUP parameter
     //////////////////////////////////////////////////////////////////////////////////
-    BinaryConverter.unsignedShortToByteArray(9, ufcb, offset); // Parm id
-    BinaryConverter.unsignedShortToByteArray(1, ufcb, offset + 2); // Max # of record formats
-    BinaryConverter.unsignedShortToByteArray(1, ufcb, offset + 4); // Cur # of record formats
-    String rfName = recordFormat_.getName(); // What if the record format name is too long?
-    if (rfName.length() > 10) rfName = rfName.substring(0, 10);
-    converter_.stringToByteArray(rfName, ufcb, offset + 6);
-    for (int i = rfName.length(); i < 10; i++)
-    {
-      ufcb[i + offset + 6] = 0x40;
+    if (!isSSPviaDDM)                                                                       // #SSPDDM
+    {                                                                                       // #SSPDDM
+      BinaryConverter.unsignedShortToByteArray(9, ufcb, offset); // Parm id
+      BinaryConverter.unsignedShortToByteArray(1, ufcb, offset + 2); // Max # of record formats
+      BinaryConverter.unsignedShortToByteArray(1, ufcb, offset + 4); // Cur # of record formats
+      String rfName = recordFormat_.getName(); // What if the record format name is too long?
+      if (rfName.length() > 10) rfName = rfName.substring(0, 10);
+      converter_.stringToByteArray(rfName, ufcb, offset + 6);
+      for (int i = rfName.length(); i < 10; i++)
+      {
+        ufcb[i + offset + 6] = 0x40;
+      }
+      offset += 16;
     }
-    offset += 16;
 
     // Indicate the end of the variable portion of the UFCB; this is required
     BinaryConverter.unsignedShortToByteArray(32767, ufcb, offset);

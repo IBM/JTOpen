@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ import java.beans.PropertyVetoException;
 **/
 class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescriptionImpl, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -816,7 +816,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A
                                                                      "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
       dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE",             //@B5A
-                    new QWHDRFFDFormat(system_.getCcsid()), false, false);  //@B5A
+                    new QWHDRFFDFormat(system_.getCcsid()), false, false, false);  //@B5A
       //@B5D try
       //@B5D {
       //@B5D   dspffd.setRecordFormat(new QWHDRFFDFormat(system_.getCcsid()));
@@ -854,7 +854,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A @E0C
                                                                      "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
       dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",             //@B5A
-                    new QWHFDACPFormat(system_.getCcsid()), false, false); //@B5A
+                    new QWHFDACPFormat(system_.getCcsid()), false, false, false); //@B5A
       //@B5D try
       //@B5D {
       //@B5D   dspffd.setRecordFormat(new QWHFDACPFormat(system_.getCcsid()));
@@ -939,6 +939,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       sourceFile.println("import com.ibm.as400.access.RecordFormat;");
       sourceFile.println("import com.ibm.as400.access.AS400Bin2;");
       sourceFile.println("import com.ibm.as400.access.AS400Bin4;");
+      sourceFile.println("import com.ibm.as400.access.AS400Bin8;"); //@F0A
       sourceFile.println("import com.ibm.as400.access.AS400ByteArray;");
       sourceFile.println("import com.ibm.as400.access.AS400Float4;");
       sourceFile.println("import com.ibm.as400.access.AS400Float8;");
@@ -1099,7 +1100,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A
                                                                      "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
       dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FFD.FILE",             //@B5A
-                    new QWHDRFFDFormat(system_.getCcsid()), false, false);  //@B5A
+                    new QWHDRFFDFormat(system_.getCcsid()), false, false, false);  //@B5A
 
       //@B5D try
       //@B5D {
@@ -1139,7 +1140,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",  //@B5A @E0C
                                                                      "com.ibm.as400.access.AS400FileImplRemote"); //@B5A
       dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",              //@B5A
-                    new QWHFDACPFormat(system_.getCcsid()), false, false);  //@B5A
+                    new QWHFDACPFormat(system_.getCcsid()), false, false, false);  //@B5A
       //@B5D try
       //@B5D {
       //@B5D   dspffd.setRecordFormat(new QWHFDACPFormat(system_.getCcsid()));
