@@ -126,18 +126,18 @@ class PermissionAccessQSYS extends PermissionAccess
         String userProfile=qsysPermission.getUserID();
         String object = objectPathName.getObjectName();
 
-        String command = "ADDAUTLE"
-                         +" AUTL("+object+")"
-                         +" USER("+userProfile+")"
-                         +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"; // @B5c
         try
         {
-          command = CharConverter.convertIFSQSYSPathnameToJobPathname(command, sys.getCcsid());
+          object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
         }
         catch(Exception e)
         {
           Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
         }
+        String command = "ADDAUTLE"
+                         +" AUTL("+object+")"
+                         +" USER("+userProfile+")"
+                         +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"; // @B5c
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(false); // ADDAUTLE isn't threadsafe.  @A2A @A3C
         return cmd;               //@A2C
@@ -162,6 +162,14 @@ class PermissionAccessQSYS extends PermissionAccess
 
         String command;
 
+        try
+        {
+          object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+        }
         if (objectType.equals("AUTL"))
         {
             command = "CHGAUTLE"
@@ -170,14 +178,6 @@ class PermissionAccessQSYS extends PermissionAccess
                       +" AUT(*EXCLUDE)";
         } else
         {
-            try
-            {
-              object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
-            }
-            catch(Exception e)
-            {
-              Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
-            }
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
@@ -213,6 +213,14 @@ class PermissionAccessQSYS extends PermissionAccess
 
         String command;
         boolean isAuthList = objectType.equals("AUTL");  // @B5a
+        try
+        {
+          object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+        }
         if (objectType.equals("AUTL"))
         {
             command = "CHGAUTLE"
@@ -222,14 +230,6 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         else
         {
-          try
-          {
-            object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
-          }
-          catch(Exception e)
-          {
-            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
-          }
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
@@ -269,6 +269,15 @@ class PermissionAccessQSYS extends PermissionAccess
         if (objectType.equals("AUTL"))
         {
             object = objectPathName.getObjectName();
+            try
+            {
+              object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
+            }
+            catch(Exception e)
+            {
+              Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+            }
+            
             command = "RMVAUTLE"
                       +" AUTL("+object+")"
                       +" USER("+userName+")";
