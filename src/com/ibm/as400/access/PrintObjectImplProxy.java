@@ -114,6 +114,65 @@ implements PrintObjectImpl, ProxyImpl
     }
 
 
+//@B1A begin
+    public Integer getSingleIntegerAttribute(int attributeID)
+        throws AS400Exception,
+            AS400SecurityException,
+            ErrorCompletingRequestException,
+            IOException,
+            InterruptedException,
+            RequestNotSupportedException
+    {
+        try {
+            return (Integer) connection_.callMethod(pxId_, "getIntegerAttribute",
+                                                    new Class[] { Integer.TYPE },
+                                                    new Object[] { new Integer (attributeID)}).getReturnValue();
+        }
+        catch (InvocationTargetException e) {
+            throw ProxyClientConnection.rethrow6a(e);
+        }
+    }
+
+
+
+    public Float getSingleFloatAttribute(int attributeID)
+        throws AS400Exception,
+            AS400SecurityException,
+            ErrorCompletingRequestException,
+            IOException,
+            InterruptedException,
+            RequestNotSupportedException
+    {
+        try {
+            return (Float) connection_.callMethod(pxId_, "getFloatAttribute",
+                                                  new Class[] { Integer.TYPE },
+                                                  new Object[] { new Integer (attributeID)}).getReturnValue();
+        }
+        catch (InvocationTargetException e) {
+            throw ProxyClientConnection.rethrow6a(e);
+        }
+    }
+
+
+
+    public String getSingleStringAttribute(int attributeID)
+        throws AS400Exception,
+            AS400SecurityException,
+            ErrorCompletingRequestException,
+            IOException,
+            InterruptedException,
+            RequestNotSupportedException
+        {
+        try {
+            return (String) connection_.callMethod(pxId_, "getStringAttribute",
+                                                   new Class[] { Integer.TYPE },
+                                                   new Object[] { new Integer (attributeID)}).getReturnValue();
+        }
+        catch (InvocationTargetException e) {
+                throw ProxyClientConnection.rethrow6a(e);
+        }
+    }
+//@B1A end
 
     public void setPrintObjectAttrs(NPCPID idCodePoint,
                                     NPCPAttribute cpAttrs,

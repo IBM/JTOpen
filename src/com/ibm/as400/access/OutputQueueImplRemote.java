@@ -155,7 +155,18 @@ implements OutputQueueImpl
 	    }
 	    return attrsToRetrieve_;
     }
+    
+// @A3A  retrieve only one attribute 
+   NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
+    {
+        String x = Copyright.copyright;     
+	if (!fAttrIDsToRtvBuilt_) {
+	    attrsToRetrieve_.addAttrID(attrToRtv);
+        }
+        return attrsToRetrieve_;
+    }
 
+//@A3A
 
 
     /**

@@ -36,7 +36,7 @@ implements PrintObjectImpl
 
 
     /**
-     * Check to see if the AS/400 system has been set...
+     * Check to see if the iSeries system has been set...
      **/
     void checkRunTimeState()
     {
@@ -51,6 +51,7 @@ implements PrintObjectImpl
 
 
     abstract NPCPAttributeIDList getAttrIDsToRetrieve();
+    abstract NPCPAttributeIDList getAttrIDsToRetrieve(int AttrID); //@C1A
 
 
 
@@ -93,13 +94,13 @@ implements PrintObjectImpl
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the iSeries system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the AS/400 system is not at the correct level.
+     *                                         the iSeries system is not at the correct level.
      **/
     public Integer getIntegerAttribute(int attributeID)
       throws AS400Exception,
@@ -145,6 +146,74 @@ implements PrintObjectImpl
         return aValue;
     }
 
+//@C1A
+    /**
+     * Returns an attribute of the object that is a Integer type attribute.
+     *
+     * @param attributeID Identifies which attribute to retrieve.
+     * See the following links for the attribute IDs that are valid for each
+     * particular subclass.<UL>
+     * <LI> <A HREF="AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="WriterJobAttrs.html">Writer Job Attributes</A>
+     * </UL>
+     *
+     * @return The value of the attribute.
+     *
+     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         the iSeries system is not at the correct level.
+     **/
+    public Integer getSingleIntegerAttribute(int attributeID)
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException,
+             RequestNotSupportedException
+    {
+        Integer aValue = null;
+        if (attrs != null)
+        {
+           aValue = attrs.getIntValue(attributeID);
+        }
+        if (aValue == null)
+        {
+            aValue = getIDCodePoint().getIntValue(attributeID);
+            if (aValue == null)
+            {
+               NPCPAttributeIDList attrIDsToRetreive = getAttrIDsToRetrieve(attributeID);
+
+               if (attrIDsToRetreive.containsID(attributeID))
+               {
+                   updateAttrs(attrIDsToRetreive);
+                   if (attrs != null)
+                   {
+                      aValue = attrs.getIntValue(attributeID);
+                   }
+               }
+            }
+        }
+
+        if (aValue == null) 
+        {
+            NPSystem npSystem = NPSystem.getSystem(getSystem());
+            NPConversation conversation = npSystem.getConversation();
+            String curLevel = conversation.getAttribute(PrintObject.ATTR_NPSLEVEL);
+            npSystem.returnConversation(conversation);
+            throw new RequestNotSupportedException(curLevel,
+                                                   RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+
+        return aValue;
+    }
 
 
     /**
@@ -162,13 +231,153 @@ implements PrintObjectImpl
      * </UL>
      *
      * @return The value of the attribute.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the iSeries system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the AS/400 system is not at the correct level.
+     *                                         the iSeries system is not at the correct level.
+     **/
+    public Float getSingleFloatAttribute(int attributeID)
+       throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              IOException,
+              InterruptedException,
+              RequestNotSupportedException
+    {
+        Float aValue = null;
+        if (attrs != null)
+        {
+           aValue = attrs.getFloatValue(attributeID);
+        }
+        if (aValue == null)
+        {
+            aValue = getIDCodePoint().getFloatValue(attributeID);
+            if (aValue == null)
+            {
+               NPCPAttributeIDList attrIDsToRetreive = getAttrIDsToRetrieve(attributeID);
+
+               if (attrIDsToRetreive.containsID(attributeID))
+               {
+                   updateAttrs(attrIDsToRetreive);
+                   if (attrs != null)
+                   {
+                      aValue = attrs.getFloatValue(attributeID);
+                   }
+               }
+            }
+        }
+
+        if (aValue == null) // @A3A
+        {
+            NPSystem npSystem = NPSystem.getSystem(getSystem());
+            NPConversation conversation = npSystem.getConversation();
+            String curLevel = conversation.getAttribute(PrintObject.ATTR_NPSLEVEL);
+            npSystem.returnConversation(conversation);
+            throw new RequestNotSupportedException(curLevel,
+                                                   RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+
+        return aValue;
+    }
+
+
+    /**
+     * Returns an attribute of the object that is a String type attribute.
+     *
+     * @param attributeID Identifies which attribute to retrieve.
+     * See the following links for the attribute IDs that are valid for each
+     * particular subclass.<UL>
+     * <LI> <A HREF="AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="WriterJobAttrs.html">Writer Job Attributes</A>
+     * </UL>
+     *
+     * @return The value of the attribute.
+     *
+     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         the iSeries system is not at the correct level.
+     **/
+    public String getSingleStringAttribute(int attributeID)
+       throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              IOException,
+              InterruptedException,
+              RequestNotSupportedException
+    {
+        String str = null;
+        if (attrs != null)
+        {
+           str = attrs.getStringValue(attributeID);
+        }
+        if (str == null)
+        {
+            str = getIDCodePoint().getStringValue(attributeID);
+            if (str == null)
+            {
+               NPCPAttributeIDList attrIDsToRetreive = getAttrIDsToRetrieve(attributeID);
+
+               if (attrIDsToRetreive.containsID(attributeID))
+               {
+                   updateAttrs(attrIDsToRetreive);
+                   if (attrs != null) {
+                      str = attrs.getStringValue(attributeID);
+                   }
+               }
+            }
+        }
+
+        if (str == null) 
+        {
+            NPSystem npSystem = NPSystem.getSystem(getSystem());
+            NPConversation conversation = npSystem.getConversation();
+            String curLevel = conversation.getAttribute(PrintObject.ATTR_NPSLEVEL);
+            npSystem.returnConversation(conversation);
+            throw new RequestNotSupportedException(curLevel,
+                                                   RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+
+        return str;
+    }
+
+
+
+
+//@C1A end
+
+    /**
+     * Returns an attribute of the object that is a Float type attribute.
+     *
+     * @param attributeID Identifies which attribute to retrieve.
+     * See the following links for the attribute IDs that are valid for each
+     * particular subclass.<UL>
+     * <LI> <A HREF="AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="WriterJobAttrs.html">Writer Job Attributes</A>
+     * </UL>
+     *
+     * @return The value of the attribute.
+     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         the iSeries system is not at the correct level.
      **/
     public Float getFloatAttribute(int attributeID)
        throws AS400Exception,
@@ -232,13 +441,13 @@ implements PrintObjectImpl
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the iSeries system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the iSeries.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the AS/400 system is not at the correct level.
+     *                                         the iSeries system is not at the correct level.
      **/
     public String getStringAttribute(int attributeID)
        throws AS400Exception,
@@ -286,8 +495,8 @@ implements PrintObjectImpl
 
 
     /**
-      * Returns the AS/400 system on which this object exists.
-      * @return The AS/400 system on which this object exists.
+      * Returns the iSeries system on which this object exists.
+      * @return The iSeries system on which this object exists.
       **/
     final public AS400ImplRemote getSystem() // @A6C - changed AS400 to AS400ImplRemote
     {
@@ -336,13 +545,13 @@ implements PrintObjectImpl
 
 
     /**
-     * Sets the AS/400 system on which this object exists. This
+     * Sets the iSeries system on which this object exists. This
      * method is primarily provided for visual application builders
      * that support JavaBeans. Application programmers should
-     * specify the AS/400 system in the constructor for the
+     * specify the iSeries system in the constructor for the
      * specific print object.
      *
-     * @param system The AS/400 system on which this object exists.
+     * @param system The iSeries system on which this object exists.
      **/
     final public void setSystem(AS400Impl system)
     {
@@ -353,16 +562,16 @@ implements PrintObjectImpl
 
 
     /**
-     * Updates the attributes of this object by going to the AS/400 and
+     * Updates the attributes of this object by going to the server and
      * retrieving the latest attributes for the object.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the iSeries system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the AS/400 system is not at the correct level.
+     *                                         the iSeries system is not at the correct level.
      **/
     public void update()
       throws AS400Exception,

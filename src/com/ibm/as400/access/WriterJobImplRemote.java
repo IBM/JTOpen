@@ -110,7 +110,17 @@ implements WriterJobImpl
         return attrsToRetrieve_;
     }
 
+// @B3A  retrieve only one attribute 
+   NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
+    {
+        String x = Copyright.copyright;     
+	if (!fAttrIDsToRtvBuilt_) {
+	    attrsToRetrieve_.addAttrID(attrToRtv);
+        }
+        return attrsToRetrieve_;
+    }
 
+//@B3A
 
     /**
      * Returns the name of the writer.

@@ -61,7 +61,36 @@ interface PrintObjectImpl
             RequestNotSupportedException;
 
 
+//@B1A begin
+    public abstract Integer getSingleIntegerAttribute(int attributeID)
+        throws AS400Exception,
+            AS400SecurityException,
+            ErrorCompletingRequestException,
+            IOException,
+            InterruptedException,
+            RequestNotSupportedException;
 
+
+
+    public abstract Float getSingleFloatAttribute(int attributeID)
+        throws AS400Exception,
+            AS400SecurityException,
+            ErrorCompletingRequestException,
+            IOException,
+            InterruptedException,
+            RequestNotSupportedException;
+
+
+
+    public abstract String getSingleStringAttribute(int attributeID)
+        throws AS400Exception,
+            AS400SecurityException,
+            ErrorCompletingRequestException,
+            IOException,
+            InterruptedException,
+            RequestNotSupportedException;
+
+//@B1A end
     /**
      * The setPrintObjectAttrs (package scope) method is introduced to allow
      * the propagation of PrintObject property changes to the ImplRemote object.

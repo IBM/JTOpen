@@ -25,9 +25,18 @@ interface PrintObjectInputStreamImpl
                IOException,
                InterruptedException,
                RequestNotSupportedException;
+//B1A
+   public abstract void createPrintObjectInputStream(SpooledFileImpl sf,
+                                                      PrintParameterList openOptions,
+                                                      String acifImp)
+        throws AS400Exception,
+               AS400SecurityException,
+               ErrorCompletingRequestException,
+               IOException,
+               InterruptedException,
+               RequestNotSupportedException;
 
-
-
+//B1A
     public abstract void createPrintObjectInputStream(PrintObjectImpl resource,
                                                       PrintParameterList openOptions)
         throws AS400Exception,

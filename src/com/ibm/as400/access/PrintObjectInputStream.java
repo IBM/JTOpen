@@ -40,12 +40,12 @@ public class PrintObjectInputStream extends InputStream
     /**
      * Constructs a  PrintObjectInputStream object. It uses the
      * specified SpooledFile object from which to read and the PrintParameterList.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception RequestNotSupportedException If the requested function is not supported because the AS/400
+     * @exception RequestNotSupportedException If the requested function is not supported because the server.
      *                                      system is not at the correct level.
      **/
     PrintObjectInputStream(SpooledFile sf,
@@ -68,18 +68,51 @@ public class PrintObjectInputStream extends InputStream
         impl_.createPrintObjectInputStream((SpooledFileImpl) sf.getImpl(), openOptions);  // @A2C
     }
 
+// @B1A
+    /**
+     * Constructs a  PrintObjectInputStream object. It uses the
+     * specified SpooledFile object from which to read, the PrintParameterList.
+     * and the int value of PrintObject.ATTR_ACIF which indicates of the ACIF
+     * merged data is to be used.
+     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the server.
+     *                                      system is not at the correct level.
+     **/
+    PrintObjectInputStream(SpooledFile sf,
+                           PrintParameterList openOptions, String acifProcess)
+        throws AS400Exception,
+               AS400SecurityException,
+               ErrorCompletingRequestException,
+               IOException,
+               InterruptedException,
+               RequestNotSupportedException
+    {
+        system_ = sf.getSystem();
+        if (impl_ == null)
+            chooseImpl();
+        // Do connect here because it could throw Exceptions  @A2A
+        system_.connectService(AS400.PRINT);    // @A2A
+        if (sf.getImpl() == null) {             // @A2A
+            sf.chooseImpl();                    // @A2A
+        }                                       // @A2A
+        impl_.createPrintObjectInputStream((SpooledFileImpl) sf.getImpl(), openOptions, acifProcess);
+    }
 
-
+//@B1A
    /**
      * Contructs a PrintObjectInputStream object.
      * It uses the specified  AFP Resource object from which to read and
      * the PrintParameterList.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception RequestNotSupportedException If the requested function is not supported because the AS/400
+     * @exception RequestNotSupportedException If the requested function is not supported because the server
      *                                      system is not at the correct level.
     **/
     PrintObjectInputStream(AFPResource resource,
@@ -136,7 +169,7 @@ public class PrintObjectInputStream extends InputStream
     /**
       * Closes the input stream.
       * It must be called to release any resources associated with the stream.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void close()
        throws IOException
@@ -177,7 +210,7 @@ public class PrintObjectInputStream extends InputStream
 
     /** Reads the next byte of data from this input stream.
       * @return The byte read, or -1 if the end of the stream is reached.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public int read()
         throws IOException
@@ -203,7 +236,7 @@ public class PrintObjectInputStream extends InputStream
       * @return The total number of bytes read into the buffer,
       *          or -1 if there is no more data because the
       *          end of file has been reached.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public int read(byte[] data)
         throws IOException
@@ -223,7 +256,7 @@ public class PrintObjectInputStream extends InputStream
       * @return The total number of bytes read into the buffer,
       *          or -1 if there is no more data because the
       *          end of file has been reached.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public int read(byte data[], int dataOffset, int length)
         throws IOException
@@ -236,7 +269,7 @@ public class PrintObjectInputStream extends InputStream
     /** Repositions the stream to the last marked position.
       * If the stream has not been marked or if the mark has been invalidated,
       * an IOException is thrown.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void reset()
        throws IOException
@@ -251,7 +284,7 @@ public class PrintObjectInputStream extends InputStream
       * file is reached. The actual number of bytes skipped is returned.
       * @param bytesToSkip The number of bytes to be skipped.
       * @return The actual number of bytes skipped.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public long skip(long bytesToSkip) throws IOException
     {

@@ -41,6 +41,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_3812SCS      = 0x011F;  // AT_3812SCS @ABA   
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY245">Accounting code</A>. **/
     public static final int ATTR_ACCOUNT_CODE = 0x0109; // AT_ACCOUNT_CODE @ABA 
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY261">ACIF processed"</A>. **/
+           static final int ATTR_ACIF = 0x013B; //AT_ACIF     @ABA 
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1">Advanced function printing</A>. **/
     public static final int ATTR_AFP          = 0x000A;  // AFP resources used
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEYIFS_C">AFP Resource integrated file system path</A>. **/
@@ -563,7 +565,7 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_STARTEDBY    = 0x00C5;  // started by user @A1A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY122.5">System where output was created</A>. **/
     public static final int ATTR_SYSTEM       = 0x00BC;  // system where created @A1A
-    /** <A HREF="../../../../PrintAttributes.html#HDRKEY214">Target code page conversion</A>. **/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY214">Target code page conversion</A>. **/
     public static final int ATTR_TGT_CODEPAGE = 0x0108; // Target code page converstion @AAA
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY250">System driver program name</A>. **/
     public static final int ATTR_SYS_DRV_PGM  = 0x0131;  // System driver program name @ABA
@@ -664,7 +666,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x013A;  // last attribute ID @A4C @A7C @A9C @AAC
+    static final int                    MAX_ATTR_ID = 0x013B;  // last attribute ID @A4C @A7C @A9C @AAC
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";
@@ -807,12 +809,12 @@ abstract public class PrintObject implements java.io.Serializable
      * @param attributeID Identifies which attribute to retrieve.
      * See the following links for the attribute IDs that are valid for each
      * particular subclass.<UL>
-     * <LI> <A HREF="../../../../AFPResourceAttrs.html">AFP Resource Attributes</A>
-     * <LI> <A HREF="../../../../OutputQueueAttrs.html">Output Queue Attributes</A>
-     * <LI> <A HREF="../../../../PrinterAttrs.html">Printer Attributes</A>
-     * <LI> <A HREF="../../../../PrinterFileAttrs.html">Printer File Attributes</A>
-     * <LI> <A HREF="../../../../SpooledFileAttrs.html">Spooled File Attributes</A>
-     * <LI> <A HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/WriterJobAttrs.html">Writer Job Attributes</A>
      * </UL>
      *
      * @return The value of the attribute.
@@ -857,12 +859,12 @@ abstract public class PrintObject implements java.io.Serializable
      * @param attributeID Identifies which attribute to retrieve.
      * See the following links for the attribute IDs that are valid for each
      * particular subclass.<UL>
-     * <LI> <A HREF="../../../../AFPResourceAttrs.html">AFP Resource Attributes</A>
-     * <LI> <A HREF="../../../../OutputQueueAttrs.html">Output Queue Attributes</A>
-     * <LI> <A HREF="../../../../PrinterAttrs.html">Printer Attributes</A>
-     * <LI> <A HREF="../../../../PrinterFileAttrs.html">Printer File Attributes</A>
-     * <LI> <A HREF="../../../../SpooledFileAttrs.html">Spooled File Attributes</A>
-     * <LI> <A HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/WriterJobAttrs.html">Writer Job Attributes</A>
      * </UL>
      *
      * @return The value of the attribute.
@@ -906,12 +908,12 @@ abstract public class PrintObject implements java.io.Serializable
      * @param attributeID Identifies which attribute to retrieve.
      * See the following links for the attribute IDs that are valid for each
      * particular subclass.<UL>
-     * <LI> <A HREF="../../../../AFPResourceAttrs.html">AFP Resource Attributes</A>
-     * <LI> <A HREF="../../../../OutputQueueAttrs.html">Output Queue Attributes</A>
-     * <LI> <A HREF="../../../../PrinterAttrs.html">Printer Attributes</A>
-     * <LI> <A HREF="../../../../PrinterFileAttrs.html">Printer File Attributes</A>
-     * <LI> <A HREF="../../../../SpooledFileAttrs.html">Spooled File Attributes</A>
-     * <LI> <A HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/WriterJobAttrs.html">Writer Job Attributes</A>
      * </UL>
      *
      * @return The value of the attribute.

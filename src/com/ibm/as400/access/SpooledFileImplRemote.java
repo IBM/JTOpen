@@ -16,10 +16,10 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The SpooledFile class represents an OS/400 spooled file.
+ * The SpooledFile class represents an AS/400 spooled file.
  *  You can use an instance of this class to manipulate an individual
- *  OS/400 spooled file (hold, release, delete, send, read, and so on).
- * To create new spooled files on the server, use the
+ *  AS/400 spooled file (hold, release, delete, send, read, and so on).
+ * To create new spooled files on the AS/400, use the
  * SpooledFileOutputStream class.
  *
  * See <a href="SpooledFileAttrs.html">Spooled File Attributes</a> for
@@ -286,6 +286,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch reference                  @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);          // whether to save after printing or not
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCHEDULE);      // when available to the writer
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // allow separator page to be printed @C3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_AUTH_METHOD); // spool file authentication method @C3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SECURITY_METHOD); // spool file security method   @C3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);       // spool file number
@@ -440,7 +441,17 @@ implements SpooledFileImpl
            cpMsgHandle_ = new NPCPMsgHandle();
         }
     }
+// @D2A  retrieve only one attribute 
+   NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
+    {
+        String x = Copyright.copyright;     
+	if (!fAttrIDsToRtvBuilt_) {
+	    attrsToRetrieve_.addAttrID(attrToRtv);
+        }
+        return attrsToRetrieve_;
+    }
 
+//@D2A
 
 
     NPCPAttributeIDList getAttrIDsToRetrieve()

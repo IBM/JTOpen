@@ -37,9 +37,27 @@ implements PrintObjectInputStreamImpl, ProxyImpl
     {
         super("PrintObjectInputStream"); 
     }
+//B1A  
+    public void createPrintObjectInputStream(SpooledFileImpl sf,  
+                                             PrintParameterList openOptions, String acifO)
+        throws AS400Exception,
+               AS400SecurityException,
+               ErrorCompletingRequestException,
+               IOException,
+               InterruptedException,
+               RequestNotSupportedException
+    {
+        try {
+            connection_.callMethod(pxId_, "createPrintObjectInputStream",
+                                   new Class [] { SpooledFileImpl.class, PrintParameterList.class },
+                                   new Object[] { sf, openOptions });
+        }
+        catch (InvocationTargetException e) {
+            throw ProxyClientConnection.rethrow6a(e);
+        }
+    }
 
-
-
+//B1A
     public void createPrintObjectInputStream(SpooledFileImpl sf,  
                                              PrintParameterList openOptions)
         throws AS400Exception,
