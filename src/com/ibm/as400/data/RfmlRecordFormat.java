@@ -576,6 +576,11 @@ class RfmlRecordFormat extends PcmlDocNode
             throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
         }
       }
+      if (offsetForNextField < bytes.length) {
+        byte[] temp = new byte[offsetForNextField];
+        System.arraycopy(bytes, 0, temp, 0, temp.length);
+        bytes = temp;
+      }
 
       return bytes;
     }
