@@ -119,6 +119,7 @@ extends ListResourceBundle
         { "IFSFILE_LAST_MODIFIED_NAME",                         "Last Modified" },
         { "IFSFILE_LENGTH_NAME",                                "Length" },
         { "IFSFILE_NAME_NAME",                                  "Name" },
+        { "IFSFILE_OWNERID_NAME",                               "Owner ID" }, //@A2a
         { "IFSFILE_PARENT_NAME",                                "Parent" },
         { "IFSFILE_PATH_NAME",                                  "Path" },
         { "IFSFILE_TYPE_NAME",                                  "Type" },
