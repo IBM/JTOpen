@@ -27,7 +27,7 @@ interface AS400Impl
     // Map from CCSID to encoding string.
     String ccsidToEncoding(int ccsid);
     // Change password.
-    SignonInfo changePassword(String systemName, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
+    SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
     // Connect to service.
     void connect(int service) throws AS400SecurityException, IOException;
     // Disconnect from service.
@@ -55,5 +55,5 @@ interface AS400Impl
     // Set significant instance variables into implementation object.
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB);
     // Sign-on to system.
-    SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException;
+    SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException;
 }

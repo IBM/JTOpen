@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@ import java.util.Vector;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
- The AS400 class represents an iSeries server sign-on.
- <p>If running on an iSeries server to another iSeries server or to itself, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
- <p>If running on another system to an iSeries server, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running from a system other than an iSeries server.
+ The AS400 class represents the authentication information and a set of connections to a server.
+ <p>If running under i5/OS or an older version of this operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
+ <p>If running on another operating system to a server, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running from another operating system.
  <p>For example:
  <pre>
  *    AS400 system = new AS400();
@@ -48,7 +48,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  **/
 public class AS400 implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
@@ -122,7 +122,7 @@ public class AS400 implements Serializable
      **/
     public static final int GSS_OPTION_NONE = 2;
 
-    // Determine if we are running on an iSeries server.
+    // Determine if we are running on the server.
     static boolean onAS400 = false;
     // VRM from system property, if we are native.
     static ServerVersion nativeVRM = null;
@@ -164,12 +164,15 @@ public class AS400 implements Serializable
 
     // System name.
     private String systemName_ = "";
+    // Flag indicating if system name refers to local system.
+    private boolean systemNameLocal_ = false;
     // User ID.
     private String userId_ = "";
     // Password, GSS token, or profile token bytes twiddled.
     private transient byte[] bytes_ = null;
     // Type of authentication bytes, start by default in password mode.
     private transient int byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
+    // GSS Credential object, for Kerberos.  Type set to Object to prevent dependancy on 1.4 JDK.
     private transient Object gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
@@ -179,7 +182,7 @@ public class AS400 implements Serializable
     // Proxy server system name.
     private transient String proxyServer_ = "";
     // Client side proxy connection information.
-    private transient Object proxyClientConnection_ = null;  // tolerate not having class ProxyClientConnection in the jar
+    private transient Object proxyClientConnection_ = null;  // Tolerate not having class ProxyClientConnection in the jar.
 
     // This controls the prompting.  If set to true, then prompting will occur during sign-on if needed.  If set to false, no prompting will occur and all security errors are returned as exceptions.
     private boolean guiAvailable_ = true;
@@ -222,26 +225,26 @@ public class AS400 implements Serializable
     private transient SignonInfo signonInfo_ = null;
 
     // The IASP name used for the RECORDACCESS service.
-    private String ddmRDB_;
+    private String ddmRDB_ = null;
 
     /**
      Constructs an AS400 object.
-     <p>If running on an iSeries server, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
-     <p>If running on another system to an iSeries server, a sign-on prompt is displayed. The user is then able to specify the system name, user ID, and password.
+     <p>If running on the server, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     <p>If running on another system to a server, a sign-on prompt is displayed.  The user is then able to specify the system name, user ID, and password.
      **/
     public AS400()
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object.");
         construct();
-        systemName_ = resolveSystem(systemName_);
+        systemNameLocal_ = resolveSystemNameLocal("");
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
     /**
      Constructs an AS400 object.  It uses the specified system name.
-     <p>If running on an iSeries server to another iSeries server or to itself, the user ID and password of the current job are used.
-     <p>If running on another system to an iSeries server, the user is prompted for the user ID and password if a default user has not been established for this server.
+     <p>If running under the i5/OS to another server or to itself, the user ID and password of the current job are used.
+     <p>If running on another operating system to a server, the user is prompted for the user ID and password if a default user has not been established for this server.
      @param  systemName  The name of the server.  Use localhost to access data locally.
      **/
     public AS400(String systemName)
@@ -254,14 +257,15 @@ public class AS400 implements Serializable
             throw new NullPointerException("systemName");
         }
         construct();
-        systemName_ = resolveSystem(systemName);
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
     /**
      Constructs an AS400 object.  It uses the specified system name and user ID.  When the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
      @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on an iSeries server, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the server.  If running on a the server, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
     {
@@ -283,7 +287,8 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         construct();
-        systemName_ = resolveSystem(systemName);
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
@@ -309,7 +314,8 @@ public class AS400 implements Serializable
             throw new NullPointerException("profileToken");
         }
         construct();
-        systemName_ = resolveSystem(systemName);
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
         bytes_ = store(profileToken.getToken());
         byteType_ = AUTHENTICATION_SCHEME_PROFILE_TOKEN;
         proxyServer_ = resolveProxyServer(proxyServer_);
@@ -318,8 +324,8 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on an iSeries server, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the server.  If running on an iSeries server, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId, String password)
     {
@@ -352,7 +358,8 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         construct();
-        systemName_ = resolveSystem(systemName);
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
         bytes_ = store(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
@@ -382,7 +389,8 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         construct();
-        systemName_ = resolveSystem(systemName);
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
         bytes_ = bytes;
         proxyServer_ = resolveProxyServer(proxyServer_);
@@ -391,8 +399,8 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on an iSeries server, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the server.  If running on an iSeries server, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      **/
     public AS400(String systemName, String userId, String password, String proxyServer)
@@ -431,7 +439,8 @@ public class AS400 implements Serializable
             throw new NullPointerException("proxyServer");
         }
         construct();
-        systemName_ = resolveSystem(systemName);
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
         bytes_ = store(password);
         proxyServer_ = resolveProxyServer(proxyServer);
@@ -452,6 +461,7 @@ public class AS400 implements Serializable
         }
         construct();
         systemName_ = system.systemName_;
+        systemNameLocal_ = system.systemNameLocal_;
         userId_ = system.userId_;
         bytes_ = system.bytes_;
         byteType_ = system.byteType_;
@@ -480,6 +490,7 @@ public class AS400 implements Serializable
         // propertiesFrozen_ is not copied.
         // impl_ is not copied.
         // signonInfo_ is not copied.
+        ddmRDB_ = system.ddmRDB_;
     }
 
     /**
@@ -636,7 +647,7 @@ public class AS400 implements Serializable
     {
         try
         {
-            if (AS400.onAS400 && !mustUseSockets_ && systemName_.equalsIgnoreCase("localhost") && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
+            if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
                 return true;
@@ -711,7 +722,7 @@ public class AS400 implements Serializable
                 Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
             }
 
-            signonInfo_ = impl_.changePassword(systemName_, userId_, encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
+            signonInfo_ = impl_.changePassword(systemName_, systemNameLocal_, userId_, encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
 
             // Change instance variable to match.
@@ -777,7 +788,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Connects to a service on the iSeries server.  Security is validated and a connection is established to the server.
+     Connects to a service on the server.  Security is validated and a connection is established to the server.
      <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
      @param  service  The name of the service.
      <br>Valid services are:
@@ -811,12 +822,12 @@ public class AS400 implements Serializable
     // Common code for all the constuctors and readObject.
     private void construct()
     {
-        // See if we are running on an iSeries server.
+        // See if we are running on the server.
         if (AS400.onAS400)
         {
-            // OK, we are running on an iSeries server.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on iSeries server.");
-            // Running on an iSeries server, don't prompt.
+            // OK, we are running on the server.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on the server.");
+            // Running on the server, don't prompt.
             guiAvailable_ = false;
         }
     }
@@ -849,7 +860,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnects from the iSeries server.  All socket connections associated with this object will be closed.
+     Disconnects from the server.  All socket connections associated with this object will be closed.
      **/
     public void disconnectAllServices()
     {
@@ -870,7 +881,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnects the service from the iSeries server.  All socket connections associated with this service and this object will be closed.
+     Disconnects the service from the server.  All socket connections associated with this service and this object will be closed.
      @param  service  The name of the service.
      <br>Valid services are:
      <br>   FILE - IFS file classes.
@@ -947,9 +958,9 @@ public class AS400 implements Serializable
     }
 
     /**
-     Generates a profile token on behalf of the provided user identity.  This user identity must be associated with OS/400 user profile via EIM.
+     Generates a profile token on behalf of the provided user identity.  This user identity must be associated with a user profile via EIM.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.  The profile associated with this system object must have enough authority to generate an authentication token for another user.
-     <p>This function is only supported if the server is at release V5R3M0 or greater.
+     <p>This function is only supported if the server is at operating system release V5R3M0 or greater.
      @param  userIdentity  The LDAP distinguished name.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
@@ -1087,15 +1098,13 @@ public class AS400 implements Serializable
     }
 
     /**
-     * Returns the relational database name (RDB name) used for record-level access (DDM) connections.
-     * The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
-     * @return The name of the IASP or RDB that is in use by this AS400 object's RECORDACCESS service, or null if
-     * the IASP used will be the default system pool (*SYSBAS).
-     * @see #setDDMRDB
-    **/
+     Returns the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
+     @return  The name of the IASP or RDB that is in use by this AS400 object's RECORDACCESS service, or null if the IASP used will be the default system pool (*SYSBAS).
+     @see  #setDDMRDB
+     **/
     public String getDDMRDB()
     {
-      return ddmRDB_;
+        return ddmRDB_;
     }
 
     /**
@@ -1187,7 +1196,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns an array of Job objects representing the iSeries jobs to which this object is connected.  This information is only available when connecting to V5R2 and later iSeries servers.  The array will be of length zero if no connections are currently active.
+     Returns an array of Job objects representing the server jobs to which this object is connected.  This information is only available when connecting to servers at operating system release V5R2M0 and later.  The array will be of length zero if no connections are currently active.
      @param  service  The name of the service.
      <br>Valid services are:
      <br>   FILE - IFS file classes.
@@ -1302,7 +1311,7 @@ public class AS400 implements Serializable
      Returns a profile token representing the signed-on user profile.
      <p>The returned token will be created single-use with a one hour time to expiration. Subsequent method calls will return the same token, regardless of the token status.
      <p>This function is not supported if the assigned password is *CURRENT.
-     <p>This function is only supported if the server is at release V4R5M0 or greater.
+     <p>This function is only supported if the server is at operating system release V4R5M0 or greater.
      @return  A ProfileTokenCredential representing the currently signed on user.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
@@ -1317,30 +1326,7 @@ public class AS400 implements Serializable
         {
             return (ProfileTokenCredential)signonInfo_.profileToken;
         }
-        if (getVRM() < 0x00040500)
-        {
-            Trace.log(Trace.ERROR, "Requests for profile tokens require V4R5M0 or greater.");
-            throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
-        }
         // If the password is not set and we are not using Kerberos.
-        try
-        {
-            // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
-            if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
-            {
-                // Try for Kerberos.
-                bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
-                byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
-            }
-        }
-        catch (Throwable e)
-        {
-            Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-            if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
-            {
-                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
-            }
-        }
         if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
@@ -1372,7 +1358,7 @@ public class AS400 implements Serializable
 
     /**
      Authenticates the assigned user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable token.  This function is only supported if the server is at release V4R5M0 or greater.
+     <p>This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable token.  This function is only supported if the server is at operating system release V4R5M0 or greater.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
      <li>TYPE_SINGLE_USE
@@ -1388,30 +1374,7 @@ public class AS400 implements Serializable
     {
         connectService(AS400.SIGNON);
 
-        if (getVRM() < 0x00040500)
-        {
-            Trace.log(Trace.ERROR, "Requests for profile tokens require V4R5M0 or greater.");
-            throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
-        }
         // If the password is not set and we are not using Kerberos.
-        try
-        {
-            // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
-            if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
-            {
-                // Try for Kerberos.
-                bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
-                byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
-            }
-        }
-        catch (Throwable e)
-        {
-            Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-            if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
-            {
-                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
-            }
-        }
         if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
@@ -1449,7 +1412,7 @@ public class AS400 implements Serializable
      Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
      <p>This method generates a single use token with a timeout of one hour.
-     <p>This function is only supported if the server is at release V4R5M0 or greater.
+     <p>This function is only supported if the server is at operating system release V4R5M0 or greater.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
      @param  userId  The user profile name.
      @param  password  The user profile password.
@@ -1506,11 +1469,6 @@ public class AS400 implements Serializable
         {
             Trace.log(Trace.ERROR, "Length of 'password' parameter is not valid: " + password.length());
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-        if (getVRM() < 0x00040500)
-        {
-            Trace.log(Trace.ERROR, "Requests for profile tokens require V4R5M0 or greater.");
-            throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
         }
 
         userId = resolveUserId(userId.toUpperCase());
@@ -1625,7 +1583,7 @@ public class AS400 implements Serializable
         }
 
         chooseImpl();
-        int port = impl_.getServicePort(systemName_, service);
+        int port = impl_.getServicePort((systemNameLocal_) ? "localhost" : systemName_, service);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service port:", port);
         return port;
     }
@@ -1668,8 +1626,8 @@ public class AS400 implements Serializable
      **/
     public String getSystemName()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system name: " + systemName_);
-        return systemName_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system name: " + systemName_ + " is local:", systemNameLocal_);
+        return (systemNameLocal_) ? "localhost" : systemName_;
     }
 
     /**
@@ -1748,8 +1706,7 @@ public class AS400 implements Serializable
 
     /**
      Indicates if any service is currently connected through this object.
-     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.
-        Also, if the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
+     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  Also, if the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @return  true if any service is connected; false otherwise.
      **/
     public boolean isConnected()
@@ -1769,8 +1726,7 @@ public class AS400 implements Serializable
 
     /**
      Indicates if a service is currently connected through this object.
-     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.
-        Also, if the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
+     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  Also, if the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @param  service  The name of the service.
      <br>Valid services are:
      <br>   FILE - IFS file classes.
@@ -1816,14 +1772,12 @@ public class AS400 implements Serializable
      **/
     public boolean isLocal()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if Local:");
-        boolean isLocal = AS400.onAS400 && systemName_.equalsIgnoreCase("localhost");
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Local:", isLocal);
-        return isLocal;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if local:", systemNameLocal_);
+        return systemNameLocal_;
     }
 
     /**
-     When your Java program runs on an iSeries server, some Toolbox classes access data via a call to an API instead of making a socket call to a server.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
+     When your Java program runs on the server, some Toolbox classes access data via a call to an API instead of making a socket call to a server.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
      @return  true if you have indicated that the services must use sockets; false otherwise.
      **/
     public boolean isMustUseSockets()
@@ -2063,7 +2017,7 @@ public class AS400 implements Serializable
                             if (signonAttempt)
                             {
                                 // User did not cancel.
-                                systemName = resolveSystem(pd.getSystemName().trim());
+                                systemName = pd.getSystemName().trim();
                                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name: '" + systemName + "'");
                                 userId = pd.getUserId().trim().toUpperCase();
                                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "User ID: '" + userId + "'");
@@ -2103,6 +2057,7 @@ public class AS400 implements Serializable
                         if (signonAttempt)
                         {
                             systemName_ = systemName;
+                            systemNameLocal_ = resolveSystemNameLocal(systemName_);
                             userId_ = resolveUserId(userId);
                             bytes_ = store(password);
                             sendSignonRequest();
@@ -2196,7 +2151,7 @@ public class AS400 implements Serializable
                                 Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
                             }
 
-                            signonInfo_ = impl_.changePassword(systemName_, userId_, encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
+                            signonInfo_ = impl_.changePassword(systemName_, systemNameLocal_, userId_, encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
 
                             bytes_ = store(newPassword);  // Change instance variable to match.
                         }
@@ -2312,7 +2267,7 @@ public class AS400 implements Serializable
 
         construct();
 
-        systemName_ = resolveSystem(systemName_);
+        systemNameLocal_ = resolveSystemNameLocal(systemName_);
 
         proxyServer_ = resolveProxyServer("");
         // proxyClientConnection_ can stay null.
@@ -2440,13 +2395,10 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        synchronized (this)
+        // If we have listeners.
+        if (vetoableChangeListeners_ != null)
         {
-            // If we have listeners.
-            if (vetoableChangeListeners_ != null)
-            {
-                vetoableChangeListeners_.removeVetoableChangeListener(listener);
-            }
+            vetoableChangeListeners_.removeVetoableChangeListener(listener);
         }
     }
 
@@ -2517,17 +2469,27 @@ public class AS400 implements Serializable
         return systemName;
     }
 
-    // If on an iSeries server, resolve user ID to current user ID.
+    // Convenience method to determine if systemName is local server.
+    static boolean resolveSystemNameLocal(String systemName)
+    {
+        if (AS400.onAS400)
+        {
+            if (systemName.length() == 0 || isSystemNameLocal(systemName)) return true;
+        }
+        return false;
+    }
+
+    // If on the server, resolve user ID to current user ID.
     static String resolveUserId(String userId)
     {
         // Resolve user ID, for someone using user ID/password.
         return resolveUserId(userId, 0);
     }
 
-    // If on an iSeries server, resolve user ID to current user ID.
+    // If on the server, resolve user ID to current user ID.
     static String resolveUserId(String userId, int byteType)
     {
-        // First, see if we are running on an iSeries server.
+        // First, see if we are running on the server.
         if (AS400.onAS400)
         {
             boolean tryToGetCurrentUserID = false;
@@ -2537,7 +2499,7 @@ public class AS400 implements Serializable
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID.");
                 tryToGetCurrentUserID = true;
             }
-            // If we are running on an iSeries server, then *CURRENT for user ID means we want to connect using current user ID.
+            // If we are running on the server, then *CURRENT for user ID means we want to connect using current user ID.
             if (userId.equals("*CURRENT"))
             {
                 // Get current user ID and use it.
@@ -2596,13 +2558,13 @@ public class AS400 implements Serializable
         // If using GSS tokens.
         if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            signonInfo_ = impl_.signon(systemName_, userId_, bytes_, byteType_, gssName_, gssOption_);
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, bytes_, byteType_, gssName_, gssOption_);
             if (gssCredential_ != null) ((AS400ImplRemote)impl_).setGSSCredential(gssCredential_);
             bytes_ = null;  // GSSToken is single use only.
         }
         else
         {
-            signonInfo_ = impl_.signon(systemName_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_, gssName_, gssOption_);
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_, gssName_, gssOption_);
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
@@ -2610,7 +2572,7 @@ public class AS400 implements Serializable
 
     /**
      Sets or resets the identity token for this object.  Using this method will clear any set password.
-     <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for OS/400 V5R2 and V5R1.</i>
+     <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for operating system releases V5R2M0 and V5R1M0.</i>
      @param  identityToken  The identity token.
      **/
     public void setIdentityToken(byte[] identityToken)
@@ -2691,25 +2653,22 @@ public class AS400 implements Serializable
     }
 
     /**
-     * Sets the relational database name (RDB name) used for record-level access (DDM) connections.
-     * The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
-     * The RDB name cannot be changed when this AS400 object is currently
-     * connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
-     * @param iaspName The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
-     * @see #isConnected(int)
-     * @see #getDDMRDB
-    **/
-    public void setDDMRDB(String iaspName)
+     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.  The RDB name cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
+     @param  ddmRDB  The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
+     @see  #isConnected(int)
+     @see  #getDDMRDB
+     **/
+    public void setDDMRDB(String ddmRDB)
     {
-      if (iaspName.length() > 18)
-      {
-        throw new ExtendedIllegalArgumentException("iaspName", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-      }
-      if (isConnected(RECORDACCESS))
-      {
-        throw new ExtendedIllegalStateException("iaspName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      ddmRDB_ = (iaspName == null ? null : iaspName.toUpperCase());
+        if (ddmRDB.length() > 18)
+        {
+            throw new ExtendedIllegalArgumentException("ddmRDB", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        if (isConnected(RECORDACCESS))
+        {
+            throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        ddmRDB_ = (ddmRDB == null ? null : ddmRDB.toUpperCase());
     }
 
     /**
@@ -2753,6 +2712,10 @@ public class AS400 implements Serializable
         return false;
     }
 
+    /**
+     Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, or password) can be used at a single time.  Using this method will clear any set profile token or password.
+     @param  gssCredential  The GSS credential object.  The type of this must be org.ietf.jgss.GSSCredential, the object is set to type to object only to avoid a JDK release dependency.
+     **/
     public void setGSSCredential(Object gssCredential)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential: '" + gssCredential + "'");
@@ -2779,7 +2742,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the server.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on an iSeries server, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
+     Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the server.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on the server, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
      @param  gssOption  A constant indicating how GSS will be used.  Valid values are:
      <ul>
      <li>AS400.GSS_OPTION_MANDATORY
@@ -2828,7 +2791,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the environment you are running in.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then these conditions will result in return codes and exceptions.  Applications that are running as server applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
+     Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then these conditions will result in return codes and exceptions.  Applications that are running as server applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
      @param  guiAvailable  true to prompt; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -2890,7 +2853,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets this object to using sockets.  When your Java program runs on an iSeries server, some Toolbox classes access data via a call to an API instead of making a socket call to a server.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. The must use sockets property cannot be changed once a connection to the server has been established.
+     Sets this object to using sockets.  When your Java program runs on the server, some Toolbox classes access data via a call to an API instead of making a socket call to a server.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. The must use sockets property cannot be changed once a connection to the server has been established.
      @param  mustUseSockets  true to use sockets; false otherwise.
      **/
     public void setMustUseSockets(boolean mustUseSockets)
@@ -3038,7 +3001,7 @@ public class AS400 implements Serializable
         }
 
         chooseImpl();
-        impl_.setServicePort(systemName_, service, port);
+        impl_.setServicePort((systemNameLocal_) ? "localhost" : systemName_, service, port);
     }
 
     /**
@@ -3055,7 +3018,7 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
         chooseImpl();
-        impl_.setServicePortsToDefault(systemName_);
+        impl_.setServicePortsToDefault((systemNameLocal_) ? "localhost" : systemName_);
     }
 
     /**
@@ -3104,18 +3067,20 @@ public class AS400 implements Serializable
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
         {
-            systemName_ = resolveSystem(systemName);
+            systemName_ = systemName;
+            systemNameLocal_ = resolveSystemNameLocal(systemName);
         }
         else
         {
             String oldValue = systemName_;
-            String newValue = resolveSystem(systemName);
+            String newValue = systemName;
 
             if (vetoableChangeListeners_ != null)
             {
                 vetoableChangeListeners_.fireVetoableChange("systemName", oldValue, newValue);
             }
-            systemName_ = newValue;
+            systemName_ = systemName;
+            systemNameLocal_ = resolveSystemNameLocal(systemName);
             if (propertyChangeListeners_ != null)
             {
                 propertyChangeListeners_.firePropertyChange("systemName", oldValue, newValue);
@@ -3345,7 +3310,7 @@ public class AS400 implements Serializable
             try
             {
                 // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
-                if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE && !canUseNativeOptimizations())
+                if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null && (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
                 {
                     // Try for Kerberos.
                     bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
@@ -3355,7 +3320,7 @@ public class AS400 implements Serializable
             catch (Throwable e)
             {
                 Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-                if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
+                if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ == AS400.GSS_OPTION_MANDATORY)
                 {
                     throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
                 }

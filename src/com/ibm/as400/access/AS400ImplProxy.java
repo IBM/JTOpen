@@ -50,11 +50,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Change password.
-    public SignonInfo changePassword(String systemName, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException
+    public SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException
     {
         try
         {
-            return (SignonInfo)connection_.callMethod(pxId_, "changePassword", new Class[] { String.class, String.class, byte[].class, byte[].class }, new Object[] { systemName, userId, oldBytes, newBytes }).getReturnValue();
+            return (SignonInfo)connection_.callMethod(pxId_, "changePassword", new Class[] { String.class, Boolean.TYPE, String.class, byte[].class, byte[].class }, new Object[] { systemName, new Boolean(systemNameLocal), userId, oldBytes, newBytes }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -230,11 +230,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Sign-on.
-    public SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
+    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
     {
         try
         {
-            return (SignonInfo)connection_.callMethod(pxId_, "signon", new Class[] { String.class, String.class, byte[].class, Integer.TYPE, String.class, Integer.TYPE }, new Object[] { systemName, userId, bytes, new Integer(byteType), gssName, new Integer(gssOption) }).getReturnValue();
+            return (SignonInfo)connection_.callMethod(pxId_, "signon", new Class[] { String.class, Boolean.TYPE, String.class, byte[].class, Integer.TYPE, String.class, Integer.TYPE }, new Object[] { systemName, new Boolean(systemNameLocal), userId, bytes, new Integer(byteType), gssName, new Integer(gssOption) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {

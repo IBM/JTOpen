@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1999-2003 International Business Machines Corporation and
+// Copyright (C) 1999-2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 // AS400ImplRemote is the functional implementation of the AS400Impl interface.
 class AS400ImplRemote implements AS400Impl
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     private static final boolean PASSWORD_TRACE = false;
 
@@ -45,13 +45,17 @@ class AS400ImplRemote implements AS400Impl
     private String systemName_ = "";
     // User ID.
     private String userId_ = "";
+    // Flag indicating if system name refers to local system.
+    private boolean systemNameLocal_ = false;
     // Password bytes twiddled.
     private byte[] bytes_ = null;
     // Type of authentication bytes, start by default in password mode.
     private int byteType_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
+    // GSS Credential object, for Kerberos.  Type set to Object to prevent dependancy on 1.4 JDK.
     private Object gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
+    // How to use the GSS framework.
     int gssOption_;
     // Adder for twiddled password bytes.
     private byte[] adder_ = null;
@@ -83,11 +87,13 @@ class AS400ImplRemote implements AS400Impl
     private int serverLevel_;
     // Type of password encryption.
     private boolean passwordType_ = false;  // false == DES, true == SHA-1.
+    // Flag indicating if we have determined the password type yet.
     private boolean isPasswordTypeSet_ = false;
     // Sign-on information retrieved on sign-on information request.
     private SignonInfo signonInfo_;
     // EBCDIC bytes of sign-on server job name, held until Job CCSID is returned.
     private byte[] signonJobBytes_;
+    // String form of sign-on server job name.
     private String signonJobString_;
 
     // Dispatcher of connection events from this implementation to public object.
@@ -207,7 +213,7 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Change password.
-    public SignonInfo changePassword(String systemName, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException
+    public SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Change password implementation, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE)
@@ -217,6 +223,7 @@ class AS400ImplRemote implements AS400Impl
         }
 
         systemName_ = systemName;
+        systemNameLocal_ = systemNameLocal;
         userId_ = userId;
 
         // Decode passwords and discard seeds.
@@ -331,7 +338,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] tempSeed = new byte[9];
                 AS400.rng.nextBytes(tempSeed);
 
-                SignonInfo returnInfo = signon(systemName, userId, encode(tempSeed, exchangeSeed(tempSeed), BinaryConverter.charArrayToByteArray(newPassword)), 0, gssName_, 1);
+                SignonInfo returnInfo = signon(systemName, systemNameLocal, userId, encode(tempSeed, exchangeSeed(tempSeed), BinaryConverter.charArrayToByteArray(newPassword)), 0, gssName_, 1);
                 if (needToDisconnect) signonDisconnect();
                 return returnInfo;
             }
@@ -781,9 +788,10 @@ class AS400ImplRemote implements AS400Impl
         return impl.getCcsid();
     }
 
+    // Get connection for FTP.
     synchronized Socket getConnection(int port) throws IOException
     {
-        Socket socket = new Socket(systemName_, port);
+        Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
         try
         {
             PortMapper.setSocketProperties(socket, socketProperties_);
@@ -832,7 +840,7 @@ class AS400ImplRemote implements AS400Impl
     synchronized Socket getConnection(int dhcp, int port) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to server at port:", port);
-        Socket socket = new Socket(systemName_, port);
+        Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
         try
         {
             PortMapper.setSocketProperties(socket, socketProperties_);
@@ -916,7 +924,7 @@ class AS400ImplRemote implements AS400Impl
         }
     }
 
-    // Gets the jobs we are connected to.
+    // Gets the jobs with which we are connected.
     public String[] getJobs(int service)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job names implementation, service:", service);
@@ -944,7 +952,7 @@ class AS400ImplRemote implements AS400Impl
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to server: " + AS400.getServerName(service));
 
-        // Necessary for obscure case where we are connecting after native sign-on.
+        // Necessary for case where we are connecting after native sign-on.
         if (!isPasswordTypeSet_)
         {
             signonConnect();
@@ -967,7 +975,7 @@ class AS400ImplRemote implements AS400Impl
             }
         }
 
-        SocketContainer sc = PortMapper.getServerSocket(systemName_, service, useSSLConnection_, socketProperties_);
+        SocketContainer sc = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service, useSSLConnection_, socketProperties_);
         String jobString = "";
         try
         {
@@ -1131,24 +1139,6 @@ class AS400ImplRemote implements AS400Impl
         {
             return decode(adder_, mask_, bytes_);
         }
-        try
-        {
-            // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
-            if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
-            {
-                // Try for Kerberos.
-                bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
-                byteType_ = AS400.AUTHENTICATION_SCHEME_GSS_TOKEN;
-            }
-        }
-        catch (Throwable e)
-        {
-            Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-            if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
-            {
-                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
-            }
-        }
 
         byte[] encryptedPassword = null;
 
@@ -1260,8 +1250,8 @@ class AS400ImplRemote implements AS400Impl
     // Get system name.
     String getSystemName()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation system name: " + systemName_);
-        return systemName_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation system name: " + systemName_ + " is local:", systemNameLocal_);
+        return (systemNameLocal_) ? "localhost" : systemName_;
     }
 
     // Get user ID.
@@ -1675,9 +1665,10 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Exchange sign-on flows with sign-on server.
-    public SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
+    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
     {
         systemName_ = systemName;
+        systemNameLocal_ = systemNameLocal;
         userId_ = userId;
         gssName_ = gssName;
         gssOption_ = gssOption;
@@ -1838,7 +1829,7 @@ class AS400ImplRemote implements AS400Impl
     {
         if (signonConnection_ == null)
         {
-            signonConnection_ = PortMapper.getServerSocket(systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_);
+            signonConnection_ = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_);
             try
             {
                 InputStream inStream = signonConnection_.getInputStream();
