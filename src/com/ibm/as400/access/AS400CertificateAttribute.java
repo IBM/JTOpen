@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateAttribute.java
 //                                                                             
@@ -229,12 +229,6 @@ public class AS400CertificateAttribute extends Object
     attrType_  = attributeType;
     stringAttr_ = attributeValue;
     isString_ = true;
-  }
-
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
 

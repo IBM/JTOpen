@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateEvent.java
 //                                                                             
@@ -56,12 +56,6 @@ public class AS400CertificateEvent extends java.util.EventObject
     }
 
     id_ = id;
-  }
-
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

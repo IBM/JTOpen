@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateVldlUtilBeanInfo.java
 //                                                                             
@@ -40,13 +40,6 @@ public class AS400CertificateVldlUtilBeanInfo extends AS400CertificateUtilBeanIn
     public BeanDescriptor getBeanDescriptor()
     {
         return new BeanDescriptor(vldlBeanClass);
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 

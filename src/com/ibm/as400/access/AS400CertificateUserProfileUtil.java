@@ -23,7 +23,7 @@ import java.util.Vector;
 
 
 /**
-   <p>The AS400CertificateUserProfileUtil class accesses certificates in an AS400 user profile object.
+   <p>The AS400CertificateUserProfileUtil class accesses certificates in an i5/OS user profile object.
 **/
 public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implements java.io.Serializable
 {
@@ -38,7 +38,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
   /**
    * The user profile class implementation, either native or remote.
   **/
-  AS400CertificateUsrPrfUtilImpl usrprfImpl_ = null;
+  transient AS400CertificateUsrPrfUtilImpl usrprfImpl_ = null;
 
 
   /**
@@ -130,10 +130,10 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate already added and other AS400 certificate access errors.
+   * @exception ExtendedIOException If certificate already added and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the AS400 object does not exist.
+   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void addCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -176,10 +176,10 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the AS400 object does not exist.
+   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void deleteCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -223,10 +223,10 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
-   * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the AS400 object does not exist.
+   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void deleteCertificateByHandle(byte[] certificateHandle)
     throws AS400SecurityException,
@@ -273,10 +273,10 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the AS400 object does not exist.
+   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public String findCertificateUser(byte[] certificate)
     throws AS400SecurityException,
@@ -327,10 +327,10 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
-   * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the AS400 object does not exist.
+   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public String findCertificateUserByHandle(byte[] certificateHandle)
     throws AS400SecurityException,
@@ -370,14 +370,14 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
 
   /**
    * List certificates which match the specified attributes.  The certificates are copied from the user profile to the specified user space.
-   * The user profile is not locked during the listCertificates operation. Certificates are stored into the user space with CERT0100 format. See the AS400 QsyListVldlCertificates (QSYLSTVC) and QsyListUserCertificates (QSYLSTUC) API's for further information.
+   * The user profile is not locked during the listCertificates operation. Certificates are stored into the user space with CERT0100 format. See the i5/OS QsyListVldlCertificates (QSYLSTVC) and QsyListUserCertificates (QSYLSTUC) API's for further information.
    *
    * @param certificateAttributes  The list of attributes the certificate should match.
    *    A value of null places all certificates from user profile into the user space.
    *    An empty String or empty byte array search attribute will search for certificates that do not have this attribute.
    *    For example, SUBJECT_ORGANIZATION = new String("") will search for certificates without the subject organization field.
    *    Null search attributes are ignored.
-   * @param userSpaceName  The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC. The 10 character AS400 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * @param userSpaceName  The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC. The 10 character i5/OS library of the user space may also be specified as %CURLIB% or %LIBL%.
    * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    *
    * @return  The number of certificates found matching the search attributes.
@@ -385,10 +385,10 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
-   * @exception ExtendedIOException If AS400 certificate access error.
+   * @exception ExtendedIOException If i5/OS certificate access error.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the AS400 object does not exist.
+   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
 
    public int listCertificates(
@@ -412,7 +412,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
       //orders and saves the user's search attrs
     boolean[] parmsEntered = setSearchAttributes(certificateAttributes);
 
-      // get usrSpaceName in as400 format. check for nonnull values.
+      // get usrSpaceName in i5/OS format. check for nonnull values.
     as400usrSpaceName = getAS400UserSpaceName(userSpaceName);
 
        //makes either remote or local call
@@ -506,13 +506,6 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
           changes_.firePropertyChange("path", oldPath, path);
        }
 
-  }
-
-
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
 

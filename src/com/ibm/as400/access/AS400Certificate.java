@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Certificate.java
 //                                                                             
@@ -175,15 +175,6 @@ public class AS400Certificate extends Object
       }
 
       return length + addlen;
-  }
-
-  /**
-   *Returns the copyright for the class.
-   *@return The copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
 
