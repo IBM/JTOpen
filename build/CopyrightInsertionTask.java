@@ -7,7 +7,7 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 
 public class CopyrightInsertionTask extends MatchingTask
 {
-  private static final String copyrightString_ = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyrightString_ = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private boolean verbose_;
 
