@@ -618,7 +618,7 @@ class AS400ImplRemote implements AS400Impl
             byte[] authenticationBytes = null;
             switch (byteType)
             {
-                case 1:  // GSS Token
+                case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
                     try
                     {
                         authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
@@ -629,7 +629,8 @@ class AS400ImplRemote implements AS400Impl
                         throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
                     }
                     break;
-                case 2:  // Profile token.
+                case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
+                case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
                     authenticationBytes = decode(proxySeed_, remoteSeed_, bytes);
                     break;
                 default:  // Password.
