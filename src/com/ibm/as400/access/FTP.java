@@ -1820,8 +1820,8 @@ public class FTP
    /**
     * Sets the data transfer type.  Valid values are:
     * <UL>
-    * <LI>ASCII
-    * <LI>BINARY
+    * <LI>{@link #ASCII ASCII}
+    * <LI>{@link #BINARY BINARY}
     * </UL>
     * <P>
     * If a connection does not
