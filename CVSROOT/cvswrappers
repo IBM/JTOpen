@@ -20,7 +20,7 @@
 #
 #  and value is a single-quote delimited value.
 # For example:
-*.gif -k 'b'
-*.jar -k 'b'
-*.zip -k 'b'
+*.gif -kb
+*.jar -kb
+*.zip -kb
 
