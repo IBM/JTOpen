@@ -1,153 +1,126 @@
-////////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-// OCO Source Materials
-// 5722-JC1
-// (C) Copyright IBM Corp. 2001
-//
-// The source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office.
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:  MEException.java
-//
-// Class Name:  MEException
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-//  Flg=PTR/DCR     Release     Date       Userid   Comments
-//        D98585     v5r2m0.jacl  22/02/01   wrightj   Created.
-//                      v5r2m0.jacl  03/05/01   wiedrich Modified.
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: MEException.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.micro;
 
 
 /**
- *  The MEException class represents an exception that indicates an error occured 
- *  while processing the ToolboxME for iSeries request.
+ The MEException class represents an exception that indicates an error occured while processing the ToolboxME request.
  **/
 public final class MEException extends Exception
 {
-    // THE SECURITY RETURN CODES (range 0 - 20).
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
 
     /**
      *  This return code indicates that a security or authority error has occurred. 
      **/
-    public static final int AS400_SECURITY_EXCEPTION = 0x0001;
+    public static final int AS400_SECURITY_EXCEPTION = 1;
 
     /**
      *  The return code indicating that there is a general password error.
      **/
-    public static final int PASSWORD_ERROR = 0x0002;
+    public static final int PASSWORD_ERROR = 2;
     
     /**
      *  The return code indicating that the password has expired.
      **/
-    public static final int PASSWORD_EXPIRED = 0x0003;
+    public static final int PASSWORD_EXPIRED = 3;
     
     /**
      *  The return code indicating that the password is not correct.
      **/
-    public static final int PASSWORD_INCORRECT = 0x0004;
+    public static final int PASSWORD_INCORRECT = 4;
 
     /**
      *  The return code indicating that the user ID is not set.
      **/
-    public static final int USERID_NOT_SET = 0x0005;
+    public static final int USERID_NOT_SET = 5;
 
     /**
      *  The return code indicating that the user ID has been disabled by the server.
      **/
-    public static final int USERID_DISABLE = 0x0006;
+    public static final int USERID_DISABLE = 6;
     
     /**
      *  The return code indicating that the user ID is not known by the server.
      **/
-    public static final int USERID_UNKNOWN = 0x0007;
+    public static final int USERID_UNKNOWN = 7;
 
     /**
      *  The return code indicating that the object already exists.
      **/
-    public static final int OBJECT_ALREADY_EXISTS = 0x0008;
+    public static final int OBJECT_ALREADY_EXISTS = 8;
 
     /**
      *  The return code indicating that the object does not exist.
      **/
-    public static final int OBJECT_DOES_NOT_EXIST = 0x0009;
+    public static final int OBJECT_DOES_NOT_EXIST = 9;
 
     /**
      *  The return code indicating that the parameter value is not valid.
      **/
-    public static final int PARAMETER_VALUE_NOT_VALID = 0x0010;
+    public static final int PARAMETER_VALUE_NOT_VALID = 10;
 
     /**
-     *  The return code indicating that one or more properties have not been set.
+     *  The return code indicating that the result set is closed.
      **/
-    public static final int PROPERTY_NOT_SET= 0x0011;
-
-    
-    // THE COMMUNICTION/SERVER RETURN CODES (range 20 - 39).
-
-    /**
-     *  The return code indicating that the connection was dropped unexpectedly.
-     **/
-    public static final int CONNECTION_DROPPED = 0x0020;
-
-    /**
-     *  The return code indicating that it was unable to start the server.
-     **/
-    public static final int SERVER_NOT_STARTED = 0x0021;
-    
-    /**
-     *  The return code indicating that the host is unknown.
-     **/
-    public static final int UNKNOWN_HOST = 0x0022;
-
-    /**
-     *  The return code indicating that the MEServer has already been started.
-     **/
-    public static final int ME_SERVER_ALREADY_STARTED = 0x0023;
-
-   /**
-     *   The return code indicating that the MEServer has not been started.
-     **/
-    public static final int ME_SERVER_NOT_STARTED = 0x0024;
+     public static final int RESULT_SET_CLOSED = 11;
 
     /**
      *  The return code indicating that the pcml document was not registered with the MEServer. 
      **/
-    public static final int PROGRAM_NOT_REGISTERED = 0x0025;
+    public static final int PROGRAM_NOT_REGISTERED = 12;
 
     /**
      *  The return code indicating that the program call failed.  
      **/
-    public static final int PROGRAM_FAILED = 0x0026;
+    public static final int PROGRAM_FAILED = 13;
 
     /**
-     *  The return code indicating that an attempt was made to use a data queue with an invalid data queue object type.  
+     *  The return code indicating that an attempt was made to use a data area with an invalid data area object type.  
      **/
-    public static final int ILLEGAL_OBJECT_TYPE = 0x0027;
+    public static final int ILLEGAL_OBJECT_TYPE = 93;
+    
+    /**
+     *  The return code indicating that the connection was dropped unexpectedly.
+     **/
+    public static final int CONNECTION_DROPPED = 94;
+
+    /**
+     *  The return code indicating that it was unable to start the server.
+     **/
+    public static final int SERVER_NOT_STARTED = 95;
+    
+    /**
+     *  The return code indicating that the host is unknown.
+     **/
+    public static final int UNKNOWN_HOST = 96;
+
+    /**
+     *  The return code indicating that the proxy server has already been started.
+     **/
+    public static final int ME_SERVER_ALREADY_STARTED = 97;
+
+   /**
+     *   The return code indicating that the proxy server has not been started.
+     **/
+    public static final int ME_SERVER_NOT_STARTED = 98;
 
     /**
      *  The return code indicating that an unknown error occurred.
      **/
-    public static final int UNKNOWN = 0x0028;
-    
-
-    // THE SQL RETURN CODES (range 40 - 59).
-    
-    /**
-     *  The return code indicating that the result set is closed.
-     **/
-     public static final int RESULT_SET_CLOSED = 0x0040;
+    public static final int UNKNOWN = 99;
 
     
     // Private Data
@@ -156,7 +129,7 @@ public final class MEException extends Exception
 
 
     /**
-     *  Construct an MEException.
+     *  Construct a MEException.
      *
      *  @param message The exception text.
      *  @param returnCode The return code which identifies the message to be returned. Possible values are defined as constants on this class. 
