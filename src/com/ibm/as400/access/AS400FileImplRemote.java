@@ -1022,6 +1022,12 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   {
     int shr;  // Type of locking for the record
 
+    if (cacheRecords_ && !cache_.setPosition(recordNumber)) //@G0A
+    {
+      // Invalidate the cache
+      cache_.setIsEmpty(); //@G0A
+    }
+    
     // @A1C
     if ((openType_ == AS400File.READ_ONLY) ||   //@C0C
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
@@ -1077,6 +1083,12 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   {
     int shr;  // Type of locking for the record
 
+    if (cacheRecords_) //@G0A
+    {
+      // Invalidate the cache
+      cache_.setIsEmpty(); //@G0A
+    }
+    
     // @A1C
     if ((openType_ == AS400File.READ_ONLY) ||  //@C0C
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
@@ -1129,6 +1141,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       IOException
   {
     int shr;  // Type of locking for the record
+    
+    if (cacheRecords_) //@G0A
+    {
+      // Invalidate the cache
+      cache_.setIsEmpty(); //@G0A
+    }
+    
     if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
