@@ -26,7 +26,7 @@ import java.beans.PropertyVetoException;
  <p>
  If the NetServer job on the iSeries server is not started, the "list" methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use the {@link #start() start} method.
 <P>
-Note: The first attribute getter-method call will cause an implicit call to
+Note: The first call to one of the attribute "getter" methods will cause an implicit call to
 {@link #refresh() refresh}, if refresh() hasn't yet been explicitly called.
 If any exceptions are thrown by <tt>refresh()</tt> during the implicit call,
 they will be logged to {@link com.ibm.as400.access.Trace#ERROR Trace.ERROR} and
@@ -35,7 +35,7 @@ ignored. However, should an exception occur during an explicit call to
  <p>
  Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile have *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
- Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.
+ Note: This class uses some API fields that are available only when connecting to servers at release V5R1 or higher.
 
 <blockquote>
 <pre>
@@ -104,20 +104,69 @@ implements Serializable
   public final static int ENCRYPTED_PASSWORDS = 0;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Kerberos v5 tokens only.
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication only.
    **/
-  public final static int KERBEROS_V5_TOKENS = 1;
+  public final static int NETWORK_AUTHENTICATION = 1;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Kerberos v5 tokens when possible, but it allows clients to use encrypted passwords when needed.
-   <br>Note: This value is valid only for OS/400 releases after (not including) V5R2.
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication only.
+   @deprecated Renamed to NETWORK_AUTHENTICATION
    **/
-  public final static int KERBEROS_OR_PASSWORDS = 2;
+  public final static int KERBEROS_V5_TOKENS = NETWORK_AUTHENTICATION;
+
+  /**
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
+   <br>Note: This value is valid only for i5/OS release V5R3 and higher.
+   **/
+  public final static int NETWORK_AUTHENTICATION_OR_PASSWORDS = 2;
+
+  /**
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
+   <br>Note: This value is valid only for i5/OS release V5R3 and higher.
+   @deprecated Renamed to NETWORK_AUTHENTICATION_OR_PASSWORDS
+   **/
+  public final static int KERBEROS_OR_PASSWORDS = NETWORK_AUTHENTICATION_OR_PASSWORDS;
 
   /**
    Value of the "idle timeout" attribute, indicating "no autodisconnect".
    **/
   public final static int NO_AUTO_DISCONNECT = -1;
+
+  /**
+   Value of the "opportunistic lock timeout" attribute, indicating that opportunistic locking is disabled.
+   **/
+  public final static int OPP_LOCK_DISABLED = -1;
+
+  /**
+   Value of the "message authentication" attribute, indicating that the server does not support message authentication.
+   **/
+  public final static int MSG_AUTH_NOT_SUPPORTED = 0;
+
+  /**
+   Value of the "message authentication" attribute, indicating that the server supports message authentication, and message authentication is negotiated between the client and the server.
+   **/
+  public final static int MSG_AUTH_NEGOTIATED = 1;
+
+  /**
+   Value of the "message authentication" attribute, indicating that the server requires message authentication for all connections.
+   **/
+  public final static int MSG_AUTH_REQUIRED = 2;
+
+  /**
+   Value of the "minimum message severity" attribute, indicating that administrative alert messages are not sent.
+   **/
+  public final static int NO_ADMIN_ALERTS = -1;
+
+  /**
+   Value of the "LAN Manager authentication" attribute, indicating that the LANMAN password hash is ignored if a stronger password hash is provided by the client.
+   **/
+  public final static int PASSWORD_STRONGER = 0;
+
+  /**
+   Value of the "LAN Manager authentication" attribute, indicating that the LANMAN password hash is used only if a stronger password hash provided by the client does not match, or if a stronger password hash is not provided.
+   **/
+  public final static int PASSWORD_STRONGER_OR_MISMATCH = 1;
+
 
 
   // Constants for identifying a share's "device type".
@@ -128,10 +177,11 @@ implements Serializable
   private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
   private AS400 system_;
   private int systemVRM_;
-  private boolean gotSystemVRM_ = false;
+  private boolean gotSystemVRM_;
 
 
   // Constants for identifying attributes that are specified as strings in the API's.
+
   private final static int ALLOW_SYSTEM_NAME      = 0;  // CHAR(1)
   private final static int AUTHENTICATION_METHOD  = 1;  // CHAR(1)
   private final static int AUTOSTART              = 2;  // CHAR(4)
@@ -143,37 +193,38 @@ implements Serializable
   private final static int WINS_SCOPE_ID          = 8;  // CHAR(224)  a.k.a. "scope ID"
   private final static int WINS_SECONDARY_ADDRESS = 9;  // CHAR(15)
 
-  private final static int NUM_STRING_ATTRS       = 10; // Increment this as new attr's are added.
-
   // Constants for identifying attributes that are specified as integers in the API's.
-  private final static int BROWSING_INTERVAL      = 10; // BINARY(4)
-  private final static int CCSID                  = 11; // BINARY(4)
-  private final static int IDLE_TIMEOUT           = 12; // BINARY(4)
-  private final static int LOGON_SUPPORT          = 13; // BINARY(4)  a.k.a. "server role"
-  private final static int OPP_LOCK_TIMEOUT       = 14; // BINARY(4)  Not surfaced to user.
-  private final static int WINS_ENABLEMENT        = 15; // BINARY(4) or CHAR(1), a.k.a. "WINS proxy"
+
+  private final static int BROWSING_INTERVAL      = 20; // BINARY(4)
+  private final static int CCSID                  = 21; // BINARY(4)
+  private final static int IDLE_TIMEOUT           = 22; // BINARY(4)
+  private final static int LOGON_SUPPORT          = 23; // BINARY(4)  a.k.a. "server role"
+  private final static int OPP_LOCK_TIMEOUT       = 24; // BINARY(4)  Not surfaced to user.
+  private final static int WINS_ENABLEMENT        = 25; // BINARY(4) or CHAR(1), a.k.a. "WINS proxy"
   // Note: In the getter (QZLSOLST API), the "WINS enablement" field is BINARY(4).
   // In the setter (QZLSCHSI API), the "WINS proxy" field is CHAR(1).
 
-  private final static int NUM_INT_ATTRS          = 6;   // Increment this as new attr's are added.
+  private final static int MESSAGE_AUTHENTICATION = 26; // BINARY(4)   V5R4+
+  private final static int MIN_MESSAGE_SEVERITY   = 27; // BINARY(4)   V5R4+
+  private final static int LAN_MGR_AUTHENTICATION = 28; // BINARY(4)   V5R4+
 
-  private final static int NUM_ATTRS = NUM_STRING_ATTRS + NUM_INT_ATTRS;
+  private final static int MAX_ATTR = 28;   // Increment this as new attr's are added.
 
   private final static int ZLSL0101_MAX_RECORD_LENGTH = 1221; // Max path length is 1024 bytes.
 
   // Tables of "in effect" and "pending" attribute values.
 
-  private String[] effectiveValueStr_ = new String[NUM_ATTRS];  // in-effect String attr values
-  private String[] pendingValueStr_   = new String[NUM_ATTRS];  // pending String attr values
-  private int[] effectiveValueInt_    = new int[NUM_ATTRS];     // in-effect Integer attr values
-  private int[] pendingValueInt_      = new int[NUM_ATTRS];     // pending Integer attr values
+  private String[] effectiveValueStr_ = new String[MAX_ATTR+1];  // in-effect String attr values
+  private String[] pendingValueStr_   = new String[MAX_ATTR+1];  // pending String attr values
+  private int[] effectiveValueInt_    = new int[MAX_ATTR+1];     // in-effect Integer attr values
+  private int[] pendingValueInt_      = new int[MAX_ATTR+1];     // pending Integer attr values
   // Implementation note: We only partially populate the above arrays, to simplify tracking of changes.
   // That is, in the *ValueStr_ arrays, only offsets 0-9 are occupied,
-  // and in the *ValueInt_ arrays, only offsets 10-14 are occupied.
+  // and in the *ValueInt_ arrays, only offsets 20-28 are occupied.
 
 
-  private boolean[] userChangedAttribute_ = new boolean[NUM_ATTRS]; // which attrs the user has changed
-  private boolean[] userCommittedChange_  = new boolean[NUM_ATTRS]; // which attrs the user has committed
+  private boolean[] userChangedAttribute_ = new boolean[MAX_ATTR+1]; // which attrs the user has changed
+  private boolean[] userCommittedChange_  = new boolean[MAX_ATTR+1]; // which attrs the user has committed
 
   // Have we done a refresh() since the last start().
   private transient boolean refreshedSinceStart_ = false;
@@ -1158,9 +1209,9 @@ implements Serializable
   /**
    Returns the value of the "authentication method" attribute.
    This attribute indicates the method used to authenticate users.
-   <i>Note: This attribute is available only if the iSeries server has OS/400 release <b>V5R2</b> or later.</i>
+   <i>Note: This attribute is available only if the iSeries server is at release <b>V5R2</b> or higher.</i>
    @return  The value of the "authentication method" attribute.
-   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}, and {@link #KERBEROS_OR_PASSWORDS KERBEROS_OR_PASSWORDS}.
+   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #NETWORK_AUTHENTICATION NETWORK_AUTHENTICATION}, and {@link #NETWORK_AUTHENTICATION_OR_PASSWORDS NETWORK_AUTHENTICATION_OR_PASSWORDS}.
    **/
   public int getAuthenticationMethod()
   {
@@ -1170,8 +1221,8 @@ implements Serializable
     }
     switch (effectiveValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
       case '0': return ENCRYPTED_PASSWORDS;
-      case '1': return KERBEROS_V5_TOKENS;
-      default:  return KERBEROS_OR_PASSWORDS;
+      case '1': return NETWORK_AUTHENTICATION;
+      default:  return NETWORK_AUTHENTICATION_OR_PASSWORDS;
     }
   }
 
@@ -1189,25 +1240,25 @@ implements Serializable
     }
     switch (pendingValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
       case '0': return ENCRYPTED_PASSWORDS;
-      case '1': return KERBEROS_V5_TOKENS;
-      default:  return KERBEROS_OR_PASSWORDS;
+      case '1': return NETWORK_AUTHENTICATION;
+      default:  return NETWORK_AUTHENTICATION_OR_PASSWORDS;
     }
   }
 
   /**
    Sets the value of the "authentication method" attribute.
    This attribute indicates the authentication method used to authenticate users.
-   <i>Note: This attribute is available only if the iSeries server has OS/400 release <b>V5R2</b> or later.</i>
+   <i>Note: This attribute is available only if the iSeries server is at release <b>V5R2</b> or higher.</i>
    @param value The value of the "authentication method" attribute.
-   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}, and {@link #KERBEROS_OR_PASSWORDS KERBEROS_OR_PASSWORDS}.
+   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #NETWORK_AUTHENTICATION NETWORK_AUTHENTICATION}, and {@link #NETWORK_AUTHENTICATION_OR_PASSWORDS NETWORK_AUTHENTICATION_OR_PASSWORDS}.
    **/
   public void setAuthenticationMethod(int value)
   {
     char[] charArray = new char[1];
     switch (value) {
-      case ENCRYPTED_PASSWORDS:    charArray[0] = '0'; break;
-      case KERBEROS_V5_TOKENS:     charArray[0] = '1'; break;
-      case KERBEROS_OR_PASSWORDS:  charArray[0] = '2'; break;
+      case ENCRYPTED_PASSWORDS:                  charArray[0] = '0'; break;
+      case NETWORK_AUTHENTICATION:               charArray[0] = '1'; break;
+      case NETWORK_AUTHENTICATION_OR_PASSWORDS:  charArray[0] = '2'; break;
       default:
         throw new ExtendedIllegalArgumentException(Integer.toString(value), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -1334,7 +1385,7 @@ implements Serializable
    Sets the value of the "server CCSID" attribute.
    This attribute represents the coded character set identifier for the NetServer.
    This is the CCSID that is used for all clients connected to the server.
-   The default value for this field is the associated ASCII CCSID for the CCSID of the job
+   The default value is the associated ASCII CCSID for the CCSID of the job
    used to start the server.
    <br> A value of 0 indicates that the user would like to use the associated ASCII CCSID for the CCSID of the job used to start the server.
    @param value  The value of the "server CCSID" attribute.
@@ -1476,8 +1527,8 @@ implements Serializable
   /**
    Returns the value of the "idle timeout" attribute.
    This attribute represents the amount of time, in seconds, that a connection to the NetServer will remain active once activity has ceased on that connection.
-   An idle time-out value of -1 ({@link #NO_AUTO_DISCONNECT NO_AUTO_DISCONNECT}) indicates no autodisconnect.
-   @return  The value of the "guest user profile" attribute.
+   An idle time-out value of ({@link #NO_AUTO_DISCONNECT NO_AUTO_DISCONNECT}) indicates no autodisconnect.
+   @return  The value of the "idle timeout" attribute.
    **/
   public int getIdleTimeout()
   {
@@ -1487,7 +1538,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "idle timeout" attribute.
-   @return  The pending value of the "guest user profile" attribute.
+   @return  The pending value of the "idle timeout" attribute.
    @see #getIdleTimeout()
    **/
   public int getIdleTimeoutPending()
@@ -1499,14 +1550,53 @@ implements Serializable
   /**
    Sets the value of the "idle timeout" attribute.
    This attribute represents the amount of time, in seconds, that a connection to the NetServer will remain active once activity has ceased on that connection.
-   An idle time-out value of -1 ({@link #NO_AUTO_DISCONNECT NO_AUTO_DISCONNECT}) indicates no autodisconnect.
-   @param value  The value of the "guest user profile" attribute.
+   An idle time-out value of ({@link #NO_AUTO_DISCONNECT NO_AUTO_DISCONNECT}) indicates no autodisconnect.
+   @param value  The value of the "idle timeout" attribute.
    **/
   public void setIdleTimeout(int value)
   {
     pendingValueInt_[IDLE_TIMEOUT] = value;
     userChangedAttribute_[IDLE_TIMEOUT] = true;
     userCommittedChange_[IDLE_TIMEOUT] = false;
+  }
+
+  /**
+   Returns the value of the "LAN Manager authentication" attribute.
+   This attribute represents the level of restriction on the use of the LANMAN password hash for authentication.
+   Possible values are {@link #PASSWORD_STRONGER PASSWORD_STRONGER} and {@link #PASSWORD_STRONGER_OR_MISMATCH PASSWORD_STRONGER_OR_MISMATCH}.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The value of the "LAN Manager authentication" attribute.
+   **/
+  public int getLANManagerAuthentication()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return effectiveValueInt_[LAN_MGR_AUTHENTICATION];
+  }
+
+  /**
+   Returns the pending value of the "LAN Manager authentication" attribute.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The pending value of the "LAN Manager authentication" attribute.
+   @see #getLANManagerAuthentication()
+   **/
+  public int getLANManagerAuthenticationPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[LAN_MGR_AUTHENTICATION];
+  }
+
+  /**
+   Sets the value of the "LAN Manager authentication" attribute.
+   This attribute represents the level of restriction on the use of the LANMAN password hash for authentication.
+   Possible values are {@link #PASSWORD_STRONGER PASSWORD_STRONGER} and {@link #PASSWORD_STRONGER_OR_MISMATCH PASSWORD_STRONGER_OR_MISMATCH}.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @param value  The value of the "LAN Manager authentication" attribute.
+   **/
+  public void setLANManagerAuthentication(int value)
+  {
+    pendingValueInt_[LAN_MGR_AUTHENTICATION] = value;
+    userChangedAttribute_[LAN_MGR_AUTHENTICATION] = true;
+    userCommittedChange_[LAN_MGR_AUTHENTICATION] = false;
   }
 
 
@@ -1552,6 +1642,85 @@ implements Serializable
 
 
   /**
+   Returns the value of the "message authentication" attribute.
+   This attribute represents the status of message authentication.
+   Possible values are {@link #MSG_AUTH_NOT_SUPPORTED MSG_AUTH_NOT_SUPPORTED}, {@link #MSG_AUTH_NEGOTIATED MSG_AUTH_NEGOTIATED}, and {@link #MSG_AUTH_REQUIRED MSG_AUTH_REQUIRED}.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The value of the "message authentication" attribute.
+   **/
+  public int getMessageAuthentication()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return effectiveValueInt_[MESSAGE_AUTHENTICATION];
+  }
+
+  /**
+   Returns the pending value of the "message authentication" attribute.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The pending value of the "message authentication" attribute.
+   @see #getMessageAuthentication()
+   **/
+  public int getMessageAuthenticationPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[MESSAGE_AUTHENTICATION];
+  }
+
+  /**
+   Sets the value of the "message authentication" attribute.
+   This attribute represents the status of message authentication.
+   Possible values are {@link #MSG_AUTH_NOT_SUPPORTED MSG_AUTH_NOT_SUPPORTED}, {@link #MSG_AUTH_NEGOTIATED MSG_AUTH_NEGOTIATED}, and {@link #MSG_AUTH_REQUIRED MSG_AUTH_REQUIRED}.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @param value  The value of the "message authentication" attribute.
+   **/
+  public void setMessageAuthentication(int value)
+  {
+    pendingValueInt_[MESSAGE_AUTHENTICATION] = value;
+    userChangedAttribute_[MESSAGE_AUTHENTICATION] = true;
+    userCommittedChange_[MESSAGE_AUTHENTICATION] = false;
+  }
+
+  /**
+   Returns the value of the "minimum message severity" attribute.
+   This attribute represents the minimum message severity of administrative alerts to send to users of the server.
+   A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The value of the "minimum message severity" attribute.
+   **/
+  public int getMinimumMessageSeverity()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return effectiveValueInt_[MIN_MESSAGE_SEVERITY];
+  }
+
+  /**
+   Returns the pending value of the "minimum message severity" attribute.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The pending value of the "minimum message severity" attribute.
+   @see #getMinimumMessageSeverity()
+   **/
+  public int getMinimumMessageSeverityPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[MIN_MESSAGE_SEVERITY];
+  }
+
+  /**
+   Sets the value of the "minimum message severity" attribute.
+   This attribute represents the minimum message severity of administrative alerts to send to users of the server.
+   A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @param value  The value of the "minimum message severity" attribute.
+   **/
+  public void setMinimumMessageSeverity(int value)
+  {
+    pendingValueInt_[MIN_MESSAGE_SEVERITY] = value;
+    userChangedAttribute_[MIN_MESSAGE_SEVERITY] = true;
+    userCommittedChange_[MIN_MESSAGE_SEVERITY] = false;
+  }
+
+
+  /**
    Returns the value of the "NetServer name" attribute.
    This attribute represents the name of the NetServer.
    <br>Note: The NetServer name is always uppercase on the server.
@@ -1590,9 +1759,46 @@ implements Serializable
   }
 
 
-  // Implementation note: We'll hide the "opportunistic lock timeout" attribute for now.
-  // The NetServer API spec says it is "currently not supported".
-  // This attribute represents the amount of time, in seconds, that an opportunistic lock is enforced for a session or connection.
+  /**
+   Returns the value of the "opportunistic lock timeout" attribute.
+   This attribute represents the amount of time, in seconds, that the server will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
+   A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
+   The default value is 30 seconds.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The value of the "opportunistic lock timeout" attribute.
+   **/
+  public int getOpportunisticLockTimeout()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return effectiveValueInt_[OPP_LOCK_TIMEOUT];
+  }
+
+  /**
+   Returns the pending value of the "opportunistic lock timeout" attribute.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @return  The pending value of the "opportunistic lock timeout" attribute.
+   @see #getOpportunisticLockTimeout()
+   **/
+  public int getOpportunisticLockTimeoutPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[OPP_LOCK_TIMEOUT];
+  }
+
+  /**
+   Sets the value of the "opportunistic lock timeout" attribute.
+   This attribute represents the amount of time, in seconds, that the server will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
+   A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
+   The default value is 30 seconds.
+   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   @param value  The value of the "opportunistic lock timeout" attribute.
+   **/
+  public void setOpportunisticLockTimeout(int value)
+  {
+    pendingValueInt_[OPP_LOCK_TIMEOUT] = value;
+    userChangedAttribute_[OPP_LOCK_TIMEOUT] = true;
+    userCommittedChange_[OPP_LOCK_TIMEOUT] = false;
+  }
 
 
   /**
@@ -1745,7 +1951,6 @@ implements Serializable
     userCommittedChange_[WINS_SECONDARY_ADDRESS] = false;
   }
 
-
   /**
    Refreshes the attribute values of this ISeriesNetServer object, from the current in-effect values on the server.
    @exception  AS400SecurityException  If a security or authority error occurs.
@@ -1894,6 +2099,21 @@ implements Serializable
     if (userChangedAttribute_[WINS_SECONDARY_ADDRESS] &&
         !userCommittedChange_[WINS_SECONDARY_ADDRESS]) {
       needToChangeServerInfo = true;
+    }
+    if (getSystemVRM() >= 0x00050400)
+    { // new fields added to API in V5R4
+      if (userChangedAttribute_[MESSAGE_AUTHENTICATION] &&
+          !userCommittedChange_[MESSAGE_AUTHENTICATION]) {
+        needToChangeServerInfo = true;
+      }
+      if (userChangedAttribute_[MIN_MESSAGE_SEVERITY] &&
+          !userCommittedChange_[MIN_MESSAGE_SEVERITY]) {
+        needToChangeServerInfo = true;
+      }
+      if (userChangedAttribute_[LAN_MGR_AUTHENTICATION] &&
+          !userCommittedChange_[LAN_MGR_AUTHENTICATION]) {
+        needToChangeServerInfo = true;
+      }
     }
 
     if (needToChangeServerInfo)  { changeServerInfo(); }
@@ -2061,13 +2281,14 @@ implements Serializable
       stream.write(0xF0);
     }
 
-    byte[] reserved = {(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00};
-    stream.write(reserved);  // reserved field - CHAR(5)
+    byte[] reserved5 = {(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00};
+    stream.write(reserved5);  // reserved field - CHAR(5)
 
     stream.write(BinaryConverter.intToByteArray(pendingValueInt_[LOGON_SUPPORT]));
 
     if (getSystemVRM() >= 0x00050200) { // new field added to API in V5R2
-      if (userChangedAttribute_[AUTHENTICATION_METHOD])
+      if (getSystemVRM() >= 0x00050400 ||
+          userChangedAttribute_[AUTHENTICATION_METHOD])
       {
         switch (pendingValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
           case '0': stream.write(0xF0); break;
@@ -2076,6 +2297,16 @@ implements Serializable
         }
       }
     }
+
+    if (getSystemVRM() >= 0x00050400)
+    { // new fields added to API in V5R4
+      byte[] reserved3 = {(byte)0x00, (byte)0x00, (byte)0x00};
+      stream.write(reserved3);  // reserved field - CHAR(3)
+      stream.write(BinaryConverter.intToByteArray(pendingValueInt_[MESSAGE_AUTHENTICATION]));
+      stream.write(BinaryConverter.intToByteArray(pendingValueInt_[MIN_MESSAGE_SEVERITY]));
+      stream.write(BinaryConverter.intToByteArray(pendingValueInt_[LAN_MGR_AUTHENTICATION]));
+    }
+
 
     stream.flush();
     byte[] requestVariable = stream.toByteArray();
@@ -2142,7 +2373,7 @@ implements Serializable
     final CharConverter conv = new CharConverter(ccsid);
     final AS400Text text15 = new AS400Text(15, ccsid);
 
-    int len = 748;  // length of receiver variable
+    int len = 772;  // length of receiver variable
     ProgramParameter[] parms = new ProgramParameter[6];
 
     parms[0] = new ProgramParameter(len);             // receiver variable
@@ -2232,6 +2463,23 @@ implements Serializable
     if (!userChangedAttribute_[LOGON_SUPPORT]) {
       pendingValueInt_[LOGON_SUPPORT] = BinaryConverter.byteArrayToInt(data, 744);
     }
+    if (DEBUG) System.out.println("DEBUG: data.length == " + data.length);
+    if (getSystemVRM() >= 0x00050400)
+    { // new fields added to API in V5R4
+      effectiveValueInt_[MESSAGE_AUTHENTICATION] = BinaryConverter.byteArrayToInt(data, 748);
+      if (!userChangedAttribute_[MESSAGE_AUTHENTICATION]) {
+        pendingValueInt_[MESSAGE_AUTHENTICATION] = BinaryConverter.byteArrayToInt(data, 752);
+      }
+      effectiveValueInt_[MIN_MESSAGE_SEVERITY] = BinaryConverter.byteArrayToInt(data, 756);
+      if (!userChangedAttribute_[MIN_MESSAGE_SEVERITY]) {
+        pendingValueInt_[MIN_MESSAGE_SEVERITY] = BinaryConverter.byteArrayToInt(data, 760);
+      }
+      effectiveValueInt_[LAN_MGR_AUTHENTICATION] = BinaryConverter.byteArrayToInt(data, 764);
+      if (!userChangedAttribute_[LAN_MGR_AUTHENTICATION]) {
+        pendingValueInt_[LAN_MGR_AUTHENTICATION] = BinaryConverter.byteArrayToInt(data, 768);
+      }
+    }
+
   }
 
 
