@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Permission.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ public class Permission
        implements Cloneable ,
                   Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -94,6 +94,8 @@ public class Permission
     private boolean autListChanged_;
     private String name_;
     private String owner_;
+    private boolean ownerChanged_;                        // @B2a
+    private boolean revokeOldAuthority_;                  // @B2a
     private String path_;
 
     private String primaryGroup_;
@@ -200,9 +202,9 @@ public class Permission
         owner_ = (String)vector.elementAt(0);
         primaryGroup_ = (String)vector.elementAt(1);
         authorizationList_ = (String)vector.elementAt(2);
-        autListChanged_ = false;
+        //autListChanged_ = false;                       // @B2d
         sensitivityLevel_ = ((Integer)vector.elementAt(3)).intValue();
-        sensitivityChanged_ = false;
+        //sensitivityChanged_ = false;                   // @B2d
 
         userPermissionsBuffer_ = new Vector ();
         userPermissions_ = new Vector();
@@ -233,6 +235,7 @@ public class Permission
         String userName = userProfileName.trim().toUpperCase();
         if (getUserIndex(userName,userPermissions_) != -1)
         {
+            Trace.log(Trace.ERROR, "Permission already exists for user " + userProfileName);  // @B2a
             throw new ExtendedIllegalArgumentException("userProfileName",
                   ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         } 
@@ -316,6 +319,7 @@ public class Permission
         int index;
         if (getUserIndex(user,userPermissions_) != -1)
         {
+            Trace.log(Trace.ERROR, "Permission already exists for user " + user);  // @B2a
             throw new ExtendedIllegalArgumentException("userProfileName",
                   ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         } 
@@ -374,6 +378,11 @@ public class Permission
            {
               access_.setSensitivity(path_,sensitivityLevel_);
               sensitivityChanged_ = false;
+           }
+           if (ownerChanged_)               // @B2a
+           {
+              access_.setOwner(path_, owner_, revokeOldAuthority_);
+              ownerChanged_ = false;
            }
            
            int count = userPermissionsBuffer_.size();
@@ -598,6 +607,10 @@ public class Permission
         {
             return false;
         }
+        if (ownerChanged_ == true)               // @B2a
+        {
+            return false;
+        }
         for (int i=0;i<count;i++)
         {
             UserPermission userPermission = (UserPermission)
@@ -690,6 +703,7 @@ public class Permission
             removeUserPermission(userPermission);
         }else
         {
+            Trace.log(Trace.ERROR, "Permission does not exist for user " + userProfileName);  // @B2a
             throw new ExtendedIllegalArgumentException("userProfileName",
                   ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -723,9 +737,9 @@ public class Permission
             throw new NullPointerException("permission");
         if (userPermissions_.indexOf(permission) == -1)
         {
+            Trace.log(Trace.ERROR, "Permission does not exist for user " + permission.getUserID());  // @B2a
             throw new ExtendedIllegalArgumentException
-                 ("User permission dose not exists",
-                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                 ("permission", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); // @B2c
         } 
         else
         {
@@ -773,9 +787,29 @@ public class Permission
         autListChanged_ = true;
     }
 
+    // @B2a
+    /**
+     * Sets the owner of the object.
+     * @param owner The owner of the object.
+     * @param revokeOldAuthority Specifies whether the authorities for the current
+     * owner are revoked when ownership is transferred to the new owner. 
+     *
+     * @see #getOwner
+    **/
+    public synchronized void setOwner(String owner, boolean revokeOldAuthority)
+    {
+        if (owner == null)
+        {
+            throw new NullPointerException("owner");
+        }
+        owner_ = owner;
+        revokeOldAuthority_ = revokeOldAuthority;
+        ownerChanged_ = true;
+    }
+
     /**
      * Sets the sensitivity level of the object.
-     * @param sensitivityLevel The sensitivity level of the object.The
+     * @param sensitivityLevel The sensitivity level of the object.  The
      * possible values :
      * <UL>
      * <LI>0 : This value does not apply to this object.

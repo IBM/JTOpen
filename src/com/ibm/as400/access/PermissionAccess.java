@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionAccess.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ import java.util.Vector;
 **/
 abstract class PermissionAccess 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     AS400 as400_;
     private int ccsid_;         // @A4A
@@ -476,6 +476,53 @@ abstract class PermissionAccess
                    ServerStartupException,
                    UnknownHostException,
                    PropertyVetoException;
+
+    // @B2a
+    /**
+     * Sets the owner of the object.
+     * @param objName The object whose ownership is being reset.
+     * @param owner The owner of the object.
+     * @param revokeOldAuthority Specifies whether the authorities for the current
+     * owner are revoked when ownership is transferred to the new owner. 
+     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception PropertyVetoException If the change is vetoed.
+     * @exception ServerStartupException If the AS/400 server cannot be started.
+     * @exception UnknownHostException If the AS/400 system cannot be located.
+     *
+    **/
+    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
+            throws AS400Exception,
+                   AS400SecurityException,
+                   ConnectionDroppedException,
+                   ErrorCompletingRequestException,
+                   InterruptedException,
+                   IOException,
+                   ServerStartupException,
+                   UnknownHostException,
+                   PropertyVetoException
+    {
+      objName = objName.toUpperCase();
+      CommandCall cmd = new CommandCall(as400_);
+      String revokeOldAut;
+      if (revokeOldAuthority) revokeOldAut = "*YES";
+      else                    revokeOldAut = "*NO";
+      String cmdString = "CHGOWN " +
+        "OBJ('"+objName+"') " +
+        "NEWOWN("+owner+") " +
+        "RVKOLDAUT("+revokeOldAut+")";
+      cmd.setCommand(cmdString);
+      cmd.setThreadSafe(false); // CHGOWN isn't threadsafe.
+      if(cmd.run()!=true)
+      {
+        AS400Message[] msgList=cmd.getMessageList();
+        throw new AS400Exception(msgList);
+      }
+    }
                    
     /**
      * Sets the sensitivity level of the object.
