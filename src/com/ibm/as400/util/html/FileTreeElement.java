@@ -31,6 +31,9 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *
 *  <P>
 *  <PRE>
+*  // Create an HTMLTree object.
+*  HTMLTree tree = new HTMLTree(httpServletRequest);
+*  <p>
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
 *  <p>
@@ -53,10 +56,10 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *     // Set the Icon URL.
 *     ServletHyperlink sl = new ServletHyperlink(urlParser.getURI());
 *     sl.setHttpServletResponse(resp);
-*     element.setIconUrl(sl);
+*     node.setIconUrl(sl);
 *     <p>
 *     // Add the FileTreeElement to the tree.
-*     tree.addElement(element);
+*     tree.addElement(node);
 *  }
 *  </PRE>
 *
