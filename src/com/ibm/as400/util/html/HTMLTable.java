@@ -85,10 +85,10 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
    private HTMLTableCaption caption_;              // The table caption.
    private Vector headerTag_;                      // The table header.
 
-   private String alignment_;                    // The table horizontal alignment.
+   private String alignment_;                      // The table horizontal alignment.
    private int borderWidth_ = 0;                   // The table border.
-   private int cellPadding_ = 0;                   // The global table cell padding.
-   private int cellSpacing_ = 0;                   // The global table cell spacing.
+   private int cellPadding_ = -1;                  // The global table cell padding.
+   private int cellSpacing_ = -1;                  // The global table cell spacing.
    private int width_ = 0;                         // The table width.
 
    private boolean headerInUse_ = true;            // Indicates if the column headers are used.
@@ -530,15 +530,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
          tag.append(borderWidth_);
          tag.append("\"");
       }
-      if (cellPadding_ > 0)
+      if (cellPadding_ >= 0)                // @C1C
       {
          tag.append(" cellpadding=\"");
          tag.append(cellPadding_);
          tag.append("\"");
       }
-      if (cellSpacing_ > 0)
+      if (cellSpacing_ >= 0)                // @C1C
       {
-         tag.append(" cellspacing=\"");
+         tag.append(" cellspacing=\"");      
          tag.append(cellSpacing_);
          tag.append("\"");
       }
@@ -888,16 +888,17 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
       changes_.firePropertyChange("caption", old, caption );
    }
 
+   // @C1C
    /**
    *  Sets the global table cell padding.  The cell padding is the spacing between
    *  data in a table cell and the border of the cell.
-   *  The default value is zero (browser default used).
+   *  The default value is -1 (browser default used).                     
    *  @param cellPadding The cell padding.
    *  @exception PropertyVetoException If the change is vetoed.
    **/
    public void setCellPadding(int cellPadding) throws PropertyVetoException
    {
-      if (cellPadding < 0)
+      if (cellPadding < -1)                                               // @C1C
          throw new ExtendedIllegalArgumentException("cellPadding", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       Integer oldPadding = new Integer(cellPadding_);
@@ -910,16 +911,17 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
       changes_.firePropertyChange("cellPadding", oldPadding, newPadding);
    }
 
+   // @C1C
    /**
    *  Sets the global table cell spacing.
    *  The cell spacing is the spacing between the cells.
-   *  The default value is zero (browser default used).
+   *  The default value is -1 (browser default used).                      
    *  @param cellSpacing The cell spacing.
    *  @exception PropertyVetoException If the change is vetoed.
    **/
    public void setCellSpacing(int cellSpacing) throws PropertyVetoException
    {
-      if (cellSpacing < 0)
+      if (cellSpacing < -1)                                                // @C1C
          throw new ExtendedIllegalArgumentException("cellSpacing", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       Integer oldSpacing = new Integer(cellSpacing_);
