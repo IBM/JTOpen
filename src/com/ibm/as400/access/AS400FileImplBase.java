@@ -19,6 +19,7 @@ import java.util.Vector;
 import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method; //@F0A
 import java.text.Collator;
 
 abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
@@ -175,7 +176,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      PxMethodReqSV.invoke(this, methodName, classes, objects);
+      invoke(this, methodName, classes, objects); //@F0C
     }
     catch(InvocationTargetException e)
     {
@@ -193,7 +194,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      PxMethodReqSV.invoke(this, methodName, classes, objects);
+      invoke(this, methodName, classes, objects); //@F0C
     }
     catch(Exception e2)
     {
@@ -208,7 +209,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return (Record)PxMethodReqSV.invoke(this, methodName, classes, objects);
+      return (Record)invoke(this, methodName, classes, objects); //@F0C
     }
     catch(InvocationTargetException e)
     {
@@ -227,7 +228,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return (Record[])PxMethodReqSV.invoke(this, methodName, classes, objects);
+      return (Record[])invoke(this, methodName, classes, objects); //@F0C
     }
     catch(InvocationTargetException e)
     {
@@ -247,7 +248,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return (RecordFormat)PxMethodReqSV.invoke(this, methodName, classes, objects);
+      return (RecordFormat)invoke(this, methodName, classes, objects); //@F0C
     }
     catch(InvocationTargetException e)
     {
@@ -265,7 +266,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return ((Integer)PxMethodReqSV.invoke(this, methodName, new Class[0], new Object[0])).intValue();
+      return ((Integer)invoke(this, methodName, new Class[0], new Object[0])).intValue(); //@F0C
     }
     catch(Exception e)
     {
@@ -279,7 +280,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return ((Boolean)PxMethodReqSV.invoke(this, methodName, new Class[0], new Object[0])).booleanValue();
+      return ((Boolean)invoke(this, methodName, new Class[0], new Object[0])).booleanValue(); //@F0C
     }
     catch(Exception e)
     {
@@ -294,7 +295,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return ((Boolean)PxMethodReqSV.invoke(this, methodName, classes, objects)).booleanValue();
+      return ((Boolean)invoke(this, methodName, classes, objects)).booleanValue(); //@F0C
     }
     catch(Exception e)
     {
@@ -303,6 +304,48 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
     }
   }
+
+  
+  //@F0A - This method is copied from PxMethodReqSV. We don't
+  // want to have dependencies on the proxy classes directly, so
+  // that's why I included it here.
+  static Object invoke(Object object, 
+                       String methodName, 
+                       Class[] argumentClasses,
+                       Object[] arguments)
+      throws ClassNotFoundException, 
+             IllegalAccessException,
+             InvocationTargetException, 
+             NoSuchMethodException
+  {      
+      // Resolve the Method object.  First, try Class.getMethod() which 
+      // only looks for public methods.  If that does not work, try 
+      // Class.getDeclaredMethod(), which only looks for declared 
+      // methods (not inherited methods).  Do this up the superclass tree.
+      Method method = null;
+      Class clazz = object.getClass();
+      NoSuchMethodException e = null;
+      while ((clazz != null) && (method == null)) {
+          try {
+              method = clazz.getMethod(methodName, argumentClasses);
+          }
+          catch (NoSuchMethodException e1) {
+              try {
+                  method = clazz.getDeclaredMethod(methodName, argumentClasses);
+              }
+              catch (NoSuchMethodException e2) {
+                  e = e2;
+                  clazz = clazz.getSuperclass();
+              }
+          }
+      }
+      if (method == null)
+          throw e;
+
+      // Call the method.
+      return method.invoke (object, arguments);
+  }
+
 
   public void setIsKeyed(boolean keyed)
   {
