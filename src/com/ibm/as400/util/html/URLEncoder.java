@@ -93,23 +93,22 @@ public class URLEncoder
 
             // Must change the '+' to a space since some of the webserver   
             // engines don't properly decode the encoded url string.
-//            return s.toString().replace('+', ' ');                                            // @C1C
-// - use %20 instead of ' '
-            token = new StringTokenizer(s.toString(), "+", true);
-            s = new StringBuffer();
+            //            return s.toString().replace('+', ' ');                                            // @C1C @C2D
+            // - use %20 instead of ' ' because both IE and Netscape                         // @C2A
+            //   handle the ' ' differently. only one of the browsers properly                  
+            //   encodes that into a '%20', so we'll force the '%20'.                              
+            token = new StringTokenizer(s.toString(), "+", true);                                 
+            s = new StringBuffer();                                                                    
             while (token.hasMoreTokens())
             {
-              next = token.nextToken();
-              if (next.equals("+"))
-              {
-                s.append("%20");
-              }
-              else
-              {
-                s.append(next);
-              }
+                next = token.nextToken();                                                                    
+                if (next.equals("+"))
+                    s.append("%20");
+                else
+                    s.append(next);
             }
-            return s.toString();            
+
+            return s.toString();
         }
     }
 }
