@@ -108,13 +108,6 @@
 // Description: Toolbox PDML runtime needed for the com.ibm.as400.vaccess package.
 //              This jar is part of the big JTOpen zip file.
 //
-// Filename: x4j400.jar and/or xerces400.jar
-// Location: https://www6.software.ibm.com/dl/as400exp/expastbjm3-p
-// Description: XML Parser (x4j400.jar = Xerces 3, xerces400.jar = Xerces 4) needed
-//              for the com.ibm.as400.data package. The x4j400.jar is part of the JTOpen download.
-//              The Xerces jar can be found at http://xml.apache.org/dist/xerces-j/ and should
-//              be renamed to xerces400.jar.
-//
 // *** Also required under JDK 1.3: ***
 // 
 // Filename: jdbc2_0-stdext.jar
@@ -135,7 +128,15 @@
 //
 // Filename: xml-apis.jar
 // Location: http://xml.apache.org/xalan-j/index.html
-// Description: XSL Transformer needed for the com.ibm.as400.util package.
+// Description: JAXP 1.1 specification needed for the com.ibm.as400.util, com.ibm.as400.access.data,
+//              and com.ibm.as400.vaccess packages.
+//
+// Filename: x4j400.jar (or other XML parser)
+// Location: https://www6.software.ibm.com/dl/as400exp/expastbjm3-p
+// Description: XML Parser (x4j400.jar = IBM version of Apache Xerces 2 parser) needed
+//              for the com.ibm.as400.data package. The x4j400.jar is part of the JTOpen download.
+//              The Xerces jar can be found at http://xml.apache.org/dist/xerces-j/ and should
+//              be renamed to x4j400.jar if it is going to be used in place of the real x4j400.jar.
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -171,9 +172,6 @@
 //    jar           - Builds just the jars (and any pre-requisite targets, such as compile...).
 //    javadoc       - Builds just the javadoc (assuming the source has been downloaded).
 //    micro         - Builds just the jt400Micro.jar (including compiling and pre-verification).
-//    xerces-4.0    - Builds just the jt400-xerces-40.jar and jt400Native-xerces-40.jar files,
-//                    compiling against Xerces 4. At this time, the regular jars are built
-//                    against Xerces 3. This target is not a pre-requisite for any other targets.
 //    zip           - Builds just the doc.zip and src.zip files, assuming the source has
 //                    been downloaded and the javadoc has been built.
 //                    
@@ -184,6 +182,9 @@
 // The resulting jar and zip files can be found in the "dist" subdirectory.
 // The resulting class files can be found in the various "output" subdirectories.
 // The resulting javadoc can be found in the "javadoc" subdirectory.
+//
+// Note: The xerces-4.0 target has been removed, since the JTOpen source code has been
+//       updated to use JAXP-complient APIs.
 //
 ////////////////////////////////////////////////////////////////////////////-->
   
@@ -210,7 +211,6 @@
   <property name="include" value="${build}/include"/>
   <property name="javadoc" value="${build}/javadoc"/>
   <property name="output" value="${build}/output"/>
-  <property name="output-xerces-4.0" value="${build}/output-xerces-4.0"/>
   <property name="output-micro" value="${build}/output-micro"/>
   <property name="output-micro-verified" value="${build}/output-micro-verified"/>
 
@@ -224,21 +224,6 @@
   <path id="jtopen.includes">
     <pathelement path="${include}"/>
     <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-    <pathelement location="${include}/x4j400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
-    <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
-    <pathelement location="${include}/jta.jar"/>
-    <pathelement location="${include}/jdbc2_0-stdext.jar"/>
-    <pathelement location="${include}/jsse.jar"/>
-    <pathelement location="${include}/jtStubs.jar"/>
-    <pathelement location="${include}/jnet.jar"/>
-    <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
-    <pathelement location="${include}/xml-apis.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
-  </path>
-
-  <path id="jtopen.includes-xerces-4.0">
-    <pathelement path="${include}"/>
-    <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-    <pathelement location="${include}/xerces400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
     <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
     <pathelement location="${include}/jta.jar"/>
     <pathelement location="${include}/jdbc2_0-stdext.jar"/>
@@ -303,7 +288,6 @@
   
   <target name="clean-output">
     <delete dir="${output}"/>
-    <delete dir="${output-xerces-4.0}"/>
     <delete dir="${output-micro}"/>
     <delete dir="${output-micro-verified}"/>
   </target>
@@ -347,24 +331,6 @@
           tofile="${output}/utilities/UTMRI.properties"/>
   </target>
 
-  <target name="compile-1.3-xerces-4.0" depends="init" if="compileIncludesExist-1.3-xerces-4.0">
-    <javac srcdir="${source}:${source-contrib}"
-           destdir="${output-xerces-4.0}"
-           memoryMaximumSize="256m"
-           failonerror="true"
-           debug="on"
-           debuglevel="lines,source"
-           fork="true">
-      <classpath refid="jtopen.includes-xerces-4.0"/>
-    </javac>
-    <copy file="${source}/utilities/INMRI.pro"
-          preservelastmodified="yes"
-          tofile="${output-xerces-4.0}/utilities/INMRI.properties"/>
-    <copy file="${source}/utilities/UTMRI.pro"
-          preservelastmodified="yes"
-          tofile="${output-xerces-4.0}/utilities/UTMRI.properties"/>
-  </target>
-  
   <target name="compile-1.4" depends="init" if="compileIncludesExist-1.4">
     <javac srcdir="${source}:${source-contrib}"
            destdir="${output}"
@@ -376,7 +342,6 @@
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-        <pathelement location="${include}/x4j400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
         <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
       </classpath>
     </javac>
@@ -386,29 +351,6 @@
     <copy file="${source}/utilities/UTMRI.pro"
           preservelastmodified="yes"
           tofile="${output}/utilities/UTMRI.properties"/>
-  </target>
-
-  <target name="compile-1.4-xerces-4.0" depends="init" if="compileIncludesExist-1.4-xerces-4.0">
-    <javac srcdir="${source}:${source-contrib}"
-           destdir="${output-xerces-4.0}"
-           memoryMaximumSize="256m"
-           failonerror="true"
-           debug="on"
-           debuglevel="lines,source"
-           fork="true">
-      <classpath>
-        <pathelement path="${include}"/>
-        <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-        <pathelement location="${include}/x4j400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
-        <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
-      </classpath>
-    </javac>
-    <copy file="${source}/utilities/INMRI.pro"
-          preservelastmodified="yes"
-          tofile="${output-xerces-4.0}/utilities/INMRI.properties"/>
-    <copy file="${source}/utilities/UTMRI.pro"
-          preservelastmodified="yes"
-          tofile="${output-xerces-4.0}/utilities/UTMRI.properties"/>
   </target>
 
   <target name="compile-micro" depends="init,compileCheckIncludes-micro">
@@ -439,31 +381,11 @@
     </javac>
   </target>
       
-  <target name="compile-xerces-4.0" depends="compile-1.4-xerces-4.0,compileCheckIncludes-1.4-xerces-4.0,compile-1.3-xerces-4.0,compileCheckIncludes-1.3-xerces-4.0"/>
-  
   <target name="compileCheckIncludes-1.3" unless="compileIncludesExist-1.3">
      <echo>
      Unable to compile using JDK 1.3.
      Missing one of: JDK 1.3,
                      ${include}/servlet.jar, 
-                     ${include}/x4j400.jar,
-                     ${include}/jui400.jar,
-                     ${include}/jdbc2_0-stdext.jar,
-                     ${include}/jsse.jar,
-                     ${include}/jta.jar,
-                     ${include}/jtStubs.jar,
-                     ${include}/jnet.jar,
-                     ${include}/midpapi.zip, or
-                     ${include}/xml-apis.jar.
-     </echo>
-  </target>
-
-  <target name="compileCheckIncludes-1.3-xerces-4.0" unless="compileIncludesExist-1.3-xerces-4.0">
-     <echo>
-     Unable to compile using JDK 1.3.
-     Missing one of: JDK 1.3,
-                     ${include}/servlet.jar, 
-                     ${include}/xerces400.jar,
                      ${include}/jui400.jar,
                      ${include}/jdbc2_0-stdext.jar,
                      ${include}/jsse.jar,
@@ -480,25 +402,12 @@
      Unable to compile using JDK 1.4.
      Missing one of: JDK 1.4,
                      ${include}/servlet.jar, 
-                     ${include}/x4j400.jar,
                      ${include}/jui400.jar,
                      ${include}/jtStubs.jar, or
                      ${include}/midpapi.zip.
      </echo>
   </target>
   
-  <target name="compileCheckIncludes-1.4-xerces-4.0" unless="compileIncludesExist-1.4-xerces-4.0">
-     <echo>
-     Unable to compile using JDK 1.4.
-     Missing one of: JDK 1.4,
-                     ${include}/servlet.jar, 
-                     ${include}/xerces400.jar,
-                     ${include}/jui400.jar,
-                     ${include}/jtStubs.jar, or
-                     ${include}/midpapi.zip.
-     </echo>
-  </target>
-
   <target name="compileCheckIncludes-micro" unless="microIncludesExist">
      <echo>
      Unable to compile ToolboxME files.
@@ -520,7 +429,6 @@
     <mkdir dir="${javadoc}"/>
     <!-- mkdir dir="${include}"/ -->
     <mkdir dir="${output}"/>
-    <mkdir dir="${output-xerces-4.0}"/>
     <mkdir dir="${output-micro}"/>
     <mkdir dir="${output-micro-verified}"/>
     <mkdir dir="${bin}"/>
@@ -529,18 +437,6 @@
       <and>
         <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
         <available file="${include}/servlet.jar" type="file"/>
-        <available file="${include}/x4j400.jar" type="file"/>
-        <available file="${include}/jui400.jar" type="file"/>
-        <available file="${include}/midpapi.zip" type="file"/>
-        <available file="${include}/jtStubs.jar" type="file"/>
-      </and>
-    </condition>
-    
-    <condition property="compileIncludesExist-1.4-xerces-4.0">
-      <and>
-        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
-        <available file="${include}/servlet.jar" type="file"/>
-        <available file="${include}/xerces400.jar" type="file"/>
         <available file="${include}/jui400.jar" type="file"/>
         <available file="${include}/midpapi.zip" type="file"/>
         <available file="${include}/jtStubs.jar" type="file"/>
@@ -551,7 +447,6 @@
       <and>
         <available classname="java.lang.StrictMath"/> <!-- JDK 1.3 and higher. -->
         <available file="${include}/servlet.jar" type="file"/>
-        <available file="${include}/x4j400.jar" type="file"/>
         <available file="${include}/jui400.jar" type="file"/>
         <available file="${include}/jdbc2_0-stdext.jar" type="file"/>
         <available file="${include}/jsse.jar" type="file"/>
@@ -563,21 +458,6 @@
       </and>
     </condition>
     
-    <condition property="compileIncludesExist-1.3-xerces-4.0">
-      <and>
-        <available classname="java.lang.StrictMath"/> <!-- JDK 1.3 and higher. -->
-        <available file="${include}/servlet.jar" type="file"/>
-        <available file="${include}/xerces400.jar" type="file"/>
-        <available file="${include}/jui400.jar" type="file"/>
-        <available file="${include}/jdbc2_0-stdext.jar" type="file"/>
-        <available file="${include}/jsse.jar" type="file"/>
-        <available file="${include}/jta.jar" type="file"/>
-        <available file="${include}/jtStubs.jar" type="file"/>
-        <available file="${include}/jnet.jar" type="file"/>
-        <available file="${include}/midpapi.zip" type="file"/>
-      </and>
-    </condition>
-    
     <condition property="pdmlRuntimeExists">
       <and>
         <available file="${include}/uitools.jar" type="file"/>
@@ -586,7 +466,12 @@
       </and>
     </condition>
     
-    <available property="pcmlRuntimeExists" file="${include}/x4j400.jar" type="file"/>
+    <condition property="pcmlRuntimeExists">
+      <or>
+        <available file="${include}/x4j400.jar" type="file"/>
+        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+      </or>
+    </condition>
     
     <condition property="microIncludesExist">
       <and>
@@ -629,26 +514,6 @@
     </jar>
   </target>
   
-  <target name="jar-jt400-xerces-4.0" depends="init,compile-xerces-4.0,pcml,pdml">
-    <jar jarfile="${dist}/jt400-xerces-40.jar" manifest="${build}/build/jt400_manifest.txt">
-      <fileset dir="${output-xerces-4.0}">
-        <patternset refid="exclude.native.optimizations"/>
-        <patternset>
-            <exclude name="com/ibm/as400/util/html/**"/>
-            <exclude name="com/ibm/as400/util/servlet/**"/>
-        </patternset>
-      </fileset>
-      <fileset dir="${include}"
-               includes="com/ibm/as400/**,utilities/**">
-        <patternset refid="exclude.native.optimizations"/>
-      </fileset>
-      <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
-               excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
-      <fileset dir="${build}" includes="license.html"/>
-    </jar>
-  </target>
-  
   <!-- Preverify doesn't work under JDK 1.4. Skip this jar in that case. -->
   <target name="jar-jt400Micro" depends="init,micro-preverify" unless="compileIncludesExist-1.4">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
@@ -661,22 +526,6 @@
   <target name="jar-jt400Native" depends="init,compile,pcml,pdml">
     <jar jarfile="${dist}/jt400Native.jar" manifest="${build}/build/jt400Native_manifest.txt">
       <fileset dir="${output}">
-        <patternset>
-            <exclude name="utilities/**"/>
-            <exclude name="com/ibm/as400/vaccess/**"/>
-        </patternset>
-      </fileset>
-      <fileset dir="${include}" includes="com/ibm/as400/**"/>
-      <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
-               excludes="com/ibm/as400/vaccess/**"/>
-      <fileset dir="${build}" includes="license.html"/>
-    </jar>
-  </target>
-  
-  <target name="jar-jt400Native-xerces-4.0" depends="init,compile-xerces-4.0,pcml,pdml">
-    <jar jarfile="${dist}/jt400Native-xerces-40.jar" manifest="${build}/build/jt400Native_manifest.txt">
-      <fileset dir="${output-xerces-4.0}">
         <patternset>
             <exclude name="utilities/**"/>
             <exclude name="com/ibm/as400/vaccess/**"/>
@@ -782,7 +631,7 @@
     <!-- Classpath:
            Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
            Need "include" for the ProgramCallDocument class to use the AS400 object.
-           Need "x4j400.jar" to parse the PCML.
+           Need "x4j400.jar" or JDK 1.4 or higher to parse the PCML.
            Need "source" to find the pcml.dtd.  -->
            
   </target>
@@ -800,7 +649,7 @@
     <!-- Classpath:
            Need "uitools.jar" to run the com.ibm.as400.ui.tools.RCXML class.
            Need "jui400.jar" for the RCXML class to use the framework.
-           Need "x4j400.jar" to parse the PDML. -->
+           Need "x4j400.jar" or JDK 1.4 or higher to parse the PDML. -->
            
   </target>
     
@@ -829,13 +678,6 @@
 
 
 
-<!--///////////////////////////////////////////////////////////////////////////
-    // Target: xerces-4.0
-    ///////////////////////////////////////////////////////////////////////////-->
-  <target name="xerces-4.0" depends="init,jar-jt400-xerces-4.0,jar-jt400Native-xerces-4.0"/>
-
-
-  
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: zip
     ///////////////////////////////////////////////////////////////////////////-->
