@@ -260,7 +260,7 @@ retrieved from the server.
     				                        int errorClass,
 				                            int returnCode)
     {
-        return new SQLWarning (getReason (connection, id),
+        return new SQLWarning (getReason (connection, id, returnCode),                  // @E2C
             getSQLState (connection, id), returnCode);
     }
 
@@ -336,7 +336,7 @@ retrieved from the server.
 				                          int returnCode)
         throws SQLException
     {
-        throw new SQLException (getReason (connection, id),
+        throw new SQLException (getReason (connection, id, returnCode),             // @E2C
             getSQLState (connection, id), returnCode);
     }
 
