@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: URLEncoder.java
 //                                                                             
@@ -15,10 +15,10 @@ package com.ibm.as400.util.html;
 
 import com.ibm.as400.access.Trace;
 
+import java.util.StringTokenizer;
+
 /**
 *  The URLEncoder class encodes a string's delimiters for use in an HTML URL string.
-*  Information on encoding standards for Universal Resource Identifiers in WWW 
-*  can be found at http://www.ietf.org/rfc/rfc1630.txt.
 *
 *  <P>For example, the following HTML URL string is not valid and would need to be encoded:
 *  <BLOCKQUOTE><PRE>
@@ -36,30 +36,13 @@ import com.ibm.as400.access.Trace;
 *  
 *  <P>The delimiters that are encoded include:
 *    <UL>
-*    <LI>(space character)
-*    <LI>&quot;
-*    <LI>#
-*    <LI>%
-*    <LI>&amp;
-*    <LI>\
-*    <LI>:
-*    <LI>;
-*    <LI>&lt;
-*    <LI>=
-*    <LI>&gt;
-*    <LI>?
-*    <LI>@
-*    <LI>[
-*    <LI>/
-*    <LI>]
-*    <LI>^
-*    <LI>{
-*    <LI>|
-*    <LI>}
-*    <LI>~
+*    <LI>The ASCII characters 'a' through 'z', 'A' through 'Z', and '0' through '9' remain the same.
+*    <LI>The space character ' ' is converted into a plus sign '+'.
+*    <LI>All other characters are converted into the 3-character string "%xy", where xy is the two-digit hexadecimal
+*        representation of the lower 8-bits of the character. 
 *    </UL>
 **/
-public class URLEncoder
+public class URLEncoder 
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -70,109 +53,43 @@ public class URLEncoder
     *  @return The encoded string.
     **/
     static public String encode(String url)
+    {
+       return encode(url, true);                                                //$B1A @B2C
+    }
+    
+    /**
+    *  Encodes the URL.
+    *  @param url The URL to be encoded.
+    *  @param encodePath true if the "/" is encoded in the url; false otherwise.  The default is true.
+    *  @return The encoded string.
+    **/
+    static public String encode(String url, boolean encodePath)                 //$B1A @B2C
     {   
+
+        if (url == null)                                                        //$B1A
+           throw new NullPointerException("url");                               //$B1A
+
         if (Trace.isTraceOn())
            Trace.log(Trace.INFORMATION, "   Preparing to encode URL string.");
-        
-        StringBuffer s = new StringBuffer();
 
-        int length = url.length();
+        if (encodePath)                                                         // @B2A
+           return java.net.URLEncoder.encode(url);                              // @B2A
+        else                                                                    // @B2A
+        {                                                                       // @B2A
+           StringBuffer s = new StringBuffer();                                 // @B2A
+           String next;                                                         // @B2A
 
-        for (int i = 0; i < length; i++) 
-        {
-           switch(url.charAt(i))
-           {
-            
-           case ' ':
-              s.append("%20");
-              break;
-              
-           case '\"':
-              s.append("%22");
-              break;
+           StringTokenizer token = new StringTokenizer(url, "/", true);         // @B2A
+           while (token.hasMoreTokens())                                        // @B2A
+           {                                                                    // @B2A
+              next = token.nextToken();                                         // @B2A
+              if (next.equals("/"))                                             // @B2A
+                 s.append(next);                                                // @B2A
+              else                                                              // @B2A
+                 s.append(java.net.URLEncoder.encode(next));                    // @B2A
+           }                                                                    // @B2A
 
-           case '#':
-              s.append("%23");
-              break;
-
-           case '%':
-              s.append("%25");
-              break;
-
-           case '&':
-              s.append("%26");
-              break;
-
-           case '/':
-              s.append("%2f");
-              break;
-
-           case ':':
-              s.append("%3a");
-              break;
-
-           case ';':
-              s.append("%3b");
-              break;
-
-           case '<':
-              s.append("%3c");
-              break;
-
-           case '=':
-              s.append("%3d");
-              break;
-
-           case '>':
-              s.append("%3e");
-              break;
-
-           case '?':
-              s.append("%3f");
-              break;
-
-           case '@':
-              s.append("%40");
-              break;
-              
-           case '[':
-              s.append("%5b");
-              break;
-              
-           case '\\':
-              s.append("%5c");
-              break;
-                    
-           case ']':
-              s.append("%5d");
-              break;
-
-           case '^':
-              s.append("%5e");
-              break;
-
-           case '{':
-              s.append("%7b");
-              break;
-
-           case '|':
-              s.append("%7c");
-              break;
-
-           case '}':
-              s.append("%7d");
-              break;
-
-           case '~':
-              s.append("%7e");
-              break;
-
-           default:
-              s.append(url.charAt(i));
-              break;
-
-           }
+           return s.toString();
         }
-        return s.toString();
     }
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLTableRowBeanInfo.java
 //                                                                             
@@ -82,12 +82,38 @@ public class HTMLTableRowBeanInfo extends SimpleBeanInfo
         verticalAlignment.setDisplayName(loader_.getText("PROP_NAME_VALIGN"));
         verticalAlignment.setShortDescription(loader_.getText("PROP_HTROW_DESC_VALIGN"));
 
-	properties_ = new PropertyDescriptor[] { columnCount, horizontalAlignment, verticalAlignment };
+        PropertyDescriptor lang = new PropertyDescriptor("lang", beanClass, "getLanguage", "setLanguage");   //$B1A
+        lang.setBound(true);                                                                                 //$B1A
+        lang.setConstrained(true);                                                                           //$B1A
+        lang.setDisplayName(loader_.getText("PROP_NAME_LANGUAGE"));                                          //$B1A
+        lang.setShortDescription(loader_.getText("PROP_DESC_LANGUAGE"));                                     //$B1A
+        
+        PropertyDescriptor dir = new PropertyDescriptor("dir", beanClass, "getDirection", "setDirection");   //$B1A
+        dir.setBound(true);                                                                                  //$B1A
+        dir.setConstrained(true);                                                                            //$B1A
+        dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B1A
+        dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B1A
+        
+        properties_ = new PropertyDescriptor[] { columnCount, horizontalAlignment, verticalAlignment, 
+                                                 lang, dir };                                                //$B1C
       }
       catch (Exception e)
       {
         throw new Error(e.toString());
       }
+    }
+
+
+    /**
+     * Returns the BeanInfo for the superclass of this bean.  Since
+     * HTMLTableRow is a subclass of HTMLTagAttributes, this method
+     * will return a HTMLTagAttributesBeanInfo object.
+     *
+     * @return BeanInfo[] containing this bean's superclass BeanInfo
+     **/
+    public BeanInfo[] getAdditionalBeanInfo()                            // @Z1A
+    {
+       return new BeanInfo[] { new HTMLTagAttributesBeanInfo() };        
     }
 
 

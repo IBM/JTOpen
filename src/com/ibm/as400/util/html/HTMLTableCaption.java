@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLTableCaption.java
 //                                                                             
@@ -63,14 +63,16 @@ import java.io.Serializable;
 *  <li>VetoableChangeEvent
 *  </ul>
 **/
-public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializable
+public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
    private HTMLTagElement element_;   // The caption element.
    private String align_;             // The caption alignment.
 
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
+
    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
    /**
@@ -93,18 +95,7 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
       element_ = element;
    }
 
-   /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
-   *  method is called each time the value of any bound property is changed.
-   *  @see #removePropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
@@ -129,6 +120,39 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
       return align_;
    }
 
+
+   /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+       if ((dir_ != null) && (dir_.length() > 0))
+       {
+          StringBuffer buffer = new StringBuffer(" dir=\"");
+          buffer.append(dir_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
+       else
+          return "";
+    }
+
+
    /**
    *  Returns the element for the caption.
    *  @return An HTMLTagElement.
@@ -137,6 +161,37 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
    {
       return element_;
    }
+
+    /**
+    *  Returns the <i>language</i> of the caption.
+    *  @return The language of the caption.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
+
+
+    /**
+    *  Returns the language attribute tag.                                            
+    *  @return The language tag.                                                      
+    **/                                                                               
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+       if ((lang_ != null) && (lang_.length() > 0))
+       {
+          StringBuffer buffer = new StringBuffer(" lang=\"");
+          buffer.append(lang_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
+       else
+          return "";
+    }
 
    /**
    *  Returns the HTML caption tag.
@@ -155,7 +210,14 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
 
       StringBuffer tag = new StringBuffer("<caption");
       if (align_ != null) 
-         tag.append(" align=\"" + align_ + "\"");
+      {
+         tag.append(" align=\"");
+         tag.append(align_);
+         tag.append("\"");
+      }
+      tag.append(getLanguageAttributeTag());              //$B1A
+      tag.append(getDirectionAttributeTag());             //$B1A
+      tag.append(getAttributeString());                   // @Z1A
       tag.append(">");
       tag.append(element_.getTag());      
       tag.append("</caption>\n");
@@ -175,18 +237,7 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
       vetos_ = new VetoableChangeSupport(this);
    }
 
-   /**
-   *  Removes the PropertyChangeListener from the internal list.
-   *  If the PropertyChangeListener is not on the list, nothing is done.
-   *  @see #addPropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Removes the VetoableChangeListener from the internal list.
@@ -232,6 +283,38 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
       } 
    }
 
+
+   /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {   
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    
    /**
    *  Sets the specified <i>text</i> for the caption.
    *  @param text The caption text.
@@ -260,6 +343,29 @@ public class HTMLTableCaption implements HTMLTagElement, HTMLConstants, Serializ
 
       changes_.firePropertyChange("element", old, element );
    }
+
+
+   /**
+    *  Sets the <i>language</i> of the caption.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {   
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
+
 
    /**
    *  Returns the HTML caption tag.

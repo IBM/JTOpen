@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ListRowData.java
 //                                                                             
@@ -24,7 +24,7 @@ import java.util.Vector;
 *  <P>The list of data is formatted into a series of rows where each row
 *  contains a finite number of columns determined by the ListMetaData object.
 *  Each column within a row contains an individual data item.
-* 
+*
 *  <P>Here are some examples of what a ListRowData object can represent:
 *  <UL>
 *    <LI>A directory in the integrated file system.</LI>
@@ -34,22 +34,22 @@ import java.util.Vector;
 *    <LI>A list of spooled files.</LI>
 *    <LI>A list of users.</LI>
 *  </UL>
-*  
+*
 *  <P>A ListRowData object maintains a position in the list that points to its
 *  current row of data.  The initial position in the list is set before the
 *  first row.  The <i>next</i> method moves to the next row in the list.
-*  
+*
 *  <P>The <i>getObject</i> method is used to retrieve the column value for
-*  the current row indexed by the column number.  Columns are numbered 
+*  the current row indexed by the column number.  Columns are numbered
 *  starting from 0.
-*  
-*  <P>The number, types, and properties of the list's columns are provided 
-*  by the <A href="com.ibm.as400.util.servlet.ListMetaData.html">ListMetaData</A> object 
+*
+*  <P>The number, types, and properties of the list's columns are provided
+*  by the <A href="ListMetaData.html">ListMetaData</A> object
 *  returned by the <i>getMetaData</i> method.
-*  
+*
 *  <P>ListRowData objects generate the following events:
 *  <UL>
-*    <LI><A HREF="com.ibm.as400.util.servlet.RowDataEvent.html">RowDataEvent</A> - The events fired are:
+*    <LI><A HREF="RowDataEvent.html">RowDataEvent</A> - The events fired are:
 *      <UL>
 *      <LI>rowAdded()</LI>
 *      <LI>rowChanged()</LI>
@@ -57,10 +57,10 @@ import java.util.Vector;
 *      </UL>
 *    </LI>
 *  </UL>
-*            
+*
 *  <P>The following example creates a ListRowData object and adds rows to represent a directory in the
-*  integrated file system. 
-*  <P><BLOCKQUOTE><PRE>  
+*  integrated file system.
+*  <P><BLOCKQUOTE><PRE>
 *  <P>          // Get the files in a directory.
 *  AS400 mySystem = new AS400("mySystem.myCompany.com");
 *  IFSFile f = new IFSFile(mySystem, pathName);
@@ -91,22 +91,22 @@ import java.util.Vector;
 *  <P>          // Add directory entries to list.
 *  for (int i=0; i < files.size(); i++)
 *  {
-*  <P>   Object[] row = new Object[4];
-*  <P>   IFSFile file = (IFSFile)files.elementAt(i);
-*  <P>   row[0] = file.getName();
-*  <P>   row[1] = new Long(file.length());
-*  <P>   row[2] = new java.util.Date(file.lastModified());
-*  <P>   if (file.isDirectory())
-*  <P>   {
-*  <P>      row[3] = "Directory";
-*  <P>   }
-*  <P>   else
-*  <P>   {
-*  <P>      row[3] = "File";
-*  <P>   }
-*  <P>   rowData.addRow(row);   
+*     Object[] row = new Object[4];
+*     IFSFile file = (IFSFile)files.elementAt(i);
+*     row[0] = file.getName();
+*     row[1] = new Long(file.length());
+*     row[2] = new java.util.Date(file.lastModified());
+*     if (file.isDirectory())
+*     {
+*        row[3] = "Directory";
+*     }
+*     else
+*     {
+*        row[3] = "File";
+*     }
+*     rowData.addRow(row);
 *  }
-*  </BLOCKQUOTE></PRE></P>
+*  </PRE></BLOCKQUOTE></P>
 *
 *  @see com.ibm.as400.util.servlet.ListMetaData
 **/
@@ -114,8 +114,8 @@ public class ListRowData extends RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private RowMetaData metadata_;				// The metadata.
-   transient private RowDataSupport rowdataSupport_;		// The list of row data listeners.
+   private RowMetaData metadata_;                 // The metadata.
+   transient private RowDataSupport rowdataSupport_;        // The list of row data listeners.
 
    /**
      Constructs a default ListRowData object.
@@ -151,8 +151,8 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void addRow(Object[] row) throws RowDataException
    {
-      if (metadata_ == null) 
-      { 
+      if (metadata_ == null)
+      {
          Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
          throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
@@ -170,9 +170,9 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void addRow(Object[] row, Vector[] properties) throws RowDataException
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding a row to the list.");
-      
+
       // Validate the row and properties parameters.
       validateRow(row);
       validateProperties(properties);
@@ -195,8 +195,8 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void addRow(Object[] row, int rowIndex) throws RowDataException
    {
-      if (metadata_ == null) 
-      { 
+      if (metadata_ == null)
+      {
          Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
          throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
@@ -215,7 +215,7 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void addRow(Object[] row, Vector[] properties, int rowIndex) throws RowDataException
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding a row to the list.");
 
       // Validate the row and properties parameters.
@@ -223,7 +223,7 @@ public class ListRowData extends RowData implements Serializable
       validateProperties(properties);
 
       // Validate the rowIndex parameter.
-      if ( rowIndex < 0 || rowIndex > rows_.size() ) 
+      if ( rowIndex < 0 || rowIndex > rows_.size() )
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Add the values.
@@ -266,15 +266,15 @@ public class ListRowData extends RowData implements Serializable
       validateRowList("Attempting to get the row object");
 
       // Get the current row.
-      validateListPosition("Attempting to get the row object"); 
+      validateListPosition("Attempting to get the row object");
 
-      return (Object[])rows_.elementAt(position_);     
+      return (Object[])rows_.elementAt(position_);
    }
 
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
+   private void readObject(java.io.ObjectInputStream in)
        throws java.io.IOException, ClassNotFoundException, RowDataException
    {
       in.defaultReadObject();
@@ -287,17 +287,17 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void removeRow(int rowIndex)
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Removing a row from the list.");
 
       // Validate that the list is not empty.
       validateRowList("Attempting to remove a row");
 
       // Validate the rowIndex parameter.
-      if ( (rowIndex < 0) || (rowIndex >= rows_.size()) ) 
+      if ( (rowIndex < 0) || (rowIndex >= rows_.size()) )
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
-      rows_.removeElementAt(rowIndex); 
+
+      rows_.removeElementAt(rowIndex);
 
       // Remove the parameter list.
       rowProperties_.removeElementAt(rowIndex);
@@ -324,20 +324,20 @@ public class ListRowData extends RowData implements Serializable
    public void setMetaData(RowMetaData metadata) throws RowDataException, PropertyVetoException
    {
       // Validate the metadata parameter.
-      if (metadata == null) 
+      if (metadata == null)
          throw new NullPointerException("metaData");
-      
-      if (metadata.getColumnCount() == 0) 
+
+      if (metadata.getColumnCount() == 0)
       {
          Trace.log(Trace.ERROR, "The metadata parameter 'columns' is invalid.");
          throw new ExtendedIllegalStateException("metadata columns", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
-      
+
       RowMetaData old = metadata_;
       vetos_.fireVetoableChange("metadata", old, metadata);
 
       metadata_ = metadata;
-      
+
       changes_.firePropertyChange("metadata", old, metadata);
    }
 
@@ -350,8 +350,8 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void setRow(Object[] row, int rowIndex) throws RowDataException
    {
-      if (metadata_ == null) 
-      { 
+      if (metadata_ == null)
+      {
          Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
          throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
@@ -369,7 +369,7 @@ public class ListRowData extends RowData implements Serializable
    **/
    public void setRow(Object[] row, Vector[] properties, int rowIndex) throws RowDataException
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Changing a row in the list.");
 
       // Validate that the list is not empty.
@@ -377,9 +377,9 @@ public class ListRowData extends RowData implements Serializable
 
       // Validate the row parameter.
       validateRow(row);
-      
+
       // Validate the rowIndex parameter.
-      if ( rowIndex < 0 || rowIndex >= rows_.size() ) 
+      if ( rowIndex < 0 || rowIndex >= rows_.size() )
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Validate the properties parameter.
@@ -401,11 +401,11 @@ public class ListRowData extends RowData implements Serializable
    private void validateProperties(Vector[] properties) throws RowDataException
    {
       // Validate the properties parameter.
-      if (properties == null) 
+      if (properties == null)
          throw new NullPointerException("properties");
 
       // Verify the length matches the number of columns.
-      if (properties.length != metadata_.getColumnCount()) 
+      if (properties.length != metadata_.getColumnCount())
          throw new ExtendedIllegalArgumentException("properties", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
    }
 
@@ -415,20 +415,20 @@ public class ListRowData extends RowData implements Serializable
    *  @exception RowDataException If a rowdata error occurs.
    **/
    private void validateRow(Object[] row) throws RowDataException
-   {           
+   {
       // Validate the row parameter.
-      if (row == null) 
+      if (row == null)
          throw new NullPointerException("row");
 
       // Verify that the metadata is set.  Used in determining the number of columns in a row.
-      if (metadata_ == null) 
+      if (metadata_ == null)
       {
          Trace.log(Trace.ERROR, "Attempting to process a row before setting the metadata.");
          throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
 
       // Verify that the length matches the number of columns specified by the metadata.
-      if (row.length != metadata_.getColumnCount()) 
+      if (row.length != metadata_.getColumnCount())
          throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
    }
 }

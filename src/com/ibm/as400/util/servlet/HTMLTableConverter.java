@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLTableConverter.java
 //                                                                             
@@ -20,10 +20,11 @@ import com.ibm.as400.util.html.HTMLTableHeader;
 import com.ibm.as400.util.html.HTMLTableRow;
 import com.ibm.as400.util.html.HTMLTagElement;
 import com.ibm.as400.util.html.HTMLText;
+import com.ibm.as400.util.html.LineLayoutFormPanel;      // @D4A
 
 import com.ibm.as400.access.ActionCompletedEvent;
 import com.ibm.as400.access.ActionCompletedListener;
-import com.ibm.as400.access.ExtendedIllegalArgumentException;   
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
 
@@ -37,7 +38,8 @@ import java.util.Vector;
 
 /**
 *  The HTMLTableConverter class can be used to convert the data from a RowData
-*  object to an array of strings or HTML tables.  Each resulting HTML table then can be used
+*  object to a single HTML table for a selected group or page of row data, an
+*  array of strings or HTML tables.  Each resulting HTML table then can be used
 *  by a servlet to display the rowdata to a browser.
 *
 *  <P>HTMLTableConverter objects generate the following events:
@@ -51,13 +53,13 @@ import java.util.Vector;
 *  <P>The following example creates an HTMLTableConverter object and does the conversion.
 *  <BLOCKQUOTE><PRE>
 *  <P>         // Create an HTMLTableConverter object.
-*  HTMLTableConverter converter = new HTMLTableConverter(); 
+*  HTMLTableConverter converter = new HTMLTableConverter();
 *  <P>         // Setup the table tag with a maximum of 25 rows/table.
 *  HTMLTable table = new HTMLTable();
-*  table.setMaximumTableSize(25);            
+*  converter.setMaximumTableSize(25);
 *  converter.setTable(table);
 *  <P>         // Convert the row data.
-*  <P>         // Assume the RowData object was created and initialized in a previous step.        
+*  <P>         // Assume the RowData object was created and initialized in a previous step.
 *  String[] html = converter.convert(rowdata);
 *  </PRE></BLOCKQUOTE>
 **/
@@ -65,15 +67,15 @@ public class HTMLTableConverter extends StringConverter implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private HTMLTable htmlTable_;		                     // The html table.
-   private HTMLHyperlink[] links_;		                  // The table column header hyperlinks.
-   private int maxTableSize_ = 0;		                  // The maximum number of rows in a table.
-   private boolean useMetaData_ = false;	               // Whether the metadata is used to create the table header.  Otherwise, the existing table header is used.
+   private HTMLTable htmlTable_;    // The html table.
+   private HTMLHyperlink[] links_;     // The table column header hyperlinks.
+   private int maxTableSize_ = 0;      // The maximum number of rows in a table.
+   private boolean useMetaData_ = false;  // Whether the metadata is used to create the table header.  Otherwise, the existing table header is used.
 
-   transient private Vector completedListeners_;			// The conversion completed listeners.
-   transient private PropertyChangeSupport changes_;	   // The property change listeners.
-   transient private VetoableChangeSupport vetos_;			// The vetoable change listeners.
-   transient private SectionCompletedSupport sectionCompletedSupport_;	// The section completed listeners.
+   transient private Vector completedListeners_;         // The conversion completed listeners.
+   transient private PropertyChangeSupport changes_;        // The property change listeners.
+   transient private VetoableChangeSupport vetos_;       // The vetoable change listeners.
+   transient private SectionCompletedSupport sectionCompletedSupport_;  // The section completed listeners.
 
    /**
    *  Constructs a default HTMLTableConverter object.
@@ -97,20 +99,20 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void addActionCompletedListener(ActionCompletedListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       completedListeners_.addElement(listener);
    }
 
    /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b>
    *  method is called each time the value of any bound property is changed.
    *  @param listener The PropertyChangeListener.
    *  @see #removePropertyChangeListener
    **/
    public void addPropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       changes_.addPropertyChangeListener(listener);
    }
@@ -118,7 +120,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    /**
    *  Adds a SectionCompletedListener.
    *  The specified SectionCompletedListener's <b>sectionCompleted</b> method is called
-   *  each time the conversion for a single table is complete.  
+   *  each time the conversion for a single table is complete.
    *  The SectionCompletedListener object is added to an internal list of SectionCompletedListeners;
    *  it can be removed with removeSectionCompletedListener.
    *
@@ -131,14 +133,14 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    }
 
    /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @param listener The VetoableChangeListener.
    *  @see #removeVetoableChangeListener
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       vetos_.addVetoableChangeListener(listener);
    }
@@ -151,7 +153,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    private HTMLTable[] calculateNumberOfTables(int numberRows)
    {
       int numTables = 1;
-      if (maxTableSize_ > 0 && numberRows > 0)	    // @C1
+      if (maxTableSize_ > 0 && numberRows > 0)      // @C1
       {
          numTables = numberRows / maxTableSize_;
          if (numberRows % maxTableSize_ != 0)
@@ -166,67 +168,103 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    *  column header information being obtained from the metadata.
    *  @param rowdata The RowData object that contains the row data.
    *  @param metadata The RowMetaData object that contains the metadata.
-   *  @return A vector containing the tables.
+   *  @return An array of HTMLTables.
    *  @exception PropertyVetoException If a change is vetoed.
    *  @exception RowDataException If a row data error occurs.
    *  @see #setTable
    **/
-   private Vector convertRowData(RowData rowdata, RowMetaData metadata) throws PropertyVetoException, RowDataException			// @A1
+   private HTMLTable[] convertRowData(RowData rowdata, RowMetaData metadata)     //@A1  //$D2C
+      throws PropertyVetoException, RowDataException
    {
-      if (metadata == null) 
+      HTMLTable[] tables = calculateNumberOfTables(rowdata.length());
+
+      for (int i = 0; i < tables.length; ++i)
+      {
+         tables[i] = convertRowData(rowdata, metadata, i);
+      }
+
+      return tables;
+   }
+
+
+   /**
+   *  Converts the row data specified by <i>rowdata</i> at a specfic <i>page</i> into an HTMLTable object.
+   *  If the default table has not been set, it is automatically created with the
+   *  column header information being obtained from the metadata.
+   *  @param rowdata The RowData object that contains the row data.
+   *  @param metadata The RowMetaData object that contains the metadata.
+   *  @param page A specific page of the row data.
+   *  @return An HTMLTable.
+   *  @exception PropertyVetoException If a change is vetoed.
+   *  @exception RowDataException If a row data error occurs.
+   *  @see #setTable
+   **/
+   private HTMLTable convertRowData(RowData rowdata, RowMetaData metadata, int page)    //$D2A
+      throws PropertyVetoException, RowDataException
+   {
+      if (metadata == null)
       {
          Trace.log(Trace.ERROR, "The rowdata's metadata attribute is invalid.");
          throw new ExtendedIllegalStateException("rowdata metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
 
-      // Vector to hold the HTML table strings.
-      Vector vector = new Vector();             
+      // Validate the page parameter.
+      if (page < 0)
+         throw new ExtendedIllegalArgumentException("page", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Create the table to be used.
       if (htmlTable_ == null)
       {
-  	      // Use the metadata for the column headers.
+         // Use the metadata for the column headers.
          setUseMetaData(true);
          try
-	      {
+         {
             htmlTable_ = new HTMLTable();
             htmlTable_.setHeaderInUse(false);
-	      }
-	      catch (PropertyVetoException veto) { /* will never occur. */ }       
+         }
+         catch (PropertyVetoException veto)
+         { /* will never occur. */
+         }
       }
       // Set the table header based on the metadata.
-      if (isUseMetaData()) 
+      if (isUseMetaData())
          setTableHeader(metadata);
 
-      // Create the Table array and initialize the first table.
-      HTMLTable[] tables = calculateNumberOfTables(rowdata.length());
-      int currentTable = 0;
-      tables[currentTable] = createDefaultTable();
+      // Create and initialize the Table.
+      HTMLTable table = createDefaultTable();
+
+      // If there is no rowdata, then return an empty table.      //$D3A
+      if (rowdata.length() == 0)                                  //$D3A
+         return table;                                            //$D3A
 
       // Row processing variables.
       long numRowsInTable = 1;
       int numColumns = metadata.getColumnCount();
 
-      // Process the row data. 
-      if (rowdata.length() != 0)          // @C2
+      // Process the row data.
+      if (page == 0)
          rowdata.beforeFirst();
+      else
+         rowdata.absolute((maxTableSize_ * page)-1);
 
-      while (rowdata.next())
+      // Keep track of which row we are at in the table.
+      int rowLocation = 0;
+
+      // If no max table size is set, then the max will be the
+      // size of the row data.
+      if (maxTableSize_ == 0)
+         maxTableSize_ = rowdata.length();
+
+      while (rowdata.next() && (maxTableSize_ > rowLocation))
       {
          // Determine if the table is at the maximum size.
          if (maxTableSize_ > 0)
          {
             if (numRowsInTable > 1 && (numRowsInTable % maxTableSize_ == 1) )
             {
-               // Add the table to the list.
-               vector.addElement(tables[currentTable]);
-
                // Notify the listeners that a table is finished.
-               sectionCompletedSupport_.fireSectionCompleted(tables[currentTable].getTag());
-
-               // Create the next table.
-               tables[++currentTable] = createDefaultTable();
-            }    
+               sectionCompletedSupport_.fireSectionCompleted(table.getTag());
+            }
          }
 
          // Start the row (default row from table).
@@ -237,25 +275,31 @@ public class HTMLTableConverter extends StringConverter implements Serializable
          {
             // Create a default cell.
             HTMLTableCell cell = new HTMLTableCell();
-	    if (metadata.isNumericData(column) == true)			// @C1
+            if (metadata.isNumericData(column) == true)        // @C1
                cell.setHorizontalAlignment(HTMLTableCell.RIGHT);
             HTMLTagElement element;
 
             // Check object properties for a specific table cell to use.
-            properties = rowdata.getObjectProperties(column);   
-            if (properties != null) 
+            properties = rowdata.getObjectProperties(column);
+            if (properties != null)
             {
                int propSize = properties.size();
-               for (int index=0; index< propSize; index++) 
+               for (int index=0; index< propSize; index++)
                {
                   // Use the local cell tag.
-                  if (properties.elementAt(index) instanceof HTMLTableCell) 
+                  if (properties.elementAt(index) instanceof HTMLTableCell)
                      cell = (HTMLTableCell)properties.elementAt(index);
                }
             }
 
             // Set the column data.
             Object columnObject = rowdata.getObject(column);
+
+            // If the column data is null, place a <br /> into the cell otherwise        // @D4A
+            // a NullPointerException will be thrown for an empty cell elment.           // @D4A
+            if (columnObject == null)                                                    // @D4A
+               columnObject = new LineLayoutFormPanel();                                 // @D4A
+
             try
             {
                cell.setElement((HTMLTagElement)columnObject);
@@ -264,24 +308,24 @@ public class HTMLTableConverter extends StringConverter implements Serializable
             {
                cell.setElement(new HTMLText(columnObject.toString()));
             }
-               
+
             // Add the column cell to the row.
             row.addColumn(cell);
          }
-         // The the row of data to the table.
-         tables[currentTable].addRow(row);
+         // Add the row of data to the table.
+         table.addRow(row);
          numRowsInTable++;
+         rowLocation++;
       }
 
-      // Add the last table to the list.
-      vector.addElement(tables[currentTable]);
       // Notify section completed listeners that the last table is converted.
-      sectionCompletedSupport_.fireSectionCompleted(tables[currentTable].getTag());
+      sectionCompletedSupport_.fireSectionCompleted(table.getTag());
+
 
       // Notify listeners that the tables have been converted.
       fireCompleted();
 
-      return vector;
+      return table;
    }
 
    /**
@@ -291,17 +335,36 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    *  @exception PropertyVetoException If a change is vetoed.
    *  @exception RowDataException If a row data error occurs.
    **/
-   public HTMLTable[] convertToTables(RowData rowdata) throws PropertyVetoException, RowDataException		// @A1
+   public HTMLTable[] convertToTables(RowData rowdata) throws PropertyVetoException, RowDataException        // @A1  $D2C
    {
       if (rowdata == null)
          throw new NullPointerException("rowdata");
-         
-      Vector vector = convertRowData(rowdata, rowdata.getMetaData());
 
-      // Return the list of HTML tables.
-      HTMLTable[] tables = new HTMLTable[vector.size()];
-      vector.copyInto(tables);
+      HTMLTable[] tables = convertRowData(rowdata, rowdata.getMetaData());
+
+      //Return the list of HTML tables.
       return tables;
+   }
+
+
+   /**
+   *  Converts the row data specified by <i>rowdata</i> at the specified <i>page</i> into an HTMLTable object
+   *  when using the maximum table size.
+   *  @param rowdata The RowData object that contains the row data.
+   *  @param page The specific page of the row data.
+   *  @return An HTMLTable object.
+   *  @exception PropertyVetoException If a change is vetoed.
+   *  @exception RowDataException If a row data error occurs.
+   **/
+   public HTMLTable convertToTable(RowData rowdata, int page) throws PropertyVetoException, RowDataException    //$D2A
+   {
+      if (rowdata == null)
+         throw new NullPointerException("rowdata");
+
+      HTMLTable table = convertRowData(rowdata, rowdata.getMetaData(), page);
+
+      // Return the HTML table.
+      return table;
    }
 
    /**
@@ -315,18 +378,20 @@ public class HTMLTableConverter extends StringConverter implements Serializable
       try
       {
          if (htmlTable_.getHeader() != null)
-            table.setHeader(htmlTable_.getHeader());				   // header
+            table.setHeader(htmlTable_.getHeader());           // header
          if (htmlTable_.getCaption() != null)
-            table.setCaption(htmlTable_.getCaption());				// caption
+            table.setCaption(htmlTable_.getCaption());            // caption
          if (htmlTable_.getAlignment() != null)
-            table.setAlignment(htmlTable_.getAlignment());			// alignment
-         table.setBorderWidth(htmlTable_.getBorderWidth());			// border width
-         table.setCellPadding(htmlTable_.getCellPadding());			// cell padding
-         table.setCellSpacing(htmlTable_.getCellSpacing());			// cell spacing
-         table.setWidth(htmlTable_.getWidth(), htmlTable_.isWidthInPercent());	// width
-         table.setHeaderInUse(htmlTable_.isHeaderInUse());			// header usage
+            table.setAlignment(htmlTable_.getAlignment());        // alignment
+         table.setBorderWidth(htmlTable_.getBorderWidth());       // border width
+         table.setCellPadding(htmlTable_.getCellPadding());       // cell padding
+         table.setCellSpacing(htmlTable_.getCellSpacing());       // cell spacing
+         table.setWidth(htmlTable_.getWidth(), htmlTable_.isWidthInPercent());   // width
+         table.setHeaderInUse(htmlTable_.isHeaderInUse());        // header usage
       }
-      catch (PropertyVetoException veto) { /* will never occur. */ }     
+      catch (PropertyVetoException veto)
+      { /* will never occur. */
+      }
       return table;
    }
 
@@ -344,13 +409,14 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    String[] doConvert(RowData rowdata, RowMetaData metadata) throws PropertyVetoException, RowDataException
    {
-      Vector vector = convertRowData(rowdata, metadata);
+      HTMLTable[] tables = convertRowData(rowdata, metadata);     //$D2C
 
       // Return the list of tables as String array.
-      String[] data = new String[vector.size()];
+      String[] data = new String[tables.length];
 
       for (int i=0; i< data.length; i++)
-         data[i] = ((HTMLTable)vector.elementAt(i)).getTag();
+         data[i] = tables[i].getTag();
+
       return data;
    }
 
@@ -363,8 +429,8 @@ public class HTMLTableConverter extends StringConverter implements Serializable
       ActionCompletedEvent event = new ActionCompletedEvent(this);
       for (int i=0; i< targets.size(); i++)
       {
-        ActionCompletedListener target = (ActionCompletedListener)targets.elementAt(i);
-        target.actionCompleted(event);
+         ActionCompletedListener target = (ActionCompletedListener)targets.elementAt(i);
+         target.actionCompleted(event);
       }
    }
 
@@ -372,7 +438,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    *  Returns the table header's hyperlinks.
    *  @return The hyperlinks.
    **/
-   public HTMLHyperlink[] getHeaderHyperlinks() 
+   public HTMLHyperlink[] getHeaderHyperlinks()
    {
       return links_;
    }
@@ -397,9 +463,9 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    public HTMLHyperlink getObjectHyperlink(RowData rowdata, int column)
    {
       // Validate the rowdata parameter.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
-      
+
       return getObjectHyperlink(rowdata, rowdata.getCurrentPosition(), column);
    }
 
@@ -414,29 +480,30 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    public HTMLHyperlink getObjectHyperlink(RowData rowdata, int row, int column)
    {
       // Validate the rowdata parameter.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
 
       // Position to the row.
-      if (!rowdata.absolute(row))				// Validates the row parameter.
+      if (!rowdata.absolute(row))            // Validates the row parameter.
          throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Get the object's properties.               
-      Vector properties = rowdata.getObjectProperties(column);	// Validates the column parameter.
+      // Get the object's properties.
+      Vector properties = rowdata.getObjectProperties(column); // Validates the column parameter.
 
       HTMLHyperlink link = null;
       if (properties != null)
       {
          // Get the hyperlink associated with the object.
          int size = properties.size();
-         for (int index=0; index< size; index++) 
+         for (int index=0; index< size; index++)
          {
-            if (properties.elementAt(index) instanceof HTMLHyperlink) 
-            {                                                                                                                                                                                                                 link = (HTMLHyperlink)properties.elementAt(index);
-                break;
+            if (properties.elementAt(index) instanceof HTMLHyperlink)
+            {
+               link = (HTMLHyperlink)properties.elementAt(index);
+               break;
             }
-	 }
-      }      
+         }
+      }
       return link;
    }
 
@@ -473,8 +540,8 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
-       throws java.io.IOException, ClassNotFoundException
+   private void readObject(java.io.ObjectInputStream in)
+   throws java.io.IOException, ClassNotFoundException
    {
       in.defaultReadObject();
 
@@ -489,7 +556,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void removeActionCompletedListener(ActionCompletedListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       completedListeners_.removeElement(listener);
    }
@@ -502,7 +569,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void removePropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       changes_.removePropertyChangeListener(listener);
    }
@@ -517,7 +584,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       sectionCompletedSupport_.removeSectionCompletedListener(listener);
    }
-   
+
    /**
    *  Removes the VetoableChangeListener from the internal list.
    *  If the VetoableChangeListener is not on the list, nothing is done.
@@ -527,7 +594,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
       if (listener == null)
-         throw new NullPointerException("listener");   
+         throw new NullPointerException("listener");
       vetos_.removeVetoableChangeListener(listener);
    }
 
@@ -538,13 +605,13 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void setHeaderHyperlinks(HTMLHyperlink[] links) throws PropertyVetoException
    {
-      if (links == null) 
+      if (links == null)
          throw new NullPointerException("links");
 
       HTMLHyperlink[] old = links_;
       vetos_.fireVetoableChange("links", old, links);
 
-      links_ = links;   
+      links_ = links;
 
       changes_.firePropertyChange("links", old, links);
    }
@@ -556,7 +623,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void setMaximumTableSize(int size) throws PropertyVetoException
    {
-      if (size < 0) 
+      if (size < 0)
          throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       Integer oldSize = new Integer(maxTableSize_);
@@ -582,7 +649,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    public void setObjectHyperlink(RowData rowdata, HTMLHyperlink link, int column) throws RowDataException
    {
       // Validate the rowdata parameter.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
       setObjectHyperlink(rowdata, link, rowdata.getCurrentPosition(), column);
    }
@@ -600,11 +667,11 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    public void setObjectHyperlink(RowData rowdata, HTMLHyperlink link, int row, int column) throws RowDataException
    {
       // Validate the rowdata parameter.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
 
       // Validate the link parameter.
-      if (link == null) 
+      if (link == null)
          throw new NullPointerException("link");
 
       // Validate the row parameter.
@@ -615,21 +682,21 @@ public class HTMLTableConverter extends StringConverter implements Serializable
       Vector properties = rowdata.getObjectProperties(column);
 
       // Add the hyperlink to the object properties list.
-      if (properties == null) 
+      if (properties == null)
       {
          // Create the properties list and add link.
          properties = new Vector();
-         properties.addElement(link);     
+         properties.addElement(link);
       }
-      else 
-      {     
+      else
+      {
          // Has properties.
          HTMLHyperlink old = null;       // The existing hyperlink object.
          int linkIndex = -1;             // The property index of the the existing hyperlink.
 
          // Check for existing hyperlink.
-         int size = properties.size();           
-         for (int index=0; index< size; index++) 
+         int size = properties.size();
+         for (int index=0; index< size; index++)
          {
             if (properties.elementAt(index) instanceof HTMLHyperlink)
             {
@@ -639,10 +706,10 @@ public class HTMLTableConverter extends StringConverter implements Serializable
                break;
             }
          }
-         if (old == null) 
-            properties.addElement(link);        
+         if (old == null)
+            properties.addElement(link);
          else
-            properties.setElementAt(link, linkIndex);      
+            properties.setElementAt(link, linkIndex);
       }
       // Set the row object's properties with the new hyperlink.
       rowdata.setObjectProperties(properties, column);
@@ -658,7 +725,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void setTable(HTMLTable table) throws PropertyVetoException
    {
-      if (table == null) 
+      if (table == null)
          throw new NullPointerException("table");
 
       HTMLTable old = htmlTable_;
@@ -672,35 +739,35 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    /**
    *  Sets the table column header.  The metadata column labels are
    *  used in creating the table header.  If a column label does not
-   *  exist the column name is used.  
+   *  exist the column name is used.
    *
    *  @param metadata The meta data.
    *  @exception RowDataException If a row data error occurs.
    *  @exception PropertyVetoException If a property change is vetoed.
    **/
    private void setTableHeader(RowMetaData metadata)
-      throws RowDataException, PropertyVetoException 
-   {  
+   throws RowDataException, PropertyVetoException
+   {
       // Create the header list.
       int numColumns = metadata.getColumnCount();
       HTMLTableHeader[] headerList = new HTMLTableHeader[numColumns];
-       
+
       // Get the header names from the metadata.
       String colName = "";
       HTMLTagElement element;
       for (int column=0; column< numColumns; column++)
-      {                
+      {
          // Use the column label if it exists; otherwise use the name.
-         try                                                         
-         {                                                           
-            colName = metadata.getColumnLabel(column); 
-         }                                                          
-         catch (NullPointerException e)                                        
-         {                                                          
-            colName = metadata.getColumnName(column);                   
-         }              
+         try
+         {
+            colName = metadata.getColumnLabel(column);
+         }
+         catch (NullPointerException e)
+         {
+            colName = metadata.getColumnName(column);
+         }
          // Check for hyperlinks.
-         if (links_ != null && links_[column] != null) 
+         if (links_ != null && links_[column] != null)
          {
             HTMLHyperlink link = links_[column];
             link.setText(colName);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: TextAreaFormElementBeanInfo.java
 //                                                                             
@@ -93,12 +93,37 @@ public class TextAreaFormElementBeanInfo extends SimpleBeanInfo
         text.setDisplayName(loader_.getText("PROP_NAME_TEXT"));
         text.setShortDescription(loader_.getText("PROP_TA_DESC_TEXT"));
 
-        properties_ = new PropertyDescriptor[] { columns, name, rows, text };        
+        PropertyDescriptor lang = new PropertyDescriptor("lang", beanClass, "getLanguage", "setLanguage");   //$B3A
+        lang.setBound(true);                                                                                 //$B3A
+        lang.setConstrained(true);                                                                           //$B3A
+        lang.setDisplayName(loader_.getText("PROP_NAME_LANGUAGE"));                                          //$B3A
+        lang.setShortDescription(loader_.getText("PROP_DESC_LANGUAGE"));                                     //$B3A
+
+        PropertyDescriptor dir = new PropertyDescriptor("dir", beanClass, "getDirection", "setDirection");   //$B3A
+        dir.setBound(true);                                                                                  //$B3A
+        dir.setConstrained(true);                                                                            //$B3A
+        dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B3A
+        dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B3A
+
+        properties_ = new PropertyDescriptor[] { columns, name, rows, text, lang, dir };                     //$B3C        
       }
       catch (Exception e)
       {
         throw new Error(e.toString());
       }
+    }
+
+
+    /**
+     * Returns the BeanInfo for the superclass of this bean.  Since
+     * TextAreaFormElement is a subclass of HTMLTagAttributes, this method
+     * will return a HTMLTagAttributesBeanInfo object.
+     *
+     * @return BeanInfo[] containing this bean's superclass BeanInfo
+     **/
+    public BeanInfo[] getAdditionalBeanInfo()                            // @Z1A
+    {
+       return new BeanInfo[] { new HTMLTagAttributesBeanInfo() };        
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLTextBeanInfo.java
 //                                                                             
@@ -117,12 +117,40 @@ public class HTMLTextBeanInfo extends SimpleBeanInfo
         underscore.setDisplayName(loader_.getText("PROP_NAME_UNDERSCORE"));
         underscore.setShortDescription(loader_.getText("PROP_DESC_UNDERSCORE"));
 
-        properties_ = new PropertyDescriptor[] { alignment, bold, color, fixed, italic, size, text, underscore};
+        PropertyDescriptor lang = new PropertyDescriptor("lang", beanClass,                                  //$B3A
+                                                         "getLanguage", "setLanguage");                      //$B3A
+        lang.setBound(true);                                                                                 //$B3A
+        lang.setConstrained(true);                                                                           //$B3A
+        lang.setDisplayName(loader_.getText("PROP_NAME_LANGUAGE"));                                          //$B3A
+        lang.setShortDescription(loader_.getText("PROP_DESC_LANGUAGE"));                                     //$B3A
+
+        PropertyDescriptor dir = new PropertyDescriptor("dir", beanClass,                                    //$B3A
+                                                         "getDirection", "setDirection");                    //$B3A
+        dir.setBound(true);                                                                                  //$B3A
+        dir.setConstrained(true);                                                                            //$B3A
+        dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B3A
+        dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B3A
+
+        properties_ = new PropertyDescriptor[] { alignment, bold, color, fixed, italic,                      //$B3C
+                                                 size, text, underscore, lang, dir };                        //$B3C
       }
       catch (Exception e)
       {
         throw new Error(e.toString());
       }
+    }
+
+
+    /**
+     * Returns the BeanInfo for the superclass of this bean.  Since
+     * HTMLText is a subclass of HTMLTagAttributes, this method
+     * will return a HTMLTagAttributesBeanInfo object.
+     *
+     * @return BeanInfo[] containing this bean's superclass BeanInfo
+     **/
+    public BeanInfo[] getAdditionalBeanInfo()                            // @Z1A
+    {
+       return new BeanInfo[] { new HTMLTagAttributesBeanInfo() };        
     }
 
 

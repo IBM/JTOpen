@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SelectFormElement.java
 //                                                                             
@@ -27,12 +27,12 @@ import java.beans.PropertyVetoException;
 
 /**
 *  The SelectFormElement class represents a select input type in an HTML form.
-*  The trailing slash &quot;/&quot; on the SelectFormElement tag allows it to 
+*  The trailing slash &quot;/&quot; on the SelectFormElement tag allows it to
 *  conform to the XHTML specification.
-*    
+*
 *  <P>
-*  This example creates a SelectFormElement object with three options and prints out the HTML tag.  
-*  The first two options added specify the option text, name, and select attributes.  The third 
+*  This example creates a SelectFormElement object with three options and prints out the HTML tag.
+*  The first two options added specify the option text, name, and select attributes.  The third
 *  option added is defined by a SelectOption object.
 *  <P>
 *  <BLOCKQUOTE><PRE>
@@ -40,7 +40,7 @@ import java.beans.PropertyVetoException;
 *  SelectOption option1 = list.addOption("Option1", "opt1");
 *  SelectOption option2 = list.addOption("Option2", "opt2", false);
 *  SelectOption option3 = new SelectOption("Option3", "opt3", true);
-*  list.addOption(option3);   
+*  list.addOption(option3);
 *  System.out.println(list.getTag());
 *  </PRE></BLOCKQUOTE>
 *
@@ -52,7 +52,7 @@ import java.beans.PropertyVetoException;
 *  &lt;option value=&quot;opt3&quot; selected=&quot;selected&quot;&gt;Option3&lt;/option&gt;
 *  &lt;/select&gt;
 *  </PRE></BLOCKQUOTE>
-* 
+*
 *  <p>SelectFormElement objects generate the following events:
 *  <ul>
 *  <li><A HREF="ElementEvent.html">ElementEvent</A> - The events fired are:
@@ -66,7 +66,7 @@ import java.beans.PropertyVetoException;
 *
 *  @see com.ibm.as400.util.html.SelectOption
 **/
-public class SelectFormElement implements HTMLTagElement, java.io.Serializable
+public class SelectFormElement extends HTMLTagAttributes implements java.io.Serializable    // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -75,10 +75,12 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
    private boolean multiple_;      // Whether multiple selections can be made.
    private boolean optionSelected_;// Whether a option is marked as selected.
 
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
+
    private Vector list_;           // List of options.
 
-   
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+
    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
    transient private Vector elementListeners = new Vector();     // The list of element listeners
 
@@ -112,11 +114,11 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
     Adds an addElementListener.
     The specified addElementListeners <b>elementAdded</b> method will
     be called each time a radioforminput is added to the group.
-    The addElementListener object is addded to a list of addElementListeners
+    The addElementListener object is added to a list of addElementListeners
     managed by this RadioFormInputGroup. It can be removed with removeElementListener.
 
     @see #removeElementListener
-    
+
     @param listener The ElementListener.
     **/
     public void addElementListener(ElementListener listener) {
@@ -131,7 +133,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
    *  @param option The select option.
    **/
    public void addOption(SelectOption option)
-   {  
+   {
       if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding SelectOption to the SelectFormElement.");
 
@@ -139,7 +141,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
          throw new NullPointerException("option");
 
       if ((option.isSelected()) && (optionSelected_))
-      {  
+      {
          Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
          throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       }
@@ -155,7 +157,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
    *  <i>value</i> to the select form element.
    *  @param text The viewable option text.
    *  @param value The option input value.
-   * 
+   *
    *  @return A SelectOption object.
    **/
    public SelectOption addOption(String text, String value)
@@ -165,8 +167,8 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
    }
 
    /**
-   *  Adds an option with the specified viewable <i>text</i>, initial input <i>value</i>, 
-   *  and initial <i>selected</i> value to the select form element.  Only one option can be 
+   *  Adds an option with the specified viewable <i>text</i>, initial input <i>value</i>,
+   *  and initial <i>selected</i> value to the select form element.  Only one option can be
    *  <i>selected</i> in the select form element at a time.
    *  @param text The viewable option text.
    *  @param value The option input value.
@@ -175,18 +177,18 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
    *  @return A SelectOption object.
    **/
    public SelectOption addOption(String text, String value, boolean selected)
-   {  
+   {
       if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding option to the SelectFormElement.");
 
       if (text == null)
          throw new NullPointerException("text");
-      
+
       if (value == null)
          throw new NullPointerException("value");
 
       if ((selected) && (optionSelected_))
-      {   
+      {
          Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
          throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       }
@@ -201,21 +203,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
       return option;
    }
 
-   /**
-   Adds a PropertyChangeListener.  The specified PropertyChangeListener's
-   <b>propertyChange</b> method will be called each time the value of any
-   bound property is changed.
-     @see #removePropertyChangeListener
-     @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null)
-            throw new NullPointerException ("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
-
-
+   
    /**
    Adds the VetoableChangeListener.  The specified VetoableChangeListener's
    <b>vetoableChange</b> method will be called each time the value of any
@@ -226,7 +214,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
       if (listener == null)
-            throw new NullPointerException ("listener"); 
+            throw new NullPointerException ("listener");
       vetos_.addVetoableChangeListener(listener);
    }
 
@@ -244,6 +232,26 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
             else if (evt == ElementEvent.ELEMENT_REMOVED)
                target.elementRemoved(elementEvt);
         }
+    }
+
+
+    /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the <i>language</i> of the input element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
     }
 
    /**
@@ -289,17 +297,44 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
           throw new ExtendedIllegalStateException(
                "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
        }
-       
+
        StringBuffer s = new StringBuffer("<select");
 
-       s.append(" name=\"" + name_ + "\"");
-       
+       s.append(" name=\"");
+       s.append(name_);
+       s.append("\"");
+
        if (size_ > 0)
-           s.append(" size=\"" + size_ + "\"");
-       
+       {
+          s.append(" size=\"");
+          s.append(size_);
+          s.append("\"");
+       }
+
        if (multiple_)
            s.append(" multiple=\"multiple\"");
-       
+
+       if ((lang_ != null) && (lang_.length() > 0))                            //$B1A
+       {                                                                       //$B1A
+          if (Trace.isTraceOn())                                               //$B1A
+             Trace.log(Trace.INFORMATION, "   Using language attribute.");     //$B1A
+                                                                               //$B1A
+          s.append(" lang=\"");                                                //$B1A
+          s.append(lang_);                                                     //$B1A
+          s.append("\"");                                                      //$B1A
+       }                                                                       //$B1A
+
+       if ((dir_ != null) && (dir_.length() > 0))                              //$B1A
+       {                                                                       //$B1A
+          if (Trace.isTraceOn())                                               //$B1A
+             Trace.log(Trace.INFORMATION, "   Using direction attribute.");    //$B1A
+                                                                               //$B1A
+          s.append(" dir=\"");                                                 //$B1A
+          s.append(dir_);                                                      //$B1A
+          s.append("\"");                                                      //$B1A
+       }                                                                       //$B1A
+
+       s.append(getAttributeString());                                         // @Z1A
        s.append(">\n");
 
        optionSelected_ = false;
@@ -326,7 +361,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
       return multiple_;
    }
 
-   
+
    /**
     *  Deserializes and initializes transient data.
     **/
@@ -363,9 +398,9 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
     /**
     Removes this ElementListener from the internal list.
     If the ElementListener is not on the list, nothing is done.
-    
+
     @see #addElementListener
-    
+
     @param listener The ElementListener.
     **/
     public void removeElementListener(ElementListener listener) {
@@ -374,19 +409,7 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
        elementListeners.removeElement(listener);
     }
 
-   /**
-   Removes the PropertyChangeListener from the internal list.
-   If the PropertyChangeListener is not on the list, nothing is done.
-     @see #addPropertyChangeListener
-     @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null)
-            throw new NullPointerException ("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
-
+   
 
    /**
    Removes the VetoableChangeListener from the internal list.
@@ -400,6 +423,59 @@ public class SelectFormElement implements HTMLTagElement, java.io.Serializable
             throw new NullPointerException ("listener");
       vetos_.removeVetoableChangeListener(listener);
    }
+
+
+   /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    /**
+    *  Sets the <i>language</i> of the input tag.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
+
 
    /**
    *  Sets whether the user can make multiple selections.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SelectOption.java
 //                                                                             
@@ -15,6 +15,7 @@ package com.ibm.as400.util.html;
 
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.ExtendedIllegalStateException;
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -48,7 +49,7 @@ import java.beans.PropertyVetoException;
 *  
 *  @see com.ibm.as400.util.html.SelectFormElement
 **/
-public class SelectOption implements HTMLTagElement, java.io.Serializable
+public class SelectOption extends HTMLTagAttributes implements java.io.Serializable    // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -56,8 +57,10 @@ public class SelectOption implements HTMLTagElement, java.io.Serializable
     private boolean selected_;         // Whether the option defaults as selected.
     private String text_;              // The option text.
 
+    private String lang_;        // The primary language used to display the tags contents.  //$B1A
+    private String dir_;         // The direction of the text interpretation.                //$B1A
 
-    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+
     transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
     /**
@@ -107,21 +110,7 @@ public class SelectOption implements HTMLTagElement, java.io.Serializable
         }
     }
 
-    /**
-    Adds a PropertyChangeListener.  The specified PropertyChangeListener's
-    <b>propertyChange</b> method will be called each time the value of any
-    bound property is changed.
-      @see #removePropertyChangeListener
-      @param listener The PropertyChangeListener.
-    **/
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-       if (listener == null)
-            throw new NullPointerException ("listener");
-       changes_.addPropertyChangeListener(listener);
-    }
- 
- 
+    
     /**
     Adds the VetoableChangeListener.  The specified VetoableChangeListener's
     <b>vetoableChange</b> method will be called each time the value of any
@@ -135,6 +124,27 @@ public class SelectOption implements HTMLTagElement, java.io.Serializable
             throw new NullPointerException ("listener");
        vetos_.addVetoableChangeListener(listener);
     }
+
+
+    /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the <i>language</i> of the input element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
+
 
     /**
     *  Returns the select option tag.
@@ -159,11 +169,36 @@ public class SelectOption implements HTMLTagElement, java.io.Serializable
         StringBuffer s = new StringBuffer("<option");
 
         if (value_ != null)
-            s.append(" value=\"" + value_ + "\"");
+        {
+           s.append(" value=\"");
+           s.append(value_);
+           s.append("\"");
+        }
 
         if (selected_)
             s.append(" selected=\"selected\"");
 
+        if ((lang_ != null) && (lang_.length() > 0))                              //$B1A
+        {                                                                         //$B1A
+           if (Trace.isTraceOn())                                                 //$B1A
+              Trace.log(Trace.INFORMATION, "   Using language attribute.");       //$B1A
+                                                                                  //$B1A
+           s.append(" lang=\"");                                                  //$B1A
+           s.append(lang_);                                                       //$B1A
+           s.append("\"");                                                        //$B1A
+        }                                                                         //$B1A
+        
+        if ((dir_ != null) && (dir_.length() > 0))                                //$B1A
+        {                                                                         //$B1A
+           if (Trace.isTraceOn())                                                 //$B1A
+              Trace.log(Trace.INFORMATION, "   Using direction attribute.");      //$B1A
+                                                                                  //$B1A
+           s.append(" dir=\"");                                                   //$B1A
+           s.append(dir_);                                                        //$B1A
+           s.append("\"");                                                        //$B1A
+        }                                                                         //$B1A
+
+        s.append(getAttributeString());                                           // @Z1A
         s.append(">");
 
         if (text == null)
@@ -246,6 +281,59 @@ public class SelectOption implements HTMLTagElement, java.io.Serializable
             throw new NullPointerException ("listener"); 
        vetos_.removeVetoableChangeListener(listener);
     }
+
+
+    /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {   
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    /**
+    *  Sets the <i>language</i> of the input tag.
+    *  @param lang The language.    Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {   
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
+
 
     /**
     *  Sets whether the option defaults as being selected.

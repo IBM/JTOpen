@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FileFormInput.java
 //                                                                             
@@ -68,6 +68,9 @@ public class FileFormInput extends FormInput
        s.append(getNameAttributeTag());
        s.append(getValueAttributeTag(true));
        s.append(getSizeAttributeTag());
+       s.append(getLanguageAttributeTag());                                      //$B1A
+       s.append(getDirectionAttributeTag());                                     //$B1A
+       s.append(getAttributeString());                                           // @Z1A
        s.append(" />");
 
        return s.toString();

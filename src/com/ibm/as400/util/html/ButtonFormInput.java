@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ButtonFormInput.java
 //                                                                             
@@ -136,6 +136,9 @@ public class ButtonFormInput extends FormInput
         s.append(getNameAttributeTag());
         s.append(getValueAttributeTag(false));
         s.append(getSizeAttributeTag());
+        s.append(getLanguageAttributeTag());                                          //$B1A
+        s.append(getDirectionAttributeTag());                                         //$B1A
+        s.append(getAttributeString());                                               // @Z1A
 
         if (getAction() == null)                                                      //$A1A
         {                                                                             //$A1A
@@ -144,7 +147,11 @@ public class ButtonFormInput extends FormInput
                         "action", ExtendedIllegalStateException.PROPERTY_NOT_SET);    //$A1A
         }                                                                             //$A1A
         else                                                                          //$A1A
-           s.append(" onclick=\"" + action_ + "\"");                                  //$A1A
+        {                                                                             //$A1A
+           s.append(" onclick=\"");                                                   //$A1A
+           s.append(action_);                                                         //$A1A
+           s.append("\"");                                                            //$A1A
+        }                                                                             //$A1A
         
         s.append(" />");
 

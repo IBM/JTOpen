@@ -1,0 +1,254 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RMessageQueue.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<struct name="qualifiedName">
+        <data name="objectName"         type="char" length="10"/>
+        <data name="libraryName"        type="char" length="10"/>
+</struct>
+
+
+
+<program name="qgyolmsg" path="/QSYS.LIB/QGY.LIB/QGYOLMSG.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="lstm0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="5120"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4" init="10"/> 
+        <data name="sortInformation"                    usage="input"           type="char" length="1" init="0"/>
+        <data name="messageSelectionInformation"        usage="input"           type="struct" struct="messageSelectionInformationFormat"/>
+        <data name="sizeOfMessageSelectionInformation"  usage="input"           type="int" length="4" init="102"/> 
+        <struct name="userOrQueueInformation"           usage="input">
+                <data name="userOrQueueIndicator"                               type="char" length="1"/>
+                <data name="userOrQueueName"                                    type="struct" struct="qualifiedName"/>
+        </struct>
+        <struct name="messageQueuesUsed"                usage="output">
+                <data name="numberOfQueuesUsed"                                 type="int" length="4"/>
+                <data name="messageQueueNames"                                  type="struct" struct="qualifiedName" count="2"/>
+        </struct>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="messageSelectionInformationFormat">
+        <data name="listDirection"                              type="char" length="10"/>
+        <data                                                   type="char" length="2" init=" "/>
+        <data name="severityCriteria"                           type="int" length="4"/>
+        <data name="maximumMessageLength"                       type="int" length="4" init="511"/>
+        <data name="maximumMessageHelpLength"                   type="int" length="4" init="3000"/>
+        <data name="offsetOfSelectionCriteria"                  type="int" length="4" init="44"/>
+        <data name="numberOfSelectionCriteria"                  type="int" length="4" init="1"/>
+        <data name="offsetOfStartingMessageKeys"                type="int" length="4" init="54"/>
+        <data name="offsetOfIdentifiersOfFieldsToReturn"        type="int" length="4" init="62"/>
+        <data name="numberOfFieldsToReturn"                     type="int" length="4" init="6"/>
+        <data name="selectionCriteria"                          type="char" length="10"/>
+        <data name="startingMessageKeys"                        type="byte" length="4" count="2"/>
+        <data name="messageFieldIdentifier"                     type="int" length="4" init="302"/>
+        <data name="identifiersOfFieldsToReturn1"               type="int" length="4" init="601"/>
+        <data name="identifiersOfFieldsToReturn2"               type="int" length="4" init="603"/>                                                                        
+        <data name="identifiersOfFieldsToReturn3"               type="int" length="4" init="1001"/>                                                                        
+        <data name="identifiersOfFieldsToReturn4"               type="int" length="4" init="501"/>                                                                        
+        <data name="messageHelpFieldIdentifier"                 type="int" length="4" init="404"/>                                                                        
+</struct>        
+
+
+
+<program name="qgygtle" path="/QSYS.LIB/QGY.LIB/QGYGTLE.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="lstm0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="receiverVariableLength" />
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="32768"/>
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4"/> 
+        <data name="startingRecord"                     usage="input"           type="int" length="4"/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<program name="qgyclst" path="/QSYS.LIB/QGY.LIB/QGYCLST.PGM">
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="lstm0100">
+        <data name="offsetToTheNextEntry"               type="int" length="4"/>
+        <data name="offsetToFieldsReturned"             type="int" length="4"/>
+        <data name="numberOfFieldsReturned"             type="int" length="4"/>
+        <data name="messageSeverity"                    type="int" length="4"/>
+        <data name="messageIdentifier"                  type="char" length="7"/>
+        <data name="messageType"                        type="char" length="2"/>
+        <data name="messageKey"                         type="byte" length="4"/>
+        <data name="messageFile"                        type="char" length="20"/>
+        <data name="messageQueue"                       type="char" length="20"/>
+        <data name="dateAndTimeSent"                    type="char" length="13"/>
+        <data                                           type="byte" length="0" offset="offsetToFieldsReturned" offsetfrom="0"/>
+        <data name="message"                            type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="message.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="qualifiedSenderJobName"             type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="qualifiedSenderJobName.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="sendingProgramName"                 type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="sendingProgramName.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="replyStatus"                        type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="replyStatus.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="defaultReply"                       type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="defaultReply.offsetToTheNextFieldInformation" offsetfrom="0"/>
+        <data name="messageHelp"                        type="struct" struct="fieldInformation"/>
+        <data                                           type="byte" length="0" offset="offsetToTheNextEntry" offsetfrom="0"/>
+</struct>
+
+
+
+<struct name="fieldInformation">
+        <data name="offsetToTheNextFieldInformation"    type="int" length="4"/>
+        <data name="lengthOfFieldInformation"           type="int" length="4"/>
+        <data name="identifierField"                    type="int" length="4"/>
+        <data name="typeOfData"                         type="char" length="1"/>
+        <data name="statusOfData"                       type="char" length="1"/>
+        <data                                           type="char" length="14"/>
+        <data name="lengthOfData"                       type="int" length="4"/>
+        <data name="data"                               type="char" length="lengthOfData"/>
+</struct>
+
+
+
+<struct name="listInformation">
+        <data name="totalRecords"                       type="int" length="4"/>
+        <data name="recordsReturned"                    type="int" length="4"/>
+        <data name="requestHandle"                      type="byte" length="4"/>
+        <data name="recordLength"                       type="int" length="4"/>
+        <data name="informationCompleteIndicator"       type="char" length="1"/>
+        <data name="dateAndTimeCreated"                 type="char" length="13"/>
+        <data name="listStatusIndicator"                type="char" length="1"/>
+        <data                                           type="byte" length="1"/>
+        <data name="lengthOfInformationReturned"        type="int" length="4"/>
+        <data name="firstRecordInReceiverVariable"      type="int" length="4"/>
+        <data                                           type="byte" length="40"/>
+</struct>
+
+
+
+<program name="qmhrcvm" path="/QSYS.LIB/QMHRCVM.PGM">        
+        <data name="messageInformation"                 usage="output"          type="struct" struct="rcvm0200"
+                                                                                outputsize="lengthOfMessageInformation" />
+        <data name="lengthOfMessageInformation"         usage="input"           type="int" length="4" init="5120"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="RCVM0200"/>
+        <data name="qualifiedMessageQueueName"          usage="input"           type="struct" struct="qualifiedName"/> 
+        <data name="messageType"                        usage="input"           type="char" length="10"/>
+        <data name="messageKey"                         usage="input"           type="byte" length="4"/>
+        <data name="waitTime"                           usage="input"           type="int" length="4"/> 
+        <data name="messageAction"                      usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+      
+
+
+<struct name="rcvm0200">
+        <data name="bytesReturned"                                      type="int" length="4"/>
+        <data name="bytesAvailable"                                     type="int" length="4"/>
+        <data name="messageSeverity"                                    type="int" length="4"/>
+        <data name="messageID"                                          type="char" length="7"/>
+        <data name="messageType"                                        type="char" length="2"/>
+        <data name="messageKey"                                         type="byte" length="4"/>
+        <data name="messageFile"                                        type="char" length="20"/>
+        <data name="messageFileLibraryUsed"                             type="char" length="10"/>
+        <data name="sendingJob"                                         type="char" length="10"/>
+        <data name="sendingUserProfile"                                 type="char" length="10"/>
+        <data name="sendingJobsNumber"                                  type="char" length="6"/>
+        <data name="sendingProgramName"                                 type="char" length="12"/>
+        <data                                                           type="char" length="4"/>
+        <data name="dateAndTimeSent"                                    type="char" length="13"/>
+        <data                                                           type="char" length="17"/>
+        <data name="ccsidConversionStatusIndicatorForText"              type="int" length="4"/>
+        <data name="ccsidConversionStatusIndicatorForData"              type="int" length="4"/>
+        <data name="alertOption"                                        type="char" length="9"/>
+        <data name="ccsidOfMessageOrMessageHelp"                        type="int" length="4"/>
+        <data name="ccsidOfReplacementDataOrImpromptuText"              type="int" length="4"/>
+        <data name="lengthOfReplacementDataOrImpromptuTextReturned"     type="int" length="4"/>
+        <data name="lengthOfReplacementDataOrImpromptuTextAvailable"    type="int" length="4"/>
+        <data name="lengthOfMessageReturned"                            type="int" length="4"/>
+        <data name="lengthOfMessageAvailable"                           type="int" length="4"/>
+        <data name="lengthOfMessageHelpReturned"                        type="int" length="4"/>
+        <data name="lengthOfMessageHelpAvailable"                       type="int" length="4"/>
+        <data name="replacementDataOrImpromptuText"                     type="byte" 
+                                                                        length="lengthOfReplacementDataOrImpromptuTextReturned"
+                                                                        ccsid="ccsidOfReplacementDataOrImpromptuText"/>                                                                               
+        <data name="message"                                            type="char" 
+                                                                        length="lengthOfMessageReturned"
+                                                                        ccsid="ccsidOfMessageOrMessageHelp"/>
+        <data name="messageHelp"                                        type="char" 
+                                                                        length="lengthOfMessageHelpReturned"
+                                                                        ccsid="ccsidOfMessageOrMessageHelp"/>
+</struct>
+ 
+
+<program name="qmhrmvm" path="/QSYS.LIB/QMHRMVM.PGM">        
+        <data name="qualifiedMessageQueueName"          usage="input"           type="struct" struct="qualifiedName"/> 
+        <data name="messageKey"                         usage="input"           type="byte" length="4"/>
+        <data name="messagesToRemove"                   usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+      
+
+
+<program name="qmhsndrm" path="/QSYS.LIB/QMHSNDRM.PGM">        
+        <data name="messageKey"                         usage="input"           type="byte" length="4"/>
+        <data name="qualifiedMessageQueueName"          usage="input"           type="struct" struct="qualifiedName"/> 
+        <data name="replyText"                          usage="input"           type="byte" length="lengthOfReplyText"/>
+        <data name="lengthOfReplyText"                  usage="input"           type="int"  length="4"/>
+        <data name="removeMessage"                      usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+      
+
+
+<program name="qmhsndmWithImmediateText" path="/QSYS.LIB/QMHSNDM.PGM">        
+        <data name="messageID"                          usage="input"           type="char" length="7"/>
+        <data name="qualifiedMessageFileName"           usage="input"           type="struct" struct="qualifiedName"/> 
+        <data name="immediateText"                      usage="input"           type="byte" length="lengthOfImmediateText"/>
+        <data name="lengthOfImmediateText"              usage="input"           type="int"  length="4"/>
+        <data name="messageType"                        usage="input"           type="char" length="10"/>
+        <data name="qualifiedMessageQueueNames"         usage="input"           type="struct" struct="qualifiedName"/>
+        <data name="numberOfMessageQueues"              usage="input"           type="int"  length="4" init="1"/> 
+        <data name="qualifiedReplyMessageQueueName"     usage="input"           type="struct" struct="qualifiedName"/>
+        <data name="messageKey"                         usage="output"          type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+      
+
+<program name="qmhsndmWithMessageData" path="/QSYS.LIB/QMHSNDM.PGM">        
+        <data name="messageID"                          usage="input"           type="char" length="7"/>
+        <data name="qualifiedMessageFileName"           usage="input"           type="struct" struct="qualifiedName"/> 
+        <data name="messageData"                        usage="input"           type="byte" length="lengthOfMessageData"/>
+        <data name="lengthOfMessageData"                usage="input"           type="int"  length="4"/>
+        <data name="messageType"                        usage="input"           type="char" length="10"/>
+        <data name="qualifiedMessageQueueNames"         usage="input"           type="struct" struct="qualifiedName"/>
+        <data name="numberOfMessageQueues"              usage="input"           type="int"  length="4" init="1"/> 
+        <data name="qualifiedReplyMessageQueueName"     usage="input"           type="struct" struct="qualifiedName"/>
+        <data name="messageKey"                         usage="output"          type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+      
+
+</pcml>        
+

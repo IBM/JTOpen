@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SelectFormElementBeanInfo.java
 //                                                                             
@@ -87,18 +87,42 @@ public class SelectFormElementBeanInfo extends SimpleBeanInfo
         name.setShortDescription(loader_.getText("PROP_SF_DESC_NAME"));
 
         PropertyDescriptor size = new PropertyDescriptor("size", beanClass, "getSize", "setSize");
-
         size.setBound(true);
         size.setConstrained(true);
         size.setDisplayName(loader_.getText("PROP_NAME_SIZE"));
         size.setShortDescription(loader_.getText("PROP_SF_DESC_SIZE"));
 
-        properties_ = new PropertyDescriptor[] { count, multiple, name, size };
+        PropertyDescriptor lang = new PropertyDescriptor("lang", beanClass, "getLanguage", "setLanguage");   //$B3A
+        lang.setBound(true);                                                                                 //$B3A
+        lang.setConstrained(true);                                                                           //$B3A
+        lang.setDisplayName(loader_.getText("PROP_NAME_LANGUAGE"));                                          //$B3A
+        lang.setShortDescription(loader_.getText("PROP_DESC_LANGUAGE"));                                     //$B3A
+
+        PropertyDescriptor dir = new PropertyDescriptor("dir", beanClass, "getDirection", "setDirection");   //$B3A
+        dir.setBound(true);                                                                                  //$B3A
+        dir.setConstrained(true);                                                                            //$B3A
+        dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B3A
+        dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B3A
+
+        properties_ = new PropertyDescriptor[] { count, multiple, name, size, lang, dir };                   //$B3C
       }
       catch (Exception e)
       {
         throw new Error(e.toString());
       }
+    }
+
+
+    /**
+     * Returns the BeanInfo for the superclass of this bean.  Since
+     * SelectFormElement is a subclass of HTMLTagAttributes, this method
+     * will return a HTMLTagAttributesBeanInfo object.
+     *
+     * @return BeanInfo[] containing this bean's superclass BeanInfo
+     **/
+    public BeanInfo[] getAdditionalBeanInfo()                            // @Z1A
+    {
+       return new BeanInfo[] { new HTMLTagAttributesBeanInfo() };        
     }
 
 

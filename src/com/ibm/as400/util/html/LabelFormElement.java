@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: LabelFormElement.java
 //                                                                             
@@ -63,13 +63,13 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     }
 
 
-    /** 
+    /**
     * Adds a PropertyChangeListener.  The specified PropertyChangeListener's
     * <b>propertyChange</b> method will be called each time the value of any
     * bound property is changed.
-    * 
+    *
     * @see #removePropertyChangeListener
-    * 
+    *
     * @param listener The PropertyChangeListener.
     **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
@@ -78,8 +78,9 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
             throw new NullPointerException ("listener");
        changes_.addPropertyChangeListener(listener);
     }
- 
- 
+
+
+    
     /**
      * Adds the VetoableChangeListener.  The specified VetoableChangeListener's
      * <b>vetoableChange</b> method will be called each time the value of any
@@ -136,12 +137,13 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
         vetos_ = new VetoableChangeSupport(this);
     }
 
+
     /**
      * Removes the PropertyChangeListener from the internal list.
      * If the PropertyChangeListener is not on the list, nothing is done.
-     * 
+     *
      * @see #addPropertyChangeListener
-     * 
+     *
      * @param listener The PropertyChangeListener.
     **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
@@ -150,7 +152,8 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
             throw new NullPointerException ("listener");
       changes_.removePropertyChangeListener(listener);
     }
- 
+
+    
  
     /**
      * Removes the VetoableChangeListener from the internal list.

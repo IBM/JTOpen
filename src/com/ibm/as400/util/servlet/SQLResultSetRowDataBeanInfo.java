@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetRowDataBeanInfo.java
 //                                                                             
@@ -59,7 +59,6 @@ public class SQLResultSetRowDataBeanInfo extends SimpleBeanInfo
 
         events_ = events;
 
-        // ***** PROPERTIES
         PropertyDescriptor currentPosition = new PropertyDescriptor("currentPosition",
 							       beanClass,
 							       "getCurrentPosition",

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FormInput.java
 //                                                                             
@@ -31,16 +31,17 @@ import java.beans.PropertyVetoException;
 *  <li>VetoableChangeEvent
 *  </ul>
 **/
-abstract public class FormInput implements HTMLTagElement, java.io.Serializable
+abstract public class FormInput extends HTMLTagAttributes implements java.io.Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     private String name_;        // The input field name.
     private String value_;       // The initial value of the input field.
     private int size_ = 0;       // The visible size of the field in average char widths.
+    private String lang_;        // The primary language used to display the tags contents.  //$B1A
+    private String dir_;         // The direction of the text interpretation.                //$B1A
 
 
-    transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
     transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
     /**
@@ -84,23 +85,7 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
     }
 
 
-    /**
-     * Adds a PropertyChangeListener.  The specified PropertyChangeListener's
-     * <b>propertyChange</b> method will be called each time the value of any
-     * bound property is changed.
-     * 
-     * @see #removePropertyChangeListener
-     *
-     * @param listener The PropertyChangeListener.
-    **/
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-      if (listener == null)
-           throw new NullPointerException ("listener");
-      changes_.addPropertyChangeListener(listener);
-    }
- 
- 
+    
     /**
      * Adds the VetoableChangeListener.  The specified VetoableChangeListener's
      * <b>vetoableChange</b> method will be called each time the value of any
@@ -115,6 +100,26 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
       if (listener == null)
             throw new NullPointerException ("listener");
       vetos_.addVetoableChangeListener(listener);
+    }
+
+
+    /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the <i>language</i> of the input element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
     }
 
     /**
@@ -145,6 +150,50 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
         return size_;
     }
 
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+       if ((dir_ != null) && (dir_.length() > 0))
+       {
+          StringBuffer buffer = new StringBuffer(" dir=\"");
+          buffer.append(dir_);
+          buffer.append("\"");
+          
+          return buffer.toString();
+       }
+       else
+          return "";
+    }
+
+
+    /**
+    *  Returns the language attribute tag.                                            
+    *  @return The language tag.                                                      
+    **/                                                                               
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+       if ((lang_ != null) && (lang_.length() > 0))
+       {
+          StringBuffer buffer = new StringBuffer(" lang=\"");
+          buffer.append(lang_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
+       else
+          return "";
+    }
+
     
     /**
     *  Returns the name attribute tag.
@@ -156,7 +205,13 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
           Trace.log(Trace.INFORMATION, "   Retrieving name attribute tag.");
 
        if ((name_ != null) && (name_.length() > 0))
-          return " name=\"" + name_ + "\"";
+       {
+          StringBuffer buffer = new StringBuffer(" name=\"");
+          buffer.append(name_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
        else
           return "";
     }
@@ -171,7 +226,13 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
           Trace.log(Trace.INFORMATION, "   Retrieving size attribute tag.");
 
        if (size_ > 0)
-          return " size=\"" + size_ + "\"";
+       {
+          StringBuffer buffer = new StringBuffer(" size=\"");
+          buffer.append(size_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
        else
           return "";
     }
@@ -193,7 +254,12 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
 
           if (encode) 
              value_ = URLEncoder.encode(value_);
-          return " value=\"" + value_ + "\"";    
+
+          StringBuffer buffer = new StringBuffer(" value=\"");
+          buffer.append(value_);
+          buffer.append("\"");
+
+          return buffer.toString();
        }
        else 
           return "";
@@ -211,19 +277,7 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
         vetos_ = new VetoableChangeSupport(this);
     }
 
-    /**
-    Removes the PropertyChangeListener from the internal list.
-    If the PropertyChangeListener is not on the list, nothing is done.
-      @see #addPropertyChangeListener
-      @param listener The PropertyChangeListener.
-    **/
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
-       if (listener == null)
-            throw new NullPointerException ("listener");
-       changes_.removePropertyChangeListener(listener);
-    }
- 
+    
  
     /**
     Removes the VetoableChangeListener from the internal list.
@@ -236,6 +290,58 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
        if (listener == null)
             throw new NullPointerException ("listener");
        vetos_.removeVetoableChangeListener(listener);
+    }
+
+
+    /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {   
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    /**
+    *  Sets the <i>language</i> of the input tag.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {   
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
     }
 
     /**
@@ -299,6 +405,7 @@ abstract public class FormInput implements HTMLTagElement, java.io.Serializable
 
         changes_.firePropertyChange("value", old, value );
     }
+
 
     /**
     *  Returns a String representation for the form input tag.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLFormConverter.java
 //                                                                             
@@ -22,12 +22,15 @@ import com.ibm.as400.util.html.HTMLTableHeader;
 import com.ibm.as400.util.html.HTMLTableRow;
 import com.ibm.as400.util.html.HTMLTagElement;
 import com.ibm.as400.util.html.HTMLText;
+import com.ibm.as400.util.html.LineLayoutFormPanel;                // @D4A
+
 import com.ibm.as400.access.ActionCompletedEvent;
 import com.ibm.as400.access.ActionCompletedListener;
 import com.ibm.as400.access.Copyright;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
+
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -56,7 +59,7 @@ import java.util.Vector;
 *  to an array of forms (html strings).
 *  <BLOCKQUOTE><PRE>
 *  <P>         // Create an HTMLFormConverter object.
-*  HTMLFormConverter converter = new HTMLFormConverter(); 
+*  HTMLFormConverter converter = new HTMLFormConverter();
 *  <P>         // Convert the row data.
 *  <P>         // Assume the RowData object was created and initialized in a previous step.
 *  String[] html = converter.convert(rowdata);
@@ -65,30 +68,30 @@ import java.util.Vector;
 *  <P>The following examples creates an HTMLFormConverter object and converts the row data
 *  to an array of forms (one-row HTMLTable objects).
 *  <BLOCKQUOTE><PRE>
-*  <P>		// Creates an HTMLFormConverter object.
+*  <P>         // Creates an HTMLFormConverter object.
 *  HTMLFormConverter converter = new HTMLFormConverter();
-*  <P>		// Convert the row data.  Assume the RowData object was created and initialized
+*  <P>         // Convert the row data.  Assume the RowData object was created and initialized
 *  in a previous step.
-*  HTMLTable[] forms = converter.convertToForms(rowdata);  
+*  HTMLTable[] forms = converter.convertToForms(rowdata);
 *  </PRE></BLOCKQUOTE>
-*  
+*
 *  <P>The following example creates an HTMLFormConverter object and sets the column header
 *  hyperlinks before doing the conversion.
 *  <BLOCKQUOTE><PRE>
-*  <P>		// Create an HTMLFormConverter object with a border.
+*  <P>         // Create an HTMLFormConverter object with a border.
 *  HTMLFormConverter converter = new HTMLFormConverter();
 *  converter.setBorderWidth(1);
-*  <P>		// Create the rowdata.
+*  <P>         // Create the rowdata.
 *  int numberOfColumns = 3;
 *  ListMetaData metadata = new ListMetaData(numberOfColumns);
 *  metadata.setColumnLabel(0, "Animal ID");
 *  metadata.setColumnLabel(1, "Animal Name");
 *  metadata.setColumnLabel(2, "Date of Birth");
 *  ListRowData rowdata = new ListRowData(metadata);
-*  <P>		// Add a row.
+*  <P>         // Add a row.
 *  Object[] data = { new Integer(123456), "Timberwolf", (new Date()).toString() };
 *  rowdata.addRow(data);
-*  <P>		// Create the header hyperlinks.
+*  <P>         // Create the header hyperlinks.
 *  HTMLHyperlink[] links = new HTMLHyperlink[numberOfColumns];
 *  links[0] = new HTMLHyperlink("http://www.myZoo.com/IDList.html", "MyZoo Animal Identification List");
 *  links[1] = new HTMLHyperlink("http://www.myZoo.com/animals.html", "MyZoo Animal List");
@@ -137,9 +140,9 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private HTMLTable htmlTable_;		            // HTMLTable used to represent form.
+   private HTMLTable htmlTable_;                    // HTMLTable used to represent form.
    private HTMLHyperlink[] links_;              // The column header's hyperlink list.
-   
+
    transient private Vector completedListeners_ = new Vector();
    transient private SectionCompletedSupport sectionCompletedSupport_ = new SectionCompletedSupport(this);
    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
@@ -166,21 +169,21 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void addActionCompletedListener(ActionCompletedListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
-      
+
       completedListeners_.addElement(listener);
    }
 
    /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b>
    *  method is called each time the value of any bound property is changed.
    *  @param listener The PropertyChangeListener.
    *  @see #removePropertyChangeListener
    **/
    public void addPropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.addPropertyChangeListener(listener);
@@ -205,14 +208,14 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    }
 
    /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @param listener The VetoableChangeListener.
    *  @see #removeVetoableChangeListener
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       vetos_.addVetoableChangeListener(listener);
@@ -229,9 +232,9 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    *  @exception PropertyVetoException If a change is vetoed.
    *  @exception RowDataException If a row data error occurs.
    **/
-   private Vector convertRowData(RowData rowdata, RowMetaData metadata) throws PropertyVetoException, RowDataException		// @A1
+   private Vector convertRowData(RowData rowdata, RowMetaData metadata) throws PropertyVetoException, RowDataException       // @A1
    {
-      if (metadata == null) 
+      if (metadata == null)
       {
          Trace.log(Trace.ERROR, "The rowdata's metadata attribute is invalid.");
          throw new ExtendedIllegalStateException("rowdata metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -242,14 +245,14 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
 
       // Get the number of columns in the row data.
       int numColumns = metadata.getColumnCount();
-         
-      HTMLTableHeader[] header = createFormHeader(metadata);      // @C1
+
+      HTMLTableHeader[] header = createFormHeader(metadata);      // @B2
 
       // Process the row data.
-      if (rowdata.length() == 0)                                  // @C1
+      if (rowdata.length() == 0)                                  // @B2
       {
          HTMLTable table = createDefaultTable(header);
-         
+
          // End the form.
          formList.addElement(table);
 
@@ -260,7 +263,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       {
          rowdata.beforeFirst();
       }
-  
+
       while (rowdata.next())
       {
          HTMLTable table = createDefaultTable(header);
@@ -268,17 +271,17 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
          // Process the row.
          for (int column=0; column< numColumns; column++)
          {
-            HTMLTableRow row = table.getRow(column);         // @C1
+            HTMLTableRow row = table.getRow(column);         // @B2
 
             // Process the meta data type and add the object.
             HTMLTableCell cell = new HTMLTableCell();
             HTMLTagElement element;
 
-            Vector properties = rowdata.getObjectProperties(column);   
-            if (properties != null) 
-            {    
+            Vector properties = rowdata.getObjectProperties(column);
+            if (properties != null)
+            {
                int propSize = properties.size();
-               for (int index=0; index< propSize; index++) 
+               for (int index=0; index< propSize; index++)
                {
                   // Use local cell tag if available.
                   if (properties.elementAt(index) instanceof HTMLTableCell)
@@ -288,6 +291,12 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
 
             // Set the column data.
             Object columnObject = rowdata.getObject(column);
+
+            // If the column data is null, place a <br /> into the cell otherwise       // @D4A
+            // a NullPointerException will be thrown for an empty cell elment.          // @D4A
+            if (columnObject == null)                                                   // @D4A
+               columnObject = new LineLayoutFormPanel();                                // @D4A
+
             try
             {
                cell.setElement((HTMLTagElement)columnObject);
@@ -296,12 +305,12 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
             {
                cell.setElement(new HTMLText(columnObject.toString()));
             }
-           
+
             // Add the column cell to the row.
-            row.addColumn(cell);                  
+            row.addColumn(cell);
             // Add the row to the table.
-            table.setRow(row, column);       // @C1
-         }            
+            table.setRow(row, column);       // @B2
+         }
 
          // End the form.
          formList.addElement(table);
@@ -325,7 +334,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    *  @exception PropertyVetoException If a change is vetoed.
    *  @exception RowDataException If a row data error occurs.
    **/
-   public HTMLTable[] convertToForms(RowData rowdata) throws PropertyVetoException, RowDataException		// @A1
+   public HTMLTable[] convertToForms(RowData rowdata) throws PropertyVetoException, RowDataException          // @A1
    {
       if (rowdata == null)
          throw new NullPointerException("rowdata");
@@ -344,33 +353,41 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    *  @param header The form headers.
    *  @return An HTMLTable object.
    **/
-   private HTMLTable createDefaultTable(HTMLTableHeader[] header)    
+   private HTMLTable createDefaultTable(HTMLTableHeader[] header)       // @B2 - added parameter.
    {
       HTMLTable table = new HTMLTable();
 
       try
       {
          if (htmlTable_.getCaption() != null)
-            table.setCaption(htmlTable_.getCaption());				// caption
+            table.setCaption(htmlTable_.getCaption());                // caption
          if (htmlTable_.getAlignment() != null)
-            table.setAlignment(htmlTable_.getAlignment());			// alignment
-         table.setBorderWidth(htmlTable_.getBorderWidth());			// border width
-         table.setCellPadding(htmlTable_.getCellPadding());			// cell padding
-         table.setCellSpacing(htmlTable_.getCellSpacing());			// cell spacing
-         table.setWidth(htmlTable_.getWidth(), htmlTable_.isWidthInPercent());	// width
-	      table.setHeaderInUse(false);						            // header usage
+            table.setAlignment(htmlTable_.getAlignment());            // alignment
+         table.setBorderWidth(htmlTable_.getBorderWidth());           // border width
+         table.setCellPadding(htmlTable_.getCellPadding());           // cell padding
+         table.setCellSpacing(htmlTable_.getCellSpacing());           // cell spacing
+
+         table.setWidth(htmlTable_.getWidth(), htmlTable_.isWidthInPercent());  // width
+
+         table.setHeaderInUse(false);                            // header usage
+
+         if (htmlTable_.getLanguage() != null)                    // language       //$B1A
+            table.setLanguage(htmlTable_.getLanguage());                            //$B1A
+         if (htmlTable_.getDirection() != null)                   // direction      //$B1A
+            table.setDirection(htmlTable_.getDirection());                          //$B1A
 
          // Add a column header to each row in the table.
-         for (int column=0; column< header.length; column++)      // @C1
+         for (int column=0; column< header.length; column++)      // @B2
          {
-            HTMLTableRow row = new HTMLTableRow();
-            row.addColumn(header[column]);
-            table.addRow(row);
+            HTMLTableRow row = new HTMLTableRow();                // @B2
+            row.addColumn(header[column]);                        // @B2
+            table.addRow(row);                                    // @B2
          }
       }
-      catch (PropertyVetoException veto) { /* will never occur. */ }     
+      catch (PropertyVetoException veto) { /* will never occur. */ }
       return table;
    }
+
 
    /**
    *  Creates the form header to be used in the default HTMLTable.
@@ -378,7 +395,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    *  @return An array of HTMLTableHeader objects.
    *  @exception PropertyVetoException If changed is vetoed.
    *  @exception RowDataException If a row data error occurs.
-   **/                                                                    // @C1
+   **/                                                                    // @B2 - new method.
    private HTMLTableHeader[] createFormHeader(RowMetaData metadata) throws PropertyVetoException, RowDataException
    {
       int numColumns = metadata.getColumnCount();
@@ -387,17 +404,17 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       {
          header[column] = new HTMLTableHeader();
          // Write out the headings
-         String columnName = "";                                        
-         try                                                         
-         {                                                           
-            columnName = metadata.getColumnLabel(column);                  
-         }                                                          
-         catch (NullPointerException e)                                         
-         {                                                           
-            columnName = metadata.getColumnName(column);                   
-         }   
+         String columnName = "";
+         try
+         {
+            columnName = metadata.getColumnLabel(column);
+         }
+         catch (NullPointerException e)
+         {
+            columnName = metadata.getColumnName(column);
+         }
 
-         if (links_ != null && links_[column] != null) 
+         if (links_ != null && links_[column] != null)
          {
             HTMLHyperlink link = links_[column];
             link.setText(columnName);
@@ -423,9 +440,9 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    String[] doConvert(RowData rowdata, RowMetaData metadata)
       throws PropertyVetoException, RowDataException
-   {   
+   {
       // Validate the metadata parameter.
-      if (metadata == null) 
+      if (metadata == null)
          throw new NullPointerException("metadata");
 
       // do the conversion.
@@ -500,13 +517,31 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    }
 
    /**
+   *  Returns the form text interpretation direction.
+   *  @return The direction.
+   **/                                                     //$B1A
+   public String getDirection()                            //$B1A
+   {                                                       //$B1A
+      return htmlTable_.getDirection();                    //$B1A
+   }
+
+   /**
    *  Returns the form header's hyperlinks.
    *  @return The hyperlinks.
    **/
-   public HTMLHyperlink[] getHeaderHyperlinks() 
+   public HTMLHyperlink[] getHeaderHyperlinks()
    {
       return links_;
    }
+
+   /**
+   *  Returns the language of the form.
+   *  @return The language.
+   **/
+   public String getLanguage()                        //$B1A
+   {                                                  //$B1A
+      return htmlTable_.getLanguage();                //$B1A
+   }                                                  //$B1A
 
    /**
    *  Returns the object's hyperlink at the specified <i>column</i> within the current row.
@@ -517,7 +552,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    public HTMLHyperlink getObjectHyperlink(RowData rowdata, int column)
    {
       // Validate the rowdata parameter.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
 
       return getObjectHyperlink(rowdata, rowdata.getCurrentPosition(), column);
@@ -533,14 +568,14 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    public HTMLHyperlink getObjectHyperlink(RowData rowdata, int row, int column)
    {
       // Validate the rowdata parameter.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
 
       HTMLHyperlink link = null;
 
       if (!rowdata.absolute(row))
          throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
+
       Vector properties = rowdata.getObjectProperties(column);
 
       if (properties != null)
@@ -580,7 +615,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
+   private void readObject(java.io.ObjectInputStream in)
        throws java.io.IOException, ClassNotFoundException
    {
       in.defaultReadObject();
@@ -599,12 +634,12 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void removeActionCompletedListener(ActionCompletedListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
-      
+
       completedListeners_.removeElement(listener);
    }
-   
+
    /**
    *  Removes the PropertyChangeListener from the internal list.
    *  If the PropertyChangeListener is not on the list, nothing is done.
@@ -613,9 +648,9 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void removePropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
-      
+
       changes_.removePropertyChangeListener(listener);
 
       // Remove the listener for the table attributes.
@@ -630,7 +665,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void removeSectionCompletedListener(SectionCompletedListener listener)
    {
-      sectionCompletedSupport_.removeSectionCompletedListener(listener);      
+      sectionCompletedSupport_.removeSectionCompletedListener(listener);
    }
 
    /**
@@ -641,9 +676,9 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
-      
+
       vetos_.removeVetoableChangeListener(listener);
 
       // Remove the listener for the table attributes.
@@ -673,7 +708,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       htmlTable_.setBorderWidth(borderWidth);
    }
 
-   /** 
+   /**
    *  Sets the form caption.
    *  @param caption The caption text.
    *  @exception PropertyVetoException If the change is vetoed.
@@ -707,33 +742,63 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    }
 
    /**
+   *  Sets the form text interpretation direction.
+   *  @param dir The direction of text interpretation.  One of the following constants
+   *             defined in HTMLConstants:  LTR or RTL
+   *
+   *  @see com.ibm.as400.util.html.HTMLConstants
+   *  @exception PropertyVetoException If the change is vetoed.
+   **/
+   public void setDirection(String dir) throws PropertyVetoException      //$B1A
+   {                                                                      //$B1A
+      // If direction is not one of the valid HTMLConstants, throw an exception.                                          //$B1A
+      if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )                                        //$B1A
+      {                                                                                                                   //$B1A
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); //$B1A
+      }                                                                                                                   //$B1A
+      htmlTable_.setDirection(dir);                                       //$B1A
+   }                                                                      //$B1A
+
+   /**
    *  Sets the form header's hyperlinks.
    *  @param links The hyperlinks.
    *  @exception PropertyVetoException If the change is vetoed.
    **/
    public void setHeaderHyperlinks(HTMLHyperlink[] links) throws PropertyVetoException
    {
-      if (links == null) 
+      if (links == null)
          throw new NullPointerException("links");
 
       HTMLHyperlink[] old = links_;
       vetos_.fireVetoableChange("links", old, links);
 
-      links_ = links;   
+      links_ = links;
 
       changes_.firePropertyChange("links", old, links);
    }
+
+   /**
+   *  Sets the language of the form.
+   *  @param lang The language.  Example language tags include:
+   *  en and en-US.
+   *
+   *  @exception PropertyVetoException If the change is vetoed.
+   **/
+   public void setLanguage(String lang) throws PropertyVetoException        //$B1A
+   {                                                                        //$B1A
+      htmlTable_.setLanguage(lang);                                         //$B1A
+   }                                                                        //$B1A
 
    /**
    *  Sets the object's hyperlink at the specified <i>column</i> within the current row.
    *  @param rowdata The RowData object that contains the data.
    *  @param link The hyperlink.
    *  @param column The column number (0-based).
-   *  @exception RowDataException If a row data error occurs. 
+   *  @exception RowDataException If a row data error occurs.
    **/
    public void setObjectHyperlink(RowData rowdata, HTMLHyperlink link, int column)throws RowDataException
    {
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
 
       setObjectHyperlink(rowdata, link, rowdata.getCurrentPosition(), column);
@@ -748,11 +813,11 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    *  @exception RowDataException If a row data error occurs.
    **/
    public void setObjectHyperlink(RowData rowdata, HTMLHyperlink link, int row, int column) throws RowDataException
-   {      
+   {
       // Validate the parameters.
-      if (rowdata == null) 
+      if (rowdata == null)
          throw new NullPointerException("rowdata");
-      if (link == null) 
+      if (link == null)
          throw new NullPointerException("link");
 
       // Position to the row.
@@ -762,21 +827,21 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       // Get the object's properties.
       Vector properties = rowdata.getObjectProperties(column);
 
-      if (properties == null) 
+      if (properties == null)
       {
          // Create a properties list and add the hyperlink.
          properties = new Vector();
-         properties.addElement(link);     
+         properties.addElement(link);
       }
-      else 
+      else
       {
          // Has properties.
          HTMLHyperlink oldTag = null;        // The existing hyperlink object.
          int linkIndex = -1;                 // The property index of the existing hyperlink.
-         
+
          // Check for existing hyperlink.
          int propSize = properties.size();
-         for (int index=0; index < propSize; index++) 
+         for (int index=0; index < propSize; index++)
          {
             if (properties.elementAt(index) instanceof HTMLHyperlink)
             {
@@ -786,15 +851,15 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
                break;
             }
          }
-         
-         if (oldTag == null) 
-            properties.addElement(link);        
+
+         if (oldTag == null)
+            properties.addElement(link);
          else
-            properties.setElementAt(link, linkIndex);      
+            properties.setElementAt(link, linkIndex);
       }
       // Set the row object's new properties list.
       rowdata.setObjectProperties(properties, column);
-   }      
+   }
 
    /**
    *  Sets the form width in pixels or percent.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: GridLayoutFormPanel.java
 //                                                                             
@@ -37,7 +37,7 @@ import java.beans.PropertyVetoException;
 *
 *  <P>
 *  This examples creates a GridLayoutFormPanel object with two columns.
-*  <BLOCKQUOTE><PRE>  
+*  <BLOCKQUOTE><PRE>
 *  <P>         // Create a text form input element for the system.
 *  LabelFormElement sysPrompt = new LabelFormElement("System:");
 *  TextFormInput system = new TextFormInput("System");
@@ -54,7 +54,7 @@ import java.beans.PropertyVetoException;
 *  panel.addElement(userPrompt);
 *  panel.addElement(user);
 *  panel.addElement(passwordPrompt);
-*  panel.addElement(password);             
+*  panel.addElement(password);
 *  <P>         // Create the submit button to the form.
 *  SubmitFormInput logonButton = new SubmitFormInput("logon", "Logon");
 *  <P>         // Create HTMLForm object and add the panel to it.
@@ -69,7 +69,10 @@ public class GridLayoutFormPanel extends LayoutFormPanel
 
     private int columns_;            // The number of columns in the layout.
 
-    
+    private String lang_;        // The primary language used to display the tags contents.  //$B1A
+    private String dir_;         // The direction of the text interpretation.                //$B1A
+
+
     /**
     *  Constructs a default GridLayoutFormPanel with one column.
     **/
@@ -95,13 +98,13 @@ public class GridLayoutFormPanel extends LayoutFormPanel
         }
     }
 
-    /** 
+    /**
     * Adds a PropertyChangeListener.  The specified PropertyChangeListener's
     * <b>propertyChange</b> method will be called each time the value of any
     * bound property is changed.
-    * 
+    *
     * @see #removePropertyChangeListener
-    * 
+    *
     * @param listener The PropertyChangeListener.
     **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
@@ -110,15 +113,15 @@ public class GridLayoutFormPanel extends LayoutFormPanel
             throw new NullPointerException ("listener");
        changes_.addPropertyChangeListener(listener);
     }
- 
- 
+
+
     /**
      * Adds the VetoableChangeListener.  The specified VetoableChangeListener's
      * <b>vetoableChange</b> method will be called each time the value of any
      * constrained property is changed.
-     * 
+     *
      * @see #removeVetoableChangeListener
-     * 
+     *
      * @param listener The VetoableChangeListener.
     **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
@@ -137,7 +140,60 @@ public class GridLayoutFormPanel extends LayoutFormPanel
        return columns_;
     }
 
-    /** 
+
+    /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+       if ((dir_ != null) && (dir_.length() > 0))
+          return " dir=\"" + dir_ + "\"";
+       else
+          return "";
+    }
+
+
+    /**
+    *  Returns the <i>language</i> of the input element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
+
+
+    /**
+    *  Returns the language attribute tag.
+    *  @return The language tag.
+    **/
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+       if ((lang_ != null) && (lang_.length() > 0))
+          return " lang=\"" + lang_ + "\"";
+       else
+          return "";
+    }
+
+
+    /**
     *  Returns the grid layout panel tag.
     *  @return The tag.
     **/
@@ -146,7 +202,12 @@ public class GridLayoutFormPanel extends LayoutFormPanel
         if (Trace.isTraceOn())
           Trace.log(Trace.INFORMATION, "Generating GridLayoutFormPanel tag...");
 
-        StringBuffer s = new StringBuffer("<table border=\"0\">\n");
+        StringBuffer s = new StringBuffer("<table border=\"0\"");                     //$B1C
+
+        s.append(getLanguageAttributeTag());                                          //$B1A
+        s.append(getDirectionAttributeTag());                                         //$B1A
+
+        s.append(">\n");                                                              //$B1A
 
         int index = 0;
         for (int i=0; i< getSize(); i++)
@@ -178,9 +239,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     /**
      * Removes the PropertyChangeListener from the internal list.
      * If the PropertyChangeListener is not on the list, nothing is done.
-     * 
+     *
      * @see #addPropertyChangeListener
-     * 
+     *
      * @param listener The PropertyChangeListener.
     **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
@@ -189,19 +250,19 @@ public class GridLayoutFormPanel extends LayoutFormPanel
             throw new NullPointerException ("listener");
       changes_.removePropertyChangeListener(listener);
     }
- 
- 
+
+
     /**
      * Removes the VetoableChangeListener from the internal list.
      * If the VetoableChangeListener is not on the list, nothing is done.
-     * 
+     *
      * @see #addVetoableChangeListener
      * @param listener The VetoableChangeListener.
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
        if (listener == null)
-            throw new NullPointerException ("listener"); 
+            throw new NullPointerException ("listener");
        vetos_.removeVetoableChangeListener(listener);
     }
 
@@ -223,5 +284,56 @@ public class GridLayoutFormPanel extends LayoutFormPanel
        columns_ = columns;
 
        changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) );
+    }
+
+    /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    /**
+    *  Sets the <i>language</i> of the input tag.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
     }
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: LayoutFormPanel.java
 //                                                                             
@@ -30,7 +30,7 @@ import java.beans.VetoableChangeSupport;
 *    <li>elementRemoved
 *    </ul>
 *  </UL>
-**/                                     
+**/
 public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -38,7 +38,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     private Vector list;         // The list of form elements.
     private int cols;            // The number of columns in the layout.
 
-    
+
     transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
     transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
     transient Vector elementListeners_ = new Vector();     // The list of element listeners.
@@ -148,7 +148,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
-    /** 
+    /**
     *  Removes this ElementListener from the internal list.
     *  If the ElementListener is not on the list, nothing is done.
     *  @see #addElementListener

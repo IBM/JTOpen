@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ListRowDataBeanInfo.java
 //                                                                             
@@ -59,7 +59,6 @@ public class ListRowDataBeanInfo extends SimpleBeanInfo
 
         events_ = events;
 
-        // ***** PROPERTIES
         PropertyDescriptor currentPosition = new PropertyDescriptor("currentPosition", beanClass,                                                                     "getCurrentPosition", null);
         currentPosition.setBound(false);
         currentPosition.setConstrained(false);
@@ -104,7 +103,7 @@ public class ListRowDataBeanInfo extends SimpleBeanInfo
     **/
     public int getDefaultEventIndex()
     {
-        return 0;
+       return 0;
     }
 
     /**
@@ -113,7 +112,7 @@ public class ListRowDataBeanInfo extends SimpleBeanInfo
     **/
     public int getDefaultPropertyIndex()
     {
-        return 0;
+       return 0;
     }
 
     /**

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLText.java
 //                                                                             
@@ -16,6 +16,7 @@ package com.ibm.as400.util.html;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
+
 import java.awt.Color;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -46,20 +47,22 @@ import java.io.Serializable;
 *  <li>VetoableChangeEvent
 *  </ul>
 **/
-public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable   
+public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serializable      // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
    private String text_;                    // The text to tag.   
    private String alignment_;               // The horizontal alignment.  "left", "center", "right" or "justify".
-   private Color color_;	            // The font color attribute.
+   private Color color_;	                 // The font color attribute.
    private int size_ = 0;                   // The font size attribute.  
    private boolean bold_ = false;           // The bold style attribute.
    private boolean fixed_ = false;          // The fixed pitch style attribute.
    private boolean italic_ = false;         // The italic style attribute.
    private boolean underscore_ = false;     // The underline style attribute.
 
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
+
    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
    /**
@@ -86,18 +89,7 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       { /* do nothing */ } 
    }
 
-   /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
-   *  method is called each time the value of any bound property is changed.
-   *  @see #removePropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null)
-         throw new NullPointerException("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
@@ -123,6 +115,7 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
        return alignment_;
    }
 
+
    /**
    *  Returns the color used to paint the text.
    *  @return The Color object representing the text color.
@@ -132,7 +125,34 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       return color_;
    }
 
+
    /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+       if ((dir_ != null) && (dir_.length() > 0))
+          return " dir=\"" + dir_ + "\"";
+       else
+          return "";
+    }
+
+
+    /**
    *  Returns the end text alignment tag.
    *  @return The end text alignment tag or an empty String
    *  if the alignment is not set.
@@ -152,7 +172,7 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
    **/
    String getEndTextFontTag()
    {
-       if (size_ != 0 || color_ != null)
+       if (size_ != 0 || color_ != null || getAttributeString().length() != 0)
        {
            return ("</font>");
        }
@@ -232,6 +252,33 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
        return new String(tag);
    }
 
+
+   /**
+    *  Returns the <i>language</i> of the text element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
+
+
+    /**
+    *  Returns the language attribute tag.                                            
+    *  @return The language tag.                                                      
+    **/                                                                               
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+       if ((lang_ != null) && (lang_.length() > 0))
+          return " lang=\"" + lang_ + "\"";
+       else
+          return "";
+    }
+
+
    /**
      * Returns the font text size.
      * The default value is 0 (browser default).
@@ -290,10 +337,29 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       
       if (useAlignment) 
          tag.append(getTextAlignmentTag());
+      
       tag.append(getTextFontTag());
-      tag.append(getTextStyleTag());
-      tag.append(text);
-      tag.append(getEndTextStyleTag());
+      
+      // if a BiDirectional attribute has been set, add the         //$B1A
+      // bdo tag to the html text string.                           //$B1A
+      if (lang_ != null || dir_ != null)                            //$B1A
+      {  
+         tag.append("\n<bdo");                                      //$B1A
+         tag.append(getLanguageAttributeTag());                     //$B1A
+         tag.append(getDirectionAttributeTag());                    //$B1A
+         tag.append(">\n");                                         //$B1A
+         tag.append(getTextStyleTag());                             //$B1A
+         tag.append(text);                                          //$B1A
+         tag.append(getEndTextStyleTag());                          //$B1A
+         tag.append("\n</bdo>\n");                                  //$B1A
+         
+      }
+      else                                                          //$B1A
+      {  
+         tag.append(getTextStyleTag());
+         tag.append(text);
+         tag.append(getEndTextStyleTag());
+      }                                                                
       tag.append(getEndTextFontTag());
       if (useAlignment) 
          tag.append(getEndTextAlignmentTag());
@@ -340,11 +406,15 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
    String getTextFontTag()			// @A1
    {
       StringBuffer tag = new StringBuffer("");
-      if (size_ != 0 || color_ != null)
+
+      String extraAttributes = getAttributeString();        // @Z1A
+
+      if (size_ != 0 || color_ != null || extraAttributes.length() != 0)     // @Z1C
       {
          tag.append("<font");
          tag.append(getFontSizeAttribute());
          tag.append(getFontColorAttribute());
+         tag.append(extraAttributes);                       // @Z1A
          tag.append(">");
       }
       return new String(tag);
@@ -381,7 +451,9 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
        }
 
        return new String(tag);
-   } 
+   }
+
+
    /**
    *  Indicates if bold is on.
    *  @return true if bold, false otherwise.
@@ -418,6 +490,7 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
        return underscore_;
    }
 
+   
    /**
    *  Deserializes and initializes transient data.
    **/
@@ -430,18 +503,7 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       vetos_ = new VetoableChangeSupport(this);
    }
 
-   /**
-   *  Removes the PropertyChangeListener from the internal list.
-   *  If the PropertyChangeListener is not on the list, nothing is done.
-   *  @see #addPropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null)
-         throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Removes the VetoableChangeListener from the internal list.
@@ -488,6 +550,8 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       }
    }
 
+
+   
    /**
    *  Sets bold on or off.  The default is false.
    *  @param bold true if on, false if off.
@@ -507,7 +571,7 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
 
    /**
    *  Sets the color used to paint the text.
-   *  The default text color is determined by the browser's color settings).
+   *  The default text color is determined by the browser's color settings.
    *  How the color is rendered is browser dependent.
    *  @param color The Color object.
    *  @exception PropertyVetoException If the change is vetoed.
@@ -523,6 +587,37 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       changes_.firePropertyChange("color", oldColor, color);
    }
 
+   /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {   
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    
    /**
    *  Sets fixed pitch font on or off.  The default is false.
    *  @param fixed true if on, false if off.
@@ -556,6 +651,27 @@ public class HTMLText implements HTMLTagElement, HTMLConstants, Serializable
       
       changes_.firePropertyChange("italic", oldItalic, newItalic);
    }
+
+   /**
+    *  Sets the <i>language</i> of the text tag.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {   
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
 
    /**
    *  Sets the text font size.  Valid values are: 0 to 7.

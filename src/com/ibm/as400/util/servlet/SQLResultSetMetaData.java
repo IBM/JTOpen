@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetMetaData.java
 //                                                                             
@@ -30,8 +30,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 /**
-*  An SQLResultSetMetaData object can be used to find out information about the columns of 
-*  an <A href="com.ibm.as400.util.servlet.SQLResultSetRowData.html">SQLResultSetRowData</A> object.
+*  An SQLResultSetMetaData object can be used to find out information about the columns of
+*  an <A href="SQLResultSetRowData.html">SQLResultSetRowData</A> object.
 *
 *  <P>
 *  Serializing the object results in the metadata being cached with the object.
@@ -48,19 +48,19 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   transient private ResultSetMetaData metadata_;        // The result set metadata.
-   private String[] columnLabels_;			               // The column label list.
-   private boolean isCached_ = false;			            // Indicates if the metadata is cached or
-                                                         // if the ResultSetMetaData object is used.
+   transient private ResultSetMetaData metadata_;     // The result set metadata.
+   private String[] columnLabels_;                       // The column label list.
+   private boolean isCached_ = false;                      // Indicates if the metadata is cached or
+                                                      // if the ResultSetMetaData object is used.
 
    // metadata information cache
-   private int columnCount_ = -1;			               // The number of columns.
-   private int[] columnDisplaySize_;			            // The column display size.
-   private String[] columnName_;			                  // The column name.
-   private int[] columnType_;				                  // The column type.
-   private String[] columnTypeName_;			            // The column type name.
-   private int[] columnPrecision_;			               // The column precision.
-   private int[] columnScale_;				               // The column scale.
+   private int columnCount_ = -1;                        // The number of columns.
+   private int[] columnDisplaySize_;                       // The column display size.
+   private String[] columnName_;                            // The column name.
+   private int[] columnType_;                               // The column type.
+   private String[] columnTypeName_;                       // The column type name.
+   private int[] columnPrecision_;                       // The column precision.
+   private int[] columnScale_;                                // The column scale.
 
    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
@@ -68,7 +68,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    /**
      Constructs a default SQLResultSetMetaData object.
    **/
-   public SQLResultSetMetaData() 
+   public SQLResultSetMetaData()
    {
    }
 
@@ -86,30 +86,30 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       }
       catch (PropertyVetoException e) { /* Will never occur. */ }
    }
-       
+
    /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b>
    *  method is called each time the value of any bound property is changed.
    *  @see #removePropertyChangeListener
    *  @param listener The PropertyChangeListener.
    **/
    public void addPropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.addPropertyChangeListener(listener);
    }
 
    /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @see #removeVetoableChangeListener
    *  @param listener The VetoableChangeListener.
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       vetos_.addVetoableChangeListener(listener);
@@ -127,11 +127,11 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          if (isCached_)
             return columnCount_;
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the column count"); 
+            validateMetaData("Attempting to get the column count");
             return metadata_.getColumnCount();
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -156,11 +156,11 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          if (isCached_)
             return columnDisplaySize_[columnIndex];
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the column display size"); 
+            validateMetaData("Attempting to get the column display size");
             return metadata_.getColumnDisplaySize(columnIndex + 1);
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -179,7 +179,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       // Validate the metadata.
       if (!isCached_)
-         validateMetaData("Attempting to get the column label"); 
+         validateMetaData("Attempting to get the column label");
 
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
@@ -197,17 +197,17 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       try
       {
          if (isCached_)
             return columnName_[columnIndex];
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the column name"); 
+            validateMetaData("Attempting to get the column name");
             return metadata_.getColumnName(columnIndex + 1);
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -226,17 +226,17 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       try
       {
          if (isCached_)
             return columnType_[columnIndex];
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the column type"); 
+            validateMetaData("Attempting to get the column type");
             return metadata_.getColumnType(columnIndex + 1);
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -255,17 +255,17 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       try
       {
          if (isCached_)
             return columnTypeName_[columnIndex];
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the column type name"); 
+            validateMetaData("Attempting to get the column type name");
             return metadata_.getColumnTypeName(columnIndex + 1);
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -293,17 +293,17 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       try
       {
          if (isCached_)
             return columnPrecision_[columnIndex];
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the precision"); 
+            validateMetaData("Attempting to get the precision");
             return metadata_.getPrecision(columnIndex + 1);
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -329,11 +329,11 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          if (isCached_)
             return columnScale_[columnIndex];
          else
-	 {
+      {
             // Validate the metadata.
-            validateMetaData("Attempting to get the scale"); 
+            validateMetaData("Attempting to get the scale");
             return metadata_.getScale(columnIndex + 1);
-	 }
+      }
       }
       catch (SQLException e)
       {
@@ -348,7 +348,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    *  @return true if numeric data; false otherwise.
    *  @exception RowDataException If a row data error occurs.
    **/
-   public boolean isNumericData(int columnIndex) throws RowDataException	// @A1
+   public boolean isNumericData(int columnIndex) throws RowDataException   // @A1
    {
       // validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
@@ -356,16 +356,16 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       switch (getColumnType(columnIndex))
       {
          case Types.BIGINT:
-	 case Types.DECIMAL:
-	 case Types.DOUBLE:
-	 case Types.FLOAT:
-	 case Types.INTEGER:
-	 case Types.NUMERIC:
-	 case Types.REAL:
-	 case Types.SMALLINT:
-	 case Types.TINYINT:
+      case Types.DECIMAL:
+      case Types.DOUBLE:
+      case Types.FLOAT:
+      case Types.INTEGER:
+      case Types.NUMERIC:
+      case Types.REAL:
+      case Types.SMALLINT:
+      case Types.TINYINT:
             return true;
-	 default:
+      default:
             return false;
       }
    }
@@ -402,11 +402,11 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       in.defaultReadObject();
 
-      metadata_ = null;			// use cached data until reset.
+      metadata_ = null;            // use cached data until reset.
 
       // Setup the listeners.
       changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);      
+      vetos_ = new VetoableChangeSupport(this);
    }
 
    /**
@@ -417,7 +417,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    **/
    public void removePropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.removePropertyChangeListener(listener);
@@ -431,7 +431,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       vetos_.removeVetoableChangeListener(listener);
@@ -446,13 +446,13 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    public void setMetaData(ResultSetMetaData metadata) throws PropertyVetoException, RowDataException
    {
       // Validate the metadata parameter.
-      if (metadata == null) 
+      if (metadata == null)
          throw new NullPointerException("metadata");
 
       ResultSetMetaData old = metadata_;
       vetos_.fireVetoableChange("metadata", old, metadata);
 
-      try 
+      try
       {
          metadata_ = metadata;
          columnLabels_ = new String[getColumnCount()];
@@ -476,7 +476,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          columnTypeName_ = null;
          columnPrecision_ = null;
          columnScale_ = null;
-	      isCached_ = false;		// Use metadata information instead of cache.
+      isCached_ = false;      // Use metadata information instead of cache.
       }
    }
 
@@ -485,16 +485,16 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
      @param columnIndex The column index (0-based).
      @param label The label.
      @exception RowDataException If a row data error occurs.
-   **/    
+   **/
    public void setColumnLabel(int columnIndex, String label) throws RowDataException
    {
       // Validate the label parameter.
-      if (label == null) 
+      if (label == null)
          throw new NullPointerException("label");
-      
+
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-      
+
       columnLabels_[columnIndex] = label;
    }
 
@@ -504,8 +504,8 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    **/
    private void validateColumnIndex(int columnIndex) throws RowDataException
    {
-      if ( (columnIndex < 0) || (columnIndex >= getColumnCount()) ) 
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);      
+      if ( (columnIndex < 0) || (columnIndex >= getColumnCount()) )
+         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
    }
 
    /**
@@ -514,11 +514,11 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    **/
    private void validateMetaData(String action)
    {
-      if (metadata_ == null) 
+      if (metadata_ == null)
       {
          Trace.log(Trace.ERROR, action + " before setting the metadata.");
          throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }      
+      }
    }
 
    /**
@@ -533,7 +533,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       if (metadata_ != null)
       {
          columnCount_ = getColumnCount();
-       
+
          columnDisplaySize_ = new int[columnCount_];
          columnName_ = new String[columnCount_];
          columnType_ = new int[columnCount_];
@@ -550,9 +550,9 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
             columnPrecision_[columnIndex] = getPrecision(columnIndex);
             columnScale_[columnIndex] = getScale(columnIndex);
          }
-	      isCached_ = true;			// data has now been cached.
+      isCached_ = true;            // data has now been cached.
       }
-      
+
       // Serialize the object.
       out.defaultWriteObject();
    }

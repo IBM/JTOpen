@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CheckboxFormInput.java
 //                                                                             
@@ -106,7 +106,10 @@ public class CheckboxFormInput extends ToggleFormInput
         s.append(getNameAttributeTag());
         s.append(getValueAttributeTag(false));
         s.append(getSizeAttributeTag());
-        s.append(getCheckedAttributeTag());
+        s.append(getLanguageAttributeTag());                                         //$B1A
+        s.append(getDirectionAttributeTag());                                        //$B1A
+        s.append(getAttributeString());                                              // @Z1A
+        s.append(getCheckedAttributeTag());                                          
         s.append(" /> ");
         s.append(getLabel());
 

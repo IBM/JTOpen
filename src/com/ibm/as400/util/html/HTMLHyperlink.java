@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLHyperlink.java
 //                                                                             
@@ -14,7 +14,10 @@
 package com.ibm.as400.util.html;
 
 import com.ibm.as400.access.ExtendedIllegalStateException;
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.Trace;
+import com.ibm.as400.util.servlet.ServletHyperlink;
+
 import java.util.Enumeration;
 import java.util.Properties;
 import java.beans.PropertyChangeSupport;
@@ -58,7 +61,7 @@ import java.beans.VetoableChangeListener;
 *  <li>VetoableChangeEvent
 *  </ul>
 **/
-public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Serializable
+public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, java.io.Serializable  // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -67,9 +70,12 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
    private Properties properties_;        // Properties associated with the hyperlink. (ie. parameters for URL rewriting)
    private String target_;                // The target frame for the link resource.
    private String text_;                  // The text to be used to represent the link.
-   private String title_;                 // The title for the link resource.   
+   private String title_;                 // The title for the link resource.
+   private String anchor_;                // The anchor (ie - #AnchorName) for the link resource.  // $B4A
+
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
    
-   transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
    transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
    /**
@@ -121,22 +127,7 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
       target_ = target;
    }
 
-   /**
-   Adds a PropertyChangeListener.  The specified 
-   PropertyChangeListener's <b>propertyChange</b> 
-   method is called each time the value of any
-   bound property is changed.
-     @see #removePropertyChangeListener
-     @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
-
-
+   
    /**
    Adds the VetoableChangeListener.  The specified
    VetoableChangeListener's <b>vetoableChange</b> 
@@ -151,6 +142,109 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
          throw new NullPointerException("listener");
       vetos_.addVetoableChangeListener(listener);
    }
+
+   /**
+    *  Returns a copy of the HTMLHyperlink.
+    *
+    *  @return An HTMLHyperlink.  
+    **/
+   public Object clone()                          //$B3A
+   {
+      HTMLHyperlink l = new HTMLHyperlink();
+		try
+		{
+         if (anchor_ != null)                     //$B4A
+            l.setAnchor(anchor_);                 //$B4A
+
+         if (link_ != null)
+				l.setLink(link_);
+			
+         if (target_ != null)
+				l.setTarget(target_);
+			
+         if (text_ != null)
+            l.setText(text_);
+         
+         if (title_ != null)
+            l.setTitle(title_);
+         
+         if (dir_ != null)
+            l.setDirection(dir_);
+         
+         if (lang_ != null)
+            l.setLanguage(lang_);
+
+         if (bookmarkName_ != null)
+            l.setName(bookmarkName_);
+      }
+		catch (PropertyVetoException e)
+		{ /* Ignore */ }    
+
+      return l;
+   }
+
+
+   /**
+    *  Returns the <i>anchor</i> of the resource link.
+    *  @return The anchor.
+    **/
+   public String getAnchor()
+   {
+      return anchor_;
+   }
+
+
+   /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+       if ((dir_ != null) && (dir_.length() > 0))
+          return " dir=\"" + dir_ + "\"";
+       else
+          return "";
+    }
+
+
+    /**
+    *  Returns the <i>language</i> of the input element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
+
+
+    /**
+    *  Returns the language attribute tag.                                            
+    *  @return The language tag.                                                      
+    **/                                                                               
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+       if ((lang_ != null) && (lang_.length() > 0))
+          return " lang=\"" + lang_ + "\"";
+       else
+          return "";
+    }
+
 
    /**
    *  Returns the Uniform Resource Identifier (URI) for the resource link.
@@ -229,11 +323,28 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
    **/
    public String getTag(String text, Properties properties)
    {
+      return getTag(text, bookmarkName_, link_, properties);                                                  //$B2C
+   }
+
+
+   /**
+   *  Returns the HTML tag that represents the resource link 
+   *  with the specified <i>text</i>, bookmark <i>name</i>, resource <i>link</i>, and <i>properties</i>.  
+   *  The original HTMLHyperlink object <i>text</i>, bookmark <i>name</i>, resource <i>link</i>, and <i>properties</i> 
+   *  are not changed/updated.
+   *  @param text The text.
+   *  @param name The bookmark name.
+   *  @param link The Uniform Resource Identifier (URI).
+   *  @param properties The Properties.
+   *  @return The HTML tag.
+   **/
+   public String getTag(String text, String name, String link, Properties properties)                         //$B2A
+   {
       if (Trace.isTraceOn())
           Trace.log(Trace.INFORMATION, "Generating HTMLHyperlink tag...");
 
       // Verify that the link has been set.
-      if (link_ == null)
+      if (link == null)
       {
          Trace.log(Trace.ERROR, "Attempting to get tag before setting the link.");
          throw new ExtendedIllegalStateException("link", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -247,34 +358,58 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
       // create the tag.
       StringBuffer buffer = new StringBuffer();
       
-      buffer.append("<a href=\"" + link_);     
+      buffer.append("<a href=\"");
+      buffer.append(link);     
       
       if (properties != null) 
       {
-         String name;
+         String propName;
          String parmStart = "?";
          Enumeration propertyList = properties.propertyNames();
          while (propertyList.hasMoreElements()) 
          {
-            name = (String)propertyList.nextElement();
+            propName = (String)propertyList.nextElement();
             buffer.append(parmStart);
-            buffer.append(URLEncoder.encode(name));
-            buffer.append("=" + URLEncoder.encode(properties.getProperty(name)));
+            buffer.append(URLEncoder.encode(propName));
+            buffer.append("=");
+            buffer.append(URLEncoder.encode(properties.getProperty(propName)));
             parmStart = "&";
          }
       }
+
+      if (anchor_ != null)                           //$B4A
+         buffer.append(anchor_);                     //$B4A
+
       buffer.append("\"");
 
-      if (bookmarkName_ != null) 
-         buffer.append(" name=\"" + bookmarkName_ + "\"");
+      if (name != null) 
+      {
+         buffer.append(" name=\"");
+         buffer.append(name);
+         buffer.append("\"");
+      }
       
       if (title_ != null) 
-         buffer.append(" title=\"" + title_ + "\"");
+      {
+         buffer.append(" title=\"");
+         buffer.append(title_);
+         buffer.append("\"");
+      }
       
       if (target_ != null) 
-         buffer.append(" target=\"" + target_ + "\"");
+      {
+         buffer.append(" target=\"");
+         buffer.append(target_);
+         buffer.append("\"");
+      }
+
+      buffer.append(getLanguageAttributeTag());                                          //$B1A
+      buffer.append(getDirectionAttributeTag());                                         //$B1A
+      buffer.append(getAttributeString());                                               // @Z1A
       
-      buffer.append(">" + text + "</a>");
+      buffer.append(">");
+      buffer.append(text);
+      buffer.append("</a>");
       return new String(buffer);           
    }
 
@@ -290,18 +425,7 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
       vetos_ = new VetoableChangeSupport(this);
    }
 
-   /**
-   Removes the PropertyChangeListener from the internal list.
-   If the PropertyChangeListener is not on the list, nothing is done.
-     @see #addPropertyChangeListener
-     @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
+   
 
    /**
    Removes the VetoableChangeListener from the internal list.
@@ -315,6 +439,77 @@ public class HTMLHyperlink implements HTMLTagElement, HTMLConstants, java.io.Ser
          throw new NullPointerException("listener");
       vetos_.removeVetoableChangeListener(listener);
    }
+
+
+   /**
+    *  Sets the anchor of the resource link.  The anchor
+    *  is denoted with the # symbol  at the end of the 
+    *  link followed by an achor name. (ie - http://myPage.html#myAnchor)
+    **/
+   public void setAnchor(String anchor)                                  //$B4A
+   {
+      if (anchor == null)
+         throw new NullPointerException("anchor");
+
+      String old = anchor_;
+
+      anchor_ = anchor;
+
+      changes_.firePropertyChange("anchor", old, anchor);
+   }
+
+
+   /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {   
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
+    /**
+    *  Sets the <i>language</i> of the input tag.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {   
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
+
 
    /**
    *  Sets the Uniform Resource Identifier (URI) for the resource <i>link</i>.

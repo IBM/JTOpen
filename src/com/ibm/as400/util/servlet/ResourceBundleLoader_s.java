@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceBundleLoader_s.java
 //                                                                             
@@ -37,7 +37,8 @@ class ResourceBundleLoader_s
       }
       catch (MissingResourceException e)
       {
-         // Save the exception and rethrow it later.
+         // Save the exception and rethrow it later.  This is because exceptions
+         // thrown from static initializers are hard to debug.
          resourceException_ = e;
       }
    
@@ -63,5 +64,33 @@ class ResourceBundleLoader_s
     if (resources_ == null)
        throw resourceException_;
     return resources_.getString(textId);
-  }  
-}
+  } 
+
+  /**
+   *  Replaces substitution variables in a string.
+   *  
+   *  @param text     The text string, with substitution variables
+   *                   (e.g. "Error &0 in table &1.");
+   *  @param values   The replacement values.
+   *
+   *  @return         The text string with all substitution variables replaced.
+   **/
+  static String substitute (String text, String[] values)        //$B0A
+  {
+     String result = text;
+     for (int i = 0; i < values.length; ++i) 
+     {
+        String variable = "&" + i;
+        int j = result.indexOf (variable);
+        if (j >= 0) 
+        {
+           StringBuffer buffer = new StringBuffer ();
+           buffer.append (result.substring (0, j));
+           buffer.append (values[i]);
+           buffer.append (result.substring (j + variable.length ()));
+           result = buffer.toString ();
+        }
+     }
+     return result;
+  }
+}  

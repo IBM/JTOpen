@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ListMetaDataBeanInfo.java
 //                                                                             
@@ -59,7 +59,6 @@ public class ListMetaDataBeanInfo extends SimpleBeanInfo
 
         events_ = events;
 
-        // ***** PROPERTIES
         PropertyDescriptor columnCount = new PropertyDescriptor("columnCount", beanClass,
 								"getColumnCount", null);
         columnCount.setBound(false);

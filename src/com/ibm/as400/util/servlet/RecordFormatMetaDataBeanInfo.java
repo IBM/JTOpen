@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordFormatMetaDataBeanInfo.java
 //                                                                             
@@ -58,8 +58,7 @@ public class RecordFormatMetaDataBeanInfo extends SimpleBeanInfo
         EventSetDescriptor[] events = {changed, veto};
 
         events_ = events;
-
-        // ***** PROPERTIES
+        
         PropertyDescriptor columnCount = new PropertyDescriptor("columnCount", beanClass,
                                         "getColumnCount", null);
         columnCount.setBound(false);
@@ -98,7 +97,7 @@ public class RecordFormatMetaDataBeanInfo extends SimpleBeanInfo
       @return The index to the default event.
     **/
     public int getDefaultEventIndex()
-    {
+    {        
         return 0;
     }
 

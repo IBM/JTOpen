@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLTable.java
 //                                                                             
@@ -32,7 +32,7 @@ import java.io.Serializable;
 *  <BLOCKQUOTE><PRE>
 *  HTMLTable table = new HTMLTable();
 *  table.setAlignment(HTMLTable.CENTER);
-*  table.setBorder(1);
+*  table.setBorderWidth(1);
 *  table.setCellSpacing(2);
 *  table.setCellPadding(2);
 *  // Add the rows to the table (Assume that the HTMLTableRow objects are already created).
@@ -41,7 +41,7 @@ import java.io.Serializable;
 *  table.addRow(row3);
 *  System.out.println(table.getTag());
 *  </PRE></BLOCKQUOTE>
-*  
+*
 *  <P>Here is the output of the table tag:
 *  <BLOCKQUOTE><PRE>
 *  &lt;table border="1" align="center" cellspacing="2" cellpadding="2"&gt;
@@ -77,7 +77,7 @@ import java.io.Serializable;
 *  @see com.ibm.as400.util.html.HTMLTableHeader
 *  @see com.ibm.as400.util.html.HTMLTableCaption
 **/
-public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
+public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -85,7 +85,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    private HTMLTableCaption caption_;              // The table caption.
    private Vector headerTag_;                      // The table header.
 
-   private String alignment_;	                   // The table horizontal alignment.
+   private String alignment_;                    // The table horizontal alignment.
    private int borderWidth_ = 0;                   // The table border.
    private int cellPadding_ = 0;                   // The global table cell padding.
    private int cellSpacing_ = 0;                   // The global table cell spacing.
@@ -94,10 +94,12 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    private boolean headerInUse_ = true;            // Indicates if the column headers are used.
    private boolean widthPercent_ = false;          // Indicates if the table width is in percent.
 
-   transient private Vector rowListeners_;         // The list of row listeners.
-   transient private PropertyChangeSupport changes_;
-   transient private VetoableChangeSupport vetos_;
-   
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
+
+   transient private Vector rowListeners_ = new Vector();         // The list of row listeners.
+   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+
    /**
    *  Constructs a default HTMLTable object.
    **/
@@ -105,9 +107,8 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       rows_ = new Vector();
 
-      initializeTransient();
    }
-   
+
    /**
    *  Constructs an HTMLTable object with the specified <i>rows</i>.
    *  @param rows An array of HTMLTableRow objects.
@@ -115,12 +116,12 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    public HTMLTable(HTMLTableRow[] rows)
    {
       this();
-      
+
       if (rows == null)
          throw new NullPointerException("rows");
-      
+
       // Add the rows.
-      for (int i=0; i < rows.length; i++) 
+      for (int i=0; i < rows.length; i++)
          addRow(rows[i]);
    }
 
@@ -143,11 +144,11 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
          if (size == 0)
          {
             for (int i=0; i< column.length; i++)
-	    {
+            {
                row = new HTMLTableRow();
                row.addColumn(column[i]);
                rows_.addElement(row);
-	    }
+            }
          }
          // Validate the column length.
          else if (column.length != size)
@@ -156,13 +157,13 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
          }
          // Add the columns.
          else
-	 { 
-            for (int i=0; i< size; i++) 
+         {
+            for (int i=0; i< size; i++)
             {
                row = (HTMLTableRow)rows_.elementAt(i);
                row.addColumn(column[i]);
             }
-	 }
+         }
       }
    }
 
@@ -171,7 +172,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    *  @param header The column header.
    **/
    public void addColumnHeader(String header)
-   {  
+   {
       addColumnHeader(new HTMLTableHeader(new HTMLText(header)));
    }
 
@@ -191,7 +192,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
          throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       }
 
-      if (headerTag_ == null) 
+      if (headerTag_ == null)
          headerTag_ = new Vector();
 
       headerTag_.addElement(header);
@@ -201,34 +202,19 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    *  Adds a row to the end of the table.
    *  @param row An HTMLTableRow object containing the row data.
    **/
-   public void addRow(HTMLTableRow row)
+   public void addRow(HTMLTableRow row)          // @B2C
    {
       if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding a row to the HTMLTable.");
 
       if (row == null)
          throw new NullPointerException("row");
-      
-      // Validate the the number of columns in the row.
-      if ((!rows_.isEmpty()) && row.getColumnCount() != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount() )
-         throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);   
 
       rows_.addElement(row);
       fireAdded();            // Fire the row added event.
    }
 
-   /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
-   *  method is called each time the value of any bound property is changed.
-   *  @see #removePropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Adds an ElementListener for the rows.
@@ -239,20 +225,20 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public void addRowListener(ElementListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       rowListeners_.addElement(listener);
    }
 
    /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @see #removeVetoableChangeListener
    *  @param listener The VetoableChangeListener.
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       vetos_.addVetoableChangeListener(listener);
    }
@@ -262,13 +248,13 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    private void fireAdded()
    {
-     Vector targets = (Vector) rowListeners_.clone();
-     ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_ADDED);
-     for (int i=0; i<targets.size(); i++)
-     {
-       ElementListener target = (ElementListener)targets.elementAt(i);
-       target.elementAdded(event);
-     }
+      Vector targets = (Vector) rowListeners_.clone();
+      ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_ADDED);
+      for (int i=0; i<targets.size(); i++)
+      {
+         ElementListener target = (ElementListener)targets.elementAt(i);
+         target.elementAdded(event);
+      }
    }
 
    /**
@@ -276,13 +262,13 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    private void fireChanged()
    {
-     Vector targets = (Vector) rowListeners_.clone();
-     ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_CHANGED);
-     for (int i=0; i<targets.size(); i++)
-     {
-       ElementListener target = (ElementListener)targets.elementAt(i);
-       target.elementChanged(event);
-     }
+      Vector targets = (Vector) rowListeners_.clone();
+      ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_CHANGED);
+      for (int i=0; i<targets.size(); i++)
+      {
+         ElementListener target = (ElementListener)targets.elementAt(i);
+         target.elementChanged(event);
+      }
    }
 
    /**
@@ -290,13 +276,13 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    private void fireRemoved()
    {
-     Vector targets = (Vector) rowListeners_.clone();
-     ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_REMOVED);
-     for (int i=0; i< targets.size(); i++)
-     {
-       ElementListener target = (ElementListener)targets.elementAt(i);
-       target.elementRemoved(event);
-     }
+      Vector targets = (Vector) rowListeners_.clone();
+      ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_REMOVED);
+      for (int i=0; i< targets.size(); i++)
+      {
+         ElementListener target = (ElementListener)targets.elementAt(i);
+         target.elementRemoved(event);
+      }
    }
 
    /**
@@ -327,7 +313,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    }
 
    /**
-   *  Returns the global table cell padding.  The cell padding is the spacing 
+   *  Returns the global table cell padding.  The cell padding is the spacing
    *  between data in a table cell and the border of the cell.
    *  @return The cell padding.
    **/
@@ -364,7 +350,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       HTMLTableCell[] list = new HTMLTableCell[rows_.size()];
       HTMLTableRow row;
       int size = rows_.size();
-      for (int i=0; i< size; i++) 
+      for (int i=0; i< size; i++)
       {
          row = (HTMLTableRow)rows_.elementAt(i);
          list[i] = row.getColumn(columnIndex);               // columnIndex parameter validation done here.
@@ -381,8 +367,39 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (columnIndex < 0 || columnIndex >= headerTag_.size())
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
-      return (HTMLTableHeader)headerTag_.elementAt(columnIndex);
+
+      return(HTMLTableHeader)headerTag_.elementAt(columnIndex);
+   }
+
+   /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+   public String getDirection()                               //$B1A
+   {
+      return dir_;
+   }
+
+
+   /**
+   *  Returns the direction attribute tag.
+   *  @return The direction tag.
+   **/
+   String getDirectionAttributeTag()                                                 //$B1A
+   {
+      if (Trace.isTraceOn())
+         Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+      if ((dir_ != null) && (dir_.length() > 0))
+      {
+         StringBuffer buffer = new StringBuffer(" dir=\"");
+         buffer.append(dir_);
+         buffer.append("\"");
+
+         return buffer.toString();
+      }
+      else
+         return "";
    }
 
    /**
@@ -400,7 +417,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public HTMLTableHeader[] getHeader()
    {
-      if (headerTag_ == null) 
+      if (headerTag_ == null)
          return null;
       else
       {
@@ -423,11 +440,11 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       {
          StringBuffer tag = new StringBuffer();
          tag.append("<tr>\n");
-        
+
          HTMLTableHeader colHeader;
          int size = headerTag_.size();
-     
-         for (int i=0; i< size; i++) 
+
+         for (int i=0; i< size; i++)
          {
             colHeader = (HTMLTableHeader)headerTag_.elementAt(i);
             tag.append(colHeader.getTag());
@@ -436,7 +453,38 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
          return new String(tag);
       }
    }
-    
+
+   /**
+    *  Returns the <i>language</i> of the caption.
+    *  @return The language of the caption.
+    **/
+   public String getLanguage()                                //$B1A
+   {
+      return lang_;
+   }
+
+
+   /**
+   *  Returns the language attribute tag.
+   *  @return The language tag.
+   **/
+   String getLanguageAttributeTag()                                                  //$B1A
+   {
+      if (Trace.isTraceOn())
+         Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+      if ((lang_ != null) && (lang_.length() > 0))
+      {
+         StringBuffer buffer = new StringBuffer(" lang=\"");
+         buffer.append(lang_);
+         buffer.append("\"");
+
+         return buffer.toString();
+      }
+      else
+         return "";
+   }
+
    /**
    *  Returns the number of rows in the table.
    *  @return The number of rows.
@@ -455,8 +503,8 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (rowIndex < 0 || rowIndex >= rows_.size())
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-    
-      return (HTMLTableRow)rows_.elementAt(rowIndex);
+
+      return(HTMLTableRow)rows_.elementAt(rowIndex);
    }
 
    /**
@@ -471,20 +519,42 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       StringBuffer tag = new StringBuffer("<table");
 
       if (alignment_ != null)
-         tag.append(" align=\"" + alignment_ + "\"");
-      if (borderWidth_ > 0)
-         tag.append(" border=\"" + borderWidth_ + "\""); 
-      if (cellPadding_ > 0)
-         tag.append(" cellpadding=\"" + cellPadding_ + "\"");
-      if (cellSpacing_ > 0)
-         tag.append(" cellspacing=\"" + cellSpacing_ + "\"");
-      if (width_ > 0) 
       {
-         tag.append(" width=\"" + width_);
-         if (widthPercent_) 
+         tag.append(" align=\"");
+         tag.append(alignment_);
+         tag.append("\"");
+      }
+      if (borderWidth_ > 0)
+      {
+         tag.append(" border=\"");
+         tag.append(borderWidth_);
+         tag.append("\"");
+      }
+      if (cellPadding_ > 0)
+      {
+         tag.append(" cellpadding=\"");
+         tag.append(cellPadding_);
+         tag.append("\"");
+      }
+      if (cellSpacing_ > 0)
+      {
+         tag.append(" cellspacing=\"");
+         tag.append(cellSpacing_);
+         tag.append("\"");
+      }
+      if (width_ > 0)
+      {
+         tag.append(" width=\"");
+         tag.append(width_);
+
+         if (widthPercent_)
             tag.append("%");
          tag.append("\"");
       }
+
+      tag.append(getLanguageAttributeTag());        //$B1A
+      tag.append(getDirectionAttributeTag());       //$B1A
+      tag.append(getAttributeString());             // @Z1A
 
       tag.append(">\n");
 
@@ -504,38 +574,44 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
          Trace.log(Trace.INFORMATION, "Generating HTMLTable tag...");
 
       StringBuffer tag = new StringBuffer(getStartTableTag());
-      
+
       // Add the column headers.
       if (headerInUse_)
       {
          if (rows_.size() > 0)
-	 {
+         {
             // Verify that the header is set.
             if (headerTag_ == null)
-   	    {
+            {
                Trace.log(Trace.ERROR, "Attempting to get the table tag before setting the table header.");
                throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-  	    }
-            // Verify that the table header size is the same as the number of columns in a row.
-            if (headerTag_.size() != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
-	    {
-               Trace.log(Trace.ERROR, "Attempting to get the table tag when the length of the table header is invalid.");
-               throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.LENGTH_NOT_VALID); 
-	    }
-	 }
+            }
+            
+            int hdrSize = headerTag_.size();
+
+            for (int i=0; i<rows_.size(); ++i)                                                               // @B2A
+            {                                                                                                // @B2A
+               // Verify that the table header size greater or equal to the number of columns in a row.      // @B2C
+               if (hdrSize < ((HTMLTableRow)rows_.elementAt(i)).getColumnCount() )                           // @B2C
+               {
+                  Trace.log(Trace.ERROR, "Attempting to get the table tag when the length of the table header is invalid.");
+                  throw new ExtendedIllegalArgumentException("header or row " + i, ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+               }
+            }
+         }
          tag.append(getHeaderTag());
       }
 
       // Add the rows.
       HTMLTableRow row;
       int size = rows_.size();
-      for (int i=0; i< size; i++) 
+      for (int i=0; i< size; i++)
       {
          row = (HTMLTableRow)rows_.elementAt(i);
          tag.append(row.getTag());
       }
       tag.append(getEndTableTag());
-      
+
       return new String(tag);
    }
 
@@ -546,18 +622,10 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public int getWidth()
    {
-       return width_;
+      return width_;
    }
 
-   /**
-   Provided to initialize transient data if this object is de-serialized.
-   **/
-   private void initializeTransient()
-   {
-      rowListeners_ = new Vector();
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
-   }
+   
 
    /**
    *  Indicates if the table column header should be used.
@@ -577,15 +645,18 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       return widthPercent_;
    }
-   
+
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
-       throws java.io.IOException, ClassNotFoundException
+   private void readObject(java.io.ObjectInputStream in)
+   throws java.io.IOException, ClassNotFoundException
    {
       in.defaultReadObject();
-      initializeTransient();
+
+      rowListeners_ = new Vector();
+      changes_ = new PropertyChangeSupport(this);
+      vetos_ = new VetoableChangeSupport(this);
    }
 
    /**
@@ -595,7 +666,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Removing all rows from HTMLTable.");
-      
+
       rows_.removeAllElements();
       fireRemoved();
    }
@@ -618,7 +689,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       synchronized (rows_)
       {
          int size = rows_.size();
-         for (int i=0; i< size; i++) 
+         for (int i=0; i< size; i++)
          {
             row = (HTMLTableRow)rows_.elementAt(i);
             row.removeColumn( (HTMLTableCell)row.getColumn(columnIndex) );
@@ -643,7 +714,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       }
       if (columnIndex < 0 || columnIndex >= headerTag_.size())
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-   
+
       headerTag_.removeElementAt(columnIndex);
    }
 
@@ -674,7 +745,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    public void removeRow(HTMLTableRow row)
    {
       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Removing a row from the HTMLTable."); 
+         Trace.log(Trace.INFORMATION, "Removing a row from the HTMLTable.");
 
       // Validate the row parameter.
       if (row == null)
@@ -689,9 +760,9 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
 
       // Remove the row and notify the listeners.
       if (rows_.removeElement(row))
-         fireRemoved();           
+         fireRemoved();
    }
-   
+
    /**
    *  Removes the row at the specified <i>rowIndex</i>.
    *  @param rowIndex The index of the row to be removed (0-based).
@@ -710,18 +781,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       fireRemoved();
    }
 
-   /**
-   *  Removes the PropertyChangeListener from the internal list.
-   *  If the PropertyChangeListener is not on the list, nothing is done.
-   *  @see #addPropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Removes this row ElementListener from the internal list.
@@ -731,7 +791,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public void removeRowListener(ElementListener listener)
    {
-      if (listener == null)            
+      if (listener == null)
          throw new NullPointerException("listener");
       rowListeners_.removeElement(listener);
    }
@@ -744,7 +804,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       vetos_.removeVetoableChangeListener(listener);
    }
@@ -762,13 +822,13 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       {
          throw new NullPointerException("alignment");
       }
-      else if (alignment.equalsIgnoreCase(LEFT) || 
-               alignment.equalsIgnoreCase(CENTER) || 
+      else if (alignment.equalsIgnoreCase(LEFT) ||
+               alignment.equalsIgnoreCase(CENTER) ||
                alignment.equalsIgnoreCase(RIGHT))
       {
          String old = alignment_;
          vetos_.fireVetoableChange("alignment", old, alignment );
-         
+
          alignment_ = alignment;
 
          changes_.firePropertyChange("alignment", old, alignment );
@@ -794,7 +854,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       Integer newWidth = new Integer(borderWidth);
 
       vetos_.fireVetoableChange("borderWidth", oldWidth, newWidth);
-      
+
       borderWidth_ = borderWidth;
 
       changes_.firePropertyChange("borderWidth", oldWidth, newWidth);
@@ -819,17 +879,17 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (caption == null)
          throw new NullPointerException("caption");
-      
+
       HTMLTableCaption old = caption_;
       vetos_.fireVetoableChange("caption", old, caption );
-      
+
       caption_ = caption;
 
       changes_.firePropertyChange("caption", old, caption );
    }
 
    /**
-   *  Sets the global table cell padding.  The cell padding is the spacing between 
+   *  Sets the global table cell padding.  The cell padding is the spacing between
    *  data in a table cell and the border of the cell.
    *  The default value is zero (browser default used).
    *  @param cellPadding The cell padding.
@@ -839,12 +899,12 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (cellPadding < 0)
          throw new ExtendedIllegalArgumentException("cellPadding", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
+
       Integer oldPadding = new Integer(cellPadding_);
       Integer newPadding = new Integer(cellPadding);
 
       vetos_.fireVetoableChange("cellPadding", oldPadding, newPadding);
-      
+
       cellPadding_ = cellPadding;
 
       changes_.firePropertyChange("cellPadding", oldPadding, newPadding);
@@ -861,12 +921,12 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (cellSpacing < 0)
          throw new ExtendedIllegalArgumentException("cellSpacing", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
+
       Integer oldSpacing = new Integer(cellSpacing_);
       Integer newSpacing = new Integer(cellSpacing);
 
       vetos_.fireVetoableChange("cellSpacing", oldSpacing, newSpacing);
-      
+
       cellSpacing_ = cellSpacing;
 
       changes_.firePropertyChange("cellSpacing", oldSpacing, newSpacing);
@@ -882,7 +942,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       // Validate the column parameter.
       if (column == null)
          throw new NullPointerException("column");
-      
+
       int size = rows_.size();
 
       // Add the rows if table is empty.
@@ -904,7 +964,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       HTMLTableRow row;
       synchronized (rows_)
       {
-         for (int i=0; i< size; i++) 
+         for (int i=0; i< size; i++)
          {
             row = (HTMLTableRow)rows_.elementAt(i);
             row.setColumn(column[i], columnIndex);
@@ -919,7 +979,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    *  @exception PropertyVetoException If the change is vetoed.
    **/
    public void setColumnHeader(String header, int columnIndex) throws PropertyVetoException
-   {  
+   {
       setColumnHeader(new HTMLTableHeader(new HTMLText(header)), columnIndex);
    }
 
@@ -939,15 +999,15 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       if (headerTag_ == null)
       {
          if (columnIndex == 0)
-	 {
+         {
             addColumnHeader(header);
             return;
-	 }
+         }
          else
-	 {
+         {
             Trace.log(Trace.ERROR, "Attempting to change a column header before adding a column header to the table.");
             throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-	 }
+         }
       }
 
       // Verify that the header's HTMLTagElement is set.
@@ -960,7 +1020,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       // Validate the columnIndex parameter.
       if (columnIndex < 0 || columnIndex > headerTag_.size())
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
+
       else if (columnIndex == headerTag_.size())
       {
          addColumnHeader(header);
@@ -978,6 +1038,35 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    }
 
    /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+   public void setDirection(String dir)                                     //$B1A
+   throws PropertyVetoException
+   {
+      if (dir == null)
+         throw new NullPointerException("dir");
+
+      // If direction is not one of the valid HTMLConstants, throw an exception.
+      if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+      {
+         throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+
+      String old = dir_;
+      vetos_.fireVetoableChange("dir", old, dir );
+
+      dir_ = dir;
+
+      changes_.firePropertyChange("dir", old, dir );
+   }
+
+   /**
    *  Sets the table column headers.
    *  @param header The column headers.
    *  @exception PropertyVetoException If the change is vetoed.
@@ -987,16 +1076,16 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (header == null)
          throw new NullPointerException("header");
- 
-      // Verify that the header size matches the number of columns in a row.     
+
+      // Verify that the header size matches the number of columns in a row.
       if ((!rows_.isEmpty()) && header.length != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
          throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-      
+
       Vector old = headerTag_;
       vetos_.fireVetoableChange("header", old, header );
-      
+
       headerTag_ = new Vector();
-      for (int i=0; i< header.length; i++) 
+      for (int i=0; i< header.length; i++)
          headerTag_.addElement(header[i]);
 
       changes_.firePropertyChange("header", old, header );
@@ -1014,7 +1103,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
 
       // Create an array of HTMLTableHeader objects.
       HTMLTableHeader[] tableHeader = new HTMLTableHeader[header.length];
-      for (int column=0; column < header.length; column++) 
+      for (int column=0; column < header.length; column++)
          tableHeader[column] = new HTMLTableHeader(new HTMLText(header[column]));
 
       setHeader(tableHeader);
@@ -1031,12 +1120,33 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       Boolean newUse = new Boolean(headerInUse);
 
       vetos_.fireVetoableChange("useHeader", oldUse, newUse);
-      
+
       headerInUse_ = headerInUse;
 
       changes_.firePropertyChange("useHeader", oldUse, newUse);
    }
- 
+
+   /**
+    *  Sets the <i>language</i> of the caption.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+   public void setLanguage(String lang)                                      //$B1A
+   throws PropertyVetoException
+   {
+      if (lang == null)
+         throw new NullPointerException("lang");
+
+      String old = lang_;
+      vetos_.fireVetoableChange("lang", old, lang );
+
+      lang_ = lang;
+
+      changes_.firePropertyChange("lang", old, lang );
+   }
+
    /**
    *  Sets the table row at the specified <i>rowIndex</i>.
    *  @param row An HTMLTableRow object with the row data.
@@ -1056,17 +1166,17 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Set the row.
-      if (rowIndex == rows_.size()) 
+      if (rowIndex == rows_.size())
          addRow(row);
       else
       {
          // Validate the number of columns in the row.
          if (row.getColumnCount() != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
-            throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);   
-	
+            throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
          rows_.setElementAt(row, rowIndex);
          // Notify the listeners.
-         fireChanged();   
+         fireChanged();
       }
    }
 
@@ -1085,7 +1195,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
       Integer newWidth = new Integer(width);
 
       vetos_.fireVetoableChange("width", oldWidth, newWidth);
-      
+
       width_ = width;
 
       changes_.firePropertyChange("width", oldWidth, newWidth);
@@ -1130,7 +1240,7 @@ public class HTMLTable implements HTMLTagElement, HTMLConstants, Serializable
 
       widthPercent_ = widthInPercent;
 
-      changes_.firePropertyChange("widthInPercent", oldValue, newValue);      
+      changes_.firePropertyChange("widthInPercent", oldValue, newValue);
    }
 
    /**

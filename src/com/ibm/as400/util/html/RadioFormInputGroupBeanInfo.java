@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RadioFormInputGroupBeanInfo.java
 //                                                                             
@@ -87,6 +87,19 @@ public class RadioFormInputGroupBeanInfo extends SimpleBeanInfo
       {
         throw new Error(e.toString());
       }
+    }
+
+
+    /**
+     * Returns the BeanInfo for the superclass of this bean.  Since
+     * RadioFormInputGroup is a subclass of HTMLTagAttributes, this method
+     * will return a HTMLTagAttributesBeanInfo object.
+     *
+     * @return BeanInfo[] containing this bean's superclass BeanInfo
+     **/
+    public BeanInfo[] getAdditionalBeanInfo()                            // @Z1A
+    {
+       return new BeanInfo[] { new HTMLTagAttributesBeanInfo() };        
     }
 
 

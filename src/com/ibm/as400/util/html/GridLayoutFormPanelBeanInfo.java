@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: GridLayoutFormPanelBeanInfo.java
 //                                                                             
@@ -65,21 +65,31 @@ public class GridLayoutFormPanelBeanInfo extends SimpleBeanInfo
          events_ = events;
  
         // ***** PROPERTIES
-        PropertyDescriptor columns = new PropertyDescriptor("columns", beanClass,
-                                        "getColumns", "setColumns");
+        PropertyDescriptor columns = new PropertyDescriptor("columns", beanClass, "getColumns", "setColumns");
         columns.setBound(true);
         columns.setConstrained(true);
         columns.setDisplayName(loader_.getText("PROP_NAME_COLUMNS"));
         columns.setShortDescription(loader_.getText("PROP_GL_DESC_COLUMNS"));
 
         PropertyDescriptor size = new PropertyDescriptor("size", beanClass, "getSize", null);
-
         size.setBound(false);
         size.setConstrained(false);
         size.setDisplayName(loader_.getText("PROP_NAME_SIZE"));
         size.setShortDescription(loader_.getText("PROP_DESC_PANELSIZE"));
+
+        PropertyDescriptor lang = new PropertyDescriptor("lang", beanClass, "getLanguage", "setLanguage");   //$B3A
+        lang.setBound(true);                                                                                 //$B3A
+        lang.setConstrained(true);                                                                           //$B3A
+        lang.setDisplayName(loader_.getText("PROP_NAME_LANGUAGE"));                                          //$B3A
+        lang.setShortDescription(loader_.getText("PROP_DESC_LANGUAGE"));                                     //$B3A
+
+        PropertyDescriptor dir = new PropertyDescriptor("dir", beanClass, "getDirection", "setDirection");   //$B3A
+        dir.setBound(true);                                                                                  //$B3A
+        dir.setConstrained(true);                                                                            //$B3A
+        dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B3A
+        dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B3A
         
-        properties_ = new PropertyDescriptor[] { columns, size };
+        properties_ = new PropertyDescriptor[] { columns, size, lang, dir };                                 //$B3C
       }
       catch (Exception e)
       {

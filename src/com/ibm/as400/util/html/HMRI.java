@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HMRI.java
 //                                                                             
@@ -21,6 +21,7 @@ Locale-specific objects for the AS/400 Toolbox for Java.
 public class HMRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
 
    public Object[][] getContents()
    {
@@ -47,7 +48,7 @@ public class HMRI extends ListResourceBundle
            // #TRANNOTE Descriptions start with EVT_DESC_ prefix, display
            // #TRANNOTE names start with EVT_NAME.
            // #TRANNOTE #####################################################
-            
+
       { "EVT_DESC_SC_EVENT", "A section completed event has occurred." },
 
            // #TRANNOTE A section completed event has occurred.
@@ -56,7 +57,7 @@ public class HMRI extends ListResourceBundle
 
            // #TRANNOTE A row data event has occurred.
       { "EVT_NAME_RD_EVENT", "rowDataEvent" },
-           
+
            // #TRANNOTE A bound property has changed.
            // #TRANNOTE The meaning of 'property' here is like 'attribute'.
       { "EVT_NAME_PROPERTY_CHANGE", "propertyChange" },
@@ -67,11 +68,11 @@ public class HMRI extends ListResourceBundle
       { "EVT_NAME_PROPERTY_VETO", "vetoableChange" },
       { "EVT_DESC_PROPERTY_VETO", "A constrained property has changed." },
 
-      
+
            // #TRANNOTE #####################################################
            // #TRANNOTE Short descriptions and display names for properties.
            // #TRANNOTE Descriptions start with PROP_<component>_DESC_ or
-           // #TRANNOTE PROP_DESC_ prefix, display names start with PROP_NAME_ 
+           // #TRANNOTE PROP_DESC_ prefix, display names start with PROP_NAME_
            // #TRANNOTE or with PROP_<component>_NAME_.
            // #TRANNOTE #####################################################
 
@@ -113,7 +114,7 @@ public class HMRI extends ListResourceBundle
       { "PROP_DESC_LINK", "The Uniform Resource Identifier (URI) for the resource link." },
       { "PROP_NAME_PROPERTIES", "properties" },
       { "PROP_DESC_PROPERTIES", "The properties for the resource link." },
-      
+
       { "PROP_NAME_TEXT", "text" },
       { "PROP_HT_DESC_TEXT", "The text displayed in the HTML document." },
       { "PROP_SO_DESC_TEXT", "The option text." },
@@ -148,7 +149,7 @@ public class HMRI extends ListResourceBundle
 
       { "PROP_NAME_ACTION", "action" },                                             //$A3A
       { "PROP_DESC_ACTION", "The script to execute when the button is pressed." },  //$A3A
-      
+
       { "PROP_NAME_MULTIPLE", "multiple" },
       { "PROP_DESC_MULTIPLE", "Specifies whether multiple selections can be made." },
 
@@ -170,8 +171,8 @@ public class HMRI extends ListResourceBundle
       { "PROP_HTROW_DESC_COUNT", "The number of columns in the table row." },
 
       { "PROP_NAME_BOLD", "bold" },
-      { "PROP_DESC_BOLD", "The bold style attribute of the text." },			
-      { "PROP_NAME_COLOR", "color" },							// @A4
+      { "PROP_DESC_BOLD", "The bold style attribute of the text." },
+      { "PROP_NAME_COLOR", "color" },                                 // @A4
       { "PROP_DESC_COLOR", "The color attribute of the text." },
       { "PROP_NAME_FIXED", "fixed" },
       { "PROP_DESC_FIXED", "The fixed font style attribute of the text." },
@@ -179,7 +180,7 @@ public class HMRI extends ListResourceBundle
       { "PROP_DESC_ITALIC", "The italic style attribute of the text." },
       { "PROP_NAME_UNDERSCORE", "underscore" },
       { "PROP_DESC_UNDERSCORE", "The underscore style attribute of the text." },
- 
+
       { "PROP_NAME_CSPAN", "columnSpan" },
       { "PROP_DESC_CSPAN", "The column span of the table cell." },
       { "PROP_NAME_RSPAN", "rowSpan" },
@@ -187,7 +188,7 @@ public class HMRI extends ListResourceBundle
 
       { "PROP_NAME_WRAP", "wrap" },
       { "PROP_DESC_WRAP", "The HTML linebreaking convention of the table cell." },
-      
+
       { "PROP_NAME_HALIGN", "horizontalAlignment" },
       { "PROP_HTCELL_DESC_HALIGN", "The horizontal alignment of the table cell." },
       { "PROP_HTROW_DESC_HALIGN", "The horizontal alignment of the table row." },
@@ -219,6 +220,99 @@ public class HMRI extends ListResourceBundle
       { "PROP_DESC_CELLSPACING", "The cell spacing of the table." },
       { "PROP_NAME_HEADERINUSE", "headerInUse" },
       { "PROP_DESC_HEADERINUSE", "Indicates whether the table header is in use." },
+
+      { "PROP_NAME_ITEMDATA", "itemData" },                                                //$B1A
+      { "PROP_HLI_DESC_ITEMDATA", "The data in the HTML list item." },                     //$B1A
+
+      { "PROP_NAME_COMPACT", "compact" },                                                  //$B1A
+      { "PROP_HL_DESC_COMPACT", "Indicates whether the list is compact." },                //$B1A
+
+      { "PROP_NAME_ITEMS", "items" },                                                      //$B1A
+      { "PROP_HL_DESC_ITEMS", "The items in the HTML list." },                             //$B1A
+
+      { "PROP_NAME_TYPE", "type" },                                                        //$B1A
+      { "PROP_OUL_DESC_TYPE", "The labeling scheme of the HTML list." },                   //$B1A
+      { "PROP_OULI_DESC_TYPE", "The labeling scheme of the HTML list item." },             //$B1A
+
+      { "PROP_NAME_START", "start" },                                                               //$B1A
+      { "PROP_OL_DESC_START", "The starting number to use in incrementing the list structure." },   //$B1A
+
+      { "PROP_OLI_DESC_VALUE", "A number, other than the incremented value, for the current list item." },  //$B1A
+
+      { "PROP_NAME_ALIGN", "align" },                                              //$B1A
+      { "PROP_HH_DESC_ALIGN", "The alignment of the HTML heading." },              //$B1A
+      { "PROP_HA_DESC_ALIGN", "The horizontal alignment for a block of HTML." },   //$B1A
+
+      { "PROP_NAME_LEVEL", "level" },                                              //$B1A
+      { "PROP_HH_DESC_LEVEL", "The level of importance of the HTML header." },     //$B1A
+
+      { "PROP_HH_DESC_TEXT", "The text displayed in the HTML heading." },          //$B1A
+
+
+      { "PROP_HS_DESC_NAME", "The name of the servlet class file." },              //$B2A
+      { "PROP_HS_DESC_TEXT", "The alternate text for the servlet to display." },   //$B2A
+      { "PROP_HP_DESC_NAME", "The name of the parameter." },                       //$B2A $B4C
+      { "PROP_HP_DESC_VALUE", "The value of the parameter." },                     //$B2A $B4C
+
+      { "PROP_NAME_LOCATION", "location" },                                                            //$B2A
+      { "PROP_HS_DESC_LOCATION", "The remote location from which the servlet should be loaded." },     //$B2A
+
+      { "PROP_DESC_SERVLET_ALTTEXT", "If you see this text, the web server providing this page does not support the SERVLET tag." },     //$B2A
+
+      { "PROP_NAME_LANGUAGE", "language" },                                                             //$B3A
+      { "PROP_DESC_LANGUAGE", "The primary language to be used by the contents of the element." },      //$B3A
+
+      { "PROP_NAME_DIRECTION", "direction" },                                                           //$B3A
+      { "PROP_DESC_DIRECTION", "The direction of the text interpretation." },                           //$B3A
+
+      { "PROP_HH_DESC_TITLE", "The title of the HTML document." },                                      //$B4A
+
+      { "PROP_HM_DESC_NAME", "The name of the property." },                                             //$B4A
+
+      { "PROP_NAME_HTTPEQUIV", "HTTP-EQUIV" },                                                          //$B4A
+      { "PROP_HM_DESC_HTTPEQUIV", "The HTTP-EQUIV meta information." },                                 //$B4A
+
+      { "PROP_NAME_CONTENT", "content" },                                                               //$B4A
+      { "PROP_HM_DESC_CONTENT", "The value of a named property." },                                     //$B4A
+
+      { "PROP_HM_DESC_URL", "The url to reload after the time specified in the content attribute." },   //$B4A
+
+
+      { "PROP_NAME_ARCHIVE", "archive" },                                              //$B6A
+      { "PROP_HA_DESC_ARCHIVE", "One or more archives containing classes and other resources that will be used by the applet." },  //$B6A
+
+      { "PROP_NAME_CODE", "code" },                                                    //$B6A
+      { "PROP_HA_DESC_CODE", "The name of the applet class." },                        //$B6A
+
+      { "PROP_NAME_CODEBASE", "codebase" },                                            //$B6A
+      { "PROP_HA_DESC_CODEBASE", "The base URL of the applet." },                      //$B6A
+
+      { "PROP_HA_DESC_WIDTH", "The width of the applet in pixels." },                  //$B6A
+      { "PROP_HA_DESC_HEIGHT", "The height of the applet in pixels." },                //$B6A
+      { "PROP_DESC_APPLET_ALTTEXT", "If you see this text, the browser does not support the APPLET tag or the applet has failed to load." },  //$B6A
+
+      { "PROP_NAME_ICONURL", "iconUrl" },                                                           //$B7A
+      { "PROP_DESC_ICONURL", "The URL for the expanded and collapsed icon." },                      //$B7A
+      { "PROP_HTE_DESC_TEXT", "The text displayed in the HTMLTreeElement." },                       //$B7A
+      { "PROP_NAME_TEXTURL", "textUrl" },                                                           //$B7A
+      { "PROP_DESC_TEXTURL", "The URL for the HTMLTreeElement text." },                             //$B7A
+      { "PROP_NAME_REQUEST", "request" },                                                           //$B7A
+      { "PROP_DESC_REQUEST", "The http servlet request." },                                         //$B7A
+      { "PROP_NAME_SYSTEM",  "system" },                                                            //$B8A
+      { "PROP_DESC_SYSTEM",  "The server on which the objects reside." },                           //$B8A
+      { "PROP_NAME_RENDERER", "renderer" },                                                         //$B8A @B9C
+      { "PROP_DESC_RENDERER", "The renderer used to display FileListElement data." },               //$B8A @B9C
+      { "PROP_NAME_TABLE", "table" },                                                               //$B8A
+      { "PROP_DESC_TABLE", "The HTML table used to display FileListElement data." },                //$B8A
+
+      { "PROP_NAME_ATTRIBUTES", "attributes" },                                                     // @Z1A
+      { "PROP_DESC_ATTRIBUTES", "The additional HTML tag attributes." },                            // @Z1A
+
+      { "PROP_FLE_NAME_NAME", "Name" },                                                             // @C1A
+      { "PROP_FLE_NAME_SIZE", "Size" },                                                             // @C1A
+      { "PROP_FLE_NAME_TYPE", "Type" },                                                             // @C1A
+      { "PROP_FLE_NAME_MODIFIED", "Modified" }                                                      // @C1A
+
    };
 
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLForm.java
 //                                                                             
@@ -29,7 +29,7 @@ import java.beans.PropertyVetoException;
 
 /**
 *  The HTMLForm class represents an HTML form.
-*    
+*
 *  <p>HTMLForm objects generate the following events:
 *  <ul>
 *  <LI><A HREF="ElementEvent.html">ElementEvent</A> - The events fired are:
@@ -42,7 +42,7 @@ import java.beans.PropertyVetoException;
 *  </ul>
 *  <P>
 *  This examples creates an HTMLForm object and adds some form input types to it.
-*  <BLOCKQUOTE><PRE>  
+*  <BLOCKQUOTE><PRE>
 *  <P>         // Create a text input form element for the system.
 *  LabelFormElement sysPrompt = new LabelFormElement("System:");
 *  TextFormInput system = new TextFormInput("System");
@@ -83,7 +83,7 @@ import java.beans.PropertyVetoException;
 *  &lt;/form&gt;
 *  </PRE></BLOCKQUOTE>
 **/
-public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializable
+public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.io.Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -96,18 +96,18 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
      HTTP POST Method for sending form contents to the server.
    **/
    public static final int METHOD_POST = 1;
-   
+
 
    private Vector list_;                  // The list of FormElements.
    private String url_;                   // The ACTION url address.
    private String target_;                // The target frame for the link resource.
    private Properties parms_;             // The hidden parameter list.
-   private boolean useGet_ = true;        // 
+   private boolean useGet_ = true;        //
    private int method_ = METHOD_GET;      // The HTTP method used.
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
 
 
-   //transient private Vector elementListeners_;
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
    transient private Vector elementListeners = new Vector();      // The list of element listeners
 
@@ -126,7 +126,7 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
    public HTMLForm(String url)
     {
         this();
-        try 
+        try
         {
            setURL(url);
         }
@@ -163,29 +163,14 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
    {
       if (listener == null)
          throw new NullPointerException("listener");
-      
+
       elementListeners.addElement(listener);
    }
 
+   
    /**
-   Adds a PropertyChangeListener.  The specified 
-   PropertyChangeListener's <b>propertyChange</b> 
-   method is called each time the value of any
-   bound property is changed.
-     @see #removePropertyChangeListener
-     @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null)
-            throw new NullPointerException ("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
-
-
-   /**
-   Adds the VetoableChangeListener.  The specified 
-   VetoableChangeListener's <b>vetoableChange</b> 
+   Adds the VetoableChangeListener.  The specified
+   VetoableChangeListener's <b>vetoableChange</b>
    method is called each time the value of any
    constrained property is changed.
      @see #removeVetoableChangeListener
@@ -214,6 +199,17 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
         }
     }
 
+
+    /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
    /**
    *  Returns the form's hidden parameter list.
    *  @return The parameter list.
@@ -222,6 +218,16 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
    {
        return parms_;
    }
+
+
+   /**
+    *  Returns the <i>language</i> of the input element.
+    *  @return The language of the input element.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
 
    /**
    *  Returns the HTTP method used for sending form contents to the server.
@@ -248,21 +254,44 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
                "url", ExtendedIllegalStateException.PROPERTY_NOT_SET );
        }
 
-       StringBuffer s = new StringBuffer("<form action=\"" + url_ + "\"");
-       
+       StringBuffer s = new StringBuffer("<form action=\"");
+       s.append(url_);
+       s.append("\"");
+
        if (method_ == METHOD_POST)
           s.append(" method=\"post\"");
-       else 
+       else
           s.append(" method=\"get\"");     // The default method is GET
 
        if (target_ != null)
        {
           if (Trace.isTraceOn())
              Trace.log(Trace.INFORMATION, "   Using target frame.");
-          
-          s.append(" target=\"" + target_ + "\"");
+
+          s.append(" target=\"");
+          s.append(target_);
+          s.append("\"");
        }
-       
+       if (lang_ != null)                                                       //$B1A
+       {                                                                        //$B1A
+          if (Trace.isTraceOn())                                                //$B1A
+             Trace.log(Trace.INFORMATION, "   Using language attribute.");      //$B1A
+                                                                                //$B1A
+          s.append(" lang=\"");                                                 //$B1A
+          s.append(lang_);                                                      //$B1A
+          s.append("\"");                                                       //$B1A
+       }                                                                        //$B1A
+       if (dir_ != null)                                                        //$B1A
+       {                                                                        //$B1A
+          if (Trace.isTraceOn())                                                //$B1A
+             Trace.log(Trace.INFORMATION, "   Using direction attribute.");     //$B1A
+                                                                                //$B1A
+          s.append(" dir=\"");                                                  //$B1A
+          s.append(dir_);                                                       //$B1A
+          s.append("\"");                                                       //$B1A
+       }                                                                        //$B1A
+
+       s.append(getAttributeString());                                          // @Z1A
        s.append(">\n");
 
        if (parms_ != null)
@@ -379,23 +408,11 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
    {
       if (listener == null)
          throw new NullPointerException("listener");
-      
+
       elementListeners.removeElement(listener);
    }
 
-   /**
-   Removes the PropertyChangeListener from the internal list.
-   If the PropertyChangeListener is not on the list, nothing is done.
-     @see #addPropertyChangeListener
-     @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null)
-            throw new NullPointerException ("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
-
+   
 
    /**
    Removes the VetoableChangeListener from the internal list.
@@ -409,6 +426,37 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
             throw new NullPointerException ("listener");
       vetos_.removeVetoableChangeListener(listener);
    }
+
+
+   /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                      //$B1A
+         throws PropertyVetoException
+    {
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
 
    /**
    *  Sets the form's hidden parameter list.
@@ -424,11 +472,34 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
 
        Properties old = parms_;
        vetos_.fireVetoableChange("parameterList", old, parameterList );
-       
+
        parms_ = parameterList;
 
        changes_.firePropertyChange("parameterList", old, parameterList );
    }
+
+
+   /**
+    *  Sets the <i>language</i> of the input tag.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                   //$B1A
+         throws PropertyVetoException
+    {
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
+
 
    /**
    *  Sets the HTTP method used to send form contents to the server.
@@ -444,7 +515,7 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
 
       int old = method_;
       vetos_.fireVetoableChange("method", new Integer(old), new Integer(method) );
-      
+
       method_ = method;
 
       changes_.firePropertyChange("method", new Integer(old), new Integer(method) );
@@ -487,7 +558,7 @@ public class HTMLForm implements HTMLTagElement, HTMLConstants, java.io.Serializ
 
       String old = url_;
       vetos_.fireVetoableChange("url", old, url );
-      
+
       url_ = url;
 
       changes_.firePropertyChange("url", old, url );

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListRowData.java
 //                                                                             
@@ -24,8 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
-*  The RecordListRowData class represents a list of records.  
-*  
+*  The RecordListRowData class represents a list of records.
+*
 *  <P>A Record represents the data described by a RecordFormat.  It can represent:
 *  <UL>
 *    <LI>An entry in a data queue.</LI>
@@ -34,22 +34,22 @@ import java.util.Vector;
 *    <LI>Any data returned from the AS/400 that needs to be converted between AS/400
 *    format and Java format.</LI>
 *  </UL>
-*  
+*
 *  <P>A RecordListRowData object maintains a position in the list that points to its
 *  current row of data.  The initial position in the list is set before the
 *  first row.  The <i>next</i> method moves to the next row in the list.
-*  
+*
 *  <P>The <i>getObject</i> method is used to retrieve the column value for
-*  the current row indexed by the column number.  Columns are numbered 
+*  the current row indexed by the column number.  Columns are numbered
 *  starting from 0.
-*  
-*  <P>The number, types, and properties of the list's columns are provided 
-*  by the <A href="com.ibm.as400.util.servlet.RecordFormatMetaData.html">RecordFormatMetaData</A> 
+*
+*  <P>The number, types, and properties of the list's columns are provided
+*  by the <A href="RecordFormatMetaData.html">RecordFormatMetaData</A>
 *  object returned by the <i>getMetaData</i> method.
-*  
+*
 *  <P>RecordListRowData objects generate the following events:
 *  <UL>
-*    <LI><A href="com.ibm.as400.util.servlet.RowDataEvent.html">RowDataEvent</A> - The events fired are:
+*    <LI><A href="RowDataEvent.html">RowDataEvent</A> - The events fired are:
 *      <UL>
 *      <LI>rowAdded()</LI>
 *      <LI>rowChanged()</LI>
@@ -57,8 +57,8 @@ import java.util.Vector;
 *      </UL>
 *    </LI>
 *  </UL>
-*        
-*  <P>The following example creates a RecordListRowData object and adds the records from a 
+*
+*  <P>The following example creates a RecordListRowData object and adds the records from a
 *  sequential file.
 *  <BLOCKQUOTE><PRE>
 *  <P>       // Create an AS400 object.
@@ -67,44 +67,44 @@ import java.util.Vector;
 *  SequentialFile sf = new SequentialFile(mySystem, ifspath);
 *  <P>       // Set the record format of the file.
 *  sf.setRecordFormat();
-*  <P>       // Get the records in the file.	      
+*  <P>       // Get the records in the file.
 *  Record[] records = sf.readAll();
 *  <P>       // Create a RecordListRowData object and add the records.
 *  RecordListRowData rowData = new RecordListRowData();
 *  for (int i=0; i < records.length; i++)
 *  {
-*  <P>   rowData.addRow(records[i]);                                
-*  }  
+*  <P>   rowData.addRow(records[i]);
+*  }
 *  </PRE></BLOCKQUOTE>
 **/
 public class RecordListRowData extends RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private RecordFormat recordFormat_;			// The record format.
-   private RecordFormatMetaData metadata_;		// The record metadata.
-   
-   transient private RowDataSupport rowdataSupport_;	// The list of row data listeners.
-   transient private Record currentRecord_;		// The current record.
-   transient private int currentRecordIndex_ = -1;	// The row position of the current record.
+   private RecordFormat recordFormat_;            // The record format.
+   private RecordFormatMetaData metadata_;        // The record metadata.
+
+   transient private RowDataSupport rowdataSupport_;   // The list of row data listeners.
+   transient private Record currentRecord_;       // The current record.
+   transient private int currentRecordIndex_ = -1;     // The row position of the current record.
 
    /**
      Constructs a default RecordListRowData object.
    **/
    public RecordListRowData()
    {
-      super();      
+      super();
       rowdataSupport_ = new RowDataSupport(this);
    }
 
-   /** 
+   /**
    *  Constructs a RecordListRowData object with the specified <i>recordFormat</i>.
    *  @param recordFormat The record format.
    **/
    public RecordListRowData(RecordFormat recordFormat)
    {
       this();
-   
+
       try
       {
          setRecordFormat(recordFormat);
@@ -120,9 +120,9 @@ public class RecordListRowData extends RowData implements Serializable
    public void addRow(Record record) throws RowDataException
    {
       // Validate the record parameter.
-      if (record == null) 
+      if (record == null)
          throw new NullPointerException("record");
-                  
+
       // Add the row.
       addRow(record, new Vector[record.getRecordFormat().getNumberOfFields()]);
    }
@@ -136,7 +136,7 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    public void addRow(Record record, Vector[] properties)
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding a row to the list.");
 
       // Validate the record parameter.
@@ -162,9 +162,9 @@ public class RecordListRowData extends RowData implements Serializable
    public void addRow(Record record, int rowIndex) throws RowDataException
    {
       // Validate the record parameter.
-      if (record == null) 
+      if (record == null)
          throw new NullPointerException("record");
-      
+
       addRow(record, rowIndex, new Vector[record.getRecordFormat().getNumberOfFields()]);
    }
 
@@ -178,7 +178,7 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    public void addRow(Record record, int rowIndex, Vector[] properties)
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Adding a row to the list.");
 
       // Validate the record parameter.
@@ -186,7 +186,7 @@ public class RecordListRowData extends RowData implements Serializable
 
       // Validate the rowIndex parameter.
       validateRowIndex(rowIndex);
-   
+
       // Validate the properties parameter.
       validateProperties(properties);
 
@@ -213,7 +213,7 @@ public class RecordListRowData extends RowData implements Serializable
    /**
    *  Returns the metadata.
    *  @return The metadata.
-   **/    
+   **/
    public RowMetaData getMetaData()
    {
       return metadata_;
@@ -233,11 +233,11 @@ public class RecordListRowData extends RowData implements Serializable
      validateRowList(action);
 
       // Validate the columnIndex parameter.
-      if ( (columnIndex < 0) || (columnIndex >= metadata_.getColumnCount()) ) 
+      if ( (columnIndex < 0) || (columnIndex >= metadata_.getColumnCount()) )
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Check the current row.
-      validateListPosition(action); 
+      validateListPosition(action);
 
       // Get the current record.
       if (currentRecordIndex_ != position_)
@@ -245,7 +245,7 @@ public class RecordListRowData extends RowData implements Serializable
          currentRecord_ = (Record)rows_.elementAt(position_);
          currentRecordIndex_ = position_;
       }
-      
+
       try
       {
          return currentRecord_.getField(columnIndex);
@@ -280,13 +280,13 @@ public class RecordListRowData extends RowData implements Serializable
       // Validate the list position.
       validateListPosition(action);
 
-      return (Record)rows_.elementAt(position_);     
+      return (Record)rows_.elementAt(position_);
    }
 
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
+   private void readObject(java.io.ObjectInputStream in)
        throws java.io.IOException, ClassNotFoundException, RowDataException, PropertyVetoException
    {
       in.defaultReadObject();
@@ -311,18 +311,18 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    public void removeRow(int rowIndex)
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Removing a row from the list.");
 
       // Verify the list is not empty.
       validateRowList("Attempting to remove a row");
 
       // Validate the rowIndex parameter.
-      if ( rowIndex < 0 || rowIndex >= rows_.size() ) 
+      if ( rowIndex < 0 || rowIndex >= rows_.size() )
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Remove the row and row properties from the list.
-      rows_.removeElementAt(rowIndex); 
+      rows_.removeElementAt(rowIndex);
       rowProperties_.removeElementAt(rowIndex);
 
       // Notify the listeners.
@@ -332,14 +332,14 @@ public class RecordListRowData extends RowData implements Serializable
    /**
    *  Sets the record at the specified <i>rowIndex</i> to be the specified <i>record</i>.
    *  @param record The record.
-   *  @param rowIndex The row index (0-based).  
+   *  @param rowIndex The row index (0-based).
    **/
    public void setRow(Record record, int rowIndex)
    {
       // Validate the record parameter.
-      if (record == null) 
+      if (record == null)
          throw new NullPointerException("record");
-      
+
       setRow(record, rowIndex, new Vector[record.getRecordFormat().getNumberOfFields()]);
    }
 
@@ -353,9 +353,9 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    public void setRow(Record record, int rowIndex, Vector[] properties)
    {
-      if (Trace.isTraceOn()) 
+      if (Trace.isTraceOn())
          Trace.log(Trace.INFORMATION, "Changing a row in the list.");
-      
+
       // Validate that the list is not empty.
       validateRowList("Attempting to change the row");
 
@@ -363,7 +363,7 @@ public class RecordListRowData extends RowData implements Serializable
       validateRecord(record);
 
       // Validate the row parameter.
-      if ( rowIndex < 0 || rowIndex >= rows_.size() ) 
+      if ( rowIndex < 0 || rowIndex >= rows_.size() )
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Validate the properites parameter.
@@ -374,7 +374,7 @@ public class RecordListRowData extends RowData implements Serializable
       rowProperties_.setElementAt(properties, rowIndex);
 
       // Notify the listeners.
-      rowdataSupport_.fireChanged();      
+      rowdataSupport_.fireChanged();
    }
 
    /**
@@ -390,7 +390,7 @@ public class RecordListRowData extends RowData implements Serializable
    public void setRecordFormat(RecordFormat recordFormat) throws PropertyVetoException
    {
       // Validate the recordFormat parameter.
-      if (recordFormat == null) 
+      if (recordFormat == null)
          throw new NullPointerException("recordFormat");
 
       RecordFormat old = recordFormat_;
@@ -408,7 +408,7 @@ public class RecordListRowData extends RowData implements Serializable
       changes_.firePropertyChange("recordFormat", old, recordFormat);
 
       // Set the metadata.
-      if (metadata_ == null) 
+      if (metadata_ == null)
          metadata_ = new RecordFormatMetaData(recordFormat_);
       else
          metadata_.setRecordFormat(recordFormat_);
@@ -420,11 +420,11 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    private void validateProperties(Vector[] properties)
    {
-      if (properties == null) 
+      if (properties == null)
          throw new NullPointerException("properties");
 
       // Verify the length match the number of columns.
-      if (properties.length != metadata_.getColumnCount()) 
+      if (properties.length != metadata_.getColumnCount())
          throw new ExtendedIllegalArgumentException("properties", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
    }
 
@@ -434,13 +434,13 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    private void validateRecord(Record record)
    {
-      if (record == null) 
+      if (record == null)
          throw new NullPointerException("record");
 
       try
       {
          // Check the record format.
-         if (recordFormat_ == null) 
+         if (recordFormat_ == null)
             setRecordFormat(record.getRecordFormat());
          else
          {
@@ -460,7 +460,7 @@ public class RecordListRowData extends RowData implements Serializable
    **/
    private void validateRowIndex(int rowIndex)
    {
-      if ( rowIndex < 0 || rowIndex > rows_.size() ) 
+      if ( rowIndex < 0 || rowIndex > rows_.size() )
          throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
    }
 }

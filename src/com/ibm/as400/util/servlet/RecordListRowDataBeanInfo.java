@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListRowDataBeanInfo.java
 //                                                                             
@@ -59,8 +59,7 @@ public class RecordListRowDataBeanInfo extends SimpleBeanInfo
         EventSetDescriptor[] events = {changed, veto};
 
         events_ = events;
-
-        // ***** PROPERTIES
+        
         PropertyDescriptor currentPosition = new PropertyDescriptor("currentPosition",
 								    beanClass,
 								    "getCurrentPosition",
@@ -115,7 +114,7 @@ public class RecordListRowDataBeanInfo extends SimpleBeanInfo
       @return The index to the default event.
     **/
     public int getDefaultEventIndex()
-    {
+    {        
         return 0;
     }
 
@@ -124,7 +123,7 @@ public class RecordListRowDataBeanInfo extends SimpleBeanInfo
       @return The index to the default property.
     **/
     public int getDefaultPropertyIndex()
-    {
+    {        
         return 0;
     }
 

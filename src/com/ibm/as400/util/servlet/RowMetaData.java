@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RowMetaData.java
 //                                                                             
@@ -14,15 +14,15 @@
 package com.ibm.as400.util.servlet;
 
 /**
-*  A RowMetaData object can be used to find out information about the columns 
-*  of a <A href="com.ibm.as400.util.servlet.RowData.html">RowData</A> object.
+*  A RowMetaData object can be used to find out information about the columns
+*  of a <A href="RowData.html">RowData</A> object.
 **/
 public interface RowMetaData
 {
 
    /**
    *  Returns the number of columns.
-   *  
+   *
    *  @return The number of columns.
    *  @exception RowDataException If a row data error occurred.
    **/
@@ -54,10 +54,10 @@ public interface RowMetaData
    *  @exception RowDataException If a row data error occurred.
    **/
    public abstract String getColumnName(int columnIndex) throws RowDataException;
-       
+
    /**
    *  Returns the data type of the column specified by <i>columnIndex</i>.
-   *  For a list of values, see <a href="com.ibm.as400.util.servlet.RowMetaDataType.html">RowMetaDataType</a>
+   *  For a list of values, see <a href="RowMetaDataType.html">RowMetaDataType</a>
    *  @param columnIndex The column index (0-based).
    *  @return The data type.
    *  @exception RowDataException If a row data error occurred.
@@ -72,7 +72,7 @@ public interface RowMetaData
    *  @exception RowDataException If a row data error occurred.
    **/
    public abstract String getColumnTypeName(int columnIndex) throws RowDataException;
-       
+
    /**
    *  Returns the precision of the column specified by <i>columnIndex</i>.
    *
@@ -113,6 +113,6 @@ public interface RowMetaData
    *  @param columnIndex The column index (0-based).
    *  @param label The label.
    *  @exception RowDataException If a row data error occurred.
-   **/    
+   **/
    public abstract void setColumnLabel(int columnIndex, String label) throws RowDataException;
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLConstants.java
 //                                                                             
@@ -93,6 +93,64 @@ public interface HTMLConstants
    *  Vertical text top alignment.
    **/
    public final static String TEXTTOP = "texttop";
+
+   /**
+   *  Disc, solid bullet, labeling scheme.
+   **/
+   public final static String DISC = "disc";          //$B0A
+
+
+   /**
+   *  Square, solid square, labeling scheme.
+   **/
+   public final static String SQUARE = "square";      //$B0A
+
+
+   /**
+   *  Circle, hollow circle, labeling scheme.
+   **/
+   public final static String CIRCLE = "circle";      //$B0A
+
+   
+   /**
+    *  Numbered ordered labeling scheme.
+    **/
+   public final static String NUMBERS = "numbers";     //$B0A
+
+
+   /**
+    *  Capital letter ordered labeling scheme.
+    **/
+   public final static String CAPITALS = "capitals";      //$B0A
+
+
+   /**
+    *  Lower-case letter ordered labeling scheme.
+    */
+   public final static String LOWER_CASE = "lower_case";    //$B0A
+   
+   
+   /**
+    *  Large Roman numeral ordered labeling scheme.
+    **/
+   public final static String LARGE_ROMAN = "large_roman";  //$B0A
+
+
+   /**
+    *  Small Roman numeral ordered labeling scheme.
+    **/
+   public final static String SMALL_ROMAN = "small_roman";  //$B0A
+
+
+   /**
+    *  Left to Right text interpretation direction.
+    **/
+   public final static String LTR = "ltr";               //$B1A
+
+   /**
+    *  Right to Left text interpretation direction.
+    **/
+   public final static String RTL = "rtl";               //$B1A
 
    
 }

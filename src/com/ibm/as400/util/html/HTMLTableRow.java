@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLTableRow.java
 //                                                                             
@@ -64,7 +64,7 @@ import java.util.Vector;
 *  @see com.ibm.as400.util.html.HTMLTable
 *  @see com.ibm.as400.util.html.HTMLTableCell
 **/
-public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
+public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -72,17 +72,18 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    private String hAlign_;   // The global horizontal alignment for each cells in the row.
    private String vAlign_;   // The global vertical alignment for each cell in the row.
 
-   transient private Vector columnListeners_;      // The list of column listeners.
-   transient private PropertyChangeSupport changes_;
-   transient private VetoableChangeSupport vetos_;
+   private String lang_;        // The primary language used to display the tags contents.  //$B1A
+   private String dir_;         // The direction of the text interpretation.                //$B1A
+
+   transient private Vector columnListeners_ = new Vector();;      // The list of column listeners.
+   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
    /**
    *  Constructs a default HTMLTableRow object.
-   **/   
+   **/
    public HTMLTableRow()
    {
       row_ = new Vector();
-      initializeTransient();
    }
 
    /**
@@ -100,10 +101,10 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
          row_.addElement(cells[i]);
    }
 
-   /** 
+   /**
    *  Adds the column to the row.
    *  @param cell The HTMLTableCell containing the column data.
-   **/   
+   **/
    public void addColumn(HTMLTableCell cell)
    {
       if (Trace.isTraceOn())
@@ -111,7 +112,7 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
 
       if (cell == null)
          throw new NullPointerException("cell");
- 
+
       row_.addElement(cell);
 
       // Notify the listeners.
@@ -127,33 +128,21 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public void addColumnListener(ElementListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       columnListeners_.addElement(listener);
    }
 
+   
    /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
-   *  method is called each time the value of any bound property is changed.
-   *  @see #removePropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
-
-   /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @see #removeVetoableChangeListener
    *  @param listener The VetoableChangeListener.
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       vetos_.addVetoableChangeListener(listener);
    }
@@ -209,14 +198,14 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (columnIndex < 0 || columnIndex >= row_.size())
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-   
+
       return (HTMLTableCell)row_.elementAt(columnIndex);
    }
 
    /**
    *  Returns the number of columns in the row.
    *  @return The number of columns.
-   **/ 
+   **/
    public int getColumnCount()
    {
       return row_.size();
@@ -245,13 +234,45 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    {
       if (cell == null)
          throw new NullPointerException("cell");
-      
+
       if (index >= row_.size() || index < 0)
          throw new ExtendedIllegalArgumentException("index", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
+
       return row_.indexOf(cell, index);
    }
-   
+
+   /**
+    *  Returns the <i>direction</i> of the text interpretation.
+    *  @return The direction of the text.
+    **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+
+       if ((dir_ != null) && (dir_.length() > 0))
+       {
+          StringBuffer buffer = new StringBuffer(" dir=\"");
+          buffer.append(dir_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
+       else
+          return "";
+    }
+
+
    /**
    *  Returns the global horizontal alignment for the row.
    *  @return The horizontal alignment.  One of the following constants
@@ -262,6 +283,38 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    {
       return hAlign_;
    }
+
+   /**
+    *  Returns the <i>language</i> of the caption.
+    *  @return The language of the caption.
+    **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
+
+
+    /**
+    *  Returns the language attribute tag.
+    *  @return The language tag.
+    **/
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+       if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+
+       if ((lang_ != null) && (lang_.length() > 0))
+       {
+          StringBuffer buffer = new StringBuffer(" lang=\"");
+          buffer.append(lang_);
+          buffer.append("\"");
+
+          return buffer.toString();
+       }
+       else
+          return "";
+    }
+
 
    /**
    *  Returns the table row tag.
@@ -280,9 +333,21 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
 
       StringBuffer tag = new StringBuffer("<tr");
       if (hAlign_ != null)
-         tag.append(" align=\"" + hAlign_ + "\"");
+      {
+         tag.append(" align=\"");
+         tag.append(hAlign_);
+         tag.append("\"");
+      }
       if (vAlign_ != null)
-         tag.append(" valign=\"" + vAlign_ + "\"");
+      {
+         tag.append(" valign=\"");
+         tag.append(vAlign_);
+         tag.append("\"");
+      }
+
+      tag.append(getLanguageAttributeTag());      //$B1A
+      tag.append(getDirectionAttributeTag());     //$B1A
+      tag.append(getAttributeString());           // @Z1A
       tag.append(">\n");
 
       for (int i=0; i< row_.size(); i++)
@@ -291,7 +356,7 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
          tag.append(cell.getTag());
       }
       tag.append("</tr>\n");
-      
+
       return new String(tag);
    }
 
@@ -307,24 +372,17 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    }
 
 
-   /**
-   *  Provided to initialize transient data if this object is de-serialized.
-   **/
-   private void initializeTransient()
-   {
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
-      columnListeners_ = new Vector();
-   }
-
+   
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
+   private void readObject(java.io.ObjectInputStream in)
        throws java.io.IOException, ClassNotFoundException
    {
       in.defaultReadObject();
-      initializeTransient();
+      changes_ = new PropertyChangeSupport(this);
+      vetos_ = new VetoableChangeSupport(this);
+      columnListeners_ = new Vector();
    }
 
    /**
@@ -366,7 +424,7 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
 
       if (columnIndex < 0 || columnIndex >= row_.size())
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-     
+
       row_.removeElement((HTMLTableCell)row_.elementAt(columnIndex));
       fireRemoved();
    }
@@ -384,18 +442,7 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
       columnListeners_.removeElement(listener);
    }
 
-   /**
-   *  Removes the PropertyChangeListener from the internal list.
-   *  If the PropertyChangeListener is not on the list, nothing is done.
-   *  @see #addPropertyChangeListener
-   *  @param listener The PropertyChangeListener.
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
+   
 
    /**
    *  Removes the VetoableChangeListener from the internal list.
@@ -405,7 +452,7 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
       vetos_.removeVetoableChangeListener(listener);
    }
@@ -428,7 +475,7 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       // Set the column.
-      if (columnIndex == row_.size()) 
+      if (columnIndex == row_.size())
          addColumn(cell);
       else
       {
@@ -436,6 +483,38 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
          fireChanged();             // Notify the listeners.
       }
    }
+
+
+   /**
+    *  Sets the <i>direction</i> of the text interpretation.
+    *  @param dir The direction.  One of the following constants
+    *  defined in HTMLConstants:  LTR or RTL.
+    *
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setDirection(String dir)                                     //$B1A
+         throws PropertyVetoException
+    {
+        if (dir == null)
+           throw new NullPointerException("dir");
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+        {
+           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
+
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+
    /**
    *  Sets the global horizontal alignment for the row.
    *  @param alignment The horizontal alignment.  One of the following constants
@@ -449,15 +528,15 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
       {
          throw new NullPointerException("alignment");
       }
-      else if (alignment.equalsIgnoreCase(LEFT) || 
-               alignment.equalsIgnoreCase(CENTER) || 
+      else if (alignment.equalsIgnoreCase(LEFT) ||
+               alignment.equalsIgnoreCase(CENTER) ||
                alignment.equalsIgnoreCase(RIGHT))
       {
          String old = hAlign_;
          vetos_.fireVetoableChange("alignment", old, alignment );
-         
+
          hAlign_ = alignment;
-         
+
          changes_.firePropertyChange("alignment", old, alignment );
       }
       else
@@ -466,27 +545,49 @@ public class HTMLTableRow implements HTMLTagElement, HTMLConstants, Serializable
       }
    }
 
+
+   /**
+    *  Sets the <i>language</i> of the caption.
+    *  @param lang The language.  Example language tags include:
+    *  en and en-US.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setLanguage(String lang)                                      //$B1A
+         throws PropertyVetoException
+    {
+        if (lang == null)
+           throw new NullPointerException("lang");
+
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
+
+        lang_ = lang;
+
+        changes_.firePropertyChange("lang", old, lang );
+    }
+
    /**
    *  Sets the global vertical alignment for the row.
    *  @param alignment The vertical alignment.  One of the following constants
    *  defined in HTMLConstants:  BASELINE, BOTTOM, MIDDLE, or TOP.
    *  @exception PropertyVetoException If the change is vetoed.
    *  @see com.ibm.as400.util.html.HTMLConstants
-   **/   
+   **/
    public void setVerticalAlignment(String alignment) throws PropertyVetoException
    {
       if (alignment == null)
       {
          throw new NullPointerException("alignment");
       }
-      else if (alignment.equalsIgnoreCase(TOP) || 
-               alignment.equalsIgnoreCase(MIDDLE) || 
+      else if (alignment.equalsIgnoreCase(TOP) ||
+               alignment.equalsIgnoreCase(MIDDLE) ||
                alignment.equalsIgnoreCase(BOTTOM) ||
                alignment.equalsIgnoreCase(BASELINE))
       {
          String old = vAlign_;
          vetos_.fireVetoableChange("alignment", old, alignment );
-         
+
          vAlign_ = alignment;
 
          changes_.firePropertyChange("alignment", old, alignment );

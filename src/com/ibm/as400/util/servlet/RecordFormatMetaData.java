@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordFormatMetaData.java
 //                                                                             
@@ -40,8 +40,8 @@ import java.beans.VetoableChangeListener;
 import java.io.Serializable;
 
 /**
-*  A RecordFormatMetaData object can be used to find out information about the columns of a 
-*  <A href="com.ibm.as400.util.servlet.RecordListRowData.html">RecordListRowData</A> object.
+*  A RecordFormatMetaData object can be used to find out information about the columns of a
+*  <A href="RecordListRowData.html">RecordListRowData</A> object.
 *
 *  <P>RecordFormatMetaData objects generate the following events:
 *  <UL>
@@ -81,28 +81,28 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    }
 
    /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b>
    *  method is called each time the value of any bound property is changed.
    *  @see #removePropertyChangeListener
    *  @param listener The PropertyChangeListener.
    **/
    public void addPropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.addPropertyChangeListener(listener);
    }
 
    /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @see #removeVetoableChangeListener
    *  @param listener The VetoableChangeListener.
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       vetos_.addVetoableChangeListener(listener);
@@ -115,7 +115,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    public int getColumnCount()
    {
       // Verify that the record format has been set.
-      if (recordFormat_ == null) 
+      if (recordFormat_ == null)
       {
          Trace.log(Trace.ERROR, "Attempting to get the column count before setting the record format.");
          throw new ExtendedIllegalStateException("recordFormat", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -154,11 +154,11 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
 
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       String label = columnLabel_[columnIndex];
-      
+
       // Use column name if null.
-      if (label == null) 
+      if (label == null)
          label = getColumnName(columnIndex);
       columnLabel_[columnIndex] = label;
 
@@ -177,7 +177,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
 
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       // Pull the column name from the field description.
       FieldDescription fd = recordFormat_.getFieldDescription(columnIndex);
       return fd.getFieldName();
@@ -320,7 +320,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
 
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       // Get the data type from the field description.
       FieldDescription fd = recordFormat_.getFieldDescription(columnIndex);
       AS400DataType datatype = fd.getDataType();
@@ -338,7 +338,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    *  @param columnIndex The column index (0-based).
    *  @return true if numeric data; false otherwise.
    **/
-   public boolean isNumericData(int columnIndex)		// @A1
+   public boolean isNumericData(int columnIndex)       // @A1
    {
       return RowMetaDataType.isNumericData(getColumnType(columnIndex));
    }
@@ -356,7 +356,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
+   private void readObject(java.io.ObjectInputStream in)
        throws java.io.IOException, ClassNotFoundException, RowDataException
    {
       in.defaultReadObject();
@@ -367,10 +367,10 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
       if (recordFormat_ != null)
       {
          try
-         {  
+         {
             setRecordFormat(recordFormat_);
          }
-         catch (PropertyVetoException e) { /* will never occur. */ }
+         catch (PropertyVetoException e) { /* do nothing. */ }
       }
    }
 
@@ -382,7 +382,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    **/
    public void removePropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.removePropertyChangeListener(listener);
@@ -396,7 +396,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       vetos_.removeVetoableChangeListener(listener);
@@ -406,19 +406,19 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    *  Sets the specified <i>label</i> at the column specified by <i>columnIndex</i>.
    *  @param columnIndex The column index (0-based).
    *  @param label The label.
-   **/    
+   **/
    public void setColumnLabel(int columnIndex, String label)
    {
       // Validate that the record format is set.
       validateRecordFormat("Attempting to set the column label");
 
       // Validate the label parameter.
-      if (label == null) 
+      if (label == null)
          throw new NullPointerException("label");
-      
+
       // Validate the columnIndex parameter.
       validateColumnIndex(columnIndex);
-      
+
       columnLabel_[columnIndex] = label;
    }
 
@@ -430,7 +430,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    public void setRecordFormat(RecordFormat recordFormat) throws PropertyVetoException
    {
       // Validate the format parameter.
-      if (recordFormat == null) 
+      if (recordFormat == null)
          throw new NullPointerException("recordFormat");
 
       RecordFormat old = recordFormat_;
@@ -450,7 +450,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    **/
    private void validateColumnIndex(int columnIndex)
    {
-      if ( (columnIndex < 0) || (columnIndex >= recordFormat_.getNumberOfFields()) ) 
+      if ( (columnIndex < 0) || (columnIndex >= recordFormat_.getNumberOfFields()) )
          throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
    }
 
@@ -460,7 +460,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    **/
    private void validateRecordFormat(String action)
    {
-      if (recordFormat_ == null) 
+      if (recordFormat_ == null)
       {
          Trace.log(Trace.ERROR, action + " before setting the record format.");
          throw new ExtendedIllegalStateException("recordFormat", ExtendedIllegalStateException.PROPERTY_NOT_SET);

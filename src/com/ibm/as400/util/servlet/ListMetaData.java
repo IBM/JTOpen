@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ListMetaData.java
 //                                                                             
@@ -24,8 +24,8 @@ import java.beans.VetoableChangeListener;
 import java.io.Serializable;
 
 /**
-*  A ListMetaData object can be used to find out information about the columns of a 
-*  <A href="com.ibm.as400.util.servlet.ListRowData.html">ListRowData</A> object.
+*  A ListMetaData object can be used to find out information about the columns of a
+*  <A href="ListRowData.html">ListRowData</A> object.
 *
 *  <P>ListMetaData objects generate the following events:
 *  <UL>
@@ -39,7 +39,7 @@ public class ListMetaData implements RowMetaData, Serializable
 
    // metadata values.
    private int columnCount_ = 0;       // The number of columns.
-   
+
    private String[] columnName_;       // The array of column names.
    private String[] columnLabel_;      // The array of column labels.
    private int[] columnType_;          // The array of column types.
@@ -59,7 +59,7 @@ public class ListMetaData implements RowMetaData, Serializable
    /**
    *  Constructs a ListMetaData object with the specified number of <i>columns</i>.
    *  @param columns The number of columns.
-   **/    
+   **/
    public ListMetaData(int columns)
    {
       this();
@@ -71,30 +71,30 @@ public class ListMetaData implements RowMetaData, Serializable
    }
 
    /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> 
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b>
    *  method is called each time the value of any bound property is changed.
    *  @see #removePropertyChangeListener
    *  @param listener The PropertyChangeListener.
    **/
    public void addPropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.addPropertyChangeListener(listener);
    }
 
    /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> 
+   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
    *  method is called each time the value of any constrained property is changed.
    *  @see #removeVetoableChangeListener
    *  @param listener The VetoableChangeListener.
    **/
    public void addVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
-      
+
       vetos_.addVetoableChangeListener(listener);
    }
 
@@ -116,7 +116,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-    
+
       return columnSize_[columnIndex];
    }
 
@@ -142,7 +142,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-      
+
       return columnName_[columnIndex];
    }
 
@@ -157,7 +157,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-      
+
       return columnType_[columnIndex];
    }
 
@@ -171,8 +171,8 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-      
-      if (columnType_[columnIndex] != 0) 
+
+      if (columnType_[columnIndex] != 0)
          return RowMetaDataType.getDataTypeName(columnType_[columnIndex]);
       else
          return null;
@@ -188,7 +188,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-      
+
       return 0;
    }
 
@@ -202,7 +202,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       // Validate the column parameter.
       validateColumnIndex(columnIndex);
-         
+
       return 0;
    }
 
@@ -211,7 +211,7 @@ public class ListMetaData implements RowMetaData, Serializable
    *  @param columnIndex The column index (0-based).
    *  @return true if numeric data; false otherwise.
    **/
-   public boolean isNumericData(int columnIndex)		// @A1
+   public boolean isNumericData(int columnIndex)       // @A1
    {
       return RowMetaDataType.isNumericData(getColumnType(columnIndex));
    }
@@ -229,7 +229,7 @@ public class ListMetaData implements RowMetaData, Serializable
    /**
    *  Deserializes and initializes transient data.
    **/
-   private void readObject(java.io.ObjectInputStream in)         
+   private void readObject(java.io.ObjectInputStream in)
        throws java.io.IOException, ClassNotFoundException
    {
       in.defaultReadObject();
@@ -246,7 +246,7 @@ public class ListMetaData implements RowMetaData, Serializable
    **/
    public void removePropertyChangeListener(PropertyChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       changes_.removePropertyChangeListener(listener);
@@ -260,7 +260,7 @@ public class ListMetaData implements RowMetaData, Serializable
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      if (listener == null) 
+      if (listener == null)
          throw new NullPointerException("listener");
 
       vetos_.removeVetoableChangeListener(listener);
@@ -277,9 +277,9 @@ public class ListMetaData implements RowMetaData, Serializable
       validateColumnIndex(columnIndex);
 
       // Validate the displaySize parameter.
-      if (displaySize < 1) 
+      if (displaySize < 1)
          throw new ExtendedIllegalArgumentException("displaySize", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      
+
       columnSize_[columnIndex] = displaySize;
    }
 
@@ -294,16 +294,16 @@ public class ListMetaData implements RowMetaData, Serializable
       validateColumnIndex(columnIndex);
 
       // Validate the label parameter.
-      if (label == null) 
+      if (label == null)
          throw new NullPointerException("label");
-      
+
       columnLabel_[columnIndex] = label;
    }
 
    /**
    *  Sets the specified <i>name</i> for the column specified by <i>columnIndex</i>.
    *  @param columnIndex The column index (0-based).
-   *  @param name The column name. 
+   *  @param name The column name.
    **/
    public void setColumnName(int columnIndex, String name)
    {
@@ -311,9 +311,9 @@ public class ListMetaData implements RowMetaData, Serializable
       validateColumnIndex(columnIndex);
 
       // Validate the name parameter.
-      if (name == null) 
+      if (name == null)
          throw new NullPointerException("name");
-      
+
       columnName_[columnIndex] = name;
 
       // Set the column label as well.
@@ -330,7 +330,7 @@ public class ListMetaData implements RowMetaData, Serializable
    **/
    public void setColumns(int columns) throws PropertyVetoException
    {
-      if (columns <= 0) 
+      if (columns <= 0)
          throw new ExtendedIllegalArgumentException("columns", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
       Integer oldInt = new Integer(columnCount_);
@@ -360,7 +360,7 @@ public class ListMetaData implements RowMetaData, Serializable
       validateColumnIndex(columnIndex);
 
       // Validate the type parameter.
-      if (RowMetaDataType.isDataTypeValid(type))     
+      if (RowMetaDataType.isDataTypeValid(type))
          columnType_[columnIndex] = type;
       else
          throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -372,7 +372,7 @@ public class ListMetaData implements RowMetaData, Serializable
    **/
    private void validateColumnIndex(int columnIndex)
    {
-      if ( columnIndex < 0 || columnIndex >= columnCount_ ) 
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);   
+      if ( columnIndex < 0 || columnIndex >= columnCount_ )
+         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
    }
 }

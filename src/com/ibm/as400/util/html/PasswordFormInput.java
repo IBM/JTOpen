@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PasswordFormInput.java
 //                                                                             
@@ -80,6 +80,9 @@ public class PasswordFormInput extends TextFormInput
         s.append(getValueAttributeTag(false));
         s.append(getMaxLengthAttributeTag());
         s.append(getSizeAttributeTag());
+        s.append(getLanguageAttributeTag());                                        //$B1A
+        s.append(getDirectionAttributeTag());                                       //$B1A
+        s.append(getAttributeString());                                             // @Z1A
         s.append(" />");
 
         return s.toString();
