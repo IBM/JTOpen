@@ -64,6 +64,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_DRIVER", "driver" },                         // @E4A
       { "PROP_NAME_ERRORS", "errors" },
       { "PROP_NAME_EXTENDED_DYNAMIC", "extendedDynamic" },
+      { "PROP_NAME_FULL_OPEN", "fullOpen" },                    // @W1a
       { "PROP_NAME_KEY_RING_NAME", "keyRingName" },		// @E7A
       { "PROP_NAME_KEY_RING_PASSWORD", "keyRingPassword" },	// @E7A
       { "PROP_NAME_LAZY_CLOSE", "lazyClose" },                  // @E3A
@@ -115,6 +116,7 @@ public class JDMRI extends ListResourceBundle
       { "DRIVER_DESC", "Specifies the JDBC driver implementation." },      // @E4A
       { "ERRORS_DESC", "Specifies the amount of detail to be returned in the message for errors that occur on the server." },
       { "EXTENDED_DYNAMIC_DESC", "Specifies whether to use extended dynamic support." },
+      { "FULL_OPEN_DESC", "Specifies whether to use an optimized query." },              // @W1
       { "KEY_RING_NAME_DESC", "Specifies the key ring class name used for SSL communications with the server." }, //@E7A
       { "KEY_RING_PASSWORD_DESC", "Specifies the password for the key ring class used for SSL communications with the server." }, //@E7A
       { "LAZY_CLOSE_DESC", "Specifies whether to delay closing cursors until subsequent requests." }, // @E3A
