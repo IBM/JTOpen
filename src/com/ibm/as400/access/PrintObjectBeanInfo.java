@@ -25,7 +25,7 @@ describing print objects.
 **/
 public class PrintObjectBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Events defined for PrintObject
     private static EventSetDescriptor[] events_;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectList.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.Enumeration;
 import java.util.Vector;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException; // @B1A
+import java.io.UnsupportedEncodingException;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeSupport;
@@ -32,12 +32,9 @@ import java.beans.PropertyVetoException;
 public abstract class PrintObjectList
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
    
     static final long serialVersionUID = 4L;
-
-
 
     private static final String SYSTEM = "system";
 
@@ -45,26 +42,26 @@ implements java.io.Serializable
     private NPCPAttributeIDList attrsToRetrieve_ = null;
     private NPCPID idFilter_         = null;  // for certain lists an idcodepoint may be used to filter
     private NPCPSelection selection_ = null;  // selection filter
-            AS400 system_            = null;  // The AS/400 object                  // @A5C
+            AS400 system_            = null;  // The system object
     private int typeOfObject_        = 0;     // The PrintObject object type
-    private boolean listOutOfSync_   = false; // Is the list out of sync with the impl list? // @B2A
-    private boolean objectAddedEvent_= false; // Has an object been added and event fired? // @B2A
+    private boolean listOutOfSync_   = false; // Is the list out of sync with the impl list?
+    private boolean objectAddedEvent_= false; // Has an object been added and event fired?
 
     // These instance variables are not persistent, but private.
     private transient boolean open_;
-    private transient Vector printObjectListListeners_; //@A3C - removed '= new()'
-    private transient Vector theList_;          // @A5A
+    private transient Vector printObjectListListeners_;
+    private transient Vector theList_;
     
     // These instance variables are not persistent, but are package scope
     // to allow subclasses access to them... 
-    transient PrintObjectListImpl   impl_;      // @A3A - the implementation to use
-    transient PropertyChangeSupport changes;    // @A3C - removed '= new();'
-    transient VetoableChangeSupport vetos;      // @A3C - removed '= new();'
-    transient PrintObjectListListener dispatcher_; // @A5A
+    transient PrintObjectListImpl   impl_;
+    transient PropertyChangeSupport changes;
+    transient VetoableChangeSupport vetos;
+    transient PrintObjectListListener dispatcher_;
     
     
-    boolean useCache_ = true; //@CRS
-    //@CRS
+    boolean useCache_ = true;
+ 
     /**
      * Sets whether or not to internally maintain a cache of objects returned by this list.
      * By default, caching is on, so that the Enumeration returned by getObjects() is populated.
@@ -103,7 +100,7 @@ implements java.io.Serializable
     {
         typeOfObject_ = objectType;
         selection_ = selectionCP;
-        initializeTransient();  // @A3A
+        initializeTransient();
     }
 
 
@@ -116,7 +113,7 @@ implements java.io.Serializable
       *    the NPDataStream class such as NPDataStream.SPOOLED_FILE.
       * @param selectionCP A selection codepoint that will be used whenever the
       *    the list is built.
-      * @param system The AS/400 on which the object(s) exists.
+      * @param system The server on which the object(s) exists.
       **/
     PrintObjectList(int objectType,
                     NPCPSelection selectionCP,
@@ -145,8 +142,8 @@ implements java.io.Serializable
         printObjectListListeners_.addElement( listener );
         // Add the listener to the impl_ for events fired from 
         // PrintObjectListImplRemote
-        // @A5D if (impl_ != null)                              // @A3A
-        // @A5D    impl_.addPrintObjectListListener(listener); // @A3A
+        // @A5D if (impl_ != null)
+        // @A5D    impl_.addPrintObjectListListener(listener);
     }
 
 
@@ -196,19 +193,17 @@ implements java.io.Serializable
         {
             if (open_) {
                 // ASSERT: if the list has been opened, impl_ has been assigned
-                impl_.close(); // @A3A
+                impl_.close();
                 open_ = false;
             } else {
                 // if the list was not open, return to avoid firing closed.
-              theList_.removeAllElements(); //@C0A
+              theList_.removeAllElements();
                 return;
             }
         } 
     }
     
     
-
-    // @A5A
     private PrintObjectListEvent createPrintObjectListEvent(int id, 
                                                             PrintObject printObject, 
                                                             Exception exception)
@@ -236,8 +231,6 @@ implements java.io.Serializable
     }
 
 
-
-    // @A5A
     private void firePrintObjectList(PrintObjectListEvent event)
     {
         event.setSource(this);
@@ -257,9 +250,9 @@ implements java.io.Serializable
             {
                 // OBJECT_ADDED is the most frequent case.
                 case PrintObjectListEvent.OBJECT_ADDED:                
-                    PrintObject printObject = event.getObject();                                        // @B1A
-                    if (useCache_) theList_.addElement(printObject);                                                   // @B1A @CRS
-                    objectAddedEvent_ = true;  // @B2A
+                    PrintObject printObject = event.getObject();
+                    if (useCache_) theList_.addElement(printObject);
+                    objectAddedEvent_ = true;
                     ((PrintObjectListListener)l.elementAt(i)).listObjectAdded(event);
                     break;
 
@@ -284,7 +277,6 @@ implements java.io.Serializable
 
 
 
-    // @A5C
     // The JavaBeans 1.0 Specification strongly recommends to avoid
     // using a synchronized method to fire an event. We use a
     // synchronized block to locate the target listeners and then
@@ -315,41 +307,41 @@ implements java.io.Serializable
         }
  
         // ASSERT: if the list has been opened, impl_ has been assigned
-        // @A5D return impl_.getObject(index);                          // @A3A
-        synchronized(theList_) {                                        // @A5A
-        if ((theList_.size() > index) && ((listOutOfSync_ == false)     // @B2C
-            || ((listOutOfSync_ == true) && (objectAddedEvent_ == true) // @B2A
-                 && (theList_.size() == impl_.size()))))  {             // @B2A
-            objectAddedEvent_ = false;                                  // @B2A     
-            return (PrintObject) theList_.elementAt(index);             // @A5A
-        }                                                               // @B2A
-        else {                                                          // @A5A
-            PrintObject npobject = null;                                // @A5A
-            if (listOutOfSync_ == true) {                               // @B2A
-                theList_.removeAllElements();                           // @B2A
-                listOutOfSync_ = false;                                 // @B2A
+        // @A5D return impl_.getObject(index);                          
+        synchronized(theList_) {                                        
+        if ((theList_.size() > index) && ((listOutOfSync_ == false)     
+            || ((listOutOfSync_ == true) && (objectAddedEvent_ == true) 
+                 && (theList_.size() == impl_.size()))))  {             
+            objectAddedEvent_ = false;                                       
+            return (PrintObject) theList_.elementAt(index);             
+        }                                                               
+        else {                                                          
+            PrintObject npobject = null;                                
+            if (listOutOfSync_ == true) {                               
+                theList_.removeAllElements();                           
+                listOutOfSync_ = false;                                 
             }
             if (useCache_) //@CRS
-            {                                                           // @B2A
-            for (int i = theList_.size(); i <= index; ++i) {            // @A5A
-                NPCPID cpid = impl_.getNPCPID(i);                       // @A5A
-                NPCPAttribute cpattr = impl_.getNPCPAttribute(i);       // @A5A        
-                try {                                                                               // @B1A
-                    cpid.setConverter((new Converter(system_.getCcsid(), system_)).impl);           // @B1A
-                    cpattr.setConverter((new Converter(system_.getCcsid(), system_)).impl);         // @B1A
-                }                                                                                   // @B1A
-                catch(UnsupportedEncodingException e) {                                             // @B1A
-                    if (Trace.isTraceErrorOn())                                                     // @B1A
-                        Trace.log(Trace.ERROR, "Error initializing converter for print object", e); // @B1A
-                }                                                                                   // @B1A
-                npobject = newNPObject(cpid, cpattr);                   // @A5A
-                theList_.addElement(npobject);                          // @A5A
-            }                                                           // @A5A
-            return npobject;                                            // @A5A
+            {                                                           
+            for (int i = theList_.size(); i <= index; ++i) {            
+                NPCPID cpid = impl_.getNPCPID(i);                       
+                NPCPAttribute cpattr = impl_.getNPCPAttribute(i);              
+                try {                                                                               
+                    cpid.setConverter((new Converter(system_.getCcsid(), system_)).impl);           
+                    cpattr.setConverter((new Converter(system_.getCcsid(), system_)).impl);         
+                }                                                                                   
+                catch(UnsupportedEncodingException e) {                                             
+                    if (Trace.isTraceErrorOn())                                                     
+                        Trace.log(Trace.ERROR, "Error initializing converter for print object", e); 
+                }                                                                                   
+                npobject = newNPObject(cpid, cpattr);                   
+                theList_.addElement(npobject);                          
+            }                                                           
+            return npobject;                                            
             }
-            return null; //@CRS
-        }                                                               // @A5A
-        }                                                               // @A5A
+            return null;
+        }
+        }
     }
 
 
@@ -368,12 +360,12 @@ implements java.io.Serializable
         }
         
         // ASSERT: if the list has been opened, impl_ has been assigned
-        // @A5D Vector v = impl_.getObjects();          // @A3A
-        // @A5D return v.elements();                    // @A3A
+        // @A5D Vector v = impl_.getObjects();
+        // @A5D return v.elements();
 
-        // Force retrieval of all objects so far.       // @A5A
-        getObject(impl_.size() - 1);                    // @A5A
-        return theList_.elements();                     // @A5A
+        // Force retrieval of all objects so far.
+        getObject(impl_.size() - 1);
+        return theList_.elements();
     }
 
 
@@ -386,10 +378,10 @@ implements java.io.Serializable
 
 
     /**
-     * Returns the AS/400 system name. This method is primarily provided for visual
+     * Returns the system name. This method is primarily provided for visual
      * application builders that support JavaBeans.
      *
-     * @return The AS/400 system on which the objects in the list exist.
+     * @return The server on which the objects in the list exist.
      **/
     final public AS400 getSystem()
     {
@@ -398,17 +390,15 @@ implements java.io.Serializable
 
 
 
-    // @A3A - Added method
     private void initializeTransient()
     {
         impl_ = null;
         printObjectListListeners_ = new Vector();
         changes = new PropertyChangeSupport(this);
         vetos = new VetoableChangeSupport(this);
-        theList_ = new Vector();                                    // @A5A
+        theList_ = new Vector();
         open_ = false;
 
-        // @A5A
         dispatcher_ = new PrintObjectListListener() {
             public void listClosed(PrintObjectListEvent event) { firePrintObjectList(event); }
             public void listCompleted(PrintObjectListEvent event) { firePrintObjectList(event); }
@@ -425,14 +415,14 @@ implements java.io.Serializable
      * If any exception occurred while the list was being retrieved, it will
      * be thrown here.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception RequestNotSupportedException If the requested function is not supported because
-     *                                         the AS/400 system is not at the correct level.
+     *                                         the server operating system is not at the correct level.
      * @return true if the list is completely built; false otherwise.
      **/
     public boolean isCompleted()
@@ -450,13 +440,13 @@ implements java.io.Serializable
                     ExtendedIllegalStateException.OBJECT_MUST_BE_OPEN);
         }
         // ASSERT: if the list has been opened, impl_ has been assigned
-        return impl_.isCompleted();         // @A3A
+        return impl_.isCompleted();
     }
 
 
 
-    // Not public!                                                              // @A5A
-    abstract PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr);        // @A5A
+    // Not public!
+    abstract PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr);
 
 
 
@@ -477,27 +467,27 @@ implements java.io.Serializable
                     ExtendedIllegalStateException.OBJECT_CAN_NOT_BE_OPEN);
             }
 
-            if (impl_ == null) {                                                // @A3A
-                if (system_ == null) {                                          // @A3A 
-                    // forewarn any listeners an error occurs.                  // @A3A
+            if (impl_ == null) {
+                if (system_ == null) {                                           
+                    // forewarn any listeners an error occurs.                  
                     Exception e = new ExtendedIllegalStateException("system", 
-                        ExtendedIllegalStateException.PROPERTY_NOT_SET);        // @A3A
-                    firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e); // @A3A
-                }                                                               // @A3A
-                chooseImpl();                                                   // @A3A
-            }                                                                   // @A3A
+                        ExtendedIllegalStateException.PROPERTY_NOT_SET);        
+                    firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e); 
+                }                                                               
+                chooseImpl();                                                   
+            }                                                                   
 
-            if (!getSystem().isThreadUsed()) {                                  // @A2A
-                // Our AS400 object says do not start threads.The                  @A2A
-                // application should be using openSynchronously().                @A2A
-                Trace.log(Trace.ERROR, "open: Threads can not be started.");    // @A2A
-                throw new ExtendedIllegalStateException(                        // @A2A
-                    ExtendedIllegalStateException.OBJECT_CAN_NOT_START_THREADS);// @A2A
-            }                                                                   // @A2A
+            if (!getSystem().isThreadUsed()) {                                  
+                // Our system object says do not start threads.The              
+                // application should be using openSynchronously().            
+                Trace.log(Trace.ERROR, "open: Threads can not be started.");
+                throw new ExtendedIllegalStateException(
+                    ExtendedIllegalStateException.OBJECT_CAN_NOT_START_THREADS);
+            }                                                         
 
-            open_ = true;           // @A3A
-            listOutOfSync_ = true;  // @B2A
-            impl_.openAsynchronously();                                         // @A3A
+            open_ = true;         
+            listOutOfSync_ = true;
+            impl_.openAsynchronously();
         }
     }
      
@@ -509,14 +499,14 @@ implements java.io.Serializable
     * The caller may then call the getObjects() method
     * to get an enumeration of the list.
     *
-    * @exception AS400Exception If the AS/400 system returns an error message.
+    * @exception AS400Exception If the server returns an error message.
     * @exception AS400SecurityException If a security or authority error occurs.
     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     * @exception InterruptedException If this thread is interrupted.
-    * @exception IOException If an error occurs while communicating with the AS/400.
+    * @exception IOException If an error occurs while communicating with the server.
     * @exception RequestNotSupportedException If the requested function is not supported because the
-    *              AS/400 system is not at the correct level.
+    *              server operating system is not at the correct level.
     **/
     public void openSynchronously()
      throws  AS400Exception,
@@ -527,30 +517,30 @@ implements java.io.Serializable
              IOException,
              RequestNotSupportedException
     {
-        synchronized(this)                                                  // @A2A
-        {                                                                   // @A2A
-            if( open_ ) {                                                   // @A2A
-                // list is already open.                                    // @A2A
-                Trace.log(Trace.ERROR, "open: List is already opened.");    // @A2A
-                throw new ExtendedIllegalStateException(                    // @A2A
-                    ExtendedIllegalStateException.OBJECT_CAN_NOT_BE_OPEN);  // @A2A
-            }                                                               // @A2A 
+        synchronized(this)                                                  
+        {                                                                   
+            if( open_ ) {                                                   
+                // list is already open.                                    
+                Trace.log(Trace.ERROR, "open: List is already opened.");    
+                throw new ExtendedIllegalStateException(                    
+                    ExtendedIllegalStateException.OBJECT_CAN_NOT_BE_OPEN);
+            }
                
-            if (impl_ == null) {                                            // @A3A
-               if (system_ == null) {                                       // @A3A
-                    // forewarn any listeners an error occurs.              // @A3A
+            if (impl_ == null) {
+               if (system_ == null) {
+                    // forewarn any listeners an error occurs.
                     Exception e = new ExtendedIllegalStateException("system",
-                        ExtendedIllegalStateException.PROPERTY_NOT_SET);    // @A3A
-                    firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e); // @A3A 
-                }                                                           // @A3A
-                chooseImpl();                                               // @A3A
-            }                                                               // @A3A
-            open_ = true;           // @A3A
-            listOutOfSync_ = true;  // @B2A
-            impl_.openSynchronously();                                      // @A3A
+                        ExtendedIllegalStateException.PROPERTY_NOT_SET);
+                    firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e);
+                }
+                chooseImpl();
+
+            open_ = true;           
+            listOutOfSync_ = true;
+            impl_.openSynchronously();
         }
     }
-
+    }
 
 
     // We need to initialize our transient and static data when
@@ -559,7 +549,7 @@ implements java.io.Serializable
       throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();  
-        initializeTransient();  // @A3A
+        initializeTransient();
     }
 
 
@@ -577,8 +567,8 @@ implements java.io.Serializable
         printObjectListListeners_.removeElement(listener);
         // Remove the listener from the impl_  - no longer monitoring for events 
         // fired from PrintObjectListImplRemote
-        // @A5D if (impl_ != null)                                      // @A3A
-        // @A5D     impl_.removePrintObjectListListener(listener);      // @A3A
+        // @A5D if (impl_ != null)
+        // @A5D     impl_.removePrintObjectListListener(listener);
     }
 
 
@@ -626,8 +616,8 @@ implements java.io.Serializable
         } 
         else {
             attrsToRetrieve_ = null;
-            if (impl_ != null)                      // @A3A          
-                impl_.resetAttributesToRetrieve();  // @A3A   
+            if (impl_ != null)
+                impl_.resetAttributesToRetrieve();
         }
     }
 
@@ -647,8 +637,8 @@ implements java.io.Serializable
         else {
             selection_.reset();
             idFilter_ = null;      // effectively resets the id Codepoint filter;
-            if (impl_ != null)                      // @A3A
-                impl_.resetFilter();                // @A3A
+            if (impl_ != null)
+                impl_.resetFilter();
         }
     }
 
@@ -715,7 +705,6 @@ implements java.io.Serializable
 
 
 
-    // @A3A - added method
     /**
      * This method is provided specifically for subclasses to invoke in the chooseImpl() method.
      * It registers the PrintObject listeners with the implementation (proxy and/or remote) and
@@ -728,14 +717,14 @@ implements java.io.Serializable
         // @A5D for (int i = 0; i < count; i++) {
         // @A5D     impl_.addPrintObjectListListener((PrintObjectListListener) printObjectListListeners_.elementAt(i));
         // @A5D }
-        try {                                       // @A4A
-            system_.connectService(AS400.PRINT);    // @A4A
-            impl_.setSystem(system_.getImpl());     // @A4A
-            impl_.addPrintObjectListListener(dispatcher_); // @A5A
-        }                                           // @A4A
-        catch (Exception e) {                       // @A4A 
-            Trace.log(Trace.ERROR, "Error occurred connecting to AS/400 Print service.");  // @A4A
-        }                       // @A4A
+        try {                                       
+            system_.connectService(AS400.PRINT);    
+            impl_.setSystem(system_.getImpl());     
+            impl_.addPrintObjectListListener(dispatcher_); 
+        }                                           
+        catch (Exception e) {                      
+            Trace.log(Trace.ERROR, "Error occurred connecting to Print service.");
+        }                      
         impl_.setPrintObjectListAttrs(attrsToRetrieve_, idFilter_, 
                                       selection_, typeOfObject_);
     }
@@ -743,13 +732,13 @@ implements java.io.Serializable
   
   
     /**
-     * Sets the AS/400 system name. This method is primarily provided for
+     * Sets the system name. This method is primarily provided for
      * visual application builders that support JavaBeans. Application
-     * programmers should specify the AS/400 system in the constructor
+     * programmers should specify the system in the constructor
      * for the specific network print object list. For example,
      * SpooledFileList myList = new SpooledFileList(mySystem).
      *
-     * @param system The AS/400 system name.
+     * @param system The server system name.
      *
      * @exception PropertyVetoException If the change is vetoed.
      *
@@ -785,8 +774,8 @@ implements java.io.Serializable
             system_ = system;
             
             // Propagate the change to the ImplRemote if necessary...
-            if (impl_!= null)                       // @A3A
-                impl_.setSystem(system.getImpl());  // @A4C
+            if (impl_!= null)
+                impl_.setSystem(system.getImpl());
         }
 
         // Notify any property change listeners.
@@ -818,14 +807,14 @@ implements java.io.Serializable
      * @param itemNumber The number of items to wait for before returning.
      *        Must be greater than 0;
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the AS/400.
-     * @exception RequestNotSupportedException If the requested funtion is not supported because the AS/400
-     *                                         system is not at the correct level.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception RequestNotSupportedException If the requested funtion is not supported because the
+     *                                         server operating system is not at the correct level.
      **/
     public /*synchronized*/ void waitForItem(int itemNumber)
       throws  AS400Exception,
@@ -860,14 +849,14 @@ implements java.io.Serializable
     /**
      * Blocks until the list is done being built.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                    AS/400 system is not at the correct level.
+     *                                    server operating system is not at the correct level.
      **/
     public /*synchronized*/ void waitForListToComplete()
       throws  AS400Exception,

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectImpl.java
 //                                                                             
@@ -61,7 +61,6 @@ interface PrintObjectImpl
             RequestNotSupportedException;
 
 
-//@B1A begin
     public abstract Integer getSingleIntegerAttribute(int attributeID)
         throws AS400Exception,
             AS400SecurityException,
@@ -90,7 +89,6 @@ interface PrintObjectImpl
             InterruptedException,
             RequestNotSupportedException;
 
-//@B1A end
     /**
      * The setPrintObjectAttrs (package scope) method is introduced to allow
      * the propagation of PrintObject property changes to the ImplRemote object.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectListImpl.java
 //                                                                             
@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.util.Vector;
 import java.io.IOException;
- 
 
 /**
   * The PrintObjectListImpl interface defines a set of methods
@@ -25,7 +24,7 @@ import java.io.IOException;
 interface PrintObjectListImpl
 {  
     
-    public abstract void setCache(boolean f); //@CRS
+    public abstract void setCache(boolean f);
     
     public abstract void addPrintObjectListListener(PrintObjectListListener listener);
     
@@ -36,8 +35,8 @@ interface PrintObjectListImpl
     
         
     // @A5D public abstract PrintObject getObject(int index);
-    public abstract NPCPID getNPCPID(int index);                        // @A5A
-    public abstract NPCPAttribute getNPCPAttribute(int index);          // @A5A
+    public abstract NPCPID getNPCPID(int index);
+    public abstract NPCPAttribute getNPCPAttribute(int index);
 
 
 

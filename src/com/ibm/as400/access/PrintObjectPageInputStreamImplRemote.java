@@ -42,8 +42,7 @@ Not all spooled file formats are supported for transform.
 class PrintObjectPageInputStreamImplRemote
 implements PrintObjectPageInputStreamImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Private data
     private NPConversation  conversation_;       // conversation with Network Print Server
@@ -56,7 +55,7 @@ implements PrintObjectPageInputStreamImpl
     private int             numberOfPages_ = 0;  // total number of pages
     private boolean         pagesEst_ = false;   // indicates if the total number of pages is estimated
     private int             numBytes_ = 0;       // total size of data in page
-    private NPSystem        npSystem_;           // AS400 system where input stream resides
+    private NPSystem        npSystem_;           // system where input stream resides
     private int             objectType_ ;        // object type (always SpooledFile)
     private int             offset_ = 0;         // offset from beginning of page (in bytes)
     private int             offsetFromMark_ = 0; // offset from mark (in bytes)
@@ -74,9 +73,9 @@ Constructs a PrintObjectPageInputStream object.
 @exception IOException If an error occurs while communicating with the server.
 @exception InterruptedException If this thread is interrupted.
 @exception RequestNotSupportedException If the requested function is not supported because the server
-           system is not at the correct level.
+           operating system is not at the correct level.
 **/
-    public synchronized void createPrintObjectPageInputStream(SpooledFileImpl spooledFile, // @A3C
+    public synchronized void createPrintObjectPageInputStream(SpooledFileImpl spooledFile,
                                         PrintParameterList openOptions)
         throws AS400Exception,
                AS400SecurityException,
@@ -85,15 +84,15 @@ Constructs a PrintObjectPageInputStream object.
                InterruptedException,
                RequestNotSupportedException
     {
-        objectType_ = NPConstants.SPOOLED_FILE; // @B1C
-        npSystem_   = NPSystem.getSystem(((SpooledFileImplRemote) spooledFile).getSystem()); // @A3C
+        objectType_ = NPConstants.SPOOLED_FILE;
+        npSystem_   = NPSystem.getSystem(((SpooledFileImplRemote) spooledFile).getSystem());
         cpObjID_    = ((SpooledFileImplRemote)spooledFile).getIDCodePoint();
         cpCPFMsg_   = new NPCPAttribute();
         cpObjHndl_  = new NPCPSplFHandle();
 
         // set up OPEN request datastream
         NPDataStream openReq = new NPDataStream(objectType_);
-        openReq.setAction(NPDataStream.OPEN_MODIFIED_SPLF);  // @A1C from OPEN
+        openReq.setAction(NPDataStream.OPEN_MODIFIED_SPLF);
         openReq.addCodePoint(cpObjID_);
 
         // create the Selection Code Point
@@ -225,7 +224,7 @@ Closes the input stream when garbage is collected.
             if (server != null) {
                 // close the page input stream
                 // @B1D closeReq.setHostCCSID(conversation_.getHostCCSID());
-                closeReq.setConverter(conversation_.getConverter());            // @B1A
+                closeReq.setConverter(conversation_.getConverter());
                 server.sendAndDiscardReply(closeReq);
             }
 
@@ -312,7 +311,7 @@ Repositions the stream to the next page.
 **/
     public boolean nextPage() throws IOException
     {
-        return selectPage(currentPage_ + 1);    // @A1A
+        return selectPage(currentPage_ + 1);
     }
 
 
@@ -327,7 +326,7 @@ false otherwise.
 **/
     public boolean previousPage() throws IOException
     {
-        return selectPage(currentPage_ - 1);    // @A1A
+        return selectPage(currentPage_ - 1);
     }
 
 
@@ -591,7 +590,7 @@ or an error occurs selecting the specified page.
         }
         else if ((currentPage_ == page) && (offset_ == 0)) {
             // do nothing, page is already loaded.
-            return true;       // @A1A
+            return true;
         }
         else if (page < 0) {
             Trace.log(Trace.ERROR, "NPServer.SELECT_PAGE error: Page number negative");
@@ -629,13 +628,13 @@ or an error occurs selecting the specified page.
 
                         // retrieve the number of bytes in the page
                         retrieveNumberOfPageBytes();
-                        return true;    // @A1A
-                        // break;          @A1D
+                        return true;
+                        // break;
                     case NPDataStream.RET_PAGE_OUT_OF_RANGE:
                         Trace.log(Trace.ERROR, "NPServer.SELECT_PAGE error: Page out of range");
-                        return false;   // @A1A
-                        // break;          @A1D
-                        // throw new IOException(Integer.toString(iRC));  @A1D
+                        return false;
+                        // break;
+                        // throw new IOException(Integer.toString(iRC));
                     default:
                         // The conversation should handle the basic CPF
                         // message error for us,  so this would be some unexpected

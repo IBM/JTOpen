@@ -24,7 +24,6 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-
   // These instance variable are persistent.
   private NPCPAttributeIDList attrsToRetrieve_;
   private NPCPID idFilter_;          // for certain lists an idcodepoint may be used to filter
@@ -378,12 +377,12 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
 
 
   /**
-   * Returns the AS/400 system name. This method is primarily provided for visual
+   * Returns the system name. This method is primarily provided for visual
    * application builders that support JavaBeans.
    *
-   * @return The AS/400 system on which the objects in the list exist.
+   * @return The system on which the objects in the list exist.
    **/
-  final public AS400ImplRemote getSystem()  // @A4C Changed from AS400
+  final public AS400ImplRemote getSystem()
   {
     return system_;
   }
@@ -395,14 +394,14 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
    * If any exception occurred while the list was being retrieved, it will
    * be thrown here.
    *
-   * @exception AS400Exception If the AS/400 system returns an error message.
+   * @exception AS400Exception If the server returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception RequestNotSupportedException If the requested function is not supported because
-   *                                         the AS/400 system is not at the correct level.
+   *                                         the server operating system is not at the correct level.
    * @return true if the list is completely built; false otherwise.
    **/
   public boolean isCompleted()
@@ -462,14 +461,14 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
    * The caller may then call the getObjects() method
    * to get an enumeration of the list.
    *
-   * @exception AS400Exception If the AS/400 system returns an error message.
+   * @exception AS400Exception If the server returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception RequestNotSupportedException If the requested function is not supported because the
-   *              AS/400 system is not at the correct level.
+   *              server operating system is not at the correct level.
    **/
   public void openSynchronously()
   throws  AS400Exception,
@@ -484,7 +483,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     // the sub-classes provide null constructors.
     checkRunTimeState();
 
-    AS400ImplRemote theSystem = getSystem(); // @A4C - changed to AS400ImplRemote   // @A1A
+    AS400ImplRemote theSystem = getSystem();
     if (theSystem != null)
     {                                           // @A1A
       NPSystem npSystem = NPSystem.getSystem(theSystem);              // @A1A
@@ -758,20 +757,20 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
 
 
   /**
-   * Sets the AS/400 system name. This method is primarily provided for
+   * Sets the system name. This method is primarily provided for
    * visual application builders that support JavaBeans. Application
-   * programmers should specify the AS/400 system in the constructor
+   * programmers should specify the system in the constructor
    * for the specific network print object list. For example,
    * SpooledFileList myList = new SpooledFileList(mySystem).
    *
-   * @param system The AS/400 system name.
+   * @param system The system name.
    *
    * @exception PropertyVetoException If the change is vetoed.
    *
    **/
-  public void setSystem(AS400Impl system)  // @A4C
+  public void setSystem(AS400Impl system)
   {
-    system_ = (AS400ImplRemote) system;  // @A4C-cast to ImplRemote
+    system_ = (AS400ImplRemote) system;
   }
 
 
@@ -792,14 +791,14 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
    * @param itemNumber The number of items to wait for before returning.
    *        Must be greater than 0;
    *
-   * @exception AS400Exception If the AS/400 system returns an error message.
+   * @exception AS400Exception If the server returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
-   * @exception RequestNotSupportedException If the requested funtion is not supported because the AS/400
-   *                                         system is not at the correct level.
+   * @exception IOException If an error occurs while communicating with the server.
+   * @exception RequestNotSupportedException If the requested funtion is not supported because the
+   *                                         server operating system is not at the correct level.
    **/
   public void waitForItem(int itemNumber)
   throws  AS400Exception,
@@ -843,14 +842,14 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
   /**
    * Blocks until the list is done being built.
    *
-   * @exception AS400Exception If the AS/400 system returns an error message.
+   * @exception AS400Exception If the server returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception RequestNotSupportedException If the requested function is not supported because the
-   *                                    AS/400 system is not at the correct level.
+   *                                    server operating system is not at the correct level.
    **/
   public void waitForListToComplete()
   throws  AS400Exception,

@@ -57,7 +57,7 @@ implements PrintObjectInputStreamImpl, ProxyImpl
         }
     }
 
-//B1A
+
     public void createPrintObjectInputStream(SpooledFileImpl sf,  
                                              PrintParameterList openOptions)
         throws AS400Exception,

@@ -27,8 +27,7 @@ import java.io.IOException;
 class PrintObjectPageInputStreamImplProxy extends AbstractProxyImpl
 implements PrintObjectPageInputStreamImpl, ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
    
     private static final boolean[] myArgs = new boolean[] {true, false, false};
     
@@ -39,7 +38,7 @@ implements PrintObjectPageInputStreamImpl, ProxyImpl
 
 
 
-    public void createPrintObjectPageInputStream(SpooledFileImpl sf,  // @A1C
+    public void createPrintObjectPageInputStream(SpooledFileImpl sf,
                                                  PrintParameterList openOptions)
         throws AS400Exception,
                AS400SecurityException,
@@ -50,7 +49,7 @@ implements PrintObjectPageInputStreamImpl, ProxyImpl
     {
         try {
             connection_.callMethod(pxId_, "createPrintObjectPageInputStream",
-                                   new Class [] { SpooledFileImpl.class, PrintParameterList.class }, // @A1C
+                                   new Class [] { SpooledFileImpl.class, PrintParameterList.class },
                                    new Object[] { sf, openOptions });
         }
         catch (InvocationTargetException e) {

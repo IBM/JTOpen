@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectInputStreamImpl.java
 //                                                                             
@@ -25,7 +25,7 @@ interface PrintObjectInputStreamImpl
                IOException,
                InterruptedException,
                RequestNotSupportedException;
-//B1A
+
    public abstract void createPrintObjectInputStream(SpooledFileImpl sf,
                                                       PrintParameterList openOptions,
                                                       String acifImp)
@@ -36,7 +36,7 @@ interface PrintObjectInputStreamImpl
                InterruptedException,
                RequestNotSupportedException;
 
-//B1A
+
     public abstract void createPrintObjectInputStream(PrintObjectImpl resource,
                                                       PrintParameterList openOptions)
         throws AS400Exception,

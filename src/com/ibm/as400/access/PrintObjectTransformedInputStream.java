@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectTransformedInputStream.java
 //                                                                             
@@ -21,7 +21,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectTransformedInputStream class is used to read transformed data
-from an AS/400 spooled file.  The type of transform to be performed on the data
+from a server spooled file.  The type of transform to be performed on the data
 is dependent on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
@@ -40,7 +40,7 @@ public class PrintObjectTransformedInputStream extends InputStream
 
     // Private data
 
-    transient private AS400                                 system_;
+    transient private AS400 system_;
     transient private PrintObjectTransformedInputStreamImpl impl_;
 
 /**
@@ -50,13 +50,13 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
 @param  spooledFile The SpooledFile.
 @param  transformOptions The PrintParameterList options to be used when opening the SpooledFile.
 
-@exception AS400Exception If the AS/400 system returns an error message.
+@exception AS400Exception If the server returns an error message.
 @exception AS400SecurityException If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 @exception InterruptedException If this thread is interrupted.
-@exception RequestNotSupportedException If the requested function is not supported because the AS/400
-           system is not at the correct level.
+@exception RequestNotSupportedException If the requested function is not supported because the server
+           operating system is not at the correct level.
 **/
     PrintObjectTransformedInputStream(SpooledFile spooledFile,
                                       PrintParameterList transformOptions)
@@ -70,11 +70,11 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
         system_ = spooledFile.getSystem();
         if (impl_ == null)
             chooseImpl();
-        // do connect here because it could throw Exceptions  @A3A
-        system_.connectService(AS400.PRINT);    // @A3A
-        if (spooledFile.getImpl() == null) {    // @A3A
-            spooledFile.chooseImpl();           // @A3A
-        }                                       // @A3A
+        // do connect here because it could throw Exceptions  
+        system_.connectService(AS400.PRINT);
+        if (spooledFile.getImpl() == null) {
+            spooledFile.chooseImpl();
+        }
         impl_.createPrintObjectTransformedInputStream((SpooledFileImpl) spooledFile.getImpl(), transformOptions);  // @A3A
     }
 
@@ -110,7 +110,7 @@ Returns the number of bytes available (with blocking).
 /**
 Closes the input stream and releases any resources associated with it.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public void close() throws IOException
     {
@@ -136,7 +136,7 @@ Reads the next byte of data from this input stream.
 
 @return The byte read, or -1 if the end of the stream is reached.
 
-@exception  IOException If an error occurs while communicating with the AS/400.
+@exception  IOException If an error occurs while communicating with the server.
 **/
     public int read() throws IOException
     {
@@ -161,7 +161,7 @@ stream into <i>data</i>.
 @return The total number of bytes read into the buffer or -1 if there is no more
 data because the end of file has been reached.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public int read(byte[] data) throws IOException
     {
@@ -181,7 +181,7 @@ starting at the array offset <i>dataOffset</i>.
 @return The total number of bytes read into the buffer, or -1 if there is
 no more data because the end of file has been reached.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
@@ -200,7 +200,7 @@ No action is taken if the number of bytes to skip is not positive.
 
 @return The actual number of bytes skipped.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public long skip(long bytesToSkip) throws IOException
     {

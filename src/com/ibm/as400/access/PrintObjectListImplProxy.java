@@ -29,9 +29,7 @@ abstract class PrintObjectListImplProxy
 extends AbstractProxyImpl
 implements PrintObjectListImpl, ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     PrintObjectListImplProxy(String className)
     {
@@ -59,7 +57,7 @@ implements PrintObjectListImpl, ProxyImpl
 
      
         
-    /* @A5D
+    /*
     public PrintObject getObject(int index)
     {
         try {
@@ -85,7 +83,6 @@ implements PrintObjectListImpl, ProxyImpl
       }
     }
 
-    // @A5A
     public NPCPID getNPCPID(int index)
     {
         try {
@@ -99,7 +96,6 @@ implements PrintObjectListImpl, ProxyImpl
     }
 
 
-    // @A5A
     public NPCPAttribute getNPCPAttribute(int index)
     {
         try {
@@ -113,7 +109,7 @@ implements PrintObjectListImpl, ProxyImpl
     }
 
 
-    /* @A5D
+    /*
     public Vector getObjects()
     {
         try {
@@ -270,11 +266,11 @@ implements PrintObjectListImpl, ProxyImpl
     
     
     
-    public void setSystem(AS400Impl system)  // @A1C
+    public void setSystem(AS400Impl system)
     {
         try {
             connection_.callMethod(pxId_, "setSystem",
-                                   new Class[] { AS400Impl.class },  // @A1C
+                                   new Class[] { AS400Impl.class },
                                    new Object[] { system });
         }
         catch (InvocationTargetException e) {

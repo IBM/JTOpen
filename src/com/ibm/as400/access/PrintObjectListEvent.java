@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectListEvent.java
 //                                                                             
@@ -21,13 +21,9 @@ package com.ibm.as400.access;
  **/
 public class PrintObjectListEvent extends java.util.EventObject
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
-
 
     /**
      * The print object list closed event ID.
@@ -57,12 +53,12 @@ public class PrintObjectListEvent extends java.util.EventObject
     private int id_;
     private Exception exception_;
 
-    // Either this:                                         // @A5A
+    // Either this:                                         
     private PrintObject printObject_;
-    // or these:                                            // @A5A
-    private NPCPID cpid_;                                   // @A5A
-    private NPCPAttribute cpattr_;                          // @A5A
-    // But not both.                                        // @A5A
+    // or these:                                            
+    private NPCPID cpid_;                                   
+    private NPCPAttribute cpattr_;                          
+    // But not both.                                        
 
 
     /**
@@ -120,7 +116,6 @@ public class PrintObjectListEvent extends java.util.EventObject
     }
 
 
-    // @A5A
     PrintObjectListEvent(Object source, NPCPID cpid, NPCPAttribute cpattr)
     {
         super(source);
@@ -160,14 +155,12 @@ public class PrintObjectListEvent extends java.util.EventObject
 
      public PrintObject getObject()
      {
-         if (printObject_ == null)                                                          // @A5A
-             printObject_ = ((PrintObjectList)source).newNPObject(cpid_, cpattr_);          // @A5A
+         if (printObject_ == null)
+             printObject_ = ((PrintObjectList)source).newNPObject(cpid_, cpattr_);
          return printObject_;
      }
 
 
-
-     // @A5A
      void setSource(Object s)
      {
          source = s;

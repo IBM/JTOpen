@@ -27,9 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 abstract class PrintObjectImplProxy extends AbstractProxyImpl
 implements PrintObjectImpl, ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     PrintObjectImplProxy(String className)
     {
@@ -114,7 +112,6 @@ implements PrintObjectImpl, ProxyImpl
     }
 
 
-//@B1A begin
     public Integer getSingleIntegerAttribute(int attributeID)
         throws AS400Exception,
             AS400SecurityException,
@@ -172,7 +169,7 @@ implements PrintObjectImpl, ProxyImpl
                 throw ProxyClientConnection.rethrow6a(e);
         }
     }
-//@B1A end
+
 
     public void setPrintObjectAttrs(NPCPID idCodePoint,
                                     NPCPAttribute cpAttrs,
@@ -190,7 +187,7 @@ implements PrintObjectImpl, ProxyImpl
 
 
 
-    final public void setSystem(AS400Impl system) // @A1C - changed to AS400ImplRemote
+    final public void setSystem(AS400Impl system)
     {
         try {
             connection_.callMethod (pxId_, "setSystem",

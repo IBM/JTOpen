@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;                        // @B1A
+import java.io.UnsupportedEncodingException;
 
 /**
   * The PrintObjectImplRemote class implements the public methods defined in
@@ -26,10 +26,10 @@ import java.io.UnsupportedEncodingException;                        // @B1A
 abstract class PrintObjectImplRemote
 implements PrintObjectImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     NPCPAttribute       attrs;
-    private AS400ImplRemote system_; // @A6C - changed from AS400 to AS400ImplRemote
+    private AS400ImplRemote system_;
     private NPCPID      cpID_;
     private int         objectType_;
 
@@ -50,11 +50,9 @@ implements PrintObjectImpl
 
 
     abstract NPCPAttributeIDList getAttrIDsToRetrieve();
-    abstract NPCPAttributeIDList getAttrIDsToRetrieve(int AttrID); //@C1A
+    abstract NPCPAttributeIDList getAttrIDsToRetrieve(int AttrID);
 
 
-
-    // @A5A - Added getAttrValue() method
     /**
      * Gets the print object attributes.
      * This method is required so changes in the public class
@@ -99,7 +97,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public Integer getIntegerAttribute(int attributeID)
       throws AS400Exception,
@@ -132,7 +130,7 @@ implements PrintObjectImpl
             }
         }
 
-        if (aValue == null) // @A3A
+        if (aValue == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
             NPConversation conversation = npSystem.getConversation();
@@ -145,7 +143,7 @@ implements PrintObjectImpl
         return aValue;
     }
 
-//@C1A
+
     /**
      * Returns an attribute of the object that is a Integer type attribute.
      *
@@ -168,7 +166,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public Integer getSingleIntegerAttribute(int attributeID)
       throws AS400Exception,
@@ -236,7 +234,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public Float getSingleFloatAttribute(int attributeID)
        throws AS400Exception,
@@ -269,7 +267,7 @@ implements PrintObjectImpl
             }
         }
 
-        if (aValue == null) // @A3A
+        if (aValue == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
             NPConversation conversation = npSystem.getConversation();
@@ -305,7 +303,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public String getSingleStringAttribute(int attributeID)
        throws AS400Exception,
@@ -351,10 +349,6 @@ implements PrintObjectImpl
     }
 
 
-
-
-//@C1A end
-
     /**
      * Returns an attribute of the object that is a Float type attribute.
      *
@@ -376,7 +370,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public Float getFloatAttribute(int attributeID)
        throws AS400Exception,
@@ -409,7 +403,7 @@ implements PrintObjectImpl
             }
         }
 
-        if (aValue == null) // @A3A
+        if (aValue == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
             NPConversation conversation = npSystem.getConversation();
@@ -446,7 +440,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the iSeries.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public String getStringAttribute(int attributeID)
        throws AS400Exception,
@@ -478,7 +472,7 @@ implements PrintObjectImpl
             }
         }
 
-        if (str == null) // @A3A
+        if (str == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
             NPConversation conversation = npSystem.getConversation();
@@ -497,7 +491,7 @@ implements PrintObjectImpl
       * Returns the iSeries system on which this object exists.
       * @return The iSeries system on which this object exists.
       **/
-    final public AS400ImplRemote getSystem() // @A6C - changed AS400 to AS400ImplRemote
+    final public AS400ImplRemote getSystem()
     {
         return system_;
     }
@@ -512,7 +506,6 @@ implements PrintObjectImpl
 
 
 
-    // @A5A - Added setPrintObjectAttrs method
     /**
      * Sets the print object attributes.
      * This method is required so changes in the public class
@@ -530,15 +523,15 @@ implements PrintObjectImpl
         attrs       = cpAttrs;
         objectType_ = type;
 
-        try {                                                                                       // @B1A
-            cpID_.setConverter(ConverterImplRemote.getConverter(system_.getCcsid(), system_));      // @B1A
-            if (attrs != null)                                                                      // @B1A
-                attrs.setConverter(ConverterImplRemote.getConverter(system_.getCcsid(), system_));  // @B1A
-        }                                                                                           // @B1A
-        catch(UnsupportedEncodingException e) {                                                     // @B1A
-            if (Trace.isTraceErrorOn())                                                             // @B1A
-                Trace.log(Trace.ERROR, "Error initializing converter for print object", e);         // @B1A
-        }                                                                                           // @B1A
+        try {                                                                                       
+            cpID_.setConverter(ConverterImplRemote.getConverter(system_.getCcsid(), system_));      
+            if (attrs != null)                                                                      
+                attrs.setConverter(ConverterImplRemote.getConverter(system_.getCcsid(), system_));  
+        }                                                                                           
+        catch(UnsupportedEncodingException e) {                                                     
+            if (Trace.isTraceErrorOn())                                                             
+                Trace.log(Trace.ERROR, "Error initializing converter for print object", e);         
+        }                                                                                           
     }
 
 
@@ -554,7 +547,7 @@ implements PrintObjectImpl
      **/
     final public void setSystem(AS400Impl system)
     {
-        system_ = (AS400ImplRemote) system;  // @A6C - cast to ImplRemote
+        system_ = (AS400ImplRemote) system;
         attrs   = null;
     }
 
@@ -570,7 +563,7 @@ implements PrintObjectImpl
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the iSeries system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void update()
       throws AS400Exception,

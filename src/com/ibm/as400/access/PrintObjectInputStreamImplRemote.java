@@ -25,7 +25,7 @@ import java.io.IOException;
 class PrintObjectInputStreamImplRemote
 implements PrintObjectInputStreamImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     private NPConversation conversation_;
     private NPCodePoint    cpObjHndl_;       // Spooled File handle or Resource Handle code point
@@ -50,7 +50,7 @@ implements PrintObjectInputStreamImpl
       * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported because the server
-      *                                      system is not at the correct level.
+      *                                      operating system is not at the correct level.
       **/
     public synchronized void createPrintObjectInputStream(SpooledFileImpl sf,
                                              PrintParameterList openOptions)
@@ -61,12 +61,12 @@ implements PrintObjectInputStreamImpl
                InterruptedException,
                RequestNotSupportedException
     {
-        objectType_ = NPConstants.SPOOLED_FILE; // @B1C
+        objectType_ = NPConstants.SPOOLED_FILE; 
         NPDataStream openReq = new NPDataStream(objectType_);
         NPDataStream openRep = new NPDataStream(objectType_);
-        npSystem_ = NPSystem.getSystem(((SpooledFileImplRemote) sf).getSystem());  // @A2C
+        npSystem_ = NPSystem.getSystem(((SpooledFileImplRemote) sf).getSystem());
         cpCPFMsg_ = new NPCPAttribute();
-        cpObjID_   = ((SpooledFileImplRemote) sf).getIDCodePoint();  // @A2C
+        cpObjID_   = ((SpooledFileImplRemote) sf).getIDCodePoint();
         cpObjHndl_ = new NPCPSplFHandle();
 
 
@@ -135,7 +135,7 @@ implements PrintObjectInputStreamImpl
       * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported because the server
-      *                                      system is not at the correct level.
+      *                                      operating system is not at the correct level.
       **/
     public synchronized void createPrintObjectInputStream(SpooledFileImpl sf,
                                              PrintParameterList openOptions, String acifP)
@@ -146,12 +146,12 @@ implements PrintObjectInputStreamImpl
                InterruptedException,
                RequestNotSupportedException
     {
-        objectType_ = NPConstants.SPOOLED_FILE; // @B1C
+        objectType_ = NPConstants.SPOOLED_FILE;
         NPDataStream openReq = new NPDataStream(objectType_);
         NPDataStream openRep = new NPDataStream(objectType_);
-        npSystem_ = NPSystem.getSystem(((SpooledFileImplRemote) sf).getSystem());  // @A2C
+        npSystem_ = NPSystem.getSystem(((SpooledFileImplRemote) sf).getSystem());
         cpCPFMsg_ = new NPCPAttribute();
-        cpObjID_   = ((SpooledFileImplRemote) sf).getIDCodePoint();  // @A2C
+        cpObjID_   = ((SpooledFileImplRemote) sf).getIDCodePoint();
         cpObjHndl_ = new NPCPSplFHandle();
 
 
@@ -221,9 +221,9 @@ implements PrintObjectInputStreamImpl
       * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported because the server
-      *                                      system is not at the correct level.
+      *                                      operating system is not at the correct level.
       **/
-    public synchronized void createPrintObjectInputStream(PrintObjectImpl resource,  // @A2C
+    public synchronized void createPrintObjectInputStream(PrintObjectImpl resource,
                                              PrintParameterList openOptions)
         throws AS400Exception,
                AS400SecurityException,
@@ -232,10 +232,10 @@ implements PrintObjectInputStreamImpl
                InterruptedException,
                RequestNotSupportedException
     {
-        objectType_ = NPConstants.RESOURCE; // @B1C
+        objectType_ = NPConstants.RESOURCE;
         NPDataStream openReq = new NPDataStream(objectType_);
         NPDataStream openRep = new NPDataStream(objectType_);
-        npSystem_ = NPSystem.getSystem(((AFPResourceImplRemote) resource).getSystem()); // @A2C
+        npSystem_ = NPSystem.getSystem(((AFPResourceImplRemote) resource).getSystem());
         cpCPFMsg_ = new NPCPAttribute();
         cpObjID_   = ((AFPResourceImplRemote)resource).getIDCodePoint();
         cpObjHndl_ = new NPCPResHandle();
@@ -386,8 +386,8 @@ implements PrintObjectInputStreamImpl
             AS400Server server= conversation_.getServer();
             if (server != null)
             {
-                // @B1D closeReq.setHostCCSID(conversation_.getHostCCSID());
-                closeReq.setConverter(conversation_.getConverter());            // @B1A
+                // closeReq.setHostCCSID(conversation_.getHostCCSID());
+                closeReq.setConverter(conversation_.getConverter());
                 server.sendAndDiscardReply(closeReq);
             }
 

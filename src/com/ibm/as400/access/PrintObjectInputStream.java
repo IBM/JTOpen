@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectInputStream.java
 //                                                                             
@@ -30,8 +30,7 @@ from the <a href="SpooledFile.html"> SpooledFile</a> class.
 
 public class PrintObjectInputStream extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     transient private AS400                        system_;
     transient private PrintObjectInputStreamImpl     impl_;
@@ -46,7 +45,7 @@ public class PrintObjectInputStream extends InputStream
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the server.
-     *                                      system is not at the correct level.
+     *                                      operating system is not at the correct level.
      **/
     PrintObjectInputStream(SpooledFile sf,
                            PrintParameterList openOptions)
@@ -60,15 +59,15 @@ public class PrintObjectInputStream extends InputStream
         system_ = sf.getSystem();
         if (impl_ == null)
             chooseImpl();
-        // Do connect here because it could throw Exceptions  @A2A
-        system_.connectService(AS400.PRINT);    // @A2A
-        if (sf.getImpl() == null) {             // @A2A
-            sf.chooseImpl();                    // @A2A
-        }                                       // @A2A
-        impl_.createPrintObjectInputStream((SpooledFileImpl) sf.getImpl(), openOptions);  // @A2C
+        // Do connect here because it could throw Exceptions
+        system_.connectService(AS400.PRINT);    
+        if (sf.getImpl() == null) {             
+            sf.chooseImpl();                    
+        }                                       
+        impl_.createPrintObjectInputStream((SpooledFileImpl) sf.getImpl(), openOptions);
     }
 
-// @B1A
+
     /**
      * Constructs a  PrintObjectInputStream object. It uses the
      * specified SpooledFile object from which to read, the PrintParameterList.
@@ -80,7 +79,7 @@ public class PrintObjectInputStream extends InputStream
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the server.
-     *                                      system is not at the correct level.
+     *                                      operating system is not at the correct level.
      **/
     PrintObjectInputStream(SpooledFile sf,
                            PrintParameterList openOptions, String acifProcess)
@@ -94,15 +93,15 @@ public class PrintObjectInputStream extends InputStream
         system_ = sf.getSystem();
         if (impl_ == null)
             chooseImpl();
-        // Do connect here because it could throw Exceptions  @A2A
-        system_.connectService(AS400.PRINT);    // @A2A
-        if (sf.getImpl() == null) {             // @A2A
-            sf.chooseImpl();                    // @A2A
-        }                                       // @A2A
+        // Do connect here because it could throw Exceptions
+        system_.connectService(AS400.PRINT);    
+        if (sf.getImpl() == null) {             
+            sf.chooseImpl();                    
+        }                                       
         impl_.createPrintObjectInputStream((SpooledFileImpl) sf.getImpl(), openOptions, acifProcess);
     }
 
-//@B1A
+
    /**
      * Contructs a PrintObjectInputStream object.
      * It uses the specified  AFP Resource object from which to read and
@@ -113,7 +112,7 @@ public class PrintObjectInputStream extends InputStream
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the server
-     *                                      system is not at the correct level.
+     *                                      operating system is not at the correct level.
     **/
     PrintObjectInputStream(AFPResource resource,
                            PrintParameterList openOptions)
@@ -127,12 +126,12 @@ public class PrintObjectInputStream extends InputStream
         system_ = resource.getSystem();
         if (impl_ == null)
             chooseImpl();
-        // Do connect here because it could throw Exceptions  @A2A
-        system_.connectService(AS400.PRINT);    // @A2A
-        if (resource.getImpl() == null) {       // @A2A
-            resource.chooseImpl();              // @A2A
-        }                                       // @A2A
-        impl_.createPrintObjectInputStream((PrintObjectImpl)resource.getImpl(), openOptions);  // @A2C
+        // Do connect here because it could throw Exceptions
+        system_.connectService(AS400.PRINT);
+        if (resource.getImpl() == null) {
+            resource.chooseImpl();
+        }
+        impl_.createPrintObjectInputStream((PrintObjectImpl)resource.getImpl(), openOptions);
     }
 
 

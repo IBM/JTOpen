@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintParameterList.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException; // @A1A
+import java.io.IOException;
 
 /**
  * The  PrintParameterList class is used to group a set of attributes or
@@ -28,14 +28,11 @@ import java.io.IOException; // @A1A
 // public class that we'll use to "wrap" the NPCPAttribute class in
 // exposing what is needed to set a list of parameters
 public class PrintParameterList
-implements java.io.Serializable   // @A1A
+implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
 
     private NPCPAttribute attrCP_;
 
@@ -102,12 +99,12 @@ implements java.io.Serializable   // @A1A
 	return attrCP_.getStringValue(attributeID);
     }
 
-    /* Allows object to be deserialized */                  // @A1A
-    private void readObject(java.io.ObjectInputStream in)   // @A1A
-        throws IOException, ClassNotFoundException          // @A1A
-    {                                                       // @A1A
-        in.defaultReadObject();                             // @A1A
-    }                                                       // @A1A
+    /* Allows object to be deserialized */
+    private void readObject(java.io.ObjectInputStream in)
+        throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+    }
 
     /**
      * Sets a string parameter.

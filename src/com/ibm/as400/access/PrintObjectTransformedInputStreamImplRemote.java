@@ -37,8 +37,7 @@ Not all spooled file formats are supported for transform.
 class PrintObjectTransformedInputStreamImplRemote
 implements PrintObjectTransformedInputStreamImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Private data
     private NPConversation  conversation_;       // conversation with Network Print Server
@@ -49,9 +48,9 @@ implements PrintObjectTransformedInputStreamImpl
     private int             numBytes_ = 0;       // total size of data in inputstream
     private int             objectType_ ;        // object type (SpooledFile)
     private int             offset_ = 0;         // offset from beginning of file (in bytes)
-    private boolean         cidConv = false;     // add second level ASCII conversion  @B2
-    private String          convSource = null;   // holds conversion table source values @B2A
-    private String          convTarget = null;   // holds conversion target values @B2A
+    private boolean         cidConv = false;     // add second level ASCII conversion
+    private String          convSource = null;   // holds conversion table source values
+    private String          convTarget = null;   // holds conversion target values
 
 
 /**
@@ -67,9 +66,9 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
 @exception IOException If an error occurs while communicating with the server.
 @exception InterruptedException If this thread is interrupted.
 @exception RequestNotSupportedException If the requested function is not supported because the server
-           system is not at the correct level.
+           operating system is not at the correct level.
 **/
-    public synchronized void createPrintObjectTransformedInputStream(SpooledFileImpl spooledFile,  // @A3A
+    public synchronized void createPrintObjectTransformedInputStream(SpooledFileImpl spooledFile,
                                                  PrintParameterList transformOptions)
         throws AS400Exception,
                AS400SecurityException,
@@ -78,18 +77,18 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
                InterruptedException,
                RequestNotSupportedException
     {
-        AS400ImplRemote system = ((SpooledFileImplRemote)spooledFile).getSystem(); // @B2A
-        int ccsid = system.getCcsid();                                             // @B2A
+        AS400ImplRemote system = ((SpooledFileImplRemote)spooledFile).getSystem();
+        int ccsid = system.getCcsid();
 
-        objectType_ = NPConstants.SPOOLED_FILE; // @B1C
-        npSystem_   = NPSystem.getSystem(((SpooledFileImplRemote)spooledFile).getSystem());  // @A3C
-        cpObjID_    = ((SpooledFileImplRemote)spooledFile).getIDCodePoint();  // @A3C
+        objectType_ = NPConstants.SPOOLED_FILE;
+        npSystem_   = NPSystem.getSystem(((SpooledFileImplRemote)spooledFile).getSystem());
+        cpObjID_    = ((SpooledFileImplRemote)spooledFile).getIDCodePoint();
         cpCPFMsg_   = new NPCPAttribute();
         cpObjHndl_  = new NPCPSplFHandle();
         
         // set up OPEN request datastream
         NPDataStream openReq = new NPDataStream(objectType_);
-        openReq.setAction(NPDataStream.OPEN_MODIFIED_SPLF);   // @A1C from OPEN
+        openReq.setAction(NPDataStream.OPEN_MODIFIED_SPLF);
         openReq.addCodePoint(cpObjID_);
 
         // create the Selection Code Point
@@ -102,17 +101,17 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
         //  why create an instance of this class?)
         if (transformOptions != null) {
             selectionCP.addUpdateAttributes(transformOptions.getAttrCodePoint());
-            // Get the value of the target code page attribute                    @B2A
+            // Get the value of the target code page attribute
             String tempTarget = transformOptions.getStringParameter(PrintObject.ATTR_TGT_CODEPAGE);
-            // Check for the setting of the client/target code page attribute.    @B2A
-            // If it exist then the source ASCII code page can be determined.     @B2A
+            // Check for the setting of the client/target code page attribute.
+            // If it exist then the source ASCII code page can be determined.
             if (tempTarget != null){
-                cidConv = true;//    @B2A
-                // prepare the 'CPxxxx' (where xxxx is the actual code page) to be 'Cpxxx' @B2A  
+                cidConv = true;
+                // prepare the 'CPxxxx' (where xxxx is the actual code page) to be 'Cpxxx'
                 convTarget = tempTarget.replace('P', 'p');
                 /* table of target ASCII CCSIDs can be found in the "i5/OS Workstation 
                    Customization Reference" that can be found on the Information Center for 
-                   iSeries publications.                                          @B2A */        
+                   iSeries publications.                                                    */        
                 switch (ccsid) //    @B2A  "Euro Phase 2 = EP2 "
                 {
                 case 37:                       /* US           @B2A */
@@ -314,7 +313,7 @@ Closes the stream when garbage is collected.
             if (server != null) {
                 // close the input stream
                 // @B1D closeReq.setHostCCSID(conversation_.getHostCCSID());
-                closeReq.setConverter(conversation_.getConverter());            // @B1A
+                closeReq.setConverter(conversation_.getConverter());
                 server.sendAndDiscardReply(closeReq);
             }
 
@@ -345,10 +344,10 @@ no more data because the end of file has been reached.
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
         int bytesRead = 0;                               
-        int bytesToRead = 0;                             //@B2A
-        Integer sizeTarget = new Integer(data.length);   //@B2A
+        int bytesToRead = 0;
+        Integer sizeTarget = new Integer(data.length);
         
-        byte dataSource[] = new byte[length];            //@B2A
+        byte dataSource[] = new byte[length];
         if (conversation_ == null) {
             Trace.log(Trace.ERROR, "Conversation is null.");
             throw new IOException();
@@ -378,10 +377,10 @@ no more data because the end of file has been reached.
             try {
                 // make the READ request
                 int iRC = conversation_.makeRequest(readReq, readRep);
-                // cidConv and convTarget are checked/initialized w/in   @B2A
-                // createPrintObjectTransformedInputStream and indicate  @B2A
-                // A second ASCII conversion required    @B2A
-                if (cidConv){ //  begin                  @B2A
+                // cidConv and convTarget are checked/initialized w/in
+                // createPrintObjectTransformedInputStream and indicate
+                // A second ASCII conversion required
+                if (cidConv){ //  begin
                     String convString = new String(data, dataOffset, length, convSource);
                     dataSource = convString.getBytes(convTarget);
                     Integer sizeSource = new Integer(dataSource.length);
@@ -392,7 +391,7 @@ no more data because the end of file has been reached.
                         bytesToRead = sizeSource.intValue();
                     }
                     System.arraycopy(dataSource, 0, data, 0, bytesToRead);
-                } //              end                    @B2A
+                } //              end
 
                 switch (iRC) {
                     case NPDataStream.RET_OK:

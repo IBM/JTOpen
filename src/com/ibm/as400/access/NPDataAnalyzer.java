@@ -22,8 +22,7 @@ package com.ibm.as400.access;
 
 class NPDataAnalyzer extends Object
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     private static final String DT_AFPDS     = "*AFPDS";
     private static final String DT_USERASCII = "*USERASCII";
@@ -692,7 +691,7 @@ class NPDataAnalyzer extends Object
         * Structure for Set Attribute                                         *
         *   0x28ttvv   tt=type; vv = value                                    *
         **********************************************************************/
-        private static final byte SA_STRUCT_LEN                  = 0x03;  // length of SA structure
+        private static final byte SA_STRUCT_LEN   = 0x03;  // length of SA structure
         /* Defines for the type field                                        */
         private static final byte ATTR_RESET      = (byte)0x00;   /* Reset                      */
         private static final byte ATTR_COLOR      = (byte)0x42;   /* Set color                  */
