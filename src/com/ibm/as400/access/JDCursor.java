@@ -32,6 +32,7 @@ class JDCursor
     // Open attributes.
     private static final int    OPEN_READONLY_      = 0x80;
     private static final int    OPEN_ALL_           = 0xF0;
+    private static final int    FULL_OPEN_          = 0x01;   // @W1a
 
 
 
@@ -155,29 +156,38 @@ SQL statement.
                            String blockCriteria)
         throws SQLException
     {
-        // If we are opening a cursor on a subsequent
-        // result set returned by a stored procedure,
-        // then it is read only.
-        if (sqlStatement == null)
-            return OPEN_READONLY_;
+      int returnValue = OPEN_ALL_;                     // @W1a
 
-        // If we are opening a cursor on a result set
-        // returned by a stored procedure, then it is
-        // read only.
-        if (sqlStatement.isProcedureCall ())
-            return OPEN_READONLY_;
+      // If we are opening a cursor on a subsequent
+      // result set returned by a stored procedure,
+      // then it is read only.
+      if (sqlStatement == null)
+          returnValue = OPEN_READONLY_;                // @W1c
 
-        // For SELECTs, the cursor is read only when
-        // the cursor or connection is read only and
-        // when we are record blocking.  Note that record
-        // blocking implies a read only cursor.
-        if ((sqlStatement.isSelect ())
-            && (! blockCriteria.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_NONE))
-            && ((connection_.isReadOnly())
-                || (! sqlStatement.isForUpdate ())))
-            return OPEN_READONLY_;
+      // If we are opening a cursor on a result set
+      // returned by a stored procedure, then it is
+      // read only.
+      else if (sqlStatement.isProcedureCall ())        // @W1c
+          returnValue = OPEN_READONLY_;                // @W1c
 
-        return OPEN_ALL_;
+      // For SELECTs, the cursor is read only when
+      // the cursor or connection is read only and
+      // when we are record blocking.  Note that record
+      // blocking implies a read only cursor.
+      else if ((sqlStatement.isSelect ())              // @W1c
+          && (! blockCriteria.equalsIgnoreCase (JDProperties.BLOCK_CRITERIA_NONE))
+          && ((connection_.isReadOnly())
+              || (! sqlStatement.isForUpdate ())))
+          returnValue = OPEN_READONLY_;                // @W1c
+
+      // the "ServerLevel > 9" in the following check makes sure we are running 
+      // to a v5r1 or later version of the AS/400.                                                   
+      if ( (connection_.getProperties().getBoolean(JDProperties.FULL_OPEN)) && // @W1a
+           (connection_.getServerFunctionalLevel() >= 9))                      // @W1a
+         returnValue = returnValue | FULL_OPEN_;       // @W1a
+
+      // return OPEN_ALL_;                             // @W1d
+      return returnValue;                              // @W1a
     }
 
 
