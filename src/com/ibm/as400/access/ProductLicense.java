@@ -66,7 +66,7 @@ import java.util.Vector;                                        // @A2A
 *                                                        "myproductID",
 *                                                        "myfeatureID",
 *                                                        "myrelease");
-*            license.requestLicense();
+*            license.request();
 *            switch (license.getCondition())
 *            {
 *                case ProductLicense.CONDITION_OK:
@@ -77,7 +77,7 @@ import java.util.Vector;                                        // @A2A
 *                    // issue message but allow to proceed.
 *                    sendMessage("Usage limit exceeded, but license limit not strictly enforced");
 *                    break;
-*                case ProductLicense.CONDITION_EXCEED_GRACE_PERIOD:
+*                case ProductLicense.CONDITION_EXCEEDED_GRACE_PERIOD:
 *                    // usage limit exceeded, but within grace period
 *                    // issue message but allow to proceed
 *                    sendMessage("Usage limit exceeded, but within grace period");
