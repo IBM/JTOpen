@@ -796,7 +796,7 @@ public class MEServer implements Runnable
                         output_.writeInt(MEException.PARAMETER_VALUE_NOT_VALID);
                     else
                         output_.writeInt(MEException.PROGRAM_NOT_REGISTERED);
-                    output_.writeUTF( n.getClass().getName()+ ": " + n.getMessage() );
+                    output_.writeUTF( mre.getClass().getName()+ ": " + mre.getMessage() );
                     output_.flush();
                 }
                 catch (Exception e)                                                                                                                         // UPDATED
