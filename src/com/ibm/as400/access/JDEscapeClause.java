@@ -141,8 +141,9 @@ This will recursively parse all nested escape clauses.
         // Tokenize the string and pass it to the other
         // parse method (which may end up being called
         // recursively.
-        StringTokenizer tokenizer = new StringTokenizer (escapeSyntax,
-            "{}'\"", true);
+        // @C4D StringTokenizer tokenizer = new StringTokenizer (escapeSyntax,
+        // @C4D     "{}'\"", true);
+        JDSQLTokenizer tokenizer = new JDSQLTokenizer(escapeSyntax, "{}'\""); // @C4A
         return parse (tokenizer, decimalSeparator, true, vrm);   // @C1M pass vrm
     }
 
@@ -168,7 +169,8 @@ its left brace.  It will end at the matching right brace.
                                 a reference to an unsupported
                                 scalar function.
 **/
-    private static String parse (StringTokenizer tokenizer,
+    // @C4D private static String parse (StringTokenizer tokenizer,
+    private static String parse (JDSQLTokenizer tokenizer,
                           String decimalSeparator,
                           boolean flag, int vrm) // @C1M accept vrm
         throws SQLException
@@ -302,8 +304,8 @@ Convert the escape syntax to native SQL.
 	    	if (tokenizer.countTokens() != 2)
 	    	    JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
             buffer.append (tokenizer.nextToken());
-            buffer.append ('-');
-            buffer.append (tokenizer.nextToken().replace (':', '.'));
+            buffer.append (' '); // @C4M
+            buffer.append (tokenizer.nextToken()); // @C4M
             /* @B1D - This will never happen, since we already counted tokens.
             while (tokenizer.hasMoreTokens ()) {
                 buffer.append (' ');
