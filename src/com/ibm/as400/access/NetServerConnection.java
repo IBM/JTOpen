@@ -174,11 +174,11 @@ extends Resource
    **/
   public static final String TYPE = "TYPE";
   /**
-   {@link #TYPE TYPE} attribute value indicating "read only" permission to a share.
+   {@link #TYPE TYPE} attribute value indicating a connection type of "disk drive".
    **/
   public static final Integer TYPE_DISK_DRIVE = new Integer(0);
   /**
-   {@link #TYPE TYPE} attribute value indicating "read/write" permission to a share.
+   {@link #TYPE TYPE} attribute value indicating a connection type of "spooled output queue".
    **/
   public static final Integer TYPE_SPOOLED_OUTPUT_QUEUE = new Integer(1);
   static {
