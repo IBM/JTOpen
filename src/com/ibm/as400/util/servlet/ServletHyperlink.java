@@ -171,7 +171,7 @@ public class ServletHyperlink extends HTMLHyperlink
                 l.setHttpServletResponse(getHttpServletResponse());
 
             if (getProperties() != null)
-                l.setProperties(new Properties(getProperties()));
+                l.setProperties(getProperties());     // @A5C
 
             if (getLocation() != null)                  //$A3A
                 l.setLocation(getLocation());           //$A3A
