@@ -24,7 +24,7 @@ import javax.naming.spi.ObjectFactory; // JNDI
 *  when it is retrieved from JNDI.
 *
 *  <p>When constructing your own Reference object, at a minimum, you should set the serverName,
-*  userName and pwd properties.  
+*  userName, pwd, and secure properties.  
 *  
 *  <p>For Example:        
 *  <pre><blockquote>
