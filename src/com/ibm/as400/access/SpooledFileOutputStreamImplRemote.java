@@ -329,7 +329,7 @@ implements SpooledFileOutputStreamImpl
                InterruptedException,
                IOException
     {
-        // Force the AS400 system param to connect if it isn't already
+        // Force the system param to connect if it isn't already
         // so that we can check its system name against the
         // system outputQueue and printerFile are on
 
@@ -362,7 +362,7 @@ implements SpooledFileOutputStreamImpl
         // figure out what data type we're using.
         // If the user has specified nothing or *AUTO
         //   delay the open until we get some data to analyze.
-        // If the user has specified *PRTF, change it to be nothing and the host
+        // If the user has specified *PRTF, change it to be nothing and the server
         //   will use what is in the printer file.
         /////////////////////////////////////////////////////////////////////////
         String strDataType = null;

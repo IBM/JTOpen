@@ -66,7 +66,7 @@ public class WriterJob extends PrintObject
 
 
     /**
-     * Ends a writer on the AS/400.
+     * Ends a writer on the server.
      *
      * @param endType When to end the writer.
      *  May be any of the following values:

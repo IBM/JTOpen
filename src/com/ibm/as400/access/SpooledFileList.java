@@ -16,8 +16,8 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The SpooledFileList class is used to build a list of AS/400 spooled file objects of type
- * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date, 
+ * The SpooledFileList class is used to build a list of objects of type
+ * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date,
  * ending time, or user data.
  *
  *@see SpooledFile
@@ -42,7 +42,7 @@ implements java.io.Serializable
     private static final String JOB_SYSTEM_FILTER = "jobSystemFilter";
    
     /**
-     * Constructs a SpooledFileList object. The AS/400 system
+     * Constructs a SpooledFileList object. The system
      * must be set later. This constructor is provided for visual
      * application builders that support JavaBeans. It is not
      * intended for use by application programmers.
@@ -65,7 +65,7 @@ implements java.io.Serializable
      * The default list filter will list all spooled files for the
      * current user on the specified system.
      *
-     * @param system The AS/400 on which the spooled files exist.
+     * @param system The system on which the spooled files exist.
      *
      **/
     public SpooledFileList(AS400 system)

@@ -1038,7 +1038,7 @@ implements SpooledFileImpl
 
         npSystem.makeRequest(sendDS, returnDS);
 
-        // we changed the spooled file attributes on the host,
+        // we changed the spooled file attributes on the server,
         // merge those changed attributes into our current attributes
         // here.
         if (attrs == null)
