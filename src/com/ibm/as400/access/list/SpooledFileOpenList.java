@@ -228,27 +228,10 @@ public class SpooledFileOpenList extends OpenList
   private String[] queueFilter_;
   private String formTypeFilter_;
   private String userDataFilter_;
-  private int[] statusFilter_;
+  private String[] statusFilter_;
   private String[] deviceFilter_;
 
   private Vector sortKeys_ = new Vector();
-
-  private static final String[] statusFilterStrings_ = new String[]
-  {
-    "",
-    "*READY",
-    "*OPEN",
-    "*CLOSED",
-    "*SAVED",
-    "*WRITING",
-    "*HELD",
-    "*MESSAGE",
-    "*PENDING",
-    "*PRINTING",
-    "*FINISHED",
-    "*SENDING",
-    "*DEFERRED"
-  };
 
   /**
    * Constructs a SpooledFileOpenList object with the given system.
@@ -422,7 +405,7 @@ public class SpooledFileOpenList extends OpenList
       offset += 4;
       for (int i=0; i<statusFilter_.length; ++i)
       {
-        text10.toBytes(statusFilterStrings_[statusFilter_[i]], filterInfo, offset); // status
+        text10.toBytes(statusFilter_[i], filterInfo, offset); // status
         offset += 12;
       }
     }
@@ -757,7 +740,7 @@ public class SpooledFileOpenList extends OpenList
    * Returns the statuses being used to filter the list of spooled files.
    * @return The array of statuses, or null if the list is not being filtered by status.
   **/
-  public int[] getFilterStatuses()
+  public String[] getFilterStatuses()
   {
     return statusFilter_;
   }
@@ -883,15 +866,8 @@ public class SpooledFileOpenList extends OpenList
    * statuses are returned in the list. Specify null to clear the status filter, so that spooled files
    * in the list are no longer filtered based on status.
   **/
-  public void setFilterStatuses(int[] statuses)
+  public void setFilterStatuses(String[] statuses)
   {
-    if (statuses != null && statuses.length > 0)
-    {
-      for (int i=0; i<statuses.length; ++i)
-      {
-        if (statuses[i] < 1 || statuses[i] > 12) throw new ExtendedIllegalArgumentException("statuses", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
-    }
     statusFilter_ = statuses;
     resetHandle();
   }
