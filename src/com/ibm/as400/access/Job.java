@@ -5822,7 +5822,8 @@ it is active.
 Returns the scheduling priority of the job compared to other jobs on the same job queue.
 
 @return The scheduling priority of the job compared to other jobs on the same job queue.
-        The highest priority is 0 and the lowest is 9.
+        The highest priority is 0 and the lowest is 9. If this job's status is *OUTQ,
+        then the priority returned is -1.
 
 @exception AS400Exception                  If the AS/400 system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
@@ -5845,7 +5846,9 @@ Returns the scheduling priority of the job compared to other jobs on the same jo
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    return getAsInt(JOB_QUEUE_PRIORITY);
+    String p = ((String)getValue(JOB_QUEUE_PRIORITY)).trim();
+    if (p.length() == 0) return -1;
+    return (new Integer(p)).intValue();
   }
 
 
