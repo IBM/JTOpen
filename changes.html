@@ -41,7 +41,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - CommandHelpRetriever: Set charset to UTF-8 instead of ISO-8859-1.
 - CommandHelpRetriever: Javadoc for generateHTML() now indicates the charset is UTF-8.
 - Data conversion: Added constant BidiStringType.NONE.
-- Data conversion: Fixed possible threadsafety issue with Bidi conversion.
+- Data conversion: Fixed possible thread-safety issue with Bidi conversion.
 - Data conversion: Various fixes and enhancements related to bidi conversion.
 - Data conversion: Added class BidiConversionProperties.
 - Documentation: Various javadoc fixes, additions, and enhancements.
@@ -59,7 +59,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC: JDBCProperties: Changed "bidirectional string type" to "bidi string type".
 - JDBC: SQLResultSetTableModel: Removed beforeFirst() call since stored procedures might not return a scrollable cursor if one is requested.
 - JDBC: AS400JDBCResultSet now returns null if a data mapping error occurs.
-- JDBC: SQLResultSetTableModel will now output "++++++++++++++" when a Data Mapping Error occurs.
+- JDBC: SQLResultSetTableModel will now output "++++++++++++++" when a data mapping error occurs.
 - JDBC: Use BidiConversionProperties class instead on only bidi string type.
 - JDBC: Added two connection properties "bidi implicit reordering" and "bidi numeric ordering".
 - Job: Return -1 on getQueuePriority() if job's status is *OUTQ.
