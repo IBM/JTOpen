@@ -15,6 +15,7 @@ package com.ibm.as400.util.html;
 
 import java.util.Vector;
 import java.util.Properties;
+import java.text.Collator;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -53,7 +54,8 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  <a href="/servlet/myServlet?action=contract&hashcode=2043557#2043557" name="2043557">-</a>
 *  </td>
 *  <td>
-*  <a href="http://myWebPage">My Web Page</a></td>
+*  <a href="http://myWebPage">My Web Page</a>
+*  </td>
 *  </tr>
 *  <tr><td>&nbsp;</td><td>
 *  <table cellpadding="0" cellspacing="3">
@@ -62,7 +64,8 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  <a href="/servlet/myServlet?action=contract&hashcode=2043712#2043712" name="2043712">-</a>
 *  </td>
 *  <td>
-*  <a href="http://myWebServer/anotherWebPage">Another Web Page</a></td>
+*  <a href="http://myWebServer/anotherWebPage">Another Web Page</a>
+*  </td>
 *  </td>
 *  </tr>
 *  </table>
@@ -94,10 +97,14 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
    private HTMLHyperlink  iconUrl_     = null;
    private HTMLTagElement elementData_ = null;
    private boolean        sort_        = true;      // @A1A
+   transient private Collator collator_;
 
    private static String expandedGif_  = null;
    private static String collapsedGif_ = null;
    private static String docGif_       = null;
+
+   private static final String std = new String("<td>\n");     // The start table definition tag.              // @B2C
+   private static final String etd = new String("</td>\n");    // The end table definition tag.              // @B2C
 
    transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
    transient private Vector elementListeners = new Vector();      // The list of element listeners
@@ -108,6 +115,21 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     **/
    public HTMLTreeElement()
    {
+      // @B2A
+      // If the locale is Korean, then this throws
+      // an ArrayIndexOutOfBoundsException.  This is
+      // a bug in the JDK.  The workarond in that case
+      // is just to use String.compareTo().
+      try                                                                            // @B2A
+      {                                                                              
+          collator_ = Collator.getInstance ();                           // @B2A
+          collator_.setStrength (Collator.PRIMARY);                // @B2A
+      }                                                                              
+      catch (Exception e)                                                    // @B2A
+      {                                                                              
+          collator_ = null;                                                      // @B2A
+      }                                                                              
+
       branches_ = new Vector();
    }
 
@@ -294,10 +316,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
       if (elementData_ == null)
          throw new ExtendedIllegalStateException("text", ExtendedIllegalStateException.PROPERTY_NOT_SET );
 
-      String std = new String("<td>\n");     // The start table definition tag.
-      String etd = new String("</td>\n");    // The end table definition tag.
-
-      StringBuffer buf = new StringBuffer();
+      StringBuffer buf = new StringBuffer();              // @B2C
 
       buf.append("<tr>\n");
 
@@ -309,14 +328,19 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
          buf.append(std);
 
          if (docGif_ != null)
-            buf.append("<img src=\"" + docGif_ + "\" border=\"0\" width=\"9\" height=\"14\" vspace=\"3\" alt=\"Work with document\">\n");
+         {
+             buf.append("<img src=\"");                                                                                                                      // @B2C
+             buf.append(docGif_);                                                                                                                               // @B2C
+             buf.append("\" border=\"0\" width=\"9\" height=\"14\" vspace=\"3\" alt=\"Work with document\" />\n");    // @B2C
+         }
          else
             buf.append(">");
 
          buf.append(etd);
 
          buf.append(std);
-         buf.append(elementData_.getTag() + "\n");
+         buf.append(elementData_.getTag());             // @B2C
+         buf.append("\n");                                       // @B2C
          buf.append(etd);
 
          buf.append("</tr>\n");
@@ -330,16 +354,21 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
          buf.append(std);
 
-         String iconTag;
+         StringBuffer iconTag = new StringBuffer();
+
          if (isExpanded())
          {
             if (Trace.isTraceOn())
                Trace.log(Trace.INFORMATION, "   Element is expanded.");
 
             if (expandedGif_ != null)
-               iconTag = "<img src=\"" + expandedGif_ + "\" border=\"0\" width=\"9\" height=\"14\" vspace=\"3\" alt=\"Compress\">";
-            else
-               iconTag = "-";
+            {                                                                                                                                                       // @B2C
+                iconTag.append("<img src=\"");                                                                                                       // @B2C
+                iconTag.append(expandedGif_);                                                                                                       // @B2C
+                iconTag.append("\" border=\"0\" width=\"9\" height=\"14\" vspace=\"3\" alt=\"Compress\" />");        // @B2C
+            }
+            else                                                                                                                                                    // @B2C
+               iconTag.append("-");
          }
          else
          {
@@ -347,9 +376,13 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
                Trace.log(Trace.INFORMATION, "   Element is collapsed.");
 
             if (collapsedGif_ != null)
-               iconTag = "<img src=\"" + collapsedGif_ + "\" border=\"0\" width=\"9\" height=\"14\" vspace=\"3\" alt=\"Expand\">";
+            {
+                iconTag.append( "<img src=\"");                                                                                                       // @B2C
+                iconTag.append(collapsedGif_);                                                                                                         // @B2C
+                iconTag.append("\" border=\"0\" width=\"9\" height=\"14\" vspace=\"3\" alt=\"Expand\" />");            // @B2C
+            }
             else
-               iconTag = "+";
+               iconTag.append("+");
          }
 
 
@@ -374,7 +407,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
                iconUrl_.setProperties(iconProp);
                URLParser parser = new URLParser(iconUrl_.getLink());
                iconUrl_.setLink(parser.getURI());                          //$A3C
-               iconUrl_.setText(iconTag);
+               iconUrl_.setText(iconTag.toString());
                iconUrl_.setLocation(hcStr);                                //$A3A
 
             }
@@ -413,10 +446,11 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
          }
          else                              // If the text URL has NOT been set.
          {
-            buf.append(elementData_.getTag() + "\n");
+            buf.append(elementData_.getTag());        // @B2C
+            buf.append("\n");                                  // @B2C
          }
 
-         buf.append(std);
+         buf.append(etd);    // @B2C
 
          buf.append("</tr>\n");
 
@@ -427,8 +461,8 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
             buf.append("<table cellpadding=\"0\" cellspacing=\"3\">\n");
             
             if (sort_)                                     // @A1A
-               branches_ = HTMLTree.sort(branches_);       // @A1A
-
+               branches_ = HTMLTree.sort(collator_, branches_);       // @A1A  // @B2C
+            
             for (int i=0; i<branches_.size(); i++)
             {
                HTMLTreeElement node = (HTMLTreeElement)branches_.elementAt(i);
@@ -484,6 +518,21 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
    private void readObject(java.io.ObjectInputStream in)
    throws java.io.IOException, ClassNotFoundException
    {
+       // @B2A
+      // If the locale is Korean, then this throws
+      // an ArrayIndexOutOfBoundsException.  This is
+      // a bug in the JDK.  The workarond in that case
+      // is just to use String.compareTo().
+      try                                                                            // @B2A
+      {                                                                              
+          collator_ = Collator.getInstance ();                           // @B2A
+          collator_.setStrength (Collator.PRIMARY);                // @B2A
+      }                                                                              
+      catch (Exception e)                                                    // @B2A
+      {                                                                              
+          collator_ = null;                                                      // @B2A
+      }                                                                              
+
       in.defaultReadObject();
 
       changes_ = new PropertyChangeSupport(this);

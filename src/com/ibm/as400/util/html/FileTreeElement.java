@@ -130,329 +130,368 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private File    file_;
-   private boolean populated_ = false;
+  private File    file_;
+  private boolean populated_ = false;
 
-   private StringBuffer shareName_;             // @B1A
-   private StringBuffer sharePath_;             // @B1A
-
-
-   /**
-    *  Constructs a default FileTreeElement object.
-    **/
-   public FileTreeElement()
-   {
-   }
+  private StringBuffer shareName_;             // @B1A
+  private StringBuffer sharePath_;             // @B1A
 
 
-   /**
-    *  Constructs a FileTreeElement with the specified <i>file</i>.
-    *
-    *  @param file The file.
-    **/
-   public FileTreeElement(File file)
-   {
-      setFile(file);
-      setText(file.getName());
-   }
+  /**
+   *  Constructs a default FileTreeElement object.
+   **/
+  public FileTreeElement()
+  {
+  }
 
 
-   /**
-    *  Constructs a FileTreeElement with the specified <i>file</i>, 
-    *  NetServer <i>shareName</i> and <i>sharePath</i>.
-    *
-    *  @param file The file.
-    *  @param shareName The name of the NetServer share.
-    *  @param sharePath The path of the NetServer share.
-    **/
-   public FileTreeElement(File file, String shareName, String sharePath)    // @B1A
-   {                                                                        // @B1A
-       setFile(file);                                                       // @B1A
-       setShareName(shareName);                                             // @B1A
-       setSharePath(sharePath);                                             // @B1A
-   }                                                                        // @B1A
+  /**
+   *  Constructs a FileTreeElement with the specified <i>file</i>.
+   *
+   *  @param file The file.
+   **/
+  public FileTreeElement(File file)
+  {
+    setFile(file);
+    setText(file.getName());
+  }
 
 
-   /**
-    *  Added the necessary properties to the text url so that if they
-    *  click on the texturl and are using the FileListElement class,
-    *  they will properly see the directory listing.  This will
-    *  avoid externalizing the properties we are passing on the
-    *  HttpServletRequest to show the FileListElements.  This only
-    *  applies to FileTreeElements.
-    **/
-   private void addProperties()
-   {
-      if (getTextUrl() != null)
+  /**
+   *  Constructs a FileTreeElement with the specified <i>file</i>, 
+   *  NetServer <i>shareName</i> and <i>sharePath</i>.
+   *
+   *  @param file The file.
+   *  @param shareName The name of the NetServer share.
+   *  @param sharePath The path of the NetServer share.
+   **/
+  public FileTreeElement(File file, String shareName, String sharePath)    // @B1A
+  {                                                                        // @B1A
+    setFile(file);                                                       // @B1A
+    setShareName(shareName);                                             // @B1A
+    setSharePath(sharePath);                                             // @B1A
+  }                                                                        // @B1A
+
+
+  /**
+   *  Added the necessary properties to the text url so that if they
+   *  click on the texturl and are using the FileListElement class,
+   *  they will properly see the directory listing.  This will
+   *  avoid externalizing the properties we are passing on the
+   *  HttpServletRequest to show the FileListElements.  This only
+   *  applies to FileTreeElements.
+   **/
+  private void addProperties()
+  {
+    if (getTextUrl() != null)
+    {
+      ServletHyperlink sl = (ServletHyperlink)getTextUrl().clone();
+
+      // If a share name has been specified, then remove the actual path of the share from the  // @B1A
+      // path info and replace it with just the share name and the directories after the share. // @B1A
+      if (shareName_ != null)                                                                   // @B1A
       {
-         ServletHyperlink sl = (ServletHyperlink)getTextUrl().clone();
+        // @B1A
+        String absPath = file_.getAbsolutePath().replace('\\','/');                           // @B1A
 
-         // If a share name has been specified, then remove the actual path of the share from the  // @B1A
-         // path info and replace it with just the share name and the directories after the share. // @B1A
-         if (shareName_ != null)                                                                   // @B1A
-         {                                                                                         // @B1A
-             String absPath = file_.getAbsolutePath().replace('\\','/');                           // @B1A
-                                                                                                   
-             if (sharePath_.charAt(0) != '/')                                                      // @B1A
-                 absPath = absPath.substring(1);                                                   // @B1A
-                                                                                                   
-             if (Trace.isTraceOn())                                                                // @B1A
-             {                                                                                     // @B1A
-                 Trace.log(Trace.INFORMATION, "FileTree absolute path: " + absPath);               // @B1A
-                 Trace.log(Trace.INFORMATION, "FileTree share path:    " + sharePath_);            // @B1A
-             }                                                                                     // @B1A
-                                                                                                   
-             StringBuffer pathInfo = new StringBuffer(shareName_.toString());                      // @B1A
-                                                                                                   
-             pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));            // @B1A
-             
-             sl.setPathInfo(pathInfo.toString());                                                  // @B1A
-         }                                                                                         // @B1A
-         else                                                                                      // @B1A
-             sl.setPathInfo(file_.getAbsolutePath().replace('\\', '/'));                // @A3C
+        if (sharePath_.charAt(0) != '/')                                                      // @B1A
+          absPath = absPath.substring(1);                                                   // @B1A
 
-         if (Trace.isTraceOn())                                                                    // @B1A
-             Trace.log(Trace.INFORMATION, "FileTree path Info:    " + sl.getPathInfo());           // @B1A
-         
-         try
-         {
-            sl.setText(file_.getName());
-         }
-         catch (PropertyVetoException e)
-         { /* Ignore */
-         }
+        if (Trace.isTraceOn())                                                                // @B1A
+        {
+          // @B1A
+          Trace.log(Trace.INFORMATION, "FileTree absolute path: " + absPath);               // @B1A
+          Trace.log(Trace.INFORMATION, "FileTree share path:    " + sharePath_);            // @B1A
+        }                                                                                     // @B1A
 
-         setTextUrl(sl);
+        StringBuffer pathInfo = new StringBuffer(shareName_.toString());                      // @B1A
+
+        pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));            // @B1A
+
+        sl.setPathInfo(pathInfo.toString());                                                  // @B1A
+      }                                                                                         // @B1A
+      else                                                                                      // @B1A
+        sl.setPathInfo(file_.getAbsolutePath().replace('\\', '/'));                // @A3C
+
+      if (Trace.isTraceOn())                                                                    // @B1A
+        Trace.log(Trace.INFORMATION, "FileTree path Info:    " + sl.getPathInfo());           // @B1A
+
+      try
+      {
+        sl.setText(file_.getName());
       }
-   }
+      catch (PropertyVetoException e)
+      { /* Ignore */
+      }
+
+      setTextUrl(sl);
+    }
+  }
 
 
-   /**
-    *  Returns the file represented by this FileTreeElement.
-    **/
-   public File getFile()
-   {
-      return file_;
-   }
+  /**
+   *  Returns the file represented by this FileTreeElement.
+   **/
+  public File getFile()
+  {
+    return file_;
+  }
 
 
-   /**
-    *  Returns the NetServer share name.
-    **/
-   public String getShareName()                                // @B1A
-   {                                                           // @B1A
-       // Need to check for null
-       // before performing a toString().
-       if (shareName_ == null)
-           return null;
-       else
-           return shareName_.toString();                           // @B1A
-   }
+  /**
+   *  Returns the NetServer share name.
+   **/
+  public String getShareName()                                // @B1A
+  {                                                           // @B1A
+    // Need to check for null
+    // before performing a toString().
+    if (shareName_ == null)
+      return null;
+    else
+      return shareName_.toString();                           // @B1A
+  }
 
 
-   /**
-    *  Returns the NetServer share path.
-    **/
-   public String getSharePath()                                // @B1A
-   {                                                           // @B1A           
-       // Need to check for null
-       // before performing a toString().
-       if (sharePath_ == null)
-           return null;
-       else
-           return sharePath_.toString();                           // @B1A
-   }
+  /**
+   *  Returns the NetServer share path.
+   **/
+  public String getSharePath()                                // @B1A
+  {                                                           // @B1A           
+    // Need to check for null
+    // before performing a toString().
+    if (sharePath_ == null)
+      return null;
+    else
+      return sharePath_.toString();                           // @B1A
+  }
 
 
-   /**
-    *  Indicates if the FileTreeElement is a leaf.
-    *
-    *  @return true if the element is a leaf, false otherwise.
-    **/
-   public boolean isLeaf()
-   {
-      // We don't want the user to have to add the path and list properties to
-      // the TextUrl for the parent elements in the tree.  
-      if (getTextUrl() != null /*&& getTextUrl().getProperties() == null*/)     // @B2C
-         addProperties();
+  /**
+   *  Indicates if the FileTreeElement is a leaf.
+   *
+   *  @return true if the element is a leaf, false otherwise.
+   **/
+  public boolean isLeaf()
+  {
+    // We don't want the user to have to add the path and list properties to
+    // the TextUrl for the parent elements in the tree.  
+    if (getTextUrl() != null /*&& getTextUrl().getProperties() == null*/)     // @B2C
+      addProperties();
 
-      if (!populated_)
-         return file_.isFile();
-      else
-         return super.isLeaf();
-   }
-
-
-   /**
-    *  Deserializes and initializes transient data.
-    **/
-   private void readObject(java.io.ObjectInputStream in)
-   throws java.io.IOException, ClassNotFoundException
-   {
-      in.defaultReadObject();
-      changes_ = new PropertyChangeSupport(this);
-   }
+    if (!populated_)
+      return file_.isFile();
+    else
+      return super.isLeaf();
+  }
 
 
-   /**
-    *  Indicates which FileTreeElement is selected.  The <i>hashcode</i> is used
-    *  to determine which element within the tree to expand or collapse.
-    *
-    *  @param hashcode The hashcode.
-    **/
-   public void selected(int hashcode)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   FileTreeElement has been selected.");
+  /**
+   *  Deserializes and initializes transient data.
+   **/
+  private void readObject(java.io.ObjectInputStream in)
+  throws java.io.IOException, ClassNotFoundException
+  {
+    in.defaultReadObject();
+    changes_ = new PropertyChangeSupport(this);
+  }
 
-      if (hashcode == this.hashCode())
+
+  /**
+   *  Indicates which FileTreeElement is selected.  The <i>hashcode</i> is used
+   *  to determine which element within the tree to expand or collapse.
+   *
+   *  @param hashcode The hashcode.
+   **/
+  public void selected(int hashcode)
+  {
+    if (Trace.isTraceOn())
+      Trace.log(Trace.INFORMATION, "   FileTreeElement has been selected.");
+
+    if (hashcode == this.hashCode())
+    {
+      if ((file_.isDirectory()) && (!populated_))
       {
-         if ((file_.isDirectory()) && (!populated_))
-         {
-            DirFilter filter = new DirFilter();
+        File[] files;
 
-            // Get the list of files that satisfy the directory filter.
-            String[] list = file_.list(filter);                                    //$A1C
+        if (file_ instanceof IFSJavaFile)                                   //$A1A
+        {
+          // @B6A
+          // When we are using IFSJavaFile objects, we can use
+          // the listFiles() method becuase it is not dependant on any
+          // JDK1.2 code.  Using listFiles() will also cache information
+          // like if it is a directory, so we don't flow another call to the 
+          // server to find that out.  We can then build both the 
+          // directory and file list at the same time.
+          File[] filesAndDirs = ((IFSJavaFile) file_).listFiles();       // @B6A
 
-            File[] files = new File[list.length];                                  //$A1A
+          // The vector of directories.
+          Vector dv = new Vector();                                         // @B6A
 
-            // $A1D
-            // We don't want to require webservers to use JDK1.2 because
-            // most webserver JVM's are slower to upgrade to the latest JDK level.
-            // The most efficient way to create these file objects is to use
-            // the listFiles(filter) method in JDK1.2 which would be done
-            // like the following, instead of using the list(filter) method
-            // and then converting the returned string arrary into the appropriate
-            // File array.
-            // File[] files = file_.listFiles(filter);
+          for (int i=0; i<filesAndDirs.length; i++)                         // @B6A
+          {
+            // Determine if the file is a directory or not and       // @B6A
+            // add it to the appropriate directory.                     // @B6A
+            if (filesAndDirs[i].isDirectory())                               // @B6A
+              dv.addElement(filesAndDirs[i]);                          // @B6A
+          }
 
-            for (int j=0; j<list.length; ++j)                                      //$A1A
+          // Initialize the File arraya.                                        // @B6A
+          files = new File[dv.size()];                                          // @B6A
+
+          // Copy the vectors into their appropriate array.          // @B6A
+          dv.copyInto(files);                                                    // @B6A
+        }
+        else  // If we are dealing with normal File objects and not IFSJavaFile objects.      //$A1A
+        {
+          // $A1D
+          // We don't want to require webservers to use JDK1.2 because
+          // most webserver JVM's are slower to upgrade to the latest JDK level.
+          // The most efficient way to create these file objects is to use
+          // the listFiles(filter) method in JDK1.2 which would be done
+          // like the following, instead of using the list(filter) method
+          // and then converting the returned string arrary into the appropriate
+          // File array.
+          // File[] dirList = file.listFiles(dirFilter);
+          //
+          // @B6A
+          // We can however, use the listFiles() method on an IFSJavaFile
+          // object because that is not dependant on any JDK1.2 code.
+          // Using the listFiles() method on IFSJavaFile objects will
+          // also cache information (ie - is it a directory) so we don't
+          // have to flow another call to the server to find that information
+          // out all the time.  
+
+          // Get the list of files that satisfy the directory filter.
+          // Build the File array of Directories.
+          String[] list = file_.list(new DirFilter());
+
+          files = new File[list.length];
+
+          for (int i=0; i<list.length; ++i)
+          {
+            files[i] = new File(file_, list[i]);                             //$A1A
+          }
+        }
+
+        for (int i=0; i<files.length; i++)
+        {
+          FileTreeElement node;
+
+          // If a share name has been specified, create a FileTreeElement
+          // object for the list of directories with the share name.
+          if (shareName_ != null)
+            node = new FileTreeElement(files[i],                            // @B1C
+                                       shareName_.toString(),               // @B1C
+                                       sharePath_.toString());              // @B1C
+          else
+            node = new FileTreeElement(files[i]);
+
+          if (getTextUrl() != null)
+          {
+            ServletHyperlink sl = (ServletHyperlink)getTextUrl().clone();
+
+            // If a share name has been specified, then remove the actual path of the share from the        // @B1A
+            // path info and replace it with just the share name and the directories after the share.       // @B1A
+            if (shareName_ != null)                                                                         // @B1A
             {
-               //$A1A
-               if (file_ instanceof IFSJavaFile)                                   //$A1A
-                  files[j] = new IFSJavaFile((IFSJavaFile)file_, list[j]);         //$A1A
-               else                                                                //$A1A
-                  files[j] = new File(file_, list[j]);                             //$A1A
-            }                                                                      //$A1A  @A5C
+              // @B1A
+              String absPath = file_.getAbsolutePath().replace('\\','/');                                 // @B1A
 
-            for (int i=0; i<files.length; i++)
+              if (sharePath_.charAt(0) != '/')                                                            // @B1A
+                absPath = absPath.substring(1);                                                         // @B1A
+
+              if (Trace.isTraceOn())                                                                      // @B1A
+                Trace.log(Trace.INFORMATION, "FileTree absolute path: " + absPath);                     // @B1A
+
+              StringBuffer pathInfo = new StringBuffer(shareName_.toString());                            // @B1A
+
+              pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));                  // @B1A
+
+              sl.setPathInfo(pathInfo.toString()); // @B1A
+            }                                                                                               // @B1A
+            else                                                                                            // @B1A
+              sl.setPathInfo(files[i].getAbsolutePath().replace('\\','/'));      // @A2C @A3C
+
+            if (Trace.isTraceOn())                                                                          // @B1A
+              Trace.log(Trace.INFORMATION, "FileTree path Info: " + sl.getPathInfo());                    // @B1A
+
+            try
             {
-               FileTreeElement node;
-
-               // If a share name has been specified, create a FileTreeElement
-               // object for the list of directories with the share name.
-               if (shareName_ != null)
-                   node = new FileTreeElement(files[i],                            // @B1C
-                                              shareName_.toString(),               // @B1C
-                                              sharePath_.toString());              // @B1C
-               else
-                   node = new FileTreeElement(files[i]);
-
-               if (getTextUrl() != null)
-               {
-                  ServletHyperlink sl = (ServletHyperlink)getTextUrl().clone();
-                  
-                  // If a share name has been specified, then remove the actual path of the share from the        // @B1A
-                  // path info and replace it with just the share name and the directories after the share.       // @B1A
-                  if (shareName_ != null)                                                                         // @B1A
-                  {                                                                                               // @B1A
-                      String absPath = file_.getAbsolutePath().replace('\\','/');                                 // @B1A
-
-                      if (sharePath_.charAt(0) != '/')                                                            // @B1A
-                          absPath = absPath.substring(1);                                                         // @B1A
-                      
-                      if (Trace.isTraceOn())                                                                      // @B1A
-                          Trace.log(Trace.INFORMATION, "FileTree absolute path: " + absPath);                     // @B1A
-                                                                                                                  
-                      StringBuffer pathInfo = new StringBuffer(shareName_.toString());                            // @B1A
-                                                                                                                  
-                      pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));                  // @B1A
-                                                                                                                  
-                      sl.setPathInfo(pathInfo.toString()); // @B1A
-                  }                                                                                               // @B1A
-                  else                                                                                            // @B1A
-                      sl.setPathInfo(files[i].getAbsolutePath().replace('\\','/'));      // @A2C @A3C
-
-                  if (Trace.isTraceOn())                                                                          // @B1A
-                      Trace.log(Trace.INFORMATION, "FileTree path Info: " + sl.getPathInfo());                    // @B1A
-
-                  try
-                  {
-                     sl.setText(files[i].getName());
-                  }
-                  catch (PropertyVetoException e)
-                  { /* Ignore */
-                  }
-
-                  node.setTextUrl(sl);
-               }
-               node.setIconUrl((ServletHyperlink)getIconUrl().clone());
-
-               addElement(node);
+              sl.setText(files[i].getName());
             }
-            populated_ = true;
-         }
+            catch (PropertyVetoException e)
+            { /* Ignore */
+            }
+
+            node.setTextUrl(sl);
+          }
+          node.setIconUrl((ServletHyperlink)getIconUrl().clone());
+
+          addElement(node);
+        }
+        populated_ = true;
       }
+    }
 
-      super.selected(hashcode);
-   }
-
-
-   /**
-    *  Sets the file represented by this FileTreeElement.
-    *
-    *  @param file The File.
-    **/
-   public void setFile(File file)
-   {
-      if (file == null)
-         throw new NullPointerException("file");
-
-      File old = file_;
-
-      file_ = file;
-
-      changes_.firePropertyChange("file", old, file_);
-   }
+    super.selected(hashcode);
+  }
 
 
-   /**
-    *  Sets the name of the NetServer share.
-    *
-    *  @param shareName The share name..
-    **/
-   public void setShareName(String shareName)                                                               // @B1A
-   {                                                                                                        // @B1A
-      if (shareName == null)                                                                                // @B1A
-         throw new NullPointerException("shareName");                                                       // @B1A
-                                                                                                            // @B1A
-      StringBuffer old = shareName_;                                                                        // @B1A
-                                                                                                            // @B1A
-      shareName_ = new StringBuffer(shareName);                                                             // @B1A
-                                                                                                            // @B1A
-      changes_.firePropertyChange("shareName", old==null ? null : old.toString(), shareName_.toString());   // @B1A
-   }
+  /**
+   *  Sets the file represented by this FileTreeElement.
+   *
+   *  @param file The File.
+   **/
+  public void setFile(File file)
+  {
+    if (file == null)
+      throw new NullPointerException("file");
+
+    File old = file_;
+
+    file_ = file;
+
+    changes_.firePropertyChange("file", old, file_);
+  }
 
 
-   /**
-    *  Sets the NetServer share path.
-    *
-    *  @param sharePath The share path.
-    **/
-   public void setSharePath(String sharePath)                                                               // @B1A
-   {                                                                                                        // @B1A
-      if (sharePath == null)                                                                                // @B1A
-         throw new NullPointerException("sharePath");                                                       // @B1A
-                                                                                                            // @B1A
-      StringBuffer old = sharePath_;                                                                        // @B1A
-                                                                                                            // @B1A
-      sharePath_ = new StringBuffer(sharePath);                                                             // @B1A
-                                                                                                            // @B1A
-      if (Trace.isTraceOn())                                                                                // @B1A
-          Trace.log(Trace.INFORMATION, "FileTree sharePath: " + sharePath_);                                // @B1A
-                                                                                                            // @B1A
-      changes_.firePropertyChange("sharePath", old==null ? null : old.toString(), sharePath_.toString());   // @B1A
-   }
+  /**
+   *  Sets the name of the NetServer share.
+   *
+   *  @param shareName The share name..
+   **/
+  public void setShareName(String shareName)                                                               // @B1A
+  {                                                                                                        // @B1A
+    if (shareName == null)                                                                                // @B1A
+      throw new NullPointerException("shareName");                                                       // @B1A
+                                                                                                         // @B1A
+    StringBuffer old = shareName_;                                                                        // @B1A
+                                                                                                          // @B1A
+    shareName_ = new StringBuffer(shareName);                                                             // @B1A
+                                                                                                          // @B1A
+    changes_.firePropertyChange("shareName", old==null ? null : old.toString(), shareName_.toString());   // @B1A
+  }
+
+
+  /**
+   *  Sets the NetServer share path.
+   *
+   *  @param sharePath The share path.
+   **/
+  public void setSharePath(String sharePath)                                                               // @B1A
+  {                                                                                                        // @B1A
+    if (sharePath == null)                                                                                // @B1A
+      throw new NullPointerException("sharePath");                                                       // @B1A
+                                                                                                         // @B1A
+    StringBuffer old = sharePath_;                                                                        // @B1A
+                                                                                                          // @B1A
+    sharePath_ = new StringBuffer(sharePath);                                                             // @B1A
+                                                                                                          // @B1A
+    if (Trace.isTraceOn())                                                                                // @B1A
+      Trace.log(Trace.INFORMATION, "FileTree sharePath: " + sharePath_);                                // @B1A
+                                                                                                        // @B1A
+    changes_.firePropertyChange("sharePath", old==null ? null : old.toString(), sharePath_.toString());   // @B1A
+  }
 
 
 }

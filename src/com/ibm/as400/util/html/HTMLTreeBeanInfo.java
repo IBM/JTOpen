@@ -61,7 +61,14 @@ public class HTMLTreeBeanInfo extends SimpleBeanInfo
         request.setDisplayName(loader_.getText("PROP_NAME_REQUEST"));
         request.setShortDescription(loader_.getText("PROP_DESC_REQUEST"));
 
-        properties_ = new PropertyDescriptor[] { request };   
+        PropertyDescriptor collator = new PropertyDescriptor("collator", beanClass,             // @B1A
+                                        "getCollator", "setCollator");                                               // @B1A
+        collator.setBound(true);                                                                                      // @B1A
+        collator.setConstrained(false);                                                                             // @B1A
+        collator.setDisplayName(loader_.getText("PROP_NAME_COLLATOR"));                  // @B1A
+        collator.setShortDescription(loader_.getText("PROP_DESC_COLLATOR"));             // @B1A
+
+        properties_ = new PropertyDescriptor[] { request, collator };                                   // @B1C
       }
       catch (Exception e)
       {

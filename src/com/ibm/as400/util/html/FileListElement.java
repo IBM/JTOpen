@@ -15,6 +15,7 @@ package com.ibm.as400.util.html;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Vector;                                    // @B3A
 import java.text.Collator;                                 // @A2A
 import java.text.SimpleDateFormat;
 import java.beans.PropertyVetoException;
@@ -327,7 +328,7 @@ public class FileListElement implements java.io.Serializable
     private StringBuffer       shareName_;                           // @B1A
 
     private boolean   sort_   = true;                       // @A2A                   
-    private Collator  collator_;                            // @A2A
+    transient private Collator  collator_ = null;                            // @A2A        @B3C
 
     // Handles loading the appropriate resource bundle
     private static ResourceBundleLoader_h loader_;         // @A5A
@@ -338,8 +339,6 @@ public class FileListElement implements java.io.Serializable
     private static String type = loader_.getText("PROP_FLE_NAME_TYPE");                    // @A5A
     private static String modified = loader_.getText("PROP_FLE_NAME_MODIFIED");            // @A5A
 
-
-
     transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
 
 
@@ -348,6 +347,21 @@ public class FileListElement implements java.io.Serializable
      **/
     public FileListElement()
     {
+        // @B3A
+        // If the locale is Korean, then this throws
+        // an ArrayIndexOutOfBoundsException.  This is
+        // a bug in the JDK.  The workarond in that case
+        // is just to use String.compareTo().
+        try                                                                            // @B3A
+        {
+            collator_ = Collator.getInstance ();                           // @B3A
+            collator_.setStrength (Collator.PRIMARY);                // @B3A
+        }
+        catch (Exception e)                                                    // @B3A
+        {
+            collator_ = null;                                                      // @B3A
+        }
+
         renderer_ = null;
         system_ = null;
         request_ = null;
@@ -368,13 +382,14 @@ public class FileListElement implements java.io.Serializable
      **/
     public FileListElement(HttpServletRequest request)
     {
+        this();                                                                                    // @B3A
         setHttpServletRequest(request); 
         setRenderer(new FileListRenderer(request));                              
     }
 
 
     /**
-     *  Constructs an FileListElement for an AS/400 file system
+     *  Constructs an FileListElement for an iSeries file system
      *  using the pathInfo from the specified <i>request</i>, and 
      *  the designated <i>system</i>.
      *
@@ -386,6 +401,7 @@ public class FileListElement implements java.io.Serializable
      **/
     public FileListElement(AS400 system, HttpServletRequest request)
     {
+        this();                                                                                    // @B3A
         setSystem(system);
         setHttpServletRequest(request); 
         setRenderer(new FileListRenderer(request));                              // @A4A
@@ -404,6 +420,7 @@ public class FileListElement implements java.io.Serializable
      **/
     public FileListElement(AS400 system, HttpServletRequest request, HTMLTable table)
     {
+        this();                                                                                    // @B3A
         setSystem(system);
         setHttpServletRequest(request);
         setTable(table);
@@ -425,12 +442,13 @@ public class FileListElement implements java.io.Serializable
      *
      **/
     public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath) // @B1A
-    {                                                                                                    // @B1A
+    {
+        this();                                                                                                  // @B3A
         setSystem(system);                                                                               // @B1A
-        setHttpServletRequest(request);                                                                  // @B1A
-        setRenderer(new FileListRenderer(request, shareName, sharePath));                                // @B1A
-        setShareName(shareName);                                                                         // @B1A
-        setSharePath(sharePath);                                                                         // @B1A
+        setHttpServletRequest(request);                                                            // @B1A
+        setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
+        setShareName(shareName);                                                                  // @B1A
+        setSharePath(sharePath);                                                                     // @B1A
     }
 
 
@@ -449,6 +467,18 @@ public class FileListElement implements java.io.Serializable
             throw new NullPointerException("listener");
         changes_.addPropertyChangeListener(listener);
     }
+
+
+    /**
+    *  Returns the Collator.
+    *
+    *  @return The collator.
+    **/
+    public Collator getCollator()           // @B3A
+    {
+        return collator_;
+    }
+
 
 
     /**
@@ -472,7 +502,6 @@ public class FileListElement implements java.io.Serializable
         return renderer_;
     }
 
-
     /**
      *  Return the NetServer share point.
      *
@@ -494,7 +523,7 @@ public class FileListElement implements java.io.Serializable
      *  @return The name of the NetServer share.
      **/
     public String getShareName()                    // @B1A
-    {  
+    {
         // Need to check for null before
         // performing a toString().
         if (shareName_ == null)                                             // @B1A
@@ -539,7 +568,7 @@ public class FileListElement implements java.io.Serializable
      *  @return The list.
      **/
     public String list() 
-    {   
+    {
         if (request_ == null)
             throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
@@ -554,25 +583,25 @@ public class FileListElement implements java.io.Serializable
 
         StringBuffer buffer = new StringBuffer();
 
-        String path = request_.getPathInfo();                                         // @A3C
-        
+        String path = request_.getPathInfo();                                               // @A3C
+
         if (path == null)
             path = "/";
-        
-        if (sharePath_ != null)                                                                            // @B1A
-        {                                                                                                  // @B1A
+
+        if (sharePath_ != null)                                                                     // @B1A
+        {
             try                                                                                            // @B1A
-            {                                                                                              // @B1A
+            {
                 path = sharePath_.append(path.substring(path.indexOf('/', 1), path.length())).toString();  // @B1A
             }                                                                                              // @B1A
-            catch(StringIndexOutOfBoundsException e)                                                       // @B1A
-            {                                                                                              // @B1A
-                path = sharePath_.insert(0, "/").toString();                                               // @B1A
-            }                                                                                              // @B1A
-        }  
+            catch (StringIndexOutOfBoundsException e)                                // @B1A
+            {
+                path = sharePath_.insert(0, "/").toString();                               // @B1A
+            }
+        }
 
-        if (Trace.isTraceOn())                                                                             // @B1A
-            Trace.log(Trace.INFORMATION, "FileList path: " + path);                                        // @B1A
+        if (Trace.isTraceOn())                                                                     // @B1A
+            Trace.log(Trace.INFORMATION, "FileList path: " + path);               // @B1A
 
         try
         {
@@ -582,12 +611,12 @@ public class FileListElement implements java.io.Serializable
             // If a system_ object is not provided then a java.io.File object will be created with the
             // path info from the request.
 
-            if (system_ != null)                                                      // @A7A
+            if (system_ != null)                                                        // @A7A
                 file = new IFSJavaFile(system_, path.replace('\\','/'));
-            else                                                                      // @A7A
+            else                                                                            // @A7A
                 file = new File(path);                                                // @A7A
 
-            if (Trace.isTraceOn())                                                    // @A6A
+            if (Trace.isTraceOn())                                                   // @A6A
                 Trace.log(Trace.INFORMATION, "   FileListElement path: " + path);     // @A6A
 
             // Create a table converter object.
@@ -610,8 +639,6 @@ public class FileListElement implements java.io.Serializable
                     conv.setUseMetaData(true);
             }
 
-
-
             // Set the converter table property.
             conv.setTable(table_);
 
@@ -622,7 +649,7 @@ public class FileListElement implements java.io.Serializable
             metaData.setColumnType(0, RowMetaDataType.STRING_DATA_TYPE);
 
             metaData.setColumnName(1, "Size");                                      // @A3C
-            metaData.setColumnLabel(1, size);                                       // @A3C @A5C
+            metaData.setColumnLabel(1, size);                                         // @A3C @A5C
             metaData.setColumnType(1, RowMetaDataType.INTEGER_DATA_TYPE);           // @A3C
 
             metaData.setColumnName(2, "Type");
@@ -630,22 +657,22 @@ public class FileListElement implements java.io.Serializable
             metaData.setColumnType(2, RowMetaDataType.STRING_DATA_TYPE);      
 
             metaData.setColumnName(3, "Modified");                                  // @A3C
-            metaData.setColumnLabel(3, modified);                                   // @A3C @A5C
+            metaData.setColumnLabel(3, modified);                                     // @A3C @A5C
             metaData.setColumnType(3, RowMetaDataType.STRING_DATA_TYPE);            // @A3C
 
             ListRowData rowData = new ListRowData();
             rowData.setMetaData(metaData);      
 
             // Get the string to display from the renderer.  This allows          // @A4A
-            // the servlet more flexibility as to which files to display          // @A4A
-            // and how to display them.                                           // @A4A
-            String parentName = renderer_.getParentName(file);                    // @A4A
+            // the servlet more flexibility as to which files to display             // @A4A
+            // and how to display them.                                                    // @A4A
+            String parentName = renderer_.getParentName(file);                  // @A4A
 
-            if (parentName != null)                                               // @A4A
+            if (parentName != null)                                                            // @A4A
             {
                 Object[] row = new Object[4];
 
-                row[0] = parentName.replace('\\','/');                             // @A4C
+                row[0] = parentName.replace('\\','/');                                   // @A4C
                 row[1] = "";
                 row[2] = "";
                 row[3] = "";
@@ -653,18 +680,47 @@ public class FileListElement implements java.io.Serializable
                 rowData.addRow(row);
             }
 
-            DirFilter dirFilter = new DirFilter();
+            File[] dirList = null;                                                    // @B3A
+            File[] fileList = null;                                                   // @B3A
 
-            // Get the list of files that satisfy the directory filter.
-            String[] dlist = file.list(dirFilter);                                //$A1C
-
-            if (dlist != null)                                                    // @A6A
+            if (file instanceof IFSJavaFile)                                   //$A1A
             {
-                if (sort_)                                                        // @A2A
-                    dlist = sort(dlist);                                          // @A2A
+                // @B3A
+                // When we are using IFSJavaFile objects, we can use
+                // the listFiles() method becuase it is not dependant on any
+                // JDK1.2 code.  Using listFiles() will also cache information
+                // like if it is a directory, so we don't flow another call to the 
+                // server to find that out.  We can then build both the 
+                // directory and file list at the same time.
 
-                File[] dirList = new File[dlist.length];                          //$A1A
+                File[] filesAndDirs = ((IFSJavaFile) file).listFiles();        // @B3A
 
+                // The vector of directories.
+                Vector dv = new Vector();                                        // @B3A
+
+                // The vector of files.
+                Vector fv = new Vector();                                         // @B3A
+
+                for (int i=0; i<filesAndDirs.length; i++)                        // @B3A
+                {
+                    // Determine if the file is a directory or not and       // @B3A
+                    // add it to the appropriate directory.                     // @B3A
+                    if (filesAndDirs[i].isDirectory())                               // @B3A
+                        dv.addElement(filesAndDirs[i]);                          // @B3A
+                    else                                                                    // @B3A
+                        fv.addElement(filesAndDirs[i]);                           // @B3A
+                }
+
+                // Initialize the File arraya.                                        // @B3A
+                dirList = new File[dv.size()];                                       // @B3A
+                fileList = new File[fv.size()];                                       // @B3A
+
+                // Copy the vectors into their appropriate array.           // @B3A
+                dv.copyInto(dirList);                                                  // @B3A
+                fv.copyInto(fileList);                                                  // @B3A
+            }
+            else   // If we are dealing with normal File objects and not IFSJavaFile objects.   //$A1A
+            {
                 // $A1D
                 // We don't want to require webservers to use JDK1.2 because
                 // most webserver JVM's are slower to upgrade to the latest JDK level.
@@ -674,15 +730,43 @@ public class FileListElement implements java.io.Serializable
                 // and then converting the returned string arrary into the appropriate
                 // File array.
                 // File[] dirList = file.listFiles(dirFilter);
+                //
+                // @B3A
+                // We can however, use the listFiles() method on an IFSJavaFile
+                // object because that is not dependant on any JDK1.2 code.
+                // Using the listFiles() method on IFSJavaFile objects will
+                // also cache information (ie - is it a directory) so we don't
+                // have to flow another call to the server to find that information
+                // out all the time.  
 
-                for (int j=0; j<dlist.length; ++j)                                    //$A1A
+                // Get the list of files that satisfy the directory filter.
+                // Build the File array of Directories.
+                String[] dlist = file.list(new DirFilter());                        
+
+                dirList = new File[dlist.length];
+
+                for (int i=0; i<dlist.length; ++i)
                 {
-                    //$A1A
-                    if (file instanceof IFSJavaFile)                                  //$A1A
-                        dirList[j] = new IFSJavaFile((IFSJavaFile)file, dlist[j]);    //$A1A
-                    else                                                              //$A1A
-                        dirList[j] = new File(file, dlist[j]);                        //$A1A @A7C
-                }  
+                    dirList[i] = new File(file, dlist[i]);                             //$A1A
+                }
+
+                // Get the list of files that satisfy the file filter.
+                // Build the File array of files.
+                String[] flist = file.list(new HTMLFileFilter());                                   
+
+                fileList = new File[flist.length];
+
+                for (int i=0; i<flist.length; ++i)
+                {
+                    fileList[i] = new File(file, flist[i]);                             //$A1A
+                }
+            }
+
+            if (dirList != null)                                                           // @A6A  // @B3C
+            {
+                if (sort_)                                                                  // @A2A
+                    HTMLTree.sort2(collator_, dirList);                         // @A2A  @B3C
+
                 //$A1A
                 for (int i=0; i<dirList.length; i++)
                 {
@@ -707,51 +791,25 @@ public class FileListElement implements java.io.Serializable
                 }
             }
 
-            HTMLFileFilter fileFilter = new HTMLFileFilter();
-
-            // Get the list of files that satisfy the file filter.
-            String[] flist = file.list(fileFilter);                                     //$A1C
-
-            if (flist != null)                                                          // @A6A
+            if (fileList != null)                                                            // @A6A  // @B3C
             {
-                if (sort_)                                                              // @A2A
-                    flist = sort(flist);                                                // @A2A
-
-                File[] fileList = new File[flist.length];                               //$A1A
-
-                // $A1D
-                // We don't want to require webservers to use JDK1.2 because
-                // most webserver JVM's are slower to upgrade to the latest JDK level.
-                // The most efficient way to create these file objects is to use
-                // the listFiles(filter) method in JDK1.2 which would be done
-                // like the following, instead of using the list(filter) method
-                // and then converting the returned string arrary into the appropriate
-                // File array.
-                // File[] fileList = file.listFiles(fileFilter);
-
-                for (int j=0; j<flist.length; ++j)                                      //$A1A
-                {
-                    //$A1A
-                    if (file instanceof IFSJavaFile)                                    //$A1A
-                        fileList[j] = new IFSJavaFile((IFSJavaFile)file, flist[j]);     //$A1A
-                    else                                                                //$A1A
-                        fileList[j] = new File(file, flist[j]);                         //$A1A @A7C
-                }                                                                       //$A1A
+                if (sort_)                                                                    // @A2A
+                    HTMLTree.sort2(collator_, fileList);                          // @A2A    @B3C
 
                 for (int i=0; i<fileList.length; i++)
                 {
                     // Get the string to display from the renderer.  This allows          // @A4A
-                    // the servlet more flexibility as to which files to display          // @A4A
-                    // and how to display them.                                           // @A4A
-                    String fileName = renderer_.getFileName(fileList[i]);                 // @A4A
+                    // the servlet more flexibility as to which files to display             // @A4A
+                    // and how to display them.                                                    // @A4A
+                    String fileName = renderer_.getFileName(fileList[i]);                   // @A4A
 
-                    if (fileName != null)                                                 // @A4A
+                    if (fileName != null)                                                                 // @A4A
                     {
                         Object[] row = new Object[4];          
 
                         Date d = new Date(fileList[i].lastModified());                     
 
-                        row[0] = fileName.replace('\\','/');                               // @A4C
+                        row[0] = fileName.replace('\\','/');                         // @A4C
                         row[1] = new Long(fileList[i].length());                             
                         row[2] = "File";                                                   // @A3C
                         row[3] = formatter_.format(d);                                       
@@ -789,6 +847,21 @@ public class FileListElement implements java.io.Serializable
     private void readObject(java.io.ObjectInputStream in)          
     throws java.io.IOException, ClassNotFoundException
     {
+        // @B3A
+        // If the locale is Korean, then this throws
+        // an ArrayIndexOutOfBoundsException.  This is
+        // a bug in the JDK.  The workarond in that case
+        // is just to use String.compareTo().
+        try                                                                            // @B3A
+        {
+            collator_ = Collator.getInstance ();                           // @B3A
+            collator_.setStrength (Collator.PRIMARY);                // @B3A
+        }
+        catch (Exception e)                                                    // @B3A
+        {
+            collator_ = null;                                                      // @B3A
+        }
+
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
     }
@@ -807,6 +880,26 @@ public class FileListElement implements java.io.Serializable
             throw new NullPointerException("listener");
         changes_.removePropertyChangeListener(listener);
     }
+
+
+    /**
+    *  Sets the <i>collator</i>.  The collator allows the tree to perform
+    *  locale-sensitive String comparisons when sorting the file list elements. 
+    *
+    *  @param collator The Collator.
+    **/
+    public void setCollator(Collator collator)           // @B3A
+    {
+        if (collator == null)
+            throw new NullPointerException("collator");
+
+        Collator old = collator_;
+
+        collator_ = collator;
+
+        changes_.firePropertyChange("collator", old, collator_);
+    }
+
 
 
     /**
@@ -852,14 +945,14 @@ public class FileListElement implements java.io.Serializable
      *  @param sharePath The NetServer share path.
      **/
     public void setSharePath(String sharePath)                                      // @B1A
-    {                                                                               // @B1A
-        if (sharePath == null)                                                      // @B1A
-            throw new NullPointerException("sharePath");                            // @B1A
-                                                                                    // @B1A
-        StringBuffer old = sharePath_;                                              // @B1A
-                                                                                    // @B1A
-        sharePath_ = new StringBuffer(sharePath);                                   // @B1A
-                                                                                    // @B1A
+    {                                                                                                 // @B1A
+        if (sharePath == null)                                                                 // @B1A
+            throw new NullPointerException("sharePath");                         // @B1A
+        // @B1A
+        StringBuffer old = sharePath_;                                                   // @B1A
+        // @B1A
+        sharePath_ = new StringBuffer(sharePath);                                  // @B1A
+        // @B1A
         changes_.firePropertyChange("sharePath", 
                                     old==null ? null : old.toString(), sharePath_.toString());       // @B1A
     }
@@ -870,15 +963,15 @@ public class FileListElement implements java.io.Serializable
      *
      *  @param shareName The NetServer share name.
      **/
-    public void setShareName(String shareName)                                      // @B1A
+    public void setShareName(String shareName)                 // @B1A
     {                                                                               // @B1A
-        if (shareName == null)                                                      // @B1A
-            throw new NullPointerException("shareName");                            // @B1A
-                                                                                    // @B1A
-        StringBuffer old = shareName_;                                              // @B1A
-                                                                                    // @B1A
-        shareName_ = new StringBuffer(shareName);                                   // @B1A
-                                                                                    // @B1A
+        if (shareName == null)                                             // @B1A
+            throw new NullPointerException("shareName");     // @B1A
+        // @B1A
+        StringBuffer old = shareName_;                                // @B1A
+        // @B1A
+        shareName_ = new StringBuffer(shareName);            // @B1A
+        // @B1A
         changes_.firePropertyChange("shareName", 
                                     old==null ? null : old.toString(), shareName_.toString());       // @B1A
     }
@@ -930,25 +1023,5 @@ public class FileListElement implements java.io.Serializable
     public void sort(boolean sort)                         // @A2A
     {
         sort_ = sort;
-    }
-
-
-    /**
-     *  Sorts an array of string objects.
-     *
-     *  @param  objects The objects.
-     *
-     *  @return The sorted string array.
-     **/
-    private String[] sort (String[] list)                  // @A2A
-    {
-        String[] objectArray = list;
-
-        HTMLTree.sort2(objectArray);
-
-        for (int i = 0; i < objectArray.length; ++i)
-            list[i] = objectArray[i];
-
-        return list;
     }
 }

@@ -50,8 +50,10 @@ public class HTMLImageBeanInfo extends SimpleBeanInfo
                                                                 "propertyChange");
             changed.setDisplayName(loader_.getText("EVT_NAME_PROPERTY_CHANGE"));
             changed.setShortDescription(loader_.getText("EVT_DESC_PROPERTY_CHANGE"));
-
-            EventSetDescriptor[] events_ = {changed};
+            
+            EventSetDescriptor[] events = { changed };
+            
+            events_ = events;
 
             // ***** PROPERTIES
             PropertyDescriptor align = new PropertyDescriptor("align", beanClass,

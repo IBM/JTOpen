@@ -96,7 +96,14 @@ public class FileListElementBeanInfo extends SimpleBeanInfo
         sharePath.setDisplayName(loader_.getText("PROP_NAME_SHARE_PATH"));                   //@B1A
         sharePath.setShortDescription(loader_.getText("PROP_DESC_SHARE_PATH"));              //@B1A
 
-        properties_ = new PropertyDescriptor[] { renderer, request, system, table, shareName, sharePath };//$A1C //@A2C //@B1A
+        PropertyDescriptor collator = new PropertyDescriptor("collator", beanClass,        //@B2A
+                                                          "getCollator", "setCollator");                        //@B2A
+        collator.setBound(true);                                                                                 //@B2A
+        collator.setConstrained(false);                                                                        //@B2A
+        collator.setDisplayName(loader_.getText("PROP_NAME_COLLATOR"));             //@B2A
+        collator.setShortDescription(loader_.getText("PROP_DESC_COLLATOR"));        //@B1A
+
+        properties_ = new PropertyDescriptor[] { renderer, request, system, table, shareName, sharePath, collator };//$A1C //@A2C //@B1A //@B2C
       }
       catch (Exception e)
       {
