@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: MRI2.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ Locale-specific objects for the AS/400 Toolbox for Java.
 //
 public class MRI2 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
    public Object[][] getContents()
@@ -850,8 +850,32 @@ public class MRI2 extends ListResourceBundle
 
       { "LM_EXCEPTION",     "A license error occurred.  The primary return code is &0.  The secondary return code is &1." }, // @F5A
 
+      // @M1A
+      // ME support MRI.   
+      // #TRANNOTE ################################################################
+      // #TRANNOTE The following are error and informational (verbose) messages.
+      // #TRANNOTE ################################################################
+      { "ME_ALREADY_LISTENING",          "An active ME server is already listening to port &0." },
+      { "ME_JDBC_DRIVER_NOT_REGISTERED", "JDBC driver not registered: &0"},
+      { "ME_JDBC_DRIVER_REGISTERED",     "Registered JDBC driver: &0."},             
+      { "ME_OPTION_NOT_VALID",           "Option not valid: &0" },
+      { "ME_OPTION_VALUE_NOT_VALID",     "Value for option &0 not valid: &1" },
+      { "ME_SERVER_CONTAINER",           "ME server" },
+      { "ME_SERVER_ENDED",               "&0 ended." },
+      { "ME_SERVER_LISTENING",           "&0 listening to port &1." },
+      { "ME_SERVER_OPTIONSLC",           "options" },
+      { "ME_SERVER_OPTIONSUC",           "Options" },
+      { "ME_SERVER_SHORTCUTS",           "Shortcuts" },                              
+      { "ME_SERVER_STARTED",             "ME server started." },
+      { "ME_CONNECTION_CLOSED",          "Connection &0 closed."},
+      { "ME_SERVER_USAGE",               "Usage" },
+      { "ME_VALUE_NO_OPTION",            "Value with no option ignored: &0" },      
 
-
+      { "ME_PCML_RELOADING", "Re-loading PCML document: &0"},
+      { "ME_PCML_LOADING", "Loading new PCML document: &0"},
+      { "ME_PCML_REMOVED", "Removed old PCML document: &0"},
+      { "ME_PCML_ERROR", "Error loading PCML." },
+      { "ME_PCML_CACHE", "Using previously cached PCML document: &0"}
 
    };
 
