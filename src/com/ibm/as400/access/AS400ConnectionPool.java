@@ -709,6 +709,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       // not serializable.  Therefore, log_ was changed to be transient and the user
       // will need to reset log_ after a serialization of the pool.
       as400ConnectionPool_ = new Hashtable();
+		removedAS400ConnectionPool_ = new Hashtable();	 //@A5A
    }
    
 
