@@ -6440,7 +6440,8 @@ the initial thread.
    * set by setValue() or one of the other setter methods. Use {@link #loadInformation 
    * loadInformation()} to refresh the attributes from the system.
    * @param attribute The job attribute.
-   * @return The current value of the attribute.
+   * @return The current value of the attribute.  This method may return null in the rare
+   * case that the specified attribute could not be retrieved using the QUSRJOBI system API.
    * @see #loadInformation
    * @see #setValue
   **/
