@@ -38,7 +38,7 @@ package com.ibm.as400.access;
  *  <p><b>Multi-threading considerations:</b>
  *  each thread must use its own instances of this class.
  *
- **/
+ */
 
 class BidiTransform {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";

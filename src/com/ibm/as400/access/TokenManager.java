@@ -46,6 +46,6 @@ class TokenManager
         }
 
         GSSContext context = manager.createContext(serverName, krb5Mech, credential, GSSCredential.DEFAULT_LIFETIME);
-        return context.initSecContext(null, 0, 0);
+        return context.initSecContext(new byte[0], 0, 0);
     }
 }

@@ -31,7 +31,7 @@ package com.ibm.as400.access;
  *  <p><b>Multi-threading considerations:</b>
  *  Each thread must use its own instances of this class.
  *
- **/
+ */
 
 class BidiText
 {
@@ -248,29 +248,29 @@ class BidiText
  *  @return A BidiText which is the transformation of the "this" BidiText.
  *  If destination data is not required, a null is returned.
  */
-  public BidiText transform(BidiTransform bdx)
-  {
-      char[] data;
+    public BidiText transform(BidiTransform bdx)
+    {
+        char[] data;
 
-      BidiText dst = new BidiText();
-      dst.flags.setAllFlags(bdx.flags);
-      dst.data = new char[this.count];
-      if (bdx.myOrder == null)  bdx.myOrder = new BidiOrder();
-      bdx.myOrder.order(this, dst, bdx);
+        BidiText dst = new BidiText();
+        dst.flags.setAllFlags(bdx.flags);
+        dst.data = new char[this.count];
+        if (bdx.myOrder == null)  bdx.myOrder = new BidiOrder();
+        bdx.myOrder.order(this, dst, bdx);
 
-      if (this.flags.getText() != dst.flags.getText())
-      {
-          if (bdx.myShape == null)
-          {
-              bdx.myShape = new BidiShape();
-              bdx.flags1 = new BidiFlagSet();
-              bdx.flags2 = new BidiFlagSet();
-          }
-          bdx.flags1.setAllFlags(this.flags);
-          bdx.flags2.setAllFlags(dst.flags);
+        if (this.flags.getText() != dst.flags.getText())
+        {
+            if (bdx.myShape == null)
+            {
+                bdx.myShape = new BidiShape();
+                bdx.flags1 = new BidiFlagSet();
+                bdx.flags2 = new BidiFlagSet();
+            }
+            bdx.flags1.setAllFlags(this.flags);
+            bdx.flags2.setAllFlags(dst.flags);
             dst.data = bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data, bdx.options);
             dst.count = dst.data.length;
         }
-      return dst;
-  }
+        return dst;
+    }
 }
