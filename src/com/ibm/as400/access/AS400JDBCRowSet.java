@@ -492,7 +492,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
         if (createNewStatement_)
             createStatement();
 
-        if (command_.indexOf("SELECT") != -1)
+        if (command_.toUpperCase().indexOf("SELECT") != -1)        // Fix for JTOpen Bug 4121
         {
             resultSet_ = (AS400JDBCResultSet)statement_.executeQuery();  //@G4C
 
