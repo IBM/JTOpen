@@ -362,6 +362,7 @@ final class ConnectionList
       }
       if (poolItem != null)  //B1A
       {
+        if (!poolItem.getAS400Object().isConnected(service)) poolItem.getAS400Object().connectService(service); //@CRS
         poolItem.setInUse(true); //@B1M
       }
     }//@B1A end synchronized block
