@@ -66,6 +66,15 @@ class BidiText
   }
 
 /**
+ *  Constructs a BidiText object based on an existing BidiFlagSet.
+ *  There is no data and no character array.
+ */
+  public BidiText(BidiFlagSet initFlags)
+  {
+    this.flags = initFlags;
+  }
+
+/**
  *  Constructs a BidiText object based on an existing
  *  BidiFlagSet and the data in a character array.
  *  <p>The argument flags and data are duplicated.  Changing them will not
@@ -165,7 +174,7 @@ class BidiText
 
 /**
  *  Extract the character data from a BidiText in character array format
- *  @return A string containing a copy of the "interesting" data.
+ *  @return A char array containing a copy of the "interesting" data.
  */
   public char[] toCharArray()
   {
@@ -243,6 +252,7 @@ class BidiText
   public BidiText transform(BidiTransform bdx)
   {
     char[] data;
+
     BidiText dst = new BidiText();
     dst.flags.setAllFlags(bdx.flags);
     dst.data = new char[this.count];
@@ -259,41 +269,9 @@ class BidiText
       }
       bdx.flags1.setAllFlags(this.flags);
       bdx.flags2.setAllFlags(dst.flags);
-      // The following flag settings are because the shape method
-      // goes from LTR if the out orientation is RTL and the
-      // in orientation is different from the out orientation.
-
-//@BD1 Heba M Naguib 5/6/2001
-//@BD1
-//@BD1            if (dst.flags.getType() == BidiFlag.TYPE_IMPLICIT || //@BD1
-//@BD1                dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL) {
-//@BD1                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
-//@BD1                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_RTL);
-//@BD1            }
-//@BD1            else {
-//@BD1                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
-//@BD1                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_LTR);
-//@BD1            }
-//@BD1 
-
-/*          if (dst.flags.getType() == BidiFlag.TYPE_VISUAL ){//@BD1
-           if( dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL) {//@BD1
-              bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
-              bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_RTL);//@BD1
-             }               //@BD1
-            else {//@BD1
-                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
-                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
-               }//@BD1
-           }//@BD1
- */
-      //@BD2a start
-      //Passing real orientation attributes to "shape".
-      //In case of RTL shaping is done from left to right
-      //In case of LTR shaping is done from right to left
-//@BD2a end
-      bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data);
-    }
+            dst.data = bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data, bdx.options);
+            dst.count = dst.data.length;
+        }
     return dst;
   }
 }

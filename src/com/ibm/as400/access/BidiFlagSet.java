@@ -140,11 +140,11 @@ class BidiFlagSet
     static final int    ITEXT_ISOLATED          = 0x0000000B;
 
 
-//  This is the default value for uninitialized BidiFlagSet
+//  This is the default value for uninitialized BidiFlagSet.
     static final int    DEFAULT = ITYPE_IMPLICIT | IORIENTATION_LTR |
                                   ISWAP_YES | INUMERALS_NOMINAL | ITEXT_NOMINAL;
 
-//  This is the only field in this class
+//  This is the only field in this class.
     int value;
 
 /**
@@ -282,6 +282,81 @@ class BidiFlagSet
         this.value |= flag4.value;
         if ((this.value & flag5.value) != 0)  throw new IllegalArgumentException();
         this.value |= flag5.value;
+    }
+
+/**
+ *  Constructs a BidiFlagSet from a char array.
+ *  The content of the array must follow the specification for the "S" and
+ *  "U parts of the BIDI environment variable, as follows:
+ *  <ul>
+ *  <li>character 1: type of text = I (Implicit) or V (Visual)
+ *  <li>character 2: orientation = L (LTR), R (RTL), C (Contextual LTR) or D (Contextual RTL)
+ *  <li>character 3: swapping = Y (Swapping ON) or N (Swapping OFF)
+ *  <li>character 4:  text shaping = N (Nominal), S (Shaped), I (Initial), M (Middle), F (Final), B (Isolated)
+ *  <li>character 5: numeral shaping = N (Nominal), H (National), C (Contextual)
+ *  <li>character 6: bidi algorithm = U (Unicode), R (Roundtrip)
+ *  <li>character 7: Lamalef mode = G (Grow), S(Shrink), N (Near), B (Begin), E (End), W (groW with space), A (Auto)
+ *  <li>character 8: SeenTail mode = O (One cell), N (Near), B (Begin), E (End), A (Auto)
+ *  <li>character 9: Yeh Hamza mode = O (One cell), N (Near), B (Begin), E (End), A (Auto)
+ *  <li>character 10: Tashkeel mode = Z (Zero width), W (with Width), B (Begin), E (End), A (Auto)
+ *  </ul>
+ *  <p>Only characters 1 to 5 are used to build the BidiFlagSet.
+ *  <p>
+ *  @param  chars       A character array.
+ */
+    public BidiFlagSet(char[] chars)
+    {
+        int newValue = DEFAULT;
+        int len = chars.length;
+
+        while (len > 0)
+        {
+            if ('V' == chars[0])
+                newValue = (newValue & (~TYPE_MASK)) | ITYPE_VISUAL;
+            else if ('I' == chars[0])
+                newValue = (newValue & (~TYPE_MASK)) | ITYPE_IMPLICIT;
+
+            if (len <= 1)  break;
+            if ('L' == chars[1])
+                newValue = (newValue & (~ORIENTATION_MASK)) | IORIENTATION_LTR;
+            else if ('R' == chars[1])
+                newValue = (newValue & (~ORIENTATION_MASK)) | IORIENTATION_RTL;
+            else if ('C' == chars[1])
+                newValue = (newValue & (~ORIENTATION_MASK)) | IORIENTATION_CONTEXT_LTR;
+            else if ('D' == chars[1])
+                newValue = (newValue & (~ORIENTATION_MASK)) | IORIENTATION_CONTEXT_RTL;
+
+            if (len <= 2)  break;
+            if ('Y' == chars[2])
+                newValue = (newValue & (~SWAP_MASK)) | ISWAP_YES;
+            else if ('N' == chars[2])
+                newValue = (newValue & (~SWAP_MASK)) | ISWAP_NO;
+
+            if (len <= 3)  break;
+            if ('N' == chars[3])
+                newValue = (newValue & (~TEXT_MASK)) | ITEXT_NOMINAL;
+            else if ('S' == chars[3])
+                newValue = (newValue & (~TEXT_MASK)) | ITEXT_SHAPED;
+            else if ('I' == chars[3])
+                newValue = (newValue & (~TEXT_MASK)) | ITEXT_INITIAL;
+            else if ('M' == chars[3])
+                newValue = (newValue & (~TEXT_MASK)) | ITEXT_MIDDLE;
+            else if ('F' == chars[3])
+                newValue = (newValue & (~TEXT_MASK)) | ITEXT_FINAL;
+            else if ('B' == chars[3])
+                newValue = (newValue & (~TEXT_MASK)) | ITEXT_ISOLATED;
+
+            if (len <= 4)  break;
+            if ('N' == chars[4])
+                newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_NOMINAL;
+            else if ('H' == chars[4])
+                newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_NATIONAL;
+            else if ('C' == chars[4])
+                newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_CONTEXTUAL;
+            break;
+        }
+
+        this.value = newValue;
     }
 
 /**
@@ -444,7 +519,7 @@ class BidiFlagSet
         return this.value;
     }
 
-/*
+/**
  *  Compute the value of a BidiFlagSet specified as text.
  *  The text must follow the syntax of modifiers detailed in X/Open
  *  "Portable Layout Services".
@@ -685,7 +760,6 @@ class BidiFlagSet
         String token;
         int sb2Length = 0;
         boolean colon = false;
-        boolean result = true;
 
         while (stok.hasMoreElements()) {
             token = stok.nextToken();
@@ -723,7 +797,7 @@ class BidiFlagSet
  *  the other Bidi flags.
  *  <p>The new value must be one of the pre-defined values for BidiFlag.
  *
- *  @param  newFlags    The new value requested one of the flags.
+ *  @param  newFlags    The new value requested for one of the flags.
  */
     public void setOneFlag(BidiFlag newFlag)
     {
@@ -758,7 +832,7 @@ class BidiFlagSet
         return BidiFlagSet.toString(this.value);
     }
 
-/*
+/**
  *  Class method parallel to the instance method with the same name.
  *  @param  value       The value of a BidiFlagSet.
  *  @return A human readable form of the flag values.
@@ -773,7 +847,6 @@ class BidiFlagSet
                                             "contextual", "invalid"};
         final   String[] textStrings = {"nominal", "shaped", "shform1",
             "shform2", "shform3", "shform4", "invalid", "invalid"};
-        int temp;
 
         return  "typeoftext=" + typeStrings[(value & TYPE_MASK)>>25] +
                 ", " +

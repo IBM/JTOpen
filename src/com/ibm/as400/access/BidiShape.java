@@ -37,9 +37,7 @@ class BidiShape
   /* bit 5:     Alef type UNI Code                                           */
   /* bit 8-15:  offset to presentation shapes starting at U+FE70             */
 
-  /*public*/
-  static final char Tail = 0x200B ; //@BD17a  //@BD19c
-  //private static final short shapeTable[4][4][4]=
+  static final char Tail = 0x200B ;
   private static final short shapeTable[][][]=
   {
     /*                    lastLink = 0 | lastLink = 1 | lastLink = 2 | lastLink = 3 */
@@ -233,13 +231,6 @@ class BidiShape
 
   private static final short LinkFE[]=
   {
-//@bd10c                               4,
-//                               1 + 2,
-//                               4, 4, 4, 4, 4,
-//                               1 + 2,
-//                               4, 1 + 2, 4, 1 + 2,
-//                               4, 1 + 2, 4, 1 + 2,
-
     1 + 2,
     1 + 2,
     1 + 2, 0, 1+ 2, 0, 1+ 2,
@@ -282,22 +273,6 @@ class BidiShape
   };
 
   /*****************************************************************************/
-//@bd10d Start
-/*
-//@bd9a Start
-  private static final short IrreleventTable[]=
-                             {
-                             2,
-                             0,
-                             0,
-                             2,
-                             2,
-                             2,
-                             2,
-                             2};
-
-*/
-
   private static final short IrreleventPos[]=
   {
     0x0,
@@ -309,277 +284,161 @@ class BidiShape
     0xC,
     0xE,
   }  ;
-//@bd9a End
+
+//Used by Lam-Alef methods
+   static char AlefType[] = {
+                   '\u0622',
+                   '\u0622',
+                   '\u0623',
+                   '\u0623',
+                   '\u0625',
+                   '\u0625',
+                   '\u0627',
+                   '\u0627',
+                    };
+//Used by Tashkeel handeling methods
+   static char Tashkeel[] = {
+                   '\ufe70', //Tanween Fath
+                   '\ufe72', //Tanween Dam
+                   '\ufe74', //Tanween Kasr
+                   '\ufe76', //Fatha
+                   '\ufe78', //Dama
+                   '\ufe7A', //Kassra
+                   '\ufe7c', //Shadda
+                   '\ufe7e', //Sekooun
+                    };
+
+//Used by Tashkeel handeling methods
+   static char Tashkeel_Tatweel[] = {
+                   '\ufe71', //Tanween Fath with tatweel
+                   '\ufe72', //Tanween Dam -- No Ttween Dam with Tashkeel in the FE Range
+                   '\ufe74', //Tanween Kasr -- No Ttween Dam with Tashkeel in the FE Range
+                   '\ufe77', //Fatha with tatweel
+                   '\ufe79', //Dama with tatweel
+                   '\ufe7b', //Kassra with tatweel
+                   '\ufe7d', //Shadda with tatweel
+                   '\ufe7f', //Sekooun with tatweel
+                    };
+
+
   private static final int LINKR = 1;
   private static final int LINKL = 2;
   private static final int IRRELEVANT = 4;
   private static final int LAMTYPE = 16;
   private static final int ALEFTYPE = 32;
   private static final int LINKFIELD = 3;
-// Mati: remove since not used.      private int lamAlphCount = 0;
 
-  /*****************************************************************************/
 
-//@BD3C public String shape ( HODbidiAttribute inAttr,HODbidiAttribute outAttr,String inStr) {
-  synchronized void shape(BidiFlagSet inAttr, BidiFlagSet outAttr, char str06[])
-  {
-
-    int currLink;      /* link attributes of current character
-                                                                at position Ix */
-    int lastLink=0;    /* link attributes of the last character
-                                         which was not irrelevant to linking   */
-    int nextLink=0;    /* link attributes of the next character
-                                          which is not irrelevant to linking   */
-    int prevLink=0;    /* link attributes of the character
-                          before the last which is not irrelevant to linking   */
+/**
+ * Method shapingRoutine
+ * This method represents the shaping routine.
+ * @param inAttr    The input Bidi Attributes (TextType, TextShape, ...etc.)
+ * @param outAttr   The output Bidi Attributes (TextType, TextShape, ...etc.)
+ * @param str       The buffer to be shaped.
+ * @param rtl       The buffer orientation.
+ */
+  synchronized void shapingRoutine(BidiFlagSet inAttr, BidiFlagSet outAttr, char str[], boolean rtl)
+    {
+    int currLink;      /* link attributes of current character at position Ix */
+    int lastLink=0;    /* link attributes of the last character which was not irrelevant to linking   */
+    int nextLink=0;    /* link attributes of the next character which is not irrelevant to linking   */
+    int prevLink=0;    /* link attributes of the character before the last which is not irrelevant to linking   */
     int lastPos; /* position of the last character  which was not irrelevant   */
     int Nx;      /* position of the next character  which is not irrelevant    */
     int prevPos; /* position of the character before the last which was not irr*/
 
-    int iEnd, Nw, step,  Shape, i, Ix;
+    int iEnd, Nw, step, Shape, Ix;
 
     char wLamalef;
-    char[] wBuf = new char[20];
-
-//    int size;
-    int j,x;
     int flag;
-//BD19d    int trgIdx = 0;
 
-    boolean RTL = true;
-    //Heba boolean inOutDiff = false ;
-    int size;
-    int sp=0;
-    if (str06.length == 0)                                              //@bd6a
+    BidiFlag   inTextType, outTextType, inTextShape, outTextShape;
+
+    int bufLen = str.length;
+    if ( bufLen == 0)
       return;
 
+    //Initialize variables
+    inTextType   = inAttr.getType();
+    outTextType  = outAttr.getType();
+    inTextShape  = inAttr.getText();
+    outTextShape = outAttr.getText();
 
-    RTL = ( outAttr.getOrientation() == BidiFlag.ORIENTATION_RTL );
-    //Heba inOutDiff = ( outAttr.getOrientation() != inAttr.getOrientation() );
-//@BD11
-    if (outAttr.getType()==BidiFlag.TYPE_IMPLICIT && inAttr.getType()==BidiFlag.TYPE_VISUAL) //Heba M Naguib
-    {
-
-//BD20a start
-      for (int idx = 0; idx < str06.length ; idx++)
-      {
-
-        //Eat Seen tail
-        if (str06[idx] == BidiShape.Tail)
-          str06[idx]= (char)0x0020;
-
-        //Convert the characters from FE to 06 range
-        if ((str06[idx] >= 0xFE70) && (str06[idx] <= 0xFEF4 ))
+    if(inTextType == BidiFlag.TYPE_VISUAL && outTextType == BidiFlag.TYPE_IMPLICIT) //Visual to Implicit
+    { //We must test if this check is the best check for shapping Shaped -> Nominal
+        for (int idx = 0; idx < bufLen ; idx++)
         {
+        //Convert the characters from FE to 06 range
+            if ( (str[idx] >= 0xFE70) && (str[idx] <= 0xFEF4 ) )
+                {
             //This change fix NULL pointer exception with IBMJDK 1.4
             //IBMJDK1.4 cann't resolve casting correctly
-            int newCharValue=str06[idx] - 0xFE70;//AR-Change
-            str06[idx] = (char)(convertFEto06 [ newCharValue ] ) ;//AR-Change
-//AR-Change            str06[idx] = (char)(convertFEto06 [ (str06[idx] - 0xFE70) ] ) ;
+                    int newCharValue = str[idx] - 0xFE70;
+                    str[idx] = (char)(convertFEto06 [ newCharValue ] ) ;
+                }
         }
-
-      }
-//BD20a end
-      ExpandLamAlef(str06, str06.length,RTL);    //@BD11a
-
-      //StringBuffer result = new StringBuffer(inStr);
-
-//@BD2D      StringBuffer str06 = new StringBuffer(inStr);
-//@BD3D      char[] str06 = new char[inStr.length()];                        //@BD2A
-
-//@BD3C      for (int idx = 0; idx < inStr.length(); idx++)
-//@BD20d start
-/*
-      for (int idx = 0; idx < str06.length ; idx++)
-      {
-//@BD3C        char inputChar = inStr.charAt(idx);
-        char inputChar = str06[idx];
-
-//@bd9c//@bd7c                      if ( ( inputChar >= 0xFE70) && (inputChar <= 0xFEFC ))  //FE range
-//@bd9c allow the tashkil characters to be converted to 6 range sice now they are shaped.
-               if ( ( inputChar >= 0xFE70) && (inputChar <= 0xFEFC ))  //FE range
-//@bd9c               if ( ( inputChar >= 0xFE80) && (inputChar <= 0xFEFC ))  //FE range
-        {
-           {
-//@BD2D             str06.setCharAt (trgIdx, (char)(convertFEto06 [ (inputChar - 0xFE70) ] ) );
-             int newInputChar=inputChar - 0xFE70;//AR-Change
-             str06[idx] = (char)(convertFEto06 [ newInputChar ] ) ;//AR-Change
-//AR-Change             str06[idx] = (char)(convertFEto06 [ (inputChar - 0xFE70) ] ) ;  //@BD2A //@BD19c
-           }
-        }else
-        {
-//@BD2D           str06.setCharAt (trgIdx, inputChar );
-           str06[idx] = inputChar ;    //@BD19c
-        }
-
-//@BD19d        trgIdx++;
-      }
-  */
-//@BD20d end
-
-    }//end if statement
-    else if (outAttr.getType()==BidiFlag.TYPE_VISUAL)//@BD11b
-    {
+     }//end if Visual to Implicit
+    else if(outTextType == BidiFlag.TYPE_VISUAL)
+    { //We must test if this check is the best check for shapping  -> Nominal
       /* This pass is done so that Arabic characters  are processed in language        */
       /* order. If outAttr is RTL    , this means start processing from the begining of*/
-      /* the str06 (source) till its end;  if outAttr is LTR    ,  this  means start   */
-      /* processing from the end of the str06 (source) till its beginning              */
-
-//@BD2D      StringBuffer result = new StringBuffer(str06.toString());
-
-//Heba      if (RTL && inOutDiff)
-      if (RTL)
+      /* the str (source) till its end;  if outAttr is LTR    ,  this  means start   */
+      /* processing from the end of the str (source) till its beginning              */
+      if (rtl)
       {
         Ix = 0;           /* Setting the low boundary of the processing         */
-//@BD2D    iEnd = str06.length() ;    /* Setting the high boundary of the processing        */
-        iEnd = str06.length ;    /* Setting the high boundary of the processing        *///@BD2A
+         iEnd = str.length ;    /* Setting the high boundary of the processing        */
         step = +1;
       }
-      else
-      {
-//@BD2D         Ix = str06.length() - 1;  /* Setting the low boundary of the processing         */
-        Ix = str06.length - 1;  /* Setting the low boundary of the processing         *///@BD2A
+      else {
+         Ix = str.length - 1;  /* Setting the low boundary of the processing         */
         iEnd = -1;       /* Setting the high boundary of the processing        */
         step = -1;
       }
 
-//@BD2D      size = str06.length();
-      size = str06.length;
 
       prevLink = 0;
       lastLink = 0;
-
-//@BD2D      currLink = uba_getLink ( str06.charAt(Ix) );
-      currLink = uba_getLink ( str06[Ix] ); //@BD2A
-
+      currLink = uba_getLink ( str[Ix] );
       prevPos = Ix;
       lastPos = Ix;
       Nx = -2;
       while (Ix != iEnd)
       {
-
-        if ((currLink & 0xFF00) > 0)
-        {        /* If there are more than one shape   */
+        if ((currLink & 0xFF00) > 0 )         /* If there are more than one shape   */
+        {
           Nw = Ix + step;
 
-          while (Nx < 0)
-          {            /* we need to know about next char */
-            if (Nw == iEnd)
-            {
+            while ( Nx < 0  ) {            /* we need to know about next char */
+               if (Nw == iEnd) {
               nextLink = 0;
               Nx = 30000;             /* will stay so until end of pass*/
             }
-            else
-            {
-//@BD2D                  nextLink = uba_getLink(str06.charAt(Nw));
-              nextLink = uba_getLink(str06[Nw]); //@BD2D
-
+               else {
+                  nextLink = uba_getLink(str[Nw]);
               if ((nextLink & IRRELEVANT) == 0)
                 Nx = Nw;
               else Nw += step;
             }
           }
           if (((currLink & ALEFTYPE) > 0)  &&  ((lastLink & LAMTYPE) > 0))
-          //            if ( ((currLink & ALEFTYPE) > 0)  &&  ((lastLink & LAMTYPE) > 0) &&outAttr.getType()==BidiFlag.TYPE_VISUAL)//@BD11b
-          {
-//@BD2D               wLamalef = Lamalef( str06.charAt(Ix) ); //get from 0x065C-0x065f
-            wLamalef = Lamalef( str06[Ix] ); //get from 0x065C-0x065f //@BD2A
-
-            //Gilan for now         Compac++;
+            {
+             wLamalef = Lamalef( str[Ix] ); //get from 0x065C-0x065f
             if (wLamalef != 0)
             {
-              // if (RTL && inOutDiff)
-              if (RTL)
-              {
-
-///* To fix the space problem */
-//                        int dummy=Ix;
-//                        //IcsRec->buffer_out[lastPos] = wLamalef;
-//                        str06.setCharAt(lastPos,wLamalef );
-//
-//                        //while(dummy < IcsRec->size-1 ){  /* drop the Alef */
-//                        while(dummy < str06.length()-1 ){  /* drop the Alef */
-//
-////                          IcsRec->buffer_out[dummy] = IcsRec->buffer_out[dummy+step];
-//                          str06.setCharAt(dummy ,str06.charAt(dummy+step) );
-//
-////                        if(IcsRec->compc == TRUE)
-////                          IcsRec->TrgToSrcMap[dummy] = IcsRec->TrgToSrcMap[dummy+step];
-//
-//                          dummy +=step;
-//                        }
-//                        size--;
-//                        Ix--;
-//                        //IcsRec->buffer_out[size]=0;
-//
-//                        str06.setCharAt(size,(char)0 );
-//                        str06.setLength(size);
-//
-//
-//                        //IcsRec->buffer_out[i] = wLamalef;
-//                        str06.setCharAt(Ix,wLamalef );
-//                        lamAlphCount++;
-//                  }
-//                  else                  /* LTR device */
-//                  {
-///* To fix the space in front of the LamAlef */
-//                        int dummy=Ix;
-//                        while(dummy != size -1){
-//                          //IcsRec->buffer_out[dummy] = IcsRec->buffer_out[dummy-step]; /* drop the Lam */
-//                          str06.setCharAt(dummy ,str06.charAt(dummy-step) );
-//
-////                        if(IcsRec->compc == TRUE)
-////                          IcsRec->TrgToSrcMap[dummy] = IcsRec->TrgToSrcMap[dummy-step];
-//
-//                          dummy -= step;
-//                        }
-//                        size--;
-//                        //IcsRec->buffer_out[size]=0;
-//                        str06.setCharAt(size, (char)0 );
-//                        str06.setLength(size);
-//                        //IcsRec->buffer_out[i] = wLamalef;
-//                        str06.setCharAt(Ix,wLamalef );
-//                        lamAlphCount++;
-//                        /* move irrelevant characters */
-//                  }
-
-//From Unicode Toolkit
-
-                // Put LamAlef in one cell followed by 0xFFFF
-//Gilan                     str06.setCharAt(lastPos,wLamalef );
-//Gilan                     str06.setCharAt(Ix, (char) 0x0020 ); /*     drop the Alef            */
-//@BD2D                     str06.setCharAt(Ix,wLamalef );
-//@BD2D                     str06.setCharAt(lastPos, (char) 0x0020 ); /*     drop the Alef            */
-
-//@BD4C                     str06[Ix] = wLamalef ;            //@BD2A
-//@BD4C                     str06[lastPos]= (char) 0x0020 ; /*     drop the Alef            *///@BD2A
-
-                str06[lastPos] = wLamalef ;            //@BD2A
-                //@BD11b put the space at the end of buffer instead of after the LamAlef
-                //   str06[Ix]= (char) 0x0020 ; /*     drop the Alef            *///@BD2A
-                for (int h=Ix;h<str06.length; h++) //@BD11b
-                {
-                  str06[h] = str06[h+1];
-                } //@BD11b
-                str06[str06.length-1]= (char) 0x0020; //@BD11b
+                  if (rtl)
+                  {
+                     str[lastPos] = wLamalef ;
+                            for(int h=Ix;h<str.length-1; h++)
+                              {str[h] = str[h+1];}
+                     str[str.length-1]= (char) 0x0020;
                 Ix=lastPos;
               }
-              else
-              {         /*   LTR  device      drop the Lam               */
-
-//Gilan            str06.setCharAt(Ix ,wLamalef );
-//Gilan            str06.setCharAt(lastPos, (char)0x0020); /*     drop the Alef            */
-
-//@BD2D                      str06.setCharAt(Ix, (char)0x0020); /*     drop the Alef            */
-//@BD2D                      str06.setCharAt(lastPos ,wLamalef );
-// $B11b put the space at the begining of the buffer instead of after the LamAlef
-//                     str06[Ix] = (char)0x0020; /*     drop the Alef  */ //@BD2A
-                str06[lastPos] =wLamalef ;                         //@BD2A
-                for (int h=Ix;h>0; h--) //@BD11b
-                {
-                  str06[h] =str06[h-1];
-                }//@BD11b
-                str06[0] =(char) 0x0020; //@BD11b
+                  else {         /*   LTR  device      drop the Lam               */
+                     str[lastPos] =wLamalef ;
+                            for(int h=Ix;h>0; h--)
+                               {str[h] =str[h-1];}
+                     str[0] =(char) 0x0020;
                 Ix=lastPos;
 
               } //LTR
@@ -587,44 +446,38 @@ class BidiShape
 
             lastLink = prevLink;
             currLink = uba_getLink(wLamalef);
-            Nx = -2;              // @BD11b force recompute of nextLink
-
-
-            //gilan now            Compac++;
-          }
+            Nx = -2;              //force recompute of nextLink
+            }
 
           /* get the proper shape according to link ability of
              neighbors and of character; depends on the order of
              the shapes (isolated, initial, middle, final) in the
              compatibility area */
 
-//@BD2D            flag=specialChar (str06.charAt(Ix));
-          flag=specialChar (str06[Ix]);              //@BD2A
-
-
-          if (outAttr.getText() == BidiFlag.TEXT_INITIAL)
-          {
+            flag=specialChar (str[Ix]);
+            if (outTextShape == BidiFlag.TEXT_INITIAL)
+            {
             if (flag==0)
               Shape = 2;
             else
               Shape = 0;
           }
-          else if (outAttr.getText() == BidiFlag.TEXT_MIDDLE)
-          {
+            else if (outTextShape == BidiFlag.TEXT_MIDDLE)
+            {
             if (flag == 0)
               Shape = 3;
             else
               Shape = 1;
           }
-          else if (outAttr.getText() == BidiFlag.TEXT_FINAL)
-          {
+            else if (outTextShape == BidiFlag.TEXT_FINAL)
+            {
             if (flag == 0)
               Shape = 1;
             else
               Shape = 1;
           }
-          else if (outAttr.getText() == BidiFlag.TEXT_ISOLATED)
-          {
+            else if (outTextShape == BidiFlag.TEXT_ISOLATED)
+            {
             Shape = 0;
           }
           else
@@ -633,176 +486,195 @@ class BidiShape
                     [lastLink & (LINKR + LINKL)]
                     [currLink & (LINKR + LINKL)];
           }
+            str[Ix] =  (char)(0xFE70 + ( currLink >> 8 ) + Shape) ;
 
-          //      target[Ix] = 0xFE70 + (currLink >> 8 ) + Shape ;
-
-//@BD2D            str06.setCharAt(Ix , (char)(0xFE70 + ( currLink >> 8 ) + Shape) );
-
-          str06[Ix] =  (char)(0xFE70 + ( currLink >> 8 ) + Shape) ;  //@BD2A
-
-        }
+         }
         /* move one notch forward    */
-        if ((currLink & IRRELEVANT) == 0)
-        {
+         if ((currLink & IRRELEVANT) == 0) {
 
           prevLink = lastLink;
           lastLink = currLink;
           prevPos = lastPos;
           lastPos = Ix;
         }
-//@bd9a Start
         //Tashkil characters
-        if ((currLink & IRRELEVANT) > 0)
-        {
-
-          //@BD10D          int tryprnt = str06[Ix] - 0x0600;
-
-          int charidx = str06[Ix] - 0x064B;
-
-//@BD10D             int  MyShape = shapeTable[nextLink & (LINKR + LINKL)]
-//                                 [lastLink & (LINKR + LINKL)]
-//                                 [IrreleventTable[charidx] & (LINKR + LINKL)];
-
+         if ( ((currLink & IRRELEVANT) > 0) && (0 <=  (str[Ix] - 0x064B)) && ((str[Ix] - 0x064B) < IrreleventPos.length ) ) {
+            int charidx = str[Ix] - 0x064B;
           int  MyShape =0;
-//@bd10a start
           int next = (int) (nextLink & (LINKR + LINKL));
           int last =lastLink & (LINKR + LINKL);
-
           if (( (last==3)&& (next==1) )
               || ( (last==3) && (next==3) ))
             MyShape= 1;
-
-//LamAlef type
           if (((nextLink & ALEFTYPE) > 0)  &&  ((lastLink & LAMTYPE) > 0))
             MyShape=0;
-
-          if ((str06[Ix]==0x064C) //Wawdoma
-              || (str06[Ix]==0x064D)) //kasrten
+            if ( (str[Ix]==0x064C) //Wawdoma
+                 || (str[Ix]==0x064D) ) //kasrten
             MyShape=0;
-//@bd10a end
-
-          str06[Ix] =  (char)(0xFE70 + IrreleventPos[charidx]+ MyShape) ;  //@BD2A
-        }
-
-//@bd9a end
+            str[Ix] =  (char)(0xFE70 + IrreleventPos[charidx]+ MyShape) ;
+         }
         Ix += step;
-
-        if (Ix == Nx)
-        {
+         if ( Ix == Nx ) {
           currLink = nextLink;
           Nx = -2;
         }
         else
-        //      currLink = uba_getLink(target[Ix]);
-        {
+         {
           if (Ix != iEnd)
-//@BD2D               currLink = uba_getLink ( str06.charAt(Ix) );
-            currLink = uba_getLink ( str06[Ix]) ;  //@BD2A
-        }
+               currLink = uba_getLink ( str[Ix]) ;
+         }
       } //end while
-//@BD3D        return (new String(str06));
-
-//@bd10 //Seen family , if 2 space after seen change to seen + tail(0x200C)
-//+Space
-      for (int idx = 0; idx < str06.length ; idx++)
-      {
-//Heba          if (RTL && inOutDiff)
-        if (RTL)
-        {
-          if ((SeenChar(str06[idx]))
-              //next character is Space
-              && ( (idx+1 < str06.length) && ( str06[idx+1] == 0x0020) ))
-            str06[idx+1] =BidiShape.Tail; //@BD12  //@BD17c
-          // str06[idx+1] =0x200C;  //ZWNJ so as tobe converted to tail for
-          //420
-//@BD18d start
-/*             if ( (Integer.toHexString(str06[idx]).equalsIgnoreCase("fe8a"))&& ( (idx+1 < str06.length) && ( str06[idx+1] == 0x0020) ) ) //$DB13
-                 {//Yeh Hamza above
-                    str06[idx] = 0xfef0 ;//Yeh
-                    str06[idx+1] =0xfe80 ;//hamza
-                 }
-                else if( Integer.toHexString(str06[idx]).equalsIgnoreCase("fe8a"))//@BD15
-                 {
-                    str06[idx] = 0xfef0 ;//Yeh
-                 }
-                if ( (Integer.toHexString(str06[idx]).equalsIgnoreCase("fe89"))&& ( (idx+1 < str06.length) && ( str06[idx+1] == 0x0020) ) ) //$DB13
-                 {//Yeh Hamza above
-                    str06[idx] = 0xfeef ;//Yeh
-                    str06[idx+1] =0xfe80 ;//hamza
-                 }
-            else if( Integer.toHexString(str06[idx]).equalsIgnoreCase("fe89"))//@BD15
-             {
-              str06[idx] = 0xfeef ;//Yeh
-             }
-*/ //@BD18d end				 
-//@BD18a start
-          if (str06[idx] == 0xfe8a)
-          {
-            str06[idx]= 0xfef0;//Yeh
-            if ((idx+1 < str06.length) && ( str06[idx+1] == 0x0020))
-              str06[idx+1] = 0xfe80; //hamza
-          }
-          if (str06[idx] == 0xfe89)
-          {
-            str06[idx] = 0xfeef ;//Yeh
-            if ((idx+1 < str06.length) && ( str06[idx+1] == 0x0020))
-              str06[idx+1] = 0xfe80 ;//hamza
-          }
-//@BD18a end
-
-        }
-        else
-        {
-          if ((SeenChar(str06[idx]))
-              //next character is Space
-              && ( (idx-1 >= 0) && ( str06[idx-1] == 0x0020) ))
-            str06[idx-1] = BidiShape.Tail;  //BD12 //@BD17c
-          //      str06[idx-1] =0x200C;  //ZWNJ so as tobe converted to tail for 420
-//@BD18d start
-/*             if ( Integer.toHexString(str06[idx]).equalsIgnoreCase("fe8a") &&  (idx-1 >= 0) && ( str06[idx-1] == 0x0020)  )//@BD13
-              {//Yeh Hamza above
-                    str06[idx]= 0xfef0;//Yeh
-                    str06[idx-1] =0xfe80; //hamza
-                 }
-                else if( Integer.toHexString(str06[idx]).equalsIgnoreCase("fe8a"))//@BD15
-                 {
-                    str06[idx] = 0xfef0 ;//Yeh
-                 }
-
-             if ( Integer.toHexString(str06[idx]).equalsIgnoreCase("fe89") &&  (idx-1 >= 0) && ( str06[idx-1] == 0x0020)  )//@BD13
-              {//Yeh Hamza above
-                    str06[idx]= 0xfeef;//Yeh
-                    str06[idx-1] =0xfe80; //hamza
-                 }
-            else if( Integer.toHexString(str06[idx]).equalsIgnoreCase("fe89"))//@BD15
-             {
-              str06[idx] = 0xfeef ;//Yeh
-             }
+    }// end of else to visual
+  }
+/**
+ * Method shape.
+ * In this method, the shaping process (Arabic options handling and shaping routine) is performed.
+ *
+ * @param inAttr     The input Bidi Attributes (TextType, TextShape, ...etc.)
+ * @param outAttr    The output Bidi Attributes (TextType, TextShape, ...etc.)
+ * @param str        The buffer to be shaped.
+ * @param optionSet  The Arabic options used in shaping process.
 */
-//@BD18d end
-//@BD18a start													  
-          if (str06[idx] == 0xfe8a)
-          {
-            str06[idx]= 0xfef0;//Yeh
-            if ((idx-1 >= 0) && ( str06[idx-1] == 0x0020))
-              str06[idx-1] = 0xfe80; //hamza
+  synchronized char[] shape(BidiFlagSet inAttr, BidiFlagSet outAttr, char str[], ArabicOptionSet optionSet)
+  {
+    boolean rtl = true;
+    BidiFlag   inTextType, outTextType, inTextShape, outTextShape;
+    ArabicOption lamAlefOpt, seenOpt, yehHamzaOpt, tashkeelOpt;
+
+    int bufLen = str.length;
+    if ( bufLen == 0)
+        return str;
+
+    if(optionSet == null) //Set Arabic options to the default values in case user did not specify them.
+     {
+        optionSet = new ArabicOptionSet();
           }
-          if (str06[idx] == 0xfe89)
-          {
-            str06[idx] = 0xfeef;//Yeh
-            if ((idx-1 >= 0) && ( str06[idx-1] == 0x0020))
-              str06[idx-1] = 0xfe80 ;//hamza
-          }
-//@BD18a end
+
+    //Initialize variables
+    inTextType   = inAttr.getType();
+    outTextType  = outAttr.getType();
+    rtl = outAttr.getOrientation() == BidiFlag.ORIENTATION_RTL;
+    inTextShape  = inAttr.getText();
+    outTextShape = outAttr.getText();
+    lamAlefOpt   = optionSet.getLamAlefMode();
+    seenOpt      = optionSet.getSeenMode();
+    yehHamzaOpt  = optionSet.getYehHamzaMode();
+    tashkeelOpt  = optionSet.getTashkeelMode();
+
+    if(inTextType == BidiFlag.TYPE_VISUAL && outTextType == BidiFlag.TYPE_IMPLICIT) //Visual to Implicit
+    {
+        //Seen Deshaping
+        if( (seenOpt == ArabicOption.SEEN_NEAR) || (seenOpt == ArabicOption.SEEN_AUTO) )
+            deshapeSeenNear(str,bufLen);
+
+        /*Yeh Hamza DeShapping*/
+
+        if (( yehHamzaOpt == ArabicOption.YEHHAMZA_TWO_CELL_NEAR ) || ( yehHamzaOpt == ArabicOption.YEHHAMZA_AUTO))
+        {
+            deshapeYehHamzaTwoCellNear(str, bufLen);
         }
-      }
-    }// end else statment
 
+        /*Tashkeel DeShapping*/
+        if((tashkeelOpt == ArabicOption.TASHKEEL_KEEP) || ( tashkeelOpt == ArabicOption.TASHKEEL_AUTO))
+        {
+            //No processing is done
+        }
+        else if (tashkeelOpt == ArabicOption.TASHKEEL_CUSTOMIZED_ATBEGIN)
+        {
+            customizeTashkeelAtBegin( str, bufLen);
+        }
+        else if (tashkeelOpt == ArabicOption.TASHKEEL_CUSTOMIZED_ATEND)
+        {
+            customizeTashkeelAtEnd( str, bufLen);
+        }
 
-  } //end method
+        /*LamAlef DeShapping*/
+        if( lamAlefOpt == ArabicOption.LAMALEF_RESIZE_BUFFER ){
+            str=deshapeLamAlefWithResizeBuffer(str, bufLen);
+            bufLen= str.length;
+        }
+        else if (lamAlefOpt == ArabicOption.LAMALEF_NEAR)
+        {
+            deshapeLamAlefNear(str, bufLen);
+        }
+        else if (lamAlefOpt == ArabicOption.LAMALEF_ATBEGIN)
+        {
+            deshapeLamAlefAtBegin(str, bufLen);
+        }
+        else if (lamAlefOpt == ArabicOption.LAMALEF_ATEND)
+        {
+            deshapeLamAlefAtEnd(str, bufLen);
+        }
+        else if(lamAlefOpt == ArabicOption.LAMALEF_AUTO ){
+            deshapeLamAlefAuto(str, bufLen,rtl);
+        }
 
-/*------------------------------------------------------------------------*/
+        shapingRoutine(inAttr, outAttr, str, rtl);
 
+     }//end if Visual to Implicit
+
+    else if(outTextType == BidiFlag.TYPE_VISUAL)
+    {
+        shapingRoutine(inAttr, outAttr, str, rtl);
+
+        /* Seen Shapping*/
+        if( (seenOpt == ArabicOption.SEEN_NEAR) || (seenOpt == ArabicOption.SEEN_AUTO) )
+            shapeSeenNear(str,bufLen, rtl);
+
+        /* Yeh Hamza Shapping*/
+        if( (yehHamzaOpt == ArabicOption.YEHHAMZA_TWO_CELL_NEAR) || ( yehHamzaOpt == ArabicOption.YEHHAMZA_AUTO)){
+            shapeYehHamzaTwoCellNear(str, bufLen, rtl);
+        }
+
+        /*Tashkeel Shapping*/
+        if((tashkeelOpt == ArabicOption.TASHKEEL_KEEP) || ( tashkeelOpt == ArabicOption.TASHKEEL_AUTO))
+        {
+            //No processing is done
+        }
+        else if (tashkeelOpt == ArabicOption.TASHKEEL_CUSTOMIZED_ATBEGIN)
+        {
+            customizeTashkeelAtBegin( str, bufLen);
+        }
+        else if (tashkeelOpt == ArabicOption.TASHKEEL_CUSTOMIZED_ATEND)
+        {
+            customizeTashkeelAtEnd( str, bufLen);
+        }
+
+        /* LamAlef Handling*/
+        if( lamAlefOpt == ArabicOption.LAMALEF_RESIZE_BUFFER ){
+            str=handleLamAlefWithResizeBuffer(str, bufLen, rtl);
+            bufLen=str.length;
+        }
+        else if (lamAlefOpt == ArabicOption.LAMALEF_NEAR){
+            handleLamAlefNear(str, bufLen, rtl);
+        }
+        else if (lamAlefOpt == ArabicOption.LAMALEF_ATBEGIN)
+        {
+            // In case of LTR spaces are already in the absolute begining of buffer
+            if (rtl)
+                handleLamAlefAtBegin(str, bufLen);
+        }
+        else if (lamAlefOpt == ArabicOption.LAMALEF_ATEND)
+        {
+            // In case of RTL spaces are already in the absolute end of buffer
+            if (!rtl)
+                handleLamAlefAtEnd(str, bufLen);
+        }
+        else if(lamAlefOpt == ArabicOption.LAMALEF_AUTO )
+        {
+            //No processing is done
+        }
+
+    }// end of else if to shaped
+    return str;
+  }
+
+/**
+ * Method uba_getLink.
+ *
+ * @param x the character to be checked
+ * @return int
+ */
   private static int uba_getLink(char x)
   {
     if (x >= 0x0622 && x <= 0x06D3)  //06 Range
@@ -817,24 +689,30 @@ class BidiShape
       return(0);
   }
 
-/*------------------------------------------------------------------------*/
-
+/**
+ * Method Lamalef.
+ *
+ * @param x     the character to be checked
+ * @return char
+ */
   private static char Lamalef(char x)
   {
-    if (x == 0x0622)
-      return(0x065C);
-    else if (x == 0x0623)
-      return(0x065D);
-    else if (x == 0x0625)
-      return(0x065E);
-    else if (x == 0x0627)
-      return(0x065F);
-    else
+     switch(x)
+     {
+         case 0x0622:  return (0x065C);
+         case 0x0623:  return (0x065D);
+         case 0x0625:  return (0x065E);
+         case 0x0627:  return (0x065F);
+     }
       return(0);
   }
 
-/*------------------------------------------------------------------------*/
-
+/**
+ * Method specialChar.
+ *
+ * @param ch    the character to be checked
+ * @return int
+ */
   private static int specialChar(char ch)
   {
     // hamza ,
@@ -846,8 +724,16 @@ class BidiShape
       return(0);
   }
 
-//@bd10 add seen type check
-
+/**
+ * Method SeenChar.
+ * This method checks if the passed chracter is one of the Seen family characters.
+ * Seen family characters are Seen, Sheen, Sad and Dad. For each character of them there are
+ * two shapes.
+ *
+ * @param ch        The character to be checked.
+ * @return boolean true, if the character belongs to Seen family.
+ *                  false, otherwise
+ */
   private static boolean SeenChar(char ch)
   {
     if ((ch==0xFEB1) ||
@@ -864,79 +750,712 @@ class BidiShape
       return(false);
   }
 
-  /*************************************************************************/
-  //@BD5A End method
 
-/*
- @BD11a
- Adding a method that take an array of UNICODE characters
- that are shaped and ordered , and return an expanded array of
- UNICODE for each Lamalef character.
+//The following methods are responsible for handling Arabic Options
+
+
+                                    /* ******************************** */
+                                    /*                                  */
+                                    /*  Methods for Lam Alef handling   */
+                                    /*                                  */
+                                    /* ******************************** */
+
+/**
+ *  Method handleLamAlefWithResizeBuffer.
+ *  This method shrink the input buffer by the number of Lam-Alef occurences.
+ *  The buffer is supposed to come with LamAlef shaped with a space at end/begin
+ *  of the buffer depending on wherther the output is rtl or ltr.
+ *  And the method role is to remove this space and shrink the buffer
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl     The buffer orientation.
+ *  @return int The new size of the buffer.
+ *
+ */
+
+ private char[] handleLamAlefWithResizeBuffer(char[] buffer, int length, boolean rtl){
+
+    int counter =0 ;
+    int lamAlefCount=0;
+    char compressedBuffer[];
+
+    for (counter=0;counter<length;counter++){
+        if(( buffer[counter] >= 0xFEF5) && (buffer[counter] <= 0xFEFC ))
+            lamAlefCount++;
+    }
+
+    if(lamAlefCount == 0) return buffer;
+
+    compressedBuffer = new char[length-lamAlefCount];
+    if(rtl){//Remove the sapces at the end of the buffer
+        System.arraycopy(buffer,0, compressedBuffer, 0, buffer.length-lamAlefCount);
+    }
+    else {//Remove the sapces in the begining of the buffer
+        System.arraycopy(buffer, lamAlefCount, compressedBuffer, 0, buffer.length-lamAlefCount);
+    }
+
+    return compressedBuffer;
+ }
+
+/**
+ *  Method deshapeLamAlefWithResizeBuffer.
+ *  This method enlarge the input buffer by the number of Lam-Alef occurences.
+ *  All Lam-Alef characters are expanded to Lam + Alef characters .
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl     The buffer orientation.
+ *  @return int The new size of the buffer.
+ *
+ */
+
+ private char[] deshapeLamAlefWithResizeBuffer(char[] buffer, int length){
+
+    char ChAlefType;
+    int oldBufferCounter =0 ;
+    int newBufferCounter =0 ;
+    int lamAlefCount=0;
+    char expandedBuffer[];
+
+    for (oldBufferCounter=0;oldBufferCounter<length;oldBufferCounter++){
+        if(( buffer[oldBufferCounter] >= 0xFEF5) && (buffer[oldBufferCounter] <= 0xFEFC ))
+            lamAlefCount++;
+    }
+    if(lamAlefCount == 0) return buffer;
+    expandedBuffer = new char[length+lamAlefCount];
+    oldBufferCounter =0;
+        while (oldBufferCounter < length)
+        {
+           if ( ( buffer[oldBufferCounter] >= 0xFEF5) && (buffer[oldBufferCounter] <= 0xFEFC ))
+                {
+                    ChAlefType = (char)AlefType[buffer[oldBufferCounter]-0xFEF5];
+                    expandedBuffer[newBufferCounter]  =  '\u0644';
+                    newBufferCounter++;
+                    expandedBuffer[newBufferCounter]  = ChAlefType;
+                }
+            else
+                {
+                    expandedBuffer[newBufferCounter] = buffer[oldBufferCounter];
+                }
+            newBufferCounter++;
+            oldBufferCounter ++;
+        }
+
+    return expandedBuffer;
+ }
+
+/**
+ *  Method handleLamAlefNear
+ *  This method moves the spaces located in the begining of buffer with respect to
+ *  orientation (buffer[0] in LTR and buffer[length -1] in RTL) to the position near
+ *  to each of Lam-Alef characters.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl     The buffer orientation.
+ *
+ */
+
+ private void handleLamAlefNear(char[] buffer, int length, boolean rtl)
+ {
+    int count = 0;
+    int tempIdx;
+
+    while (count < length)
+    {
+        if ((buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) && buffer[length - 1] == 0x0020 && rtl)
+        {
+            for (tempIdx = length -1; tempIdx > count + 1; tempIdx--)
+                buffer [tempIdx] = buffer [tempIdx - 1];
+            if(count < length - 1)
+                buffer[count + 1] = 0x0020;
+        }
+        else if ((buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) && buffer[0] == 0x0020 && !rtl)
+        {
+            for (tempIdx = 0; tempIdx < count - 1; tempIdx++)
+                buffer [tempIdx] = buffer [tempIdx + 1];
+            if (count != 0)
+                buffer[count - 1] = 0x0020;
+        }
+
+        count ++;
+    }
+ }
+
+
+/**
+ *  Method deshapeLamAlefNear
+ *  This method expands Lam-Alef character to Lam and Alef using the space near to
+ *  Lam-Alef character. In case no spaces occurs near this character no processing
+ *  will be done and the output buffer will contain the Lam-Alef character in its
+ *  FE hexadecimal value.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void deshapeLamAlefNear(char[] buffer, int length)
+ {
+    char ChAlefType;
+    int count = 1;
+
+  while (count < length)
+  {
+      if ( (buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) &&
+            ( (count!= length - 1) && ( buffer[count + 1] == 0x0020) )
+         )
+
+    {
+      ChAlefType = (char)AlefType[buffer[count]-0xFEF5];
+      buffer[count + 1] = ChAlefType;
+      buffer[count] = '\u0644';
+    }
+
+    count ++;
+    }
+ }
+
+
+/**
+ *  Method handleLamAlefAtBegin
+ *  This method moves the space located in the absolute end of buffer to the absolute begin of buffer so these
+ *  spaces can be used in Lam-Alef deshaping in the other way back.
+ *  character.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void handleLamAlefAtBegin(char[] buffer, int length)
+ {
+    int count = 0;
+    int tempIdx, lamAlefOccurences = 0;
+
+    while (count < length)
+    {
+        if ((buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) && buffer[length - 1] == 0x0020)
+        {
+            for (tempIdx = length - 1; tempIdx >lamAlefOccurences; tempIdx--)
+                buffer [tempIdx] = buffer [tempIdx - 1];
+            buffer[lamAlefOccurences] = 0x0020;
+            lamAlefOccurences++;
+            count++;
+        }
+        count ++;
+    }
+ }
+
+
+/**
+ *  Method deshapeLamAlefAtBegin
+ *  This method expands Lam-Alef character to Lam and Alef using the spaces in the absolute begin of buffer.
+ *  In case no spaces occurs near this character no processing will be done and the output buffer will contain
+ *  the Lam-Alef character in its FE hexadecimal value.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void deshapeLamAlefAtBegin(char[] buffer, int length)
+ {
+    char ChAlefType;
+    int count = 0 ;
+    int tempIdx;
+
+    while (count < length)
+    {
+      if ( (buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) && buffer[0] == 0x0020)
+      {
+        ChAlefType = (char)AlefType[buffer[count]-0xFEF5];
+
+        for (tempIdx = 0; tempIdx < count - 1; tempIdx++)
+            buffer [tempIdx] = buffer [tempIdx + 1];
+
+            buffer[count - 1] = '\u0644';
+            buffer[count]     = ChAlefType;
+        }
+
+      count ++;
+    }
+
+ }
+
+
+/**
+ *  Method handleLamAlefAtEnd
+ *  This method moves the space located in the absolute begin of buffer to the absolute end of buffer so these
+ *  spaces can be used in Lam-Alef deshaping in the other way back.
+ *  character.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void handleLamAlefAtEnd(char[] buffer, int length)
+ {
+    int count = 0;
+    int tempIdx, lamAlefOccurences = 0;
+
+    while (count < length)
+    {
+        if ((buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) && buffer[0] == 0x0020)
+        {
+            for (tempIdx = 0; tempIdx < length - lamAlefOccurences - 1; tempIdx++)
+                buffer [tempIdx] = buffer [tempIdx + 1];
+            buffer[length - lamAlefOccurences - 1] = 0x0020;
+            lamAlefOccurences++;
+        }
+        count ++;
+    }
+ }
+
+/**
+ *  Method deshapeLamAlefAtEnd
+ *  This method expands Lam-Alef character to Lam and Alef using the spaces in the absolute end of buffer.
+ *  In case no spaces occurs near this character no processing will be done and the output buffer will contain
+ *  the Lam-Alef character in its FE hexadecimal value.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
 */
 
-  /*public*/ static void ExpandLamAlef(char[] UniBuff, int length,boolean rtl) //@BD19c
-  {
-    char AlefType[] = {
-      '\u0622',
-      '\u0622',
-      '\u0623',
-      '\u0623',
-      '\u0625',
-      '\u0625',
-      '\u0627',
-      '\u0627',
-    };
+  private void deshapeLamAlefAtEnd(char[] buffer, int length)
+ {
     char ChAlefType;
     int count =0 ;
+    int tempIdx;
 
     while (count < length)
     {      
-/*OLD DESIGN */
-/*
-   if ( ( UniBuff[count] >= 0xFEF5) && (UniBuff[count] <= 0xFEFC )&&UniBuff[0]==0x0020&&rtl)
-        {
-        ChAlefType = (char)AlefType[UniBuff[count]-0xFEF5];
-      for(int h=0;h<count-1;h++) {UniBuff[h] = UniBuff[h+1];}
-      UniBuff[count] =  ChAlefType;
-      UniBuff[count-1] = '\u0644';
-        }
-   else if ( ( UniBuff[count] >= 0xFEF5) && (UniBuff[count] <= 0xFEFC )&&UniBuff[length-1]==0x0020&&!rtl)
-        {
-                        ChAlefType = (char)AlefType[UniBuff[count]-0xFEF5];
-                    for(int h=length-1;h>count;h--) {UniBuff[h] = UniBuff[h-1];}
-                        UniBuff[count+1] = ChAlefType;
-                    UniBuff[count] = '\u0644';
-        }
-        */
-/*OLD DESIGN*/
-/*NEW DESIGN*/
-      if (( UniBuff[count] >= 0xFEF5) && (UniBuff[count] <= 0xFEFC )&&UniBuff[length-1]==0x0020&&rtl)
+      if ( (buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC ) && buffer[length - 1] == 0x0020)
       {
+        ChAlefType = (char)AlefType[buffer[count]-0xFEF5];
 
-        ChAlefType = (char)AlefType[UniBuff[count]-0xFEF5];
-        for (int h=length-1;h>count;h--)
-        {
-          UniBuff[h] = UniBuff[h-1];
-        }
-        UniBuff[count+1] =  ChAlefType;
-        UniBuff[count] = '\u0644';
-      }
-      else if (( UniBuff[count] >= 0xFEF5) && (UniBuff[count] <= 0xFEFC )&&UniBuff[0]==0x0020&&!rtl)
-      {
+        for (tempIdx = length - 1; tempIdx > count + 1; tempIdx--)
+            buffer [tempIdx] = buffer [tempIdx - 1];
 
-        ChAlefType = (char)AlefType[UniBuff[count]-0xFEF5];
-        for (int h=0;h<count;h++)
-        {
-          UniBuff[h] = UniBuff[h+1];
-        }
-        UniBuff[count] = ChAlefType;
-        UniBuff[count-1] = '\u0644';
+        buffer[count] = '\u0644';
+        buffer[count + 1]     = ChAlefType;
+
       }
-/*NEW DESIGN*/
 
       count ++;
-    } // end of loop
+    }
 
-  } // end of the method
-}       //end class
+ }
+
+/**
+ * Method handleLamAlefAuto.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl      The buffer orientation.
+ *
+ */
+
+  private void handleLamAlefAuto(char[] buffer, int length, boolean rtl)
+  {}
+
+/**
+ * Method deshapeLamAlefAuto.
+ *
+ * This method expands LamAlef character to Lam and Alef characters consuming the space
+ * located in the in the begining of buffer with respect to orientation (buffer[0] in LTR
+ * and buffer[length -1] in RTL)
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl      The buffer orientation.
+        */
+
+ private void deshapeLamAlefAuto(char[] buffer, int length, boolean rtl){
+
+     char ChAlefType;
+    int count =0 ;
+
+    while (count < length)
+    {
+    if ( ( buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC )&&buffer[length-1]==0x0020&&rtl)
+        {
+        ChAlefType = (char)AlefType[buffer[count]-0xFEF5];
+
+        for (int h=length-1;h>count;h--)
+                buffer[h] = buffer[h-1];
+
+        buffer[count+1] =  ChAlefType;
+        buffer[count] = '\u0644';
+        }
+    else if ( ( buffer[count] >= 0xFEF5) && (buffer[count] <= 0xFEFC )&&buffer[0]==0x0020&&!rtl)
+        {
+
+        ChAlefType = (char)AlefType[buffer[count]-0xFEF5];
+
+        for (int h=0;h<count;h++)
+                buffer[h] = buffer[h+1];
+
+        buffer[count] = ChAlefType;
+        buffer[count-1] = '\u0644';
+
+        }
+      count ++;
+    } // end of loop
+ }
+
+                                    /* ******************************** */
+                                    /*                                  */
+                                    /*     Methods for Seen handling    */
+                                    /*                                  */
+                                    /* ******************************** */
+
+ /**
+ *  This method replaces the space near to Seen character to by a Seen Tail.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl  The buffer orientation.
+ *
+ */
+
+ private void shapeSeenNear(char[] buffer, int length, boolean rtl)
+ {
+    for (int idx = 0; idx < length ; idx++)
+    {
+        if(rtl)
+        {
+            if ( SeenChar(buffer[idx]) && ( (idx+1 < length) && ( buffer[idx+1] == 0x0020) ) )
+
+                buffer[idx+1] =BidiShape.Tail;
+        }
+        else
+        {
+            if ( SeenChar(buffer[idx]) && ( (idx-1 >= 0) && ( buffer[idx-1] == 0x0020) ) )
+
+                buffer[idx-1] = BidiShape.Tail;
+        }
+     }
+ }
+
+ /**
+ *  This method replaces Seen Tail by a space near to the Seen character.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void deshapeSeenNear(char[] buffer, int length)
+ {
+        for (int idx = 0; idx < length ; idx++)
+        {
+            if (buffer[idx] == BidiShape.Tail)
+                buffer[idx]= (char)0x0020;
+        }
+ }
+
+/**
+ * Method shapeSeenAtBegin.
+ *
+ * @param buffer
+ * @param length
+ * @param rtl
+ */
+
+ private void shapeSeenAtBegin(char[] buffer, int length, boolean rtl){}
+/**
+ * Method deshapeSeenAtBegin.
+ *
+ * @param buffer
+ * @param length
+ * @param rtl
+ */
+
+ private void deshapeSeenAtBegin(char[] buffer, int length, boolean rtl){}
+
+/**
+ * Method shapeSeenAtEnd.
+ *
+ * @param buffer
+ * @param length
+ * @param rtl
+ */
+ private void shapeSeenAtEnd(char[] buffer, int length, boolean rtl){}
+
+/**
+ * Method deshapeSeenAtEnd.
+ *
+ * @param buffer
+ * @param length
+ * @param rtl
+ */
+
+ private void deshapeSeenAtEnd(char[] buffer, int length, boolean rtl){}
+
+/**
+ * Method handleSeenAuto.
+ *
+ * @param buffer
+ * @param length
+ * @param rtl
+ */
+
+ private void handleSeenAuto(char[] buffer, int length, boolean rtl){}
+
+/**
+ * Method deshapeSeenAuto.
+ * @param buffer
+ * @param length
+ * @param rtl
+ */
+ private void deshapeSeenAuto(char[] buffer, int length, boolean rtl){}
+
+
+                                    /* ******************************** */
+                                    /*                                  */
+                                    /*  Methods for Yeh Hamza handling  */
+                                    /*                                  */
+                                    /* ******************************** */
+
+/**
+ * Method shapeYehHamzaTwoCellNear.
+ * This method convert every YehHamza to Yeh + Hamza depending on whether the output
+ * buffer is rtl or ltr using the space near the YeahHamza
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl      The buffer orientation.
+ *
+ */
+ private void shapeYehHamzaTwoCellNear(char[] buffer, int length, boolean rtl){
+    int counter=0;
+    for (counter =0; counter < length ; counter++)
+     {
+      if(rtl)
+       {
+          if ( buffer[counter] == 0xfe8a )
+                {
+                    buffer[counter]= 0xfef0;//Yeh
+                    if ( (counter+1 < length) && ( buffer[counter+1] == 0x0020) )
+                      buffer[counter+1] = 0xfe80; //hamza
+                }
+         if ( buffer[counter] == 0xfe89 )
+                {
+                    buffer[counter] = 0xfeef ;//Yeh
+                    if ( (counter+1 < length) && ( buffer[counter+1] == 0x0020) )
+                      buffer[counter+1] = 0xfe80 ;//hamza
+                }
+          }
+        else
+          {
+             if ( buffer[counter] == 0xfe8a )
+              {
+                        buffer[counter]= 0xfef0;//Yeh
+                        if ( (counter-1 >= 0) && ( buffer[counter-1] == 0x0020) )
+                          buffer[counter-1] = 0xfe80; //hamza
+              }
+            if ( buffer[counter] == 0xfe89 )
+              {
+                    buffer[counter] = 0xfeef;//Yeh
+                    if ( (counter-1 >= 0) && ( buffer[counter-1] == 0x0020) )
+                      buffer[counter-1] = 0xfe80 ;//hamza
+              }
+          }
+      }
+}
+
+
+/**
+ * Method deshapeYehHamzaTwoCellNear.
+ * This method convert every Yeh follwed by a Hamza to YehHamza character
+ * and put the spaces near the character
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+ private void deshapeYehHamzaTwoCellNear(char[] buffer, int length){
+
+    int counter=0;
+    for (counter =0; counter < length ; counter++)
+     {
+          if ((counter+1 <length)&&( buffer[counter] == 0xfef0 )&&(buffer[counter+1] == 0xfe80))
+                {
+                    buffer[counter]= 0xfe8a;//YehHamze
+                    buffer[counter+1] = 0x0020; //Space
+                }
+         if ((counter+1 <length)&&( buffer[counter] == 0xfeef )&&(buffer[counter+1] == 0xfe80))
+                {
+                    buffer[counter] = 0xfe89 ;//YehHamza
+                    buffer[counter+1] = 0x0020 ;//Space
+                }
+      }
+ }
+
+/**
+ * Method shapeYehHamzaAtBegin.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl      The buffer orientation.
+ *
+ */
+ private void shapeYehHamzaAtBegin(char[] buffer, int length, boolean rtl){}
+
+/**
+ * Method deshapeYehHamzaAtBegin.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void deshapeYehHamzaAtBegin(char[] buffer, int length){}
+
+/**
+ * Method shapeYehHamzaAtEnd.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl      The buffer orientation.
+ *
+ */
+
+ private void shapeYehHamzaAtEnd(char[] buffer, int length, boolean rtl){}
+
+/**
+ * Method deshapeYehHamzaAtEnd.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void deshapeYehHamzaAtEnd(char[] buffer, int length){}
+
+/**
+ * Method shapeYehHamzaAuto.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *  @param  rtl      The buffer orientation.
+ *
+ */
+
+ private void shapeYehHamzaAuto(char[] buffer, int length, boolean rtl)
+ {
+ }
+
+/**
+ * Method deshapeYehHamzaAuto.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void deshapeYehHamzaAuto(char[] buffer, int length)
+ {
+ }
+
+                                    /* ******************************** */
+                                    /*                                  */
+                                    /*   Methods for Tashkeel handling  */
+                                    /*                                  */
+                                    /* ******************************** */
+
+/**
+ * Method customizeTashkeelZeroWidth.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void  customizeTashkeelZeroWidth(char[] buffer, int length){}
+
+
+/**
+ * Method customizeTashkeelWithWidth.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+
+ private void  customizeTashkeelWithWidth(char[] buffer, int length){}
+
+/**
+ * Method customizeTashkeelAtBegin.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+ private void  customizeTashkeelAtBegin(char[] buffer, int length)
+ {
+    int count =0 ;
+    int tashkeelOcuurences = 0;
+
+    while (count < length)
+    {
+        if ( ( (buffer[count] >= 0xFE70) && (buffer[count] <= 0xFE72) ) ||
+               (buffer[count] == 0xFE74) ||
+             ( (buffer[count] >= 0xFE76) && (buffer[count] <= 0xFE7B) ) ||
+             ( (buffer[count] >= 0xFE7E) && (buffer[count] <= 0xFE7F) ) )
+        {
+            for(int idx = count; idx > tashkeelOcuurences; idx--)
+                buffer[idx] = buffer[idx - 1];
+            buffer[tashkeelOcuurences] = 0x0020;
+            tashkeelOcuurences++;
+        }
+        count ++;
+    }
+ }
+
+
+/**
+ * Method customizeTashkeelAtEnd.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+ private void  customizeTashkeelAtEnd(char[] buffer, int length)
+ {
+     int count =0 ;
+    int tashkeelOcuurences = 0;
+
+    while (count < length)
+    {
+        if ( ( (buffer[count] >= 0xFE70) && (buffer[count] <= 0xFE72) ) ||
+               (buffer[count] == 0xFE74) ||
+             ( (buffer[count] >= 0xFE76) && (buffer[count] <= 0xFE7B) ) ||
+             ( (buffer[count] >= 0xFE7E) && (buffer[count] <= 0xFE7F) ) )
+        {
+            for(int idx = count; idx < length - tashkeelOcuurences - 1; idx++)
+                buffer[idx] = buffer[idx + 1];
+            buffer[length - tashkeelOcuurences - 1] = 0x0020;
+            tashkeelOcuurences++;
+        }
+        count ++;
+    }
+
+ }
+
+
+/**
+ * Method handleTashkeelAuto.
+ *
+ *  @param  buffer  The buffer containing the data to be processed.
+ *  @param  length  The buffer length.
+ *
+ */
+ private void  handleTashkeelAuto(char[] buffer, int length){}
+
+ }
 

@@ -44,10 +44,20 @@ class BidiOrder
   private static final int UBAT_W  = 9;           /* white space */
   private static final int UBAT_N  =10;           /* neutral */
   private static final int UBAT_BD =11;           /* bidi special codes */
+  private static final int UBAT_AL =12;           /* Arabic Letter      */
+  private static final int UBAT_NSM =13;          /* Non Spacing Mark   */
 
   private static final int ITIL    = 11;
   private static final int ITCOND  = 12;
 
+  private static final byte TONATIONAL_FLAG = 1;
+  private static final byte TONOMINAL_FLAG = 2;
+  private static final byte CONTEXTUAL_FLAG = 4;
+  private static final byte SWAPPING_FLAG = 8;
+  private static final byte IMP_LTR = 4;
+  private static final byte IMP_RTL = 8;
+  private static final byte ORIG = 0;
+  private static final byte FINAL = 1;
 /*****************************************************************************/
 /* Not Spacing characters*/
 /*-----------------------*/
@@ -58,7 +68,7 @@ class BidiOrder
     {0x05BF, 0x05BF} ,
     {0x05C1, 0x05C2} ,
     {0x05F5, 0x05F5} ,
-    {0x064B, 0x0652} , /*//@BD17 $BD19 uncomment*/
+    {0x064B, 0x0652} ,
     {0x0670, 0x0670} ,
     {0x06D6, 0x06E4} ,
     {0x06E7, 0x06E8} ,
@@ -146,33 +156,89 @@ class BidiOrder
   };
 
 /**************************************************************************/
-  private static final short impTab[][] =
+  private static final short impTab_LTR[][] =
   {
-
     /* B, S,  L,  R,  EN,  AN, ET, ES, CS,  W,  N, IL, Cond */
 
 /* 0 L0 text      */  { 0, 0,  0,  3,   0,   1,  0,  0,  0,  0,  0,  0,  0},
 /* 1 L0+AN        */  { 0, 0,  0,  3,   0,   1,  4,  4,  2,  4,  4,  2,  0},
-/* 2 L0+AN+cont   */  { 0, 0,  0,  3,   0,   1,  4,  4,  4,  4,  4,  2,  1},
+/* 2 L0+AN+CS    */  {   0,   0,   0,   3,   0,   1,   4,  4,  4,  4,  4,  2,  1},
 /* 3 L1 text      */  { 0, 0,  0,  3,   6,   1,  5,  4,  4,  4,  4,  1,  0},
-//@bd11c/* 4 L1 cont      */  { 0, 0,  0,  3,0xA6,0xA1,  5,  4,  4,  4,  4,  1,  1},
 /* 4 L1 cont      */  { 0, 0,  0,  3,0x66,0x61,  5,  4,  4,  4,  4,  1,  1},
-/* 5 L1+prefix    */  { 0, 0,  0,  3,0x66,0x41,  5,  4,  4,  4,  4,  1,  1},
+/* 5 L1+ET       */  {   0,   0,   0,   3,0x66,0x41,   5,  4,  4,  4,  4,  1,  1},
 /* 6 L1+EN        */  { 0, 0,  0,  3,   6,   1,  8,  7,  7,  4,  4,  2,  0},
-/* 7 L1+EN+cont   */  { 0, 0,  0,  3,   6,0x41,  5,  4,  4,  4,  4,  2,  1},
-/* 8 L1+EN+suffix */  { 0, 0,  0,  3,   6,   1,  5,  4,  4,  4,  4,  2,  0},
-
-/* 9 L0 text      */  { 9, 9, 16,  9,  11,  14, 10,  9,  9,  9,  9,  0,  0},
-/* 10 L0+prefix   */  { 9, 9,0xB0, 9,  11,0xAE,0x8A, 9,  9,  9,  9,  0,  1},
-/* 11 L0+EN       */  { 9, 9, 16,  9,  11,  14, 13, 12, 12,  9,  9,  1,  0},
-/* 12 L0+EN+cont  */  { 9, 9,0x30, 9,  11,0x2E,0x2A, 9,  9,  9,  9,  1,  1},
-/* 13 L0+EN+suffix*/  { 9, 9, 16,  9,  11,  14, 10,  9,  9,  9,  9,  1,  0},
-/* 14 L0+AN       */  { 9, 9, 16,  9,  11,  14, 10,  9, 15,  9,  9,  1,  0},
-/* 15 L0+AN+cont  */  { 9, 9,0x30, 9,0x2B,  14,0x2A, 9,  9,  9,  9,  1,  1},
-/* 16 L1 text     */  { 9, 9, 16,  9,  18,  14, 17, 17, 17, 17, 17,  1,  0},
-/* 17 L1+cont     */  { 9, 9, 16,  9,  18,0x2E, 17, 17, 17, 17, 17,  1,  1},
-/* 18 L1+EN       */  { 9, 9, 16,  9,  18,  14, 16, 17, 17, 17, 17,  1,  0}
+/* 7 L1+EN+ES/CS */  {   0,   0,   0,   3,   6,0x41,   5,  4,  4,  4,  4,  2,  1},
+/* 8 L1+EN+ET    */  {   0,   0,   0,   3,   6,   1,   5,  4,  4,  4,  4,  2,  0}
+  };
 /**************************************************************************/
+  private static final short impTab_RTL[][] =
+  {
+                    /*   B,   S,   L,   R,  EN,  AN,  ET, ES, CS,  W,  N, IL, Cond */
+
+/* 0 L0 text     */  {   0,   0,   7,   0,   2,   5,   1,  0,  0,  0,  0,  0,  0},
+/* 1 L0+ET       */  {   0,   0,0xA7,   0,   2,0xA5,0x81,  0,  0,  0,  0,  0,  1},
+/* 2 L0+EN       */  {   0,   0,   7,   0,   2,   5,   4,  3,  3,  0,  0,  1,  0},
+/* 3 L0+EN+ES/CS */  {   0,   0,0x27,   0,   2,0x25,0x21,  0,  0,  0,  0,  1,  1},
+/* 4 L0+EN+ET    */  {   0,   0,   7,   0,   2,   5,   1,  0,  0,  0,  0,  1,  0},
+/* 5 L0+AN       */  {   0,   0,   7,   0,   2,   5,   1,  0,  6,  0,  0,  1,  0},
+/* 6 L0+AN+CS    */  {   0,   0,0x27,   0,0x24,   5,0x21,  0,  0,  0,  0,  1,  1},
+/* 7 L1 text     */  {   0,   0,   7,   0,   9,   5,   8,  8,  8,  8,  8,  1,  0},
+/* 8 L1+cont     */  {   0,   0,   7,   0,   9,0x25,   8,  8,  8,  8,  8,  1,  1},
+/* 9 L1+EN       */  {   0,   0,   7,   0,   9,   5,   7,  8,  8,  8,  8,  1,  0}
+  };
+/**************************************************************************/
+  private static final short impTab_LTR_r[][] =
+  {
+                    /*   B,   S,   L,   R,  EN,  AN,  ET, ES, CS,  W,  N, IL, Cond */
+
+// 0 L0 text     */  {   0,   0,   0,   3,   0,   1,   0,  0,  0,  0,  0,  0,  0},
+// 1 L0+AN       */  {   0,   0,   0,   3,   0,   1,   4,  4,  2,  4,  4,  2,  0},
+// 2 L0+AN+CS    */  {   0,   0,   0,   3,   0,   1,   4,  4,  4,  4,  4,  1,  1},
+// 3 L1 text     */  {   0,   0,   0,   3,   6,   1,   5,  4,  4,  4,  4,  1,  0},
+// 4 L1 cont     */  {   0,   0,   0,0xA3,   6,0xA1,   5,  4,  4,  4,  4,  1,  1},
+// 5 L1+ET       */  {   0,   0,   0,0xA3,0xC6,0xA1,   5,  4,  4,  4,  4,  1,  1},
+// 6 L1+EN       */  {   0,   0,   0,0xA3,   6,0xA1,   8,  7,  7,  4,  4,  2,  1},
+// 7 L1+EN+ES/CS */  {   0,   0,   0,0xA3,0xC6,0xA1,   5,  4,  4,  4,  4,  1,  1},
+// 8 L1+EN+ET    */  {   0,   0,   0,0xA3,   6,0xA1,   5,  4,  4,  4,  4,  2,  1}
+/* 0 L0 text     */  {   0,   0,   0,   3,   0,   0,   0,  0,  0,  0,  0,  0,  0},
+/* 1 L0+AN       */  {   0,   0,   0,   3,   0,   0,   4,  4,  2,  4,  4,  2,  0},
+/* 2 L0+AN+CS    */  {   0,   0,   0,   3,   0,   0,   4,  4,  4,  4,  4,  1,  1},
+/* 3 L1 text     */  {   0,   0,   0,   3,   6,   6,   5,  4,  4,  4,  4,  1,  0},
+/* 4 L1 cont     */  {   0,   0,   0,0xA3,   6,   6,   5,  4,  4,  4,  4,  1,  1},
+/* 5 L1+ET       */  {   0,   0,   0,0xA3,0xC6,0xC6,   5,  4,  4,  4,  4,  1,  1},
+/* 6 L1+EN       */  {   0,   0,   0,0xA3,   6,   6,   8,  7,  7,  4,  4,  2,  1},
+/* 7 L1+EN+ES/CS */  {   0,   0,   0,0xA3,0xC6,0xC6,   5,  4,  4,  4,  4,  1,  1},
+/* 8 L1+EN+ET    */  {   0,   0,   0,0xA3,   6,   6,   5,  4,  4,  4,  4,  2,  1}
+  };
+/**************************************************************************/
+  private static final short impTab_RTL_r[][] =
+  {
+                    /*   B,   S,   L,   R,  EN,  AN,  ET, ES, CS,  W,  N, IL, Cond */
+
+// 0 L0 text     */  {   0,   0,   7,   0,   2,   5,   1,  0,  0,  0,  0,  0,  0},
+// 1 L0+ET       */  {   0,   0,0xA7,   0,0xC2,0xA5,   1,  0,  0,  0,  0,  0,  1},
+// 2 L0+EN       */  {0xA0,0xA0,   7,0xA0,   2,0xA5,   4,  3,  3, 10, 10,  1,  1},
+// 3 L0+EN+ES/CS */  {0xA0,0xA0,   7,0xA0,0xC2,0xA5,  11, 10, 10, 10, 10,  0,  1},
+// 4 L0+EN+ET    */  {0xA0,0xA0,   7,0xA0,   2,0xA5,   4, 10, 10, 10, 10,  1,  1},
+// 5 L0+AN       */  {   0,   0,   7,   0,   2,   5,   1,  0,  6,  0,  0,  1,  0},
+// 6 L0+AN+CS    */  {   0,   0,0xA7,   0,0xA4,   5,0xA1,  0,  0,  0,  0,  0,  1},
+// 7 L1 text     */  {   0,   0,   7,   0,   9,   5,   8,  8,  8,  8,  8,  1,  0},
+// 8 L1+cont     */  {   0,   0,   7,   0,   9,0xA5,   8,  8,  8,  8,  8,  0,  1},
+// 9 L1+EN       */  {   0,   0,   7,   0,   9,   5,   7,  8,  8,  8,  8,  1,  0},
+//10 L0+EN+cont  */  {0xA0,0xA0,   7,0xA0,   2,0xA5,  11, 10, 10, 10, 10,  0,  1},
+//11 10+ET       */  {0xA0,0xA0,   7,0xA0,0xC2,0xA5,  11, 10, 10, 10, 10,  0,  1}
+/* 0 L0 text     */  {   0,   0,   7,   0,   2,   2,   1,  0,  0,  0,  0,  0,  0},
+/* 1 L0+ET       */  {   0,   0,0xA7,   0,0xC2,0xC2,   1,  0,  0,  0,  0,  0,  1},
+/* 2 L0+EN       */  {0xA0,0xA0,   7,0xA0,   2,   2,   4,  3,  3, 10, 10,  1,  1},
+/* 3 L0+EN+ES/CS */  {0xA0,0xA0,   7,0xA0,0xC2,0xC2,  11, 10, 10, 10, 10,  0,  1},
+/* 4 L0+EN+ET    */  {0xA0,0xA0,   7,0xA0,   2,   2,   4, 10, 10, 10, 10,  1,  1},
+/* 5 L0+AN       */  {   0,   0,   7,   0,   2,   2,   1,  0,  6,  0,  0,  1,  0},
+/* 6 L0+AN+CS    */  {   0,   0,0xA7,   0,0xA4,0xA4,0xA1,  0,  0,  0,  0,  0,  1},
+/* 7 L1 text     */  {   0,   0,   7,   0,   9,   9,   8,  8,  8,  8,  8,  1,  0},
+/* 8 L1+cont     */  {   0,   0,   7,   0,   9,   9,   8,  8,  8,  8,  8,  0,  1},
+/* 9 L1+EN       */  {   0,   0,   7,   0,   9,   9,   7,  8,  8,  8,  8,  1,  0},
+/*10 L0+EN+cont  */  {0xA0,0xA0,   7,0xA0,   2,   2,  11, 10, 10, 10, 10,  0,  1},
+/*11 10+ET       */  {0xA0,0xA0,   7,0xA0,0xC2,0xC2,  11, 10, 10, 10, 10,  0,  1}
   };
 
 /***************************/
@@ -184,19 +250,19 @@ class BidiOrder
   int ucb_ix ;      // index of currently processed character in source order
                     //  target area
 
-  int ucb_outLev;  // Output Level = 0 or 1 according to the direction of output
+  byte ucb_outLev; // Output Level = 0 or 1 according to the direction of output
   // specified in argument 5 (0 = LTR, 1 = RTL)
 
-  int ucb_basLev;  // Base Level = 0 or 1 (0 = LTR, 1 = RTL)
+  byte ucb_basLev;   // Base Level = 0 or 1 (0 = LTR, 1 = RTL)
 
 //  Mati: addlev neutralized because it was implemented badly
 //  int ucb_addLev;   // Added Level = 0 or 2 (2 if basLev is 0 and the output direction
   // (from argument 5) is RTL; 0 otherwise)
 
-  int ucb_curLev;   // Current Level = between basLev and 15; initially set equal to basLev;
+  byte ucb_curLev;  // Current Level = between basLev and 15; initially set equal to basLev;
                     // modified by LRE/RLE/LRO/RLO/PDF
 
-  int ucb_impLev;   // Implicit Level = 0, 1 or 2 relative to curLev as determined by the
+  byte ucb_impLev;  // Implicit Level = 0, 1 or 2 relative to curLev as determined by the
                     // Implicit Process; initially set to 0  /.../
 
   int ucb_impSta;   // Implicit State = between 0 and 18  /.../
@@ -205,18 +271,14 @@ class BidiOrder
                       // RLO; reset to 0 when meeting LRE or RLE; reset to its preceding
                       // state when meeting PDF
 
-  int ucb_araLet;   // Arabic Letter = set to 0 initially, after meeting LRE, RLE, LRO, RLO,
+  boolean ucb_araLet;   // Arabic Letter = set to false initially, after meeting LRE, RLE, LRO, RLO,
                     // PDF, after any strong type (L or R) except Arabic letters
                     // (U+0600 to U+065F, U+066D to U+06EF, U+FE70 to U+FEFC);
-                    // set to 1 after any Arabic letter
+                    // set to true after any Arabic letter
 
   int ucb_lineSepPos; // hold the position of a line separator character
 
   int ucb_condPos;    // hold the position of a conditional string
-
-  int ucb_Compac;   // Compaction = set to 0 initially; set to 1 after meeting LRM, RLM,
-                    // LRE, RLE, LRO, RLO or PDF if argument 8 is U+FFFF, or if a Lam + Alef
-                    // is contracted into a Lamalef ligature for Arabic text
 
   int ucb_Shaping;  // Shaping = set to 0 initially; set to 1 after meeting
                     // an Arabic letter which needs shaping
@@ -225,7 +287,7 @@ class BidiOrder
   int ucb_xType;    // Specifies character type for which
                     // will be  computed Implicit level
 
-  int ucb_wTarget;  // value to put in the output area
+  byte ucb_wTarget; // value to put in the output area
 
   int ucb_pType;    // Specifies character type for which
                     // will be  computed Implicit level
@@ -258,12 +320,10 @@ class BidiOrder
   BidiFlag ics_type_in;
   BidiFlag ics_type_out;
   BidiFlag ics_txtShp_flag;
-//BD23d    BidiFlag ics_inTxtShp_flag; //@BD18a
-  int ics_boc_flag;
   int ics_size;     // length of source text to process
   int ics_size_out;
   int ics_orient;
-  int ics_wordbreak;
+  boolean ics_wordbreak;
   int ics_flip_flag;
   int ics_num;
   boolean ics_compc;
@@ -272,8 +332,15 @@ class BidiOrder
   byte[] ics_A_level;
   int[]  ics_SrcToTrgMap;
   int[]  ics_TrgToSrcMap;
-  boolean notImpToImp;
+  byte[] specialTreatment;
+  boolean reqImpToImp;                  /* impToImp request */
   boolean visToVis;
+  short impTab[][];
+  byte typeArray[][];
+  boolean roundTrip;                    /* roundTrip enabled */
+  boolean impToImp;                     /* impToImp  enabled */
+  int impToImpOrient;
+  int impToImpPhase;
 
 /*------------------------------------------------------------------------*/
 
@@ -291,13 +358,27 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
+void invertMap(int[] buffer, int lower_limit, int upper_limit)
+/* invert a buffer of int, between lower_limit and upper_limit */
+{
+    int temp;
+
+    for (; lower_limit < upper_limit; lower_limit++, upper_limit--)
+    {
+        temp = buffer[lower_limit];
+        buffer[lower_limit] = buffer[upper_limit];
+        buffer[upper_limit] = temp;
+    }
+}
+
+/*------------------------------------------------------------------------*/
+
   private static boolean UCQSPAC(char x)
   {
     int low, high, mid;
 
     low = 0;
-//@BD17        high = 59;
-    high = notSpacing.length - 1;//58;//@BD17 //@BD19c
+    high = notSpacing.length - 1;
     while (low <= high)
     {
       mid = (low + high) / 2;
@@ -335,6 +416,185 @@ class BidiOrder
     return x;
   }
 
+/*********************************************************************/
+/*                                                                   */
+/* This function fills typeArray with 2 ch_types: one original, and  */
+/* one simplified after resolving numbers, NSMs and others           */
+/*                                                                   */
+/*********************************************************************/
+void fillTypeArray()
+{
+    int             i, prev;
+    byte            cType, wType;
+    boolean         isArabic = false;
+    byte[][]        ta;
+
+    ta = typeArray;
+    for (i = 0; i < ics_size; i++)
+    {
+        cType = getChType( ics_buffer_in[i] );
+        ta[i][ORIG] = cType;
+        ta[i][FINAL] = UBAT_N;
+        switch (cType)
+        {
+            case UBAT_B:
+                isArabic = false;
+                ta[i][FINAL] = UBAT_B;
+                break;
+            case UBAT_S:
+                /* anything to do for segment separator ??? */
+                ta[i][FINAL] = UBAT_S;
+                break;
+            case UBAT_L:
+                isArabic = false;
+                ta[i][FINAL] = UBAT_L;
+                break;
+            case UBAT_R:
+                isArabic = false;
+                // The following is temporary code until we implement UBAT_AL
+                char c = ics_buffer_in[i];
+                if (((c >= 0x0600) && (c <= 0x06EF)) ||
+                    ((c >= 0xFB50) && (c <= 0xFEFC)))
+                    isArabic = true;
+                // end of temporary code
+                ta[i][FINAL] = UBAT_R;
+                break;
+            case UBAT_AL:
+                isArabic = true;
+                ta[i][FINAL] = UBAT_AL;
+                break;
+            case UBAT_EN:
+                if (isArabic)
+                {
+                    wType = UBAT_AN;
+                }
+                else
+                {
+                    wType = UBAT_EN;
+                    if ((i >= 2) && (ta[i-1][ORIG] == UBAT_ES)
+                                 && (ta[i-2][ORIG] == UBAT_EN))
+                        ta[i-1][FINAL] = UBAT_EN;
+                    prev = i - 1;
+                    while ((prev >= 0) && (ta[prev][ORIG] == UBAT_ET))
+                        ta[prev--][FINAL] = UBAT_EN;
+                }
+                if ((i >= 2) && (ta[i-1][ORIG] == UBAT_CS)
+                             && (ta[i-2][ORIG] == UBAT_EN))
+                    ta[i-1][FINAL] = wType;
+                ta[i][FINAL] = wType;
+                break;
+            case UBAT_AN:
+                if ((i >= 2) && (ta[i-1][ORIG] == UBAT_CS)
+                             && (ta[i-2][FINAL] == UBAT_AN))
+                    ta[i-1][FINAL] = UBAT_AN;
+                ta[i][FINAL] = UBAT_AN;
+                break;
+            case UBAT_W:
+                if (ics_wordbreak)
+                    ta[i][FINAL] = UBAT_S;
+                else  ta[i][FINAL] = UBAT_W;
+                break;
+            case UBAT_ET:
+                if ((i > 0) && (ta[i-1][FINAL] == UBAT_EN))
+                    ta[i][FINAL] = UBAT_EN;
+                break;
+            case UBAT_NSM:
+            /* This code does not support NSMs within RTL text in Visual type
+               input data.  We have seen no requirements for such a combination.  */
+                if (i <= 0 )  break;
+                ta[i][FINAL] = ta[i-1][FINAL];
+                break;
+        }
+    }
+}
+
+void fillTypeArray2()
+{
+    int             i, k, prev;
+    byte            cType, wType;
+    boolean         isArabic = false;
+    byte[][]        ta;
+
+    ta = typeArray;
+    for (i = 0; i < ics_size; i++)
+    {
+        k = ics_TrgToSrcMap[i];
+        cType = ta[k][ORIG];
+        ta[k][FINAL] = UBAT_N;
+        switch (cType)
+        {
+            case UBAT_B:
+                isArabic = false;
+                ta[k][FINAL] = UBAT_B;
+                break;
+            case UBAT_S:
+                /* anything to do for segment separator ??? */
+                ta[k][FINAL] = UBAT_S;
+                break;
+            case UBAT_L:
+                isArabic = false;
+                ta[k][FINAL] = UBAT_L;
+                break;
+            case UBAT_R:
+                isArabic = false;
+                // The following is temporary code until we implement UBAT_AL
+                char c = ics_buffer_in[k];
+                if (((c >= 0x0600) && (c <= 0x06EF)) ||
+                    ((c >= 0xFB50) && (c <= 0xFEFC)))
+                    isArabic = true;
+                // end of temporary code
+                ta[k][FINAL] = UBAT_R;
+                break;
+            case UBAT_AL:
+                isArabic = true;
+                ta[k][FINAL] = UBAT_AL;
+                break;
+            case UBAT_EN:
+                if (isArabic)
+                {
+                    wType = UBAT_AN;
+                }
+                else
+                {
+                    wType = UBAT_EN;
+                    if ((i >= 2) && (ta[ics_TrgToSrcMap[i-1]][ORIG] == UBAT_ES)
+                                 && (ta[ics_TrgToSrcMap[i-2]][ORIG] == UBAT_EN))
+                        ta[ics_TrgToSrcMap[i-1]][FINAL] = UBAT_EN;
+                    prev = i - 1;
+                    while ((prev >= 0) && (ta[ics_TrgToSrcMap[prev]][ORIG] == UBAT_ET))
+                        ta[ics_TrgToSrcMap[prev--]][FINAL] = UBAT_EN;
+                }
+                if ((i >= 2) && (ta[ics_TrgToSrcMap[i-1]][ORIG] == UBAT_CS)
+                             && (ta[ics_TrgToSrcMap[i-2]][ORIG] == UBAT_EN))
+                    ta[ics_TrgToSrcMap[i-1]][FINAL] = wType;
+                ta[k][FINAL] = wType;
+                break;
+            case UBAT_AN:
+                if ((i >= 2) && (ta[ics_TrgToSrcMap[i-1]][ORIG] == UBAT_CS)
+                             && (ta[ics_TrgToSrcMap[i-2]][ORIG] == UBAT_AN))
+                    ta[ics_TrgToSrcMap[i-1]][FINAL] = UBAT_AN;
+                ta[k][FINAL] = UBAT_AN;
+                break;
+            case UBAT_W:
+                if (ics_wordbreak)
+                    ta[k][FINAL] = UBAT_S;
+                else  ta[k][FINAL] = UBAT_W;
+                break;
+            case UBAT_ET:
+                if ((i > 0) && (ta[ics_TrgToSrcMap[i-1]][FINAL] == UBAT_EN))
+                    ta[k][FINAL] = UBAT_EN;
+                break;
+            case UBAT_NSM:
+            /* This method is invoked to transform Visual LTR to Implicit.
+               NSMs appearing at the boundary between LTR and RTL text may be
+               associated with either side.  Since the NSMs have already
+               received a type in the first (Implicit to Visual) phase,
+               we leave it as is.                                            */
+                break;
+        }
+    }
+}
+
 /****************************************************************************
 
    Method       : implicitProcessing()
@@ -345,16 +605,15 @@ class BidiOrder
 ----------------------------------------------------------------------------*/
   private void implicitProcessing()
   {
-    int i=0;
-    short  newIL, sCond;
-    int newIS ,Special;
+    int i, pos;
+    short sCond, newIL, newIS ,Special;
+    byte oldLevel, newLevel;
 
+    newIS   = impTab[ ucb_impSta ][ ucb_xType ];
 
-    newIS   = (int)impTab[ ucb_impSta ][ ucb_xType ];
+    Special =  (short)(newIS >> 5);
 
-    Special =  newIS >> 5;
-
-    newIS = newIS & 0x1F;            /* keep only 5 low bits                   */
+    newIS = (short)(newIS & 0x1F);   /* keep only 5 low bits             */
     newIL = impTab[newIS][ITIL];     /* ITIL equates 11                        */
 
     if (Special > 0)
@@ -363,31 +622,27 @@ class BidiOrder
         case 1:    /* note a: set characters to level 0 from ucb_condPos until last */
           for (i=ucb_condPos; i < ucb_ix; i++)
           {
-            ics_TrgToSrcMap[i] &= 0xC000;
-            ics_TrgToSrcMap[i] |= ucb_curLev;
+            ics_A_level[i] = ucb_curLev;
           }
-          ucb_condPos = -1;                                 //@bd11a
+          ucb_condPos = -1;
           break;
 
         case 2:     /* note b: set characters to level 1 from ucb_condPos until last */
           for (i=ucb_condPos; i < ucb_ix; i++)
           {
-            ics_TrgToSrcMap[i] &= 0xC000;
-            ics_TrgToSrcMap[i] |= (ucb_curLev + 1);
+            ics_A_level[i] = (byte)(ucb_curLev + 1);
           }
-          ucb_condPos = -1;                                 //@bd11a
+          ucb_condPos = -1;
           break;
 
         case 3:    /* note c: set characters to level 1 from ucb_condPos until next to last
                                 and set last character to level 2 */
           for (i=ucb_condPos; i < ucb_ix; i++)
           {
-            ics_TrgToSrcMap[i] &= 0xC000;
-            ics_TrgToSrcMap[i] |= (ucb_curLev + 1);
+            ics_A_level[i] = (byte)(ucb_curLev + 1);
           }
-//@bd11c             ics_TrgToSrcMap[i]++;
-          ics_TrgToSrcMap[i] += (ucb_curLev + 2);
-          ucb_condPos = -1;                                 //@bd11a
+          ics_A_level[i] = (byte)(ucb_curLev + 2);
+          ucb_condPos = -1;
 
           break;
 
@@ -397,6 +652,10 @@ class BidiOrder
 
         case 5:    /* note e: mark that there is no conditional string  */
           ucb_condPos = -1;
+          break;
+
+        case 6:    /*         ES, CS or ET before level 2 EN            */
+          ics_A_level[ucb_ix-1] = (byte)(ucb_curLev + 2);
           break;
 
       }
@@ -409,47 +668,59 @@ class BidiOrder
       {
         for (i= ucb_condPos; i <  ucb_ix; i++)
         {
-          ics_TrgToSrcMap[i] &= 0xC000;
-          ics_TrgToSrcMap[i] |= (ucb_curLev + newIL);
-          if ((( ucb_curLev+newIL) % 2 == 0) &&
-//@BD2D                       ( (ics_buffer_in.charAt(i) != 0x206C) ||
-//@BD2D                       (ics_buffer_in.charAt(i) != 0x206F)  ) )
-
-              ( (ics_buffer_in[i] != 0x206C) ||                //@BD2A
-                (ics_buffer_in[i] != 0x206F)  ))              //@BD2A
-            /* clear bit 15 */
-            ics_TrgToSrcMap[i] &= 0x7FFF;
+            oldLevel = ics_A_level[i];
+            newLevel = (byte)(ucb_curLev + newIL);
+            ics_A_level[i] = newLevel;
+            if (ics_symmetric && odd(oldLevel ^ newLevel))   /* change parity? */
+            /* EN and AN never change parity */
+            {
+                if (impToImpPhase == 2)
+                    pos = ics_TrgToSrcMap[i];
+                else  pos = i;
+                /* clear bit 7 of SpecialTreatment */
+                specialTreatment[pos] ^= SWAPPING_FLAG;
+            }
         }
       }
-      /* I beleive that the next few 6 lines should be before the previous
+      /* I believe that the next few 6 lines should be before the previous
          parenthesis as the UBA document denotes in its pseudo-code */
 
       ucb_condPos = -1;
       if (ucb_lineSepPos >= 0)
       {
         /* set Level area to 0 at ucb_lineSepPos position  */
-        ics_TrgToSrcMap[ ucb_lineSepPos]=0;
+        ics_A_level[ucb_lineSepPos] = 0;
         ucb_lineSepPos = -1;
       }
     }
     else if (ucb_condPos == -1)
       ucb_condPos =  ucb_ix;
 
-    ucb_impLev = newIL;
+    ucb_impLev = (byte)newIL;
     ucb_impSta = newIS;
 
-    ucb_wTarget =  ucb_wTarget | ( ucb_curLev + ucb_impLev );
+    ucb_wTarget = (byte)(ucb_curLev + ucb_impLev);
 
   }
 
 /*------------------------------------------------------------------------*/
 
-  private int getChType (char x)
+  private static byte getChType (char x)
   {
     /* This routine gets the type of a certain character */
 
-    if (x == 0x2029)  return UBAT_B;
-    if (x == 0x0009)  return UBAT_S;
+    if (
+       (x == 0x000A)                    ||
+       (x == 0x000D)                    ||
+       ((x >= 0x001C) && (x <= 0x001E)) ||
+       (x == 0x0085)                    ||
+       (x == 0x2029)
+       )
+        return UBAT_B;
+
+    if ((x == 0x0009) || (x == 0x000B) || (x == 0x001F))
+        return UBAT_S;
+
     if (
        ((x > 0x0040)  && (x <= 0x005A)) ||
        ((x >= 0x0061) && (x <= 0x007A)) ||
@@ -472,9 +743,9 @@ class BidiOrder
       return UBAT_L;
 
     if (
-       ((x >= 0x05D0) && (x <= 0x065F)) ||
+       ((x >= 0x0591) && (x <= 0x065F)) ||
        ((x >= 0x066E) && (x <= 0x06EF)) ||
-       ((x >= 0x06FA) && (x <= 0x08FF)) ||   //BD22c
+       ((x >= 0x06FA) && (x <= 0x08FF)) ||
        (x == 0x200F)                    ||
        ((x >= 0xFB20) && (x <= 0xFDFF)) ||
        ((x >= 0xFE70) && (x <= 0xFEFC))
@@ -485,19 +756,19 @@ class BidiOrder
        ((x >= 0x0030) && (x <= 0x0039)) ||
        ((x >= 0x00B2) && (x <= 0x00B3)) ||
        (x == 0x00B9)                    ||
-       ((x >= 0x00BC) && (x <= 0x00BE)) ||
+       ((x >= 0x06F0) && (x <= 0x06F9)) ||
        (x == 0x2070)                    ||
        ((x >= 0x2074) && (x <= 0x2079)) ||
        ((x >= 0x2080) && (x <= 0x2089)) ||
-       ((x >= 0x2153) && (x <= 0x2182)) ||
+       ((x >= 0x2460) && (x <= 0x249B)) ||
+       (x == 0x24EA)                    ||
        ((x >= 0xFF10) && (x <= 0xFF19))
        )
       return UBAT_EN;
 
     if (
        ((x >= 0x0660) && (x <= 0x0669)) ||
-       ((x >= 0x066B) && (x <= 0x066C)) ||
-       ((x >= 0x06F0) && (x <= 0x06F9))
+       ((x >= 0x066B) && (x <= 0x066C))
        )
       return UBAT_AN;
 
@@ -508,15 +779,22 @@ class BidiOrder
        ((x >= 0x00A2) && (x <= 0x00A5)) ||
        ((x >= 0x00B0) && (x <= 0x00B1)) ||
        (x == 0x066A)                    ||
-       ((x >= 0x2030) && (x <= 0x2033)) ||
+       ((x >= 0x09F2) && (x <= 0x09F3)) ||
+       (x == 0x0AF1)                    ||
+       (x == 0x0BF9)                    ||
+       (x == 0x0E3F)                    ||
+       (x == 0x17DB)                    ||
+       ((x >= 0x2030) && (x <= 0x2034)) ||
        ((x >= 0x207A) && (x <= 0x207B)) ||
        ((x >= 0x208A) && (x <= 0x208B)) ||
-       ((x >= 0x20A0) && (x <= 0x20CF)) ||
+       ((x >= 0x20A0) && (x <= 0x20B1)) ||
+       (x == 0x212E)                    ||
        ((x >= 0x2212) && (x <= 0x2213)) ||
+       (x == 0xFB29)                    ||
        (x == 0xFE5F)                    ||
-       ((x >= 0xFE62) && (x <= 0xFE63)) ||   //BD22c
+       ((x >= 0xFE62) && (x <= 0xFE63)) ||
        ((x >= 0xFE69) && (x <= 0xFE6A)) ||
-       ((x >= 0xFF03) && (x <= 0xFF05)) ||   //BD22c
+       ((x >= 0xFF03) && (x <= 0xFF05)) ||
        (x == 0xFF0B)                    ||
        (x == 0xFF0D)                    ||
        ((x >= 0xFFE0) && (x <= 0xFFE1)) ||
@@ -526,22 +804,34 @@ class BidiOrder
 
     if (
        (x == 0x002F)                    ||
-       (x == 0xFE52)                    ||
-       ((x >= 0xFF0E) && (x <= 0xFF0F))
+       (x == 0xFF0F)
        )
       return UBAT_ES;
 
     if (
-       (x == 0x002C) || (x == 0x003A) || (x == 0xFE50) ||
-       (x == 0xFE55) || (x == 0xFF0C) || (x == 0xFF1A) ||
-       (x == 0x002E) || (x == 0x2007)
+       (x == 0x002C)                    ||
+       (x == 0x002E)                    ||
+       (x == 0x003A)                    ||
+       (x == 0x00A0)                    ||
+       (x == 0x060C)                    ||
+       (x == 0xFE50)                    ||
+       (x == 0xFE52)                    ||
+       (x == 0xFE55)                    ||
+       (x == 0xFF0C)                    ||
+       (x == 0xFF0E)                    ||
+       (x == 0xFF1A)
        )
       return UBAT_CS;
 
     if (
-       (x == 0x0020) || (x == 0x00A0) ||
-       ((x >= 0x2000) && (x <= 0x2006)) ||
-       ((x >= 0x2008) && (x <= 0x200B)) ||
+       (x == 0x000C)                    ||
+       (x == 0x0020)                    ||
+       (x == 0x1680)                    ||
+       (x == 0x180E)                    ||
+       ((x >= 0x2000) && (x <= 0x200A)) ||
+       (x == 0x2028)                    ||
+       (x == 0x202F)                    ||
+       (x == 0x205F)                    ||
        (x == 0x3000)
        )
       return UBAT_W;
@@ -557,97 +847,40 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  private int firstStrong (char[] data, int length)
+  private static int firstStrong (BidiText src)
   {
-    int type;
+    int type, lim;
 
-    for (int i = 0; i < length; i++)
+    lim = src.offset + src.count;
+    for (int i = src.offset; i < lim; i++)
     {
-      type = getChType(data[i]);
+      type = getChType(src.data[i]);
       if (type == UBAT_L || type == UBAT_R)  return type;
     }
     return UBAT_N;
   }
 
 /*------------------------------------------------------------------------*/
-// @BD13
-  private int lastStrong (char[] data, int length)
+  private static int lastStrong (BidiText src)
   {
-    int type;
+    int type, lim;
 
-    for (int i = length - 1; i >= 0; i--)
+    lim = src.offset + src.count;
+
+    for (int i = lim - 1; i >= src.offset; i--)
     {
-      type = getChType(data[i]);
+      type = getChType(src.data[i]);
       if (type == UBAT_L || type == UBAT_R)  return type;
     }
     return UBAT_N;
   }
-// end of @BD13
 
 /*------------------------------------------------------------------------*/
 
   private void BaseLvl ()
   {
-    if (ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_LTR ||
-        ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_RTL)
-    {
-      int type1 = firstStrong(ics_buffer_in, ics_size);
-      switch (type1)
-      {
-        case UBAT_L:
-          ics_orient_in = BidiFlag.ORIENTATION_LTR;
-          break;
-        case UBAT_R:
-          ics_orient_in = BidiFlag.ORIENTATION_RTL;
-          break;
-        case UBAT_N:
-          if (ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_RTL)
-            ics_orient_in = BidiFlag.ORIENTATION_RTL;
-          else  ics_orient_in = BidiFlag.ORIENTATION_LTR;
-      }
-    }
-    // @BD13
-    if (ics_orient_out == BidiFlag.ORIENTATION_CONTEXT_LTR ||
-        ics_orient_out == BidiFlag.ORIENTATION_CONTEXT_RTL)
-    {
-      int type1 = firstStrong(ics_buffer_in, ics_size);
-      switch (type1)
-      {
-        case UBAT_L:
-          type1 = lastStrong(ics_buffer_in, ics_size);
-          if (type1 == UBAT_R)
-            ics_orient_out = BidiFlag.ORIENTATION_RTL;
-          else  ics_orient_out = BidiFlag.ORIENTATION_LTR;
-          break;
-        case UBAT_R:
-          ics_orient_out = BidiFlag.ORIENTATION_RTL;
-          break;
-        case UBAT_N:
-          if (ics_orient_out == BidiFlag.ORIENTATION_CONTEXT_RTL)
-            ics_orient_out = BidiFlag.ORIENTATION_RTL;
-          else  ics_orient_out = BidiFlag.ORIENTATION_LTR;
-      }
-    }
-// end of @BD13
-
     visToVis = false;
 
-    if (ics_type_in == BidiFlag.TYPE_VISUAL  &&
-        ics_type_out == BidiFlag.TYPE_IMPLICIT)
-    {
-      if (ics_orient_out == BidiFlag.ORIENTATION_RTL)
-        ucb_basLev = 1; /* 0 = LTR, 1 = RTL */
-      else  ucb_basLev = 0;
-      ucb_outLev = 0;
-      ucb_curLev = ucb_basLev;
-// @BD14    if ( ucb_basLev == 0 &&
-// @BD14         ics_orient_in  == BidiFlag.ORIENTATION_LTR )
-      if (ucb_basLev == 0)
-// end of @BD14
-        ucb_curLev=2;
-    }
-    else
-    {
       if (ics_orient_in == BidiFlag.ORIENTATION_RTL)
         ucb_basLev = 1; /* 0 = LTR, 1 = RTL */
       else  ucb_basLev = 0;
@@ -657,12 +890,24 @@ class BidiOrder
       ucb_curLev = ucb_basLev;
       if (ucb_basLev == 0 && ucb_outLev == 1)
         ucb_curLev=2;
-      if (ics_type_in == BidiFlag.TYPE_VISUAL) /* Vis to Vis */
+
+    if ((ics_type_in == BidiFlag.TYPE_VISUAL) && (ics_type_out == BidiFlag.TYPE_VISUAL))
         visToVis = true;
-    }
 
     ucb_lineSepPos = -1;
-    ucb_impSta = (ucb_curLev & 1) * 9;
+    if (roundTrip && !impToImp)
+    {
+      if (ucb_basLev == 1)
+        impTab = impTab_RTL_r;
+      else  impTab = impTab_LTR_r;
+    }
+    else
+    {
+      if (ucb_basLev == 1)
+        impTab = impTab_RTL;
+      else  impTab = impTab_LTR;
+    }
+    ucb_impSta = 0;
     ucb_impLev = 0;
     ucb_condPos = -1;
   }
@@ -679,21 +924,10 @@ class BidiOrder
   {
     int cType;                  /* current type */
     char cChar;                 /* current char */
-//@bd11m  int pType;
-    int savIL;
-//@bd2a
+    byte treatmentFlag = 0;
+
     if (ucb_ix ==0)  ucb_pType = UBAT_B;
-
-
-//@bd11d
-//  if(ucb_ix >=1)
-////@BD2D    pType=getChType(ics_buffer_in.charAt(ucb_ix-1) );
-//    pType=getChType(ics_buffer_in[ucb_ix-1] );
-//  else
-//    pType=0;
-
     ucb_wTarget = 0;
-
     cChar = ics_buffer_in[ ucb_ix ];
     cType = getChType(cChar);
 
@@ -705,31 +939,15 @@ class BidiOrder
         switch (cChar)
         {
           case 0x206C:  /* Arbabic Shaping Inhibit */
-            if (ics_boc_flag == 0xFFFF)
-              ucb_Compac = 1;
-            if (ics_boc_flag != 0)
-              ucb_wTarget |= 0x8000;
             ics_formShp = 0;
             break;
           case 0x206D:  /* Arbabic Shaping Activate */
-            if (ics_boc_flag == 0xFFFF)
-              ucb_Compac = 1;
-            if (ics_boc_flag != 0)
-              ucb_wTarget |= 0x8000;
             ics_formShp = 1;
             break;
           case 0x206E:  /* Numeric Shape National */
-            if (ics_boc_flag == 0xFFFF)
-              ucb_Compac = 1;
-            if (ics_boc_flag != 0)
-              ucb_wTarget |= 0x8000;
             ics_num_flag = BidiFlag.NUMERALS_NATIONAL;
             break;
           case 0x206F: /* Numeric Shape Nominal */
-            if (ics_boc_flag == 0xFFFF)
-              ucb_Compac = 1;
-            if (ics_boc_flag != 0)
-              ucb_wTarget |= 0x8000;
             ics_num_flag = BidiFlag.NUMERALS_NOMINAL;
             break;
         }
@@ -737,17 +955,25 @@ class BidiOrder
         /* Block Separator */
       case UBAT_B:
         /* do implicit process for UBAT_B */
+        ucb_xType = UBAT_B;
+        implicitProcessing();
         ucb_wTarget = 0;
         /* redo Determination of the base level ucb_basLev */
         BaseLvl();
         break;
         /* Segment Separator */
       case UBAT_S:
+        if (visToVis)
+        {
+            cType = UBAT_N;
+            ucb_xType = UBAT_N;
+            ucb_wTarget = ucb_curLev;
+            break;
+        }
         /* do implicit process for UBAT_S */
-        ucb_wTarget = ucb_basLev;
-        /* @bd11a */
         ucb_xType = UBAT_S;
         implicitProcessing();
+        ucb_wTarget = ucb_basLev;
         break;
       default:
         /* source character is Line Separator */
@@ -758,91 +984,83 @@ class BidiOrder
           break;
         }
 
-        /* source character is LRM or RLM */
-        if ((cChar == 0x200E) ||
-            (cChar == 0x200F))
-        {
-          if (ics_boc_flag == 0xFFFF)
-            ucb_Compac = 1;
-          else if (ics_boc_flag != 0)
-            ucb_wTarget |= 0x8000;
-        }
-
         if ((cType==UBAT_EN) &&
             (ics_num_flag == BidiFlag.NUMERALS_NATIONAL))
         {
-          ucb_wTarget |= 0x8000;
-          cType = UBAT_AN;
+          treatmentFlag = TONATIONAL_FLAG;
+//          cType = UBAT_AN;
         }
-//@BD15     start of change
         if ((cType==UBAT_AN) &&
             (ics_num_flag == BidiFlag.NUMERALS_NOMINAL))
         {
-          ucb_wTarget |= 0x8000;
-          cType = UBAT_EN;
+          treatmentFlag = TONOMINAL_FLAG;
+//          cType = UBAT_EN;
         }
-//@BD15     end of change
+/*
         if ((cType==UBAT_EN) &&
             (ics_num_flag == BidiFlag.NUMERALS_CONTEXTUAL))
-        //@bd11D           && (ucb_araLet == 1) )
         {
           if (ucb_pType== UBAT_AN)
           {
-            ucb_wTarget |= 0xa000;          //@bd11D
-            cType = UBAT_AN;                //@bd11D
+            treatmentFlag = TONATIONAL_FLAG | CONTEXTUAL_FLAG;
+            cType = UBAT_AN;
           }
           else if ((ucb_pType== UBAT_W || ucb_pType== UBAT_N ||
                     ucb_pType==UBAT_CS || ucb_pType==UBAT_ES) &&
-                   (ucb_ix > 0 && (ics_TrgToSrcMap[ucb_ix-1] & 0x2000) ==0))
+                   (ucb_ix > 0 && (specialTreatment[ucb_ix-1] & CONTEXTUAL_FLAG) == 0))
           {
             int i1=0;
             for (i1=ucb_ix-2; i1>=0; i1--)
             {
               ucb_pType=getChType(ics_buffer_in[i1]);
               if ((ucb_pType==UBAT_R ) ||
-                  ((ics_TrgToSrcMap[i1] & 0x2000) !=0))
+                  ((specialTreatment[i1] & CONTEXTUAL_FLAG) != 0))
               {
-                ucb_wTarget |= 0xa000;
+                treatmentFlag = TONATIONAL_FLAG | CONTEXTUAL_FLAG;
                 cType = UBAT_AN;
                 break;
               }
               if ((ucb_pType==UBAT_L) ||
                   (((ucb_pType==UBAT_EN)) &&
-                   ((ics_TrgToSrcMap[i1] & 0x2000) ==0)))
+                   ((specialTreatment[i1] & CONTEXTUAL_FLAG) == 0)))
                 break;
             }
           }
-          else if ((ucb_ix > 0 && (ics_TrgToSrcMap[ucb_ix -1] & 0x2000) != 0) ||
+          else if ((ucb_ix > 0 && (specialTreatment[ucb_ix -1] & CONTEXTUAL_FLAG) != 0) ||
                    (ucb_pType==UBAT_R))
           {
-            ucb_wTarget |= 0xa000;
+            treatmentFlag = TONATIONAL_FLAG | CONTEXTUAL_FLAG;
             cType = UBAT_AN;
           }
         }
+*/
+        if ((cType == UBAT_EN) && ucb_araLet)
+        {
+            cType = UBAT_AN;
+            if (ics_num_flag == BidiFlag.NUMERALS_CONTEXTUAL)
+                treatmentFlag = TONATIONAL_FLAG | CONTEXTUAL_FLAG;
+        }
 
         if (cType == UBAT_L)
-          ucb_araLet = 0;
+          ucb_araLet = false;
 
         if (cType == UBAT_R)
         {
           if ((cChar >= 0x0600) && (cChar <= 0x06EF))
           {
-            ucb_araLet = 1;
+            ucb_araLet = true;
             if (ics_txtShp_flag != BidiFlag.TEXT_NOMINAL)
               ucb_Shaping = 1;
           }
-          if ((cChar >= 0xFB50) && (cChar <= 0xFEFC))             //@BD2A
+          if ((cChar >= 0xFB50) && (cChar <= 0xFEFC))
           {
-            ucb_araLet = 1;
+            ucb_araLet = true;
             if (ics_txtShp_flag != BidiFlag.TEXT_NOMINAL && ics_formShp == 1)
             {
               ucb_Shaping = 1;
-              ucb_wTarget |= 0x8000;
             }
           }
         }
-//@bd11a Start add
-
 
 /*
 Gilan
@@ -852,74 +1070,63 @@ Gilan
 */
         if (cType == UBAT_ET)
         {
-          int iFlag=0, i2=0;
-
           if (ucb_pType == UBAT_EN)
             cType = UBAT_EN;
-          else if (ucb_pType == UBAT_AN)                   //@bd11A
-            cType = UBAT_N;                             //@bd11A
-
-          while (iFlag == 0)
+          else for (int i2 = ucb_ix+1; i2 < ics_size; i2++)
           {
-            if (ucb_ix+i2+1 < ics_size)
-            {
-              ucb_pType = getChType(ics_buffer_in[ ucb_ix +i2+1]);
-            }
-            //@bd12a
-            else
-            {                                          //@bd12a
-              iFlag = 1;                          //@bd12a
-              continue;                           //@bd12a
-            }
-            //Gilan end
+              ucb_pType = getChType(ics_buffer_in[i2]);
             if (ucb_pType == UBAT_EN)
             {
-              if (ucb_araLet == 1)
-                cType = UBAT_N;                           //@bd11A
-              else                                        //@bd11A
-                cType = UBAT_EN;                           //@bd11A
-              iFlag=1;
-            }
-            else if (ucb_pType == UBAT_AN)
-            {               //@bd11A
-              cType = UBAT_N;                         //@bd11A
-              iFlag=1;                                //@bd11A
-            }                                             //@bd11A
-            if (ucb_pType == UBAT_ET)
-            {
-              i2++;
-              continue;
-            }
-            else  iFlag=1;
+                if (!ucb_araLet)
+                  cType = UBAT_EN;
+                break;
+              }
+              if (ucb_pType != UBAT_ET)
+                break;
           }
+          if (cType == UBAT_ET)  cType = UBAT_N;
         }
 
         if (cType == UBAT_ES || cType == UBAT_CS)
         {
-          ////@bd12a Gilan new
           ucb_xType = (ucb_ix +1 < ics_size) ?
-                      getChType(ics_buffer_in[ucb_ix+1]):0; //@bd12a
-          //gilan end
+                      getChType(ics_buffer_in[ucb_ix+1]):0;
+          if (ucb_araLet && (ucb_xType == UBAT_EN))
+            ucb_xType = UBAT_AN;
           if (ucb_pType == UBAT_EN)
           {
             cType = (ucb_xType == UBAT_EN)? UBAT_EN:UBAT_N;
           }
           else if (ucb_pType == UBAT_AN && cType == UBAT_CS)
           {
-            cType = (ucb_xType == UBAT_EN)? UBAT_AN:UBAT_N;
-            //Gilan new
+            cType = (ucb_xType == UBAT_AN)? UBAT_AN:UBAT_N;
           }
-//  Mati: I comment out the following 4 lines since not Unicode conformant
-//          else if (ucb_xType == UBAT_EN && ics_buffer_in[ucb_ix] == 0x002E) {  //@bd12a
-//              ics_buffer_in[ucb_ix] = 0x002C;                                     //@bd12a
-//              cType = UBAT_N;                                             //@bd12a
-//          }
-          else                                                        //@bd12a
-            cType = UBAT_N;                                             //@bd12a
+          else
+            cType = UBAT_N;
         }
-//@bd11a End  add
 
-        savIL = ucb_impLev; /*//$BD19d //BD20 uncomment*/
+        /* Find if character is spacing */
+        if (UCQSPAC(cChar) == false)
+        {
+          if ((cType == UBAT_N) && (ucb_ix > 0))
+            cType = ucb_pType;
+
+          /*This is the range of Arabic tashkeel characters.
+            In case of having a Shadda in the first of buffer or
+            on the boundary between english and arabic text, the 
+            value of "savIL" is 0 which causes this character to 
+            be processed as an english character.
+          */
+/*
+          if ((cChar >= 0x064B) && (cChar <= 0x0652))
+            ucb_wTarget = (byte)(ucb_curLev + ucb_impLev);
+          else
+            ucb_wTarget = (byte)(ucb_curLev + savIL);
+          if (ucb_ix == 0)  cType = UBAT_N;
+          else cType = ucb_pType;
+          if (ucb_condPos == ucb_ix) ucb_condPos = -1;
+*/
+        }
 
         /* do implicit Process for cType */
         ucb_xType = cType;
@@ -927,38 +1134,17 @@ Gilan
         if (visToVis)  ucb_xType = UBAT_N;
         implicitProcessing();
 
-        /* Find if character is spacing */
-        if (UCQSPAC(cChar) == false)
-        {
-
-//@BD20a start
-          /*This is the range of Arabic tashkeel characters.
-            In case of having a Shadda in the first of buffer or
-            on the boundary between english and arabic text, the 
-            value of "savIL" is 0 which causes this character to 
-            be processed as an english character.
-          */
-          if ((cChar >= 0x064B) && (cChar <= 0x0652))
-            ucb_wTarget = (ucb_curLev + ucb_impLev) | 0x4000;
-          else
-//@BD20a end
-            ucb_wTarget = (ucb_curLev + savIL) | 0x4000;
-          if (ucb_ix == 0)  cType = UBAT_N;
-          else cType = ucb_pType;
-          if (ucb_condPos == ucb_ix) ucb_condPos = -1;
-        }
-
-        if ((cType == UBAT_N) && (ics_symmetric == true) &&
-            ( (ucb_condPos > -1)  || odd(ucb_curLev+ucb_impLev) ) &&
-            ( UCQSYMM(cChar) != cChar))
-          ucb_wTarget |= 0x8000;
+        if ((cType == UBAT_N) && ics_symmetric &&
+            odd(ucb_curLev+ucb_impLev) )
+          treatmentFlag = SWAPPING_FLAG;
 
         break;   /* Case End */
     }
 
-    ucb_pType = cType;                                     //@bd11a
-    ics_TrgToSrcMap[ucb_ix]=ucb_wTarget; /* put ucb_wTarget in target area at
+    ucb_pType = cType;
+    ics_A_level[ucb_ix] = ucb_wTarget; /* put ucb_wTarget in target area at
                                                        position ucb_ix  */
+    specialTreatment[ucb_ix] = treatmentFlag;
   }
 
 /***************************************************************************
@@ -970,239 +1156,285 @@ Gilan
 ---------------------------------------------------------------------------*/
   private void  pass2()
   {
-    int[] lolim=new int[20];
-    int[] hilim = new int[20];
-/* For each position of the source area, loLim[i] and hiLim[i] will be set  */
-/* to  the  low  and  high  boundary  positions  of the encompassing run of */
-/* characters with a level greater than or equal to i, for i varying from   */
-/* the level of the computed position down to outLev + 1                    */
+    byte lowest_level = 100;
+    byte highest_level = 0;
+    byte work_level;
+    byte current_level;
+    int i;
+    int flip_from = 0, flip_to = ics_size - 1;
 
-/* In accordance with clarifications on Unicode 3, there is no special      */
-/* treatment of spacing characters here.                                    */
-    int i, x, xLev, lastLev=0;
-    int iy, wLev;
-    char cChar;
-
-    for (x=0; x < 19; x++)
+    for (i = 0; i < ics_size; i++)
     {
-      lolim[x] = 0;
-      hilim[x] = ics_size-1;
+        if (impToImpPhase != 2)  ics_TrgToSrcMap[i] = i;
+        current_level = ics_A_level[i];
+
+        if (current_level < lowest_level)
+            lowest_level  = current_level;
+        if (current_level > highest_level)
+            highest_level = current_level;
     }
 
-    for (ucb_ix=0; ucb_ix < ics_size; ucb_ix++)
-    {
-      i = ics_TrgToSrcMap[ucb_ix];
-      /* retain only the level */
-      xLev = i & 0x1FFF;
-      /* Mati: check symmetric characters that were marked incorrectly for
-               swapping while in conditional state                       */
-      if (((i & 0x8000) > 0) && even(xLev))
-      {
-        cChar = ics_buffer_in[ ucb_ix ];
-        if (UCQSYMM(cChar) != cChar)
-          ics_TrgToSrcMap[ucb_ix] &= 0x7FFF;
-      }
+    if (reqImpToImp && !impToImp)  return;
+    if ((lowest_level % 2) == 0)  /* We must reverse until the lowest _odd_ level */
+        ++lowest_level;
 
-      x = ucb_ix;
-      /* check the limits : if the last character had a level (lastLev)
-         greater than or equal to xLev, its segment is contained in the
-         segment of ix, and all boundaries are already known; if xLev
-         is greater than lastLev, this is the start of a new segment,
-         lolim and hilim must be updated  */
-      if (xLev > lastLev)
-      {
-        wLev = xLev;
-        iy = ucb_ix+1;
-        while (wLev > lastLev)
+    for (work_level = highest_level; work_level >= lowest_level; work_level--)
+    {
+        i = 0;
+        while (i < ics_size)
         {
-          lolim[wLev] = ucb_ix;
-          while (iy < ics_size)
-          {
-            if ((ics_TrgToSrcMap[iy] & 0x3FFF) < wLev)
+            current_level = ics_A_level[i];
+
+            if (current_level < work_level)
+                i++;
+            else
+            {
+                flip_from = i;
+                while ((current_level = ics_A_level[i]) >= work_level)
+                {
+                    flip_to = i;
+                    i++;
+                    if (i >= ics_size)
               break;
-            iy++;
-          }
-          hilim[wLev] = iy-1;
-          wLev--;
         }
-      }
-
-      /* Reverse according to levels */
-      /* but only if notImpToImp     */
-      if (notImpToImp)
-        for (i= xLev; i >= (ucb_outLev+1); i--)
-          x = lolim[i]+hilim[i] -x;
-
-      /* Update target area */
-      ics_TrgToSrcMap[ucb_ix] = (ics_TrgToSrcMap[ucb_ix] & 0xa000) + x;
-      lastLev = xLev;
+                invertMap( ics_TrgToSrcMap, flip_from, flip_to );
+            }
+        }
     }
+    if (ics_orient_out == BidiFlag.ORIENTATION_RTL)
+        invertMap( ics_TrgToSrcMap, 0, ics_size - 1 );
   }
 
 /*------------------------------------------------------------------------*/
 
   private void  pass3()
   {
-    int logPos, logPtr, visPos = 0, wPtr;
+    int logPos;
+    byte xTran;
+    char xchar;
 
     for (ucb_ix = 0; ucb_ix < ics_size; ucb_ix++)
     {
-      logPos = ucb_ix;
-      logPtr = ics_TrgToSrcMap[ucb_ix];
-      while ((logPtr & 0x4000) == 0)
+      logPos = ics_TrgToSrcMap[ucb_ix];
+      xTran = specialTreatment[logPos];
+      xchar = ics_buffer_in[logPos];
+
+      if ((xTran & TONATIONAL_FLAG) > 0)
       {
-        visPos = logPtr & 0x1FFF;
-        wPtr = ics_TrgToSrcMap[visPos];
-        if ((wPtr & 0x4000) > 0) break;
-        ics_TrgToSrcMap[visPos] = logPos+(logPtr & 0xa000) + 0x4000;
-        logPos = visPos;
-        logPtr = wPtr;
+        if ((xchar >= 0x0030) && (xchar <= 0x0039))
+          xchar += (0x0660 - 0x0030);
       }
-    }
-  }
-
-/*------------------------------------------------------------------------*/
-
-  private void  pass4()
-  {
-    int i;
-//   short xTran;
-    int xTran;
-
-    char  xchar;
-
-    for (i=0; i < ics_size; i++)
-    {
-      xTran = ics_buffer_out[i] & 0x8000;
-      xchar = ics_buffer_in[ics_buffer_out[i] & 0x1FFF];
-      if (xTran > 0)
+      else if ((xTran & TONOMINAL_FLAG) > 0)
       {
-        if ((xchar == 0x200E) || (xchar == 0x200F) ||
-            ((xchar >= 0x202A) && (xchar <= 0x202E)) ||
-            ((xchar >= 0x206C) && (xchar <= 0x206F)))
-          xchar = (char)ics_boc_flag;
-
-
-
-//BD21d start
-/*             else if( (xchar >= 0xFE80) && (xchar <= 0xFEFC) )
-               /* xchar = comp2nom(xchar - 0xFE80);*/
-        /* There is an array called ComtoNom in uc_tables.h which contatin the
-           corresponding equivalent nominal character */
-/*                ;
-             else if( (xchar >= 0xFB50) && (xchar <= 0xFDFF) )
-                ;
-*///BD21d end
-        else if ((xchar >= 0x0030) && (xchar <= 0x0039))
-          xchar = (char) (xchar + (char)(0x0660 - 0x0030));
-        else if ((xchar >= 0x0660) && (xchar <= 0x0669))          //@BD15
-          xchar = (char) (xchar - (char)(0x0660 - 0x0030));       //@BD15
-        else
-        {
-//@BD2D                 if((ics_A_level[ics_buffer_out.charAt(i) & 0x1FFF]!=1))
-
-//@bd11c                 if((ics_A_level[ics_buffer_out[i] & 0x1FFF]!=1))         //@BD2A
-
-          if (ics_symmetric)         //@bd11A
+        if ((xchar >= 0x0660) && (xchar <= 0x0669))
+          xchar -= (0x0660 - 0x0030);
+      }
+      else if ((xTran & SWAPPING_FLAG) > 0)
             xchar = UCQSYMM(xchar);
-// Mati: all the following code is not Unicode conformant
-//               if((ics_orient_in != ics_orient_out)){
-//                 int i1,j;
-//                 int cType;
-//                 i1=ics_buffer_out[i]& 0x1FFF;
-//                 j=i;
-//                 do{
-//                  cType=getChType(ics_buffer_in[i1]);
-//
-//                  if(cType==UBAT_R)
-//                    break;
-//@bd11A
-//                  else if(cType==UBAT_L || cType==UBAT_EN && even(ucb_basLev) {
-//                    xchar = UCQSYMM(xchar);
-//                    break;
-//                  } else {
-//                    j++;
-//                    if (j < ics_size)
-//                       i1=ics_buffer_out[j]& 0x1FFF;
-//                  }
-//                 } while(j<=ics_size);
-//               }
-        }
-      }
-      ics_buffer_out[i] = xchar;
+
+      ics_buffer_out[ucb_ix] = xchar;
     }
   }
 
 /*------------------------------------------------------------------------*/
+/**
+ *  This method reorders a Bidi text according to a specified transformation.
+ *  @param  src         The Bidi text to reorder.
+ *  @param  dst         The Bidi text after reordering
+ *  @param  bdx         The transformation to perform.
+ */
 
-//@BD4C  public String order ( HODbidiAttribute inAttr,HODbidiAttribute outAttr,String inStr)
   synchronized void order(BidiText src, BidiText dst, BidiTransform bdx)
   {
+    BidiFlag orient_save;
     int  i=0, j=0, x=0, RC=0;
-
-    if (src.count < 1)                                           //@bd9a
-      return;                                                 //@bd9a
+    int pos, ipos;
+    if (src.count < 1)
+      return;
 
 
     /*******************/
     /* Initializations */
     /*******************/
 
+    roundTrip = bdx.roundTrip;
+    impToImp = bdx.impToImp;
     ics_orient_in  = src.flags.getOrientation();
     ics_orient_out = dst.flags.getOrientation();
+    if (ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_LTR ||
+        ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_RTL)
+    {
+      int type1 = firstStrong(src);
+      switch (type1)
+      {
+        case UBAT_L:
+          ics_orient_in = BidiFlag.ORIENTATION_LTR;
+          break;
+        case UBAT_R:
+          ics_orient_in = BidiFlag.ORIENTATION_RTL;
+          break;
+        case UBAT_N:
+          if (ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_RTL)
+            ics_orient_in = BidiFlag.ORIENTATION_RTL;
+          else  ics_orient_in = BidiFlag.ORIENTATION_LTR;
+      }
+    }
+
+    if (ics_orient_out == BidiFlag.ORIENTATION_CONTEXT_LTR ||
+        ics_orient_out == BidiFlag.ORIENTATION_CONTEXT_RTL)
+    {
+      int type1 = firstStrong(src);
+      switch (type1)
+      {
+        case UBAT_L:
+          type1 = lastStrong(src);
+          if (type1 == UBAT_R)
+            ics_orient_out = BidiFlag.ORIENTATION_RTL;
+          else  ics_orient_out = BidiFlag.ORIENTATION_LTR;
+          break;
+        case UBAT_R:
+          ics_orient_out = BidiFlag.ORIENTATION_RTL;
+          break;
+        case UBAT_N:
+          if (ics_orient_out == BidiFlag.ORIENTATION_CONTEXT_RTL)
+            ics_orient_out = BidiFlag.ORIENTATION_RTL;
+          else  ics_orient_out = BidiFlag.ORIENTATION_LTR;
+      }
+    }
+
     ics_type_in  = src.flags.getType();
     ics_type_out = dst.flags.getType();
-    notImpToImp = (ics_type_in  != BidiFlag.TYPE_IMPLICIT) |
-                  (ics_type_out != BidiFlag.TYPE_IMPLICIT);
+    reqImpToImp = (ics_type_in  == BidiFlag.TYPE_IMPLICIT) &&
+                  (ics_type_out == BidiFlag.TYPE_IMPLICIT);
 
-    // @BD14
-    ics_buffer_in = new char[src.count]; //@BD2A
-    if (ics_orient_in == BidiFlag.ORIENTATION_RTL &&
-        ics_type_in == BidiFlag.TYPE_VISUAL)
+    /* check if implicit to implicit case */
+    if (impToImp && reqImpToImp &&
+        (ics_orient_in != ics_orient_out))
+    {
+        /* LocalData->symmetric is set for each phase in UCB2VIS */
+        if (ics_orient_in == BidiFlag.ORIENTATION_LTR)
+        {
+            impToImpOrient = IMP_LTR;
+        }
+        else
+        {
+            impToImpOrient = IMP_RTL;
+        }
+        /* The following allocation should be grouped with all other allocations
+           once all transformations are changed to use typeArray */
+        typeArray = new byte[src.count][2];
+    }
+    else  impToImpOrient = 0;
+
+    ics_buffer_in = new char[src.count];
+    if ((ics_type_in == BidiFlag.TYPE_VISUAL) &&
+        (ics_type_out == BidiFlag.TYPE_IMPLICIT) &&
+        (ics_orient_in != ics_orient_out))
     {
       int ofs = src.offset + src.count - 1;
       for (int k = 0; k < src.count; k++)
         ics_buffer_in[k] = src.data[ofs - k];
-      ics_orient_in = BidiFlag.ORIENTATION_LTR;
+      ics_orient_in = ics_orient_out;
     }
     else  System.arraycopy(src.data, src.offset, ics_buffer_in, 0, src.count);
-// end of @BD14
 
     ics_size_out=0;
-//@BD4C    ics_size = inStr.length();
     ics_size = src.count;
     ics_num_flag = dst.flags.getNumerals();
 
     ics_txtShp_flag = dst.flags.getText();
-//BD23d    ics_inTxtShp_flag = src.flags.getText();    //@BD18a
 
-    ics_compc = true;
+    ics_compc = false;
     ics_formShp = 0;
-    ics_boc_flag = 0;
-    ics_symmetric = (dst.flags.getSwap() != src.flags.getSwap());
+    if (reqImpToImp)
+        ics_symmetric = false;
+    else  ics_symmetric = (dst.flags.getSwap() != src.flags.getSwap());
 
-    ics_buffer_out = new char [ics_buffer_in.length]; //@BD2A
+    ics_buffer_out = new char [ics_buffer_in.length];
 
     ics_A_level = new byte[src.count];
-    ics_SrcToTrgMap = new int[src.count];
     ics_TrgToSrcMap = new int[src.count];
+    specialTreatment = new byte[src.count];
 
     ucb_ix=0;
 
-//@bd11a
     ucb_pType = UBAT_B;
-    ucb_Compac=0;
     ucb_Shaping=0;
-    ucb_araLet = 0;
-
-//    Slider=&Start;
+    ucb_araLet = false;
 
     /*----------------------------------------*/
     /* Determination of the base level basLev */
     /*----------------------------------------*/
 
+    if (impToImpOrient > 0)
+    {
+        impToImpPhase = 1;
+        orient_save = ics_orient_out;
+        ics_orient_out = BidiFlag.ORIENTATION_LTR;
+        ics_symmetric = (src.flags.getSwap() == BidiFlag.SWAP_YES);
+        BaseLvl();
+        fillTypeArray();
+        for (pos = 0; pos < ics_size; pos++)
+        {
+            ucb_xType = typeArray[pos][FINAL];
+            ucb_ix = pos;
+            implicitProcessing();
+            ics_A_level[pos] = ucb_wTarget;
+            if ( (ucb_xType == UBAT_N) &&
+                 ics_symmetric &&
+                 odd(ucb_wTarget) )
+                specialTreatment[pos] = SWAPPING_FLAG;
+            else  specialTreatment[pos] = 0;
+        }
+        /* do Implicit process for UBAT_B to resolve possible conditional string */
+        ucb_ix = ics_size;
+        ucb_xType = UBAT_B;
+        implicitProcessing();
+        /**************************************************************************/
+        /* Reverse the map by levels                                              */
+        /**************************************************************************/
+        pass2();
+        ics_orient_out = orient_save;
+        /**************************************************************************/
+        /* Re-classify according to the new order                                 */
+        /**************************************************************************/
+        impToImpPhase = 2;
+        orient_save = ics_orient_in;
+        if (impToImpOrient == IMP_LTR)
+        {
+            ics_orient_in = BidiFlag.ORIENTATION_RTL;
+            invertMap( ics_TrgToSrcMap, 0, ics_size - 1);
+        }
+        else  ics_orient_in = BidiFlag.ORIENTATION_LTR;
+        ics_symmetric = (dst.flags.getSwap() == BidiFlag.SWAP_YES);
+        BaseLvl();
+        fillTypeArray2();
+        for (pos = 0; pos < ics_size; pos++)
+        {
+            ipos = ics_TrgToSrcMap[pos];
+            ucb_xType = typeArray[ipos][FINAL];
+            ucb_ix = pos;
+            implicitProcessing();
+            ics_A_level[pos] = ucb_wTarget;
+            if ( (ucb_xType == UBAT_N) &&
+                 ics_symmetric &&
+                 odd(ucb_wTarget) )
+                specialTreatment[ipos] ^= SWAPPING_FLAG;
+        }
+        /* do Implicit process for UBAT_B to resolve possible conditional string */
+        ucb_ix = ics_size;
+        ucb_xType = UBAT_B;
+        implicitProcessing();
+        /**************************************************************************/
+        /* Reverse the map by levels                                              */
+        /**************************************************************************/
+        pass2();
+        ics_orient_in = orient_save;
+        ics_symmetric = true;
+    }
+    else
+    {
     BaseLvl();
-
     while (ucb_ix < ics_size)
     {
       pass1();
@@ -1214,53 +1446,29 @@ Gilan
 
     implicitProcessing();
 
-    //if(ics_A_level)
-    // {
-    for (i=0; i < ics_size; i++)
-    {
-      ics_A_level[i] = (byte)(ics_TrgToSrcMap[i] & 0x00FF);
-    }
-
-    //}
-
-
     /* Pass 2 :This pass must not be executed when there is no request
                for reordering */
 
     pass2();
-
+    }
 
     /* Pass 3 :The logical to visual mapping must be converted to a visual-
-               to-logical mapping. We use bit 14 in each position of the
-               target area to mark positions which have been processed.  */
+               to-logical mapping.
+               European digits which need Arabic-Indic shapes are
+               translated; Arabic presentation forms which need shaping are
+               replaced by the corresponding nominal letters; symbols which
+               need swapping are replaced by their symmetric symbol.  */
     pass3();
 
-    for (i=0; i < ics_size; i++)
-      ics_buffer_out[i] =(char)ics_TrgToSrcMap[i] ;
-
-
-    /* Pass 4 :Replaces the content of the target area set by pass3 with
-               the source characters from the indicated position. European
-               digits which need Arabic-Indic shapes are translated; Arabic
-               presentation forms which need shaping are replaced by the
-               corresponding nominal letters; symbols which need swapping
-               are replaced by their symmetric symbol; bidi special codes
-               which need replacement are replaced. */
-    pass4();
-
-
-    for (i=0; i< ics_size;i++)
-      ics_TrgToSrcMap[i] = ics_TrgToSrcMap[i] & 0x00FF;
-    if (ics_compc == true)
+    if (ics_compc)
     {
+      ics_SrcToTrgMap = new int[src.count];
       for (i=0; i< ics_size;i++)
         ics_SrcToTrgMap[ics_TrgToSrcMap[ics_TrgToSrcMap[i]]] = ics_TrgToSrcMap[i] ;
     }
 
     System.arraycopy(ics_buffer_out, 0, dst.data, dst.offset, src.count);
     dst.count = src.count;
-
-
 
   }
 

@@ -49,6 +49,18 @@ class BidiTransform {
  */
     public BidiFlagSet      flags = new BidiFlagSet();
 /**
+ *  Option: enable Implicit to Implicit transformations
+ */
+    public boolean          impToImp = true;
+/**
+ *  Option: use "roundtrip" algorithm for reordering
+ */
+    public boolean          roundTrip;
+/**
+ *  Option: shaping options for this transformation
+ */
+    public ArabicOptionSet  options;
+/**
  *  Option: consider white space to always follow base orientation
  */
     public boolean          wordBreak;
