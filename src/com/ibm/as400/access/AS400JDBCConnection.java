@@ -1150,6 +1150,8 @@ implements Connection
     private int getUnusedId (int resultSetType) //@P0C
     throws SQLException
     {
+      synchronized(assigned_) //@P1A
+      {
         // Note: We will always assume id 0 is being used,
         // since that represents the connection itself.
 
@@ -1214,6 +1216,7 @@ implements Connection
         // All ids are being used.
         JDError.throwSQLException (JDError.EXC_MAX_STATEMENTS_EXCEEDED);
         return -1;
+      }
     }
 
 
@@ -1399,7 +1402,10 @@ implements Connection
     {
         statements_.removeElement(statement);           // @DAC
         //@P0D assigned_.clear(id);                            // @DAC
-        assigned_[id] = false; //@P0A
+        synchronized(assigned_) //@P1A
+        {
+          assigned_[id] = false; //@P0A
+        }
     }
 
 
