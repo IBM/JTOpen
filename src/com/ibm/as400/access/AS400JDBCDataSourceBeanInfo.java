@@ -363,6 +363,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             traceServer.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@J1a
             traceServer.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@J1a
 
+            PropertyDescriptor traceServerCategories = new PropertyDescriptor("serverTraceCategories", beanClass, "getServerTraceCategories", "setServerTraceCategories");  //@K4A
+            traceServerCategories.setBound(true);                                                                                                   //@K4A
+            traceServerCategories.setConstrained(false);                                                                                            //@K4A
+            traceServerCategories.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@K4A
+            traceServerCategories.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@K4A
+
             PropertyDescriptor traceToolbox = new PropertyDescriptor("toolboxTrace", beanClass, "getToolboxTraceCategory", "setToolboxTraceCategory");  //@K2A
             traceToolbox.setBound(true);                                                                                                  //@K2A
             traceToolbox.setConstrained(false);                                                                                           //@K2A
@@ -462,7 +468,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A
         }
         catch(Exception e)
         {
