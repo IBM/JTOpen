@@ -1407,7 +1407,8 @@ was set into this User object by the constructor or a call to setUser().
     String primaryGroup = getGroupProfileName().trim();
     if (primaryGroup != null && !primaryGroup.equals("*NONE"))
     {
-      User group = new User(system_, primaryGroup);
+      User group = null;
+      try { group = new User(system_, primaryGroup); } catch(Exception e) {}
       if (group.hasSpecialAuthority(authority))
       {
         return true;
@@ -1419,7 +1420,8 @@ was set into this User object by the constructor or a call to setUser().
     {
       for (int i=0; i<supplementalGroups.length; ++i)
       {
-        User group = new User(system_, supplementalGroups[i].trim());
+        User group = null;
+        try { group = new User(system_, supplementalGroups[i].trim()); } catch(Exception e) {}
         if (group.hasSpecialAuthority(authority))
         {
           return true;
