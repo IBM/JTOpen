@@ -296,7 +296,7 @@ class SQLDataFactory
         {                                      // @D0C
             
             case Types.BIGINT:                                      // @D0A
-                if(vrm >= AS400JDBCConnection.BIGINT_SUPPORTED_)   // @D0A
+                if(vrm >= JDUtilities.vrm450)   // @D0A
                     return new SQLBigint();                         // @D0A
                 else
                     return new SQLInteger();

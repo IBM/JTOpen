@@ -1843,7 +1843,7 @@ implements DatabaseMetaData
                     //@F4 As of base v4r4, host server can return primary and foreign key names.
                     //@F4 Even this has nothing to do with lobs, borrow the constant as
                     //@F4 it checks for v4r4.
-                    if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                    if (connection_.getVRM() >= JDUtilities.vrm440)  //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBF80000);           //@F4A
                     else                                                             //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBE00000);
@@ -1888,7 +1888,7 @@ implements DatabaseMetaData
                         maps[8] = new JDSimpleFieldMap (7); // key seq
                         maps[9] = new JDSimpleFieldMap (8); // update rule
                         maps[10] = new JDSimpleFieldMap (9);    // delete rule
-                        if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                        if (connection_.getVRM() >= JDUtilities.vrm440)  //@F4A
                         {
                             maps[11] = new JDSimpleFieldMap (10);    //@F4A
                             maps[12] = new JDSimpleFieldMap (11);    //@F4A
@@ -2096,7 +2096,7 @@ implements DatabaseMetaData
                     //@F4 As of base v4r4, host server can return primary and foreign key names.
                     //@F4 Even this has nothing to do with lobs, borrow the constant as
                     //@F4 it checks for v4r4.
-                    if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                    if (connection_.getVRM() >= JDUtilities.vrm440)  //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBF80000);           //@F4A
                     else                                                             //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBE00000);
@@ -2140,7 +2140,7 @@ implements DatabaseMetaData
                         maps[8] = new JDSimpleFieldMap (7); // key seq
                         maps[9] = new JDSimpleFieldMap (8); // update rule
                         maps[10] = new JDSimpleFieldMap (9);    // delete rule
-                        if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                        if (connection_.getVRM() >= JDUtilities.vrm440)  //@F4A
                         {
                             maps[11] = new JDSimpleFieldMap (10); //@F4A 
                             maps[12] = new JDSimpleFieldMap (11); //@F4A 
@@ -2768,14 +2768,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         // @J0A added try/catch because we are now sending the system VRM
-        try {                                                                                                             
-            return JDEscapeClause.getNumericFunctions(connection_.getSystem().getVRM());  // @J0M changed to send host version
-        } catch (AS400SecurityException ase) {                                                                            
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
-        } catch (IOException ioe) {                                                                                       
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
-        }
-        return null;
+        return JDEscapeClause.getNumericFunctions(connection_.getVRM());  // @J0M changed to send host version
     }
 
 
@@ -3618,14 +3611,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         // @J0A added try/catch because we are now sending the system VMR
-        try {                                                                                                             
-            return JDEscapeClause.getStringFunctions(connection_.getSystem().getVRM()); // @J0M changed to send host version
-        } catch (AS400SecurityException ase) {                                                                            
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
-        } catch (IOException ioe) {                                                                                       
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
-        }
-        return null;
+        return JDEscapeClause.getStringFunctions(connection_.getVRM()); // @J0M changed to send host version
     }
 
 
@@ -3713,14 +3699,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         // @J0A added try/catch because we are now sending the system VMR
-        try {                                                                                                             
-            return JDEscapeClause.getSystemFunctions(connection_.getSystem().getVRM()); // @J0M changed to send host version
-        } catch (AS400SecurityException ase) {                                                                            
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
-        } catch (IOException ioe) {                                                                                       
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
-        }
-        return null;
+        return JDEscapeClause.getSystemFunctions(connection_.getVRM()); // @J0M changed to send host version
     }
 
 
@@ -4363,14 +4342,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         // @J0A added try/catch because we are now sending the system VMR
-        try {                                                                                                             
-            return JDEscapeClause.getTimeDateFunctions(connection_.getSystem().getVRM()); // @J0M changed to send host version
-        } catch (AS400SecurityException ase) {                                                                            
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
-        } catch (IOException ioe) {                                                                                       
-            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
-        }
-        return null;
+        return JDEscapeClause.getTimeDateFunctions(connection_.getVRM()); // @J0M changed to send host version
     }
 
 
@@ -4451,25 +4423,13 @@ implements DatabaseMetaData
         };
 
 
-        JDSimpleRow formatRow = new JDSimpleRow (fieldNames,
-                                                 sqlData, fieldNullables);
+        JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
 
         // Initialize the data that makes up the contents
         // of the result set.
         // I changed this from an array to a Vector in order to make it            // @D0C
         // easier to conditionally add types based on the release.                 // @D0C
         Vector typeSamples = new Vector();                                         // @D0C
-        if (connection_.getVRM() >= AS400JDBCConnection.BIGINT_SUPPORTED_)         // @D0A
-            typeSamples.addElement(new SQLBigint());                               // @D0A
-        
-        // @M0A - added support for binary, varbinary, and rowid data types
-        if(connection_.getVRM() >= JDUtilities.vrm530)
-        {
-            typeSamples.addElement(new SQLBinary(32765, settings_));
-            typeSamples.addElement(new SQLVarbinary(32739, settings_));
-            typeSamples.addElement(new SQLRowID(settings_));
-        }
-        // @M0A - end new support
 
         typeSamples.addElement(new SQLChar(32765, settings_));              // @D0C
         typeSamples.addElement(new SQLCharForBitData(32765, settings_));           // @M0A
@@ -4490,13 +4450,30 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C
         typeSamples.addElement(new SQLVarcharForBitData(32739, settings_));        // @M0A
         typeSamples.addElement(new SQLVargraphic(16369, settings_));
-        if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)
+        
+        if (connection_.getVRM() >= JDUtilities.vrm440)
         {       // @B4D B5A @D0C
-            typeSamples.addElement(new SQLBlob(15728640, settings_));           // @B4D B5A @D0C
-            typeSamples.addElement(new SQLClob(15728640, settings_));           // @B4D B5A @D0C @E1C
-            typeSamples.addElement(new SQLDBClob(15728640, settings_));
-            typeSamples.addElement(new SQLDatalink(32739, settings_));          // @B4D B5A @D0C
+            typeSamples.addElement(new SQLDatalink(32717, settings_));
+            typeSamples.addElement(new SQLBlob(2147483646, settings_));           // @B4D B5A @D0C
+            typeSamples.addElement(new SQLClob(2147483646, settings_));           // @B4D B5A @D0C @E1C
+            typeSamples.addElement(new SQLDBClob(1073741822, settings_));
         }                                                                       // @B4D B5A 
+        
+        if (connection_.getVRM() >= JDUtilities.vrm450)         // @D0A
+            typeSamples.addElement(new SQLBigint());                               // @D0A
+        
+        // @M0A - added support for binary, varbinary, and rowid data types
+        if(connection_.getVRM() >= JDUtilities.vrm520)
+        {
+            typeSamples.addElement(new SQLRowID(settings_));
+        }
+        
+        if(connection_.getVRM() >= JDUtilities.vrm530)
+        {
+            typeSamples.addElement(new SQLBinary(32765, settings_));
+            typeSamples.addElement(new SQLVarbinary(32739, settings_));
+        }
+        // @M0A - end new support
 
         int numberOfTypes = typeSamples.size();                                 // @D0C
         int numberOfFields = sqlData.length;

@@ -962,7 +962,7 @@ and later.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data;                                                                   // @D0A
-            if (connection_.getVRM() >= AS400JDBCConnection.BIGINT_SUPPORTED_)              // @D0A
+            if (connection_.getVRM() >= JDUtilities.vrm450)              // @D0A
                 data = getValue(parameterIndex, Types.BIGINT, NO_VALIDATION_);              // @D0A
             else                                                                            // @D0A
                 data = getValue(parameterIndex, Types.INTEGER, NO_VALIDATION_);             // @D0C

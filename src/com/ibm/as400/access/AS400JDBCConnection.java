@@ -127,10 +127,6 @@ implements Connection
     //   false = Decide based on server VRM (for production code).
     //
     // @E9D private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
-
-
-
-    static final int            BIGINT_SUPPORTED_       = 0x00040500; // @D0A
     
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The server passes it along to database to enable correct package caching of
@@ -140,7 +136,6 @@ implements Connection
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
     private static final int            INITIAL_STATEMENT_TABLE_SIZE_ = 256;    // @DAA
-    static final int            LOB_SUPPORTED_          = 0x00040400; // @D6A
     static final int            UNICODE_CCSID_          = 13488;      // @E3C
 
     // The max number of open statements per connection.  If this          @DAA
@@ -241,7 +236,7 @@ implements Connection
         synchronized(cancelLock_)
         {
             cancelling_ = true;
-
+            AS400JDBCConnection cancelConnection = null;
             try
             {
                 // If the server job identifier was returned, and the server is at a
@@ -254,10 +249,12 @@ implements Connection
                         JDTrace.logInformation (this, "Cancelling statement " + id);
 
                     // Create another connection to issue the cancel.
-                    AS400JDBCConnection cancelConnection = new AS400JDBCConnection();
-                    AS400 system = new AS400(as400PublicClassObj_);
-                    cancelConnection.setSystem(system);
-                    cancelConnection.setProperties(dataSourceUrl_, properties_, system);
+                    cancelConnection = new AS400JDBCConnection();
+                    
+                    //AS400 system = new AS400(as400PublicClassObj_);
+                    //cancelConnection.setSystem(system);
+
+                    cancelConnection.setProperties(dataSourceUrl_, properties_, as400_, true);
 
                     // Send the cancel request.
                     DBSQLRequestDS request = null;
@@ -283,8 +280,6 @@ implements Connection
                         if (request != null) request.inUse_ = false;
                         if (reply != null) reply.inUse_ = false;
                     }
-
-                    cancelConnection.close();
                 }
                 else
                 {
@@ -294,6 +289,9 @@ implements Connection
             }
             finally
             {
+                // always need to close the connection
+                cancelConnection.close();
+
                 // Let others back in.
                 cancelling_ = false;
                 cancelLock_.notifyAll();
@@ -1093,6 +1091,8 @@ implements Connection
     
     @return The system.
     **/
+    // Implementation note:  Don't use this object internally because we could be running in a proxy environment
+    // The purpose of this method is to simply hold the full AS400 object so it can be retrieved from the Connection
     public AS400 getSystem()                                            // @EHA
     {                                                                   // @EHA
         return as400PublicClassObj_;                                    // @EHA
@@ -1958,7 +1958,7 @@ implements Connection
 
             try
             {
-                preV5R1 = getSystem().getVRM() <= JDUtilities.vrm450;
+                preV5R1 = getVRM() <= JDUtilities.vrm450;
             }
             catch (Exception e)
             {
@@ -2675,10 +2675,14 @@ implements Connection
     }
 
 
+    void setProperties(JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400)
+    throws SQLException
+    {
+        setProperties(dataSourceUrl, properties, as400, false);
+    }
 
     //@A3A - This logic formerly resided in the ctor.
-    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties,
-                        AS400Impl as400)
+    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer)
     throws SQLException
     {
         // Initialization.
@@ -2747,7 +2751,7 @@ implements Connection
 
         try
         {
-            server_ = as400_.getConnection (AS400.DATABASE, false);
+            server_ = as400_.getConnection (AS400.DATABASE, newServer);
         }
         catch (AS400SecurityException e)
         {
@@ -2827,7 +2831,7 @@ implements Connection
             boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
             try
             {
-                preV5R1 = getSystem().getVRM() <= JDUtilities.vrm450;
+                preV5R1 = getVRM() <= JDUtilities.vrm450;
             }
             catch (Exception e)
             {
@@ -3514,6 +3518,8 @@ implements Connection
 
 
     //@A3A
+    // Implementation note:  Don't use this object internally because we could be running in a proxy environment
+    // The purpose of this method is to simply hold the full AS400 object so it can be retrieved from the Connection
     void setSystem (AS400 as400)
     throws SQLException // @EGA
     {

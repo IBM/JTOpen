@@ -366,13 +366,7 @@ class JDSQLStatement
             //@F6D }
             //@F6D else
             //@F6D {
-            try {                                                                                                             // @C1M
-                value_ = JDEscapeClause.parse(sql, decimalSeparator, ((AS400JDBCConnection)connection).getSystem().getVRM()); // @C1M
-            } catch (AS400SecurityException ase) {                                                                            // @C1M
-                JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     // @C1M
-            } catch (IOException ioe) {                                                                                       // @C1M
-                JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     // @C1M
-            }                                                                                                                 // @C1M
+            value_ = JDEscapeClause.parse(sql, decimalSeparator, ((AS400JDBCConnection)connection).getVRM()); // @C1M
             //@F6D }
         }
         else
