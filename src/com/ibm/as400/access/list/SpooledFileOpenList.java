@@ -606,11 +606,11 @@ public class SpooledFileOpenList extends OpenList
         String deviceType = conv.byteArrayToString(data, offset+136, 10).trim(); // Not in 0300 format.
         int offsetToExtension = BinaryConverter.byteArrayToInt(data, offset+148);
         String jobSystemName = null;
-        if (offsetToExtension > offset+148)
+        if (offsetToExtension > 0)
         {
           // There is an extension.
           int lengthOfExtension = BinaryConverter.byteArrayToInt(data, offset+152);
-          jobSystemName = conv.byteArrayToString(data, offsetToExtension, 8).trim(); // This is a CHAR(10) in 0300 format.
+          jobSystemName = conv.byteArrayToString(data, offset+offsetToExtension, 8).trim(); // This is a CHAR(10) in 0300 format.
         }
         if (format_.equals(FORMAT_0200))
         {
