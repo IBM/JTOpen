@@ -32,11 +32,11 @@ import javax.servlet.http.HttpServletRequest;
 /**
 *  The FileListRenderer class renders the name field for directories and files
 *  in a FileListElement.
-*
+*  <P>
 *  If the behavior of the default FileListRenderer is not desired, subclass
 *  FileListRenderer and override the appropriate methods until the
 *  FileListElement achieves the desired behavior.
-*
+*  <p>
 *  Subclassing FileListRenderer will allow your servlet to include/exclude
 *  or change the action of any directory or file in the FileListElement.
 *  For example, if a servlet did not want users to see any *.exe files,
