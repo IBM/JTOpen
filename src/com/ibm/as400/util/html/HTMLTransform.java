@@ -212,6 +212,15 @@ public class HTMLTransform
           // find the next occurrence of & after the last one we found.
           index = source.indexOf("&", endIndex);
        }                                                                          
+
+      // @A1A
+      // If the string does not contain a special character or contains text after a special character, then need to append the
+      // remainder of the text or the rest of the text string passed in.
+      if(index == -1)
+      {
+         dest.append(source.substring(endIndex,source.length()));
+      }
+
        return dest.toString();
     }
 }
