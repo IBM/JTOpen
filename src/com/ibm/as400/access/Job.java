@@ -3828,7 +3828,7 @@ Returns the completion status of the job.
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    return((String)getValue(COMPLETION_STATUS)).trim();
+    return (String)getValue(COMPLETION_STATUS);
   }
 
 
