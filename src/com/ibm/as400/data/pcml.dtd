@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: pcml.dtd
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<!DOCTYPE pcml [
+
+<!ELEMENT pcml (struct | program)+>
+<!ATTLIST pcml
+          version  (1.0 | 2.0 | 3.0) #REQUIRED
+>
+
+<!ELEMENT struct (data | struct)+>
+<!ATTLIST struct
+          name   CDATA    #REQUIRED
+
+  usage  (inherit | input | output | inputoutput) "inherit"
+  count  CDATA #IMPLIED
+  minvrm CDATA #IMPLIED
+  maxvrm CDATA #IMPLIED
+  offset CDATA #IMPLIED
+  offsetfrom CDATA #IMPLIED
+  outputsize  CDATA #IMPLIED
+>
+
+<!ELEMENT program (data | struct)*>
+<!ATTLIST program
+          name   CDATA #REQUIRED
+          path   CDATA #IMPLIED
+          parseorder   CDATA #IMPLIED
+
+          entrypoint   CDATA #IMPLIED
+          returnvalue  (void | integer) #IMPLIED
+          threadsafe   (false | true) #IMPLIED
+>
+
+<!ELEMENT data EMPTY>
+<!ATTLIST data
+          name   CDATA    #IMPLIED
+
+          usage  (inherit | input | output | inputoutput) "inherit"
+          count  CDATA #IMPLIED
+          minvrm CDATA #IMPLIED
+          maxvrm CDATA #IMPLIED
+          offset CDATA #IMPLIED
+          offsetfrom CDATA #IMPLIED
+          outputsize  CDATA #IMPLIED
+
+          type   (char | int | packed | zoned | float | byte | struct) #REQUIRED
+          length CDATA #IMPLIED
+          precision CDATA #IMPLIED
+          ccsid  CDATA #IMPLIED
+          init   CDATA #IMPLIED
+          struct CDATA #IMPLIED
+
+          passby (reference | value) #IMPLIED
+          bidistringtype (ST4 | ST5 | ST6 | ST7 | ST8 | ST9 | ST10 | ST11 | DEFAULT) #IMPLIED
+>
+
+]>
