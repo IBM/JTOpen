@@ -1,0 +1,136 @@
+<HTML>
+<HEAD>
+<TITLE>JTOpen CHANGES</TITLE>
+</HEAD>
+<BODY>
+<H2>IBM Toolbox for Java - JTOpen version</H2>
+<PRE>
+Copyright (C) 1997-2003 International Business Machines Corporation and
+others. All rights reserved.
+
+File: CHANGES
+Last updated: April 25, 2003
+
+The term "JTOpen" refers to the open source software product
+"IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
+enhancements provided by the open source community. JTOpen, which is governed
+by the IBM Public License, as well as its Java source code, is contained in the
+open source repository located off of:
+<A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400">http://oss.software.ibm.com/developerworks/opensource/jt400</A>.
+
+The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program
+Product "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") which is
+supported by IBM and can be obtained from the IBM Toolbox for Java web site:
+<A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox">http://www.ibm.com/servers/eserver/iseries/toolbox</A>.
+
+
+<HR>
+
+<H3>Contents</H3>
+
+<A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
+
+<HR>
+
+<A NAME="#40"><H3>Fixes and enhancements in JTOpen 4.0</H3></A>
+
+- Build: Compile with JDK 1.4 to eliminate dependencies, target JDK 1.1.
+- Build: Updated manifest files with new JTOpen version number.
+- Build: Removed PDML task; separated native optimization classes.
+- Build: Added class files to repository to avoid SSLight as a build requirement.
+- Build: Require JDK 1.4.1 to avoid javadoc and ToolboxME errors.
+- Build: Changed SQLData classes to use a getter instead of overridden static to avoid Jikes issues.
+- Build: Various javadoc fixes to pacify JDK 1.4.1 javadoc tool.
+- Build: Removed calls to StringBuffer.append(StringBuffer) to avoid Sun compatibility issue across JDK levels.
+- Command: Add product library to library list before refreshing panel group information.
+- Command: Separated getXMLXXX() methods so as not to rely on system command information.
+- Command call: Deprecated getJob() in favor of getServerJob().
+- Connection pools: Changed ConnectionListEvent.getSource() to always return an AS400 object.
+- Connection pools: Added synchronization; throw exception if PooledConnection is in use.
+- Data conversion: CCSID 1200 is now UTF-16; CCSID 1202 is now little endian UCS-2.
+- Data conversion: Fixed ArrayIndexOutOfBoundsException in ConvTableReader.
+- Data conversion: Bidi strings are now padded before conversion algorithm is applied, instead of after.
+- Data conversion: Changed packed and zoned decimals to have 63-digit maximum instead of 31.
+- Directory entry: Fixed getMailServiceLevel().
+- HTML: Support XSL-FO tags.
+- HTML: Added FileListElement.list(HTMLTableConverter) method.
+- Javadoc: Removed reference to AS400snameFormatter from CharConverter class.
+- Javadoc: Fixed PTF.getIPLRequired().
+- Javadoc: Fixed AS400ToolboxJarMaker link to Job class.
+- Javadoc: Updated SpooledFile.
+- Javadoc: Added javadoc regarding QTEMP.LIB to IFSFile.
+- Javadoc: Corrected javadoc for DirectoryEntry.getCountry().
+- Javadoc: Generate javadoc for com.ibm.as400.util.commtrace package.
+- Javadoc: Handle com.ibm.as400.security.auth package.
+- Javadoc: Fixed example in DirectoryEntryList.
+- JDBC: Update counts now return SUCCESS_NO_INFO on a blocked insert.
+- JDBC: Support ROWID column type.
+- JDBC: Performance improvement to SQLData types - use integer type instead of instanceof.
+- JDBC: Adjusted minimum divide scale property.
+- JDBC: Binary types now support Strings of hexadecimal characters.
+- JDBC: Workaround for JIT bug in JDk 1.3 while parsing SQL statements.
+- JDBC: Changed to report correct maximum precision for various data types according to SQL Reference.
+- JDBC: Changed Blob and Clob datastreams to use new host server truncation codepoint for writing.
+- JDBC: Changed behavior of mixed case column names to ignore case unless surrounded by quotes.
+- JDBC: Fixed NullPointerException in ResultSet.getBytes().
+- JDBC: Changed DatabaseMetaData.supportsResultSetType() to return TYPE_SCROLL_INSENSITIVE.
+- JDBC: Fixed data truncation bugs and warnings.
+- JDBC: Removed limitation of 32K statements in batch.
+- JDBC: Added AS400JDBCConnectionHandle.getServerJobIdentifier().
+- JDBC: Trace LOB locator handles.
+- JDBC: Support retrieving base table name for each column.
+- JDBC: Allow length on setXXX(InputStream) methods to differ from actual amount of data in InputStream.
+- JDBC: Added QAQQINI library name property.
+- JDBC: Handle statements with missing closing parenthetical mark.
+- JDBC: Additional tracing for server attributes.
+- JDBC: Do extra validation of decimal position and scale properties.
+- JDBC: Support 63-digit decimal precision; use UTF-16 for default client encoding.
+- JDBC: Fixed typecast and max/min value bugs in SQLBigint.
+- JDBC: Support unencoded passwords in a data source Reference object.
+- JDBC: PreparedStatement now remains useable after a batch execute.
+- JDBC: Trace property no longer turns off Toolbox trace when set to its default.
+- JDBC: Handle scientific notation numbers that have no decimal point.
+- JDBC: Properly calculate stream length for Unicode Readers.
+- JDBC: Trace object ID in SQLExceptions.
+- JDBC: Fixes for erroneous commas in SQL statements.
+- JDBC: Many fixes for LOB support.
+- JDBC: Work around Brazil time zone issue.
+- JDBC: Issue warning when 1000 open statements are reached per connection.
+- JDBC: AS400JDBCDataSource can now be constructed with an AS400 object.
+- JDBC: Ensure LOB classes do not break JDBC 1.0 clients.
+- JDBC: Literal prefix for binary strings changed to "X'" instead of "'".
+- JDBC: Fixed DatabaseMetaData.supportsTransactionIsolationLevel().
+- JDBC: Use 819 (ISO) instead of 13488 (UCS-2) in toAsciiStream().
+- JDBC: LOB locators now write to the server when necessary.
+- JDBC: Correctly handle LOB locators when executing batch statements.
+- JDBC: Added "toolbox trace" property.
+- JDBC: Fixed issues with running to a Toolbox ProxyServer.
+- JDBC: Added properties for package CCSID, min divide scale, max precision, and max scale.
+- JDBC: Avoid rounding errors when parsing big integers.
+- JDBC: Issue data truncation warning on a read.
+- Job log: Added writeMessage(boolean onThread).
+- Messages: Updated tracing; avoid NullPointerException in AS400Message.getPath().
+- Panel group: Changed help identifier constructor to not throw an exception if library/object name is blank.
+- Panel group: Mark QUHRHLPT API as threadsafe.
+- PCML: (Bug #3538) Use context class loader to avoid issues in Websphere.
+- PCML: Serializing a PCML file now uses a BufferedOutputStream.
+- Print: Extra message information added.
+- Program call: Deprecated getJob() in favor of getServerJob().
+- QSYS object types: Support TIMZON and PDFMAP.
+- Security: Refreshed codebase from Toolbox LPP; open sourced.
+- Security: Changes to authentication token generation.
+- Servlet: Support XSL-FO tags.
+- System values: Support QTHDRSCAFN and QTHDRSCADJ.
+- User: Updated javadoc and synchronization in UserList.
+- User space: Added constants; allow *USER.
+- Utilities: Support specifying alternate panel group to retrieve help text in CommandHelpRetriever.
+- Utilities: CommandHelpRetriever now generates UIM template source.
+- Utilities: Changed space character generation in CommandHelpRetriever.
+- Utilities: Gracefully handle CPF6250 messages in CommandHelpRetriever.
+- Utilities: Fixed unnecessary dependencies on the JDBC classes by the AS400 object in JarMaker.
+- Utilities: Made CommandHelpRetriever's output directory non-static.
+
+<HR>
+</PRE>
+</BODY>
+</HTML>
