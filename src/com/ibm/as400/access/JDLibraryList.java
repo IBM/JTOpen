@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 
 
 /**
-<p>This class represents an OS/400 library list for database access.
+<p>This class represents an iSeries system library list for database access.
 **/
 class JDLibraryList
 {
@@ -45,8 +45,8 @@ Constructor.
 **/
   JDLibraryList (String list, String defaultSchema, String naming) // @C1C
   {
-     boolean startsWithComma = false;                              // @E2a
-   
+    boolean startsWithComma = false;                              // @E2a
+
     // Initialize.
     defaultSchema_ = null;
     if (defaultSchema != null)
@@ -107,7 +107,7 @@ Constructor.
       // with a comma we would not set a default schema.  We do this
       // only if no schema is in the url.  A schema on the url
       // will be sent as the default schema no matter what is listed
-      // in the library list.                                                       
+      // in the library list.
       if (defaultSchema_ == null)                // @E2a
       {                                          // @E2a
          String newList = list.trim();           // @E2a
@@ -116,8 +116,8 @@ Constructor.
             if (newList.startsWith(","))         // @E2a
                startsWithComma = true;           // @E2a
          }                                       // @E2a
-      }   
-          
+      }
+
       // Determine if the *LIBL token is included.
       boolean includesLibl = (list.toUpperCase().indexOf (LIBL_) != -1);
 
@@ -157,14 +157,14 @@ Constructor.
       // If no default schema was specified, then
       // derive it from the list.
       // @E1 do this only for SQL naming!  If we tell the system to use a default schema
-      //     then the library list is ignored.  That would break some apps using system naming.  
-      //     For example, suppose the libraries property is "libraries=lib1,lib2,lib3", and the 
+      //     then the library list is ignored.  That would break some apps using system naming.
+      //     For example, suppose the libraries property is "libraries=lib1,lib2,lib3", and the
       //     file is in lib3.  If we take the first one off the list and set it to be the default
-      //     (remember the others will be ignored when a default is set) the apps that 
+      //     (remember the others will be ignored when a default is set) the apps that
       //     used to find a file in lib3 no longer work.  The behavior as now coded
-      //     consistent through v5r1.  In v5r2 we *may* change to make the first 
+      //     consistent through v5r1.  In v5r2 we *may* change to make the first
       //     item the default.  The user would override this behavior by starting the
-      //     list with a comma.  Check the v5r2 code to see if the change was made. 
+      //     list with a comma.  Check the v5r2 code to see if the change was made.
       if ((defaultSchema_ == null)
           && (! startsWithComma)                         // @E2a don't set default schema if first char is a comma
           && (naming.equals (JDProperties.NAMING_SQL)))  // @E1c @C1C

@@ -216,89 +216,91 @@ class JDSQLStatement
 
         // Perf Note: numberOfParameters_ will default to 0.  Don't set it here.
 
-//@G8D        boolean inComment = false;
+        //@H1D boolean inComment = false;
 
         //@G7 Skip removing comments if it is a CREATE statement smaller than 32KB
         //@G7 (Greater than 32KB would overflow the buffer, so we have to remove
         //@G7 the comments in that case.)
-        if (length > 32767 ||                               //@G7A
-            !sql.trim().toUpperCase().startsWith("CREATE")) //@G7A
-        {
+        //@C3D if (length > 32767 ||                               //@G7A
+        //@C3D    !sql.trim().toUpperCase().startsWith("CREATE")) //@G7A
+        //@C3D{
             //@G7 If this is not a normal CREATE or the length is too big,
             //@G7 we must strip out the comments!
-        for (int i = 0; i < length; ++i) {
-            switch (sqlArray[i]) {
-            case '\'':
-                outArray[++out] = sqlArray[i];
+            for (int i = 0; i < length; ++i) {
+                switch (sqlArray[i]) {
+                case '\'':
+                    outArray[++out] = sqlArray[i];
 
-                // Consume everything while looking for the ending quote character.
-                while (i < length - 1) {
-                    outArray[++out] = sqlArray[++i];
-                    if (sqlArray[i] == '\'') {
-                        break;
+                    // Consume everything while looking for the ending quote character.
+                    while (i < length - 1) {
+                        outArray[++out] = sqlArray[++i];
+                        if (sqlArray[i] == '\'') {
+                            break;
+                        }
                     }
-                }
 
-                break;
-            case '\"':
-                outArray[++out] = sqlArray[i];
+                    break;
+                case '\"':
+                    outArray[++out] = sqlArray[i];
 
-                // Consume everything while looking for the ending quote character.
-                while (i < length - 1) {
-                    outArray[++out] = sqlArray[++i];
+                    // Consume everything while looking for the ending quote character.
+                    while (i < length - 1) {
+                        outArray[++out] = sqlArray[++i];
 
-                    if (sqlArray[i] == '\"') {
-                        break;
+                        if (sqlArray[i] == '\"') {
+                            break;
+                        }
                     }
-                }
 
-                break;
-            case '-':
-                if (i < length - 1) {
-                    if (sqlArray[++i] == '-') {
-                        // It's a single line commment (--).  We are going to eat the comment until
-                        // a new line character or the end of the string, but first output a space 
-                        // to the output buffer.
-                        outArray[++out] = ' ';
-                        while ((i < length - 1) && (sqlArray[++i] != '\n'))
-                            ;                    // do nothing but spin.
+                    break;
+                case '-':
+                    if (i < length - 1) {
+                        if (sqlArray[++i] == '-') {
+                            // It's a single line commment (--).  We are going to eat the comment until
+                            // a new line character or the end of the string, but first output a space 
+                            // to the output buffer.
+                            outArray[++out] = ' ';
+                            while ((i < length - 1) && (sqlArray[++i] != '\n'))
+                                ;                    // do nothing but spin.
 
-                        // If we didn't break the loop because we were at the end of the string...
-                        // we broke because of a newline character.  Put it into the output.
-                        if (i < length - 1)
-                            outArray[++out] = '\n';
+                            // If we didn't break the loop because we were at the end of the string...
+                            // we broke because of a newline character.  Put it into the output.
+                            if (i < length - 1)
+                                outArray[++out] = '\n';
 
+                        }
+                        else {
+                            // This was not a comment.  Output the characters we read.
+                            outArray[++out] = sqlArray[i-1];
+                            outArray[++out] = sqlArray[i];
+                        }
                     }
                     else {
-                        // This was not a comment.  Output the characters we read.
-                        outArray[++out] = sqlArray[i-1];
+                        // Last character - must write the '-'
                         outArray[++out] = sqlArray[i];
                     }
-                }
-                else {
-                    // Last character - must write the '-'
-                    outArray[++out] = sqlArray[i];
-                }
-                break;
-            case '/':
+                    break;
+                case '/':
 
-                // If we are not on the last character....
-                if (i < length - 1) {
-                    // Check to see if we are starting a comment.
-                    if (sqlArray[++i] == '*') {
-                        // It is a multi-line commment - write over the '/*' characters
-                        // and set the inComment flag.
-                        outArray[++out] = ' ';
-//@G8D                            inComment = true;
-                            int numComments = 1; //@G8A - keep track of the nesting level
+                    // If we are not on the last character....
+                    if (i < length - 1) {
+                        // Check to see if we are starting a comment.
+                        if (sqlArray[++i] == '*') {
+                            // It is a multi-line commment - write over the '/*' characters
+                            // and set the inComment flag.
+                            outArray[++out] = ' ';
+                            //@H1D inComment = true;
+                            int numComments = 1; //@H1A - keep track of the nesting level
 
-                            //@G8C
+                            //@H1C
                             // Need to handle nested comments.
                             // If we see a */, we've closed a comment block.
                             // If we see another /*, we've started a new block.
-                            while (i < length - 1 && numComments > 0) //@G8C
+                            while (i < length - 1 && numComments > 0) //@H1C
                             {
-                                char cur = sqlArray[++i]; //@G8A
+                                char cur = sqlArray[++i]; //@H1A
+                                //@H1D    inComment = false;
+                                    // You still have to eat the character that you looked ahead to.
                                 if (i < length-1)
                                 {
                                   char next = sqlArray[i+1];
@@ -338,10 +340,13 @@ class JDSQLStatement
                 }
             }
 
-            // Now turn it back into a String for processing.
-            sql = new String(outArray, 0, ++out);
+            // @C3A if the statement is long remove the comments, otherwise keep them
+            if (length > 32767) { // @C3A
+                // Now turn it back into a String for processing.
+                sql = new String(outArray, 0, ++out);
+            } // @C3A
             //@F6A end new code
-        } //@G7A
+        //@C3D} //@G7A
 
         // If we want to process escape syntax, then treat the
         // whole string as a big escape clause for parsing.
@@ -465,9 +470,9 @@ class JDSQLStatement
             String upperCaseSql = value_.toUpperCase();  //@E10a
             int k = upperCaseSql.indexOf("SAVEPOINT");   //@E10a
             if (k >= 0)                                  //@E10a
-            {}      // no need to do anything            //@E10a
+            {}      // no need to do anything         //@E10a
             else                                         //@E10a
-               nativeType_ = TYPE_CONNECT;               //@E10a
+                nativeType_ = TYPE_CONNECT;               //@E10a
         }                                                //@E10a
         else if (firstWord.equals(INSERT_))
         {
@@ -597,29 +602,29 @@ class JDSQLStatement
                     token = tokenizer_.nextToken(); //@F3C
 
                     if (!token.startsWith(LPAREN_))
-                    {
-                       // The "@G6A" code is trying to fix our parsing of the 
-                       // table-name in statements like
-                       //      SELECT * FROM collection."table with space" WHERE ....
-                       // The tokenizer will break this up into tokens
-                       //      SELECT
-                       //      *
-                       //      FROM
-                       //      collection."table
-                       //      with
-                       //      space 
-                       // A customer reported a bug where we incorrectly re-formed
-                       // the table name when doing an update row.  The string we
-                       // ended up with was.
-                       //      UPDATE collection."table SET column = value WHERE CURRENT OF cursor
-                       // Note the fix is not to just slam tokens together, separating them by a space,
-                       // until we find a token that ends with a quote.  That won't fix the case
-                       // where mulitple spaces are between characters such as collection."a   b".
-                       // "a b" and "a    b" are different tables.  The fix is to go back to the
-                       // original SQL statement, find the beginning of the collection/table name,
-                       // then copy characters until finding the ending quote. 
-                       if (token.indexOf('\"') >= 0)                                              //@G6A
-                       {                                                                          //@G6A
+                    {                              
+                        // The "@G6A" code is trying to fix our parsing of the 
+                        // table-name in statements like
+                        //      SELECT * FROM collection."table with space" WHERE ....
+                        // The tokenizer will break this up into tokens
+                        //      SELECT
+                        //      *
+                        //      FROM
+                        //      collection."table
+                        //      with
+                        //      space 
+                        // A customer reported a bug where we incorrectly re-formed
+                        // the table name when doing an update row.  The string we
+                        // ended up with was.
+                        //      UPDATE collection."table SET column = value WHERE CURRENT OF cursor
+                        // Note the fix is not to just slam tokens together, separating them by a space,
+                        // until we find a token that ends with a quote.  That won't fix the case
+                        // where mulitple spaces are between characters such as collection."a   b".
+                        // "a b" and "a    b" are different tables.  The fix is to go back to the
+                        // original SQL statement, find the beginning of the collection/table name,
+                        // then copy characters until finding the ending quote. 
+                        if (token.indexOf('\"') >= 0)                                              //@G6A
+                        {                                                                          //@G6A
                             // find out if we already have the whole name by counting the quotes  //@G6A
                             int cnt = 0;                                                          //@G6A
                             int ind = -1;                                                         //@G6A
@@ -640,9 +645,9 @@ class JDSQLStatement
                                 }                                                                 //@G6A
                                 selectTable_ = token + quotetok;                                  //@G6A
                             }                                                                     //@G6A
-                       }                                                                          //@G6A
-                       else                                                                       //@G6A
-                           selectTable_ = token;                                                  //@G6M
+                        }                                                                          //@G6A
+                        else                                                                       //@G6A
+                            selectTable_ = token;                                                  //@G6M
 
                         if (tokenizer_.hasMoreTokens())
                         {
@@ -697,17 +702,17 @@ class JDSQLStatement
         // @F8d                   || (isDeclare_);                                         // @A1A
         // @F8d }                                                                          // @A1A
 
-                                                 
+
         isPackaged_ =   ((numberOfParameters_ > 0) && !isCurrentOf_ && !isUpdateOrDelete_) // @F8a
-                      || (isInsert_ && isSubSelect_)                                       // @F8a
-                      || (isSelect_ && isForUpdate_)                                       // @F8a
-                      || (isDeclare_);                                                     // @F8a
-                                                                                           // @F8a
+                        || (isInsert_ && isSubSelect_)                                       // @F8a
+                        || (isSelect_ && isForUpdate_)                                       // @F8a
+                        || (isDeclare_);                                                     // @F8a
+                                                                                             // @F8a
         if (packageCriteria.equalsIgnoreCase(JDProperties.PACKAGE_CRITERIA_SELECT))        // @F8a
         {                                                                                  // @F8a
-           isPackaged_ = isPackaged_ || isSelect_;                                         // @F8a
+            isPackaged_ = isPackaged_ || isSelect_;                                         // @F8a
         }                                                                                  // @F8a
-        
+
 
 
         // If there is a return value parameter, strip if off now.                         @E1A
@@ -1008,8 +1013,8 @@ class JDSQLStatement
     **/
     public void setNativeType (int type)                                   // @G5A
     {                                                                      // @G5A
-      nativeType_ = type;                                                  // @G5A
-      return;                                                              // @G5A
+        nativeType_ = type;                                                  // @G5A
+        return;                                                              // @G5A
     }                                                                      // @G5A
 
 

@@ -310,7 +310,7 @@ exception is thrown.
                 else {
                     String s = converter_.byteArrayToString (lobData.getRawBytes (),    // @B1C
                                                              lobData.getOffset (),      // @B1C
-                                                             lengthRead);       // @A1C
+                                                             lengthRead,0);       // @A1C // @D2M
                     byte[] converted = s.getBytes (encoding_);
                     actualLength = Math.min (converted.length, length);
                     System.arraycopy (converted, 0, data, start, actualLength);                

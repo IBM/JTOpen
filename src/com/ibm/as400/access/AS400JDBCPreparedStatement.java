@@ -207,11 +207,11 @@ implements PreparedStatement
                 // Statements with output or input parameters are
                 // not allowed in the batch.
                 if (parameterRow_.isOutput (i+1))
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+                    JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // If an input parameter is not set, we throw an exception.
                 if (parameterSet_[i] == false)
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                    JDError.throwSQLException (this, JDError.EXC_PARAMETER_COUNT_MISMATCH);
 
                 // Save the parameter in the array.  If its null,
                 // just save a null reference.
@@ -243,7 +243,7 @@ implements PreparedStatement
     public void addBatch (String sql)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE); // @B1C
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE); // @B1C
     }
 
 
@@ -308,7 +308,7 @@ implements PreparedStatement
                 JDTrace.logInformation (this, "Descriptor " + descriptorHandle_ + " created or changed");
         }
         catch (DBDataStreamException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
         finally
         { //@P0C
@@ -429,7 +429,7 @@ implements PreparedStatement
                     returnValueParameter_.set(reply.getSQLCA().getErrd (1));        // @F2A  //@G3C
             }                                                                       // @F2A
             catch (DBDataStreamException e) {                                       // @F2A
-                JDError.throwSQLException (JDError.EXC_INTERNAL, e);                // @F2A
+                JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);                // @F2A
             }                                                                       // @F2A
         }
     }
@@ -461,7 +461,7 @@ implements PreparedStatement
             // we throw an exception.
             for (int i = 0; i < parameterCount_; ++i)
                 if ((parameterSet_[i] == false) && (parameterRow_.isInput (i+1)))
-                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+                    JDError.throwSQLException (this, JDError.EXC_PARAMETER_COUNT_MISMATCH);
 
                 // Create the descriptor if needed.  This should only
                 // be done once (on the first execute for the prepared
@@ -484,7 +484,7 @@ implements PreparedStatement
             // Add the parameter information to the execute request.
             try {
                 request.setStatementType(sqlStatement.getNativeType());   // @G9A
-             
+
                 // Set the descriptor handle.
                 request.setParameterMarkerDescriptorHandle (descriptorHandle_);
 
@@ -539,72 +539,72 @@ implements PreparedStatement
 
 
                           int rowDataOffset = parameterMarkerData.getRowDataOffset (rowLoop-1);     // @G9C
-                        for (int i = 0; i < parameterCount_; ++i)
-                        {                                  
-                            // @G1 -- zero out the comm buffer if the parameter marker is null.
-                            //        If the buffer is not zero'ed out old data will be sent to
-                            //        the server possibily messing up a future request.  
+                          for (int i = 0; i < parameterCount_; ++i)
+                          {
+                              // @G1 -- zero out the comm buffer if the parameter marker is null.
+                              //        If the buffer is not zero'ed out old data will be sent to
+                              //        the server possibily messing up a future request.
                               if ((( batchExecute_ ) && ( parameters[i] == null )) ||               // @G9A
                                 (( !batchExecute_ ) && ( parameterNulls_[i] == true )))             // @B9C @G9C
-                            {                                                                     // @G1a
+                            {                                                                       // @G1a
                                     parameterMarkerData.setIndicator (rowLoop-1, i, (short) -1);    // @G1a @G9C
-                                byte[] parameterData = parameterMarkerData.getRawBytes();          // @G1a
-                                int parameterDataOffset = rowDataOffset + parameterOffsets_[i];    // @G1a
-                                int parameterDataLength = parameterLengths_[i]                     // @G1a
-                                                          + parameterDataOffset;              // @G1a
-                                for (int z=parameterDataOffset;                                    // @G1a
-                                    z < parameterDataLength;                                  // @G1a
-                                    parameterData[z++] = 0x00);                               // @G1a
-                            }                                                                      // @G1a
-                            else
-                            {
+                                byte[] parameterData = parameterMarkerData.getRawBytes();           // @G1a
+                                  int parameterDataOffset = rowDataOffset + parameterOffsets_[i];   // @G1a
+                                  int parameterDataLength = parameterLengths_[i]                    // @G1a
+                                                            + parameterDataOffset;                  // @G1a
+                                  for (int z=parameterDataOffset;                                   // @G1a
+                                      z < parameterDataLength;                                      // @G1a
+                                      parameterData[z++] = 0x00);                                   // @G1a
+                              }                                                                     // @G1a
+                              else
+                              {
                                   parameterMarkerData.setIndicator (rowLoop-1, i, (short) 0);     // @G9C
-                                ConvTable ccsidConverter = connection_.getConverter (parameterRow_.getCCSID (i+1)); //@P0C
+                                  ConvTable ccsidConverter = connection_.getConverter (parameterRow_.getCCSID (i+1)); //@P0C
 
-                                // Convert the data to bytes into the parameter marker data.    // @BAA
-                                // If there is an exception here, it means that there were      // @BAA
-                                // not enough bytes in the descriptor for the conversion.       // @BAA
-                                // If so, we get the correct length via getPrecision()          // @BAA
-                                // (assume the SQLData implementation has updated its own       // @BAA
-                                // precision as needed).                                        // @BAA
-                                int correctLength = -1;                                         // @BAA
-                       
+                                  // Convert the data to bytes into the parameter marker data.    // @BAA
+                                  // If there is an exception here, it means that there were      // @BAA
+                                  // not enough bytes in the descriptor for the conversion.       // @BAA
+                                  // If so, we get the correct length via getPrecision()          // @BAA
+                                  // (assume the SQLData implementation has updated its own       // @BAA
+                                  // precision as needed).                                        // @BAA
+                                  int correctLength = -1;                                         // @BAA
+
                                   SQLData sqlData;                                                // @G9A
-                                  
+
                                   if ( batchExecute_ )                                            // @G9A
                                       setValue (i+1, parameters[i], null, -1);                // @G9A
                                   sqlData = parameterRow_.getSQLType(i+1);                        // @BAC @P0C @G9C
 
-                                try {                                                           // @BAA
-                                    sqlData.convertToRawBytes (parameterMarkerData.getRawBytes (),  // @BAC
-                                                               rowDataOffset + parameterOffsets_[i], ccsidConverter);
-                                }                                                               // @BAA
-                                catch (SQLException e) {                                         // @BAA
-                                    correctLength = sqlData.getPrecision();                     // @BAA
-                                }                                                               // @BAA
+                                  try {                                                           // @BAA
+                                      sqlData.convertToRawBytes (parameterMarkerData.getRawBytes (),  // @BAC
+                                                                 rowDataOffset + parameterOffsets_[i], ccsidConverter);
+                                  }                                                               // @BAA
+                                  catch (SQLException e) {                                        // @BAA
+                                      correctLength = sqlData.getPrecision();                     // @BAA
+                                  }                                                               // @BAA
 
-                                // If the length needed is larger than what was allocated in    // @BAA
-                                // the descriptor, then change the descriptor, and start        // @BAA
-                                // again.                                                       // @BAA
-                                if (correctLength >= 0) {                                       // @BAA
-                                    descriptorChangeNeeded = true;                              // @BAA
-                                    rebuildNeeded = true;                                       // @BAA
-                                    parameterLengths_[i] = correctLength;                       // @BAA
-                                    parameterTotalSize_ = parameterOffsets_[i] + correctLength; // @BAA
-                                    if ((i+1) < parameterCount_) {                              // @BAA
-                                        for (int j = i+1; j < parameterCount_; ++j) {           // @BAA
-                                            parameterOffsets_[j] = parameterTotalSize_;         // @BAA
-                                            parameterTotalSize_ += parameterLengths_[j];        // @BAA
-                                        }                                                       // @BAA
-                                    }                                                           // @BAA
-                                }                                                               // @BAA
-                            }
-                        }
+                                  // If the length needed is larger than what was allocated in    // @BAA
+                                  // the descriptor, then change the descriptor, and start        // @BAA
+                                  // again.                                                       // @BAA
+                                  if (correctLength >= 0) {                                       // @BAA
+                                      descriptorChangeNeeded = true;                              // @BAA
+                                      rebuildNeeded = true;                                       // @BAA
+                                      parameterLengths_[i] = correctLength;                       // @BAA
+                                      parameterTotalSize_ = parameterOffsets_[i] + correctLength; // @BAA
+                                      if ((i+1) < parameterCount_) {                              // @BAA
+                                          for (int j = i+1; j < parameterCount_; ++j) {           // @BAA
+                                              parameterOffsets_[j] = parameterTotalSize_;         // @BAA
+                                              parameterTotalSize_ += parameterLengths_[j];        // @BAA
+                                          }                                                       // @BAA
+                                      }                                                           // @BAA
+                                  }                                                               // @BAA
+                              }
+                          }
 
-                        if (descriptorChangeNeeded)                                             // @BAA
-                            changeDescriptor();                                                 // @BAA
+                          if (descriptorChangeNeeded)                                             // @BAA
+                              changeDescriptor();                                                 // @BAA
                         }                                                                       // @G9A
-                    } while ((rebuildNeeded) && (loopCount == 1));                               // @BAA
+                    } while ((rebuildNeeded) && (loopCount == 1));                              // @BAA
 
                     request.setParameterMarkerBlockIndicator (0);
                 }
@@ -615,7 +615,7 @@ implements PreparedStatement
                     request.addOperationResultBitmap (DBSQLRequestDS.ORS_BITMAP_RESULT_DATA);
             }
             catch (DBDataStreamException e) {
-                JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+                JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             }
         }
     }
@@ -624,10 +624,10 @@ implements PreparedStatement
 
     /**
     Performs common operations needed after a prepare.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  reply           The prepare reply.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     void commonPrepareAfter (JDSQLStatement sqlStatement,
@@ -645,10 +645,10 @@ implements PreparedStatement
 
     /**
     Performs common operations needed before a prepare.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  request         The prepare request.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     void commonPrepareBefore (JDSQLStatement sqlStatement,
@@ -668,10 +668,10 @@ implements PreparedStatement
 
     /**
     Performs common operations in leiu of a prepare.
-    
+
     @param  sqlStatement    The SQL statement.
     @param  statementIndex  The cached statement index.
-    
+
     @exception      SQLException    If an error occurs.
     **/
     void commonPrepareBypass (JDSQLStatement sqlStatement,
@@ -692,20 +692,20 @@ implements PreparedStatement
     Runs an SQL statement that may return multiple result sets.
     This closes the current result set and clears warnings
     before executing the SQL statement again.
-    
+
     <p>Under some situations, a single SQL statement may return
     multiple result sets, an update count, or both.  This might occur
     either when executing a stored procedure that returns multiple
     result sets or when dynamically executing an unknown SQL string.
-    
+
     <p>Use Statement.getMoreResults(), Statement.getResultSet(),
     and Statement.getUpdateCount() to navigate through multiple
     result sets, an update count, or both.
-    
+
     @return         true if a result set was returned; false
                     if an update count was returned or nothing
                     was returned.
-    
+
     @exception      SQLException    If the statement is not open,
                                     the query timeout limit is
                                     exceeded, or an error occurs.
@@ -736,14 +736,14 @@ implements PreparedStatement
     Runs an SQL statement that may return multiple
     result sets.  This closes the current result set
     and clears warnings before executing a new SQL statement.
-    
+
     <p>Do not use this form of execute() on a prepared statement.
-    
+
     @param  sql     The SQL statement.
     @return         true if a result set was returned, false
                     if an update count was returned or nothing
                     was returned.
-    
+
     @exception      SQLException    This exception is always thrown.
     **/
     public boolean execute (String sql)
@@ -757,7 +757,7 @@ implements PreparedStatement
 
         return super.execute (sql);
         */
-        JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
         return false;                                               // @B1A
     }
 
@@ -765,27 +765,27 @@ implements PreparedStatement
     //@GAA
     /**
     Runs an SQL statement that may return multiple result sets and
-    makes any auto-generated keys available for retrieval using 
-    Statement.getGeneratedKeys().  This closes the current result set 
-    and clears warnings before executing the new SQL statement. 
-  
-    <p>Do not use this form of execute() on a prepared statement.   
-    
+    makes any auto-generated keys available for retrieval using
+    Statement.getGeneratedKeys().  This closes the current result set
+    and clears warnings before executing the new SQL statement.
+
+    <p>Do not use this form of execute() on a prepared statement.
+
     @param  sql               The SQL statement.
-    @param  autoGeneratedKeys Indicates whether auto-generated keys should be made available for 
-                              retrieval.  Valid values are Statement.RETURN_GENERATED_KEYS and 
-                              Statement.NO_GENERATED_KEYS. 
+    @param  autoGeneratedKeys Indicates whether auto-generated keys should be made available for
+                              retrieval.  Valid values are Statement.RETURN_GENERATED_KEYS and
+                              Statement.NO_GENERATED_KEYS.
     @return                   true if a result set was returned, false
                               if an update count was returned or nothing
                               was returned.
-  
+
     @exception      SQLException    This exception is always thrown.
     @since Modification 5
     **/
     public boolean execute (String sql, int autoGeneratedKeys)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);  
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);
         return false;                                                                                              // @B1A
     }
 
@@ -797,17 +797,17 @@ implements PreparedStatement
     added to the batch.  The batch is cleared after the SQL statements
     are run.  In addition, this closes the current result set and
     clears warnings before executing the new SQL statement.
-    
+
     <p>When batch updates are run, autocommit should usually be turned off.
     This allows the caller to decide whether or not to commit the
     transaction in the event that an error occurs and some of the
     SQL statements in a batch fail to run.
-    
+
     @return An array of row counts for the SQL statements that are run.
             The array contains one element for each statement in the
             batch of SQL statements.  The array is ordered according to
             the order in which the SQL statements were added to the batch.
-    
+
     @exception SQLException If the statement is not open,
                             an SQL statement contains a syntax
                             error, the query timeout limit is
@@ -859,13 +859,13 @@ implements PreparedStatement
                         JDSQLStatement sqlStatement = (JDSQLStatement) nextElement;
                         JDServerRow resultRow = commonPrepare (sqlStatement);
                         if (resultRow != null)
-                            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                            JDError.throwSQLException (this, JDError.EXC_CURSOR_STATE_INVALID);
 
                         commonExecute (sqlStatement, resultRow);
                         executed_ = true;
                         if (resultSet_ != null) {
                             closeResultSet (JDCursor.REUSE_YES);
-                            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                            JDError.throwSQLException (this, JDError.EXC_CURSOR_STATE_INVALID);
                         }
                     }
 
@@ -882,7 +882,12 @@ implements PreparedStatement
 
                         // Prepare the statement if it is not already done.
                         if (! prepared_) {
-                            sqlStatement_.setNativeType(JDSQLStatement.TYPE_BLOCK_INSERT);  // @G9A
+                            //@H7 Native type should ONLY be BLOCK_INSERT if the statement is of type
+                            //@H7 "INSERT INTO MYTABLE ? ROWS VALUES (?,?)" with a ROWS VALUES clause,
+                            //@H7 not just if we are going to send the values as a batch to the server.
+                            //@H7 We determine whether the statement is of that form in 
+                            //@H7 JDSQLStatement.java, not here.
+                            //@H7D sqlStatement_.setNativeType(JDSQLStatement.TYPE_BLOCK_INSERT);  // @G9A
                             resultRow_ = commonPrepare (sqlStatement_);
                             prepared_ = true;
                         }
@@ -904,10 +909,14 @@ implements PreparedStatement
 
                         // Only INSERTs can be batched, UPDATE statements must still be    @G9A
                         //   be done one at a time.                                        @G9A
-                        if ( !(sqlStatement_.toString().startsWith("INSERT",0)) ) {     // @G9A
+                        if ( !(sqlStatement_.isInsert_) ) {                             // @G9A @H7C
                           done = true;                                                  // @G9A
                           notInsert = true;                                             // @G9A
                         }                                                               // @G9A
+
+                        if ( !(sqlStatement_.canBatch())){                              // @H7A
+                            done = true;                                                // @H7A        
+                        }                                                               // @H7A
 
                         while (( enum.hasMoreElements () ) && ( !done )) {              // @G9A
                           nextElement = enum.nextElement ();                            // @G9A
@@ -922,14 +931,19 @@ implements PreparedStatement
                           }                                                             // @G9A
                         }
 
-                        sqlStatement_.setNativeType(JDSQLStatement.TYPE_BLOCK_INSERT);  // @G9A
+                        //@H7 Native type should ONLY be BLOCK_INSERT if the statement is of type
+                        //@H7 "INSERT INTO MYTABLE ? ROWS VALUES (?,?)" with a ROWS VALUES clause,
+                        //@H7 not just if we are going to send the values as a batch to the server.
+                        //@H7 We determine whether the statement is of that form in 
+                        //@H7 JDSQLStatement.java, not here.
+                        //@H7D sqlStatement_.setNativeType(JDSQLStatement.TYPE_BLOCK_INSERT);  // @G9A
                         commonExecute (sqlStatement_, resultRow_);
                         executed_ = true;
                         batchExecute_ = false;                                          // @G9A
                         batchParameterRows_.clear();                                    // @G9A
                         if (resultSet_ != null) {
                             closeResultSet (JDCursor.REUSE_YES);
-                            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                            JDError.throwSQLException (this, JDError.EXC_CURSOR_STATE_INVALID);
                         }
                     }
                     // If we only have a batch size of one we could be doing something     @G9A
@@ -984,10 +998,10 @@ implements PreparedStatement
     Runs the SQL statement that returns a single
     result set.  This closes the current result set and
     clears warnings before executing the SQL statement again.
-    
+
     @return         The result set that contains the data produced
                     by the query.
-    
+
     @exception      SQLException    If the statement is not open, no
                                     result set is returned by the database,
                                     the query timeout limit is exceeded,
@@ -1012,8 +1026,8 @@ implements PreparedStatement
 
             if ((behaviorOverride_ & 1) == 0)                                  // @H4a
             {                                                                  // @H4a
-            if (resultSet_ == null)
-                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+               if (resultSet_ == null)
+                   JDError.throwSQLException (this, JDError.EXC_CURSOR_STATE_INVALID);
             }                                                                  // @H4a
                    
             return resultSet_;
@@ -1026,13 +1040,13 @@ implements PreparedStatement
     Runs an SQL statement that returns a single
     result set.  This closes the current result set
     and clears warnings before executing a new SQL statement.
-    
+
     <p>Do not use this form of executeQuery() on a prepared statement.
-    
+
     @param  sql     The SQL statement.
     @return         The result set that contains the data produced
                     by the query.
-    
+
     @exception      SQLException    This exception is always thrown.
     **/
     public ResultSet executeQuery (String sql)
@@ -1046,7 +1060,7 @@ implements PreparedStatement
 
         return super.executeQuery (sql);
         */
-        JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
         return null;                                                // @B1A
     }
 
@@ -1057,11 +1071,11 @@ implements PreparedStatement
     SQL statement that does not return a result set.
     This closes the current result set and clears warnings
     before executing the SQL statement again.
-    
+
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
                     return nothing.
-    
+
     @exception      SQLException    If the statement is not open,
                                     the query timeout limit is
                                     exceeded, the statement returns
@@ -1084,7 +1098,7 @@ implements PreparedStatement
                 resultRow_ = commonPrepare (sqlStatement_);
                 prepared_ = true;
                 if (resultRow_ != null)
-                    JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                    JDError.throwSQLException (this, JDError.EXC_CURSOR_STATE_INVALID);
             }
 
             // Execute.
@@ -1092,7 +1106,7 @@ implements PreparedStatement
             executed_ = true;
             if (resultSet_ != null) {
                 closeResultSet (JDCursor.REUSE_YES);
-                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                JDError.throwSQLException (this, JDError.EXC_CURSOR_STATE_INVALID);
             }
 
             return updateCount_;
@@ -1106,14 +1120,14 @@ implements PreparedStatement
     SQL statement that does not return a result set.
     This closes the current result set and clears warnings
     before executing a new SQL statement.
-    
+
     <p>Do not use this form of executeUpdate() on a prepared statement.
-    
+
     @param  sql     The SQL statement.
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
                     return nothing.
-    
+
     @exception      SQLException    This exception is always thrown.
     **/
     public int executeUpdate (String sql)
@@ -1127,7 +1141,7 @@ implements PreparedStatement
 
         return super.executeUpdate (sql);
         */
-        JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
         return 0;                                                   // @B1A
     }
 
@@ -1136,8 +1150,8 @@ implements PreparedStatement
     //@GAA
     /**
     Runs an SQL INSERT, UPDATE, or DELETE statement, or any
-    SQL statement that does not return a result set and 
-    makes any auto-generated keys available for retrieval using 
+    SQL statement that does not return a result set and
+    makes any auto-generated keys available for retrieval using
     Statement.getGeneratedKeys().
     This closes the current result set and clears warnings
     before executing the new SQL statement.
@@ -1155,8 +1169,8 @@ implements PreparedStatement
     public int executeUpdate (String sql, int autoGeneratedKeys)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);  
-        return 0;                                                   
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);
+        return 0;
     }
 
 
@@ -1164,19 +1178,29 @@ implements PreparedStatement
     // JDBC 2.0
     /**
     Returns the ResultSetMetaData object that describes the
-    result set's columns.
-    
-    @return     The metadata object.
-    
+    result set's columns.  Null is returned if the statement
+    does not return a result set.  In the following example
+    rsmd is null since the statement does not return a result set. 
+    <PRE> 
+    PreparedStatement ps   = connection.prepareStatement("INSERT INTO COLLECTION.TABLE VALUES(?)");
+    ResultSetMetaData rsmd = ps.getMetaData();
+    </PRE>
+
+    @return     The metadata object, or null if the statement does not return a result set.
+
     @exception  SQLException    If the statement is not open.
     **/
     public ResultSetMetaData getMetaData ()
     throws SQLException
     {
         synchronized(internalLock_) {                                            // @F1A
-            checkOpen ();
+            checkOpen ();                       
+            
+            if (resultRow_ == null)                                              // @H6a
+               return null;                                                      // @H6a
+            
             ConvTable convTable = null;                                                                    // @G6A
-            DBExtendedColumnDescriptors extendedDescriptors = getExtendedColumnDescriptors();              // @G6A 
+            DBExtendedColumnDescriptors extendedDescriptors = getExtendedColumnDescriptors();              // @G6A
             // If we have extendedDescriptors, send a ConvTable to convert them, else pass null            // @G6A
             if (extendedDescriptors != null)                                                               // @G6A
             {                                                                                              // @G6A
@@ -1190,19 +1214,19 @@ implements PreparedStatement
 
 
 
-    // @G4A 
+    // @G4A
     // Return the class name of a parameter for ParameterMetaData support.
     String getParameterClassName (int param)
     throws SQLException
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        { 
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1217,12 +1241,12 @@ implements PreparedStatement
 
 
 
-    // @G4A 
+    // @G4A
     // Return the parameter count for ParameterMetaData support.
     int getParameterCount ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            
+        synchronized(internalLock_) {
             checkOpen ();
             if (useReturnValueParameter_)
             {
@@ -1238,18 +1262,18 @@ implements PreparedStatement
     /**
     Returns the number, types, and properties of a PreparedStatement
     object's parameters.
-        
+
     @return     The ParameterMetaData object that describes this
     prepared statement object.
-        
+
     @exception  SQLException    If the statement is not open.
     @since Modification 5
     **/
-    public ParameterMetaData getParameterMetaData()  
+    public ParameterMetaData getParameterMetaData()
     throws SQLException
     {
-        synchronized(internalLock_) 
-        {                                            
+        synchronized(internalLock_)
+        {
             checkOpen ();
             return(ParameterMetaData)(Object) new AS400JDBCParameterMetaData (this);
         }
@@ -1257,18 +1281,18 @@ implements PreparedStatement
 
 
 
-    // @G4A 
+    // @G4A
     // Return the mode of a parameter for ParameterMetaData support.
     int getParameterMode (int param)
     throws SQLException
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {                                            
-            checkOpen ();                
+        synchronized(internalLock_)
+        {
+            checkOpen ();
 
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
@@ -1277,10 +1301,10 @@ implements PreparedStatement
                else                                                     // @G8a
                   param--;                                              // @G8a
             }                                                           // @G8a
-            
+
             boolean input = parameterRow_.isInput(param);
             boolean output = parameterRow_.isOutput(param);
-            
+
             if (input && output)
             {
                 return ParameterMetaData.parameterModeInOut;
@@ -1307,12 +1331,12 @@ implements PreparedStatement
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {                                            
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1320,7 +1344,7 @@ implements PreparedStatement
                else                                                     // @G8a
                   param--;                                              // @G8a
             }                                                           // @G8a
-           
+
             return parameterRow_.getSQLData(param).getType();
         }
     }
@@ -1334,12 +1358,12 @@ implements PreparedStatement
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {    
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1361,12 +1385,12 @@ implements PreparedStatement
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {                                            
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1388,12 +1412,12 @@ implements PreparedStatement
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {                                            
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1415,12 +1439,12 @@ implements PreparedStatement
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {                                            
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1442,12 +1466,12 @@ implements PreparedStatement
     {
         if (param > getParameterCount() || param < 1)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
         }
-        synchronized(internalLock_) 
-        {                                            
+        synchronized(internalLock_)
+        {
             checkOpen ();
-                                                                               
+
             if (useReturnValueParameter_)                               // @G8a
             {                                                           // @G8a
                if (param == 1)                                          // @G8a
@@ -1466,17 +1490,17 @@ implements PreparedStatement
     /**
     Sets an input parameter to an Array value.  DB2 UDB for
     iSeries does not support arrays.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support arrays.
     **/
     public void setArray (int parameterIndex, Array parameterValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
     }
 
 
@@ -1486,12 +1510,12 @@ implements PreparedStatement
     reads the data from the stream as needed until no more bytes
     are available.  The driver converts this to an SQL VARCHAR
     value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  length          The number of bytes in the stream.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter,
@@ -1513,9 +1537,9 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (length < 0)
-            JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
-        // @B2D    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D    JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         setValue (parameterIndex,
                   (parameterValue == null) ? null : JDUtilities.streamToString (parameterValue, length, "ISO8859_1"), // @B2C
@@ -1527,11 +1551,11 @@ implements PreparedStatement
     /**
     Sets an input parameter to a BigDecimal value.  The driver converts
     this to an SQL NUMERIC value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or the parameter
                                 is not an input parameter.
@@ -1540,7 +1564,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D    JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setBigDecimal()");              // @H1A
@@ -1559,12 +1583,12 @@ implements PreparedStatement
     reads the data from the stream as needed until no more bytes
     are available.  The driver converts this to an SQL VARBINARY
     value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  length          The number of bytes in the stream.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter,
@@ -1585,9 +1609,9 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (length < 0)
-            JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
-        // @B2D    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D    JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         setValue (parameterIndex,
                   (parameterValue == null) ? null : JDUtilities.streamToBytes (parameterValue, length), // @B2C
@@ -1601,11 +1625,11 @@ implements PreparedStatement
     Sets an input parameter to a Blob value.  The driver
     converts this to an SQL BLOB value.
     <br>If proxy support is in use, the Blob must be serializable.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -1616,7 +1640,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setBlob()");                    // @H1A
@@ -1633,10 +1657,10 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java boolean value.  The driver
     converts this to an SQL SMALLINT value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or
                                 the parameter is not an input parameter.
@@ -1664,10 +1688,10 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java byte value.  The driver
     converts this to an SQL SMALLINT value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or
                                 the parameter is not an input parameter.
@@ -1694,11 +1718,11 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java byte array value.  The driver
     converts this to an SQL VARBINARY value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or the parameter
                                 is not an input parameter.
@@ -1707,7 +1731,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setBytes()");                   // @H1A
@@ -1729,12 +1753,12 @@ implements PreparedStatement
     reads the data from the character stream as needed until no more
     characters are available.  The driver converts this to an SQL
     VARCHAR value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  length          The number of bytes in the reader.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter,
@@ -1755,9 +1779,9 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (length < 0)
-            JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         setValue (parameterIndex,
                   (parameterValue == null) ? null : JDUtilities.readerToString (parameterValue, length), // @B2C
@@ -1771,11 +1795,11 @@ implements PreparedStatement
     Sets an input parameter to a Clob value.  The driver
     converts this to an SQL CLOB value.
     <br>If proxy support is in use, the Clob must be serializable.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -1786,7 +1810,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setClob()");                    // @H1A
@@ -1806,11 +1830,11 @@ implements PreparedStatement
     Sets an input parameter to a java.sql.Date value using the
     default calendar.  The driver converts this to an SQL DATE
     value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or the parameter
                                 is not an input parameter.
@@ -1819,7 +1843,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setDate()");                    // @H1A
@@ -1838,12 +1862,12 @@ implements PreparedStatement
     Sets an input parameter to a java.sql.Date value using a
     calendar other than the default.  The driver converts this
     to an SQL DATE value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  calendar        The calendar.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter,
@@ -1855,7 +1879,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setDate()");                    // @H1A
             if ( parameterValue == null )                                  // @H1A
@@ -1864,7 +1888,7 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (calendar == null)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         setValue (parameterIndex, parameterValue, calendar, -1);
     }
@@ -1874,10 +1898,10 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java double value.  The driver
     converts this to an SQL DOUBLE value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid or
                                 the parameter is not an input parameter.
@@ -1898,10 +1922,10 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java float value.  The driver
     converts this to an SQL REAL value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or
                                 the parameter is not an input parameter.
@@ -1929,10 +1953,10 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java int value.  The driver
     converts this to an SQL INTEGER value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid or
                                 the parameter is not an input parameter.
@@ -1953,14 +1977,14 @@ implements PreparedStatement
     // @D0C
     /**
     Sets an input parameter to a Java long value.
-    If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    If the connected server supports SQL BIGINT data, the driver
     converts this to an SQL BIGINT value.  Otherwise, the driver
     converts this to an SQL INTEGER value.  SQL BIGINT data is
     supported on V4R5 and later.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or
                                 the parameter is not an input parameter.
@@ -1986,10 +2010,10 @@ implements PreparedStatement
 
     /**
     Sets an input parameter to SQL NULL.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  sqlType         The SQL type code defined in java.sql.Types.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -1999,7 +2023,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @BBD if (sqlType != parameterRow_.getSQLData (parameterIndex).getType ())
-        // @BBD     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @BBD     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         // @D8 ignore the type supplied by the user.  We are checking it
         // only to rigidly follow the JDBC spec.  Ignoring the type
@@ -2016,14 +2040,14 @@ implements PreparedStatement
     }
 
 
-    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to AS/400.
+    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to iSeries.
     /**
     Sets an input parameter to SQL NULL.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  sqlType         The SQL type code defined in java.sql.Types.
     @param  typeName        The fully-qualified name of an SQL structured type.  This value will be ignored.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -2049,11 +2073,11 @@ implements PreparedStatement
     <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     <br>If proxy support is in use, the Object must be serializable.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -2065,7 +2089,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setObject()");                  // @H1A
@@ -2083,12 +2107,12 @@ implements PreparedStatement
     Sets an input parameter to an Object value.  The driver converts
     this to a value with the specified SQL type.
     <br>If proxy support is in use, the Object must be serializable.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  sqlType         The SQL type code defined in java.sql.Types.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -2102,10 +2126,10 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         // @BBD if (sqlType != parameterRow_.getSQLData (parameterIndex).getType ())
-        // @BBD     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @BBD     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         // @D8 ignore the type supplied by the user.  We are checking it
         // only to rigidly follow the JDBC spec.  Ignoring the type
@@ -2129,14 +2153,14 @@ implements PreparedStatement
     Sets an input parameter to an Object value.  The driver converts
     this to a value with the specified SQL type.
     <br>If proxy support is in use, the Object must be serializable.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  sqlType         The SQL type code defined in java.sql.Types.
     @param  scale           The number of digits after the decimal
                             if sqlType is DECIMAL or NUMERIC.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
                                 the parameter is not an input parameter,
@@ -2152,10 +2176,10 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         // @BBD if (sqlType != parameterRow_.getSQLData (parameterIndex).getType ())
-        // @BBD     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @BBD     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         // @D8 ignore the type supplied by the user.  We are checking it
         // only to rigidly follow the JDBC spec.  Ignoring the type
@@ -2171,7 +2195,7 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (scale < 0)
-            JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_SCALE_INVALID);
 
         setValue (parameterIndex, parameterValue, null, scale); //@P0C
     }
@@ -2182,17 +2206,17 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Ref value.  DB2 UDB for
     iSeries does not support structured types.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support structured types.
     **/
     public void setRef (int parameterIndex, Ref parameterValue)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
     }
 
 
@@ -2200,10 +2224,10 @@ implements PreparedStatement
     /**
     Sets an input parameter to a Java short value.  The driver
     converts this to an SQL SMALLINT value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid or
                                 the parameter is not an input parameter.
@@ -2224,11 +2248,11 @@ implements PreparedStatement
     /**
     Sets an input parameter to a String value.  The driver
     converts this to an SQL VARCHAR value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or the parameter
                                 is not an input parameter.
@@ -2237,7 +2261,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setString()");                  // @H1A
@@ -2256,11 +2280,11 @@ implements PreparedStatement
     /**
     Sets an input parameter to a java.sql.Time value using the
     default calendar.  The driver converts this to an SQL TIME value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or the parameter
                                 is not an input parameter.
@@ -2269,7 +2293,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setTime()");                    // @H1A
@@ -2288,12 +2312,12 @@ implements PreparedStatement
     Sets an input parameter to a java.sql.Time value using a calendar
     other than the default.  The driver converts this to an SQL TIME
     value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  calendar        The calendar.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter,
@@ -2305,7 +2329,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setTime()");                    // @H1
             if ( parameterValue == null )                                  // @H1A
@@ -2314,7 +2338,7 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (calendar == null)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         setValue (parameterIndex, parameterValue, calendar, -1);
     }
@@ -2325,11 +2349,11 @@ implements PreparedStatement
     Sets an input parameter to a java.sql.Timestamp value using the
     default calendar.  The driver converts this to an SQL TIMESTAMP
     value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, or the parameter
                                 is not an input parameter.
@@ -2338,7 +2362,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setTimeStamp()");               // @H1A
@@ -2357,12 +2381,12 @@ implements PreparedStatement
     Sets an input parameter to a java.sql.Timestamp value using a
     calendar other than the default.  The driver converts this to
     an SQL TIMESTAMP value.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
     @param  calendar        The calendar.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter,
@@ -2374,7 +2398,7 @@ implements PreparedStatement
     throws SQLException
     {
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
         if (JDTrace.isTraceOn()) {                                         // @H1A
             JDTrace.logInformation (this, "setTimeStamp()");               // @H1A
             if ( parameterValue == null )                                  // @H1A
@@ -2383,7 +2407,7 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (calendar == null)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         setValue (parameterIndex, parameterValue, calendar, -1);
     }
@@ -2399,12 +2423,12 @@ implements PreparedStatement
     computed as 2 multiplied by the number of characters plus 2 bytes for the
     byte-order mark.  If an uneven number of bytes is specified,
     then Java will convert this to an empty String.
-    
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                              the value to SQL NULL.
     @param  length          The number of bytes in the stream.
-    
+
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter, the length
@@ -2412,7 +2436,7 @@ implements PreparedStatement
                                 the input stream does not contain all
                                 Unicode characters, or an error occurs
                                 while reading the input stream
-    
+
     @deprecated Use setCharacterStream(int, Reader, int) instead.
     @see #setCharacterStream
     **/
@@ -2429,9 +2453,9 @@ implements PreparedStatement
         }                                                                  // @H1A
 
         if (length < 0)
-            JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
-        // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        // @B2D     JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
         setValue (parameterIndex,
                   (parameterValue == null) ? null : JDUtilities.streamToString (parameterValue, length, "UnicodeBig"), // @B2C @B3C @H2C @H3C
@@ -2444,14 +2468,14 @@ implements PreparedStatement
     /**
     Sets an input parameter to a URL value.  The driver converts this to an
     SQL DATALINK value.
-            
+
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value or null to set
                         the value to SQL NULL.
-        
+
     @exception  SQLException    If the statement is not open,
                            the index is not valid, or the parameter
-                           is not an input parameter. 
+                           is not an input parameter.
     @since Modification 5
     **/
     public void setURL (int parameterIndex, URL parameterValue)
@@ -2464,7 +2488,7 @@ implements PreparedStatement
             else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
         }                                                                  // @H1A
 
-        setValue (parameterIndex, parameterValue, null, -1);    
+        setValue (parameterIndex, parameterValue, null, -1);
     }
 
 
@@ -2501,18 +2525,18 @@ and performs all appropriate validation.
             // are "faking" the return value parameter.                                    @F2A
             if (useReturnValueParameter_) {                                             // @F2A
                 if (parameterIndex == 1)                                                // @F2A
-                    JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);      // @F2A
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);// @F2A
                 else                                                                    // @F2A
                     --parameterIndex;                                                   // @F2A
             }
 
             // Validate the parameter index.
             if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
-                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
 
             // Check that the parameter is an input parameter.
             if (! parameterRow_.isInput (parameterIndex))
-                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+                JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
             // Set the parameter data.  If there is a type mismatch,
             // set() with throw an exception.
@@ -2549,7 +2573,7 @@ and performs all appropriate validation.
        3) If string data and suppress truncation, return
        4) If updating database with string data and check truncation and data truncated, throw exception
        5) If string data is part of a query and check truncation and data truncated, post warning
-    
+
     @param  index   The index (1-based).
     @param  data    The data that was written or null for SQL NULL.
     **/
@@ -2561,8 +2585,8 @@ and performs all appropriate validation.
             // The SQLData object determined if data was truncated as part of the setValue() processing
             int truncated = data.getTruncated ();
             if (truncated > 0)
-            {                         
-                // Ignore the truncation property if numeric data 
+            {
+                // Ignore the truncation property if numeric data
                 if (! data.isText())                                                    // @G2a
                 {                                                                       // @G2a
                     int actualSize = data.getActualSize ();
@@ -2571,7 +2595,7 @@ and performs all appropriate validation.
                     if ((sqlStatement_ != null) && (sqlStatement_.isSelect()))           // @D9a
                         postWarning(dt);                                                 // @D9a
                     else                                                                 // @D9a
-                        throw dt;                                                                       
+                        throw dt;
                 }                                                                       // @G2a
                 else
                 {                                                                    // @G2a                                                                       // @G2a
@@ -2583,7 +2607,7 @@ and performs all appropriate validation.
                         if ((sqlStatement_ != null) && (sqlStatement_.isSelect()))        // @D9a
                             postWarning(dt);                                              // @D9a
                         else                                                              // @D9a
-                            throw dt;                                                                       
+                            throw dt;
                     }                                                                    // @G2a
                 }                                                                       // @G2a
             }
@@ -2594,10 +2618,10 @@ and performs all appropriate validation.
     // @BBA
     /**
     Checks that an input SQL type is compatible with the actual parameter type.
-    
+
     @param sqlType          The SQL type.
     @param parameterIndex   The index (1-based).
-    
+
     @exception  SQLException    If the SQL type is not compatible.
     **/
     private void testSQLType(int sqlType, int parameterIndex)
@@ -2614,7 +2638,7 @@ and performs all appropriate validation.
                 && ((parameterType == Types.CHAR) || (parameterType == Types.VARCHAR)))
                 ; // Do nothing!
             else
-                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+                JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
         }
     }
 
