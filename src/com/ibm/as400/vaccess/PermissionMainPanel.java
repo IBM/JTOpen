@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionMainPanel.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ class PermissionMainPanel
       implements ActionListener,
                  KeyListener
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     /**
      * The following five private variables respectively representing
@@ -172,13 +172,13 @@ class PermissionMainPanel
                  int type =permission_.getType();
                  switch(type)
                  {
-                    case permission_.TYPE_DLO :
+                    case Permission.TYPE_DLO :
                           tableModelDLO_.addRow(inputValue );
                           break;
-                    case permission_.TYPE_QSYS :
+                    case Permission.TYPE_QSYS :
                           tableModelQSYS_.addRow(inputValue );
                           break;
-                    case permission_.TYPE_ROOT :
+                    case Permission.TYPE_ROOT :
                           tableModelRoot_.addRow(inputValue );
                           break;
                  }
@@ -196,13 +196,13 @@ class PermissionMainPanel
             int type = permission_.getType();
             switch(type)
             {
-              case permission_.TYPE_DLO :
+              case Permission.TYPE_DLO :
                 tableModelDLO_.removeRow(table_.getSelectedRow());
                 break;
-              case permission_.TYPE_QSYS :
+              case Permission.TYPE_QSYS :
                 tableModelQSYS_.removeRow(table_.getSelectedRow());
                 break;
-              case permission_.TYPE_ROOT :
+              case Permission.TYPE_ROOT :
                 tableModelRoot_.removeRow(table_.getSelectedRow());
                 break;
             }
@@ -496,19 +496,19 @@ class PermissionMainPanel
         int type = permission_.getType();        
         switch(type)
         {
-            case permission_.TYPE_DLO:
+            case Permission.TYPE_DLO:
                   tableModelDLO_ = new PermissionTableModelDLO(this,permission_);
                   table_= new JTable(tableModelDLO_);
                   tableModelDLO_.setTableInstance(table_);
                   table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                   break;
-            case permission_.TYPE_QSYS:
+            case Permission.TYPE_QSYS:
                   tableModelQSYS_ = new PermissionTableModelQSYS(this,permission_);
                   table_= new JTable(tableModelQSYS_);
                   tableModelQSYS_.setTableInstance(table_);
                   table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
                   break;
-            case permission_.TYPE_ROOT:
+            case Permission.TYPE_ROOT:
                   tableModelRoot_ = new PermissionTableModelRoot(this,permission_);
                   table_= new JTable(tableModelRoot_);
                   tableModelRoot_.setTableInstance(table_);
@@ -602,13 +602,13 @@ class PermissionMainPanel
                   int type = permission_.getType();
                   switch(type)
                   {
-                    case permission_.TYPE_DLO :
+                    case Permission.TYPE_DLO :
                           tableModelDLO_.resetPublicAuthorizationList();
                           break;
-                    case permission_.TYPE_QSYS :
+                    case Permission.TYPE_QSYS :
                           tableModelQSYS_.resetPublicAuthorizationList();
                           break;
-                    case permission_.TYPE_ROOT :
+                    case Permission.TYPE_ROOT :
                           tableModelRoot_.resetPublicAuthorizationList();
                           break;
                   }
