@@ -59,10 +59,10 @@ abstract class ConversionMaps
 
     
   //@A4A
-  // This is a table that maps all Java encodings to AS/400 CCSIDs.
+  // This is a table that maps all Java encodings to OS/400 CCSIDs.
   // Some encodings could map to more than one CCSID, so they are not included
   // in the table. When a lookup is performed, it will then return null.
-  // Some encodings are supported by the AS/400 but not by the Toolbox. The
+  // Some encodings are supported by the iSeries server but not by the Toolbox. The
   // ConvTable code handles this.
   // Based on http://java.sun.com/products/jdk/1.2/docs/guide/internat/encoding.doc.html
 
@@ -83,9 +83,10 @@ abstract class ConversionMaps
     encodingCcsid_.put("Unicode",       "13488");
     encodingCcsid_.put("UnicodeBig",    "13488"); // bom is 0xFEFF
 //    encodingCcsid_.put("UnicodeBigUnmarked", 13488); //@B0A
-    encodingCcsid_.put("UnicodeLittle", "1200"); // bom is 0xFFFE
+    encodingCcsid_.put("UnicodeLittle", "1202"); // bom is 0xFFFE @C1C
 //    encodingCcsid_.put("UnicodeLittleUnmarked", 13488); //@B0A
     encodingCcsid_.put("UTF8",          "1208");
+    encodingCcsid_.put("UTF-16",         "1200"); // @C1A
     
     encodingCcsid_.put("Big5",      "950");
 //    encodingCcsid_.put("Big5 HKSCS", ???); //@B0A: Big5 with Hong Kong extensions
@@ -192,8 +193,8 @@ abstract class ConversionMaps
 //    encodingCcsid_.put("ISO2022CN_CNS", "965"); // Java doesn't support this one?
 //    encodingCcsid_.put("ISO2022CN_GB",  "9575"); // Java doesn't support this one?
     
-    encodingCcsid_.put("ISO2022JP", "5054"); // Could be 956 also, but the AS/400 JVM uses 5054.
-    encodingCcsid_.put("ISO2022KR", "25546"); // Could be 17354 also, but the AS/400 JVM uses 25546.
+    encodingCcsid_.put("ISO2022JP", "5054"); // Could be 956 also, but the OS/400 JVM uses 5054.
+    encodingCcsid_.put("ISO2022KR", "25546"); // Could be 17354 also, but the OS/400 JVM uses 25546.
     
     encodingCcsid_.put("ISO8859_2", "912");
     encodingCcsid_.put("ISO8859_3", "913");
@@ -207,7 +208,7 @@ abstract class ConversionMaps
 //    encodingCcsid_.put("ISO8859_15_FDIS", ???); // Don't know the CCSID; FYI, this codepage is ISO 28605.
   
     // The Toolbox does not directly support JIS
-    encodingCcsid_.put("JIS0201",       "897"); // Could be 895, but the AS/400 JVM uses 897.
+    encodingCcsid_.put("JIS0201",       "897"); // Could be 895, but the OS/400 JVM uses 897.
     encodingCcsid_.put("JIS0208",       "952");
     encodingCcsid_.put("JIS0212",       "953");
 //    encodingCcsid_.put("JISAutoDetect", ???); // Can't do this one. Would need to look at the bytes to determine the CCSID.
@@ -237,8 +238,8 @@ abstract class ConversionMaps
     encodingCcsid_.put("MacTurkish", "1281");
 //    encodingCcsid_.put("MacUkraine", ???); // Don't know.
 
-    encodingCcsid_.put("SJIS", "932"); // Could be 943, but the AS/400 JVM uses 932.
-    encodingCcsid_.put("TIS620", "874"); // AS/400 JVM uses 874.
+    encodingCcsid_.put("SJIS", "932"); // Could be 943, but the OS/400 JVM uses 932.
+    encodingCcsid_.put("TIS620", "874"); // OS/400 JVM uses 874.
   }
     
   

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
-// Filename: ConvTable1200.java
+// Filename: ConvTable1202.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,26 +14,26 @@
 package com.ibm.as400.access;
 
 /**
- * The 1200 ccsid is just little endian Unicode (13488) so all we do is flip
- * the high and low bytes.
+ * The 1202 ccsid is just little endian Unicode (13488) so all we do is flip
+ * the high and low bytes.  This used to be CCSID 1200.
 **/
-class ConvTable1200 extends ConvTable // instead of ConvTableDoubleMap
+class ConvTable1202 extends ConvTable // instead of ConvTableDoubleMap
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   
-  ConvTable1200()
+  ConvTable1202()
   {
-    super(1200);
+    super(1202);
   }
   
   
   /**
-   * Perform an AS/400 CCSID to Unicode conversion.
+   * Perform a CCSID to Unicode conversion.
   **/
   String byteArrayToString(byte[] buf, int offset, int length, int type)
   {
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_ && Trace.isTraceConversionOn())
     {
       Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
     }
@@ -42,7 +42,7 @@ class ConvTable1200 extends ConvTable // instead of ConvTableDoubleMap
     {
       dest[i] = (char)(((0x00FF & buf[(i*2)+1+offset]) << 8) + (0x00FF & buf[(i*2)+offset]));
     }
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_ && Trace.isTraceConversionOn())
     {
       Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
     }
@@ -51,12 +51,12 @@ class ConvTable1200 extends ConvTable // instead of ConvTableDoubleMap
     
   
   /**
-   * Perform a Unicode to AS/400 CCSID conversion.
+   * Perform a Unicode to CCSID conversion.
   **/
   byte[] stringToByteArray(String source, int type)
   {
     char[] src = source.toCharArray();
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_ && Trace.isTraceConversionOn())
     {
       Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + encoding_, ConvTable.dumpCharArray(src));
     }
@@ -66,7 +66,7 @@ class ConvTable1200 extends ConvTable // instead of ConvTableDoubleMap
       dest[i*2+1] = (byte)(src[i] >>> 8);
       dest[i*2] = (byte)(0x00FF & src[i]);
     }
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_ && Trace.isTraceConversionOn())
     {
       Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
     }
