@@ -73,7 +73,17 @@ implements PrintObjectListImpl, ProxyImpl
     }
     */
 
-
+    public void setCache(boolean b)
+    {
+      try
+      {
+        connection_.callMethod(pxId_, "setCache", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(b) });
+      }
+      catch(InvocationTargetException e)
+      {
+         throw ProxyClientConnection.rethrow(e);
+      }
+    }
 
     // @A5A
     public NPCPID getNPCPID(int index)

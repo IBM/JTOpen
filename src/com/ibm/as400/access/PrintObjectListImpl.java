@@ -25,6 +25,8 @@ import java.io.IOException;
 interface PrintObjectListImpl
 {  
     
+    public abstract void setCache(boolean f); //@CRS
+    
     public abstract void addPrintObjectListListener(PrintObjectListListener listener);
     
     

@@ -43,11 +43,18 @@ implements PrintObjectListImpl
     // @A5D private transient Vector theList_;
     private transient Vector cpidList_;                 // @A5A
     private transient Vector cpattrList_;               // @A5A
-
+  private transient int numItems_; //@CRS
+  
     private transient Exception anyException_;
     private transient boolean firingEvent_ = false;  // indicates if a PrintObjectEvent is firing.
     private transient Vector printObjectListListeners_ = new Vector();
 
+  private boolean useCache_ = true; //@CRS
+
+  public void setCache(boolean f) //@CRS
+  {
+    useCache_ = f;
+  }
 
     public PrintObjectListImplRemote()
     {
@@ -56,6 +63,7 @@ implements PrintObjectListImpl
         // @A5D theList_ = null;
         cpidList_ = null;                               // @A5A
         cpattrList_ = null;                             // @A5A
+    numItems_ = 0; //@CRS
         anyException_ = null;
         firingEvent_ = false;
     }
@@ -78,14 +86,18 @@ implements PrintObjectListImpl
                 // if the list was closed before completing, we return
                 // here to avoid firing the object added event.
                 return false;                                            // @A2C
-            } else {
+      }
+      else
+      {
                 // theList can never be null here because the only time
                 // theList would be set back to null would be on a close()
                 // which is also synchronized and it also sets the curThread
                 // to null so we would have caught that above...
                 // @A5D theList_.addElement(npObject);
-                cpidList_.addElement(cpid);                              // @A5A
-                cpattrList_.addElement(cpattr);                          // @A5A
+
+        if (useCache_) cpidList_.addElement(cpid);                              // @A5A @CRS
+        if (useCache_) cpattrList_.addElement(cpattr);                          // @A5A @CRS
+        ++numItems_; //@CRS
                 firingEvent_ = true;                                     // @A2A
             }
         }
@@ -134,7 +146,8 @@ implements PrintObjectListImpl
         if (npSystem != null)
         {
             NPConversation conversation = npSystem.getConversation();
-            try{
+      try
+      {
               if (conversation != null)
               {
                   boolean     fTossData = false;
@@ -161,7 +174,9 @@ implements PrintObjectListImpl
                   if (attrsToRetrieve_ != null)
                   {
                       request.addCodePoint(attrsToRetrieve_);
-                  } else {
+          }
+          else
+          {
                       request.addCodePoint(getDefaultAttrsToList());
                   }
                   server.send(request, correlation);
@@ -174,7 +189,9 @@ implements PrintObjectListImpl
                           fMoreData = false;   
                           Trace.log(Trace.ERROR, "buildList: Null reply from AS400Server.receive()!");
                           throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-                      } else {
+            }
+            else
+            {
                           count++;
                           fMoreData = !(reply.isLastReply());
                           if (!fTossData)
@@ -197,7 +214,9 @@ implements PrintObjectListImpl
                                        // it completed, start tossing any
                                        // incoming data...
                                        fTossData = true;
-                                    } else {
+                    }
+                    else
+                    {
                                        // check if background thread is being used,
                                        // otherwise avoid the overhead of notifyAll().
                                        if( receiveThread != null )
@@ -210,7 +229,9 @@ implements PrintObjectListImpl
                                        }
                                     }
                                  }
-                              } else {
+                }
+                else
+                {
                                  if (rc == NPDataStream.RET_CPF_MESSAGE)
                                  {
                                     NPCPAttribute cpCPFMessage = (NPCPAttribute)reply.getCodePoint(NPCodePoint.ATTRIBUTE_VALUE);
@@ -219,8 +240,7 @@ implements PrintObjectListImpl
                                        String strCPFMessageID = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGID);
                                        String strCPFMessageText = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGTEXT);
                                        String strCPFMessageHelp = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGHELP);
-                                       Trace.log(Trace.ERROR, "buildList: CPF Message("+strCPFMessageID+") = "
-                                         + strCPFMessageText + ", HelpText= " +strCPFMessageHelp);
+                      if (Trace.traceOn_) Trace.log(Trace.ERROR, "buildList: CPF Message("+strCPFMessageID+") = " + strCPFMessageText + ", HelpText= " +strCPFMessageHelp); //@CRS
                                        // Create an AS400Message object
                                        AS400Message msg = new AS400Message(strCPFMessageID, strCPFMessageText);
                                        msg.setHelp(strCPFMessageHelp);
@@ -229,11 +249,15 @@ implements PrintObjectListImpl
                                        // our catcher will actually fire the error event.
                                        throw e;
                                     }
-                                 } else {
+                  }
+                  else
+                  {
                                     if (rc == NPDataStream.RET_EMPTY_LIST)
                                     {
                                        // the list is empty, that isn't an error.
-                                    } else {
+                    }
+                    else
+                    {
                                        // look at RC and throw appropriate exception
                                        Trace.log(Trace.ERROR, "buildList: Host Return Code" + rc);
                                        // we get back a 4 (INV_REQ_ACT) if we try to list
@@ -242,7 +266,9 @@ implements PrintObjectListImpl
                                        {
                                            throw new RequestNotSupportedException(conversation.getAttribute(PrintObject.ATTR_NPSLEVEL),
                                                               RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
-                                       } else {
+                      }
+                      else
+                      {
                                            throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR,
                                                                                      "QNPSERVS RC = " + rc);
                                        }
@@ -267,7 +293,7 @@ implements PrintObjectListImpl
             {
                npSystem.returnConversation(conversation);
             }
-	    }
+    }
     }
 
 
@@ -303,6 +329,7 @@ implements PrintObjectListImpl
             // @A5D theList_ = null;
             cpidList_ = null;               // @A5A
             cpattrList_ = null;             // @A5A
+      numItems_ = 0; //@CRS
             anyException_ = null;
             firingEvent_ = true;
         } 
@@ -310,7 +337,8 @@ implements PrintObjectListImpl
         // tell any listeners the list was closed.
         firePrintObjectList(PrintObjectListEvent.CLOSED, null, null, null); // @A5C
     
-        synchronized (this) {
+    synchronized (this)
+    {
             firingEvent_ = false;
         }
     }
@@ -482,7 +510,8 @@ implements PrintObjectListImpl
               IOException,
               RequestNotSupportedException
     {
-        if( anyException_ != null ) {
+    if (anyException_ != null)
+    {
             rethrowException();
         }
 
@@ -534,6 +563,7 @@ implements PrintObjectListImpl
             // @A5D theList_ = new Vector();
             cpidList_ = new Vector();                       // @A5A
             cpattrList_ = new Vector();                     // @A5A
+      numItems_ = 0; //@CRS
             completed_ = false;
             anyException_ = null;
 
@@ -581,10 +611,12 @@ implements PrintObjectListImpl
              RequestNotSupportedException
    {
       AS400ImplRemote theSystem = getSystem(); // @A4C - changed to AS400ImplRemote   // @A1A
-      if (theSystem != null) {                                           // @A1A
+    if (theSystem != null)
+    {                                           // @A1A
          NPSystem npSystem = NPSystem.getSystem(theSystem);              // @A1A 
          if (npSystem != null)                                           // @A1A
-         {                                                               // @A1A
+      {
+        // @A1A
             NPConversation conversation = npSystem.getConversation();    // @A1A
             npSystem.returnConversation(conversation);                   // @A1A
          }                                                               // @A1A
@@ -595,6 +627,7 @@ implements PrintObjectListImpl
          // @A5D theList_ = new Vector();                                // @A2A
          cpidList_ = new Vector();                                       // @A5A
          cpattrList_ = new Vector();                                     // @A5A
+      numItems_ = 0; //@CRS
          completed_ = false;                                             // @A2A
          anyException_ = null;                                           // @A2A
          firingEvent_ = true;                                                                          
@@ -614,11 +647,13 @@ implements PrintObjectListImpl
       }                                                                  // @A2A
 
       try                                                                // @A2A
-      {                                                                  // @A2A
+    {
+      // @A2A
          buildList(null);                                                // @A2A
       }                                                                  // @A2A
       catch( Exception e )                                               // @A2A
-      {                                                                  // @A2A
+    {
+      // @A2A
          synchronized(this)                                              // @A2A
          {                                                               // @A2A
             anyException_ = e;                                           // @A2A
@@ -634,7 +669,8 @@ implements PrintObjectListImpl
          }                                                               // @A2A
       }                                                                  // @A2A
       finally                                                            // @A2A
-      {                                                                  // @A2A
+    {
+      // @A2A
          synchronized(this)                                              // @A2A
          {                                                               // @A2A
             completed_ = true;                                           // @A2A
@@ -654,7 +690,8 @@ implements PrintObjectListImpl
       // listeners. Now, rethrow the exception for applications          // @A2A
       // that may not be using listeners.                                // @A2A
       if( anyException_ != null )                                        // @A2A
-      {                                                                  // @A2A
+    {
+      // @A2A
          rethrowException();                                             // @A2A
       }                                                                  // @A2A
     }    
@@ -814,28 +851,30 @@ implements PrintObjectListImpl
      **/
     public /* synchornized  @A3D */ void setAttributesToRetrieve(int[] attributes)
     {
-	    // check params
-	    if (attributes == null)
-	    {
+    // check params
+    if (attributes == null)
+    {
             Trace.log(Trace.ERROR, "setAttributesToRetrieve: Parameter 'attributes' is null.");
-	        throw new NullPointerException("attributes");
-	    }
-
-	    if (attrsToRetrieve_ != null)
-	    {
-	        attrsToRetrieve_.reset();
-    	} else {
-	        attrsToRetrieve_ = new NPCPAttributeIDList();
-	    }   
-
-	    for (int i = 0; i<attributes.length; i++)
-    	{
-	        attrsToRetrieve_.addAttrID(attributes[i]);
-	    }
+      throw new NullPointerException("attributes");
     }
-    
-    
-    
+
+    if (attrsToRetrieve_ != null)
+    {
+      attrsToRetrieve_.reset();
+    }
+    else
+    {
+      attrsToRetrieve_ = new NPCPAttributeIDList();
+    }   
+
+    for (int i = 0; i<attributes.length; i++)
+    {
+      attrsToRetrieve_.addAttrID(attributes[i]);
+    }
+  }
+
+
+
     public void setIDCodePointFilter(NPCPID cpID)
     {
         idFilter_ = cpID;
@@ -845,43 +884,53 @@ implements PrintObjectListImpl
     
     public void setFilter(String filterType, String filter)
     {
-        if (filterType.equals("resource")) {
+    if (filterType.equals("resource"))
+    {
             NPCPSelRes selectionCP = (NPCPSelRes)getSelectionCP();
             selectionCP.setResource(filter);
         }
-        if (filterType.equals("queue")) {
+    if (filterType.equals("queue"))
+    {
             NPCPSelOutQ selectionCP = (NPCPSelOutQ)getSelectionCP();
             selectionCP.setQueue(filter);
         }
-        else if (filterType.equals("printer")) {
+    else if (filterType.equals("printer"))
+    {
             NPCPSelPrtD selectionCP = (NPCPSelPrtD)getSelectionCP();
             selectionCP.setPrinter(filter);
         }
-        else if (filterType.equals("printerFile")) {
+    else if (filterType.equals("printerFile"))
+    {
             NPCPSelPrtF selectionCP = (NPCPSelPrtF)getSelectionCP();
             selectionCP.setPrinterFile(filter);
         }
-        else if (filterType.equals("formType")) {
+    else if (filterType.equals("formType"))
+    {
             NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
             selectionCP.setFormType(filter);
         }
-        else if (filterType.equals("spooledFileQueue")) {
+    else if (filterType.equals("spooledFileQueue"))
+    {
             NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
             selectionCP.setQueue(filter);
         }
-        else if (filterType.equals("user")) {
+    else if (filterType.equals("user"))
+    {
             NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
             selectionCP.setUser(filter);
         }
-        else if (filterType.equals("userData")) {
+    else if (filterType.equals("userData"))
+    {
             NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
             selectionCP.setUserData(filter);
         }
-        else if (filterType.equals("writerJobQueue")) {
+    else if (filterType.equals("writerJobQueue"))
+    {
             NPCPSelWrtJ selectionCP = (NPCPSelWrtJ)getSelectionCP();
             selectionCP.setQueue(filter);
         }
-        else if (filterType.equals("writer")) {
+    else if (filterType.equals("writer"))
+    {
             NPCPSelWrtJ selectionCP = (NPCPSelWrtJ)getSelectionCP();
             selectionCP.setWriter(filter);
         }
@@ -925,8 +974,9 @@ implements PrintObjectListImpl
      **/
     public synchronized int size()
     {
-        return cpidList_.size(); // @A5C
-    }
+    //@CRS return cpidList_.size(); // @A5C
+    return numItems_; //@CRS
+  }
 
 
 
@@ -957,8 +1007,9 @@ implements PrintObjectListImpl
         // while the size of the list is less than the item number requested,
         // -AND- the list is not done, -OR- we are firing events, we wait.
         // @B2A - Added (cpidList_ != null)
-        while ((cpidList_ != null) && (((cpidList_.size() < itemNumber) && (!completed_)) || firingEvent_ )) // @A5C 
-        {
+    //@CRSwhile ((cpidList_ != null) && (((cpidList_.size() < itemNumber) && (!completed_)) || firingEvent_ )) // @A5C 
+    while ((numItems_ < itemNumber && !completed_) || firingEvent_) //@CRS
+    {
             try
             {
                 wait();

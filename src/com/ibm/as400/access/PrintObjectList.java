@@ -63,6 +63,14 @@ implements java.io.Serializable
     transient PrintObjectListListener dispatcher_; // @A5A
     
     
+    boolean useCache_ = true; //@CRS
+    //@CRS
+    public void setCache(boolean f)
+    {
+      if (impl_ == null) chooseImpl();
+      useCache_ = f;
+      impl_.setCache(f);
+    }
     
     /**
       * Constructs a  PrintObjectList object.
@@ -175,6 +183,7 @@ implements java.io.Serializable
                 open_ = false;
             } else {
                 // if the list was not open, return to avoid firing closed.
+              theList_.removeAllElements(); //@C0A
                 return;
             }
         } 
@@ -232,7 +241,7 @@ implements java.io.Serializable
                 // OBJECT_ADDED is the most frequent case.
                 case PrintObjectListEvent.OBJECT_ADDED:                
                     PrintObject printObject = event.getObject();                                        // @B1A
-                    theList_.addElement(printObject);                                                   // @B1A
+                    if (useCache_) theList_.addElement(printObject);                                                   // @B1A @CRS
                     objectAddedEvent_ = true;  // @B2A
                     ((PrintObjectListListener)l.elementAt(i)).listObjectAdded(event);
                     break;
@@ -302,7 +311,9 @@ implements java.io.Serializable
             if (listOutOfSync_ == true) {                               // @B2A
                 theList_.removeAllElements();                           // @B2A
                 listOutOfSync_ = false;                                 // @B2A
-            }                                                           // @B2A
+            }
+            if (useCache_) //@CRS
+            {                                                           // @B2A
             for (int i = theList_.size(); i <= index; ++i) {            // @A5A
                 NPCPID cpid = impl_.getNPCPID(i);                       // @A5A
                 NPCPAttribute cpattr = impl_.getNPCPAttribute(i);       // @A5A        
@@ -318,6 +329,8 @@ implements java.io.Serializable
                 theList_.addElement(npobject);                          // @A5A
             }                                                           // @A5A
             return npobject;                                            // @A5A
+            }
+            return null; //@CRS
         }                                                               // @A5A
         }                                                               // @A5A
     }
