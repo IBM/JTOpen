@@ -680,7 +680,7 @@ java.sql.Connection.TRANSACTION_* values.
           try                                                                                 //@KBA
           {                                                                                   //@KBA
               if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
-                serverCommitMode_ = COMMIT_MODE_NONE_;
+                commitMode = COMMIT_MODE_NONE_;
               if(serverCommitMode_ != commitMode)                                            //@KBA
               {                                                                               //@KBA
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
