@@ -3247,8 +3247,10 @@ implements Serializable
 
 
   /**
-   * Constructs a Job object. The basic job information must
-   * be set before connecting to the server.
+   * Constructs a Job object. The job name, user name, and job number
+   * of the job that this program is running in will be used. Typically,
+   * that will be the job information for the remote command host server
+   * job associated with the specified AS400 object.
    * @param system The system.
    * @see #setName
    * @see #setNumber
@@ -3256,8 +3258,7 @@ implements Serializable
   **/
   public Job(AS400 system)
   {
-    if (system == null) throw new NullPointerException("system");
-    system_ = system;
+    this(system, JOB_NAME_CURRENT, USER_NAME_BLANK, JOB_NUMBER_BLANK); //@E3C
   }
 
 
