@@ -28,9 +28,8 @@ import com.ibm.as400.access.*;
 // use xerces.jar to be compatible with the version used by WebSphere.
 //import org.apache.xerces.parsers.SAXParser;
 //import javax.xml.parsers.*;
-
 import org.xml.sax.SAXException;
-import org.xml.sax.ParserConfigurationException;
+import javax.xml.parsers.ParserConfigurationException;
 //import org.xml.sax.helpers.*;
 
 
