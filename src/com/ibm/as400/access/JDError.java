@@ -84,6 +84,7 @@ final class JDError
   static final String WARN_TXN_COMMITTED               = "01H30";
   static final String WARN_URL_EXTRA_IGNORED           = "01H10";
   static final String WARN_URL_SCHEMA_INVALID          = "01H13";
+  static final String WARN_1000_OPEN_STATEMENTS        = "01G00";   //@K1A
 
 
 
