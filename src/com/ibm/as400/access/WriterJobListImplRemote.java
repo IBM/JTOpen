@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The WriterJobList class is used to build a list of i5/OS writer job objects of type
+ * The WriterJobList class is used to build a list of objects of type
  * WriterJob.  The list can be filtered by writer job name or output queue.
  *
  * @see WriterJob
@@ -22,7 +22,7 @@ package com.ibm.as400.access;
 
 class WriterJobListImplRemote extends PrintObjectListImplRemote
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // static private binary data for default attribute to
     // retrieve on a writer jobs when listing writer jobs
@@ -53,7 +53,7 @@ class WriterJobListImplRemote extends PrintObjectListImplRemote
         NPDataStream ds;
         NPCodePoint  cp;
         
-        ds = new NPDataStream(NPConstants.WRITER_JOB);  // @B1C
+        ds = new NPDataStream(NPConstants.WRITER_JOB);
         cp = new NPCPIDWriter();
         ds.addCodePoint(cp);
         cp = new NPCPAttribute();
@@ -76,7 +76,7 @@ class WriterJobListImplRemote extends PrintObjectListImplRemote
     /**
       * Creates a new Writer object.
       **/
-    /* @A5D
+    /*
     PrintObject newNPObject(AS400 system, NPDataStream reply)
     {
         WriterJob npObj = null;
@@ -90,7 +90,6 @@ class WriterJobListImplRemote extends PrintObjectListImplRemote
     */
 
 
-    // @A5A
     NPCPID newNPCPID(NPDataStream reply)
     {
         return (NPCPIDWriter)reply.getCodePoint(NPCodePoint.WRITER_JOB_ID);  // never should return null

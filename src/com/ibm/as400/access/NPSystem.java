@@ -29,21 +29,20 @@ import java.io.IOException;
 
 class NPSystem extends Object implements Runnable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // static data members
     private static final int CONVERSATION_TIMEOUT = 300000;         // 5 minutes in milleseconds
     private static Hashtable NPSystemTable_ = new Hashtable();
 
     // private members
-    private AS400ImplRemote as400System_;  // @A4C changed AS400 to AS400ImplRemote
+    private AS400ImplRemote as400System_;
     private Vector availConversations_, inuseConversations_, deadConversations_;
     private Thread cleanupThread_;
 
-    // The cleanup thread is only started if the AS400 object containing    @A3A 
-    // the AS400Server objects allows threads to be started. EJB does not   @A3A
-    // allow objects to start threads.                                      @A3A
+    // The cleanup thread is only started if the AS400 object containing
+    // the AS400Server objects allows threads to be started. EJB does not
+    // allow objects to start threads.
 
    /**
      * private constructor - use the static getSystem() method to create one of these
@@ -64,7 +63,7 @@ class NPSystem extends Object implements Runnable
     /**
      * static method to look up THE NPSystem for this server
      */
-    static NPSystem getSystem(AS400ImplRemote aSystem)  // @A4C changed to take AS400ImplRemote
+    static NPSystem getSystem(AS400ImplRemote aSystem)
     {
         NPSystem npSystem = null;
         // look for this NPSystem in the static hash table using the system
@@ -97,7 +96,7 @@ class NPSystem extends Object implements Runnable
      *
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If security violation occurs during connection.
-     * @exception ErrorCompletingRequestException If an error occurred on the host.
+     * @exception ErrorCompletingRequestException If an error occurred on the server.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
@@ -139,23 +138,23 @@ class NPSystem extends Object implements Runnable
                     if (inuseConversations_.isEmpty())
                     {
                         server = as400System_.getConnection(AS400.PRINT, false);
-                       // server = as400System_.connect("as-netprt");       @A4D
+                       // server = as400System_.connect("as-netprt");
                     } else {
                         server = as400System_.getConnection(AS400.PRINT, true);
-                       // server = as400System_.getNewConnection("as-netprt");  @A4D
+                       // server = as400System_.getNewConnection("as-netprt");
 
-                        // Only start the cleanup thread if more than       @A2A
-                        // one conversation has been started, -AND-         @A2A 
-                        // the AS400 object is configured to start         @A3A   
-                        // threads.                                         @A3A
+                        // Only start the cleanup thread if more than       
+                        // one conversation has been started, -AND-          
+                        // the system object is configured to start            
+                        // threads.                                         
 
-                        if( as400System_.isThreadUsed() )                // @A3A 
-                        {                                                // @A3A
-                            startCleanupThread();                        // @A3A 
-                        }                                                // @A3A
+                        if( as400System_.isThreadUsed() )
+                        {
+                            startCleanupThread();
+                        }
                     }
 
-                    conversation = new NPConversation(as400System_, server);    // @B1C
+                    conversation = new NPConversation(as400System_, server);
                 }
             } else {
                 conversation = (NPConversation)availConversations_.firstElement();
@@ -184,14 +183,14 @@ class NPSystem extends Object implements Runnable
    {
       // remove conversation from inuse vector.
 
-      // If the conversation is still connected, and the AS400 object       @A3C
+      // If the conversation is still connected, and the AS400 object       
       // allows starting threads, add the conversation to the inuse
       // vector. Method cleanUpDeadConversations() will determine how 
       // long conversations are cached.
 
-      // If the conversation is still connected, but the AS400 object       @A3A
-      // does not allow starting threads, keep at least one conversation    @A3A
-      // in the inuse or available vector.                                  @A3A
+      // If the conversation is still connected, but the AS400 object       
+      // does not allow starting threads, keep at least one conversation    
+      // in the inuse or available vector.                                  
 
       int index = inuseConversations_.indexOf(conversation);
       if (index != -1)
@@ -202,20 +201,20 @@ class NPSystem extends Object implements Runnable
          // if still connected
          if( conversation.getServer().isConnected() )
          {
-            // does AS400 object allow starting threads?                    @A3A
-            if( as400System_.isThreadUsed() )                            // @A3A
+            // does AS400 object allow starting threads?                    
+            if( as400System_.isThreadUsed() )                            
             {
                // clean up thread is running,
                // add conversation to available.
                availConversations_.addElement(conversation);
-            } else {                                                     // @A3A
-               // clean up thread can not be run,                           @A3A
-               // just keep one conversation available.                     @A3A
-               if( availConversations_.size() < 1 )                      // @A3A
-               {                                                         // @A3A
-                  availConversations_.addElement(conversation);          // @A3A
-               } else {                                                  // @A3A
-                  as400System_.disconnectServer(conversation.getServer());// @A3A
+            } else {                                                     
+               // clean up thread can not be run,                           
+               // just keep one conversation available.                     
+               if( availConversations_.size() < 1 )                      
+               {                                                         
+                  availConversations_.addElement(conversation);          
+               } else {                                                  
+                  as400System_.disconnectServer(conversation.getServer());
                }
             }
          }
@@ -228,7 +227,7 @@ class NPSystem extends Object implements Runnable
       * the conversation.
       * @exception AS400Exception If the server returns an error message.
       * @exception AS400SecurityException If security violation occurs during connection.
-      * @exception ErrorCompletingRequestException If an error occurred on the host.
+      * @exception ErrorCompletingRequestException If an error occurred on the server.
       * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
@@ -245,9 +244,9 @@ class NPSystem extends Object implements Runnable
         {
            rc = conversation.makeRequest(request, reply);
         }
-        catch (RequestNotSupportedException e) {   // @A1A Forward this as a 'CompletingRequest' exception
-            throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR); // @A1A
-        }                                          // @A1A
+        catch (RequestNotSupportedException e) {
+            throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
+        }
         finally
         {
             // if we succeed or not we must return the conversation always
@@ -382,7 +381,6 @@ class NPSystem extends Object implements Runnable
     }
 
 
-    // A2A - Added stopCleanupThread() below
     /**
       Stops the cleanup thread (if it is running).
         @see NPServer#run
