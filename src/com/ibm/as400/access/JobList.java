@@ -916,6 +916,7 @@ public class JobList implements Serializable
         {
           Tracker tracker = (Tracker)trackers_.elementAt(i);
           if (tracker.isSet()) ++inUse;
+          tracker.set(false); // Force the Enumeration to shut down since the JobList is being closed.
         }
         if (inUse > 0)
         {
@@ -984,7 +985,7 @@ more calls to the server. The block size used internally by the Enumeration is s
 @exception UnknownHostException            If the AS/400 system cannot be located.
 @see com.ibm.as400.access.Job
 **/
-  public Enumeration getJobs() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  public synchronized Enumeration getJobs() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
     if (system_ == null)
     {
@@ -1000,27 +1001,18 @@ more calls to the server. The block size used internally by the Enumeration is s
     // have open Enumerations.  It's possible they do, and they are just done with
     // them, but this is mostly for debugging purposes.
     Tracker tracker = new Tracker();
-    if (trackers_ == null)
-    {
-      synchronized(this)
-      {
-        if (trackers_ == null) trackers_ = new Vector();
-      }
-    }
+    tracker.set(true);
+    
+    if (trackers_ == null) trackers_ = new Vector();
+    trackers_.addElement(tracker);
 
-    synchronized(trackers_)
+    // Remove dead trackers to prevent a memory leak.
+    // JobEnumerations whose hasMoreElements() return false, or those who
+    // have been garbage collected, will all have their freed their trackers.
+    for (int i=trackers_.size()-1; i >= 0; --i)
     {
-      tracker.set(true);
-      trackers_.addElement(tracker);
-
-      // Remove dead trackers to prevent a memory leak.
-      // JobEnumerations whose hasMoreElements() return false, or those who
-      // have been garbage collected, will all have their freed their trackers.
-      for (int i=trackers_.size()-1; i >= 0; --i)
-      {
-        Tracker t = (Tracker)trackers_.elementAt(i);
-        if (!t.isSet()) trackers_.removeElementAt(i);
-      }
+      Tracker t = (Tracker)trackers_.elementAt(i);
+      if (!t.isSet()) trackers_.removeElementAt(i);
     }
 
     return new JobEnumeration(this, length_, tracker);

@@ -52,6 +52,8 @@ class JobEnumeration implements Enumeration
 
   public final boolean hasMoreElements()
   {
+    if (!tracker_.isSet()) return false; // JobList invalidated us.
+
     if (counter_ < numJobs_)
     {
       return true;
@@ -65,7 +67,7 @@ class JobEnumeration implements Enumeration
 
   public final Object nextElement()
   {
-    if (counter_ >= numJobs_)
+    if (counter_ >= numJobs_ || !tracker_.isSet())
     {
       tracker_.set(false);
       throw new NoSuchElementException();
