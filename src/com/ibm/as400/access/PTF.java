@@ -776,9 +776,15 @@ public class PTF
    * @return The product ID.
   **/
   public String getProductID()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
   {
-    if (productID_ == PRODUCT_ID_ONLY) return returnedProductID_;
-    return productID_;
+    if (returnedProductID_ == null) refresh(100);
+    return returnedProductID_;
   }
 
      
@@ -809,9 +815,15 @@ public class PTF
    * @return The release level.
   **/
   public String getReleaseLevel()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
   {
-    if (ptfReleaseLevel_ == PRODUCT_RELEASE_ONLY) return returnedReleaseLevel_;
-    return ptfReleaseLevel_;
+    if (returnedReleaseLevel_ == null) refresh(100);
+    return returnedReleaseLevel_;
   }
 
      
