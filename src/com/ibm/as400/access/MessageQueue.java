@@ -243,6 +243,11 @@ need replies.
   private byte[] workstationStartingMessageKey_;
 
 
+  private boolean selectMessagesNeedReply_ = true;
+  private boolean selectMessagesNoNeedReply_ = true;
+  private boolean selectSendersCopyMessagesNeedReply_ = true;
+
+
 /**
    * Constructs a MessageQueue object.
    * @see #setPath
@@ -659,6 +664,11 @@ need replies.
    *   <li>{@link #SENDERS_COPY_NEED_REPLY SENDERS_COPY_NEED_REPLY}
    * </ul>
    * @see #setSelection
+   * @deprecated Use {@link #isSelectMessagesNeedReply isSelectMessagesNeedReply()},
+   * {@link #isSelectMessagesNoNeedReply isSelectMessagesNoNeedReply()}, and
+   * {@link #isSelectSendersCopyMessagesNeedReply isSelectSendersCopyMessagesNeedReply()} instead. The value
+   * returned by this method may not accurately reflect the actual selection criteria used to filter the
+   * list of messages.
 **/
   public String getSelection()
   {
@@ -719,6 +729,55 @@ need replies.
     return workstationStartingMessageKey_;
   }
 
+  /**
+   * Returns whether or not messages that need a reply are included in the list of returned messages.
+   * If all three message selection getters return true, it is the equivalent of all messages being included in the
+   * list of returned messages.
+   * By default, all messages are returned, so this method returns true.
+   * @return true if messages that need a reply are included in the list of returned messages; false if messages
+   * that need a reply are excluded from the list of returned messages.
+   * @see #isSelectMessagesNoNeedReply
+   * @see #isSelectSendersCopyMessagesNeedReply
+   * @see #setSelectMessagesNeedReply
+  **/
+  public boolean isSelectMessagesNeedReply()
+  {
+    return selectMessagesNeedReply_;
+  }
+
+  /**
+   * Returns whether or not messages that do not need a reply are included in the list of returned messages.
+   * If all three message selection getters return true, it is the equivalent of all messages being included in the
+   * list of returned messages.
+   * By default, all messages are returned, so this method returns true.
+   * @return true if messages that do not need a reply are included in the list of returned messages; false if messages
+   * that do not need a reply are excluded from the list of returned messages.
+   * @see #isSelectMessagesNeedReply
+   * @see #isSelectSendersCopyMessagesNeedReply
+   * @see #setSelectMessagesNoNeedReply
+  **/
+  public boolean isSelectMessagesNoNeedReply()
+  {
+    return selectMessagesNoNeedReply_;
+  }
+
+  /**
+   * Returns whether or not sender's copy messages that need a reply are included in the list of returned messages.
+   * If all three message selection getters return true, it is the equivalent of all messages being included in the
+   * list of returned messages.
+   * By default, all messages are returned, so this method returns true.
+   * @return true if sender's copy messages that need a reply are included in the list of returned messages; false if
+   * sender's copy messages that need a reply are excluded from the list of returned messages.
+   * @see #isSelectMessagesNeedReply
+   * @see #isSelectMessagesNoNeedReply
+   * @see #setSelectSendersCopyMessagesNeedReply
+  **/
+  public boolean isSelectSendersCopyMessagesNeedReply()
+  {
+    return selectSendersCopyMessagesNeedReply_;
+  }
+
+
 /**
    * Loads the list of messages on the system. This method informs the
    * system to build a list of messages given the previously added
@@ -757,7 +816,34 @@ need replies.
     AS400Text text10 = new AS400Text(10, ccsid, system_);
 
     // Figure out our selection criteria.
-    byte[] selectionInfo = new byte[90];
+    boolean selectAll = (selectMessagesNeedReply_ && selectMessagesNoNeedReply_ && selectSendersCopyMessagesNeedReply_) ||
+                        (!selectMessagesNeedReply_ && !selectMessagesNoNeedReply_ && !selectSendersCopyMessagesNeedReply_);
+    String selectionCriteria = "";
+    int numSelectionCriteria = selectAll ? 1 : 0;
+    if (selectAll)
+    {
+      selectionCriteria = "*ALL      ";
+    }
+    else
+    {
+      if (selectMessagesNeedReply_)
+      {
+        selectionCriteria += "*MNR      ";
+        ++numSelectionCriteria;
+      }
+      if (selectMessagesNoNeedReply_)
+      {
+        selectionCriteria += "*MNNR     ";
+        ++numSelectionCriteria;
+      }
+      if (selectSendersCopyMessagesNeedReply_)
+      {
+        selectionCriteria += "*SCNR     ";
+        ++numSelectionCriteria;
+      }
+    }
+    int selectionCriteriaLength = selectionCriteria.length();
+    byte[] selectionInfo = new byte[80+selectionCriteriaLength];
     text10.toBytes(listDirection_ ? NEXT : PREVIOUS, selectionInfo, 0);
     byte[] userStartingMessageKey = (userStartingMessageKey_ != null ? userStartingMessageKey_ : (listDirection_ ? OLDEST : NEWEST));
     byte[] workstationStartingMessageKey = (workstationStartingMessageKey_ != null ? workstationStartingMessageKey_ : userStartingMessageKey);
@@ -765,20 +851,22 @@ need replies.
     BinaryConverter.intToByteArray(maxMessageLength_, selectionInfo, 16); // Only used for fields 401, 402, 403, or 404.
     BinaryConverter.intToByteArray(maxMessageHelpLength_, selectionInfo, 20); // Only used for fields 301 or 302.
     BinaryConverter.intToByteArray(44, selectionInfo, 24); // offset of selection criteria
-    BinaryConverter.intToByteArray(1, selectionInfo, 28); // number of selection criteria
-    BinaryConverter.intToByteArray(54, selectionInfo, 32); // offset of starting mesage keys
-    BinaryConverter.intToByteArray(62, selectionInfo, 36); // offset of identifiers
+    BinaryConverter.intToByteArray(numSelectionCriteria, selectionInfo, 28); // number of selection criteria
+    int offset = 44+selectionCriteriaLength;
+    BinaryConverter.intToByteArray(offset, selectionInfo, 32); // offset of starting message keys
+    BinaryConverter.intToByteArray(offset+8, selectionInfo, 36); // offset of identifiers
     BinaryConverter.intToByteArray(7, selectionInfo, 40); // number of identifiers to return
-    text10.toBytes(selectionCriteria_, selectionInfo, 44);
-    System.arraycopy(userStartingMessageKey, 0, selectionInfo, 54, 4);
-    System.arraycopy(workstationStartingMessageKey, 0, selectionInfo, 58, 4);
-    BinaryConverter.intToByteArray(302, selectionInfo, 62); // Message with replacement data
-    BinaryConverter.intToByteArray(601, selectionInfo, 66); // Qualified sender job name
-    BinaryConverter.intToByteArray(603, selectionInfo, 70); // Sending program name
-    BinaryConverter.intToByteArray(1001, selectionInfo, 74); // Reply status
-    BinaryConverter.intToByteArray(501, selectionInfo, 78); // Default reply
-    BinaryConverter.intToByteArray(404, selectionInfo, 82); // Message help with replacement data and formattting characters
-    BinaryConverter.intToByteArray(101, selectionInfo, 86); // Alert option
+    //text10.toBytes(selectionCriteria_, selectionInfo, 44);
+    conv.stringToByteArray(selectionCriteria, selectionInfo, 44);
+    System.arraycopy(userStartingMessageKey, 0, selectionInfo, offset, 4);
+    System.arraycopy(workstationStartingMessageKey, 0, selectionInfo, offset+4, 4);
+    BinaryConverter.intToByteArray(302, selectionInfo, offset+8); // Message with replacement data
+    BinaryConverter.intToByteArray(601, selectionInfo, offset+12); // Qualified sender job name
+    BinaryConverter.intToByteArray(603, selectionInfo, offset+16); // Sending program name
+    BinaryConverter.intToByteArray(1001, selectionInfo, offset+20); // Reply status
+    BinaryConverter.intToByteArray(501, selectionInfo, offset+24); // Default reply
+    BinaryConverter.intToByteArray(404, selectionInfo, offset+28); // Message help with replacement data and formattting characters
+    BinaryConverter.intToByteArray(101, selectionInfo, offset+32); // Alert option
 
     // Setup program parameters
     ProgramParameter[] parms = new ProgramParameter[10];
@@ -786,7 +874,7 @@ need replies.
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(82)); // length of receiver variable
     parms[2] = new ProgramParameter(80); // list information
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // number of records to return (have to specify at least 1... for some reason 0 doesn't work)
-    parms[4] = new ProgramParameter(new byte[] { sort_ && selectionCriteria_.equals(ALL) ? (byte)0xF1 : (byte)0xF0}); // Sort information, '0' = no sort, '1' = sort if *ALL is specified
+    parms[4] = new ProgramParameter(new byte[] { sort_ && selectAll ? (byte)0xF1 : (byte)0xF0}); // Sort information, '0' = no sort, '1' = sort if *ALL is specified
     parms[5] = new ProgramParameter(selectionInfo); // Message selection information
     parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(selectionInfo.length)); // Size of message selection information
     byte[] userOrQueueInfo = new byte[21];
@@ -1721,12 +1809,65 @@ if the MessageQueue object has established a connection to the server.
     if (propertyChangeSupport_ != null) propertyChangeSupport_.firePropertyChange("path", old, path);
   }
 
-
+  /**
+   * Sets whether or not to include messages that need a reply in the returned list of messages.
+   * Passing true to all three message selection setters is equivalent to retrieving all the messages.
+   * By default, all messages are retrieved.
+   * @param select true to include messages that need a reply; false to exclude messages that need a reply.
+   * @see #isSelectMessagesNeedReply
+   * @see #setSelectMessagesNoNeedReply
+   * @see #setSelectSendersCopyMessagesNeedReply
+  **/
+  public void setSelectMessagesNeedReply(boolean select)
+  {
+    selectMessagesNeedReply_ = select;
+    resetHandle();
+  }
+  
+  /**
+   * Sets whether or not to include messages that do not need a reply in the returned list of messages.
+   * Passing true to all three message selection setters is equivalent to retrieving all the messages.
+   * By default, all messages are retrieved.
+   * @param select true to include messages that do not need a reply; false to exclude messages that do not need a reply.
+   * @see #isSelectMessagesNoNeedReply
+   * @see #setSelectMessagesNeedReply
+   * @see #setSelectSendersCopyMessagesNeedReply
+  **/
+  public void setSelectMessagesNoNeedReply(boolean select)
+  {
+    selectMessagesNoNeedReply_ = select;
+    resetHandle();
+  }
+  
+  /**
+   * Sets whether or not to include sender's copy messages that need a reply in the returned list of messages.
+   * Passing true to all three message selection setters is equivalent to retrieving all the messages.
+   * By default, all messages are retrieved.
+   * @param select true to include sender's copy messages that need a reply; false to exclude sender's copy
+   * messages that need a reply.
+   * @see #isSelectSendersCopyMessagesNeedReply
+   * @see #setSelectMessagesNeedReply
+   * @see #setSelectMessagesNoNeedReply
+  **/
+  public void setSelectSendersCopyMessagesNeedReply(boolean select)
+  {
+    selectSendersCopyMessagesNeedReply_ = select;
+    resetHandle();
+  }
 
 /**
 Sets the selection that describes which messages are returned.
 The default is ALL. This takes effect the next time the list
 of queue messages is retrieved or refreshed.
+<P>
+Note: This method resets the selection criteria set by the
+{@link #setSelectMessagesNeedReply setSelectMessagesNeedReply()},
+{@link #setSelectMessagesNoNeedReply setSelectMessagesNoNeedReply()}, and
+{@link #setSelectSendersCopyMessagesNeedReply setSelectSendersCopyMessagesNeedReply()}.
+Using this method will only set one of the above to true, unless {@link #ALL ALL} is
+specified, which will set all three of them to true.
+To include combinations of the three criteria, use the individual setters instead of
+this method.
 
 @param selection The selection.  Valid values are:
                  <ul>
@@ -1739,6 +1880,9 @@ of queue messages is retrieved or refreshed.
 @exception PropertyVetoException If the change is vetoed.
 
 @see com.ibm.as400.resource.RMessageQueue#SELECTION_CRITERIA
+@deprecated Use {@link #setSelectMessagesNeedReply setSelectMessagesNeedReply(boolean)},
+{@link #setSelectMessagesNoNeedReply setSelectMessagesNoNeedReply(boolean)}, and
+{@link #setSelectSendersCopyMessagesNeedReply setSelectSendersCopyMessagesNeedReply(boolean)} instead.
 **/
   public void setSelection(String selection)
   throws PropertyVetoException
@@ -1754,6 +1898,12 @@ of queue messages is retrieved or refreshed.
     String old = selectionCriteria_;
     if (vetoableChangeSupport_ != null) vetoableChangeSupport_.fireVetoableChange("selection", old, selection);
     selectionCriteria_ = selection;
+    
+    boolean all = selection.equals(ALL);
+    selectMessagesNeedReply_ = all || selection.equals(MESSAGES_NEED_REPLY);
+    selectMessagesNoNeedReply_ = all || selection.equals(MESSAGES_NO_NEED_REPLY);
+    selectSendersCopyMessagesNeedReply_ = all || selection.equals(SENDERS_COPY_NEED_REPLY);
+    
     if (propertyChangeSupport_ != null) propertyChangeSupport_.firePropertyChange("selection", old, selection);
     resetHandle();
   }
