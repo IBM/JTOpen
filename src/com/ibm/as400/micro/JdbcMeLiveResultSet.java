@@ -702,7 +702,7 @@ public class JdbcMeLiveResultSet implements ResultSet
      *
      *  @exception JdbcMeException If an error occurs.
      **/
-    public Statement getStatement()
+    public Statement getStatement() throws JdbcMeException
     {
         return stmt_;
     }
