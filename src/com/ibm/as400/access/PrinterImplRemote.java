@@ -84,6 +84,7 @@ class PrinterImplRemote extends PrintObjectImplRemote
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);   // spool file name @A1A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);     // spool file number @A1A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTEDBY);   // started by @A1A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM); // System Driver Progrm - AT_SYS_DRV_PGM @A6A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);    // user data @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDRV);     // User driver program name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJ);   // User defined object
