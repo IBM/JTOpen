@@ -22,7 +22,7 @@ import java.io.Serializable;
 The IntegerValueMap class maps between a logical Integer value
 and a physical String value.
 **/
-class IntegerValueMap
+public class IntegerValueMap
 implements ValueMap, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";

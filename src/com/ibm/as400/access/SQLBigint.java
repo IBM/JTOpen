@@ -86,33 +86,38 @@ implements SQLData
         if (object instanceof String)
         {
             // @D10c new implementation
+            // @D11c put old back in because Rich told us to.
             // old ...
-            //
+            
+            try
+            {
+                value_ = Long.parseLong((String) object);
+            }
+            catch (NumberFormatException e)
+            {
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+            
+            // new ...
+            // @D11d get rid of new case.  Toronto found a place where this code corrupts data, which
+            //      is even worse than truncation it was suppose to solve.  I bet some day we
+            //      put it back in.
             // try
             // {
-            //     value_ = Long.parseLong((String) object);
+            //    // @P1d double doubleValue = (double) Double.parseDouble ((String) object);
+            //    double doubleValue = Double.valueOf ((String) object).doubleValue ();      // @P1a
+            // 
+            //    if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE ))
+            //    {
+            //        truncated_ = 1;
+            //    }
+            //    value_ = (long) doubleValue;
             // }
             // catch (NumberFormatException e)
             // {
             //     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
             // }
-            // new ...
-            try
-            {
-               // @P1d double doubleValue = (double) Double.parseDouble ((String) object);
-               double doubleValue = Double.valueOf ((String) object).doubleValue ();      // @P1a
-
-               if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE ))
-               {
-                   truncated_ = 1;
-               }
-               value_ = (long) doubleValue;
-            }
-            catch (NumberFormatException e)
-            {
-               JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
+        }   
 
         else if (object instanceof Number)
         {

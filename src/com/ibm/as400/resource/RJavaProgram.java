@@ -26,13 +26,16 @@ import java.util.Date;
 
 
 /**
-The RJavaProgram class represents an AS/400 Java program.   This is supported
-on releases following OS/400 V4R5.
+The RJavaProgram class represents an OS/400 Java program.   This is supported
+only when connecting to servers running OS/400 V5R1 or later.
+
+In the context of this discussion, a "Java program" is the OS/400 executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
 <li><a href="#CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS">CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS</a>
 <li><a href="#CLASSES_WITH_CURRENT_JAVA_PROGRAMS">CLASSES_WITH_CURRENT_JAVA_PROGRAMS</a>
+<li><a href="#CLASSES_WITH_ERRORS">CLASSES_WITH_ERRORS</a>
 <li><a href="#ENABLE_PERFORMANCE_COLLECTION">ENABLE_PERFORMANCE_COLLECTION</a>
 <li><a href="#FILE_CHANGE">FILE_CHANGE</a>
 <li><a href="#JAVA_PROGRAMS">JAVA_PROGRAMS</a>
@@ -41,7 +44,9 @@ on releases following OS/400 V4R5.
 <li><a href="#LICENSED_INTERNAL_CODE_OPTIONS">LICENSED_INTERNAL_CODE_OPTIONS</a>
 <li><a href="#OPTIMIZATION">OPTIMIZATION</a>
 <li><a href="#OWNER">OWNER</a>
+<li><a href="#PROFILING_DATA">PROFILING_DATA</a>
 <li><a href="#RELEASE_PROGRAM_CREATED_FOR">RELEASE_PROGRAM_CREATED_FOR</a>
+<li><a href="#TOTAL_CLASSES_IN_SOURCE">TOTAL_CLASSES_IN_SOURCE</a>
 <li><a href="#USE_ADOPTED_AUTHORITY">USE_ADOPTED_AUTHORITY</a>
 <li><a href="#USER_PROFILE">USER_PROFILE</a>
 </ul>
@@ -121,6 +126,39 @@ Attribute value for no.
     private static final String                 PATH_PARAMETER_         = "CLSF";
     private static final String                 QJVAMAT_                = "qjvamat";
 
+
+
+/**
+Attribute ID for total classes in source.  This identifies a read-only
+Integer attribute, which represents the total number of classes located
+within the ZIP or JAR file.
+**/
+    public static final String TOTAL_CLASSES_IN_SOURCE = "TOTAL_CLASSES_IN_SOURCE";  // @B1A
+
+    static {
+        try {
+        attributes_.add(TOTAL_CLASSES_IN_SOURCE, Integer.class, true);
+        getterMap_.add(TOTAL_CLASSES_IN_SOURCE, QJVAMAT_, "receiverVariable.numberOfTotalClassesInSource");
+        }
+        catch (Exception found) { found.printStackTrace(); }
+    }
+
+
+
+/**
+Attribute ID for classes with errors.  This identifies a read-only
+Integer attribute, which represents the number of classes in the
+file that contain errors.
+**/
+    public static final String CLASSES_WITH_ERRORS = "CLASSES_WITH_ERRORS";  // @B1A
+
+    static {
+        try {
+        attributes_.add(CLASSES_WITH_ERRORS, Integer.class, true);
+        getterMap_.add(CLASSES_WITH_ERRORS, QJVAMAT_, "receiverVariable.numberOfClassesWithErrors");
+        }
+        catch (Exception found) { found.printStackTrace(); }
+    }
 
 
 
@@ -223,6 +261,82 @@ values are:
     }
 
 
+
+/**
+Attribute ID for profiling data.  This identifies a 
+String attribute, which indicates if the Java program is 
+collecting profiling data.  Possible values are:
+<ul>
+<li><a href="#PROFILING_DATA_NOCOLLECTION">PROFILING_DATA_NOCOLLECTION</a>
+    - No profiling data collection is enabled for this Java program.
+<li><a href="#PROFILING_DATA_COLLECTION">PROFILING_DATA_COLLECTION</a>
+    - Profiling data collection is enabled for this Java program.  This
+      enablement can only occur if the optimization of the Java program is
+      30 or higher.  Also, collection does not occur until the profiling 
+      data is applied.
+<li><a href="#PROFILING_DATA_APPLY">PROFILING_DATA_APPLY</a>
+    - Profiling data collection is applied for this Java program.
+<li><a href="#PROFILING_DATA_CLEAR">PROFILING_DATA_CLEAR</a>
+    - All profiling data that has been collected for this Java program is to 
+      be cleared.
+</ul>
+**/
+    public static final String PROFILING_DATA = "PROFILING_DATA";  // @B1A
+    
+    /**
+    Attribute value indicating that no profiling data collection is enabled for this Java program.
+
+    @see #PROFILING_DATA
+    **/
+    public static final String PROFILING_DATA_NOCOLLECTION = "*NOCOL";  // @B1A
+    
+    /**
+    Attribute value indicating that profiling data collection is enabled for this Java program.
+    This enablement can only occur if the optimization of the Java program is 30 or higher.  
+    Also, collection does not occur until the profiling data is applied.
+
+    @see #PROFILING_DATA
+    **/
+    public static final String PROFILING_DATA_COLLECTION = "*COL";  // @B1A
+    
+    /**
+    Attribute value indicating that profiling data collection is applied for this Java program.
+
+    @see #PROFILING_DATA
+    **/
+    public static final String PROFILING_DATA_APPLY = "*APY";  // @B1A
+    
+    /**
+    Attribute value indicating that all profiling data that has been collected 
+    for this Java program is to be cleared.
+
+    @see #PROFILING_DATA
+    **/
+    public static final String PROFILING_DATA_CLEAR = "*CLR";  // @B1A
+
+    static { // @B1A
+        attributes_.add(PROFILING_DATA, String.class, false,
+                        new Object[] {PROFILING_DATA_NOCOLLECTION,
+                            PROFILING_DATA_COLLECTION,
+                            PROFILING_DATA_CLEAR,
+                            PROFILING_DATA_APPLY }, null, true);
+        getterMap_.add(PROFILING_DATA, QJVAMAT_, "receiverVariable.profilingDataStatus",
+                       new ProfilingDataValueMap_());
+        setterMap_.add(PROFILING_DATA, CHGJVAPGM_, "PRFDTA");
+    }
+
+    private static class ProfilingDataValueMap_ extends AbstractValueMap // @B1A
+    {
+        public Object ptol(Object physicalValue)
+        {
+            if (physicalValue.equals("2"))
+                return PROFILING_DATA_APPLY;
+            else if (physicalValue.equals("1"))
+                return PROFILING_DATA_COLLECTION;
+            else
+                return PROFILING_DATA_NOCOLLECTION;
+        }
+    }
 
 /**
 Attribute ID for file change.  This identifies a read-only

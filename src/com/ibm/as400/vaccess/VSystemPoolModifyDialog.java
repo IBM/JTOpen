@@ -339,9 +339,9 @@ class VSystemPoolModifyDialog extends JDialog
         // Message logging.
         sysPoolMesLog_ = new JComboBox();
         sysPoolMesLog_.setEditable(false);
-        sysPoolMesLog_.addItem("N");
-        sysPoolMesLog_.addItem("Y");
-        sysPoolMesLog_.setSelectedItem("Y");
+        sysPoolMesLog_.addItem(ResourceLoader.getText("DLG_YES")); //@C0C
+        sysPoolMesLog_.addItem(ResourceLoader.getText("DLG_NO")); //@C0C
+        sysPoolMesLog_.setSelectedItem(ResourceLoader.getText("DLG_YES")); //@C0C
         listener = new VSPMDListener(sysPoolMesLog_);
 
         // Paging option.
@@ -500,7 +500,7 @@ class VSystemPoolModifyDialog extends JDialog
         
         // Message logging.
         txt = sysPoolMesLog_.getSelectedItem().toString();
-        sysPool_.setMessageLogging(txt.equals("Y")); // default is "Y", no *SAME
+        sysPool_.setMessageLogging(txt.equals(ResourceLoader.getText("DLG_YES"))); // default is "Y", no *SAME  @C0C
         
         // Paging option.
         if (!isMachinePool_) //@B2A - will get CPF1880 if we set this and we're *MACHINE

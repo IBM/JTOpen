@@ -33,7 +33,8 @@ public interface Descriptor
    /**
     * Returns an array of attribute names for the current node.
     *
-    * @return Array containing the names of the attributes for this descriptor.
+    * @return Array containing the names of all attributes associated with
+    *         the node type for this descriptor.
     *         If there are no attributes for this descriptor, an empty array is returned.
     **/
     public String[] getAttributeList();

@@ -74,7 +74,12 @@ import java.util.ResourceBundle;
  *  
  *  Successfully connected to server application: as-signon-s
  *  Connection Verified
- *  </PRE></BLOCKQUOTE)
+ *  </PRE></BLOCKQUOTE>
+ *
+ *  To determine, in a program, if the OS/400 services are running, use
+ *  com.ibm.as400.access.AS400JPing.
+ *
+ *  @see com.ibm.as400.access.AS400JPing
  *
  **/
 public class JPing

@@ -26,6 +26,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
         super("RemoteCommand");
     }
 
+    // Get the job info from the proxy server.
     public String getJobInfo(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         try
@@ -51,6 +52,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
         }
     }
 
+    // Check command thread safety on the proxy server.
     public boolean isCommandThreadSafe(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         try
@@ -76,7 +78,6 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
         }
     }
 
-    // @D2a new method
     // Run the command on the proxy server.
     public boolean runCommand(byte[] command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -110,24 +111,17 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     }
 
     // Run the service program on the proxy server.
-    public Object[] runServiceProgram(String library,
-                                      String name,
-                                      String procedureName,
-                                      int returnValueFormat,
-                                      ProgramParameter[] parameterList,
-                                      boolean threadSafety,
-                                      int procedureNameCCSID)            //@D9a
-                    throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] parameterList, boolean threadSafety, int procedureNameCCSID) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, new Boolean(threadSafety), new Integer(procedureNameCCSID) }, new boolean[] { false, false, false, false, true, false, false }, true);  //@D9c
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, new Boolean(threadSafety), new Integer(procedureNameCCSID) }, new boolean[] { false, false, false, false, true, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
             for (int i = 0; i < parameterList.length; ++i)
             {
                 parameterList[i].setOutputData(returnParmL[i].getOutputData());
             }
-            return (Object[])rv.getReturnValue();
+            return (byte[])rv.getReturnValue();
         }
         catch (InvocationTargetException e)
         {

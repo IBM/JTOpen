@@ -132,9 +132,9 @@ public class AS400JDBCDataSourcePane
 extends JComponent
 implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  
+private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    
 // The data source being displayed
 private AS400JDBCDataSource m_currentDataSource; 
 // The databean being used by the GUI

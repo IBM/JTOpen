@@ -43,16 +43,18 @@ implements ResultSetMetaData
 
     // Private static final ints
     // Searchable constants 
-    private static final int SQL_UNSEARCHABLE       = 0;  // isSearchable = false
-    private static final int SQL_LIKE_ONLY          = 1;  // will not be returned by our server
-    private static final int SQL_ALL_EXCEPT_LIKE    = 2;  // isSearchable = true   
-    private static final int SQL_SEARCHABLE         = 3;  // isSearchable = true
+    //@G1A @G2C
+    private static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
+    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our server
+    private static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
+    private static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
 
     
     // Updateable constants
-    private static final int SQL_READ_ONLY          = 0;  // isReadOnly = true, isWriteable = false
-    private static final int SQL_WRITE_CAPABLE      = 1;  // isReadOnly = false, isWriteable = true
-    private static final int SQL_READ_WRITE_UNKNOWN = 2;  // will note be returned by our server
+    //@G1A @G2C
+    private static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
+    private static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
+    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our server
 
 
     // Private data.
@@ -491,9 +493,9 @@ implements ResultSetMetaData
         checkIndex (columnIndex);
 
         // @G1A If we have column descriptors, use them to get searchable label.              //@G1A
-        if (extendedColumnDescriptors_ != null && concurrency_ == ResultSet.CONCUR_READ_ONLY) //@G1A
+        if (extendedColumnDescriptors_ != null)  //@G2D && concurrency_ == ResultSet.CONCUR_READ_ONLY) //@G1A
         {                                                                                     //@G1A
-            if (extendedColumnDescriptors_.getUpdateable(columnIndex) == SQL_READ_ONLY)       //@G1A
+            if (extendedColumnDescriptors_.getUpdateable(columnIndex) == (byte)SQL_READ_ONLY) //@G1A @G2C
                 return true;                                                                  //@G1A
             else                                                                              //@G1A
                 return false;                                                                 //@G1A
@@ -525,7 +527,7 @@ implements ResultSetMetaData
         // @G1A If we have column descriptors, use them to get searchable label.           //@G1A
         if (extendedColumnDescriptors_ != null)                                            //@G1A
         {                                                                                  //@G1A
-            if (extendedColumnDescriptors_.getSearchable(columnIndex) == SQL_UNSEARCHABLE) //@G1A
+            if (extendedColumnDescriptors_.getSearchable(columnIndex) == (byte)SQL_UNSEARCHABLE) //@G1A @G2C
                 return false;                                                              //@G1A
             else                                                                           //@G1A
                 return true;                                                               //@G1A

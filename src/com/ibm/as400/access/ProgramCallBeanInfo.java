@@ -24,14 +24,14 @@ import java.beans.SimpleBeanInfo;
 import java.beans.VetoableChangeListener;
 
 /**
- The ProgramCallBeanInfo class provides BeanInfo for the ProgramCall class.
+ The ProgramCallBeanInfo class provides bean information for the ProgramCall class.
  **/
 public class ProgramCallBeanInfo extends SimpleBeanInfo
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Class this bean info represents.
-    private final static Class BEAN_CLASS = ProgramCall.class;
+    private static final Class BEAN_CLASS = ProgramCall.class;
 
     private static EventSetDescriptor[] eventSetDescriptors;
     private static PropertyDescriptor[] propertyDescriptors;

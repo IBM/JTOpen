@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
+import java.io.UnsupportedEncodingException;  //@F1A
 
 
 
@@ -147,7 +148,22 @@ class DBReplyPackageInfo {
     public String getStatementName (int statementIndex, ConvTable converter) //@P0C
     throws DBDataStreamException
     {
-        return converter.byteArrayToString (data_, offset_ + getPackageEntryInfoOffset (statementIndex) + 3, 18);
+        try                                           //@F1A
+        {                                             
+            //@F1A Should use job CCSID, not unicode, to interpret statement name from datastream.
+            return ConvTable.getTable(jobCCSID_, null).byteArrayToString (data_, offset_ + getPackageEntryInfoOffset (statementIndex) + 3, 18);  //@F1A
+            //@F1D return converter.byteArrayToString (data_, offset_ + getPackageEntryInfoOffset (statementIndex) + 3, 18);
+            //@F1A Changed code in JDPackageManager to now pass in null for converter.
+        }                                             
+        catch (UnsupportedEncodingException uee)      //@F1A
+        {    
+            //@F1A Error shouldn't happen, but just in case, return "" so that
+            //@F1A code in AS400JDBCStatement which checks the length of what is 
+            //@F1A returned from here to see if it's 0 will correctly detect that 
+            //@F1A we are unable to use this name and will prepare the statement
+            //@F1A again on the server instead of taking a NullPointerException.
+            return "";                                //@F1A 
+        }                                             
     }
 
 

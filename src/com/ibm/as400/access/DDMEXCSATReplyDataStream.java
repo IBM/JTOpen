@@ -20,38 +20,33 @@ class DDMEXCSATReplyDataStream extends DDMDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private static String getCopyright()
+    // Check the reply.
+    boolean checkReply()
     {
-	return Copyright.copyright;
-    }
-
-    // Check the reply
-    void checkReply()
-    {
-	if (getCodePoint() != DDMTerm.EXCSATRD)
-	{
-	    Trace.log(Trace.ERROR, "DDM: V4R2 or newer system: EXCSAT failed with code point ", getCodePoint());
-	    // Exchange failed; disconnect service
-	    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
-	}
+        if (getCodePoint() != DDMTerm.EXCSATRD)
+        {
+            Trace.log(Trace.ERROR, "DDM EXCSAT failed with code point:", data_, 8, 2);
+            return false;
+        }
+        return true;
     }
 
     void read(InputStream in) throws IOException
     {
-	Trace.log(Trace.DIAGNOSTIC, "Receiving DDM: V4R2 or newer system: EXCSAT Reply...");
-	// Receive the header.
-	byte[] header = new byte[6];
-	if (readFromStream(in, header, 0, 6) < 6)
-	{
-	    Trace.log(Trace.ERROR, "Failed to read all of the DDM EXCSAT Reply header.");
-	    throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
-	}
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving DDM EXCSAT Reply...");
+        // Receive the header.
+        byte[] header = new byte[6];
+        if (readFromStream(in, header, 0, 6) < 6)
+        {
+            Trace.log(Trace.ERROR, "Failed to read all of the DDM EXCSAT reply header.");
+            throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
+        }
 
-	// Allocate bytes for datastream
-	data_ = new byte[BinaryConverter.byteArrayToUnsignedShort(header, 0)];
-	System.arraycopy(header, 0, data_, 0, 6);
+        // Allocate bytes for datastream.
+        data_ = new byte[BinaryConverter.byteArrayToUnsignedShort(header, 0)];
+        System.arraycopy(header, 0, data_, 0, 6);
 
-	// read in the rest of the data
-	readAfterHeader(in);
+        // Read in the rest of the data.
+        readAfterHeader(in);
     }
 }

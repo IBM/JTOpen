@@ -87,13 +87,61 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
      **/
     public static final int START_SERVER_UNKNOWN_ERROR = 15;
     /**
-     The return code indicating that there was an error passing the connection to the server job.
-     **/
-    public static final int CONNECTION_NOT_PASSED = 16;
-    /**
      The return code indicating that it was a server ID not valid.
      **/
-    public static final int SERVER_ID_NOT_VALID = 17;
+    public static final int SERVER_ID_NOT_VALID = 16;
+    /**
+     The return code indicating that there was an error passing the connection to the server job. Program data length is incorrect.
+     **/
+    public static final int CONNECTION_NOT_PASSED_LENGTH = 17;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Server job timed out.
+     **/
+    public static final int CONNECTION_NOT_PASSED_TIMEOUT = 18;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Server job could not be started.
+     **/
+    public static final int CONNECTION_NOT_PASSED_SERVER_NOT_STARTED = 19;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Prestart job could not be started.
+     **/
+    public static final int CONNECTION_NOT_PASSED_PRESTART_NOT_STARTED = 20;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Subsystem problem detected.
+     **/
+    public static final int CONNECTION_NOT_PASSED_SUBSYSTEM = 21;
+    /**
+     The return code indicating that there was an error passing the connection to the server job. Server job is ending.
+     **/
+    public static final int CONNECTION_NOT_PASSED_SERVER_ENDING = 22;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Receiver area is too small.
+     **/
+    public static final int CONNECTION_NOT_PASSED_RECEIVER_AREA = 23;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Unknown or unrecoverable error occured.
+     **/
+    public static final int CONNECTION_NOT_PASSED_UNKNOWN = 24;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  User profile for server job does not exist.
+     **/
+    public static final int CONNECTION_NOT_PASSED_PROFILE = 25;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  User profile for server job does not have enough authority.
+     **/
+    public static final int CONNECTION_NOT_PASSED_AUTHORITY = 26;
+    /**
+     The return code indicating that there was an error passing the connection to the server job. Server job program was not found.
+     **/
+    public static final int CONNECTION_NOT_PASSED_PROGRAM_NOT_FOUND = 27;
+    /**
+     The return code indicating that there was an error passing the connection to the server job. Daemon job is not authorized to server job library.
+     **/
+    public static final int CONNECTION_NOT_PASSED_LIBRARY_AUTHORITY = 28;
+    /**
+     The return code indicating that there was an error passing the connection to the server job.  Daemon job is not authorized to server job program.
+     **/
+    public static final int CONNECTION_NOT_PASSED_PROGRAM_AUTHORITY = 29;
 
     // Constructs a ServerStartupException object.  It indicates that the server can not be started.  Exception message will look like this: Unable to connect to the port.
     // @param  returnCode  The return code which identifies the message to be returned.
@@ -142,10 +190,34 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
                 return "EXC_REQUEST_DATA_ERROR";
             case START_SERVER_UNKNOWN_ERROR:
                 return "EXC_START_SERVER_UNKNOWN_ERROR";
-            case CONNECTION_NOT_PASSED:
-                return "EXC_CONNECTION_NOT_PASSED";
             case SERVER_ID_NOT_VALID:
                 return "EXC_SERVER_ID_NOT_VALID";
+            case CONNECTION_NOT_PASSED_LENGTH:
+                return "EXC_CONNECTION_NOT_PASSED_LENGTH";
+            case CONNECTION_NOT_PASSED_TIMEOUT:
+                return "EXC_CONNECTION_NOT_PASSED_TIMEOUT";
+            case CONNECTION_NOT_PASSED_SERVER_NOT_STARTED:
+                return "EXC_CONNECTION_NOT_PASSED_SERVER_NOT_STARTED";
+            case CONNECTION_NOT_PASSED_PRESTART_NOT_STARTED:
+                return "EXC_CONNECTION_NOT_PASSED_PRESTART_NOT_STARTED";
+            case CONNECTION_NOT_PASSED_SUBSYSTEM:
+                return "EXC_CONNECTION_NOT_PASSED_SUBSYSTEM";
+            case CONNECTION_NOT_PASSED_SERVER_ENDING:
+                return "EXC_CONNECTION_NOT_PASSED_SERVER_ENDING";
+            case CONNECTION_NOT_PASSED_RECEIVER_AREA:
+                return "EXC_CONNECTION_NOT_PASSED_RECEIVER_AREA";
+            case CONNECTION_NOT_PASSED_UNKNOWN:
+                return "EXC_CONNECTION_NOT_PASSED_UNKNOWN";
+            case CONNECTION_NOT_PASSED_PROFILE:
+                return "EXC_CONNECTION_NOT_PASSED_PROFILE";
+            case CONNECTION_NOT_PASSED_AUTHORITY:
+                return "EXC_CONNECTION_NOT_PASSED_AUTHORITY";
+            case CONNECTION_NOT_PASSED_PROGRAM_NOT_FOUND:
+                return "EXC_CONNECTION_NOT_PASSED_PROGRAM_NOT_FOUND";
+            case CONNECTION_NOT_PASSED_LIBRARY_AUTHORITY:
+                return "EXC_CONNECTION_NOT_PASSED_LIBRARY_AUTHORITY";
+            case CONNECTION_NOT_PASSED_PROGRAM_AUTHORITY:
+                return "EXC_CONNECTION_NOT_PASSED_PROGRAM_AUTHORITY";
             default:
                 return "EXC_UNKNOWN";   // Bad return code was provided.
         }

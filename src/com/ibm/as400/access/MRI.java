@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.ListResourceBundle;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+ Locale-specific objects for the IBM Toolbox for Java.
 **/
 //
 // @B0A - Implementation note:
@@ -33,8 +33,8 @@ public class MRI extends ListResourceBundle
        return resources;
    }
 
-   private final static Object[][] resources= {
-
+    private final static Object[][] resources =
+    {
            // #TRANNOTE Before you add a new resource, please make
            // #TRANNOTE sure you are not duplicating another.  The
            // #TRANNOTE goal is to keep the amount of translatable
@@ -45,7 +45,6 @@ public class MRI extends ListResourceBundle
            // #TRANNOTE
            // #TRANNOTE The key must be left alone so translate only the value.
            // #TRANNOTE
-
 
            // #TRANNOTE #####################################################
            // #TRANNOTE Property values.
@@ -159,6 +158,19 @@ public class MRI extends ListResourceBundle
       { "EXC_CONNECTION_DROPPED", "Connection was dropped unexpectedly." },
       { "EXC_CONNECTION_NOT_ACTIVE", "Connection is not active." },
       { "EXC_CONNECTION_NOT_ESTABLISHED", "Unable to establish a connection." },
+        { "EXC_CONNECTION_NOT_PASSED_AUTHORITY", "Not able to pass connection to server job.  User profile for server job does not have enough authority." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_LENGTH", "Not able to pass connection to server job.  Program data length is incorrect." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_LIBRARY_AUTHORITY", "Not able to pass connection to server job. Daemon job is not authorized to server job library." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_PRESTART_NOT_STARTED", "Not able to pass connection to server job.  Prestart job could not be started." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_PROFILE", "Not able to pass connection to server job.  User profile for server job does not exist." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_PROGRAM_AUTHORITY", "Not able to pass connection to server job.  Daemon job is not authorized to server job program." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_PROGRAM_NOT_FOUND", "Not able to pass connection to server job.  Server job program was not found." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_RECEIVER_AREA", "Not able to pass connection to server job.  Receiver area is too small." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_SERVER_ENDING", "Not able to pass connection to server job. Server job is ending." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_SERVER_NOT_STARTED", "Not able to pass connection to server job.  Server job could not be started." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_SUBSYSTEM", "Not able to pass connection to server job.  Subsystem problem detected." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_TIMEOUT", "Not able to pass connection to server job.  Server job timed out." },  // @F1A
+        { "EXC_CONNECTION_NOT_PASSED_UNKNOWN", "Not able to pass connection to server job.  Unknown or unrecoverable error occured." },  // @F1A
       { "EXC_CONNECTION_NOT_VALID", "Connection is not valid." },
       { "EXC_CONNECTION_PORT_CANNOT_CONNECT_TO", "Unable to connect to the port." },
 
@@ -194,10 +206,24 @@ public class MRI extends ListResourceBundle
       { "EXC_FILES_NOT_AVAILABLE", "No more files are available." },
       { "EXC_FILE_SUBSTREAM_IN_USE", "Substream in use." },
 
+        { "EXC_GENERATE_TOKEN_REQUEST_NOT_VALID", "Generate token request is not valid." },  // @F1A
+
       { "EXC_HANDLE_NOT_VALID", "Handle is not valid." },
 
       { "EXC_INTERNAL_ERROR", "Internal error occurred." },
       // @E5D { "EXC_IMPLEMENTATION_NOT_FOUND", "Implementation class not found." },
+
+        { "EXC_KERBEROS_TICKET_NOT_VALID_CONSISTENCY", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_CREDANTIAL_STRUCTURE", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_EIM", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_MECHANISM", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_RETRIEVE", "Kerberos service ticket could not be retreived." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_SIGNATURE", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_VERIFICATION", "Kerberos ticket is not valid." },  // @F1A
 
       { "EXC_LIBRARY_AUTHORITY_INSUFFICIENT", "User is not authorized to library." },
       { "EXC_LIBRARY_DOES_NOT_EXIST", "Library does not exist." },
@@ -226,6 +252,7 @@ public class MRI extends ListResourceBundle
       { "EXC_PASSWORD_INCORRECT_USERID_DISABLE", "Password is incorrect. User ID will be disabled after next incorrect sign-on." },
       { "EXC_PASSWORD_LENGTH_NOT_VALID", "Password length is not valid." },
       { "EXC_PASSWORD_NEW_ADJACENT_DIGITS", "New password has adjacent digits." },
+        { "EXC_PASSWORD_NEW_CHARACTER_NOT_VALID", "New password contains a character that is not valid." },  // @F1A
       { "EXC_PASSWORD_NEW_CONSECUTIVE_REPEAT_CHARACTER", "New password contains a character repeated consecutively." },
       { "EXC_PASSWORD_NEW_DISALLOWED", "New password is not allowed." },
       { "EXC_PASSWORD_NEW_NO_ALPHABETIC", "New password must contain at least one alphabetic character." },
@@ -237,10 +264,17 @@ public class MRI extends ListResourceBundle
       { "EXC_PASSWORD_NEW_TOO_SHORT", "New password is too short." },
       { "EXC_PASSWORD_NEW_USERID", "New password contains User ID as part of the password." },
       { "EXC_PASSWORD_NEW_SAME_POSITION", "New password contains the same character in the same position as the previous password." },  // @E2A
+        { "EXC_PASSWORD_NONE", "Password is *NONE." },  // @F1A
       { "EXC_PASSWORD_NOT_MATCH", "New password and confirm password are not the same." },
       { "EXC_PASSWORD_NOT_SET", "Password is not set." },
       { "EXC_PASSWORD_OLD_NOT_VALID", "Old password is not valid." },
+        { "EXC_PASSWORD_PRE_V2R2", "Password has pre-V2R2 encryption." },  // @F1A
       { "EXC_PATH_NOT_FOUND", "Path name was not found." },
+        { "EXC_PROFILE_TOKEN_NOT_VALID", "Profile token is not valid." },  // @F1A
+        { "EXC_PROFILE_TOKEN_NOT_VALID_MAXIMUM", "Profile token is not valid.  Maximum number of profile tokens for the system already generated." },  // @F1A
+        { "EXC_PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE", "Profile token is not valid.  Profile token is not regenerable." },  // @F1A
+        { "EXC_PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID", "Profile token is not valid.  Timeout interval is not valid." },  // @F1A
+        { "EXC_PROFILE_TOKEN_NOT_VALID_TYPE_NOT_VALID", "Profile token is not valid.  Type of profile token is not valid." },  // @F1A
       { "EXC_PROTOCOL_ERROR", "Protocol error occurred." },
 
       { "EXC_QSYS_PREFIX_MISSING", "Object not in QSYS file system." },
@@ -260,6 +294,7 @@ public class MRI extends ListResourceBundle
       { "EXC_SECURITY_GENERAL", "General security error." },
       { "EXC_SECURITY_INVALID_STATE", "Internal error in the security manager." },
       { "EXC_SEND_REPLY_INVALID", "Send reply indicator is not valid." },
+        { "EXC_SERVER_ID_NOT_VALID", "Server ID is not valid." },  // @F1A
       { "EXC_SERVER_NOT_STARTED", "Unable to start the server." },
       { "EXC_SHARE_VIOLATION", "Sharing violation occurred." },
       { "EXC_SIGNON_CANCELED", "Signon was canceled." },
@@ -272,6 +307,8 @@ public class MRI extends ListResourceBundle
       { "EXC_SYNTAX_ERROR", "Syntax error occurred." },
       { "EXC_SYSTEM_LEVEL_NOT_CORRECT", "Correct server level is required." },
 
+        { "EXC_TOKEN_LENGTH_NOT_VALID", "Token length is not valid." },  // @F1A
+        { "EXC_TOKEN_TYPE_NOT_VALID", "Token type is not valid." },  // @F1A
       { "EXC_TYPE_LENGTH_NOT_VALID", "Length of the object type is not valid." },
 
       { "EXC_UNEXPECTED_RETURN_CODE", "Unexpected return code." },
@@ -306,8 +343,6 @@ public class MRI extends ListResourceBundle
       { "PROP_NAME_APPEND_PROP", "append" },
       { "PROP_NAME_AS400_CCSID", "characterSetID" },
       { "PROP_DESC_AS400_CCSID", "Code character set identifier." },
-      { "PROP_NAME_AS400_CONNECTED", "connected" },
-      { "PROP_DESC_AS400_CONNECTED", "Connected to the server." },
       { "PROP_NAME_AS400_GUI", "guiAvailable" },
       { "PROP_DESC_AS400_GUI", "User interface available." },
       { "PROP_NAME_AS400_SYSTEM", "systemName" },
@@ -320,6 +355,8 @@ public class MRI extends ListResourceBundle
       { "PROP_DESC_AS400_USERID", "User ID." },
       { "PROP_NAME_AS400_PASSWORD", "password" },
       { "PROP_DESC_AS400_PASSWORD", "Password." },
+        { "PROP_NAME_AS400_PROFILETOKEN", "profileToken" },  // @F1A
+        { "PROP_DESC_AS400_PROFILETOKEN", "Profile token." },  // @F1A
       { "PROP_NAME_AS400_PROXYSERVER", "proxyServer" },  // @E2A
       { "PROP_DESC_AS400_PROXYSERVER", "Proxy server." },  // @E2A
       { "PROP_NAME_AS400_MUSTUSESOCKETS", "mustUseSockets" },  // @E2A
@@ -499,136 +536,5 @@ public class MRI extends ListResourceBundle
       { "EXC_PROXY_CONNECTION_DROPPED",         "The connection to the proxy server was dropped." },
       { "EXC_PROXY_CONNECTION_REJECTED",        "The connection to the proxy server was not accepted by the proxy server." },
       { "EXC_PROXY_VERSION_MISMATCH",           "The client and proxy server are running different versions of code." }, // @E6A
-
-
-      /* @E7D
-      // Localized object types.    @D1A
-      // #TRANNOTE ################################################################
-      // #TRANNOTE AS/400 object types.
-      // #TRANNOTE ################################################################
-      { "TYPE_ALRTBL",                      "Alert table" },
-      { "TYPE_AUTL",                        "Authorization list" },
-      { "TYPE_BLKS",                        "Block special file" },
-      { "TYPE_BNDDIR",                      "Binding directory" },
-      { "TYPE_CFGL",                        "Configuration list" },
-      { "TYPE_CHTFMT",                      "Chart format" },
-      { "TYPE_CLD",                         "C/400 locale description" },
-      { "TYPE_CLS",                         "Class" },
-      { "TYPE_CMD",                         "Command" },
-      { "TYPE_CNNL",                        "Connection list" },
-      { "TYPE_COSD",                        "Class-of-service description" },
-      { "TYPE_CRG",                         "Cluster resource group" },
-      { "TYPE_CRQD",                        "Change request description" },
-      { "TYPE_CSI",                         "Communications side information" },
-      { "TYPE_CSPMAP",                      "Cross-system product map" },
-      { "TYPE_CSPTBL",                      "Cross-system product table" },
-      { "TYPE_CTLD",                        "Controller description" },
-      { "TYPE_CTLSTS",                      "Controller status" },
-      { "TYPE_DDIR",                        "Distributed file directory" },
-      { "TYPE_DEVD",                        "Device description" },
-      { "TYPE_DEVSTS",                      "Device status" },
-      { "TYPE_DIR",                         "Directory" },
-      { "TYPE_DOC",                         "Document" },
-      { "TYPE_DSTMF",                       "Distributed stream file" },
-      { "TYPE_DTAARA",                      "Data area" },
-      { "TYPE_DTADCT",                      "Data dictionary" },
-      { "TYPE_DTAQ",                        "Data queue" },
-      { "TYPE_EDTD",                        "Edit description" },
-      { "TYPE_EXITRG",                      "Exit registration" },
-      { "TYPE_FCT",                         "Forms control table" },
-      { "TYPE_FILE",                        "File" },
-      { "TYPE_FILE_CMNF",                   "Communications file" },
-      { "TYPE_FILE_DKTF",                   "Diskette file" },
-      { "TYPE_FILE_DSPF",                   "Display file" },
-      { "TYPE_FILE_ICFF",                   "Interactive Communications Function file" },
-      { "TYPE_FILE_LF",                     "Logical file" },
-      { "TYPE_FILE_PF",                     "Physical file" },
-      { "TYPE_FILE_PRTF",                   "Printer file" },
-      { "TYPE_FILE_SAVF",                   "Save file" },
-      { "TYPE_FILE_TAPF",                   "Tape file" },
-      { "TYPE_FLR",                         "Folder" },
-      { "TYPE_FNTRSC",                      "Font resource" },
-      { "TYPE_FNTTBL",                      "Font mapping table" },
-      { "TYPE_FORMDF",                      "Form definition" },
-      { "TYPE_FTR",                         "Filter" },
-      { "TYPE_GSS",                         "Graphics symbol set" },
-      { "TYPE_IGCDCT",                      "Double-byte character set conversion dictionary" },
-      { "TYPE_IGCSRT",                      "Double-byte character set sort table" },
-      { "TYPE_IGCTBL",                      "Double-byte character set font table" },
-      { "TYPE_IPXD",                        "Internetwork packet exchange description" },
-      { "TYPE_JOBD",                        "Job description" },
-      { "TYPE_JOBQ",                        "Job queue" },
-      { "TYPE_JOBSCD",                      "Job schedule" },
-      { "TYPE_JRN",                         "Journal" },
-      { "TYPE_JRNRCV",                      "Journal receiver" },
-      { "TYPE_LIB",                         "Library" },
-      { "TYPE_LIND",                        "Line description" },
-      { "TYPE_LINSTS",                      "Line status" },
-      { "TYPE_LOCALE",                      "Locale" },
-      { "TYPE_M36",                         "AS/400 Advanced 36 machine" },
-      { "TYPE_M36CFG",                      "AS/400 Advanced 36 machine configuration" },
-      { "TYPE_MEDDFN",                      "Media definition" },
-      { "TYPE_MENU",                        "Menu" },
-      { "TYPE_MGTCOL",                      "Management collection" },
-      { "TYPE_MODD",                        "Mode description" },
-      { "TYPE_MODULE",                      "Module" },
-      { "TYPE_MSGF",                        "Message file" },
-      { "TYPE_MSGQ",                        "Message queue" },
-      { "TYPE_NETF",                        "Network file" },
-      { "TYPE_NODGRP",                      "Node group" },
-      { "TYPE_NODL",                        "Node list" },
-      { "TYPE_NTBD",                        "NetBIOS description" },
-      { "TYPE_NWID",                        "Network interface description" },
-      { "TYPE_NWISTS",                      "Network interface status" },
-      { "TYPE_NWSD",                        "Network service description" },
-      { "TYPE_OOPOOL",                      "Persistent pool" },
-      { "TYPE_OUTQ",                        "Output queue" },
-      { "TYPE_OVL",                         "Overlay" },
-      { "TYPE_PAGDFN",                      "Page definition" },
-      { "TYPE_PAGSEG",                      "Page segment" },
-      { "TYPE_PDG",                         "Print descriptor group" },
-      { "TYPE_PGM",                         "Program" },
-      { "TYPE_PGM_RPG",                     "RPG program" },
-      { "TYPE_PGM_CLE",                     "ILE C program" },                      // @E3A
-      { "TYPE_PGM_CLP",                     "Control Language program" },
-      { "TYPE_PGM_C",                       "C program" },
-      { "TYPE_PGM_PAS",                     "Pascal program" },
-      { "TYPE_PGM_CBL",                     "COBOL program" },
-      { "TYPE_PGM_BAS",                     "BASIC program" },
-      { "TYPE_PGM_PLI",                     "PL/I program" },
-      { "TYPE_PGM_FTN",                     "Fortran program" },
-      { "TYPE_PNLGRP",                      "Panel group" },
-      { "TYPE_PRDAVL",                      "Product availability" },
-      { "TYPE_PRDDFN",                      "Product definition" },
-      { "TYPE_PRDLOD",                      "Product load" },
-      { "TYPE_PSFCFG",                      "Print Service Facility (PSF) configuration" },
-      { "TYPE_QMFORM",                      "Query management form" },
-      { "TYPE_QMQRY",                       "Query management query" },
-      { "TYPE_QRYDFN",                      "Query definition" },
-      { "TYPE_RCT",                         "Reference code translate table" },
-      { "TYPE_S36",                         "System/36 machine description" },
-      { "TYPE_SBSD",                        "Subsystem description" },
-      { "TYPE_SBSSTS",                      "Subsystem status" },
-      { "TYPE_SCHIDX",                      "Search index" },
-      { "TYPE_SOCKET",                      "Local socket" },
-      { "TYPE_SPADCT",                      "Spelling aid dictionary" },
-      { "TYPE_SQLPKG",                      "Structured query language package" },
-      { "TYPE_SQLUDT",                      "User-defined SQL type" },
-      { "TYPE_SRVPGM",                      "Service program" },
-      { "TYPE_SSND",                        "Session description" },
-      { "TYPE_STMF",                        "Stream file" },
-      { "TYPE_SVRSTG",                      "Server storage space" },
-      { "TYPE_SYMLNK",                      "Symbolic link" },
-      { "TYPE_TBL",                         "Table" },
-      { "TYPE_USRIDX",                      "User index" },
-      { "TYPE_USRPRF",                      "User profile" },
-      { "TYPE_USRQ",                        "User queue" },
-      { "TYPE_USRSPC",                      "User space" },
-      { "TYPE_VLDL",                        "Validation list" },
-      { "TYPE_WSCST",                       "Work station customizing object" },
-      */
-
    };
-
 }
-

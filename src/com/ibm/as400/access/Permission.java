@@ -30,15 +30,15 @@ import java.util.Enumeration;
  * an object.<br>
  * To improve performance, the Permission object caches authority changes 
  * until the <i>commit()</i> method is called. When <i>commit()</i>is called, 
- * all changes up to that point are sent to the AS/400.<br>
+ * all changes up to that point are sent to the server.<br>
  * The permission of an object is a collection of many users' authority to that object,
  * and the UserPermission class is used to represent a user's authority to a object. 
- * Because there are three kinds of object in the AS/400, three subclasses of UserPermission 
- * are defined:
+ * Because there are three kinds of objects on the server, three subclasses of 
+ * UserPermission are defined:
  * <ul>
  *      <li> DLOPermission  - Represents a user's authority to a Document Library Objects (DLO)
  *                            stored in QDLS.
- *      <li> QSYSPermission - Represents a user's authority to the object which is contained in the AS/400 library
+ *      <li> QSYSPermission - Represents a user's authority to the object which is contained in the server library
  *                            structure and stored in QSYS.LIB.
  *      <li> RootPermission - Represents a user's authority to the object which is contained in the root directory 
  *                            structure. This includes everything that is not in QSYS.LIB or QDLS.
@@ -74,7 +74,7 @@ public class Permission
     public static final int TYPE_DLO = 0;
 
     /**
-     * Constant indicating the object is contained in the AS/400 library
+     * Constant indicating the object is contained in the server library
      * structure and stored in QSYS.LIB.
      *
     **/
@@ -114,13 +114,13 @@ public class Permission
     /**
      * Constructs a Permission object.
      * @param file The IFSFile object. For example, The IFSFile object which represents the object "QSYS.LIB/FRED.LIB".
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception ObjectDoesNotExistException If the server object does not exist.
      *
     **/
     public Permission(IFSFile file)
@@ -138,15 +138,15 @@ public class Permission
 
     /**
      * Constructs a Permission object.
-     * @param system The AS/400 system.
+     * @param system The server.
      * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception ObjectDoesNotExistException If the server object does not exist.
      *
     **/
     public Permission(AS400 as400, String fileName)
@@ -344,15 +344,15 @@ public class Permission
     }
 
     /**
-     * Commits the permission changes to the AS/400 system.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * Commits the permission changes to the server.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception ObjectDoesNotExistException If the server object does not exist.
+     * @exception ServerStartupException If the server cannot be started.
      *
     **/
     public synchronized void commit()
@@ -516,8 +516,8 @@ public class Permission
     }
 
     /**
-     * Returns the AS/400 system
-     * @return The AS/400 system instance. 
+     * Returns the server
+     * @return The server instance. 
      *
     **/
     public AS400 getSystem()
@@ -531,7 +531,7 @@ public class Permission
      * <ul>
      *    <li> TYPE_DLO - Indicating the object is a Document Library Objects (DLO)
      * stored in QDLS.
-     *    <li> TYPE_QSYS - Indicating the object is contained in the AS/400 library
+     *    <li> TYPE_QSYS - Indicating the object is contained in the server library
      * structure and stored in QSYS.LIB.
      *    <li> TYPE_ROOT - Indicating the object is contained in the root directory 
      * structure. This includes everything that is not in QSYS.LIB or QDLS.
@@ -561,7 +561,7 @@ public class Permission
 
 
     /**
-     * Returns the specific Permission object.
+     * Returns a UserPermission object for the specified user.
      * If the specified user profile has no explicit authority to the object,
      * returns null.
      * @param userProfileName The name of the user profile.
@@ -581,8 +581,8 @@ public class Permission
     }
 
     /**
-     * Returns an enumeration of Permission object.
-     * @return An enumeration of Permission object.
+     * Returns an enumeration of UserPermission objects.
+     * @return An enumeration of UserPermission objects.
      *
     **/
     public Enumeration getUserPermissions()
@@ -646,7 +646,7 @@ public class Permission
      * Serialization support.  
      * @exception Thrown when an application tries to load in a class through its string name,
      *            but no definition for the class with the specifed name could be found. 
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      *
     **/
     private void readObject(ObjectInputStream s)
@@ -840,7 +840,7 @@ public class Permission
     /**
      * Sets the system where system value is retrieved.
      *
-     * @param   system The AS/400 system object.
+     * @param   system The server object.
      * @see     #getSystem
     **/
     public synchronized void setSystem(AS400 system)
@@ -879,7 +879,7 @@ public class Permission
     
     /**
      * Serialization support.  
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      *
     **/
     private void writeObject(ObjectOutputStream s) 

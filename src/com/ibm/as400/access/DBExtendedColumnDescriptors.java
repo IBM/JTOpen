@@ -48,21 +48,25 @@ class DBExtendedColumnDescriptors {
     //  offset+  field              length
     //
     //     0     # of columns       4  bytes
-    //     4     reserved           8  bytes
+    //     4     reserved           6  bytes
     //
-    //    12     extended column descriptor (repeated for each column)
+    //    10     extended column descriptor (repeated for each column)
     //           0   fixed data                              4  bytes
     //               1 byte  Updateable
     //               1 byte  Searchable
-    //               2 bytes Attribute Indicator
-    //           4   variable offest                         4  bytes
-    //           8   variable length                         2  bytes
-    //           10  reserved (alignment)                    6  bytes
+    //               2 bytes 
+    //                 1 bit Identity column?
+    //                 1 bit Column is part of an index?
+    //                 1 bit Column is a lone unique index?
+    //                 1 bit Column is part of a unique index attribute?
+    //           4   offset from beginning to variable data  4  bytes
+    //           8   length of variable data                 4  bytes
+    //           12  reserved (alignment)                    4  bytes
     //
-    //           14  length of the column descriptor         4  bytes
-    //           18  code point of column descriptor         2  bytes
-    //           20  CCSID (for label only)                  2  bytes
-    //           22  value of column descriptor              n bytes
+    // (#col*16) 0   length of the column descriptor         4  bytes
+    // +10       4   code point of column descriptor         2  bytes
+    //           6   CCSID (for label only)                  2  bytes
+    //           6   value of column descriptor              n bytes
     //
     //           Note: these offsets are in terms of the start
     //                 of the LL for this parameter (i.e.
@@ -74,15 +78,15 @@ class DBExtendedColumnDescriptors {
 
     public int getAttributeBitmap (int columnIndex)
     {
-        return BinaryConverter.byteArrayToShort (data_, offset_ + getExtendedColumnDescriptorOffset (columnIndex) + 2);
+        return BinaryConverter.byteArrayToShort (data_, offset_ + getExtendedColumnDescriptorOffset (columnIndex)); //@A1C
     }
 
 
 
-    public int getCCSID ()
-    {
-        return BinaryConverter.byteArrayToShort (data_, offset_ + 4);
-    }
+    //@A1D public int getCCSID ()
+    //@A1D {
+    //@A1D     return BinaryConverter.byteArrayToShort (data_, offset_ + 4);
+    //@A1D }
 
 
     public DBColumnDescriptorsDataFormat getColumnDescriptors (int columnIndex)
@@ -92,9 +96,9 @@ class DBExtendedColumnDescriptors {
         // was returned
         int variableColumnInfoLength = getVariableColumnInfoLength(columnIndex);
         if (variableColumnInfoLength > 0) {
-            int offsetToDescriptor = offset_ + getExtendedColumnDescriptorOffset (columnIndex);
+            int offsetToDescriptor = getVariableColumnInfoOffset (columnIndex);
             DBColumnDescriptorsDataFormat columnDescriptorsDataFormat = new DBColumnDescriptorsDataFormat();  
-            columnDescriptorsDataFormat.overlay (data_, offsetToDescriptor, variableColumnInfoLength);
+            columnDescriptorsDataFormat.overlay (data_, ((offset_ - 6) + offsetToDescriptor), variableColumnInfoLength);
             return columnDescriptorsDataFormat;
         }
         else
@@ -105,15 +109,20 @@ class DBExtendedColumnDescriptors {
 
     private int getExtendedColumnDescriptorOffset (int columnIndex)
     {
-        return 12 + 24 * (columnIndex);
+        return(((columnIndex-1) * 16) + 10); //@A1C
     }
 
 
     private int getVariableColumnInfoLength (int columnIndex)
     {
-        return BinaryConverter.byteArrayToInt (data_, offset_ + getExtendedColumnDescriptorOffset (columnIndex) + 16);
+        return BinaryConverter.byteArrayToInt (data_, (offset_ + getExtendedColumnDescriptorOffset (columnIndex) + 8));
     }
 
+
+    private int getVariableColumnInfoOffset (int columnIndex)
+    {
+        return BinaryConverter.byteArrayToInt (data_, (offset_ + getExtendedColumnDescriptorOffset (columnIndex) + 4));
+    }
 
 
     int getNumberOfColumns ()
@@ -122,19 +131,19 @@ class DBExtendedColumnDescriptors {
     }
 
 
-
-    int getSearchable (int columnIndex)
+    byte getSearchable (int columnIndex)
     {
         return data_[offset_ + getExtendedColumnDescriptorOffset (columnIndex) + 1];
     }
 
 
-
-    int getUpdateable (int columnIndex)
+    byte getUpdateable (int columnIndex)
     {
         return data_[offset_ + getExtendedColumnDescriptorOffset (columnIndex)];
     }
 
 
 }
+
+
 

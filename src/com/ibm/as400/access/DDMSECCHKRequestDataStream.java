@@ -13,115 +13,76 @@
 
 package com.ibm.as400.access;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 class DDMSECCHKRequestDataStream extends DDMDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  DDMSECCHKRequestDataStream(byte[] userIDbytes, byte[] passwordBytes, boolean useEncryptedPassword)
+    DDMSECCHKRequestDataStream(byte[] userIDbytes, byte[] authenticationBytes, int byteType)
   {
-    super();
-    
-    boolean useStrongEncryption = useEncryptedPassword && (passwordBytes.length > 8); //@B0A
-    
-    if (useEncryptedPassword)
-    {
-      if (useStrongEncryption) //@B0A
-      {
-        data_ = new byte[54]; //@B0A
-      }
-      else //@B0A
-      {
-        data_ = new byte[42];
-      }
-    }
-    else
-    {
-      data_ = new byte[44];
-    }
-    setLength(data_.length);
+        super(byteType == 1 ? new byte[authenticationBytes.length + 26] : new byte[authenticationBytes.length + 34]);
 
-    // Initialize the header:
-    //  Don't continue on error, not chained, GDS id = D0, type = RQSDSS,
-    //  no same request correlation.
-    setContinueOnError(false);
-    setIsChained(false);
+        // Initialize the header:  Don't continue on error, not chained, GDS id = D0, type = RQSDSS, no same request correlation.
     setGDSId((byte)0xD0);
-    setHasSameRequestCorrelation(false);
+        if (byteType == 1)
+        {
+            setLength(16);
+            setIsChained(true);
+            // setContinueOnError(false);
+            setHasSameRequestCorrelation(true);
     setType(1);
+            set16bit(10, 6); // Set total length remaining after header.
+            set16bit(DDMTerm.SECCHK, 8);  // Set code point for SECCHK.
+            set16bit(6, 10);  // Set LL for SECMEC term.
+            set16bit(DDMTerm.SECMEC, 12); // Set code point for SECMEC.
+            set16bit(11, 14); // Set value of SECMEC parm.
 
-    if (useEncryptedPassword)
-    {
-      if (useStrongEncryption) //@B0A
-      {
-        set16bit(48, 6); //@B0A Set LL for SECCHK term
-      }
-      else //@B0A
-      {
-        set16bit(36, 6);  // Set LL for SECCHK term
-      }
-    }
+            set16bit(authenticationBytes.length + 10, 16);  // Set LL for SECCHK term.
+            set16bit(0xD003, 18);
+
+            set16bit(authenticationBytes.length + 4, 22);  // Set LL for SECCHK term.
+            set16bit(0x11DC, 24);  // Set LL for SECMEC term.
+            System.arraycopy(authenticationBytes, 0, data_, 26, authenticationBytes.length);
+        }
     else
     {
-      set16bit(38, 6);  // Set LL for SECCHK term
-    }
-    set16bit(DDMTerm.SECCHK, 8);  // Set code point for SECCHK
-    set16bit(6, 10);              // Set LL for SECMEC term
-    set16bit(DDMTerm.SECMEC, 12); // Set code point for SECMEC
-    if (useEncryptedPassword)
-    {
-      if (useStrongEncryption) //@B0A
-      {
-        set16bit(8, 14); //@B0A Set value for SECMEC term
-      }
-      else //@B0A
-      {
-        set16bit(6, 14);              // Set value for SECMEC term
-      }
-    }
+            // setIsChained(false);
+            // setContinueOnError(false);
+            // setHasSameRequestCorrelation(false);
+            setType(1);
+
+            set16bit(authenticationBytes.length + 28, 6);  // Set LL for SECCHK term.
+            set16bit(DDMTerm.SECCHK, 8);  // Set code point for SECCHK.
+
+            set16bit(6, 10);  // Set LL for SECMEC term.
+            set16bit(DDMTerm.SECMEC, 12); // Set code point for SECMEC.
+
+            if (authenticationBytes.length == 20)
+            {
+                set16bit(8, 14); // Set value for SECMEC term.
+            }
     else
     {
-      set16bit(3, 14);              // Set value for SECMEC term
-    }
+                set16bit(6, 14);  // Set value for SECMEC term.
+            }
 
-    set16bit(14, 16);  // set LL for USRID term
-    set16bit(DDMTerm.USRID, 18);  // Set code point for USRID
-
-    // Set the userid
+            set16bit(14, 16);  // Set LL for USRID term.
+            set16bit(DDMTerm.USRID, 18);  // Set code point for USRID.
+            // Set the user ID.
     System.arraycopy(userIDbytes, 0, data_, 20, 10);
 
-    if (useEncryptedPassword)
-    {
-      if (useStrongEncryption) //@B0A
-      {
-        set16bit(24, 30); //@B0A set LL for PASSWORD term
-      }
-      else //@B0A
-      {
-        set16bit(12, 30);  // set LL for PASSWORD term
-      }
-    }
-    else
-    {
-      set16bit(14, 30);  // set LL for PASSWORD term
+            set16bit(authenticationBytes.length + 4, 30);  // Set LL for PASSWORD term.
+            set16bit(DDMTerm.PASSWORD, 32);  // Set code point for PASSWORD.
+            // Set the password.
+            System.arraycopy(authenticationBytes, 0, data_, 34, authenticationBytes.length);
+        }
     }
 
-    set16bit(DDMTerm.PASSWORD, 32);  // Set code point for PASSWORD
-
-    // Set the password
-    if (useEncryptedPassword)
+    void write(OutputStream out) throws IOException
     {
-      if (useStrongEncryption) //@B0A
-      {
-        System.arraycopy(passwordBytes, 0, data_, 34, 20); //@B0A
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending DDM SECCHK request...");
+        super.write(out);
       }
-      else //@B0A
-      {
-        System.arraycopy(passwordBytes, 0, data_, 34, 8);
-      }
-    }
-    else
-    {
-      System.arraycopy(passwordBytes, 0, data_, 34, 10);
-    }
-  }
 }

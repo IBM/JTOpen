@@ -69,7 +69,7 @@
 <!-- Change Server Information -->
 <program name="qzlschsi" path="/QSYS.LIB/QZLSCHSI.PGM">
         <data name="requestVariable"                    usage="input"           type="struct" struct="zlss0100"/>
-        <data name="lengthOfRequestVariable"            usage="input"           type="int" length="4" init="280"/>
+        <data name="lengthOfRequestVariable"            usage="input"           type="int" length="4" init="281"/>
         <data name="format"                             usage="input"           type="char" length="8" init="ZLSS0100"/>
         <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
 </program>
@@ -86,6 +86,7 @@
         <data name="winsEnablementP"                    type="char" length="1"/>
         <data                                           type="char" length="5" init=" "/>
         <data name="serverRoleP"                        type="int"  length="4"/>
+        <data name="authenticationMethodP"              type="char" length="1" minvrm="V5R2M0"/>
 </struct>
 
 
@@ -270,7 +271,8 @@
         <data name="scopeIdP"                           type="char" length="224"/>
         <data name="allowSystemName"                    type="char" length="1"/>
         <data name="allowSystemNameP"                   type="char" length="1"/>
-        <data                                           type="char" length="2"/>
+        <data name="authenticationMethod"               type="char" length="1"/>
+        <data name="authenticationMethodP"              type="char" length="1"/>
         <data name="serverRole"                         type="int" length="4"/>
         <data name="serverRoleP"                        type="int" length="4"/>
 </struct>

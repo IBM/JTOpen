@@ -13,6 +13,7 @@
 
 package com.ibm.as400.data;
 
+import com.ibm.as400.access.Trace;                  // @A1A
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -52,7 +53,7 @@ class ResourceLoader extends Object
             }
             catch (MissingResourceException e) 
             {
-                PcmlMessageLog.printStackTrace(e); 
+                Trace.log(Trace.ERROR, e);                  // @A1C
             }
         }
     }
@@ -78,7 +79,7 @@ class ResourceLoader extends Object
             }
             catch (MissingResourceException e)
             {
-                PcmlMessageLog.traceErr(e);
+                Trace.log(Trace.ERROR, e);                  // @A1C
                 try 
                 {
                     return MessageFormat.format(m_bundle.getString(DAMRI.MISSING_KEY), new Object[] {key});

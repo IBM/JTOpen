@@ -267,7 +267,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                    
        // @J3 New property
        PropertyDescriptor savePassword = new PropertyDescriptor("savePasswordWhenSerialized", beanClass, "isSavePasswordWhenSerialized", "setSavePasswordWhenSerialized");
-       savePassword.setBound(false);
+       savePassword.setBound(true);  //@J4C
        savePassword.setConstrained(false);
        savePassword.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SAVE_PASSWORD_WHEN_SERIALIZED"));
        savePassword.setShortDescription(AS400JDBCDriver.getResource("SAVE_PASSWORD_WHEN_SERIALIZED"));

@@ -72,17 +72,17 @@ public class AS400BeanInfo extends SimpleBeanInfo
             password.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PASSWORD"));
             password.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PASSWORD"));
 
+            PropertyDescriptor profileToken = new PropertyDescriptor("profileToken", BEAN_CLASS, null, "setProfileToken");
+            profileToken.setBound(false);
+            profileToken.setConstrained(false);
+            profileToken.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PROFILETOKEN"));
+            profileToken.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PROFILETOKEN"));
+
             PropertyDescriptor proxyServer = new PropertyDescriptor("proxyServer", BEAN_CLASS);
             proxyServer.setBound(true);
             proxyServer.setConstrained(true);
             proxyServer.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PROXYSERVER"));
             proxyServer.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PROXYSERVER"));
-
-            // PropertyDescriptor proxyServerSecure = new PropertyDescriptor("proxyServerSecure", BEAN_CLASS);
-            // proxyServerSecure.setBound(true);
-            // proxyServerSecure.setConstrained(true);
-            // proxyServerSecure.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PROXYSERVERSECURE"));
-            // proxyServerSecure.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PROXYSERVERSECURE"));
 
             PropertyDescriptor guiAvailable = new PropertyDescriptor("guiAvailable", BEAN_CLASS);
             guiAvailable.setBound(true);
@@ -122,7 +122,7 @@ public class AS400BeanInfo extends SimpleBeanInfo
             usePasswordCache.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PWCACHE"));
             usePasswordCache.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PWCACHE"));
 
-            propertyDescriptors = new PropertyDescriptor[] { systemName, userId, password, proxyServer, /* proxyServerSecure, */ guiAvailable, mustUseSockets, showCheckboxes, threadUsed, useDefaultUser, usePasswordCache };
+            propertyDescriptors = new PropertyDescriptor[] { systemName, userId, password, profileToken, proxyServer, guiAvailable, mustUseSockets, showCheckboxes, threadUsed, useDefaultUser, usePasswordCache };
         }
         catch (IntrospectionException e)
         {

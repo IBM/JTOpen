@@ -88,7 +88,7 @@ class SignonConverter
     }
 
     // Convert Unicode string to EBCID CCSID 37 byte array.
-    static byte[] stringToByteArray(String source)
+    static byte[] stringToByteArray(String source) throws AS400SecurityException
     {
         char[] sourceChars = source.toCharArray();
         byte[] returnBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
@@ -154,7 +154,7 @@ class SignonConverter
                 case 0x00E0: returnBytes[i] = (byte)0x7C; break;  // Cp297, a with grave.
                 case 0x0130: returnBytes[i] = (byte)0x5B; break;  // Cp905, I with over dot.
                 case 0x015E: returnBytes[i] = (byte)0x7C; break;  // Cp905, S with cedilla.
-                default: throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.SIGNON_CHAR_NOT_VALID);
+                default: throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
             }
         }
         return returnBytes;

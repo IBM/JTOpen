@@ -61,21 +61,21 @@ class PcmlSAXParser extends HandlerBase {
 		{
 			qualDocName = docName;                                           // @A2C
 		}
-		
+
 		m_docName = qualDocName.substring(qualDocName.lastIndexOf('.') + 1); // @A2A
         
     	// Open the PCML header document that contains the DTD
     	InputStream isHeader = SystemResourceFinder.getPCMLHeader();
         
 		// Now try to open the PCML file
-		InputStream isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
+        InputStream isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
 
 		// Concatenate the two input streams
     	SequenceInputStream sis = new SequenceInputStream(isHeader, isPCML);
 
 		// Instantiate our error listener
 		XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
-    	
+
         SAXParser parser = new SAXParser();                                         // @C2C
         try {                                                                       // @C2A
             parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A

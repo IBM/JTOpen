@@ -28,7 +28,7 @@ can have one of the following values:
 </UL>
 Use <i>getAuthority()</i> to display the current value and the <i>setAuthority()</i> 
 to set the  authority to one of the valid values.  Use <i>commit()</i> from the 
-Permission class to send the changes to the AS/400.
+Permission class to send the changes to the server.
 **/
 public class DLOPermission extends UserPermission
 {
@@ -50,15 +50,10 @@ public class DLOPermission extends UserPermission
     }
 
     
+    // Deleted getCopyright().
+
+
     /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
-    
-   /**
       Returns the data authority of the user.
       @return The data authority of the user. The possible values are:
       <UL>

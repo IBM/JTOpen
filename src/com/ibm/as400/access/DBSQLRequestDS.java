@@ -165,6 +165,20 @@ extends DBBaseRequestDS
 	}
 
 
+    //@F5A
+    /**
+   Sets the Extended Column Descriptor Option parameter in the data stream.
+   @param value	the extended column descriptor option to be used.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+    void setExtendedColumnDescriptorOption(int value)
+		throws DBDataStreamException
+	{
+		addParameter (0x3829, (byte)value);
+	}
+
+
+
 /**
    Sets the Fetch Scroll Option parameter in the data stream.
    @param value	the scroll option to used with the cursor.

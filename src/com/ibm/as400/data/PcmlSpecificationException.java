@@ -13,6 +13,7 @@
 
 package com.ibm.as400.data;
 
+import com.ibm.as400.access.Trace;                  // @A1A
 import java.util.Vector;
 
 /**
@@ -43,24 +44,24 @@ class PcmlSpecificationException extends Exception
     
     /**
      * Logs the specfication errors to error logging stream
-	 * determined by <code>PcmlMessageLog</code>.
+	 * determined by <code>com.ibm.as400.access.Trace</code>.
      *
-     * @see PcmlMessageLog
+     * @see com.ibm.as400.access.Trace
      */
     public void reportErrors()
     {
-		PcmlMessageLog.logError(this);
+		Trace.log(Trace.PCML, this);
 
     	int count = m_messages.size();
     	for (int i = 0; i < count; i++)
-   			PcmlMessageLog.logError(m_messages.elementAt(i));
+            Trace.log(Trace.PCML, (String)(m_messages.elementAt(i)));
     		
     	if (count == 1)
-    		PcmlMessageLog.logError(SystemResourceFinder.format(DAMRI.ONE_PARSE_ERROR));
+            Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.ONE_PARSE_ERROR));
     	else
 		{
 			Object[] args = { new Integer(count) };
-    		PcmlMessageLog.logError(SystemResourceFinder.format(DAMRI.MANY_PARSE_ERRORS, args));
+    		Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.MANY_PARSE_ERRORS, args));
 		}
     }
 }

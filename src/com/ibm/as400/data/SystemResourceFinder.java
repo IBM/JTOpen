@@ -13,6 +13,7 @@
 
 package com.ibm.as400.data;
 
+import com.ibm.as400.access.Trace;                  // @B3A
 import java.io.*;
 import java.text.MessageFormat;
 import java.util.*;
@@ -23,6 +24,10 @@ class SystemResourceFinder
 
     public static final String  m_pcmlExtension = ".pcml";
     public static final String  m_pcmlSerializedExtension = ".pcml.ser";
+    public static final String  m_rfmlExtension = ".rfml";                          // @B2A
+    public static final String  m_rfmlSerializedExtension = ".rfml.ser";            // @B2A
+    private static final String  m_rfmlHeaderName = "com/ibm/as400/data/rfml.dtd";  // @B2A
+
     private static ResourceLoader m_loader = new ResourceLoader();
 
     static
@@ -61,20 +66,16 @@ class SystemResourceFinder
       return getPCMLHeader(getLoader());
     }
   
+    public static final InputStream getRFMLHeader()     // @B2A
+    {
+      return getRFMLHeader(getLoader());
+    }
+  
     public static final int getHeaderLineCount() 
     {
       return m_headerLineCount;
     }
 
-//    public static final InputStream getPCMLDocument(String docName)       @B1D
-//    {
-//        return getPCMLDocument(docName, getLoader());
-//    }
-
-//    public static final InputStream getSerializedPCMLDocument(String docName)     @B1D
-//    {
-//        return getSerializedPCMLDocument(docName, getLoader());
-//    }
 
     /*
      * Automatic determination of the ClassLoader to be used to load
@@ -92,7 +93,7 @@ class SystemResourceFinder
         }
         catch (ClassNotFoundException e) 
         { 
-            PcmlMessageLog.logError(format("java.lang.ClassNotFound")); 
+            Trace.log(Trace.PCML, format("java.lang.ClassNotFound")); 
         }
 
         ClassLoader cl = null;
@@ -199,6 +200,76 @@ class SystemResourceFinder
         // Make sure stream is buffered
         return new BufferedInputStream(stream);
     }
+
+    private static synchronized InputStream getRFMLHeader(ClassLoader loader)   // @B2A
+        throws MissingResourceException	
+    {
+          
+        InputStream stream = loader.getResourceAsStream(m_rfmlHeaderName);
+        
+        if (stream == null) 
+        {
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.DTD_NOT_FOUND, new Object[] {"RFML", m_rfmlHeaderName}), m_rfmlHeaderName, "");
+        }
+
+        // Make sure stream is buffered
+        return new BufferedInputStream(stream);
+  	}
+
+    static synchronized InputStream getRFMLDocument(String docName, ClassLoader loader)     // @B2A
+        throws MissingResourceException
+    {
+		String docPath = null;
+        
+        // Construct the full resource name
+		if ( docName.endsWith(".rfml")
+		  || docName.endsWith(".rfmlsrc") )
+	    {
+			String baseName = docName.substring(0, docName.lastIndexOf('.') );
+			String extension = docName.substring(docName.lastIndexOf('.') );
+			docPath = baseName.replace('.', '/') + extension;
+		}
+		else
+		{
+			docPath = docName.replace('.', '/') + m_rfmlExtension;
+		}
+
+        if (loader == null)
+            loader = getLoader();
+            
+        InputStream stream = loader.getResourceAsStream(docPath);
+
+        if (stream == null) 
+        {
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.XML_NOT_FOUND, new Object[] {"RFML", docName}), docName, "");
+        }
+
+        // Make sure stream is buffered
+        return new BufferedInputStream(stream);
+  	}
+  
+  
+    static synchronized InputStream getSerializedRFMLDocument(String docName, ClassLoader loader)   // @B2A
+        throws MissingResourceException
+    {
+        
+        if (loader == null)
+            loader = getLoader();
+            
+        // Construct the full resource name
+        String docPath = docName.replace('.', '/') + m_rfmlSerializedExtension;
+
+        InputStream stream = loader.getResourceAsStream(docPath);
+        if (stream == null)
+        {
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_XML_NOT_FOUND, new Object[] {"RFML", docName} ), docName, "");
+        }
+            
+        // Make sure stream is buffered
+        return new BufferedInputStream(stream);
+    }
+
+
 
   /**
      * For printf debugging.

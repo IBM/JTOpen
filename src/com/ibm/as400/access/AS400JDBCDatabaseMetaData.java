@@ -2388,9 +2388,9 @@ implements DatabaseMetaData
 
     //@G4A
     /**
-    Returns the major JDBC version number.
+    Returns the JDBC major version number.
     
-    @return     The major JDBC version number.
+    @return     The JDBC major version number.
     
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -2405,9 +2405,9 @@ implements DatabaseMetaData
 
     //@G4A
     /**
-    Returns the minor JDBC version number.
+    Returns the JDBC minor version number.
     
-    @return     The minor JDBC version number.
+    @return     The JDBC minor version number.
     
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -3553,8 +3553,8 @@ implements DatabaseMetaData
 
     //@G4A
     /**
-    Returns a ResultSet containing a description of the table hierarchies 
-    defined in a particular schema in the database.  
+    Returns a ResultSet containing descriptions of the table hierarchies 
+    in a schema.  
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
@@ -3588,8 +3588,8 @@ implements DatabaseMetaData
 
     //@G4A
     /**
-    Returns a ResultSet containing a description of the user-defined type hierarchies 
-    defined in a particular schema in the database. 
+    Returns a ResultSet containing descriptions of user-defined type hierarchies 
+    in a schema. 
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
@@ -5789,7 +5789,8 @@ implements DatabaseMetaData
 
     //@G4A
     /**
-    Indicates if auto-generated keys can be retrieved after a statement is executed.
+    Indicates if, after a statement is executed, auto-generated keys can be retrieved 
+    using the method Statement.getGeneratedKeys().
     
     @return     True if the user is connecting to a server running the release
     of OS/400 after V5R1, or later, otherwise false.  Auto-generated keys are supported
@@ -6010,10 +6011,11 @@ implements DatabaseMetaData
 
     //@G4A
     /**
-    Indicates if named parameters to callable statements are supported.
+    Indicates if using parameter names to specify parameters on 
+    callable statements are supported.
         
-    @return     Always true.  Named parameters to callable statements
-    are supported.
+    @return     Always true.  An application can use parameter names
+    to specify parameters on callable statements.
         
     @exception  SQLException    This exception is never thrown.
     @since Modification 5

@@ -403,7 +403,7 @@ private static void copyFile(String targetFile, URL sourceURL)
       File dir = new File((new File(targetFile)).getParent());
       if (!dir.exists())
       {
-        if (!dir.mkdirs())
+        if (!dir.mkdirs() && !dir.isDirectory())                   // @D8C
         {
             throw new IOException("CANNOT_CREATE_DIRECTORY");
         }
@@ -661,7 +661,7 @@ public static boolean install(String packageName,
           File parent = new File(targetPath.substring(0, targetPath.length()-1));
           if (!parent.exists() || !parent.isDirectory())
           {
-            if (!parent.mkdirs())
+            if (!parent.mkdirs() && !parent.isDirectory())             // @D8C
             {
                 throw new IOException("(" + parent.toString() + ") " +
                     getMRIResource().getString("EXC_CANNOT_CREATE_DIRECTORY"));

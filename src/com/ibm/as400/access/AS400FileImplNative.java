@@ -505,10 +505,19 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
         // Note the execution of the command is synchronized on the static
         // variable synch_execute_
         BytesWithOffset data = null;
+        byte[] swapToPH = new byte[12];
+        byte[] swapFromPH = new byte[12];
+        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        try
+        {
         synchronized(synch_execute_)
         {
-            data =
-              new BytesWithOffset(executeNtv(converter_.stringToByteArray(cmd)));
+                data = new BytesWithOffset(executeNtv(converter_.stringToByteArray(cmd)));
+            }
+        }
+        finally
+        {
+            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
         }
 
         // Parse the message feedback data.

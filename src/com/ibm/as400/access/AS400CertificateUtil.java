@@ -354,7 +354,8 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *   Returns certificates starting from firstCertificateToReturn(), inclusive.
    *   The first certificate in the user space is at location 0.
    *
-   * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS4/00 library of the user space may also be specified as %CURLIB% or %LIBL%. @see QSYSObjectPathName
+   * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS4/00 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    * @param firstCertificateToReturn  The first certificate in the user space to return. The first certificate in the user space is at location 0.
    * @param bufferSize  The number of kilobytes allocated for the returned certificates.  Increasing this value for remote invocations will require more client memory and longer transmission times. The recommended default buffer size is 128 kilobytes. The minimum buffer size allowed is 8 kilobytes.
    *
@@ -508,7 +509,8 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   /**
    *  Retrieves certificates placed in the user space by listCertificates starting at the first certificate in the user space.
    *
-   * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%. @see QSYSObjectPathName
+   * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    * @param bufferSize  The number of kilobytes allocated for the returned certificates.
    *   Increasing this value for remote invocations will require more client memory and longer transmission times. The recommended default buffer size is 128 kilobytes. The minimum buffer size allowed is 8 kilobytes.
    *
@@ -731,7 +733,8 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *   search for certificates without the subject organization field.
    *   Null search attributes are ignored.
    *
-   * @param userSpaceName The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%. @see QSYSObjectPathName
+   * @param userSpaceName The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    *
    * @return  The number of certificates found.
    *

@@ -25,8 +25,8 @@ import java.util.Date;
 
 
 /**
-The RIFSFile class represents a file or directory in the AS/400 integrated
-file system.  This class provides function similar to
+The RIFSFile class represents a file or directory in the integrated
+file system on the iSeries or AS/400 server.  This class provides function similar to
 {@link com.ibm.as400.access.IFSFile IFSFile } and
 {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile }
 except that it is a subclass of <a href="Resource.html">
@@ -546,7 +546,7 @@ Deletes this file or directory.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -713,9 +713,9 @@ ResourceEvent.
 
 /**
 Sets the file path name.  This does not change the file on
-the AS/400.  Instead, it changes the file to which
+the server.  Instead, it changes the file to which
 this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param path    The file path name.
 **/
@@ -743,9 +743,9 @@ if the object has established a connection to the AS/400.
 
 /**
 Sets the system.  This does not change the job on
-the AS/400.  Instead, it changes the system to which
+the server.  Instead, it changes the system to which
 this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param system    The system.
 

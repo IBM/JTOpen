@@ -16,7 +16,6 @@ package com.ibm.as400.access;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.beans.PropertyChangeListener;
@@ -151,7 +150,7 @@ public class SystemValueList implements java.io.Serializable
   };
 
   private static Hashtable list_ = null; // The list of all SystemValueInfo objects
-  /*@C0D private*/ static Hashtable groups_ = null; // Provided for convenient lookup of system value groups
+  static Hashtable groups_ = null; // Provided for convenient lookup of system value groups
 
   // Initialize the hashtables
   static
@@ -159,7 +158,8 @@ public class SystemValueList implements java.io.Serializable
     // For V4R2, there are 125 system values and 35 network attributes.
     // For V4R3, there are an additional 5 system values.
     // For V4R4, there are 2 additional system values and 2 additional network attributes.
-    // @D2 For V5R2, there are xx additional system values.
+    // @D2 For V5R1, there are 6 additional system values.
+    // @E0 For V5R2, there are 2 additional system values.
 
     list_ = new Hashtable(169); // There are at least 169 system values @C1C
     groups_ = new Hashtable(groupCount_); // There are 10 groups @D4C
@@ -176,6 +176,7 @@ public class SystemValueList implements java.io.Serializable
     int vrm430 = AS400.generateVRM(4, 3, 0);
     int vrm440 = AS400.generateVRM(4, 4, 0); //@B0A
     int vrm510 = AS400.generateVRM(5, 1, 0); //@D2a
+    int vrm520 = AS400.generateVRM(5, 2, 0); //@E0A
 
     // network attributes
     list_.put("ALRBCKFP", new SystemValueInfo("ALRBCKFP", AS400TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRBCKFP_DES")).trim()));
@@ -364,6 +365,11 @@ public class SystemValueList implements java.io.Serializable
     list_.put("QLIBLCKLVL", new SystemValueInfo("QLIBLCKLVL", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_LIBL, vrm510, ((String)ResourceBundleLoader.getSystemValueText("QLIBLCKLVL_DES")).trim()));  //@D2a
     list_.put("QPWDLVL",    new SystemValueInfo("QPWDLVL",    AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QPWDLVL_DES")).trim()));     //@D2a
 
+    //@E0A
+    // V5R2 system values
+    list_.put("QSPLFACN",   new SystemValueInfo("QSPLFACN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, vrm520, ((String)ResourceBundleLoader.getSystemValueText("QSPLFACN_DES")).trim())); //@E0A
+    list_.put("QDBFSTCCOL", new SystemValueInfo("QDBFSTCCOL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm520, ((String)ResourceBundleLoader.getSystemValueText("QDBFSTCCOL_DES")).trim())); //@E0A
+
     // Create the group vectors
     for (int i=0; i<groupVector.length; ++i) //@D4C
     {
@@ -457,23 +463,6 @@ public class SystemValueList implements java.io.Serializable
           ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
-/*@D4D    // Need to remove all of the system values that aren't supported
-    // by our AS400's release level.
-    int vrm = system_.getVRM();
-    Enumeration enum = list_.elements();
-    while (enum.hasMoreElements())
-    {
-      SystemValueInfo obj = (SystemValueInfo)enum.nextElement();
-      if (obj.release_ > vrm)
-      {
-        // Remove the sysval from the list of all sysvals
-        list_.remove(obj.name_);
-        // Remove the sysval from the list of sysvals of its group
-        Vector vec = (Vector)groups_.get(getGroupName(obj.group_));
-        vec.removeElement(obj);
-      }
-    }
-*///@D4D
     connected_ = true;
   }
 
@@ -497,7 +486,6 @@ public class SystemValueList implements java.io.Serializable
                    InterruptedException,
                    IOException,
                    ObjectDoesNotExistException,
-//@C0D                   PropertyVetoException,
                    UnknownHostException
   {
     if (!connected_)
@@ -509,19 +497,11 @@ public class SystemValueList implements java.io.Serializable
           ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
-    Vector vec = null;
-//@D3D    if (group == GROUP_ALL)
-//@D3D    {
       // Call retrieve() to get the data from the AS/400 and
       // create a Vector of corresponding SystemValue objects
-//@D3D      vec = SystemValueUtility.retrieve(system_, list_.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
-//@D3D    }
-//@D3D    else
-//@D3D    {
       // Get the group vector
       Vector grp = (Vector)groups_.get(getGroupName(group));
-      vec = SystemValueUtility.retrieve(system_, grp.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
-//@D3D    }
+    Vector vec = SystemValueUtility.retrieve(system_, grp.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
     return sort(vec);
   }
 
@@ -553,53 +533,6 @@ public class SystemValueList implements java.io.Serializable
 
 
   /**
-  Returns the description for the specified system value group.
-    @param group The system value group.
-    @param locale The locale used to load the translated group description.
-    @return The description of the system value group.
-  **/
-  public static String getGroupDescription(int group, Locale locale)
-  {
-    if (group < 0 || group > GROUP_ALL)
-    {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-    if (locale == null)
-    {
-      throw new NullPointerException("locale");
-    }
-    
-    switch(group)
-    {
-      case GROUP_ALC:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC", locale);
-      case GROUP_DATTIM:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIME_DESC", locale);
-      case GROUP_EDT:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC", locale);
-      case GROUP_LIBL:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC", locale);
-      case GROUP_MSG:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC", locale);
-      case GROUP_SEC:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC", locale);
-      case GROUP_STG:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC", locale);
-      case GROUP_SYSCTL:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC", locale);
-      case GROUP_NET:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC", locale);
-      case GROUP_ALL:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC", locale);
-      default: // This should not happen
-        break;
-    }
-    return null;
-  }
-
-
-  /**
   Returns the name of the specified system value group.
     @param group The system value group.
     @return The name of the system value group.
@@ -615,52 +548,6 @@ public class SystemValueList implements java.io.Serializable
     return groupNames_[group];
   }
 
-
-  /**
-  Returns the name of the specified system value group.
-    @param group The system value group.
-    @param locale The locale used to load the translated group name.
-    @return The name of the system value group.
-  **/
-  public static String getGroupName(int group, Locale locale)
-  {
-    if (group < 0 || group > GROUP_ALL)
-    {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-    if (locale == null)
-    {
-      throw new NullPointerException("locale");
-    }
-    
-    switch(group)
-    {
-      case GROUP_ALC:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME", locale);
-      case GROUP_DATTIM:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIME_NAME", locale);
-      case GROUP_EDT:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME", locale);
-      case GROUP_LIBL:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME", locale);
-      case GROUP_MSG:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME", locale);
-      case GROUP_SEC:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME", locale);
-      case GROUP_STG:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME", locale);
-      case GROUP_SYSCTL:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME", locale);
-      case GROUP_NET:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME", locale);
-      case GROUP_ALL:
-        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME", locale);
-      default: // This should not happen
-        break;
-    }
-    return null;
-  }
 
   /**
   Returns the system.
@@ -753,7 +640,7 @@ public class SystemValueList implements java.io.Serializable
     @param vec The objects to sort.
     @return The Vector of sorted objects.
   **/
-  /*@C0D private*/ static Vector sort(Vector vec) //@C0C - made static
+  static Vector sort(Vector vec)
   {
     int len = vec.size();
     if (len < 2)

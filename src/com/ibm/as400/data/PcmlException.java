@@ -20,12 +20,10 @@ import java.awt.Component;
  *
  * @see ProgramCallDocument
  */
-public class PcmlException extends Exception
+public class PcmlException extends XmlException            // @C3C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-	private String					m_localizedMessage;
-	private Exception 				m_exception;
 
     /**
      * Constructs a <code>PcmlException</code> without a
@@ -44,8 +42,7 @@ public class PcmlException extends Exception
      */
     PcmlException(String key)
     {
-        super();
-        m_localizedMessage = SystemResourceFinder.format(key);
+        super(key);            // @C3C
     }
 
     /**
@@ -56,8 +53,7 @@ public class PcmlException extends Exception
      */
     PcmlException(String key, Object[] args)
     {
-        super();
-        m_localizedMessage = SystemResourceFinder.format(key, args);
+        super(key, args);            // @C3C
     }
 
     /**
@@ -67,42 +63,10 @@ public class PcmlException extends Exception
      */
     PcmlException(Exception e)
 	{
-	    super();
-
-        // Try to load a string using the exception's Class name as the key
-        m_localizedMessage = SystemResourceFinder.getString(e.getClass().getName());
-        
-        // If there is no string for this exception, use a generic "Exception received" message.
-        if (m_localizedMessage == null) 
-        {
-            m_localizedMessage = SystemResourceFinder.format(DAMRI.EXCEPTION_RECEIVED, new Object[] {e.getClass().getName()});
-        }
-	    
-		m_exception = e;
+	    super(e);          // @C3C
     }
 
-    /**
-     * Returns a localized description of this <code>PcmlException</code>.
-     *
-     */
-	public String getLocalizedMessage()
-	{
-		if (m_localizedMessage != null)
-			return m_localizedMessage;
 
-		return super.getLocalizedMessage();
-	}
+// @C3D - Moved to XmlException: getLocalizedMessage(), getException().
 
-    /**
-     * Returns the original exception that caused this <code>PcmlException</code>.
-     *
-     *
-     * @return The exception that causes this instance of <code>PcmlException</code>.
-     * If this exception was not caused by another exception, null is returned.
-     *
-     */
-	public Exception getException()
-	{
-	    return m_exception;
-	}
 }

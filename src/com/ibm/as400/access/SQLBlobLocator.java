@@ -38,7 +38,7 @@ implements SQLLocator           // @A2C
 
 
   // Private data.
-  private static final AS400Bin4  typeConverter_ = new AS400Bin4 ();
+    //@D3D private static final AS400Bin4  typeConverter_ = new AS400Bin4 ();
 
   private AS400JDBCConnection     connection_;
   private int                     id_;
@@ -92,7 +92,8 @@ implements SQLLocator           // @A2C
   public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
   throws SQLException
   {
-    int locatorHandle = ((Integer) typeConverter_.toObject (rawBytes, offset)).intValue ();        
+        //@D3D int locatorHandle = ((Integer) typeConverter_.toObject (rawBytes, offset)).intValue ();  
+        int locatorHandle = BinaryConverter.byteArrayToInt(rawBytes, offset);  //@D3A
     locator_.setHandle (locatorHandle);
     locator_.setColumnIndex(columnIndex_);   //@C3A
   }
@@ -102,8 +103,9 @@ implements SQLLocator           // @A2C
   public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
   throws SQLException
   {
-    typeConverter_.toBytes (locator_.getHandle (), rawBytes, offset);
-  }
+        //@D3D typeConverter_.toBytes (locator_.getHandle (), rawBytes, offset);
+        BinaryConverter.intToByteArray(locator_.getHandle(), rawBytes, offset);  //@D3A
+    }
 
 
 
@@ -135,7 +137,7 @@ implements SQLLocator           // @A2C
         {                                       // @A1C
                     //@G5A Start new code for updateable locator case to go through the Vectors 
                     //@G5A and update the blob copy when ResultSet.updateBlob() is called.
-                    try
+                    if (object instanceof AS400JDBCBlobLocator)
                     {
                         AS400JDBCBlobLocator blob = (AS400JDBCBlobLocator) object;
                         //Synchronize on a lock so that the user can't keep making updates
@@ -146,15 +148,11 @@ implements SQLLocator           // @A2C
                             if (positionsToStartUpdates != null)
                             {
                                 Vector bytesToUpdate = blob.getBytesToUpdate();
-                                Enumeration bytesToUpdateElements = bytesToUpdate.elements();
-                                Enumeration positionsToStartUpdatesElements = positionsToStartUpdates.elements();
-                                for (int i = 0; positionsToStartUpdatesElements.hasMoreElements(); i++)
+                                for (int i = 0; i < positionsToStartUpdates.size(); i++)
                                 {
-                                    long startPosition = ((Long)positionsToStartUpdatesElements.nextElement()).longValue();
-                                    byte[] updateBytes = (byte[])bytesToUpdateElements.nextElement();
+                                    long startPosition = ((Long)positionsToStartUpdates.elementAt(i)).longValue();
+                                    byte[] updateBytes = (byte[])bytesToUpdate.elementAt(i);
                                     locator_.writeData((int)startPosition, updateBytes.length, updateBytes);
-                                    bytesToUpdate.remove(i);
-                                    positionsToStartUpdates.remove(i);
                                 }
                                 // If writeData calls do not throw an exception, update has been successfully made.
                                 positionsToStartUpdates = null;
@@ -162,11 +160,7 @@ implements SQLLocator           // @A2C
                                 set = true;
                             }
                         }  //end synchronization
-                    }
-                    catch (ClassCastException e)
-                    {
-                        //ignore
-                    }
+                    }//end if (object instaceof AS400JDBCBlobLocator)
                     //@G5A End new code
 
                     //@G5A If the code for updateable lob locators did not run, then run old code.

@@ -901,21 +901,39 @@ public class JavaApplicationCall implements Serializable
         // 6.INTERPRET
         commandString += "INTERPRET(" + getInterpret() + ") ";
         // 7.PROP
-        String localaddress = "localhost";
-
+ 
+        String localAddress = null;                                         // @E1c
+                                                                            // @E1a
+        // Because of bugs in Java, cannot get the local                    // @E1a
+        // address until a socket (not a server socket)                     // @E1a
+        // is connected.                                                    // @E1a                
+        try                                                                 // @E1a
+        {                                                                   // @E1a
+           Socket pmSocket = new Socket(getSystem().getSystemName(), 449);  // @E1a
+           localAddress = pmSocket.getLocalAddress().getHostAddress();      // @E1a
+           pmSocket.close();                                                // @E1a
+        }                                                                   // @E1a
+        catch (Exception e) { localAddress = null; }                        // @E1a
+                                                                            // @E1a
+        // if new method didn't work, try the old technique.                // @E1a                                                    
+        if (localAddress == null)                                           // @E1a
+        {
+           localAddress = "localhost";
+        
         try
         {
-            localaddress = java.net.InetAddress.getLocalHost().getHostAddress();
+            localAddress = java.net.InetAddress.getLocalHost().getHostAddress();
         }
         catch (java.net.UnknownHostException e)
         {
             Trace.log(Trace.ERROR , e.toString());
         }
+        }                                                                   // @E1a
 
         commandString = commandString + "PROP("
-                        +"(os400.stdin 'port:"+localaddress+":"+new Integer(getStandardInPort()).toString()+"') "
-                        +"(os400.stdout 'port:"+localaddress+":"+new Integer(getStandardOutPort()).toString()+"') "
-                        +"(os400.stderr 'port:"+localaddress+":"+new Integer(getStandardErrorPort()).toString()+"') ";
+                        +"(os400.stdin 'port:"+localAddress+":"+new Integer(getStandardInPort()).toString()+"') "
+                        +"(os400.stdout 'port:"+localAddress+":"+new Integer(getStandardOutPort()).toString()+"') "
+                        +"(os400.stderr 'port:"+localAddress+":"+new Integer(getStandardErrorPort()).toString()+"') ";
         commandString += "(os400.stdio.convert N)";
 
         if (getProperties() != null)

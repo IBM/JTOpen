@@ -79,6 +79,7 @@ import java.beans.PropertyVetoException;
  *<li><a href="../../../../RLReadFileExample.html">Using the RecordFormat class with the record-level database access classes</a>
  *<li><a href="../../../../LDRWExample.html">Using the RecordFormat class with the LineDataRecordWriter class</a>
  *</ul>
+ *@see AS400FileRecordDescription
 **/
 public class RecordFormat implements Serializable
 {
@@ -195,7 +196,7 @@ public class RecordFormat implements Serializable
    *is meant.
    *@param index The index of a field description that was already
    *added to this object via addFieldDescription().  The <i>index</i> must
-   *be between zero and getNumberOfFields() - 1.
+   *be in the range zero to getNumberOfFields() - 1.
   **/
   public void addKeyFieldDescription(int index)
   {
@@ -330,7 +331,7 @@ public class RecordFormat implements Serializable
   /**
    *Returns the field description at the specified index.
    *@param index The index of the field description.  The <i>index</i> must
-   *be between zero and getNumberOfFields() - 1.
+   *be in the range zero to getNumberOfFields() - 1.
    *@return The field description.
   **/
   public FieldDescription getFieldDescription(int index)
@@ -491,7 +492,7 @@ public class RecordFormat implements Serializable
   /**
    *Returns the index of the field description on which the field description at the specified
    *index depends.
-   *@param index The index of the field description.  The <i>index</i> must be between 0 and
+   *@param index The index of the field description.  The <i>index</i> must be in the range 0 to
    *getNumberOfFields() - 1.
    *@return The index of the field description on which the field description at the specified
    *index depends.
@@ -706,7 +707,7 @@ public class RecordFormat implements Serializable
   /**
    *Returns the index of the field description on which the field description at the specified
    *index depends.
-   *@param index The index of the field description.  The <i>index</i> must be between 0 and
+   *@param index The index of the field description.  The <i>index</i> must be in the range 0 to
    *getNumberOfFields() - 1.
    *@return The index of the field description on which the field description at the specified
    *index depends.
@@ -904,9 +905,9 @@ public class RecordFormat implements Serializable
    *to this RecordFormat.  The <i>fieldDependedOn</i> must have been added prior to adding the
    *<i>dependentField</i>.
    *@param dependentField The index of the dependent field.  The
-   *<i>dependentField</i> must be between 1 and getNumberOfFields() - 1.
+   *<i>dependentField</i> must be in the range 1 to getNumberOfFields() - 1.
    *@param fieldDependedOn The index of a field on which this field depends.  The <i>fieldDependedOn</i> must
-   *be between 0 and <i>dependentField</i>.
+   *be in the range 0 to <i>dependentField</i>.
   **/
   public void setLengthDependency(int dependentField, int fieldDependedOn)
   {
@@ -985,9 +986,9 @@ public class RecordFormat implements Serializable
    *to this RecordFormat.  The <i>fieldDependedOn</i> must have been added prior to adding the
    *<i>dependentField</i>.
    *@param dependentField The index of the dependent field.  The
-   *<i>dependentField</i> must be between 1 and getNumberOfFields() - 1.
+   *<i>dependentField</i> must be in the range 1 to getNumberOfFields() - 1.
    *@param fieldDependedOn The index of a field on which this field depends.  The <i>fieldDependedOn</i> must
-   *be between 0 and <i>dependentField</i>.
+   *be in the range 0 to <i>dependentField</i>.
   **/
   public void setOffsetDependency(int dependentField, int fieldDependedOn)
   {

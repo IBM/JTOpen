@@ -934,7 +934,7 @@ printing.
 /**
 Attribute ID for published status.  This identifies a read-only Boolean
 attribute, which indicates whether the printer is published.  This attribute
-is applicable only for releases following OS/400 V4R5M0.
+is supported only when connecting to servers running OS/400 V5R1 or later.
 **/
     public static final String PUBLISHED_STATUS                        = "PUBLISHED_STATUS";
 

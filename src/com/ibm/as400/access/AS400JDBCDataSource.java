@@ -47,14 +47,14 @@ import javax.naming.StringRefAddr;                // JNDI
 *  datasource.setUser("myUser");
 *  datasource.setPassword("MYPWD");
 
-*  // Create a database connection to the AS/400.
+*  // Create a database connection to the AS/400 or iSeries.
 *  Connection connection = datasource.getConnection();
 *  </blockquote></pre>
 *
 *  <P>The following example registers an AS400JDBCDataSource object with JNDI and then
 *  uses the object returned from JNDI to obtain a database connection.
 *  <pre><blockquote>
-*  // Create a data source to the AS/400 database.
+*  // Create a data source to the AS/400 or iSeries database.
 *  AS400JDBCDataSource dataSource = new AS400JDBCDataSource();
 *  dataSource.setServerName("myAS400");
 *
@@ -95,13 +95,13 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final int MAX_THRESHOLD = 16777216;                  // Maximum threshold (bytes). @A3C, @A4A
 
     // Data source properties.
-    transient private AS400 as400_;                           // AS/400 object used to store and encrypt the password.
+    transient private AS400 as400_;                           // AS400 object used to store and encrypt the password.
     // @J2d private String databaseName_ = "";                // Database name. @A6C
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
-    private JDProperties properties_;                         // AS/400 connection properties.
-    private PrintWriter writer_;                              // The EventLog print writer.
-    private EventLog log_;
+    private JDProperties properties_;                         // AS/400 or iSeries connection properties.
+    transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
+    transient private EventLog log_;       //@C7c
 
     private String serialServerName_;                         // Server name used in serialization.
     private String serialUserName_;                           // User used in serialization.
@@ -183,7 +183,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Constructs an AS400JDBCDataSource object to the specified <i>serverName</i>.
-    *  @param serverName The name of the AS/400 server.
+    *  @param serverName The name of the AS/400 or iSeries server.
     **/
     public AS400JDBCDataSource(String serverName)
     {
@@ -194,7 +194,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information.
-    *  @param serverName The name of the AS/400 server.
+    *  @param serverName The name of the AS/400 or iSeries server.
     *  @param user The user id.
     *  @param password The user password.
     **/
@@ -211,7 +211,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information
     *  to use for SSL communications with the server.
-    *  @param serverName The name of the AS/400 server.
+    *  @param serverName The name of the AS/400 or iSeries server.
     *  @param user The user id.
     *  @param password The user password.
        *  @param keyRingName The key ring class name to be used for SSL communications with the server.
@@ -260,7 +260,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the level of database access for the AS/400 connection.
+    *  Returns the level of database access for the AS/400 or iSeries connection.
     *  @return The access level.  Valid values include: "all" (all SQL statements allowed),
     *  "read call" (SELECT and CALL statements allowed), and "read only" (SELECT statements only).
     *  The default value is "all".
@@ -293,7 +293,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Returns the criteria for retrieving data from the AS/400 server in
+    *  Returns the criteria for retrieving data from the AS/400 or iSeries server in
     *  blocks of records.  Specifying a non-zero value for this property
     *  will reduce the frequency of communication to the server, and
     *  therefore increase performance.
@@ -311,7 +311,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the block size in kilobytes to retrieve from the AS/400 server and
+    *  Returns the block size in kilobytes to retrieve from the AS/400 or iSeries server and
     *  cache on the client.  This property has no effect unless the block criteria
     *  property is non-zero.  Larger block sizes reduce the frequency of
     *  communication to the server, and therefore may increase performance.
@@ -439,7 +439,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 date format used in date literals within SQL statements.
+    *  Returns the AS/400 or iSeries date format used in date literals within SQL statements.
     *  @return The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -461,7 +461,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 date separator used in date literals within SQL statements.
+    *  Returns the AS/400 or iSeries date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @return The date separator.
@@ -482,7 +482,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 decimal separator used in numeric literals within SQL statements.
+    *  Returns the AS/400 or iSeries decimal separator used in numeric literals within SQL statements.
     *  @return The decimal separator.
     *  <p>Valid values include:
     *  <ul>
@@ -509,25 +509,16 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @A2A
     /**
     * Returns the JDBC driver implementation.
-    * The AS/400 Toolbox for Java JDBC driver
-    * chooses which JDBC driver implementation
-    * to use based on the environment. If the
-    * environment is an AS/400 Java Virtual
-    * Machine on the same AS/400 as the
-    * database to which the program is connecting,
-    * the native AS/400 Developer Kit for Java
-    * JDBC driver is used. In any other
-    * environment, the AS/400 Toolbox for Java
-    * JDBC driver is used. This property has no
+    * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an AS/400 Java Virtual
+    * environment is not an AS/400 or iSeries Java Virtual
     * Machine.
     *  <p>Valid values include:
     *  <ul>
     *  <li>"default" (base the implementation on the environment)
-    *  <li>"toolbox" (use the AS/400 Toolbox for Java JDBC driver)
-    *  <li>"native" (use the AS/400 Developer Kit for Java JDBC driver)
+    *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
+    *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "default".
     **/
@@ -538,7 +529,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Returns the amount of detail for error messages originating from
-    *  the AS/400 server.
+    *  the AS/400 or iSeries server.
     *  @return The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -548,7 +539,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 libraries to add to the server job's library list.
+    *  Returns the AS/400 or iSeries libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -563,7 +554,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 maximum LOB (large object) size in bytes that
+    *  Returns the AS/400 or iSeries maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
     *  communication to the server.  Larger LOB thresholds will reduce
@@ -582,7 +573,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Returns the timeout value in seconds.
     *  Note: This value is not used or supported.
-    *  The timeout value is determined by the AS/400.
+    *  The timeout value is determined by the AS/400 or iSeries.
     *  @return Always returns 0.
     **/
     public int getLoginTimeout()
@@ -601,7 +592,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 naming convention used when referring to tables.
+    *  Returns the AS/400 or iSeries naming convention used when referring to tables.
     *  @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
     *  and "system" (e.g. schema/table).  The default value is "sql".
     **/
@@ -611,9 +602,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the base name of the SQL package.  Extended dynamic support works
-    *  best when this is derived from the application name.  Note that only the
-    *  first seven characters are significant.  This property has no effect unless
+    *  Returns the base name of the SQL package.  Note that only the
+    *  first seven characters are used to generate the name of the SQL package on the server.  
+    *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
     *  @return The base name of the SQL package.
@@ -629,8 +620,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  property has no effect unless the extended dynamic property is set to true.
     *  @return The type of SQL statement.
     *  Valid values include: "default" (only store SQL statements with parameter
-    *  markers in the package) and "select" (store al SQL SELECT statements to be
-    *  stored in the package).  The default value is "default".
+    *  markers in the package) and "select" (store all SQL SELECT statements
+    *  in the package).  The default value is "default".
     **/
     public String getPackageCriteria()
     {
@@ -776,7 +767,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns how the AS/400 server sorts records before sending them to the client.
+    *  Returns how the AS/400 or iSeries server sorts records before sending them to the 
+    *  client.
     *  @return The sort value.
     *  <p>Valid values include:
     *  <ul>
@@ -803,7 +795,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the library and file name of a sort sequence table stored on the AS/400 server.
+    *  Returns the library and file name of a sort sequence table stored on the AS/400 or iSeries
+    *  server.
     *  @return The qualified sort table name.
     **/
     public String getSortTable()
@@ -812,7 +805,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns how the AS/400 server treats case while sorting records.
+    *  Returns how the AS/400 or iSeries server treats case while sorting records.
     *  @return The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
     *  same character) and "unique" (upper- and lower-case characters are sorted as
@@ -824,7 +817,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 time format used in time literals with SQL statements.
+    *  Returns the AS/400 or iSeries time format used in time literals with SQL statements.
     *  @return The time format.
     *  <p>Valid values include:
     *  <ul>
@@ -843,7 +836,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 time separator used in time literals within SQL statements.
+    *  Returns the AS/400 or iSeries time separator used in time literals within SQL 
+    *  statements.
     *  @return The time separator.
     *  <p>Valid values include:
     *  <ul>
@@ -862,7 +856,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Returns the AS/400 server's transaction isolation.
+    *  Returns the AS/400 or iSeries server's transaction isolation.
     *  @return The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>
@@ -999,8 +993,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Indicates whether extended dynamic support is used.  Extended dynamic
     *  support provides a mechanism for caching dynamic SQL statements on
-    *  the server.  The first time a particular SQL statement is run, it is
-    *  stored in an SQL package on the server.  On subsequent runs of the
+    *  the server.  The first time a particular SQL statement is prepared, it is
+    *  stored in an SQL package on the server.  
+    *  If the package does not exist, it will be automatically created.
+    *  On subsequent prepares of the
     *  same SQL statement, the server can skip a significant part of the
     *  processing by using information stored in the SQL package.
     *  @return true if extended dynamic support is used; false otherwise.
@@ -1067,9 +1063,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Indicates whether to add statements to an existing SQL package.  This property
+    *  Indicates whether to add newly prepared statements to the   
+    *  SQL package specified on the "package" property.  This property
     *  has no effect unless the extended dynamic property is set to true;
-    *  @return true if statement can be added to an existing SQL package; false otherwise.
+    *  @return true If newly prepared statements should be added to the SQL package specified 
+    *  on the "package" property; false otherwise.
     *  The default value is true.
     **/
     public boolean isPackageAdd()
@@ -1078,8 +1076,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Indicates whether SQL packages are cached in memory.  Caching SQL packages locally
-    *  reduces the amount of communication to the server in some cases.  This
+    *  Indicates whether a subset of the SQL package information is cached in client memory.  
+    *  Caching SQL packages locally
+    *  reduces the amount of communication to the server for prepares and describes.  This
     *  property has no effect unless the extended dynamic property is set to true.
     *  @return true if caching is used; false otherwise.
     *  The defalut value is false.
@@ -1089,17 +1088,19 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.PACKAGE_CACHE);
     }
 
+    //@C6D Deprecated method.
     /**
-    *  Indicates whether SQL packages are cleared when they become full.  Clearing an SQL
-    *  package results in removing all SQL statements that have been stored in the
-    *  SQL package.  This property has no effect unless the extended dynamic property
-    *  is set to true.
-    *  @return true if the SQL package are cleared when full; false otherwise.
-    *  The default value if false.
+    *  Indicates whether SQL packages are cleared when they become full.  This method
+    *  has been deprecated.  Package clearing and the decision for the 
+    *  threshold where package clearing is needed is now handled
+    *  automatically by the database.  
+    *  @return Always false.  This method is deprecated.
+    *  @deprecated
     **/
     public boolean isPackageClear()
     {
-        return properties_.getBoolean(JDProperties.PACKAGE_CLEAR);
+        //@C6D return properties_.getBoolean(JDProperties.PACKAGE_CLEAR);
+        return false;  //@C6A
     }
 
     /**
@@ -1115,7 +1116,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Indicates whether the user is prompted if a user name or password is
-    *  needed to connect to the AS/400 server.  If a connection can not be made
+    *  needed to connect to the AS/400 or iSeries server.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail throwing an exception.
     *  @return true if the user is prompted for signon information; false otherwise.
@@ -1252,7 +1253,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the level of database access for the AS/400 connection.
+    *  Sets the level of database access for the AS/400 or iSeries connection.
     *  @param access The access level.
     *  <p>Valid values include:
     *  <ul>
@@ -1330,7 +1331,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the criteria for retrieving data from the AS/400 server in
+    *  Sets the criteria for retrieving data from the AS/400 or iSeries server in
     *  blocks of records.  Specifying a non-zero value for this property
     *  will reduce the frequency of communication to the server, and
     *  therefore increase performance.
@@ -1358,7 +1359,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the block size in kilobytes to retrieve from the AS/400 server and
+    *  Sets the block size in kilobytes to retrieve from the AS/400 or iSeries server and
     *  cache on the client.  This property has no effect unless the block criteria
     *  property is non-zero.  Larger block sizes reduce the frequency of
     *  communication to the server, and therefore may increase performance.
@@ -1515,7 +1516,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 date format used in date literals within SQL statements.
+    *  Sets the AS/400 or iSeries date format used in date literals within SQL statements.
     *  @param dateFormat The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -1550,7 +1551,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 date separator used in date literals within SQL statements.
+    *  Sets the AS/400 or iSeries date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @param dateSeparator The date separator.
@@ -1583,7 +1584,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 decimal separator used in numeric literals within SQL statements.
+    *  Sets the AS/400 or iSeries decimal separator used in numeric literals within SQL 
+    *  statements.
     *  @param decimalSeparator The decimal separator.
     *  <p>Valid values include:
     *  <ul>
@@ -1631,7 +1633,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets how the AS/400 server sorts records before sending them to the client.
+    *  Sets how the AS/400 or iSeries server sorts records before sending them to the client.
     *  @param sort The sort value.
     *  <p>Valid values include:
     *  <ul>
@@ -1661,7 +1663,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Sets the amount of detail to be returned in the message for errors
-    *  occurring on the AS/400 server.
+    *  occurring on the AS/400 or iSeries server.
     *  @param errors The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -1684,8 +1686,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Sets whether to use extended dynamic support.  Extended dynamic
     *  support provides a mechanism for caching dynamic SQL statements on
-    *  the server.  The first time a particular SQL statement is run, it is
-    *  stored in an SQL package on the server.  On subsequent runs of the
+    *  the server.  The first time a particular SQL statement is prepared, it is
+    *  stored in an SQL package on the server.  
+    *  If the package does not exist, it will be automatically created.
+    *  On subsequent prepares of the
     *  same SQL statement, the server can skip a significant part of the
     *  processing by using information stored in the SQL package.  If this
     *  is set to "true", then a package name must be set using the "package"
@@ -1712,7 +1716,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @C3A
     /**
     *  Sets whether the driver should request extended metadata from the
-    *  server.  If this property is set to true, the accuracy of the information 
+    *  server.  This property is ignored when connecting to systems
+    *  running V5R1 and earlier versions of OS/400. 
+    *  If this property is set to true and connecting to a system running
+    *  V5R2 or later version of OS/400, the accuracy of the information 
     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -1799,7 +1806,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 libraries to add to the server job's library list.
+    *  Sets the AS/400 or iSeries libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -1825,7 +1832,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 maximum LOB (large object) size in bytes that
+    *  Sets the AS/400 or iSeries maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
     *  communication to the server.  Larger LOB thresholds will reduce
@@ -1893,7 +1900,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 naming convention used when referring to tables.
+    *  Sets the AS/400 or iSeries naming convention used when referring to tables.
     *  @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
     *  and "system" (e.g. schema/table).  The default value is "sql".
     **/
@@ -1914,9 +1921,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the base name of the SQL package.  Extended dynamic support works
-    *  best when this is derived from the application name.  Note that only the
-    *  first seven characters are significant.  This property has no effect unless
+    *  Sets the base name of the SQL package.  Note that only the
+    *  first seven characters are used to generate the name of the SQL package on the server.  
+    *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
     *  @param packageName The base name of the SQL package.
@@ -1937,9 +1944,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets whether to add statements to an existing SQL package.  This property
+    *  Sets whether to add newly prepared statements to the SQL package 
+    *  specified on the "package" property.  This property
     *  has no effect unless the extended dynamic property is set to true.
-    *  @param add If statement can be added to an existing SQL package; false otherwise.
+    *  @param add If newly prepared statements should be added to the SQL package specified on 
+    *  the "package" property; false otherwise.
     *  The default value is true.
     **/
     public void setPackageAdd(boolean add)
@@ -1959,8 +1968,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets whether to cache SQL packages in memory.  Caching SQL packages locally
-    *  reduces the amount of communication to the server in some cases.  This
+    *  Sets whether to cache a subset of the SQL package information in client memory.  
+    *  Caching SQL packages locally
+    *  reduces the amount of communication to the server for prepares and describes.  This
     *  property has no effect unless the extended dynamic property is set to true.
     *  @param cache If caching is used; false otherwise.  The default value is false.
     **/
@@ -1980,29 +1990,36 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, "packageCache: " + cache);  //@A8C
     }
 
+
+    //@C6C Changed javadoc since package clearing is now done automatically
+    //@C6C by the database.
     /**
-    *  Sets whether to clear SQL packages when they become full.  Clearing an SQL
-    *  package results in removing all SQL statements that have been stored in the
-    *  SQL package.  This property has no effect unless the extended dynamic property
-    *  is set to true.
+    *  Sets whether to clear SQL packages when they become full.  This method
+    *  has been deprecated.  Package clearing and the decision for the 
+    *  threshold where package clearing is needed is now handled
+    *  automatically by the database.  
     *  @param clear If the SQL package are cleared when full; false otherwise.
-    *  The default value if false.
+    *  @deprecated
     **/
     public void setPackageClear(boolean clear)
     {
-        Boolean oldValue = new Boolean(isPackageClear());
-        Boolean newValue = new Boolean(clear);
+        //@C6D Package clearing and the decision for the 
+        //@C6D threshold where package clearing is needed is now handled
+        //@C6D automatically by the database.
 
-        String value = null;
-        if (clear)
-            properties_.setString(JDProperties.PACKAGE_CLEAR, TRUE_);
-        else
-            properties_.setString(JDProperties.PACKAGE_CLEAR, FALSE_);
+        //@C6D Boolean oldValue = new Boolean(isPackageClear());
+        //@C6D Boolean newValue = new Boolean(clear);
 
-        changes_.firePropertyChange("packageClear", oldValue, newValue);
+        //@C6D String value = null;
+        //@C6D if (clear)
+        //@C6D     properties_.setString(JDProperties.PACKAGE_CLEAR, TRUE_);
+        //@C6D else
+        //@C6D     properties_.setString(JDProperties.PACKAGE_CLEAR, FALSE_);
 
-        if (JDTrace.isTraceOn()) //@A8C
-            JDTrace.logInformation (this, "packageClear: " + clear);  //@A8C
+        //@C6D changes_.firePropertyChange("packageClear", oldValue, newValue);
+
+        //@C6D if (JDTrace.isTraceOn()) //@A8C
+        //@C6D     JDTrace.logInformation (this, "packageClear: " + clear);  //@A8C
     }
 
 
@@ -2012,8 +2029,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  property has no effect unless the extended dynamic property is set to true.
     *  @param packageCriteria The type of SQL statement.
     *  Valid values include: "default" (only store SQL statements with parameter
-    *  markers in the package), and "select" (store all SQL SELECT statements to be
-    *  stored in the package).  The default value is "default".
+    *  markers in the package), and "select" (store all SQL SELECT statements
+    *  in the package).  The default value is "default".
     **/
     public void setPackageCriteria(String packageCriteria)
     {
@@ -2112,7 +2129,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Sets whether the user should be prompted if a user name or password is
-    *  needed to connect to the AS/400 server.  If a connection can not be made
+    *  needed to connect to the AS/400 or iSeries server.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail.
     *  @param prompt true if the user is prompted for signon information; false otherwise.
@@ -2227,7 +2244,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the secondary URL to be used for a connection on the middle-tier's
     *  DriverManager in a multiple tier environment, if it is different than
     *  already specified.  This property allows you to use this driver to connect
-    *  to databases other than the AS/400. Use a backslash as an escape character
+    *  to databases other than the AS/400 or iSeries. Use a backslash as an escape character
     *  before backslashes and semicolons in the URL.
     *  @param url The secondary URL.
     **/
@@ -2277,7 +2294,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 server name.
+    *  Sets the AS/400 or iSeries server name.
     *  @param serverName The server name.
     **/
     public void setServerName(String serverName)
@@ -2360,26 +2377,17 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @A2A
     /**
     * Sets the JDBC driver implementation.
-    * The AS/400 Toolbox for Java JDBC driver
-    * chooses which JDBC driver implementation
-    * to use based on the environment. If the
-    * environment is an AS/400 Java Virtual
-    * Machine on the same AS/400 as the
-    * database to which the program is connecting,
-    * the native AS/400 Developer Kit for Java
-    * JDBC driver is used. In any other
-    * environment, the AS/400 Toolbox for Java
-    * JDBC driver is used. This property has no
+    * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an AS/400 Java Virtual
+    * environment is not an AS/400 or iSeries Java Virtual
     * Machine.
     * param driver The driver value.
     *  <p>Valid values include:
     *  <ul>
     *  <li>"default" (base the implementation on the environment)
-    *  <li>"toolbox" (use the AS/400 Toolbox for Java JDBC driver)
-    *  <li>"native" (use the AS/400 Developer Kit for Java JDBC driver)
+    *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
+    *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
     *  The default value is "default".
     **/
@@ -2419,7 +2427,14 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public void setSavePasswordWhenSerialized(boolean savePassword)
     {                                                                         
+        String property = "savePasswordWhenSerialized";            //@C5A
+
+        boolean oldValue = isSavePasswordWhenSerialized();         //@C5A
+        boolean newValue = savePassword;                           //@C5A
+
         savePasswordWhenSerialized_ = savePassword;
+
+        changes_.firePropertyChange(property, oldValue, newValue); //@C5A
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, "save password: " + savePassword);  
@@ -2447,7 +2462,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the library and file name of a sort sequence table stored on the AS/400 server.
+    *  Sets the library and file name of a sort sequence table stored on the AS/400 or iSeries
+    *  server.
     *  This property has no effect unless the sort property is set to "table".
     *  The default is an empty String ("").
     *  @param table The qualified sort table name.
@@ -2467,8 +2483,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets how the AS/400 server treats case while sorting records.  This property has no
-    *  effect unless the sort property is set to "language".
+    *  Sets how the AS/400 or iSeries server treats case while sorting records.  This property 
+    *  has no effect unless the sort property is set to "language".
     *  @param sortWeight The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
     *  same character) and "unique" (upper- and lower-case characters are sorted as
@@ -2513,7 +2529,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 time format used in time literals with SQL statements.
+    *  Sets the AS/400 or iSeries time format used in time literals with SQL statements.
     *  @param timeFormat The time format.
     *  <p>Valid values include:
     *  <ul>
@@ -2543,7 +2559,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 time separator used in time literals within SQL statements.
+    *  Sets the AS/400 or iSeries time separator used in time literals within SQL statements.
     *  This property has no effect unless the time format property is set to "hms".
     *  @parm timeSeparator The time separator.
     *  <p>Valid values include:
@@ -2607,7 +2623,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Sets the AS/400 server's transaction isolation.
+    *  Sets the AS/400 or iSeries server's transaction isolation.
     *  @param String transactionIsolation The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>

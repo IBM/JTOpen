@@ -20,10 +20,10 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    RCRunCommandRequestDataStream(byte[] cmdBytes)
+    RCRunCommandRequestDataStream(byte[] commandBytes)
     {
-        super(new byte[27 + cmdBytes.length]);
-        setLength(27 + cmdBytes.length);
+        super(new byte[27 + commandBytes.length]);
+        setLength(27 + commandBytes.length);
         // setHeaderID(0x0000);
         setServerID(0xE008);
         // setCSInstance(0x00000000);
@@ -33,14 +33,14 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
 
         // data_[20] = 0x00;  // Always return messages.
 
-        set32bit(6 + cmdBytes.length, 21);  // Set LL = 4 bytes LL, 2 bytes CP + length of command.
+        set32bit(6 + commandBytes.length, 21);  // Set LL = 4 bytes LL, 2 bytes CP + length of command.
         set16bit(0x1101, 25);  // Set CP.
-        System.arraycopy(cmdBytes, 0, data_, 27, cmdBytes.length);
+        System.arraycopy(commandBytes, 0, data_, 27, commandBytes.length);
     }
 
     void write(OutputStream out) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Sending run command request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending run command request...");
         super.write(out);
     }
 }

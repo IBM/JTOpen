@@ -21,7 +21,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    RCCallProgramRequestDataStream(String library, String program, ProgramParameter[] parameterList, ConverterImplRemote converter, boolean zeroSuppression, boolean rleCompression) throws CharConversionException
+    RCCallProgramRequestDataStream(String library, String program, ProgramParameter[] parameterList, ConverterImplRemote converter, int dataStreamLevel) throws CharConversionException
     {
         int dataStreamLength = 43;  // Data stream length is 43 + length of the parameters.
 
@@ -35,7 +35,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
             int parameterUsage = parameterList[i].getUsage();
             byte[] compressedInputData = null;
 
-            if (rleCompression)
+            if (dataStreamLevel >= 3)  // Server allows RLE.
             {
                 if (parameterUsage == ProgramParameter.OUTPUT)
                 {
@@ -64,23 +64,21 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
                     }
                 }
             }
-            if (parameterUsage < 20 && zeroSuppression)
+            if (parameterUsage < 20)
             {
                 if (parameterUsage != ProgramParameter.OUTPUT)
                 {
-                    for (parameterLength = inputData.length - 1; parameterLength >= 0 && inputData[parameterLength] == 0; --parameterLength);
-                    ++parameterLength;
+                    for (parameterLength = inputData.length; parameterLength >= 1 && inputData[parameterLength - 1] == 0; --parameterLength);
                     compressedInputData = inputData;
                 }
+                if (parameterUsage == ProgramParameter.INOUT && dataStreamLevel >= 5)  // Server allows 33 value.
+                {
+                    parameterUsage += 30;
+                }
+                else
+                {
                 parameterUsage += 10;
             }
-            if (parameterUsage < 10)
-            {
-                if (parameterUsage != ProgramParameter.OUTPUT)
-                {
-                    compressedInputData = inputData;
-                    parameterLength = parameterMaxLength;
-                }
             }
             dataStreamLength +=  12 + parameterLength;
             parameterList[i].length_ = parameterLength;
@@ -108,7 +106,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         converter.stringToByteArray(program, data_, 20);
         converter.stringToByteArray(library, data_, 30);
 
-        // Do not suppress messages.
+        // Return messages.
         // data_[40] = 0x00;
 
         // Set number of program parameters.
@@ -128,12 +126,8 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
             // Write the input data into the data stream.
             switch (parameterList[i].usage_)
             {
-                case ProgramParameter.OUTPUT:
                 case 12:
                 case 22:
-                    break;
-                case ProgramParameter.INOUT:
-                    System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterList[i].compressedInputData_.length);
                     break;
                 default:
                     System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterList[i].length_);
@@ -146,7 +140,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Sending call program request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending call program request...");
         super.write(out);
     }
 }

@@ -185,25 +185,98 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int SPECIAL_AUTHORITY_INSUFFICIENT = 40;
     /**
-     The return code indicating that the profile token is not valid.
-     **/
-    public static final int PROFILE_TOKEN_NOT_VALID = 41;
-    /**
-     The return code indicating that the Kerberos ticket is not valid.
-     **/
-    public static final int KERBEROS_TICKET_NOT_VALID = 42;
-    /**
      The return code indicating that the token type is not valid.
      **/
-    public static final int TOKEN_TYPE_NOT_VALID = 43;
+    public static final int TOKEN_TYPE_NOT_VALID = 41;
     /**
      The return code indicating that the generate token request is not valid.
      **/
-    public static final int GENERATE_TOKEN_REQUEST_NOT_VALID = 44;
+    public static final int GENERATE_TOKEN_REQUEST_NOT_VALID = 42;
     /**
      The return code indicating that the token length is not valid.
      **/
-    public static final int TOKEN_LENGTH_NOT_VALID = 45;
+    public static final int TOKEN_LENGTH_NOT_VALID = 43;
+    /**
+     The return code indicating that the new password contains a character that is not valid.
+     **/
+    public static final int PASSWORD_NEW_CHARACTER_NOT_VALID = 44;
+    /**
+     The return code indicating that the password has pre-V2R2 encryption.
+     **/
+    public static final int PASSWORD_PRE_V2R2 = 45;
+    /**
+     The return code indicating that the password is *NONE.
+     **/
+    public static final int PASSWORD_NONE = 46;
+    /**
+     The return code indicating that the profile token is not valid.
+     **/
+    public static final int PROFILE_TOKEN_NOT_VALID = 47;
+    /**
+     The return code indicating that the profile token is not valid.  Maximum number of profile tokens for the system already generated.
+     **/
+    public static final int PROFILE_TOKEN_NOT_VALID_MAXIMUM = 48;
+    /**
+     The return code indicating that the profile token is not valid.  Timeout interval is not valid.
+     **/
+    public static final int PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID = 49;
+    /**
+     The return code indicating that the profile token is not valid.  Type of profile token is not valid.
+     **/
+    public static final int PROFILE_TOKEN_NOT_VALID_TYPE_NOT_VALID = 50;
+    /**
+     The return code indicating that the profile token is not valid.  Profile token is not regenerable.
+     **/
+    public static final int PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE = 51;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Consistency checks failed.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_CONSISTENCY = 52;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Requested mechanisms are not supported by local system.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_MECHANISM = 53;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Credentials are not available or are not valid for this context.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID = 54;
+    /**
+     The return code indicating that the Kerberos ticket is not valid. Kerberos token contains incorrect signature.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_SIGNATURE = 55;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Credentials are no longer valid.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID = 56;
+    /**
+     The return code indicating that the Kerberos ticket is not valid. Consistency checks on the credantial structure failed.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_CREDANTIAL_STRUCTURE = 57;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Verification routine failed.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_VERIFICATION = 58;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  EIM configuration error detected.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_EIM = 59;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Kerberos principal maps to a system profile which can not be used to sign on.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE = 60;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Kerberos principal maps to multiple user profile names.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES = 61;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.  Kerberos service ticket could not be retreived.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID_RETRIEVE = 62;
+    /**
+      The return code indicating that the user ID or password contains a character that is not valid.
+     **/
+    public static final int SIGNON_CHAR_NOT_VALID = 63;
+
 
     /**
      Constructs an AS400SecurityException.
@@ -314,16 +387,52 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
                 return "EXC_PASSWORD_NEW_SAME_POSITION";
             case SPECIAL_AUTHORITY_INSUFFICIENT:
                 return "EXC_SPECIAL_AUTHORITY_INSUFFICIENT";
-            case PROFILE_TOKEN_NOT_VALID:
-                return "EXC_PROFILE_TOKEN_NOT_VALID";
-            case KERBEROS_TICKET_NOT_VALID:
-                return "EXC_KERBEROS_TICKET_NOT_VALID";
             case TOKEN_TYPE_NOT_VALID:
                 return "EXC_TOKEN_TYPE_NOT_VALID";
             case GENERATE_TOKEN_REQUEST_NOT_VALID:
                 return "EXC_GENERATE_TOKEN_REQUEST_NOT_VALID";
             case TOKEN_LENGTH_NOT_VALID:
                 return "EXC_TOKEN_LENGTH_NOT_VALID";
+            case PASSWORD_NEW_CHARACTER_NOT_VALID:
+                return "EXC_PASSWORD_NEW_CHARACTER_NOT_VALID";
+            case PASSWORD_PRE_V2R2:
+                return "EXC_PASSWORD_PRE_V2R2";
+            case PASSWORD_NONE:
+                return "EXC_PASSWORD_NONE";
+            case PROFILE_TOKEN_NOT_VALID:
+                return "EXC_PROFILE_TOKEN_NOT_VALID";
+            case PROFILE_TOKEN_NOT_VALID_MAXIMUM:
+                return "EXC_PROFILE_TOKEN_NOT_VALID_MAXIMUM";
+            case PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID:
+                return "EXC_PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID";
+            case PROFILE_TOKEN_NOT_VALID_TYPE_NOT_VALID:
+                return "EXC_PROFILE_TOKEN_NOT_VALID_TYPE_NOT_VALID";
+            case PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE:
+                return "EXC_PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE";
+            case KERBEROS_TICKET_NOT_VALID_CONSISTENCY:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_CONSISTENCY";
+            case KERBEROS_TICKET_NOT_VALID_MECHANISM:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_MECHANISM";
+            case KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID";
+            case KERBEROS_TICKET_NOT_VALID_SIGNATURE:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_SIGNATURE";
+            case KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID";
+            case KERBEROS_TICKET_NOT_VALID_CREDANTIAL_STRUCTURE:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_CREDANTIAL_STRUCTURE";
+            case KERBEROS_TICKET_NOT_VALID_VERIFICATION:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_VERIFICATION";
+            case KERBEROS_TICKET_NOT_VALID_EIM:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_EIM";
+            case KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE";
+            case KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES";
+            case KERBEROS_TICKET_NOT_VALID_RETRIEVE:
+                return "EXC_KERBEROS_TICKET_NOT_VALID_RETRIEVE";
+	    case SIGNON_CHAR_NOT_VALID:
+		return "EXC_SIGNON_CHAR_NOT_VALID";
             default:
                 return "EXC_UNKNOWN";   // Bad return code was provided.
         }

@@ -81,7 +81,8 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     public SelectOption(String text, String value)
     {
         super();
-        try {
+        try
+        {
            setValue(value);
            setText(text);
         }
@@ -100,7 +101,8 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     public SelectOption(String text, String value, boolean selected)
     {
         super();
-        try {
+        try
+        {
            setValue(value);
            setSelected(selected);
            setText(text);
@@ -163,8 +165,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     **/
     public String getTag(String text)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating SelectOption tag...");
+        //@C1D
 
         StringBuffer s = new StringBuffer("<option");
 
@@ -179,7 +180,8 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
             s.append(" selected=\"selected\"");
 
         if ((lang_ != null) && (lang_.length() > 0))                              //$B1A
-        {                                                                         //$B1A
+        {
+            //$B1A
            if (Trace.isTraceOn())                                                 //$B1A
               Trace.log(Trace.INFORMATION, "   Using language attribute.");       //$B1A
                                                                                   //$B1A
@@ -189,7 +191,8 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
         }                                                                         //$B1A
         
         if ((dir_ != null) && (dir_.length() > 0))                                //$B1A
-        {                                                                         //$B1A
+        {
+            //$B1A
            if (Trace.isTraceOn())                                                 //$B1A
               Trace.log(Trace.INFORMATION, "   Using direction attribute.");      //$B1A
                                                                                   //$B1A
@@ -344,8 +347,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     public void setSelected(boolean selected)
       throws PropertyVetoException
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "   Option defaults as being selected.");
+        //@C1D
 
         boolean old = selected_;
 

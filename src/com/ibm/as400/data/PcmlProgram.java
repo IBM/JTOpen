@@ -47,12 +47,14 @@ class PcmlProgram extends PcmlDocNode
           "parseorder",
           "entrypoint",         // PCML Ver. 2.0
           "returnvalue",        // PCML Ver. 2.0
-          "threadsafe"          // PCML Ver. 3.0   @A1A
+          "threadsafe",         // PCML Ver. 3.0   @A1A
+          "epccsid",            // PCML Ver. 4.0   @D1A
     };
 
     private static final int VERSION_1_ATTRIBUTE_COUNT = 3;
     private static final int VERSION_2_ATTRIBUTE_COUNT = 5;
     private static final int VERSION_3_ATTRIBUTE_COUNT = 6;
+    private static final int VERSION_4_ATTRIBUTE_COUNT = 7; // @D1A
 
     private String m_Path;
     private String m_Parseorder;
@@ -63,7 +65,21 @@ class PcmlProgram extends PcmlDocNode
 
     // The following attributes added for PCML v3.0
     private String m_ThreadsafeStr;     // threadsafe=, string literal  @C6A
-    private boolean m_ThreadsafeOverride;  // Override of pcml setting  @C6A
+    private boolean m_ThreadsafeOverride;  // The use of this variable has changed  @C6A @D2C
+                                           // since the inital implementation.  We leave
+                                           // the same name for serialization compatibility.
+                                           // This is initialized to be the boolean representation
+                                           // of the "threadsafe=" attribute and is changed when 
+                                           // setThreadsafeOverride() is called.  This is the value 
+                                           // that is used when setting the threadsafety in the 
+                                           // ProgramCall object.
+    private boolean m_ThreadsafeOverrideCalled;    // This is initialized to false. @D2A
+                                                    // If setThreadsafeOverride() is called, this
+                                                    // will be set to true.
+
+    // The following attributes added for PCML v4.0
+    private String m_EpCcsidStr;        // epccsid=, string literal     @D1A
+    private int m_EpCcsid;              // integer value                @D1A
 
     /***********************************************************
      Semi-Transient Members --
@@ -85,6 +101,7 @@ class PcmlProgram extends PcmlDocNode
         msgList = null;
         m_IntReturnValue = 0;                                       // @C1A
         m_Errno = 0;                                                // @C1A
+        m_ThreadsafeOverrideCalled = false;                         // @D2A
     }
 
     // Constructor
@@ -98,6 +115,7 @@ class PcmlProgram extends PcmlDocNode
         msgList = null;
         m_IntReturnValue = 0;                                       // @C1A
         m_Errno = 0;                                                // @C1A
+        m_ThreadsafeOverrideCalled = false;                         // @D2A
 
         // **********************************
         // Set attribute values
@@ -112,6 +130,7 @@ class PcmlProgram extends PcmlDocNode
         setEntrypoint(getAttributeValue("entrypoint"));             // @B1A
         setReturnvalue(getAttributeValue("returnvalue"));           // @B1A
         setThreadsafe(getAttributeValue("threadsafe"));             // @C6A
+        setEpCcsid(getAttributeValue("epccsid"));                   // @D1A
     }
 
     public Object clone()                                           // @C5A
@@ -202,6 +221,12 @@ class PcmlProgram extends PcmlDocNode
         return m_ThreadsafeStr;                                     // @C6A
     }                                                               // @C6A
 
+    // Returns the integer value of the entrypoint ccsid
+    int getEpCcsid()                                                // @D1A
+    {                                                               // @D1A
+        return m_EpCcsid;                                           // @D1A
+    }                                                               // @D1A
+
    /**
     * Return the list of valid attributes for the program element.
     **/
@@ -214,6 +239,8 @@ class PcmlProgram extends PcmlDocNode
             returnCount = VERSION_1_ATTRIBUTE_COUNT;            // @C6A
         else if ( getDoc().getVersion().compareTo("3.0") < 0 )  // @C6A
             returnCount = VERSION_2_ATTRIBUTE_COUNT;            // @C6A
+        else if ( getDoc().getVersion().compareTo("4.0") < 0 )  // @D1A
+            returnCount = VERSION_3_ATTRIBUTE_COUNT;            // @D1A
         else                            // Anything else return the entire array
             return PROGRAMATTRIBUTES;                           // @C6A
 
@@ -224,7 +251,7 @@ class PcmlProgram extends PcmlDocNode
     }
 
 
-    // Returns a boolean reflecting the value of the threadsafe override
+    // Returns a boolean reflecting the current setting threadsafety
     boolean getThreadsafeOverride()                                 // @C6A
     {                                                               // @C6A
         return m_ThreadsafeOverride;                                // @C6A
@@ -242,6 +269,21 @@ class PcmlProgram extends PcmlDocNode
 
         m_EntrypointStr = entrypoint;                               // @B1A
     }                                                               // @B1A
+
+    void setEpCcsid(String ccsid)                                   // @D1A
+    {                                                               // @D1A
+        // Handle null or empty string                              // @D1A
+        if (ccsid == null || ccsid.equals(""))                      // @D1A
+        {                                                           // @D1A
+            m_EpCcsidStr = null;                                    // @D1A
+            m_EpCcsid = 0;                                          // @D1A
+            return;                                                 // @D1A
+        }                                                           // @D1A
+
+        // Try to parse an integer from the attribute value         // @D1A
+            m_EpCcsidStr = ccsid;                                   // @D1A
+            m_EpCcsid = Integer.parseInt(ccsid);                    // @D1A
+    }
 
     // Sets the path= attribute value
     void setPath(String path)
@@ -296,6 +338,7 @@ class PcmlProgram extends PcmlDocNode
     // Overrides the threadsafe= attribute
     void setThreadsafeOverride(boolean threadsafe)                  // @C6A
     {                                                               // @C6A
+        m_ThreadsafeOverrideCalled = true;                          // @D2A
         m_ThreadsafeOverride = threadsafe;                          // @C6A
     }                                                               // @C6A
 
@@ -337,28 +380,31 @@ class PcmlProgram extends PcmlDocNode
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), "2.0", getBracketedTagName(), getNameForException()} ); // @B1A
             }                                                       // @B1A
 
+            // The following section is moved to the callProgram method to allow for dynamically setting
+            // the path.  The check cannot be done until the program is called.
+
             // Only allow this attribute when the path= attribute specifies a service program (*SRVPGM).
-            if ( !getPath().toUpperCase().endsWith(".SRVPGM") )     // @B1A
-            {                                                       // @B1A
-                getDoc().addPcmlSpecificationError(DAMRI.NOT_SRVPGM, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), getBracketedTagName(), getNameForException()} ); // @B1A
-            }                                                       // @B1A
+            // if ( !getPath().toUpperCase().endsWith(".SRVPGM") )     // @B1A
+            // {                                                       // @B1A
+            //    getDoc().addPcmlSpecificationError(DAMRI.NOT_SRVPGM, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), getBracketedTagName(), getNameForException()} ); // @B1A
+            // }                                                       // @B1A
 
             // Only allow this attribute when the program has 7 or fewer parameters
             // Note: This check does not take into account that minvrm= and maxvrm=
             //       can reduce the number of parameters at runtime
-            if ( getNbrChildren() > 7 )                             // @B1A
-            {                                                       // @B1A
-                getDoc().addPcmlSpecificationError(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), new Integer(7), getBracketedTagName(), getNameForException()} ); // @B1A
-            }                                                       // @B1A
+            // if ( getNbrChildren() > 7 )                             // @B1A
+            // {                                                       // @B1A
+            //    getDoc().addPcmlSpecificationError(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), new Integer(7), getBracketedTagName(), getNameForException()} ); // @B1A
+            // }                                                       // @B1A
         }                                                           // @B1A
-        else                                                        // @B1A
-        {                                                           // @B1A
+        // else                                                        // @B1A
+        // {                                                           // @B1A
             // If entrypoint not specified, make sure it is not a *SRVPGM
-            if ( getPath().toUpperCase().endsWith(".SRVPGM") )      // @B1A
-            {                                                       // @B1A
-                getDoc().addPcmlSpecificationError(DAMRI.NO_ENTRYPOINT, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), getBracketedTagName(), getNameForException()} ); // @B1A
-            }                                                       // @B1A
-        }                                                           // @B1A
+        //     if ( getPath().toUpperCase().endsWith(".SRVPGM") )      // @B1A
+        //     {                                                       // @B1A
+        //         getDoc().addPcmlSpecificationError(DAMRI.NO_ENTRYPOINT, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), getBracketedTagName(), getNameForException()} ); // @B1A
+        //     }                                                       // @B1A
+        // }                                                           // @B1A
 
         // Verify the returnvalue= attribute
         if (m_ReturnvalueStr != null)                               // @B1A
@@ -369,11 +415,14 @@ class PcmlProgram extends PcmlDocNode
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("returnvalue", m_ReturnvalueStr), "2.0", getBracketedTagName(), getNameForException()} ); // @B1A
             }                                                       // @B1A
 
+            // The following section is moved to the callProgram method to allow for dynamically setting
+            // the path.  The check cannot be done until the program is called.
+
             // Only allow this attribute when the path= attribute specifies a service program (*SRVPGM).
-            if ( !getPath().endsWith(".SRVPGM") )                   // @B1A
-            {                                                       // @B1A
-                getDoc().addPcmlSpecificationError(DAMRI.NOT_SRVPGM, new Object[] {makeQuotedAttr("returnvalue", m_ReturnvalueStr), getBracketedTagName(), getNameForException()} ); // @B1A
-            }                                                       // @B1A
+            // if ( !getPath().endsWith(".SRVPGM") )                   // @B1A
+            // {                                                       // @B1A
+            //    getDoc().addPcmlSpecificationError(DAMRI.NOT_SRVPGM, new Object[] {makeQuotedAttr("returnvalue", m_ReturnvalueStr), getBracketedTagName(), getNameForException()} ); // @B1A
+            //}                                                       // @B1A
         }                                                           // @B1A
 
         // Verify the threadsafe= attribute
@@ -386,6 +435,17 @@ class PcmlProgram extends PcmlDocNode
             }                                                       // @C6A
 
         }                                                           // @C6A
+
+        // Verify the epccsid= attribute
+        if (m_EpCcsidStr != null)                                   // @D1A
+        {                                                           // @D1A
+            // Only allow this attribute when the pcml version is 3.0 or higher (e.g. <pcml version="3.0">)
+            if ( getDoc().getVersion().compareTo("4.0") < 0 )       // @D1A
+            {                                                       // @D1A
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("epccsid", m_EpCcsidStr), "4.0", getBracketedTagName(), getNameForException()} ); // @D1A
+            }                                                       // @D1A
+
+        }                                                           // @D1A
 
     }
 
@@ -419,6 +479,36 @@ class PcmlProgram extends PcmlDocNode
 
         // Stack of offsets used by PcmlData.parseBytes() and PcmlStruct.parseBytes()
         Hashtable offsetStack = new Hashtable();
+
+        // The following checks were moved here from checkAttributes(). This allows for dynamically setting
+        // the path to be used for the callProgram.
+        
+        // Only allow the returnvalue attribute when the path= attribute specifies a service program (*SRVPGM).
+        if ( getReturnvalue() != null && !getPath().toUpperCase().endsWith(".SRVPGM") )                   // @D1A
+        {                                                       
+           throw new PcmlException(DAMRI.NOT_SRVPGM, new Object[] {makeQuotedAttr("returnvalue", m_ReturnvalueStr), getBracketedTagName(), getNameForException()} ); // @D1A
+        }   
+
+        if ( getPath().toUpperCase().endsWith(".SRVPGM") )      // @D1A
+        {
+            // Service programs must have an entrypoint
+            if (getEntrypoint() == null)                        // @D1A
+            {
+                throw new PcmlException(DAMRI.NO_ENTRYPOINT, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), getBracketedTagName(), getNameForException()} ); // @D1A
+            }
+            // Service programs can only have 7 or fewer parameters (this is a server limitation).
+            // Note: This check does not take into account that minvrm= and maxvrm=
+            //       can reduce the number of parameters at runtime
+            if ( getNbrChildren() > 7 )                             // @D1A
+            {                                                       
+                throw new PcmlException(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), new Integer(7), getBracketedTagName(), getNameForException()} ); // @D1A
+            }                                                       
+        }
+        else if (getEntrypoint() != null)                           // @D1A
+        {
+            // Only service programs can have an entrypoint
+            throw new PcmlException(DAMRI.NOT_SRVPGM, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), getBracketedTagName(), getNameForException()} ); // @D1A
+        }
 
         // Reset return value and "errno" in case an exception occurs
         m_pgmRc = false;                                            // @C1A
@@ -547,6 +637,17 @@ class PcmlProgram extends PcmlDocNode
                                              getEntrypoint(),
                                              rtnValType,
                                              supportedParms);       // @B1A
+            if (getEpCcsid() != 0)                                  // @D1A
+            {                                                       // @D1A
+                try 
+                {
+                    ((ServiceProgramCall) pgmCall).setProcedureName(getEntrypoint(),   // @D1A
+                                         getEpCcsid());             // @D1A
+                }
+                catch (PropertyVetoException e)                     // @D1A
+                {}                                                  // @D1A
+
+            }                                                       // @D1A
         }                                                           // @B1A
         else                                                        // @B1A
         {                                                           // @B1A
@@ -555,7 +656,13 @@ class PcmlProgram extends PcmlDocNode
                                         supportedParms);            // @A1C @B1C
         }                                                           // @B1A
 
+        // If threadsafety has been specified, set the attribute in the ProgramCall object
+        if ( (m_ThreadsafeOverrideCalled) ||                        // @D2A
+             (getThreadsafe() != null) )                            // @D2A
+        {
         pgmCall.setThreadSafe(getThreadsafeOverride());             // @C6A
+        }
+
         //
         // Call the target program
         //

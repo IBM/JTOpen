@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
+import java.math.BigDecimal;   //@F3A
 
 
 
@@ -154,9 +155,20 @@ class DBReplySQLCA
     //
     // We shouldn't need a "throws DBDataStreamException" because we are not handling 
     // SIGNAL 443 cases here.
-    final public String getGeneratedKey(ConvTable converter) //@P0C
-    {                                                                                                                                      
-        return converter.byteArrayToString(data_, offset_ + 72, 16);        
+    final public BigDecimal getGeneratedKey() //@P0C @F3C
+    {  
+        AS400PackedDecimal typeConverter = new AS400PackedDecimal (30, 0);      //@F3A
+        try                                                                     //@F3A
+        {                                                                       //@F3A
+            return((BigDecimal) typeConverter.toObject (data_, offset_ + 72));  //@F3A
+        }                                                                       //@F3A
+        catch (NumberFormatException nfe)                                       //@F3A
+        {                                                                       //@F3A
+            //If we got a bad number back from the database, don't return it    //@F3A
+            //to the user                                                       //@F3A
+            return null;                                                        //@F3A
+        }                                                                       //@F3A
+        //@F3D return converter.byteArrayToString(data_, offset_ + 72, 16);        
     }      
 
 

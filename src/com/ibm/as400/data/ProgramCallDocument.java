@@ -481,6 +481,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Returns the list of AS/400 messages returned from running the
     program. An empty list is returned if the program has not been run yet.
 
+    @param name The name of the &lt;program&gt; element in the PCML document.
     @return The array of messages returned by the AS/400 for the program.
     @exception PcmlException
                If an error occurs.
@@ -845,6 +846,20 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
+    Allows for dynamically specifying the program path.
+
+    @param program The name of the &lt;program&gt; element in the PCML document.
+    @param path A String containing the path to the program objectto be run on the server.
+    @exception PcmlException
+               If an error occurs.
+    */
+    public void setPath(String program, String path)                    // @D1A
+        throws PcmlException                                            // @D1A
+    {
+        m_pcmlDoc.setPath(program, path);                               // @D1A
+    }
+
+    /**
     Allows the overriding of the threadsafe attribute of a program element.
 
     @param program The name of the &lt;program&gt; element in the PCML document.
@@ -904,7 +919,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
             throw new PcmlException(e.getClass().getName());
         }
 
-        PcmlMessageLog.traceOut(SystemResourceFinder.format(DAMRI.PCML_SERIALIZED, new Object[] {outFileName} ));
+        Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.PCML_SERIALIZED, new Object[] {outFileName} )); // @D2C
     }
 
 

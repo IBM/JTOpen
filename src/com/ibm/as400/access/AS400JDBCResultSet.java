@@ -83,10 +83,16 @@ regardless of the concurrency set in the statement:
 <ul>
 <li>Stored procedure calls
 <li>DatabaseMetaData catalog methods
+</ul>
+
+<p>In the following case, result sets are always read only 
+regardless of the concurrency set in the statement if connecting 
+to a server running V4R5 or a previous release of OS/400:
+<ul>
 <li>SELECT statements which do not specify FOR UPDATE
 </ul>
 
-<p>In the following cases, result sets are always forward only
+<p>In the following case, result sets are always forward only
 regardless of the type set in the statement:
 <ul>
 <li>Stored procedure calls
@@ -97,7 +103,7 @@ generated it when the statement is closed, run again, or used
 to retrieve the next result set from a sequence of multiple
 result sets.
 
-<p>The new JDK 1.4 methods add the ability to 
+<p>The new JDBC 3.0 methods add the ability to 
 retrieve information by column name in addition to column index.
 Be aware you will see better performance accessing columns by their
 index rather than accessing them by their name.
@@ -5280,7 +5286,7 @@ implements ResultSet {
             int columnIndex0 = columnIndex - 1;
 
             //@G7A If the data is a locator, then set its handle.
-            if (sqlData instanceof SQLLocator) {                                                   //@G7A
+            if (columnValue != null && sqlData instanceof SQLLocator) {     //@G8C                                              //@G7A
                 try
                 {                                                                                  //@G7A 
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A

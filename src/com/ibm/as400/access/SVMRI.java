@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.ListResourceBundle;
 
 /**
-Locale-specific objects for the IBM Toolbox for Java.
+Locale-specific objects for the AS/400 Toolbox for Java.
 **/
 public class SVMRI extends ListResourceBundle
 {
@@ -85,6 +85,7 @@ public class SVMRI extends ListResourceBundle
         { "QDATSEP_DES" , "Date separator" },
         { "QDAY_DES" , "Day" },
         { "QDAYOFWEEK_DES" , "Day of week" },
+        { "QDBFSTCCOL_DES" , "Database file statistics to collect" },         //@E0A
         { "QDBRCVYWT_DES" , "Database recovery wait indicator" },
         { "QDECFMT_DES" , "Decimal format" },
         { "QDEVNAMING_DES" , "Device naming conventions" },
@@ -163,6 +164,7 @@ public class SVMRI extends ListResourceBundle
         { "QSFWERRLOG_DES" , "Software error logging" },
         { "QSHRMEMCTL_DES" , "Shared memory control" },              //@D2a
         { "QSPCENV_DES" , "Special environment" },
+        { "QSPLFACN_DES" , "Spooled file action" },                  //@E0A
         { "QSRLNBR_DES" , "System serial number" },
         { "QSRTSEQ_DES" , "Sort sequence" },
         { "QSRVDMP_DES" , "Service dump control" },

@@ -15,6 +15,8 @@ package com.ibm.as400.data;
 
 import java.util.Enumeration;
 import java.util.Vector;
+import com.ibm.as400.access.InternalErrorException;                 // @A1A
+import com.ibm.as400.access.Trace;                                  // @A1A
 
 /**
   *  The DocNodeDescriptor class is an abstract class that provide implementations
@@ -77,9 +79,18 @@ abstract class DocNodeDescriptor implements Descriptor
                 {
                     child = new DataDescriptor(dnChild);        // Allocate DataDescriptor
                 }
-                else                                            // Child is a program element
+                else if (dnChild instanceof PcmlProgram)
                 {
                     child = new ProgramDescriptor(dnChild);     // Allocate ProgramDescriptor
+                }
+                else if (dnChild instanceof RfmlRecordFormat)               // @A1A
+                {
+                    child = new RecordFormatDescriptor(dnChild);
+                }
+                else     // None of the above                               // @A1A
+                {
+                  Trace.log(Trace.ERROR, "Unrecognized child element type: " + dnChild.getClass().getName());  // @A1A
+                  throw new InternalErrorException(InternalErrorException.UNKNOWN); // @A1A
                 }
                 v.addElement(child);                            // Add child to vector
             }
@@ -107,9 +118,18 @@ abstract class DocNodeDescriptor implements Descriptor
         {
             return new DataDescriptor(dn);          // Allocate DataDescriptor
         }
-        else                                        // Node is a program element
+        else if (dn instanceof PcmlProgram)
         {
             return new ProgramDescriptor(dn);       // Allocate ProgramDescriptor
+        }
+        else if (dn instanceof RfmlRecordFormat)                            // @A1A
+        {
+            return new RecordFormatDescriptor(dn);
+        }
+        else     // None of the above                                         @A1A
+        {
+          Trace.log(Trace.ERROR, "Unrecognized element type: " + dn.getClass().getName()); // @A1A
+          throw new InternalErrorException(InternalErrorException.UNKNOWN); // @A1A
         }
     }
 

@@ -23,7 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
- The ProgramParameter class is used with ProgramCall and ServiceProgramCall to pass parameter data to an AS/400 program, from an AS/400 program, or both.  Input data is passed to an AS/400 program as a byte array with <i>setInputData</i>.  Output data is requested from an AS/400 program by specifying the amount of data to return with <i>setOutputDataLength</i>.  To get the output data once the AS/400 program has run use <i>getOutputData</i>.  These values may also be set on the constructor.
+ The ProgramParameter class is used with ProgramCall and ServiceProgramCall to pass parameter data to a program, from a program, or both.  Input data is passed to a program as a byte array with <i>setInputData</i>.  Output data is requested from a program by specifying the amount of data to return with <i>setOutputDataLength</i>.  To get the output data once the program has run use <i>getOutputData</i>.  These values may also be set on the constructor.
  @see  ProgramCall
  @see  ServiceProgramCall
  **/
@@ -36,10 +36,8 @@ public class ProgramParameter implements Serializable
 
     static final long serialVersionUID = 4L;
 
-
-
     /**
-     Constant indicating parameter data is passed by value.
+     Constant indicating parameter data is passed by value.  (This is the default.)
      **/
     public static final int PASS_BY_VALUE = 1;
 
@@ -66,7 +64,7 @@ public class ProgramParameter implements Serializable
     // Values only valid during datastream construction.
     transient int length_ = 0;  // Byte length of parameter information.
     transient int maxLength_ = 0;  // Max length of input and output data.
-    transient int usage_ = 0;  // Parameter usage: in, out, inout & no compression, 0-truncation, RLE
+    transient int usage_ = 0;  // Parameter usage: in, out, inout & 0-truncation, RLE.
     transient byte[] compressedInputData_ = null;  // Input data compressed.
 
     // List of property change event bean listeners.
@@ -108,7 +106,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs ProgramParameter object. An input/output parameter is created, since both data passed to the program and the amount of data returned from the program is passed on this constructor.
+     Constructs ProgramParameter object. A parameter that is both an input and an output parameter is created, since both data passed to the program and the amount of data returned from the program are passed on this constructor.
      @param  inputData  Parameter data passed to the program.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
@@ -164,7 +162,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs ProgramParameter object.  An input/output parameter is created, since both data passed to the program and the amount of data returned from the program is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
+     Constructs ProgramParameter object.  A parameter that is both an input and an output parameter is created, since both data passed to the program and the amount of data returned from the program are passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
      @param  inputData  The parameter data to be used as input to the program.
      @param  outputDataLength  The amount of data to be returned from the program.
@@ -188,7 +186,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this ProgramParameter; it can be removed with removePropertyChangeListener.
+     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this ProgramParameter.  It can be removed with removePropertyChangeListener.
      @param  listener  The PropertyChangeListener.
      @see  #removePropertyChangeListener
      **/
@@ -240,7 +238,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Returns the parameter data that has been received from the program.  Null is returned if this parameter is an input parameter.  Null is also returned before the AS/400 program is called.
+     Returns the parameter data that has been received from the program.  Null is returned if this parameter is an input parameter.  Null is also returned before the program is called.
      @return  The output data returned from the program.
      **/
     public byte[] getOutputData()
@@ -374,6 +372,7 @@ public class ProgramParameter implements Serializable
      <LI>PASS_BY_VALUE  The parameter is passed as data.
      <LI>PASS_BY_REFERENCE  The parameter is passed as a reference.
      </UL>
+     The default is PASS_BY_VALUE.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setParameterType(int parameterType) throws PropertyVetoException

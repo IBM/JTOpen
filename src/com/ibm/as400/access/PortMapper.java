@@ -20,10 +20,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Hashtable;
 
-import com.ms.security.PermissionID;
-import com.ms.security.PolicyEngine;
-import netscape.security.PrivilegeManager;
-
 class PortMapper
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -111,30 +107,6 @@ class PortMapper
         return portList[service];
     }
 
-    // Load the specified socket container object.
-    // param  containerName  The fully package named class name to load.
-    static SocketContainer loadSocketContainer(String containerName) throws IOException
-    {
-        try
-        {
-            return (SocketContainer)Class.forName(containerName).newInstance();
-        }
-        catch (ClassNotFoundException e1)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unexpected ClassNotFoundException:", e1); //@P0C
-        }
-        catch (IllegalAccessException e2)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unexpected IllegalAccessException:", e2); //@P0C
-        }
-        catch (InstantiationException e3)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unexpected InstantiationException:", e3); //@P0C
-        }
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Load of socket container: " + containerName + " failed"); //@P0C
-        throw new IOException();
-    }
-
     static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL) throws IOException
     {
         SocketContainer sc = null;
@@ -145,72 +117,17 @@ class PortMapper
             try
             {
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Starting a local socket to " + serviceName);
-                sc = loadSocketContainer("com.ibm.as400.access.SocketContainerUnix");
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix");
+                if (sc != null)
+                {
                 sc.setServiceName(serviceName);
                 return sc;
+            }
             }
             catch (IOException e)
             {
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error attempting to connect with Unix Socket:", e); //@P0C
                 sc = null;
-            }
-        }
-
-        // If browser security classes can be loaded, enable the connect privileges so that signed applets using our classes can make network connections.
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes."); //@P0C
-
-        Class privilegeManagerClass = null;
-        Class permissionIDClass = null;
-        Class policyEngineClass = null;
-
-        try
-        {
-            privilegeManagerClass = Class.forName("netscape.security.PrivilegeManager");
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded Netscape browser security classes."); //@P0C
-        }
-        catch (Throwable e)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Netscape browser security classes not loaded."); //@P0C
-        }
-
-        try
-        {
-            permissionIDClass = Class.forName("com.ms.security.PermissionID");
-            policyEngineClass = Class.forName("com.ms.security.PolicyEngine");
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded IE browser security classes."); //@P0C
-        }
-        catch (Throwable e)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "IE browser security classes not loaded."); //@P0C
-        }
-
-        // If available, invoke the Navigator enablePrivilege method.
-        if (privilegeManagerClass != null)
-        {
-            try
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connect privileges for Navigator."); //@P0C
-                PrivilegeManager.enablePrivilege("UniversalConnect");
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabled connect privileges for Navigator."); //@P0C
-            }
-            catch (Throwable e)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Desired Netscape security method error:", e); //@P0C
-            }
-        }
-
-        // If available, invoke the IE assertPermission method.
-        if ((permissionIDClass != null) && (policyEngineClass != null))
-        {
-            try
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connect privileges for IE."); //@P0C
-                PolicyEngine.assertPermission(PermissionID.NETIO);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabled connect privileges for IE."); //@P0C
-            }
-            catch (Throwable e)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Desired IE security method error:", e); //@P0C
             }
         }
 
@@ -247,20 +164,7 @@ class PortMapper
             PortMapper.setServicePort(systemName, service, srvPort, useSSL);
         }
 
-        Trace.log(Trace.DIAGNOSTIC, "Opening socket to server...");
-        // We use the port returned in the previous reply to establish a new socket connection to the requested service...
-        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
-        {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to server..."); //@P0C
-            sc = loadSocketContainer("com.ibm.as400.access.SocketContainerSSL");
-            ((SocketContainerSSL)sc).setOptions(useSSL);
-        }
-        else
-        {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Starting an inet socket to " + serviceName);
-            sc = loadSocketContainer("com.ibm.as400.access.SocketContainerInet");
-        }
-
         Socket socket = new Socket(systemName, srvPort);
 
         // Try to set the no delay option, but if that doesn't work, keep going.
@@ -286,8 +190,34 @@ class PortMapper
             if (Trace.traceOn_) Trace.log(Trace.WARNING, "Socket exception setting so linger:", e); //@P0C
         }
 
+        // We use the port returned in the previous reply to establish a new socket connection to the requested service...
+        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
+            try
+            {
+                if (useSSL.useSslight_) throw new Exception();
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
+                ((SocketContainerJSSE)sc).setSystemNameAndPort(systemName, srvPort);
+                sc.setSocket(socket);
+                sc.setServiceName(serviceName);
+            }
+            catch (Throwable e)
+            {
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE falling back to sslight:", e);
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
+                ((SocketContainerSSL)sc).setOptions(useSSL);
+                sc.setSocket(socket);
+                sc.setServiceName(serviceName);
+            }
+        }
+        else
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting an inet socket to " + serviceName);
+            sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerInet");
         sc.setSocket(socket);
         sc.setServiceName(serviceName);
+        }
         return sc;
     }
 }

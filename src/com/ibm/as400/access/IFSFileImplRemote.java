@@ -936,6 +936,7 @@ implements IFSFileImpl
     if (ds instanceof IFSOpenRep)
     {
       fileHandle = ((IFSOpenRep)ds).getFileHandle();
+      fd_.setOpen(true, fileHandle);                    // @B8c
     }
     else if (ds instanceof IFSReturnCodeRep)
     {

@@ -21,7 +21,7 @@ import com.ibm.as400.data.ProgramCallDocument;
  The NetServerPrintShare class represents a NetServer print server share.
  NetServerPrintShare objects are created and returned by <code>NetServer.listPrintShares()</code>.
  <p>
- <i>Note: This class uses some API fields that are available only in releases following OS/400 V4R5.</i>
+ <i>Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.</i>
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>
@@ -337,11 +337,19 @@ extends NetServerShare
   }
 
 
-  // Returns a list of NetServerShare objects.
+  // Returns a list of NetServerPrintShare objects.
   static ResourceList list(AS400 sys)
     throws ResourceException
   {
-    return NetServerShare.list(sys, NetServerShare.PRINT_SHARE, "*ALL", openListAttributeMap_);
+    return list(sys, "*ALL");
+  }
+
+
+  // Returns a list of NetServerPrintShare objects.
+  static ResourceList list(AS400 sys, String shareName)
+    throws ResourceException
+  {
+    return NetServerShare.list(sys, NetServerShare.PRINT_SHARE, shareName, openListAttributeMap_);
   }
 
 }

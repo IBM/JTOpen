@@ -230,7 +230,7 @@ public class AS400FileRecordDescription implements Serializable
      *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400FileRecordDescription#setPath
      *@see AS400FileRecordDescription#setSystem
-     *@param filePath The path in which to create the file.  If <i>filePath</i> is null,
+     *@param filePath The path of the directory in which to create the file.  If <i>filePath</i> is null,
      *the file is created in the current working directory.
      *@param packageName The name of the package in which the class belongs. The <i>packageName</i>
      *is used to specify the package statement in the source code for the class.

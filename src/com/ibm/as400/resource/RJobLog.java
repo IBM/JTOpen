@@ -579,6 +579,7 @@ characteristics change.
 
 /**
 Writes a program message to the job log for the job in which the program is running.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
 
 @param system       The system.  If the system specifies localhost, the message is written
                     to the job log of the process from which this method is called.
@@ -594,6 +595,7 @@ Writes a program message to the job log for the job in which the program is runn
                     </ul>
                     The message type must be AS400Message.INFORMATIONAL for an immediate
                     message.
+@see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
 @exception ResourceException            If an error occurs.
 **/
@@ -609,6 +611,7 @@ Writes a program message to the job log for the job in which the program is runn
 
 /**
 Writes a program message to the job log for the job in which the program is running.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
 
 @param system           The system.  If the system specifies localhost, the message is written
                         to the job log of the process from which this method is called.
@@ -626,6 +629,7 @@ Writes a program message to the job log for the job in which the program is runn
                         message.
 @param substitutionData The substitution data.  The substitution data can be from 0-32767 bytes
                         for a conventional message and from 1-6000 bytes for an immediate message.
+@see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
 @exception ResourceException            If an error occurs.
 **/
@@ -642,6 +646,7 @@ Writes a program message to the job log for the job in which the program is runn
 
 /**
 Writes a program message to the job log for the job in which the program is running.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
 
 @param system           The system.  If the system specifies localhost, the message is written
                         to the job log of the process from which this method is called.
@@ -657,6 +662,7 @@ Writes a program message to the job log for the job in which the program is runn
                         The message type must be AS400Message.INFORMATIONAL for an immediate
                         message.
 @param messageFile      The integrated file system path name of the message file.
+@see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
 @exception ResourceException            If an error occurs.
 **/
@@ -673,6 +679,7 @@ Writes a program message to the job log for the job in which the program is runn
 
 /**
 Writes a program message to the job log for the job in which the program is running.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
 
 @param system           The system.  If the system specifies localhost, the message is written
                         to the job log of the process from which this method is called.
@@ -690,6 +697,7 @@ Writes a program message to the job log for the job in which the program is runn
 @param messageFile      The integrated file system path name of the message file.
 @param substitutionData The substitution data.  The substitution data can be from 0-32767 bytes
                         for a conventional message and from 1-6000 bytes for an immediate message.
+@see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
 @exception ResourceException            If an error occurs.
 **/

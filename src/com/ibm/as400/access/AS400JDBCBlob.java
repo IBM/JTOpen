@@ -225,118 +225,124 @@ Returns the position at which a pattern is found in the blob.
 
     //@G4A  JDBC 3.0
     /**
-    Returns a stream that can be used to write to the BLOB value that this BLOB object 
-    represents. The stream begins at position <i>pos</i>.
+    Returns a stream that an application can use to write to this BLOB.
+    The stream begins at position <i>positionToStartWriting</i>, and the BLOB will be truncated 
+    after the last byte of the write.
 
-    @param pos The position (1-based) in the BLOB value at which to start writing.
-    @return An OutputStream object to which data can be written.
-    @exception SQLException If there is an error accessing the BLOB value or if the position
+    @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
+    @return An OutputStream object to which data can be written by an application.
+    @exception SQLException If there is an error accessing the BLOB or if the position
     specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
-    public OutputStream setBinaryStream(long pos)
+    public OutputStream setBinaryStream(long positionToStartWriting)
     throws SQLException
     {
-        if ((pos <= 0) || (pos > length_))
+        if ((positionToStartWriting <= 0) || (positionToStartWriting > length_))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        return new AS400JDBCLobOutputStream (this, pos);
+        return new AS400JDBCLobOutputStream (this, positionToStartWriting);
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Writes an array of bytes to this BLOB object starting at position <i>pos</i>.
+    Writes an array of bytes to this BLOB, starting at position <i>positionToStartWriting</i> 
+    in the BLOB.  The BLOB will be truncated after the last byte written.  
+    
+    @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
+    @param bytesToWrite The array of bytes to be written to this BLOB.
+    @return The number of bytes written to the BLOB.
 
-    @param pos The position (1-based) in the BLOB object at which to start writing (1-based).
-    @param bytes The array of bytes to be written to the BLOB value that this Blob object 
-    represents.
-    @return the number of bytes written.
-
-    @exception SQLException If there is an error accessing the BLOB value or if the position
+    @exception SQLException If there is an error accessing the BLOB or if the position
     specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
-    public int setBytes (long pos, byte[] bytes)
+    public int setBytes (long positionToStartWriting, byte[] bytesToWrite)
     throws SQLException
     {
         // Validate parameters.
-        if ((pos > length_) || (pos <= 0) || (bytes == null) || (bytes.length < 0))
+        if ((positionToStartWriting > length_) || (positionToStartWriting <= 0) || 
+            (bytesToWrite == null) || (bytesToWrite.length < 0))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        pos--;
+        positionToStartWriting--;
 
-        length_ = (int)pos + bytes.length + 1;
+        length_ = (int)positionToStartWriting + bytesToWrite.length;  //@G5D + 1; Do not add one to this length.  
 
-        if ((pos >= length_))
+        if ((positionToStartWriting >= length_))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         byte[] data = new byte[length_];
-        System.arraycopy (data_.getRawBytes(), data_.getOffset(), data, 0, (int)pos);
-        System.arraycopy (bytes, 0, data, (int)pos, bytes.length);
+        System.arraycopy (data_.getRawBytes(), data_.getOffset(), data, 0, (int)positionToStartWriting);
+        System.arraycopy (bytesToWrite, 0, data, (int)positionToStartWriting, bytesToWrite.length);
         data_.overlay(data, 0);
         data_.setLength(length_);
-        return bytes.length;
+        return bytesToWrite.length;
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Writes all or part of the given byte array to the BLOB value that this Blob object
-    represents.  Writing starts at position <i>pos</i> in the BLOB value; <i>len</i> bytes
-    from the given byte array are written.
+    Writes all or part of the byte array the application passes in to this BLOB, 
+    starting at position <i>positionToStartWriting</i> in the BLOB.  
+    The BLOB will be truncated after the last byte written.  The <i>lengthOfWrite</i>
+    bytes written will start from <i>offset</i> in the bytes that were provided by the
+    application.
 
-    @param pos The position (1-based) in the BLOB object at which to start writing (1-based).
-    @param bytes the array of bytes to be written to the BLOB value that this Blob object represents.
-    @param offset the offset into the array bytes at which to start reading the bytes to be set 
+    @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
+    @param bytesToWrite The array of bytes to be written to this BLOB.
+    @param offset The offset into the array bytes at which to start reading the bytes 
     (1-based).
-    @param len the number of bytes to be written to the BLOB value from the array of bytes bytes.
+    @param length The number of bytes to be written to the BLOB from the array of bytes.
     @return the number of bytes written.
 
-    @exception SQLException If there is an error accessing the BLOB value or if the position
+    @exception SQLException If there is an error accessing the BLOB or if the position
     specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
-    public int setBytes (long pos, byte[] bytes, int offset, int len)
+    public int setBytes (long positionToStartWriting, byte[] bytesToWrite, int offset, 
+                         int lengthOfWrite)
     throws SQLException
     {
         // Validate parameters
-        if ((len < 0) || (offset <= 0) || (bytes == null) || (bytes.length < 0))
+        if ((lengthOfWrite < 0) || (offset <= 0) || (bytesToWrite == null) || 
+            (bytesToWrite.length < 0))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
 
         offset--;
-        byte[] newData = new byte[len];
-        System.arraycopy(bytes, offset, newData, 0, len);
-        return setBytes(pos, newData);
+        byte[] newData = new byte[lengthOfWrite];
+        System.arraycopy(bytesToWrite, offset, newData, 0, lengthOfWrite);
+        return setBytes(positionToStartWriting, newData);
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Truncates the BLOB value that this BLOB object represents to be <i>len</i> bytes in length.
+    Truncates this BLOB to a length of <i>lengthOfBLOB</i> bytes.
      
-    @param len the length, in bytes, to which the BLOB value that this Blob object 
-    represents should be truncated.
-     
-    @exception SQLException If there is an error accessing the BLOB value or if the length
+    @param lengthOfBLOB The length, in bytes, that this BLOB should be after 
+    truncation.
+
+    @exception SQLException If there is an error accessing the BLOB or if the length
     specified is greater than the length of the BLOB. 
     
     @since Modification 5   
     **/
-    public void truncate(long len)
+    public void truncate(long lengthOfBLOB)
     throws SQLException
     {
-        if ((len < 0) || (len > length_))
+        if ((lengthOfBLOB < 0) || (lengthOfBLOB > length_))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        byte[] newData = new byte[(int)len];
-        System.arraycopy(data_.getRawBytes(), data_.getOffset(), newData, 0, (int)len);
+        byte[] newData = new byte[(int)lengthOfBLOB];
+        System.arraycopy(data_.getRawBytes(), data_.getOffset(), newData, 0, (int)lengthOfBLOB);
         length_ = newData.length;
         data_.overlay(newData, 0);
         data_.setLength(length_);

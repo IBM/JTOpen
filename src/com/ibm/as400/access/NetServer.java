@@ -44,6 +44,8 @@ import java.util.Vector;
 <ul>
 <li>{@link #ALLOW_SYSTEM_NAME ALLOW_SYSTEM_NAME}
 <li>{@link #ALLOW_SYSTEM_NAME_PENDING ALLOW_SYSTEM_NAME_PENDING}
+<li>{@link #AUTHENTICATION_METHOD}
+<li>{@link #AUTHENTICATION_METHOD_PENDING}
 <li>{@link #AUTOSTART AUTOSTART}
 <li>{@link #BROWSING_INTERVAL BROWSING_INTERVAL}
 <li>{@link #BROWSING_INTERVAL_PENDING BROWSING_INTERVAL_PENDING}
@@ -177,6 +179,8 @@ extends ChangeableResource
   private static BooleanValueMap BV_MAP_NO_YES_ = new BooleanValueMap("*NO", "*YES");
   private static BooleanValueMap BV_MAP_NO_ERR_YES_ = new BooleanValueMap(new String[] {"*NO", "*ERR"}, new String[] { "*YES" });
 
+  private static IntegerValueMap INTV_MAP_ = new IntegerValueMap();  // @A1a
+
   //-------------------------------------------------------------------------
   // Attribute IDs.
   //
@@ -202,6 +206,36 @@ extends ChangeableResource
     attributes_.add(ALLOW_SYSTEM_NAME_PENDING, Boolean.class);
     getterMap_.add (ALLOW_SYSTEM_NAME_PENDING, OLST0201_, "receiverVariable.allowSystemNameP", BV_MAP_0_1_);
     setterMap_.add (ALLOW_SYSTEM_NAME_PENDING, "qzlschsn", "allowSystemNameP", BV_MAP_0_1_);
+  }
+
+  // @A1a - New attribute.
+  /**
+   Attribute ID for "authentication method".  This identifies a read-only Integer
+   attribute, which indicates the authentication method used to authenticate users.
+   <i>Note: This attribute is available only if the iSeries server has the OS/400 release <b>following V5R1</b> or later.</i>
+   The value 0 indicates that the server authenticates with encrypted passwords.
+   The value 1 indicates the server authenticates with Kerberos v5 tokens.
+
+   **/
+  public static final String AUTHENTICATION_METHOD = "AUTHENTICATION_METHOD";
+  static {
+    attributes_.add(AUTHENTICATION_METHOD, Integer.class, true);
+    getterMap_.add (AUTHENTICATION_METHOD, OLST0201_, "receiverVariable.authenticationMethod", INTV_MAP_);
+  }
+
+  // @A1a - New attribute.
+  /**
+   Attribute ID for "authentication method (pending)".  This identifies an Integer
+   attribute, which indicates the authentication method used to authenticate users.
+   <i>Note: This attribute is available only if the iSeries server has the OS/400 release <b>following V5R1</b> or later.</i>
+   The value 0 indicates that the server authenticates with encrypted passwords.
+   The value 1 indicates the server authenticates with Kerberos v5 tokens.
+   **/
+  public static final String AUTHENTICATION_METHOD_PENDING = "AUTHENTICATION_METHOD_PENDING";
+  static {
+    attributes_.add(AUTHENTICATION_METHOD_PENDING, Integer.class);
+    getterMap_.add (AUTHENTICATION_METHOD_PENDING, OLST0201_, "receiverVariable.authenticationMethodP", INTV_MAP_);
+    setterMap_.add (AUTHENTICATION_METHOD_PENDING, "qzlschsi", "requestVariable.authenticationMethodP",  INTV_MAP_);
   }
 
   /**
@@ -910,6 +944,25 @@ extends ChangeableResource
     }
 
     return NetServerPrintShare.list(getSystem());
+  }
+
+  /**
+   Lists print server shares currently associated with the NetServer.
+   The returned ResourceList contains NetServerPrintShare objects.
+   @param shareName Name of shares to list.  Can include wildcard ("*").
+   @return  Information about the specified print shares.
+
+   @exception ResourceException  If an error occurs.
+   @see NetServerPrintShare
+   **/
+  public ResourceList listPrintShares(String shareName)
+    throws ResourceException
+  {
+    if (! isConnectionEstablished()) {
+      establishConnection();
+    }
+
+    return NetServerPrintShare.list(getSystem(), shareName);
   }
 
   /**

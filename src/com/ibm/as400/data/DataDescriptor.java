@@ -18,7 +18,7 @@ import com.ibm.as400.access.BidiStringType;
 
 /**
   *  The DataDescriptor class implements the methods of the Descriptor interface
-  *  that are unique to the <data> tag.
+  *  that are unique to the &lt;data&gt; tag.
   *
   **/
 
@@ -156,7 +156,12 @@ class DataDescriptor extends DocNodeDescriptor
                 if (lengthId != null)
                     return lengthId;
                 else
+                {
+                  if (((PcmlData)getDocNode()).isLengthSpecified() == true)  // @A3a
                     return Integer.toString(((PcmlData)getDocNode()).getLength());
+                  else                                                       // @A3a
+                     return null;                                            // @A3a
+                }
             }
             else if (attr.equals("precision"))
             {
@@ -194,6 +199,14 @@ class DataDescriptor extends DocNodeDescriptor
             else if (attr.equals("bidistringtype"))
             {
                 return (((PcmlData)getDocNode()).getBidistringtypeStr());   // @A2C
+            }
+            else if (attr.equals("trim"))                                   // @D1A
+            {
+                return (((PcmlData)getDocNode()).getTrim());                // @D1A
+            }
+            else if (attr.equals("chartype"))                               // @D2A
+            {
+                return (((PcmlData)getDocNode()).getCharType());            // @D2A
             }
             else
                 return null;

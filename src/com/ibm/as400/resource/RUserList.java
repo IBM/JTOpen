@@ -209,7 +209,7 @@ if <a href="#SELECTION_CRITERIA">SELECTION_CRITERIA</a> is not set to
 Selection ID for user profile.  This identifies a String selection,
 which represents the user profile specification that describes the
 users to be included in the list.  The user profile can be specified
-for releases following OS/400 V4R5.
+only when connecting to servers running OS/400 V5R1 or later.
 Possible values are:
 <ul>
 <li><a href="#ALL">ALL</a> - All users are specified.

@@ -16,6 +16,7 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400DataType;
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.BidiStringType;
+import com.ibm.as400.access.Trace;                                  // @D3A
 
 import java.math.BigDecimal;
 
@@ -168,16 +169,24 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     // Set Java native value
     public void setValue(Object v) throws PcmlException 
     {
-
         // Do not allow a null value to be set
         if (v == null)
             throw new PcmlException(DAMRI.NULL_VALUE, new Object[] {getNameForException()} );
 
         // If the new value matches the Java type for this element
         // store the new value.
+        if (getDataType() == PcmlData.STRUCT) {                    // @D0A
+            throw new PcmlException(DAMRI.STRUCT_VALUE, new Object[] {getNameForException()} );   // @D0A
+        }
         if ( v.getClass().equals(getValueClass()) ) 
         {
+            ///m_value = v;
+            if (v instanceof BigDecimal) {
+              m_value = ((BigDecimal)v).setScale(getPrecision(), BigDecimal.ROUND_HALF_EVEN);       // @D0A
+            }
+            else {
             m_value = v;
+        }
         }
         // New value does not match the Java typ for this element.
         // Convert to the Java type needed -- errors may occur.
@@ -265,8 +274,17 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     int getLength() throws PcmlException
     {
+        String charType = m_owner.getCharType();                    // @D2A
+        if ((charType != null) && (charType.equals("twobyte")))
+        {
+            return (resolveIntegerValue( m_owner.getLength(),
+                                        m_owner.getLengthId() ) * 2);    // @D2A
+        }
+        else
+        {
         return resolveIntegerValue( m_owner.getLength(),
                                     m_owner.getLengthId() );
+    }
     }
 
     int getOffset() throws PcmlException
@@ -291,6 +309,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             // use the CCSID saved the last time the 
             if (node instanceof PcmlProgram)                        // @C2A
                 return ((PcmlProgram) node).getProgramCCSID();      // @C2A
+            else if (node instanceof RfmlDocument)                  // @D0A
+                return ((RfmlDocument) node).getCcsidInt();         // @D0A
             else                                                    // @C2A
                 return m_owner.getDoc().getAs400().getCcsid();      // @C2A
         }                                                           // @C2A
@@ -313,6 +333,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     {
         return m_owner.getPrecision();
     }
+
+    String getTrim()                                                // @D1A
+    {                                                               // @D1A
+        return m_owner.getTrim();                                   // @D1A
+    }                                                               // @D1A
 
     boolean isArray()
     {
@@ -472,7 +497,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         }
 
         // Detail tracing of data conversion
-        if (PcmlMessageLog.isTraceEnabled())                        // @B2A
+        if (Trace.isTracePCMLOn())                                  // @D3C
         {                                                           // @B2A
             String parseMsg;                                        // @B2A
             if (m_indices.size() > 0)                               // @B2A
@@ -484,7 +509,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA,           new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), PcmlMessageLog.byteArrayToHexString(bytes, offset, bytesConverted)} ); // @B2A
             }                                                       // @B2A
             parseMsg = parseMsg + "\t  " + Thread.currentThread();  // @B2A
-            PcmlMessageLog.traceOut(parseMsg);                      // @B2A
+            Trace.log(Trace.PCML, parseMsg);                        // @D3C
         }                                                           // @B2A
             
         return bytesConverted;                                      // @B2A
@@ -518,10 +543,10 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             }
         }
         
-        // For Strings, trim trailing blanks
+        // For Strings, trim blanks and nulls appropriately
         if (dataType == PcmlData.CHAR) 
         {
-            newVal = trimString((String) newVal);                   // @B2A
+            newVal = trimString((String) newVal, getTrim());                   // @B2A @D1C
         }
         
         // Set the new value
@@ -631,7 +656,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         setBytes(newBytes);
 
         // Detail tracing of data parsing
-        if (PcmlMessageLog.isTraceEnabled())
+        if (Trace.isTracePCMLOn())                                              // @D3C
         {
             String parseMsg;
             if (m_indices.size() > 0)
@@ -643,7 +668,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 parseMsg = SystemResourceFinder.format(DAMRI.READ_DATA,           new Object[] {Integer.toHexString(offset+ skipBytes), Integer.toString(nbrBytes), getNameForException(), PcmlMessageLog.byteArrayToHexString(newBytes)} );
             }
             parseMsg = parseMsg + "\t  " + Thread.currentThread();
-            PcmlMessageLog.traceOut(parseMsg);
+            Trace.log(Trace.PCML, parseMsg);
         }
 
 
@@ -817,19 +842,24 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             case PcmlData.ZONED:
                 if (newVal instanceof BigDecimal) 
                 {
-                    convertedVal = (BigDecimal) newVal;
+                    ///convertedVal = (BigDecimal) newVal;
+                    convertedVal = ((BigDecimal)newVal).setScale(dataPrecision, BigDecimal.ROUND_HALF_EVEN);      // @D0C
                 }
                 else 
                 {
                     if (newVal instanceof String) 
                     {
-                        convertedVal = new BigDecimal((String) newVal);
+                        convertedVal = (new BigDecimal((String) newVal));
+                        if (((BigDecimal)convertedVal).scale() != dataPrecision) {
+                          convertedVal = ((BigDecimal)convertedVal).setScale(dataPrecision, BigDecimal.ROUND_HALF_EVEN);     // @D0A
+                        }
                     }
                     else
                     {
                         if (newVal instanceof Number) 
                         {
-                            convertedVal = new BigDecimal(((Number) newVal).doubleValue());
+                            ///convertedVal = new BigDecimal(((Number) newVal).doubleValue());
+                            convertedVal = (new BigDecimal(((Number) newVal).doubleValue())).setScale(dataPrecision, BigDecimal.ROUND_HALF_EVEN);    // @D0C
                         }
                         else
                         {
@@ -921,33 +951,50 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         return convertedVal;
     } 
     
-    // Trims blanks and nulls from the end of a string
-    // Returns the trimed string
-    static String trimString(String str)                        // @B2A
-    {                                                           // @B2A
-        if (str.endsWith(" ") || str.endsWith("\0") )           // @B2A
-        {                                                       // @B2A
-            int i;                                              // @B2A
-            char[] charBuff = str.toCharArray();                // @B2A
+    // Trims blanks and nulls from the ends of a string
+    // Returns the trimmed string                               // @D1C
+    static String trimString(String str, String trimEnd)        
+    {                                                           
+        if (trimEnd != null && trimEnd.equals("none"))                              
+        {
+            return str;                                         
+        }
+        char[] charBuff = str.toCharArray();                    
+        int startOffset = 0;                    // Used when constructing return string 
+        int lengthReturned = charBuff.length;   // Used when constructing return string 
+        if (trimEnd == null || trimEnd.equals("right") || trimEnd.equals("both") )         
+        {                                                       
             // Trim blanks and nulls
-            i = charBuff.length;                                // @B2A
-            trim: while (i > 0)                                 // @B2A
-            {                                                   // @B2A
-                switch (charBuff[i-1])                          // @B2A
-                {                                               // @B2A
-                    case ' ':                                   // @B2A
-                    case '\0':                                  // @B2A
-                        i--;                                    // @B2A
-                        break;                                  // @B2A
-                    default:                                    // @B2A
-                        break trim;                             // @B2A
-                }                                               // @B2A
-            }                                                   // @B2A
-            return new String(charBuff, 0, i);                  // @B2A
-        }                                                       // @B2A
-        else                                                    // @B2A
-        {                                                       // @B2A
-            return str;                                         // @B2A
-        }                                                       // @B2A
-    }                                                           // @B2A
+            trimRight: while (lengthReturned > 0)               
+            {                                                   
+                switch (charBuff[lengthReturned-1])             
+                {                                               
+                    case ' ':                                   
+                    case '\0':                                  
+                        lengthReturned--;                       
+                        break;                                  
+                    default:                                    
+                        break trimRight;                        
+                }                                               
+            }                                                   
+        }                                                       
+        if (trimEnd != null && (trimEnd.equals("left") || trimEnd.equals("both")) )          
+        {                                                       
+            // Trim blanks and nulls
+            trimLeft: while (startOffset < lengthReturned)                            
+            {                                                   
+                switch (charBuff[startOffset])                          
+                {                                               
+                    case ' ':                                   
+                    case '\0':                                  
+                        startOffset++;
+                        lengthReturned--;
+                        break;                                  
+                    default:                                    
+                        break trimLeft;                             
+                }                                               
+            }                                                   
+        }
+        return new String(charBuff, startOffset, lengthReturned);                  
+    }                                                      
 }

@@ -42,7 +42,7 @@ class RCCallProgramReplyDataStream extends ClientAccessDataStream
 
     void getParameterList(ProgramParameter[] parameterList)
     {
-        // For each output/inout parm, in order, set data returned.
+        // For each output or inout parm, in order, set data returned.
         for (int index = 24, i = 0; i < parameterList.length; ++i)
         {
             if (parameterList[i].getOutputDataLength() > 0)
@@ -69,7 +69,7 @@ class RCCallProgramReplyDataStream extends ClientAccessDataStream
 
     int readAfterHeader(InputStream in) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Receiving call program reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving call program reply...");
         return super.readAfterHeader(in);
     }
 }

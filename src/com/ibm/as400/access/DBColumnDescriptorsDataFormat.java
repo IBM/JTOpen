@@ -54,9 +54,6 @@ class DBColumnDescriptorsDataFormat
     void overlay (byte[] rawBytes, int offset, int variableColumnInfoLength)
     throws SQLException
     {
-        int codePoint;
-        int lengthOfVariablePart;
-
         // Parse through how ever many of the 3900, 3901, 3902, and 3904 there are (can be 0 
         // to 4).
 
@@ -64,29 +61,30 @@ class DBColumnDescriptorsDataFormat
         // that means the query did not return us variable column information.
         while (variableColumnInfoLength > 0)
         {
-            codePoint = BinaryConverter.byteArrayToShort (rawBytes, offset + 4);
-            lengthOfVariablePart = BinaryConverter.byteArrayToShort (rawBytes, offset);
+            int length = BinaryConverter.byteArrayToInt (rawBytes, offset);
+            short codePoint = BinaryConverter.byteArrayToShort (rawBytes, offset + 4);
             switch (codePoint)
             {
-            case 3900:
+            case 0x3900:
                 // base column name
-
-                System.arraycopy(rawBytes, offset + 6, baseColumnName_, 0, lengthOfVariablePart);
+                baseColumnName_ = new byte[length-6];
+                System.arraycopy(rawBytes, offset + 6, baseColumnName_, 0, length-6);
                 break;
 
-            case 3901:
+            case 0x3901:
                 // base table name
-                System.arraycopy(rawBytes, offset + 6, baseTableName_, 0, lengthOfVariablePart);
+                baseTableName_ = new byte[length-6];
+                System.arraycopy(rawBytes, offset + 6, baseTableName_, 0, length-6);
                 break;
 
-            case 3902:
+            case 0x3902:
                 // column label (carries its own CCSID, so make it a String, not a byte array)
                 int ccsid = BinaryConverter.byteArrayToShort (rawBytes, offset + 6); 
                 try
                 {
                     columnLabel_ = (ConvTable.getTable(ccsid, null)).byteArrayToString(rawBytes, 
                                                                                        offset + 8, 
-                                                                                       lengthOfVariablePart);
+                                                                                       length-8);
                 }
                 catch (UnsupportedEncodingException e)
                 {
@@ -94,15 +92,16 @@ class DBColumnDescriptorsDataFormat
                 }
                 break;
 
-            case 3904:
+            case 0x3904:
                 // schema name
-                System.arraycopy(rawBytes, offset + 6, baseTableSchemaName_, 0, lengthOfVariablePart);
+                baseTableSchemaName_ = new byte[length-6];
+                System.arraycopy(rawBytes, offset + 6, baseTableSchemaName_, 0, length-6);
                 break;
             }
             //Subtract off the length what we took off the datastream.
-            variableColumnInfoLength = variableColumnInfoLength - (6 + lengthOfVariablePart);
+            variableColumnInfoLength = variableColumnInfoLength - length;
             //Move the offset to the next code point.
-            offset = offset + (6 + lengthOfVariablePart);
+            offset = offset + length;
         }
     }
 

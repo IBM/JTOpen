@@ -43,7 +43,7 @@ class RCRunCommandReplyDataStream extends ClientAccessDataStream
 
     int readAfterHeader(InputStream in) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Receiving run command reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving run command reply...");
         return super.readAfterHeader(in);
     }
 }

@@ -371,7 +371,8 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    *    An empty String or empty byte array search attribute will search for certificates that do not have this attribute.
    *    For example, SUBJECT_ORGANIZATION = new String("") will search for certificates without the subject organization field.
    *    Null search attributes are ignored.
-   * @param userSpaceName  The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC. The 10 char AS400 library of the user space may also be specified as %CURLIB% or %LIBL%. @see QSYSObjectPathName
+   * @param userSpaceName  The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC. The 10 char AS400 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    *
    * @return  The number of certificates found.
    *

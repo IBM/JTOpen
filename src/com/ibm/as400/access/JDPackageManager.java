@@ -333,6 +333,12 @@ class JDPackageManager
 
       try
       {
+                //@F2A If we are running to a v5r1 or higher system, the cached 
+                //@F2A package is now in unicode.
+                if (connection_.getVRM() >= JDUtilities.vrm510)              //@F2A
+                {                                                            //@F2A
+                    statementTextLength = statementTextLength * 2;           //@F2A
+                }                                                            //@F2A
 
         // Compare lengths first, before going to the
         // expense of a full String comparison.
@@ -374,8 +380,11 @@ class JDPackageManager
     {
       if (isCached ())
         return(cachedPackage_.getStatementName (statementIndex,
-                                                cachedPackageConverter_));
-    }
+                                                        null));  //@F2C
+            //@F2D return(cachedPackage_.getStatementName (statementIndex, cachedPackageConverter_));
+            //@F2D Statement name is in jobCCSID_, not unicode which is what 
+            //@F2D cachedPackageConverter_ converts.
+        }
     catch (DBDataStreamException e)
     {
       JDError.throwSQLException (JDError.EXC_INTERNAL, e);

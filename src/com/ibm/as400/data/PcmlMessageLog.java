@@ -16,6 +16,7 @@ package com.ibm.as400.data;
 import java.io.*;
 
 import java.util.Date;
+import com.ibm.as400.access.Trace;                          // @A2A
 
 /**
  * Provides control over logging and tracing activity within this 
@@ -28,7 +29,7 @@ public class PcmlMessageLog
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private static String       m_logFileName;
+    private static String       m_logFileName = null;
     private static OutputStream m_outputStream;
     private static PrintWriter  m_logTarget;
 
@@ -38,12 +39,6 @@ public class PcmlMessageLog
 
     static
     {
-        try 
-        { 
-            setLogFileName(null); 
-        }
-        catch (IOException e)     
-        {}
 
         m_hexDigits = "0123456789ABCDEF";
         m_cp37Table = new StringBuffer(256);
@@ -99,7 +94,7 @@ public class PcmlMessageLog
             bytes[b - Byte.MIN_VALUE] = b;
         }
         bytes[Byte.MAX_VALUE - Byte.MIN_VALUE] = Byte.MAX_VALUE;
-        dumpBytes(m_logTarget, bytes);
+        dumpBytes(bytes);
 
         setLogFileName("pcml.log");
         logError("This is a test error to pcml.log");
@@ -127,6 +122,8 @@ public class PcmlMessageLog
      * If the file exists, error data is appended to it.
      * If the file does not exist, it is created.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.setFileName(String fileName).
+     *
      * @param fileName the log file name.  If null, output goes to <code>System.err</code>.
      * @exception IOException if the file cannot be accessed
      * @see #getLogFileName
@@ -134,25 +131,8 @@ public class PcmlMessageLog
     public static void setLogFileName(String fileName)
         throws IOException
     {
-        if (m_logTarget != null)
-            m_logTarget.flush();
-
-        if (m_logFileName != null)
-            m_logTarget.close();
-
         m_logFileName = fileName;
-
-        if (m_logFileName != null)
-        {
-            File file = new File(m_logFileName);
-            m_outputStream = new FileOutputStream(m_logFileName, file.exists());
-            m_logTarget = new PrintWriter(m_outputStream, true);
-        }
-        else
-        {
-            m_outputStream = System.err;
-            m_logTarget = new PrintWriter(System.err, true);
-        }
+        Trace.setFileName(fileName);                        // @A2A
     }
 
     /**
@@ -160,6 +140,8 @@ public class PcmlMessageLog
      *
      * Returns null if errors are being logged to <code>System.err</code>, or if
      * an <code>OutputStream</code> was specified on a call to <code>setLogStream</code>.
+     *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.getFileName().
      *
      * @return the log file name
      * @see #setLogFileName
@@ -177,17 +159,14 @@ public class PcmlMessageLog
      * by this package to the same <code>OutputStream</code> used by the
      * application itself for logging errors.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.setPrintWriter(PrintWriter obj).
+     *
      * @param stream the <code>OutputStream</code> to which error data should be sent.
      * If null, output goes to <code>System.err</code>.
      * @see #getLogStream
     */
     public static void setLogStream(OutputStream stream)
     {
-        m_logTarget.flush();
-
-        if (m_logFileName != null)
-            m_logTarget.close();
-
         m_logFileName = null;
 
         if (stream != null)
@@ -200,12 +179,21 @@ public class PcmlMessageLog
             m_outputStream = System.err;
             m_logTarget = new PrintWriter(System.err, true);
         }
+
+        try
+        {
+            Trace.setPrintWriter(m_logTarget);                      // @A2A
+        }
+        catch (IOException e)                                       // @A2A
+        {}
     }
 
     /**
      * Returns the log stream.
      *
      * This method is guaranteed to return a valid non-null <code>OutputStream</code>.
+     *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.getPrintWriter().
      *
      * @return the <code>OutputStream</code> to which error data is being sent
      * @see #setLogStream
@@ -222,15 +210,13 @@ public class PcmlMessageLog
      * date and timestamp if logging has been redirected to
      * a destination other than <code>System.err</code>.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.log(int category, String message).
+     *
      * @param errorData the data to be logged
     */
     public static void logError(Object errorData)
     {
-        synchronized(m_logTarget)
-        {
-            logTimeStamp();
-            m_logTarget.println(errorData);
-        }
+        Trace.log(Trace.ERROR, errorData.toString());       // @A2A
     }
 
     /**
@@ -240,27 +226,20 @@ public class PcmlMessageLog
      * date and timestamp if logging has been redirected to
      * a destination other than <code>System.err</code>.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.log(int category, String message, Throwable e).
+     *
      * @param errorData the data to be logged
      * @param throwable the <code>Throwable</code> which will be used to obtain the stack trace
     */
     public static void logError(Object errorData, Throwable t)
     {
-        synchronized(m_logTarget)
-        {
-            logTimeStamp();
-            m_logTarget.println(errorData);
-
-            if (t != null)
-            {
-                logTimeStamp();
-                m_logTarget.println("Stack trace:");
-                t.printStackTrace(m_logTarget);
-            }
-        }
+        Trace.log(Trace.ERROR, errorData.toString(), t);
     }
 
     /**
      * Logs a stack trace to the current logging destination.
+     *
+     * @deprecated Use java.lang.Throwable.printStackTrace(PrintWriter w).
      *
      * @param throwable the <code>Throwable</code> which will be used to obtain the stack trace
     */
@@ -268,7 +247,6 @@ public class PcmlMessageLog
     {
         synchronized(m_logTarget)
         {
-            logTimeStamp();
             m_logTarget.println("Stack trace:");
             t.printStackTrace(m_logTarget);
         }
@@ -279,12 +257,18 @@ public class PcmlMessageLog
      *
      * The default value is <code>true</code>.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.setTracePCMLOn(boolean tracePCML).
+     *
      * @param enabled If true, allows the messages; otherwise, suppresses the messages.
      * @see #isTraceEnabled
     */
     public static void setTraceEnabled(boolean enabled)
     {
-        m_traceEnabled = enabled;
+        Trace.setTracePCMLOn(enabled);                      // @A2C
+        if (enabled)                                        // @A4A
+        {
+            Trace.setTraceOn(enabled);                      // @A4A
+        }
     }
 
     /**
@@ -292,16 +276,20 @@ public class PcmlMessageLog
      *
      * The default value is <code>true</code>.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.isTracePCMLOn().
+     *
      * @return true if the messages are allowed; false otherwise.
      * @see #setTraceEnabled
     */
     public static boolean isTraceEnabled()
     {
-        return m_traceEnabled;
+        return Trace.isTracePCMLOn();                       // @A2C
     }
 
     /**
      * Writes data to <code>System.out</code> if low level tracing is enabled.
+     *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.log(int category, String message).
      *
      * @param data the data to be logged
      * @see #traceErr
@@ -315,6 +303,8 @@ public class PcmlMessageLog
     /**
      * Writes data to <code>System.err</code> if low level tracing is enabled.
      *
+     * @deprecated Replaced by com.ibm.as400.access.Trace.log(int category, String message).
+     *
      * @param data the data to be logged
      * @see #traceOut
     */
@@ -326,35 +316,19 @@ public class PcmlMessageLog
 
     static void traceParameter(String program, String parmName, byte[] bytes) // @A1C
     {
-        if (m_traceEnabled)
+        if (Trace.isTracePCMLOn())                              // @A2C
         {
-            synchronized(m_logTarget)
-            {
-                logTimeStamp();
-                m_logTarget.println();
-                m_logTarget.println(program  + "\t  " + parmName); // @A1C
-                dumpBytes(m_logTarget, bytes);
+            Trace.log(Trace.PCML, program  + "\t  " + parmName); // @A2C
+            dumpBytes(bytes);
             }
         }
-    }
 
-    private static void logTimeStamp()
-    {
-        if (!m_outputStream.equals(System.err))
-        {
-            m_logTarget.print((new Date()).toString());
-            m_logTarget.print("  ");
-        }
-    }
-
-    private static void dumpBytes(PrintWriter writer, byte[] ba) 
+    private static void dumpBytes(byte[] ba) 
     {
         int bytes, offset;
         String offStr;
         String cp37Str;
-        
-        if (!m_traceEnabled)
-            return;
+        String byteString;                                          // @A2A
         
         if (ba == null)
             return;
@@ -362,25 +336,28 @@ public class PcmlMessageLog
         bytes = ba.length;
         offset = 0;
         cp37Str = "";
+        byteString = "";
         while (offset < bytes) 
         {
             if ((offset % 32) == 0)
             {
                 if (offset == 0) 
                 {
-                    writer.println("Offset : 0....... 4....... 8....... C....... 0....... 4....... 8....... C.......   0...4...8...C...0...4...8...C...");
+                    Trace.log(Trace.PCML, "Offset : 0....... 4....... 8....... C....... 0....... 4....... 8....... C.......   0...4...8...C...0...4...8...C...");   // @A2C
                 }
                 else
                 {
-                    writer.println(" *" + cp37Str + "*");
+                    byteString = byteString + " *" + cp37Str + "*";
+                    Trace.log(Trace.PCML, byteString);                // @A2C
                     cp37Str = "";
+                    byteString = "";
                 }
                     
                 offStr = "      " + Integer.toHexString(offset);
                 offStr = offStr.substring(offStr.length() - 6);
-                writer.print(offStr + " : ");
+                byteString = byteString + offStr + " : ";
             }
-            writer.print( byteArrayToHexString(ba, offset, 4) + " ");
+            byteString = byteString + byteArrayToHexString(ba, offset, 4) + " ";
             cp37Str = cp37Str + byteArrayToCP37String(ba, offset, 4);
             offset = offset + 4;
 
@@ -392,18 +369,20 @@ public class PcmlMessageLog
             // 'overshot' the number of bytes.
             for (int b = bytes; b < offset; b++)
             {
-                writer.print("  ");
+                byteString = byteString + "  ";
                 cp37Str = cp37Str + " ";
             }
             // Now pad the line to a multiple of 32 bytes so the
             // character dump on the right side is lined up.
             while ((offset % 32) != 0)
             {
-                writer.print("         ");
+                byteString = byteString + "         ";
                 cp37Str = cp37Str + "    ";
                 offset = offset + 4;
             }
-            writer.println(" *" + cp37Str + "*");
+            byteString = byteString + " *" + cp37Str + "*";
+            Trace.log(Trace.PCML, byteString);                // @A2C
+            byteString = "";
             cp37Str = "";
         }
         

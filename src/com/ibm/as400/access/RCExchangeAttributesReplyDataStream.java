@@ -52,7 +52,7 @@ class RCExchangeAttributesReplyDataStream extends ClientAccessDataStream
 
     int readAfterHeader(InputStream in) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Receiving remote command exchange client/server attributes reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving remote command exchange client/server attributes reply...");
         return super.readAfterHeader(in);
     }
 }

@@ -149,6 +149,7 @@ extends ListResourceBundle
 
         { "JAVA_PROGRAM_CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS_NAME",    "Classes Without Current Java Programs" },
         { "JAVA_PROGRAM_CLASSES_WITH_CURRENT_JAVA_PROGRAMS_NAME",       "Classes With Current Java Programs" },
+        { "JAVA_PROGRAM_CLASSES_WITH_ERRORS_NAME",                      "Classes With Errors" },  // @A3A
         { "JAVA_PROGRAM_ENABLE_PERFORMANCE_COLLECTION_NAME",            "Enable Performance Collection" },
         { "JAVA_PROGRAM_ENABLE_PERFORMANCE_COLLECTION_NONE_NAME",       "None" },
         { "JAVA_PROGRAM_ENABLE_PERFORMANCE_COLLECTION_ENTRYEXIT_NAME",  "Entry/Exit" },
@@ -165,7 +166,13 @@ extends ListResourceBundle
         { "JAVA_PROGRAM_OPTIMIZATION_30_NAME",                          "30" },
         { "JAVA_PROGRAM_OPTIMIZATION_40_NAME",                          "40" },
         { "JAVA_PROGRAM_OWNER_NAME",                                    "Owner" },
+        { "JAVA_PROGRAM_PROFILING_DATA_NAME",                           "Profiling Data" },  // @A3A
+        { "JAVA_PROGRAM_PROFILING_DATA_NOCOL_NAME",                     "Collection" },      // @A3A
+        { "JAVA_PROGRAM_PROFILING_DATA_COL_NAME",                       "No Collection" },   // @A3A
+        { "JAVA_PROGRAM_PROFILING_DATA_APY_NAME",                       "Apply" },           // @A3A
+        { "JAVA_PROGRAM_PROFILING_DATA_CLR_NAME",                       "Clear" },           // @A3A
         { "JAVA_PROGRAM_RELEASE_PROGRAM_CREATED_FOR_NAME",              "Release Program Created For" },
+        { "JAVA_PROGRAM_TOTAL_CLASSES_IN_SOURCE_NAME",                  "Total Classes In Source" },  // @A3A
         { "JAVA_PROGRAM_USE_ADOPTED_AUTHORITY_NAME",                    "Use Adopted Authority" },
         { "JAVA_PROGRAM_USE_ADOPTED_AUTHORITY_NO_NAME",                 "No" },
         { "JAVA_PROGRAM_USE_ADOPTED_AUTHORITY_YES_NAME",                "Yes" },

@@ -97,6 +97,7 @@ public class QSYSObjectTypeTable
         add("IGCDCT");
         add("IGCSRT");
         add("IGCTBL");
+        add("IMGCLG");                                                   // @M2a
         add("IPXD");
         add("JOBD");
         add("JOBQ");

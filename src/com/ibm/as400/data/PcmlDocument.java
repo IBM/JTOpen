@@ -82,12 +82,13 @@ class PcmlDocument extends PcmlDocRoot {
     // NOTE: For AS400Text converters, the cached objects are 'thrown away'
     // when the AS/400 system object changes via setAs400(). This will cause
     // the new system (and CCSID) to be used to construct new converters.
-    private transient AS400Text          m_Text_1  = null; // Create at run time
-    private transient AS400Text          m_Text_10 = null; // Create at run time
-    private transient AS400ByteArray     m_Byte_1  = null; // Create at run time
-    private transient AS400ByteArray     m_Byte_2  = null; // Create at run time
-    private transient AS400ByteArray     m_Byte_3  = null; // Create at run time
-    private transient AS400ByteArray     m_Byte_4  = null; // Create at run time
+    protected transient AS400Text          m_Text_1  = null; // Create at run time
+    protected transient AS400Text          m_Text_10 = null; // Create at run time
+    protected transient AS400ByteArray     m_Byte_1  = null; // Create at run time
+    protected transient AS400ByteArray     m_Byte_2  = null; // Create at run time
+    protected transient AS400ByteArray     m_Byte_3  = null; // Create at run time
+    protected transient AS400ByteArray     m_Byte_4  = null; // Create at run time
+                                     // @D0C: Made the above converters protected.
     
     private AS400              m_as400;                             // @C1C
     private int                m_as400Vrm = -1;                     // @C1C
@@ -571,6 +572,13 @@ class PcmlDocument extends PcmlDocRoot {
         getProgramNode(program).setThreadsafeOverride(threadsafe);  // @C6A
     }                                                               // @C6A
 
+    // Set the path of the program to be called
+    void setPath(String program, String path)                       // @D1A
+        throws PcmlException
+    {                                                               // @D1A
+        getProgramNode(program).setPath(path);                      // @D1A
+    }                                                               // @D1A
+
     // gets the override of the threadsafe= attribute
     boolean getThreadsafeOverride(String program)                   // @C6A
         throws PcmlException
@@ -668,4 +676,5 @@ class PcmlDocument extends PcmlDocRoot {
         // Now add the message
         m_PcmlSpecificationException.addMessage(SystemResourceFinder.format(key, args));
     }
+
 }

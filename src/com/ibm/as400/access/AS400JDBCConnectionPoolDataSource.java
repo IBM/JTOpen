@@ -45,16 +45,14 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     static final long serialVersionUID = 4L;
 
-    private transient AS400JDBCConnectionPool connectionPool_;  //@A2A
+    //@B2D private transient AS400JDBCConnectionPool connectionPool_;  //@A2A
 
-    private int initialPoolSize_ = 0; //@B0A
-    private int maxIdleTime_     = 3600; //@B0A
-    private int maxPoolSize_     = 0; //@B0A
-    //private int maxStatements_   = 0; //@B0A - Ignore. Use package caching instead.
-    private int minPoolSize_     = 0; //@B0A
-    private int propertyCycle_   = 300; //@B0A
-
-    private boolean connected_ = false; //@B0A
+    //@B2D private int initialPoolSize_ = 0; //@B0A
+    //@B2D private int maxIdleTime_     = 3600; //@B0A
+    //@B2D private int maxPoolSize_     = 0; //@B0A
+    //@B2D //private int maxStatements_   = 0; //@B0A - Ignore. Use package caching instead.
+    //@B2D private int minPoolSize_     = 0; //@B0A
+    //@B2D private int propertyCycle_   = 300; //@B0A
 
     /**
     *  Constructs a default AS400JDBCConnectionPoolDataSource object.
@@ -62,36 +60,36 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     public AS400JDBCConnectionPoolDataSource()
     {
         super();
-        initializeTransient();    //@A2A
+        //@B2D initializeTransient();    //@A2A
     }
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified <i>serverName</i>.
-    *  @param serverName The name of the AS/400 server.
+    *  @param serverName The name of the AS/400 or iSeries server.
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName)
     {
         super(serverName);
-        initializeTransient();    //@A2A
+        //@B2D initializeTransient();    //@A2A
     }
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information.
-    *  @param serverName The AS/400 system name.
+    *  @param serverName The AS/400 or iSeries system name.
     *  @param user The user id.
     *  @param password The password.
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName, String user, String password)
     {
         super(serverName, user, password);
-        initializeTransient();    //@A2A
+        //@B2D initializeTransient();    //@A2A
     }
 
     //@A1A
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information
     *  to use for SSL communications with the server.
-    *  @param serverName The AS/400 system name.
+    *  @param serverName The AS/400 or iSeries system name.
     *  @param user The user id.
     *  @param password The password.
     *  @param keyRingName The key ring class name to be used for SSL communications with the server.
@@ -101,105 +99,77 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
                                              String keyRingName, String keyRingPassword)
     {
         super(serverName, user, password, keyRingName, keyRingPassword);
-        initializeTransient();    //@A2A
+        //@B2D initializeTransient();    //@A2A
     }
 
 
-    //@B0A
-    // It would be nice to have a separate lock per property, that way we don't
-    // bottleneck the entire object when one property is set, but it's easier to
-    // just synchronize the methods and be done with it.
-    //
-    // Also, there are nasty circular references between AS400JDBCConnectionPool
-    // and AS400JDBCConnectionPoolDataSource. So watch out.
-    private synchronized void connect() throws ConnectionPoolException
-    {
-        if (connected_) return;
-        if (minPoolSize_ > 0 && maxPoolSize_ > 0 && minPoolSize_ > maxPoolSize_)
-        {
-            if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Conflicting pool sizes: Min = "+minPoolSize_+"  Max = "+maxPoolSize_);
-            throw new ConnectionPoolException(ConnectionPoolException.CONFLICTING_POOL_SIZES);
-        }
-        connectionPool_.setMinimumPoolSize(minPoolSize_);
-        connectionPool_.setCleanupInterval(propertyCycle_*1000);
-        connectionPool_.setMaxConnections(maxPoolSize_ == 0 ? -1 : maxPoolSize_);
-        connectionPool_.setMaxInactivity(maxIdleTime_ == 0 ? -1 : maxIdleTime_*1000);
-        //connectionPool_.setMaxStatements(maxStatements_);
-        if (initialPoolSize_ > 0)                     //@B1A
-        {
-            connectionPool_.fill(initialPoolSize_);  
-        }
-        connected_ = true;
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Returns the number of connections this pool contains when it is created.
+    //@B2D  * @return The number of pooled connections. The default value is 0.
+    //@B2D **/
+    //@B2D public int getInitialPoolSize()
+    //@B2D {
+    //@B2D     return initialPoolSize_;
+    //@B2D }
 
 
-    //@B0A
-    /**
-     * Returns the number of connections this pool contains when it is created.
-     * @return The number of pooled connections. The default value is 0.
-    **/
-    public int getInitialPoolSize()
-    {
-        return initialPoolSize_;
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Returns the maximum amount of time (in seconds) that a pooled
+    //@B2D  * connection in this pool is allowed to remain idle before it is
+    //@B2D  * automatically closed. A value of 0 indicates pooled connections
+    //@B2D  * are never automatically closed.
+    //@B2D  * @return The maximum idle time for a pooled connection in seconds.
+    //@B2D  * The default value is 1 hour (3600 seconds).
+    //@B2D **/
+    //@B2D public int getMaxIdleTime()
+    //@B2D {
+    //@B2D     return maxIdleTime_;
+    //@B2D }
 
 
-    //@B0A
-    /**
-     * Returns the maximum amount of time (in seconds) that a pooled
-     * connection in this pool is allowed to remain idle before it is
-     * automatically closed. A value of 0 indicates pooled connections
-     * are never automatically closed.
-     * @return The maximum idle time for a pooled connection in seconds.
-     * The default value is 1 hour (3600 seconds).
-    **/
-    public int getMaxIdleTime()
-    {
-        return maxIdleTime_;
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Returns the maximum number of connections this connection pool
+    //@B2D  * contains. A value of 0 indicates there is no maximum.
+    //@B2D  * @return The maximum number of connections in the pool. The default
+    //@B2D  * value is 0 (no maximum).
+    //@B2D **/
+    //@B2D public int getMaxPoolSize()
+    //@B2D {
+    //@B2D     return maxPoolSize_;
+    //@B2D }
 
 
-    //@B0A
-    /**
-     * Returns the maximum number of connections this connection pool
-     * contains. A value of 0 indicates there is no maximum.
-     * @return The maximum number of connections in the pool. The default
-     * value is 0 (no maximum).
-    **/
-    public int getMaxPoolSize()
-    {
-        return maxPoolSize_;
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Returns the maximum number of statements this connection pool
+    //@B2D  * should keep open. A value of 0 indicates that no statements
+    //@B2D  * will be cached.
+    //@B2D  * @return The maximum number of cached open statements. The default
+    //@B2D  * value is 0 (no caching).
+    //@B2D **/
+    //@B2D // Note: We don't support statement caching this way.
+    //@B2D //       That's what package caching is for.
+    //@B2D //  public int getMaxStatements()
+    //@B2D //  {
+    //@B2D //    return maxStatements_;
+    //@B2D //  }
 
 
-    //@B0A
-    /**
-     * Returns the maximum number of statements this connection pool
-     * should keep open. A value of 0 indicates that no statements
-     * will be cached.
-     * @return The maximum number of cached open statements. The default
-     * value is 0 (no caching).
-    **/
-    // Note: We don't support statement caching this way.
-    //       That's what package caching is for.
-    //  public int getMaxStatements()
-    //  {
-    //    return maxStatements_;
-    //  }
-
-
-    //@B0A
-    /**
-     * Returns the minimum number of connections this connection pool
-     * contains. A value of 0 indicates there is no minimum and connections
-     * are created as they are needed.
-     * @return The minimum number of available connections in the pool. The
-     * default value is 0.
-    **/
-    public int getMinPoolSize()
-    {
-        return minPoolSize_;
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Returns the minimum number of connections this connection pool
+    //@B2D  * contains. A value of 0 indicates there is no minimum and connections
+    //@B2D  * are created as they are needed.
+    //@B2D  * @return The minimum number of available connections in the pool. The
+    //@B2D  * default value is 0.
+    //@B2D **/
+    //@B2D public int getMinPoolSize()
+    //@B2D {
+    //@B2D     return minPoolSize_;
+    //@B2D }
 
 
     /**
@@ -209,22 +179,27 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
   **/
     public PooledConnection getPooledConnection() throws SQLException
     {
-        //Get a connection from the connection pool.
-        PooledConnection pc = null;  //@A2A
-        try
-        {     //@A2A
-            connect(); //@B0A
-            pc = connectionPool_.getPooledConnection(); //@A2C
+        PooledConnection pc = new AS400JDBCPooledConnection(getConnection());
 
             log("PooledConnection created");
             return pc;
-        }
-        catch (ConnectionPoolException cpe)       //@A2A
-        {
-            //@A2A
-            JDError.throwSQLException (JDError.EXC_INTERNAL, cpe);  //@A2A
-        }
-        return pc; //@A2M
+
+        //@B2D  //Get a connection from the connection pool.
+        //@B2D  PooledConnection pc = null;  //@A2A
+        //@B2D  try
+        //@B2D  {     //@A2A
+        //@B2D      connect(); //@B0A
+        //@B2D      pc = connectionPool_.getPooledConnection(); //@A2C
+        //@B2D 
+        //@B2D      log("PooledConnection created");
+        //@B2D      return pc;
+        //@B2D  }
+        //@B2D  catch (ConnectionPoolException cpe)       //@A2A
+        //@B2D  {
+        //@B2D      //@A2A
+        //@B2D      JDError.throwSQLException (JDError.EXC_INTERNAL, cpe);  //@A2A
+        //@B2D  }
+        //@B2D  return pc; //@A2M
     }
 
     /**
@@ -236,54 +211,59 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     **/
     public PooledConnection getPooledConnection(String user, String password) throws SQLException
     {
-        PooledConnection pc = null;  //@A2A
-        try
-        {  //@A2A
-            connect(); //@B0A
-            // Set user and password if user has not been set in the datasource yet.
-            if (getUser().equals(""))                 //@A2A
-            {
-                //@A2A
-                setUser(user);          //@A2A						
-                setPassword(password);                //@A2A
-            }             //@A2A
-            // If the user specified is not equal to the user of the datasource, 
-            // throw an ExtendedIllegalStateException. 
-            user = user.toUpperCase();                      //@A2A
-            if (!(getUser().equals(user)))                      //@A2A
-            {
-                //@A2A
-                Trace.log(Trace.ERROR, "User in data source already set.");           //@A2A
-                throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);    //@A2A   
-            }                           //@A2A
-            pc = connectionPool_.getPooledConnection(); //@A2C
+        PooledConnection pc = new AS400JDBCPooledConnection(getConnection(user,password));
 
             log("PooledConnection created");
-        }
-        catch (ConnectionPoolException cpe)       //@A2A
-        {
-            //@A2A
-            JDError.throwSQLException (JDError.EXC_INTERNAL, cpe);  //@A2A
-        }
-        return pc; //@A2M      					        
+        return pc;
+
+        //@B2D PooledConnection pc = null;  //@A2A
+        //@B2D try
+        //@B2D {  //@A2A
+        //@B2D     connect(); //@B0A
+        //@B2D     // Set user and password if user has not been set in the datasource yet.
+        //@B2D     if (getUser().equals(""))                 //@A2A
+        //@B2D     {
+        //@B2D         //@A2A
+        //@B2D         setUser(user);          //@A2A						
+        //@B2D         setPassword(password);                //@A2A
+        //@B2D     }             //@A2A
+        //@B2D     // If the user specified is not equal to the user of the datasource, 
+        //@B2D     // throw an ExtendedIllegalStateException. 
+        //@B2D     user = user.toUpperCase();                      //@A2A
+        //@B2D     if (!(getUser().equals(user)))                      //@A2A
+        //@B2D     {
+        //@B2D         //@A2A
+        //@B2D         Trace.log(Trace.ERROR, "User in data source already set.");           //@A2A
+        //@B2D         throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);    //@A2A   
+        //@B2D     }                           //@A2A
+        //@B2D     pc = connectionPool_.getPooledConnection(); //@A2C
+        //@B2D 
+        //@B2D     log("PooledConnection created");
+        //@B2D }
+        //@B2D catch (ConnectionPoolException cpe)       //@A2A
+        //@B2D {
+        //@B2D     //@A2A
+        //@B2D     JDError.throwSQLException (JDError.EXC_INTERNAL, cpe);  //@A2A
+        //@B2D }
+        //@B2D return pc; //@A2M      					        
     }
 
 
-    //@B0A - Is it OK to have a maintenance thread according to the EJB spec?
-    //       Don't we have to run without creating additional threads?
-    /**
-     * Returns the interval (in seconds) between runs of this pool's
-     * maintenance thread. The maintenance thread enforces this pool's
-     * connections and statements so that they conform to the specified
-     * minimum and maximum pool sizes, idle time, and maximum number of
-     * open statements.
-     * @return The number of seconds that this pool should wait before enforcing
-     * its properties. The default value is 5 minutes (300 seconds).
-    **/
-    public int getPropertyCycle()
-    {
-        return propertyCycle_;
-    }
+    //@B2D //@B0A - Is it OK to have a maintenance thread according to the EJB spec?
+    //@B2D //       Don't we have to run without creating additional threads?
+    //@B2D /**
+    //@B2D  * Returns the interval (in seconds) between runs of this pool's
+    //@B2D  * maintenance thread. The maintenance thread enforces this pool's
+    //@B2D  * connections and statements so that they conform to the specified
+    //@B2D  * minimum and maximum pool sizes, idle time, and maximum number of
+    //@B2D  * open statements.
+    //@B2D  * @return The number of seconds that this pool should wait before enforcing
+    //@B2D  * its properties. The default value is 5 minutes (300 seconds).
+    //@B2D **/
+    //@B2D public int getPropertyCycle()
+    //@B2D {
+    //@B2D     return propertyCycle_;
+    //@B2D }
 
 
     /**
@@ -309,14 +289,14 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     }
 
 
-    //@A2A
-    /**
-     *  Initializes the transient data for object de-serialization.
-     **/
-    private void initializeTransient()
-    {
-        connectionPool_ = new AS400JDBCConnectionPool(this);
-    }
+    //@B2D //@A2A
+    //@B2D /**
+    //@B2D  *  Initializes the transient data for object de-serialization.
+    //@B2D  **/
+    //@B2D private void initializeTransient()
+    //@B2D {
+    //@B2D     connectionPool_ = new AS400JDBCConnectionPool(this);
+    //@B2D }
 
 
     /**
@@ -325,178 +305,124 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        initializeTransient();  //@A2A
+        //@B2D initializeTransient();  //@A2A
     }
 
 
-    //@B0A
-    /**
-     * Sets the number of connections this pool contains when it is created.
-     * @param initialPoolSize The number of pooled connections. Valid values
-     * are 0 or greater.
-    **/
-    public synchronized void setInitialPoolSize(int initialPoolSize)
-    {
-        String property = "initialPoolSize";
-        if (initialPoolSize < 0)
-        {
-            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
-        if (!connected_)
-        {
-            Integer old = new Integer(initialPoolSize_);
-            initialPoolSize_ = initialPoolSize;
-            changes_.firePropertyChange(property, old, new Integer(initialPoolSize_));
-        }
-        else
-        {
-            throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Sets the number of connections this pool contains when it is created.
+    //@B2D  * @param initialPoolSize The number of pooled connections. Valid values
+    //@B2D  * are 0 or greater.
+    //@B2D **/
+    //@B2D public void setInitialPoolSize(int initialPoolSize)
+    //@B2D {
+    //@B2D     String property = "initialPoolSize";
+    //@B2D     if (initialPoolSize < 0)
+    //@B2D     {
+    //@B2D         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    //@B2D     }
+    //@B2D     if (!connected_)
+    //@B2D     {
+    //@B2D         Integer old = new Integer(initialPoolSize_);
+    //@B2D         initialPoolSize_ = initialPoolSize;
+    //@B2D         changes_.firePropertyChange(property, old, new Integer(initialPoolSize_));
+    //@B2D     }
+    //@B2D     else
+    //@B2D     {
+    //@B2D         throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+    //@B2D     }
+    //@B2D }
 
 
-    //@B0A
-    /**
-     * Sets the maximum amount of time (in seconds) that a pooled
-     * connection in this pool is allowed to remain idle before it is
-     * automatically closed. A value of 0 indicates pooled connections
-     * are never automatically closed.
-     * @param maxIdleTime The maximum idle time for a pooled connection in seconds.
-     * Valid values are 0 or greater.
-    **/
-    public synchronized void setMaxIdleTime(int maxIdleTime)
-    {
-        String property = "maxIdleTime";
-        if (maxIdleTime < 0)
-        {
-            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
-        if (!connected_)
-        {
-            Integer old = new Integer(maxIdleTime_);
-            maxIdleTime_ = maxIdleTime;
-            changes_.firePropertyChange(property, old, new Integer(maxIdleTime_));
-        }
-        else
-        {
-            throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Sets the maximum amount of time (in seconds) that a pooled
+    //@B2D  * connection in this pool is allowed to remain idle before it is
+    //@B2D  * automatically closed. A value of 0 indicates pooled connections
+    //@B2D  * are never automatically closed.
+    //@B2D  * @param maxIdleTime The maximum idle time for a pooled connection in seconds.
+    //@B2D  * Valid values are 0 or greater.
+    //@B2D **/
+    //@B2D public void setMaxIdleTime(int maxIdleTime)
+    //@B2D {
+    //@B2D     String property = "maxIdleTime";
+    //@B2D     Integer old = new Integer(maxIdleTime_);
+    //@B2D     maxIdleTime_ = maxIdleTime;
+    //@B2D     changes_.firePropertyChange(property, old, new Integer(maxIdleTime_));
+    //@B2D }
 
 
-    //@B0A
-    /**
-     * Sets the maximum number of connections this connection pool
-     * contains. A value of 0 indicates there is no maximum.
-     * @param maxPoolSize The maximum number of connections in this pool.
-     * Valid values are 0 or greater.
-    **/
-    public synchronized void setMaxPoolSize(int maxPoolSize)
-    {
-        String property = "maxPoolSize";
-        if (maxPoolSize < 0)
-        {
-            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
-        if (!connected_)
-        {
-            Integer old = new Integer(maxPoolSize_);
-            maxPoolSize_ = maxPoolSize;
-            changes_.firePropertyChange(property, old, new Integer(maxPoolSize_));
-        }
-        else
-        {
-            throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Sets the maximum number of connections this connection pool
+    //@B2D  * contains. A value of 0 indicates there is no maximum.
+    //@B2D  * @param maxPoolSize The maximum number of connections in this pool.
+    //@B2D  * Valid values are 0 or greater.
+    //@B2D **/
+    //@B2D public void setMaxPoolSize(int maxPoolSize)
+    //@B2D {
+    //@B2D     String property = "maxPoolSize";
+    //@B2D     Integer old = new Integer(maxPoolSize_);
+    //@B2D     maxPoolSize_ = maxPoolSize;
+    //@B2D     changes_.firePropertyChange(property, old, new Integer(maxPoolSize_));
+    //@B2D }
 
 
-    //@B0A
-    /**
-     * Sets the maximum number of statements this connection pool
-     * should keep open. A value of 0 indicates that no statements
-     * will be cached.
-     * @param maxStatements The maximum number of cached open statements.
-     * Valid values are 0 or greater.
-    **/
-    // Note: Use package caching to get statement caching.
-    /*  public synchronized void setMaxStatements(int maxStatements)
-      {
-        String property = "maxStatements";
-        if (maxStatements < 0)
-        {
-          throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
-        if (!connected_)
-        {
-          Integer old = new Integer(maxStatements_);
-          maxStatements_ = maxStatements;
-          changes_.firePropertyChange(property, old, new Integer(maxStatements_));
-        }
-        else
-        {
-          throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-      }
-    */
-
-    //@B0A
-    /**
-     * Sets the minimum number of connections this connection pool
-     * contains. A value of 0 indicates there is no minimum and connections
-     * are created as they are needed.
-     * @param minPoolSize The minimum number of available connections in the pool.
-     * Valid values are 0 or greater.
-    **/
-    public synchronized void setMinPoolSize(int minPoolSize)
-    {
-        String property = "minPoolSize";
-        if (minPoolSize < 0)
-        {
-            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
-        if (!connected_)
-        {
-            Integer old = new Integer(minPoolSize_);
-            minPoolSize_ = minPoolSize;
-            changes_.firePropertyChange(property, old, new Integer(minPoolSize_));
-        }
-        else
-        {
-            throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Sets the maximum number of statements this connection pool
+    //@B2D  * should keep open. A value of 0 indicates that no statements
+    //@B2D  * will be cached.
+    //@B2D  * @param maxStatements The maximum number of cached open statements.
+    //@B2D  * Valid values are 0 or greater.
+    //@B2D **/
+    //@B2D // Note: Use package caching to get statement caching.
+    //@B2D /*  public void setMaxStatements(int maxStatements)
+    //@B2D   {
+    //@B2D     String property = "maxStatements";
+    //@B2D       Integer old = new Integer(maxStatements_);
+    //@B2D       maxStatements_ = maxStatements;
+    //@B2D       changes_.firePropertyChange(property, old, new Integer(maxStatements_));
+    //@B2D   }
+    //@B2D */
 
 
-    //@B0A - Is it OK to have a maintenance thread according to the EJB spec?
-    //       Don't we have to run without creating additional threads?
-    /**
-     * Sets the interval (in seconds) between runs of this pool's
-     * maintenance thread. The maintenance thread enforces this pool's
-     * connections and statements so that they conform to the specified
-     * minimum and maximum pool sizes, idle time, and maximum number of
-     * open statements. A value of 0 indicates that a maintenance thread
-     * should not be created.
-     * @param The number of seconds that this pool should wait before enforcing
-     * its properties. Valid values are 0 or greater.
-    **/
-    public synchronized void setPropertyCycle(int propertyCycle)
-    {
-        String property = "propertyCycle";
-        if (propertyCycle < 0)
-        {
-            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
-        if (!connected_)
-        {
-            Integer old = new Integer(propertyCycle_);
-            propertyCycle_ = propertyCycle;
-            changes_.firePropertyChange(property, old, new Integer(propertyCycle_));
-        }
-        else
-        {
-            throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
-    }
+    //@B2D //@B0A
+    //@B2D /**
+    //@B2D  * Sets the minimum number of connections this connection pool
+    //@B2D  * contains. A value of 0 indicates there is no minimum and connections
+    //@B2D  * are created as they are needed.
+    //@B2D  * @param minPoolSize The minimum number of available connections in the pool.
+    //@B2D  * Valid values are 0 or greater.
+    //@B2D **/
+    //@B2D public void setMinPoolSize(int minPoolSize)
+    //@B2D {
+    //@B2D     String property = "minPoolSize";
+    //@B2D         Integer old = new Integer(minPoolSize_);
+    //@B2D         minPoolSize_ = minPoolSize;
+    //@B2D         changes_.firePropertyChange(property, old, new Integer(minPoolSize_));
+    //@B2D }
+
+
+    //@B2D //@B0A - Is it OK to have a maintenance thread according to the EJB spec?
+    //@B2D //       Don't we have to run without creating additional threads?
+    //@B2D /**
+    //@B2D  * Sets the interval (in seconds) between runs of this pool's
+    //@B2D  * maintenance thread. The maintenance thread enforces this pool's
+    //@B2D  * connections and statements so that they conform to the specified
+    //@B2D  * minimum and maximum pool sizes, idle time, and maximum number of
+    //@B2D  * open statements. A value of 0 indicates that a maintenance thread
+    //@B2D  * should not be created.
+    //@B2D  * @param The number of seconds that this pool should wait before enforcing
+    //@B2D  * its properties. Valid values are 0 or greater.
+    //@B2D **/
+    //@B2D public void setPropertyCycle(int propertyCycle)
+    //@B2D {
+    //@B2D     String property = "propertyCycle";
+    //@B2D     Integer old = new Integer(propertyCycle_);
+    //@B2D     propertyCycle_ = propertyCycle;
+    //@B2D     changes_.firePropertyChange(property, old, new Integer(propertyCycle_));
+    //@B2D }
 }
 

@@ -23,7 +23,6 @@ import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.net.UnknownHostException;
 import java.util.Vector;
 
 /**
@@ -32,50 +31,49 @@ import java.util.Vector;
  <br>
  <pre>
  *    // Work with commands on server named "Hal."
-    AS400 system = new AS400("Hal");
-    CommandCall command = new CommandCall(system);
-    try
-    {
-        // Run the command "CRTLIB FRED"
-        if (command.run("CRTLIB FRED") != true)
-        {
-            // Note that there was an error
-            System.out.println("Command failed!");
-        }
-        // Show the messages (returned whether or not there was an error)
-        AS400Message[] messagelist = command.getMessageList();
-        for (int i = 0; i < messagelist.length; ++i)
-        {
-            // Show each message
-            System.out.println(messagelist[i].getText());
-        }
-    }
-    catch (Exception e)
-    {
-        System.out.println("Command " + command.getCommand() + " did not run!");
-    }
-    // done with the system
-    system.disconnectAllServices();
+ *    AS400 system = new AS400("Hal");
+ *    CommandCall command = new CommandCall(system);
+ *    try
+ *    {
+ *        // Run the command "CRTLIB FRED."
+ *        if (command.run("CRTLIB FRED") != true)
+ *        {
+ *            // Note that there was an error.
+ *            System.out.println("Command failed!");
+ *        }
+ *        // Show the messages (returned whether or not there was an error.)
+ *        AS400Message[] messagelist = command.getMessageList();
+ *        for (int i = 0; i < messagelist.length; ++i)
+ *        {
+ *            // Show each message.
+ *            System.out.println(messagelist[i].getText());
+ *        }
+ *    }
+ *    catch (Exception e)
+ *    {
+ *        System.out.println("Command " + command.getCommand() + " issued an exception!");
+ *        e.printStackTrace();
+ *    }
+ *    // Done with the server.
+ *    system.disconnectService(AS400.COMMAND);
  </pre>
  <p>NOTE:  When getting the message list from commands, users no longer have to create a <a href="MessageFile.html">MessageFile</a> to obtain the message help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the <a href="AS400Message.html">AS400Message</a> object returned from getMessageList().  Here is an example:
  <PRE>
-   if (command.run("myCmd") != true)
-   {
-       // Show messages.
-       AS400Message[] messageList = command.getMessageList();
-       for (int i = 0; i < messageList.length; ++i)
-       {
-           //Show each message.
-           System.out.println(messageList[i].getText());
-           // Load additional message information.
-           messageList[i].load();
-           //Show help text.
-           System.out.println(messageList[i].getHelp());
-       }
-   }
+ *    if (command.run("myCmd") != true)
+ *    {
+ *        // Show messages.
+ *        AS400Message[] messageList = command.getMessageList();
+ *        for (int i = 0; i < messageList.length; ++i)
+ *        {
+ *            // Show each message.
+ *            System.out.println(messageList[i].getText());
+ *            // Load additional message information.
+ *            messageList[i].load();
+ *            //Show help text.
+ *            System.out.println(messageList[i].getHelp());
+ *        }
+ *    }
  </PRE>
- @see  AS400Message
- @see  MessageFile
  **/
 public class CommandCall implements Serializable
 {
@@ -84,10 +82,10 @@ public class CommandCall implements Serializable
     static final long serialVersionUID = 4L;
 
     // Constants that indicate how thread safety was determined.
-    static final int BY_DEFAULT = 0;
-    static final int BY_PROPERTY = 1;
-    static final int BY_SET_METHOD = 2;
-    static final int BY_LOOK_UP = 3;
+    private static final int BY_DEFAULT = 0;
+    private static final int BY_PROPERTY = 1;
+    private static final int BY_SET_METHOD = 2;
+    private static final int BY_LOOK_UP = 3;
 
     //The server the command is run on.
     private AS400 system_ = null;
@@ -162,9 +160,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Adds an ActionCompletedListener.  The specified ActionCompletedListeners <b>actionCompleted</b> method will be called each time a command has run.  The ActionCompletedListener object is added to a list of ActionCompletedListeners managed by this CommandCall; it can be removed with removeActionCompletedListener.
+     Adds an ActionCompletedListener.  The specified ActionCompletedListener's <b>actionCompleted</b> method will be called each time a command has run.  The ActionCompletedListener object is added to a list of ActionCompletedListeners managed by this CommandCall.  It can be removed with removeActionCompletedListener.
      @param  listener  The ActionCompletedListener.
-     @see  #removeActionCompletedListener
      **/
     public void addActionCompletedListener(ActionCompletedListener listener)
     {
@@ -178,9 +175,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Adds a PropertyChangeListener.  The specified PropertyChangeListeners <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this CommandCall; it can be removed with removePropertyChangeListener.
+     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this CommandCall.  It can be removed with removePropertyChangeListener.
      @param  listener  The PropertyChangeListener.
-     @see  #removePropertyChangeListener
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
@@ -194,9 +190,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Adds a VetoableChangeListener.  The specified VetoableChangeListeners <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
+     Adds a VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
      @param  listener  The VetoableChangeListener.
-     @see  #removeVetoableChangeListener
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -216,6 +211,11 @@ public class CommandCall implements Serializable
         {
             if (system_ == null)
             {
+/*                if (AS400.onAS400)
+                {
+                    impl_ = (RemoteCommandImpl)AS400.loadImpl("com.ibm.as400.access.RemoteCommandImplNative");
+                    if (impl_ != null) return;
+                }*/
                 Trace.log( Trace.ERROR, "Attempt to connect to command server before setting system." );
                 throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
@@ -223,7 +223,7 @@ public class CommandCall implements Serializable
             impl_ = (RemoteCommandImpl)system_.loadImpl3("com.ibm.as400.access.RemoteCommandImplNative", "com.ibm.as400.access.RemoteCommandImplRemote", "com.ibm.as400.access.RemoteCommandImplProxy");
             impl_.setSystem(system_.getImpl());
         }
-        system_.signon(false);
+        if (system_ != null) system_.signon(false);
     }
 
     // Fires the action completed event.
@@ -239,7 +239,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns the command to run.  It will return an empty string ("") if the command has not been previously set by the constructor, setCommand, or run.
+     Returns the command to run.  It will return an empty string ("") if the command has not been previously set.
      @return  The command to run.
      **/
     public String getCommand()
@@ -256,12 +256,10 @@ public class CommandCall implements Serializable
      <p><b>Note:</b> This method is not supported in the Toolbox proxy environment.
      @return  The job in which the command will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @see #getServerJob
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -295,6 +293,7 @@ public class CommandCall implements Serializable
         return messageList_[index];
     }
 
+    //@E0A
     /**
      Returns a Job object which represents the server job in which the command will be run.  
      The information contained in the Job object is invalidated by <code>AS400.disconnectService()</code>
@@ -370,13 +369,9 @@ public class CommandCall implements Serializable
      Indicates whether or not the command will actually get run on the current thread.
      @return  true if the command will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ServerStartupException  If the server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
-     @see  #isThreadSafe
      **/
     public boolean isStayOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -407,13 +402,9 @@ public class CommandCall implements Serializable
      </ul>
      @return  true if the command will be assumed thread-safe; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ServerStartupException  If the server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
-     @see  #isStayOnThread
      **/
     public boolean isThreadSafe() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -454,7 +445,6 @@ public class CommandCall implements Serializable
     /**
      Removes the ActionCompletedListener.  If the ActionCompletedListener is not on the list, nothing is done.
      @param  listener  The ActionCompletedListener.
-     @see  #addActionCompletedListener
      **/
     public void removeActionCompletedListener(ActionCompletedListener listener)
     {
@@ -470,7 +460,6 @@ public class CommandCall implements Serializable
     /**
      Removes the PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
      @param  listener  The PropertyChangeListener.
-     @see  #addPropertyChangeListener
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
@@ -486,7 +475,6 @@ public class CommandCall implements Serializable
     /**
      Removes the VetoableChangeListener.  If the VetoableChangeListener is not on the list, nothing is done.
      @param  listener  The VetoableChangeListener.
-     @see  #addVetoableChangeListener
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -503,12 +491,9 @@ public class CommandCall implements Serializable
      Runs the command on the server.  The command must be set prior to this call.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -527,18 +512,21 @@ public class CommandCall implements Serializable
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command thread safety: ", threadSafety_);
         }
         // Run the command.
-        boolean success = impl_.runCommand(command_, threadSafety_);
+        boolean result = impl_.runCommand(command_, threadSafety_);
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
-        // Set our system object into each of the messages.
+        // Set our system into each of the messages.
+        if (system_ != null)
+        {
         for (int i = 0; i < messageList_.length; ++i)
         {
             messageList_[i].setSystem(system_);
         }
+        }
 
         // Fire action completed event.
         fireActionCompleted();
-        return success;
+        return result;
     }
 
     /**
@@ -546,13 +534,10 @@ public class CommandCall implements Serializable
      @param  command  The command to run.  If the command is not library qualified, the library list will be used to find the command.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  PropertyVetoException  If the change is vetoed.
-     @exception  ServerStartupException  If the server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
      **/
     public boolean run(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -560,47 +545,30 @@ public class CommandCall implements Serializable
         return run();
     }
 
-
-
-
-
-    // @D2a new method
     /**
-     Runs the command on the server.  This method takes the command to run as
-     a byte array instead of a String.  The most common use of CommandCall is
-     to supply the command to run as a String and let the Toolbox convert the string
-     to OS/400 format (EBCDIC) before sending it to the AS/400 for processing.
-     Use this method if the default conversion of the command string 
-     to EBCDIC is not correct.  In certain
-     cases, especially bi-directional languages, the Toolbox conversion
-     is not be correct.  In this case the application can construct their own
-     command and supply it to CommandCall as a byte array.
-     <P>
-     Unlike the run method that takes a string, this method will not look up
-     the thread safety of the command.  If this command is to be run on-thread
-     when running on the iSeries's JVM, setThreadSafe(true) must be called
-     by the application.
-
-     @param  command  The command to run on the server.
+     Runs the command on the server.  This method takes the command to run as a byte array instead of a String.  The most common use of CommandCall is to supply the command to run as a String and let the Toolbox convert the string to server format (EBCDIC) before sending it to the server for processing.  Use this method if the default conversion of the command to EBCDIC is not correct.  In certain cases, especially bi-directional languages, the Toolbox conversion is not be correct.  In this case the application can construct their own command and supply it to CommandCall as a byte array.
+     <p>Unlike the run method that takes a string, this method will not look up the thread safety of the command.  If this command is to be run on-thread when running on the server's JVM, setThreadSafe(true) must be called by the application.
+     @param  command  The command to run.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  PropertyVetoException  If the change is vetoed.
-     @exception  ServerStartupException  If the server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
      **/
     public boolean run(byte[] command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
-        if ((command == null) || (command.length == 0))
+        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Running command:", command);
+        if (command == null)
         {
-            Trace.log(Trace.ERROR, "Command null or length is 0 on run(byte[] command)");
-            throw new ExtendedIllegalStateException ("command", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+            Trace.log(Trace.ERROR, "Parameter 'command' is null.");
+            throw new NullPointerException("command");
         }
-
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Running command: " + command);
+        if (command.length == 0)
+        {
+            Trace.log(Trace.ERROR, "Length of 'command' parameter is not valid:", command);
+            throw new ExtendedIllegalArgumentException("command (" + command.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
 
         chooseImpl();
 
@@ -610,21 +578,19 @@ public class CommandCall implements Serializable
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
 
-        // Set our system object into each of the messages.
+        // Set our system into each of the messages.
+        if (system_ != null)
+        {
         for (int i = 0; i < messageList_.length; ++i)
         {
             messageList_[i].setSystem(system_);
+        }
         }
 
         // Fire action completed event.
         fireActionCompleted();
         return success;
     }
-
-
-
-
-
 
     /**
      Sets the command to run.
@@ -681,8 +647,6 @@ public class CommandCall implements Serializable
      Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the server.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
      <br>Note: This method does not modify the actual command object on the server.
      @param  threadSafe  true if the command should be assumed to be thread-safe; false otherwise.
-     @see  #isThreadSafe
-     @see  #isStayOnThread
      **/
     public void setThreadSafe(boolean threadSafe)
     {

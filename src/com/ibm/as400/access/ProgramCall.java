@@ -26,74 +26,75 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- The ProgramCall class allows a user to call an AS/400 program, pass parameters to it (input and output), and access data returned in the output parameters after the program runs.  Use ProgramCall to call AS/400 programs.  To call AS/400 service programs, use ServiceProgramCall.
+ The ProgramCall class allows a user to call an iSeries server program, pass parameters to it (input and output), and access data returned in the output parameters after the program runs.  Use ProgramCall to call programs.  To call service programs, use ServiceProgramCall.
  <P>The following example demonstrates the use of Program Call:
  <br>
  <pre>
-    // Call programs on system "Hal"
-    AS400 system = new AS400("Hal");
-    ProgramCall program = new ProgramCall(system);
-    try
-    {
-        // Initialize the name of the program to run.
-        String programName = "/QSYS.LIB/TESTLIB.LIB/TESTPROG.PGM";
-        // Set up the 3 parameters.
-        ProgramParameter[] parameterList = new ProgramParameter[3];
-        // First parameter is to input a name.
-        AS400Text nametext = new AS400Text(8);
-        parameterList[0] = new ProgramParameter(nametext.toBytes("John Doe"));
-        // Second parmeter is to get the answer, up to 50 bytes long.
-        parameterList[1] = new ProgramParameter(50);
-        // Third parmeter is to input a quantity and return a value up to 30 bytes long.
-        byte[] quantity = new byte[2];
-        quantity[0] = 1;  quantity[1] = 44;
-        parameterList[2] = new ProgramParameter(quantity, 30);
-        // Set the program name and parameter list.
-        program.setProgram(programName, parameterList);
-        // Run the program.
-        if (program.run() != true)
-        {
-            // Report failure.
-            System.out.println("Program failed!");
-            // Show the messages.
-            AS400Message[] messagelist = program.getMessageList();
-            for (int i = 0; i < messagelist.length; ++i)
-            {
-                // Show each message.
-                System.out.println(messagelist[i]);
-            }
-        }
-        // Else no error, get output data.
-        else
-        {
-            AS400Text text = new AS400Text(50);
-            System.out.println(text.toObject(parameterList[1].getOutputData()));
-            System.out.println(text.toObject(parameterList[2].getOutputData()));
-        }
-    }
-    catch (Exception e)
-    {
-        System.out.println("Program " + program.getProgram() + " did not run!");
-    }
-    // Done with the system.
-    system.disconnectAllServices();
+ *    // Call programs on server named "Hal."
+ *    AS400 system = new AS400("Hal");
+ *    ProgramCall program = new ProgramCall(system);
+ *    try
+ *    {
+ *        // Initialize the name of the program to run.
+ *        String programName = "/QSYS.LIB/TESTLIB.LIB/TESTPROG.PGM";
+ *        // Set up the 3 parameters.
+ *        ProgramParameter[] parameterList = new ProgramParameter[3];
+ *        // First parameter is to input a name.
+ *        AS400Text nametext = new AS400Text(8);
+ *        parameterList[0] = new ProgramParameter(nametext.toBytes("John Doe"));
+ *        // Second parameter is to get the answer, up to 50 bytes long.
+ *        parameterList[1] = new ProgramParameter(50);
+ *        // Third parameter is to input a quantity and return a value up to 30 bytes long.
+ *        byte[] quantity = new byte[2];
+ *        quantity[0] = 1;  quantity[1] = 44;
+ *        parameterList[2] = new ProgramParameter(quantity, 30);
+ *        // Set the program name and parameter list.
+ *        program.setProgram(programName, parameterList);
+ *        // Run the program.
+ *        if (program.run() != true)
+ *        {
+ *            // Report failure.
+ *            System.out.println("Program failed!");
+ *            // Show the messages.
+ *            AS400Message[] messagelist = program.getMessageList();
+ *            for (int i = 0; i < messagelist.length; ++i)
+ *            {
+ *                // Show each message.
+ *                System.out.println(messagelist[i]);
+ *            }
+ *        }
+ *        // Else no error, get output data.
+ *        else
+ *        {
+ *            AS400Text text = new AS400Text(50);
+ *            System.out.println(text.toObject(parameterList[1].getOutputData()));
+ *            System.out.println(text.toObject(parameterList[2].getOutputData()));
+ *        }
+ *    }
+ *    catch (Exception e)
+ *    {
+ *        System.out.println("Program " + program.getProgram() + " issued an exception!");
+ *        e.printStackTrace();
+ *    }
+ *    // Done with the server.
+ *    system.disconnectAllServices();
  </pre>
  <p>NOTE:  When getting the AS400Message list from programs, users no longer have to create a MessageFile to obtain the program help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the AS400Message object returned from getMessageList().  Here is an example:
  <PRE>
-    if (program.run("myPgm", myParmList) != true)
-    {
-        // Show messages.
-        AS400Message[] messageList = program.getMessageList();
-        for (int i = 0; i < messageList.length; ++i)
-        {
-            // Show each message.
-            System.out.println(messageList[i].getText());
-            // Load additional message information.
-            messageList[i].load();
-            //Show help text.
-            System.out.println(messageList[i].getHelp());
-        }
-    }
+ *    if (program.run("myPgm", myParmList) != true)
+ *    {
+ *        // Show messages.
+ *        AS400Message[] messageList = program.getMessageList();
+ *        for (int i = 0; i < messageList.length; ++i)
+ *        {
+ *            // Show each message.
+ *            System.out.println(messageList[i].getText());
+ *            // Load additional message information.
+ *            messageList[i].load();
+ *            //Show help text.
+ *            System.out.println(messageList[i].getHelp());
+ *        }
+ *    }
  </PRE>
  @see  ProgramParameter
  @see  AS400Message
@@ -106,9 +107,9 @@ public class ProgramCall implements Serializable
     static final long serialVersionUID = 4L;
 
     // Constants that indicate how thread safety was determined.
-    static final int BY_DEFAULT = 0;
-    static final int BY_PROPERTY = 1;
-    static final int BY_SET_METHOD = 2;
+    private static final int BY_DEFAULT = 0;
+    private static final int BY_PROPERTY = 1;
+    private static final int BY_SET_METHOD = 2;
 
     //The server the program is run on.
     AS400 system_ = null;
@@ -231,7 +232,7 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Adds a PropertyChangeListener.  The specified PropertyChangeListeners <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this ProgramCall, it can be removed with removePropertyChangeListener.
+     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this ProgramCall.  It can be removed with removePropertyChangeListener.
      @param  listener  The PropertyChangeListener.
      @see  #removePropertyChangeListener
      **/
@@ -247,7 +248,7 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Adds a VetoableChangeListener.  The specified VetoableChangeListeners <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
+     Adds a VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
      @param  listener  The VetoableChangeListener.
      @see  #removeVetoableChangeListener
      **/
@@ -269,6 +270,11 @@ public class ProgramCall implements Serializable
         {
             if (system_ == null)
             {
+/*                if (AS400.onAS400)
+                {
+                    impl_ = (RemoteCommandImpl)AS400.loadImpl("com.ibm.as400.access.RemoteCommandImplNative");
+                    if (impl_ != null) return;
+                }*/
                 Trace.log( Trace.ERROR, "Attempt to connect to command server before setting system." );
                 throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
@@ -276,7 +282,7 @@ public class ProgramCall implements Serializable
             impl_ = (RemoteCommandImpl)system_.loadImpl3("com.ibm.as400.access.RemoteCommandImplNative", "com.ibm.as400.access.RemoteCommandImplRemote", "com.ibm.as400.access.RemoteCommandImplProxy");
             impl_.setSystem(system_.getImpl());
         }
-        system_.signon(false);
+        if (system_ != null) system_.signon(false);
     }
 
     // Fires the action completed event.
@@ -296,12 +302,13 @@ public class ProgramCall implements Serializable
      <br>Typical uses include:
      <br>(1) before run() to identify the job before calling the program;
      <br>(2) after run() to see what job the program ran under (to identify the job log, for example).
+     <p><b>Note:</b> This method is not supported in the Toolbox proxy environment.
      @return  The job in which the program will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
+     @see #getServerJob
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -421,7 +428,6 @@ public class ProgramCall implements Serializable
      Indicates whether or not the program will actually get run on the current thread.
      @return  true if the program will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
@@ -529,7 +535,6 @@ public class ProgramCall implements Serializable
      Runs the program on the server.  The program and parameter list need to be set prior to this call.
      @return  true if program ran successfully; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
@@ -549,26 +554,46 @@ public class ProgramCall implements Serializable
         {
             if (parameterList_[i] == null)
             {
-                Trace.log(Trace.ERROR, "Parameter list value " + i + " not valid.");
-                throw new ExtendedIllegalArgumentException("parameterList", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                Trace.log(Trace.ERROR, "Parameter list value " + i + " null.");
+                throw new ExtendedIllegalArgumentException("parameterList[" + i + "] (" + parameterList_[i] + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
             }
         }
 
         chooseImpl();
 
         // Run the program.
+        try
+        {
         boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafety_);
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
         // Set our system object into each of the messages.
+            if (system_ != null)
+            {
         for (int i = 0; i < messageList_.length; ++i)
         {
             messageList_[i].setSystem(system_);
         }
+            }
 
         // Fire action completed event.
         fireActionCompleted();
         return result;
+    }
+        catch (ObjectDoesNotExistException e)
+        {
+            // Retrieve the messages.
+            messageList_ = impl_.getMessageList();
+            // Set our system object into each of the messages.
+            if (system_ != null)
+            {
+                for (int i = 0; i < messageList_.length; ++i)
+                {
+                    messageList_[i].setSystem(system_);
+                }
+            }
+            throw e;
+        }
     }
 
     /**
@@ -577,7 +602,6 @@ public class ProgramCall implements Serializable
      @param  parameterList  The list of parameters with which to run the program.
      @return  true if program ran successfully, false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
@@ -606,7 +630,7 @@ public class ProgramCall implements Serializable
         else if (parameterList.length > 35)
         {
             Trace.log(Trace.ERROR, "Length of parameter 'parameterList' is not valid:", parameterList.length);
-            throw new ExtendedIllegalArgumentException("parameterList", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
         ProgramParameter[] old = parameterList_;

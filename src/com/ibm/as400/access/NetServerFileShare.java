@@ -21,9 +21,9 @@ import com.ibm.as400.data.ProgramCallDocument;
  The NetServerFileShare class represents a NetServer file server share.
  NetServerFileShare objects are created and returned by <code>NetServer.listFileShares()</code>.
  <p>
- <i>Note: This class uses some API fields that are available only in the releases following OS/400 V4R5.</i>
+ <i>Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.</i>
  <p>
- <i>Note: The methods that <b>add</b> or <b>change</b> NetServer File Shares are supported for the releases following OS/400 V4R5.</i>
+ <i>Note: The methods that <b>add</b> or <b>change</b> NetServer File Shares are supported only when connecting to servers running OS/400 V5R1 or later.</i>
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>
@@ -217,6 +217,7 @@ extends NetServerShare
    <br>The {@link #PATH PATH} attribute must be set before this method is called.
    <br>{@link com.ibm.as400.resource.ChangeableResource#commitAttributeChanges() commitAttributeChanges} must <b>not</b> be called prior to this method.
    <br>This method requires *IOSYSCFG special authority on the server, or that the user own the integrated file system directory.
+   <br><i>Note: This method is not supported prior to OS/400 V5R1.</i>
 
 
    @exception ResourceException  If an error occurs.
@@ -353,7 +354,7 @@ extends NetServerShare
   }
 
 
-  // Returns a list of NetServerShare objects.
+  // Returns a list of NetServerFileShare objects.
   static ResourceList list(AS400 sys)
     throws ResourceException
   {
@@ -361,7 +362,7 @@ extends NetServerShare
   }
 
 
-  // Returns a list of NetServerShare objects.
+  // Returns a list of NetServerFileShare objects.
   static ResourceList list(AS400 sys, String shareName)
     throws ResourceException
   {

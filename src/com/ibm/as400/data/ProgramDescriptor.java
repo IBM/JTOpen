@@ -62,6 +62,8 @@ class ProgramDescriptor extends DocNodeDescriptor
                 return ((PcmlProgram)getDocNode()).getReturnvalue();
             else if (attr.equals("threadsafe"))                     // @A1A
                 return ((PcmlProgram)getDocNode()).getThreadsafe(); // @A1A
+            else if (attr.equals("epccsid"))                        // @D1A
+                return Integer.toString(((PcmlProgram)getDocNode()).getEpCcsid());  // @D1A
             else
                 return null;
         }

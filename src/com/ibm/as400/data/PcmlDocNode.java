@@ -24,6 +24,7 @@ abstract class PcmlDocNode extends PcmlNode {
     public final int PROGRAM = 1;
     public final int STRUCT  = 2;
     public final int DATA    = 3;
+    public final int RECORDFORMAT = 5;  // @D0A
 
     /***********************************************************
      Static Members
@@ -96,6 +97,7 @@ abstract class PcmlDocNode extends PcmlNode {
     protected void addChild(PcmlNode child)                         // @C2C
     {
         String qName; // Qualified name of child
+
 
         super.addChild(child);
 
@@ -239,6 +241,7 @@ abstract class PcmlDocNode extends PcmlNode {
     //    PcmlNodeType.PROGRAM
     //    PcmlNodeType.STRUCT
     //    PcmlNodeType.DATA
+    //    PcmlNodeType.RECORDFORMAT
     int getNodeType() 
     {
         return m_NodeType;
@@ -252,9 +255,15 @@ abstract class PcmlDocNode extends PcmlNode {
             case PcmlNodeType.DOCUMENT:                             // @C1A
                 m_TagName = "pcml";                                 // @C1A
                 break;                                              // @C1A
+            case PcmlNodeType.RFML:                                 // @D0A
+                m_TagName = "rfml";                                 // @D0A
+                break;                                              // @D0A
             case PcmlNodeType.PROGRAM:                              // @C1A
                 m_TagName = "program";                              // @C1A
                 break;                                              // @C1A
+            case PcmlNodeType.RECORDFORMAT:                         // @D0A
+                m_TagName = "recordformat";                         // @D0A
+                break;                                              // @D0A
             case PcmlNodeType.STRUCT:                               // @C1A
                 m_TagName = "struct";                               // @C1A
                 break;                                              // @C1A
@@ -346,6 +355,9 @@ abstract class PcmlDocNode extends PcmlNode {
     {
         return "<" + m_TagName + ">";
     }
+
+    // Returns a list of the names of all attributes for this node.   // @D0A
+    abstract String[] getAttributeList();
 
     // Returns a string containing the value of the specified attribute
     protected String getAttributeValue(String attributeName) 

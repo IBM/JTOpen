@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Vector;
 
-// The SystemProperties class contains constants representing names of all system properties recognized by the AS/400 Toolbox for Java.
+// The SystemProperties class contains constants representing names of all system properties recognized by the IBM Toolbox for Java.
 class SystemProperties
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -32,6 +32,7 @@ class SystemProperties
     // System property names.
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
     public static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
+    public static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
     public static final String TRACE_FILE = ACCESS_PREFIX + "Trace.file";
     public static final String TRACE_JDBC_SERVER = ACCESS_PREFIX + "ServerTrace.JDBC";     // @j1a

@@ -276,6 +276,7 @@ public class FTP
     * The method is the same as setCurrentDirectory().
     * The message returned from the server is saved.  Use getLastMessage()
     * to retrieve it.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @param directory The current directory to set on the server.
     *   @return true if directory changed; false otherwise.
     *   @exception IOException If an error occurs while communicating with the server.
@@ -317,6 +318,7 @@ public class FTP
     * if necessary.
     * The message returned from the server is saved.  Use getLastMessage()
     * to retrieve it.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @return true if connection is successful; false otherwise.
     *   @exception UnknownHostException If a path to the server cannot be found.
     *   @exception IOException If an error occurs while connecting to the server.
@@ -798,6 +800,7 @@ public class FTP
     * reads the file's data from the input stream.
     * The source file is on the server, accessed via FTP so the path
     * separator character (if any) must be a forward slash.
+    * <br>Throws SecurityException if userid or password is invalid.
     *
     *   @param fileName The file to get.
     *   @return An input stream to the file.  The caller uses the input
@@ -985,6 +988,7 @@ public class FTP
     * The source file is on the server, accessed via FTP so the path
     * separator character (if any) must be a forward slash.
     * The target file is an instance of Java.io.file.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @param sourceFileName The file to get on the server.
     *   @param targetFileName The file on the target file system.
     *   @return true if the copy was successful; false otherwise.
@@ -1191,6 +1195,7 @@ public class FTP
     * command to get a list of files from the server is NLST, not ls.  Many
     * FTP applications convert ls to NLST before sending the command to
     * the server.  This method will not do the conversion.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @param command The command to send to the server.
     *   @return The reply to the command.
     *           Null is returned if the connection to the server fails.
@@ -1465,7 +1470,8 @@ public class FTP
    /**
     * Sends the NOOP (no operation) command to the server.  This
     * request is most useful to see if the connection to the server
-    * is still active
+    * is still active.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @return true if the request was successful, false otherwise.
     *   @exception IOException If an error occurs while communicating with the server.
    **/
@@ -1496,6 +1502,7 @@ public class FTP
     * opens the data connection to the server, then opens the file on
     * the server and returns an output stream to the caller.  The caller
     * then writes the file's data to the output stream.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @param fileName The file to put.
     *   @return An output stream to the file.  The caller uses the output
     *           stream to write data to the file.
@@ -1667,6 +1674,7 @@ public class FTP
 // ---------------------------------------------------------------------------
    /**
     * Puts a file to the server.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @param sourceFileName The file to put.
     *   @param targetFileName The file on the server.
     *   @return true if the copy was successful; false otherwise.
@@ -1720,6 +1728,7 @@ public class FTP
    /**
     * Returns the current directory on the server.  PWD is the ftp
     * command Print Working Directory.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @return The current directory on the server.
     *           Null is returned if the connection to the server fails.
     *   @exception IOException If an error occurs while communicating with the server.
@@ -1958,6 +1967,7 @@ public class FTP
     * already exist, a connection is made to the server.
     * The message returned from the server is saved.  Use getLastMessage()
     * to retrieve it.
+    * <br>Throws SecurityException if userid or password is invalid.
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 

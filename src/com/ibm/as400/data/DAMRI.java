@@ -79,6 +79,21 @@ public class DAMRI extends ListResourceBundle
 	// The following are new in Toolbox mod4
 	
 	public final static String    DOCUMENT_ALREADY_SET      = "DOCUMENT_ALREADY_SET"; // @C1A
+	public final static String    DOCUMENT_NOT_SET          = "DOCUMENT_NOT_SET"; // @C2A
+	public final static String    DATATYPE_NOT_SUPPORTED    = "DATATYPE_NOT_SUPPORTED"; // @C2A
+	public final static String    MULTI_ARRAY_NOT_SUPPORTED = "MULTI_ARRAY_NOT_SUPPORTED"; // @C2A
+	public final static String    NO_STRUCT                 = "NO_STRUCT"; // @C2A
+	public final static String    NO_LENGTH                 = "NO_LENGTH"; // @C2A
+	public final static String    INSUFFICIENT_INPUT_DATA   = "INSUFFICIENT_INPUT_DATA"; // @C2A
+	public final static String    EXCESS_INPUT_DATA         = "EXCESS_INPUT_DATA"; // @C2A
+	public final static String    RECORD_NOT_INITIALIZED    = "RECORD_NOT_INITIALIZED"; // @C2A
+	public final static String    RECORDFORMAT_NOT_INITIALIZED = "RECORDFORMAT_NOT_INITIALIZED"; // @C2A
+	public final static String    SERIALIZED_XML_NOT_FOUND  = "SERIALIZED_XML_NOT_FOUND"; // @C2A
+	public final static String    XML_NOT_FOUND             = "XML_NOT_FOUND"; // @C2A
+	public final static String    DTD_NOT_FOUND             = "DTD_NOT_FOUND"; // @C2A
+	public final static String    XML_SERIALIZED            = "XML_SERIALIZED"; // @C2A
+	public final static String    STRUCT_VALUE              = "STRUCT_VALUE"; // @C2A
+	public final static String    DUPLICATE_FIELD_NAME      = "DUPLICATE_FIELD_NAME"; // @C3A
 
     // Internal errors
     public final static String    BAD_DATA_TYPE             = "BAD_DATA_TYPE";
@@ -151,6 +166,22 @@ public class DAMRI extends ListResourceBundle
 	// The following are new in Toolbox mod4
 
 	{ DOCUMENT_ALREADY_SET,        "Document is already set and cannot be set more than once." },  // @C1A
+	{ DOCUMENT_NOT_SET,            "Document has not been set." }, // @C2A
+	{ DATATYPE_NOT_SUPPORTED,      "Data type {0} is not supported by RFML." }, // @C2A
+	{ MULTI_ARRAY_NOT_SUPPORTED,   "Multidimensional AS400Array is not supported by RFML." }, // @C2A
+	{ NO_STRUCT,                   "The struct= attribute is required when type='struct'.  Processing {1} element \"{2}\"." }, // @C2A
+	{ NO_LENGTH,                   "The length= attribute is required when the type= attribute has a value other than 'struct'.  Processing {1} element \"{2}\"." }, // @C2A
+	{ INSUFFICIENT_INPUT_DATA,     "Insufficient input data available for this document element. Bytes required: {0}\tBytes provided: {1}\tProcessing {2} element \"{3}\"." }, // @C2A
+	{ EXCESS_INPUT_DATA,           "Excess input data was provided for this document element. Bytes required: {0}\tBytes provided: {1}\tProcessing {2} element \"{3}\"." }, // @C2A
+	{ RECORD_NOT_INITIALIZED,      "The Record object is not initialized." }, // @C2A
+	{ RECORDFORMAT_NOT_INITIALIZED, "The RecordFormat object is not initialized." }, // @C2A
+
+	{ SERIALIZED_XML_NOT_FOUND,    "Serialized {0} document ''{1}'' cannot be found." }, // @C2A
+	{ XML_NOT_FOUND,               "{0} document source ''{1}'' cannot be found." }, // @C2A
+	{ DTD_NOT_FOUND,               "{0} document type definition (DTD) ''{1}'' cannot be found" }, // @C2A
+	{ XML_SERIALIZED,              "{0} document ''{1}'' saved." }, // @C2A
+	{ STRUCT_VALUE,                "Cannot set or get the value of a <data> with type=''struct''. Processing <data> element ''{0}''." }, // @C2A
+	{ DUPLICATE_FIELD_NAME,        "RecordFormat ''{0}'' has duplicate field name ''{1}''." }, // @C3A
 
 	// NOTE TO TRANSLATORS: The following four messages are trace messages used for debugging
     { READ_DATA,                   "Reading data -- Offset: {0}\tLength: {1}\tName: \"{2}\"\tByte data: {3}"},

@@ -18,8 +18,8 @@ import java.sql.SQLException;
 
 
 /**
-The AS400JDBCParameterMetaData class can be used to get information about the types 
-and properties of the parameters in a PreparedStatement object.  
+The AS400JDBCParameterMetaData class can be used to retrieve information about the parameters 
+of a PreparedStatement.  
 
 Use PreparedStatement.getParameterMetaData() to create new ParameterMetaData objects.
 **/
@@ -45,8 +45,7 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the fully-qualified name of the Java class whose 
-    instances should be passed to the method PreparedStatement.setObject. 
+    Returns the fully-qualified name of the Java class of the specified parameter. 
     
     @param  parameterIndex    The parameter index (1-based).
     @return                   The fully-qualified name of the Java class.
@@ -62,8 +61,7 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the number of parameters in the PreparedStatement about
-    which this ParameterMetaData object contains information. 
+    Returns the number of parameters in this ParameterMetaData object. 
 
     @return                   The number of parameters in the ParameterMetaData object.
 
@@ -78,12 +76,13 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the designated parameter's mode. 
+    Returns the mode of the specified parameter or if that information is unknown. 
 
-    @param  parameterIndex    The parameter index (1-based)
-    @return                   The mode of the parameter; one of ParameterMetaData.parameterModeIn, 
+    @param  parameterIndex    The parameter index (1-based).
+    @return                   The mode of the parameter.  Valid values are 
+                              ParameterMetaData.parameterModeIn, 
                               ParameterMetaData.parameterModeOut, 
-                              ParameterMetaData.parameterModeInOut, or 
+                              ParameterMetaData.parameterModeInOut, and 
                               ParameterMetaData.parameterModeUnknown.
 
     @exception  SQLException  If the prepared statement is not open.
@@ -97,9 +96,9 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the designated parameter's SQL type. 
+    Returns the SQL type of the specified parameter. 
 
-    @param  parameterIndex    The parameter index (1-based)
+    @param  parameterIndex    The parameter index (1-based).
     @return                   The SQL type of the parameter.
 
     @exception  SQLException  If the prepared statement is not open.
@@ -113,9 +112,9 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the designated parameter's database-specific type name. 
+    Returns the database-specific type name of the specified parameter. 
 
-    @param  parameterIndex    The parameter index (1-based)
+    @param  parameterIndex    The parameter index (1-based).
     @return                   The type name of the parameter.
 
     @exception  SQLException  If the prepared statement is not open.
@@ -129,9 +128,9 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the designated parameter's number of decimal digits. 
+    Returns the number of decimal digits of the specified parameter. 
 
-    @param  parameterIndex    The parameter index (1-based)
+    @param  parameterIndex    The parameter index (1-based).
     @return                   The precision of the parameter.
 
     @exception  SQLException  If the prepared statement is not open.
@@ -145,10 +144,10 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns the designated parameter's number of digits
-    to the right of the decimal point. 
+    Returns the number of digits to the right of the decimal point 
+    of the specified parameter. 
 
-    @param  parameterIndex    The parameter index (1-based)
+    @param  parameterIndex    The parameter index (1-based).
     @return                   The scale of the parameter.
 
     @exception  SQLException  If the prepared statement is not open.
@@ -162,12 +161,12 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns if the designated parameter can be null.   
+    Returns if the specified parameter can be null or that information is unknown.   
 
-    @param  parameterIndex    The parameter index (1-based)
-    @return                   If the parameter can be null; one of 
+    @param  parameterIndex    The parameter index (1-based).
+    @return                   Returns if the parameter can be null.  The valid values are 
                               ParameterMetaData.parameterNoNulls, 
-                              ParameterMetaData.parameterNullable, or
+                              ParameterMetaData.parameterNullable, and
                               ParameterMetaData.parameterNullableUnknown.
 
     @exception  SQLException  If the prepared statement is not open.
@@ -181,10 +180,11 @@ public class AS400JDBCParameterMetaData
 
 
     /**
-    Returns if values for the designated parameter can be signed numbers. 
+    Returns if values can be signed numbers for the specified parameter. 
 
-    @param  parameterIndex    The parameter index (1-based)
-    @return                   Returns true if values can be signed number, false otherwise.
+    @param  parameterIndex    The parameter index (1-based).
+    @return                   Returns true if values for the specified parameter
+                              can be signed numbers, false otherwise.
 
     @exception  SQLException  If the prepared statement is not open.
     **/

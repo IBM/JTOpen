@@ -40,7 +40,7 @@ implements Clob
 
 
     // Private data.
-    private String      		data_;
+    private String              data_;
     private int                 length_;
 
 
@@ -53,7 +53,7 @@ in the String.  No further server communication is necessary.
 **/
     AS400JDBCClob (String data)
     {
-	    data_		= data;
+        data_       = data;
         length_     = data.length ();
     }
 
@@ -69,7 +69,7 @@ Returns the entire clob as a stream of ASCII characters.
     public InputStream getAsciiStream ()
         throws SQLException
     {
-	    try {
+        try {
             return new ByteArrayInputStream (data_.getBytes ("ISO8859_1"));
         }
         catch (UnsupportedEncodingException e) {
@@ -116,7 +116,7 @@ Returns part of the contents of the clob.
         if ((start < 0) || (length < 0) || (end >= length_) || (start >= length_))    // @B2C
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-	    // Generate the substring.
+        // Generate the substring.
         return data_.substring ((int) start, (int) start + length);
     }
 
@@ -194,92 +194,101 @@ Returns the position at which a pattern is found in the clob.
 
     //@G4A  JDBC 3.0
     /**
-    Returns a stream to be used to write Ascii characters to the CLOB value 
-    that this CLOB designates, starting at position <i>pos</i>.
+    Returns a stream that an application can use to write Ascii characters to this CLOB.
+    The stream begins at position <i>positionToStartWriting</i>, and the CLOB will be truncated 
+    after the last character of the write.
     
-    @param pos The position (1-based) in the CLOB value at which to start writing.
-    @return An OutputStream object to which data can be written.
-    @exception SQLException If there is an error accessing the CLOB value or if the position
+    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+    @return An OutputStream object to which data can be written by an application.
+    @exception SQLException If there is an error accessing the CLOB or if the position
     specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
-    public OutputStream setAsciiStream(long pos)
+    public OutputStream setAsciiStream(long positionToStartWriting)
     throws SQLException
     {
-        if (pos <= 0 || pos > length_)
+        if (positionToStartWriting <= 0 || positionToStartWriting > length_)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
 
-        return new AS400JDBCLobOutputStream (this, pos); 
+        //Didn't decrement the position here even though clobs are 1-based and output streams
+        //are 0-based because output stream uses this number for what position to call
+        //setString() on in the clob, which is 1-based.
+        return new AS400JDBCLobOutputStream (this, positionToStartWriting); 
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Returns a stream to be used to write a stream of Unicode characters to the CLOB value 
-    that this CLOB designates, at position <i>pos</i>. The stream begins at position pos.
+    Returns a stream that an application can use to write a stream of Unicode characters to 
+    this CLOB.  The stream begins at position <i>positionToStartWriting</i>, and the CLOB will 
+    be truncated after the last character of the write.
 
-    @param pos The position (1-based) in the CLOB value at which to start writing.
-    @return An OutputStream object to which data can be written.
-    @exception SQLException If there is an error accessing the CLOB value or if the position
+    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+    @return An OutputStream object to which data can be written by an application.
+    @exception SQLException If there is an error accessing the CLOB or if the position
     specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
-    public Writer setCharacterStream (long pos)
+    public Writer setCharacterStream (long positionToStartWriting)
     throws SQLException
     {
-        if (pos <= 0 || pos > length_)
+        if (positionToStartWriting <= 0 || positionToStartWriting > length_)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        return new AS400JDBCLobWriter (this, pos);  
+        //Didn't decrement the position here even though clobs are 1-based and writers
+        //are 0-based because writer uses this number for what position to call
+        //setString() on in the clob, which is 1-based.
+        return new AS400JDBCLobWriter (this, positionToStartWriting);  
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Writes a String to the CLOB value that this CLOB object designates at the position <i>pos</i>.
+    Writes a String to this CLOB, starting at position <i>positionToStartWriting</i>.  The CLOB 
+    will be truncated after the last character written.
 
-    @param pos The position (1-based) in the CLOB object at which to start writing.
-    @param string The string to be written to the CLOB value that this CLOB object 
-    represents
-    @return The number of characters written.
+    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+    @param stringToWrite The string that will be written to the CLOB.
+    @return The number of characters that were written.
 
-    @exception SQLException If there is an error accessing the CLOB value or if the position
+    @exception SQLException If there is an error accessing the CLOB or if the position
     specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
-    public int setString (long pos, String str)
+    public int setString (long positionToStartWriting, String stringToWrite)
     throws SQLException
     {
         // Validate the parameters.
-        if ((pos > length_) || (pos <= 0) || (str == null))
+        if ((positionToStartWriting > length_) || (positionToStartWriting <= 0) || (stringToWrite == null))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        pos--;
+        positionToStartWriting--;
 
-        data_ = data_.substring(0, (int)pos) + str;
+        data_ = data_.substring(0, (int)positionToStartWriting) + stringToWrite;
 
         length_ = data_.length();
 
-        return str.length();
+        return stringToWrite.length();
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Writes <i>len</i> characters of a String starting at character <i>offset</i>, to the CLOB value 
-    that this Clob designates.
+    Writes a String to this CLOB, starting at position <i>positionToStartWriting</i> in the CLOB.  
+    The CLOB will be truncated after the last character written.  The <i>lengthOfWrite</i>
+    characters written will start from <i>offset</i> in the string that was provided by the
+    application.
 
-    @param pos The position (1-based) in the CLOB object at which to start writing.
-    @param string The string to be written to the CLOB value that this CLOB object 
-    represents
-    @param offset The offset into str to start writing the characters (1-based).
-    @param len The number of characters to be written
+    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+    @param string The string that will be written to the CLOB.
+    @param offset The offset into string to start reading characters (1-based).
+    @param lengthOfWrite The number of characters to write.
     @return The number of characters written.
 
     @exception SQLException If there is an error accessing the CLOB value or if the position
@@ -287,36 +296,37 @@ Returns the position at which a pattern is found in the clob.
     
     @since Modification 5
     **/
-    public int setString (long pos, String str, int offset, int len)
+    public int setString (long positionToStartWriting, String string, int offset, int lengthOfWrite)
     throws SQLException
     {
-        if ((len < 0) || (offset <= 0) || (str == null))
+        if ((lengthOfWrite < 0) || (offset <= 0) || (string == null))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         offset--;
 
-        return setString(pos, str.substring(offset,len));
+        return setString(positionToStartWriting, string.substring(offset, lengthOfWrite));
     }
 
 
 
     //@G4A  JDBC 3.0
     /**
-    Truncates the CLOB value that this CLOB object represents to be <i>len</i> characters in length.
+    Truncates this CLOB to a length of <i>lengthOfCLOB</i> characters.
      
-    @param len The length, in characters, to which the CLOB value that this CLOB object 
-    represents should be truncated.
+    @param lengthOfCLOB The length, in characters, that this CLOB should be after 
+    truncation.
      
-    @exception SQLException If there is an error accessing the CLOB value or if the length
+    @exception SQLException If there is an error accessing the CLOB or if the length
     specified is greater than the length of the CLOB. 
     
     @since Modification 5   
     **/
-    public void truncate(long len)
+    public void truncate(long lengthOfCLOB)
     throws SQLException
     {
         //parameter checking will be done in setString method 
-        setString(len, "");
+        setString(lengthOfCLOB+1, "");  //@G5C length should be 1 more since setString decrements
+        //@G5C by 1 since it assumes 1-based positions are passed in
     }
 
 

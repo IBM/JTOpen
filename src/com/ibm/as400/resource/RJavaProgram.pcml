@@ -46,18 +46,19 @@
         <data name="fileOwnerName"                              type="char"    length="10"/>
         <data name="fileChangeModifyDateAndTime"                type="char"    length="13"/>
         <data name="javaProgramCreationDateAndTime"             type="char"    length="13"/>
-        <data name="numberOfJavaProgramsAttached"               type="int"     length="4"/>
+	  <data name="numberOfJavaProgramsAttached"               type="int"     length="4"/>
         <data name="numberOfClassesWithCurrentJavaPrograms"     type="int"     length="4"/>
         <data name="numberOfClassesWithoutCurrentJavaPrograms"  type="int"     length="4"/>
         <data name="numberOfClassesWithErrors"                  type="int"     length="4"/>
-        <data name="totalNumberOfClasses"                       type="int"     length="4"/>
+	  <data name="numberOfTotalClassesInSource"               type="int"     length="4"/>
         <data name="optimizationLevel"                          type="int"     length="4"/>
         <data name="performanceCollectionEnabledFlag"           type="char"    length="2"/>
         <data name="useAdoptedAuthority"                        type="char"    length="1"/>
         <data name="adoptedAuthorityProfile"                    type="char"    length="1"/>
         <data name="sizeOfJavaProgramsAttached"                 type="int"     length="4"/>
         <data name="javaProgramVersion"                         type="byte"    length="2"/>
-        <data                                                   type="char"    length="2"/>
+	  <data name="profilingDataStatus"                        type="char"    length="1"/>
+        <data                                                   type="char"    length="1"/>
         <data name="offsetToLICOptions"                         type="int"     length="4"/>
         <data name="lengthOfLICOptionsReturned"                 type="int"     length="4"/>
         <data name="lengthOfLICOptionsAvailable"                type="int"     length="4"/>

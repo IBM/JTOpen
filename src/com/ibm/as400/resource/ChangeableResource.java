@@ -194,6 +194,7 @@ extends Resource
 
     // This hashtable keeps a buffer of values that have been loaded as a
     // result of a previous call to getAttributeValue().
+    // Note: This buffer excludes any uncommitted changes.
     private transient Hashtable                     bufferedValues_;
 
     // This hashtable keeps a list of values that have been set as a result
@@ -645,14 +646,11 @@ has an uncommitted change, this returns the changed (uncommitted) value.
     private Object getAttributeValueImplementation(Object attributeID, int bidiStringType)
     throws ResourceException
     {
-        Object value = null;  // @A4A
         synchronized(this) {
             if (uncommittedChanges_.containsKey(attributeID))
-                value = uncommittedChanges_.get(attributeID);  // @A4C
+                return uncommittedChanges_.get(attributeID);
             else
-                value = getAttributeUnchangedValue(attributeID, bidiStringType);  // @A4C
-            bufferedValues_.put(attributeID, value);   // @A4A
-            return value;  // @A4A
+                return getAttributeUnchangedValue(attributeID, bidiStringType);
         }
     }
 

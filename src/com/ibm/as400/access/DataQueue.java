@@ -94,9 +94,9 @@ public class DataQueue extends BaseDataQueue
      Creates a data queue on the AS/400.
      @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @param  authority  The public authority for the data queue. Valid values are *ALL, *CHANGE, *EXCLUDE, *USE, *LIBCRTAUT.
-     @param  saveSenderInformation  Determines if entry origin information will be saved.
+     @param  saveSenderInformation  true if entry origin information will be saved; false otherwise.
      @param  FIFO  true if queue entries are processed in FIFO order, false if queue entries are processed in LIFO order.
-     @param  forceToAuxiliaryStorage  true if writes are forced to storage before return.
+     @param  forceToAuxiliaryStorage  true if writes are forced to storage before return; false otherwise.
      @param  description  The text description.  This string must be 50 characters or less.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.

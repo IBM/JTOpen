@@ -65,12 +65,15 @@ class PcmlData extends PcmlDocNode {
         "init",
         "struct",
         "passby",                       // PCML Ver. 2.0
-        "bidistringtype"                // PCML Ver. 3.0               @C9A
+        "bidistringtype",               // PCML Ver. 3.0               @C9A
+        "trim",                         // PCML Ver. 4.0               @D1A
+        "chartype"                      // PCML Ver. 4.0               @D2A
     };
 
     private static final int VERSION_1_ATTRIBUTE_COUNT = 14;
     private static final int VERSION_2_ATTRIBUTE_COUNT = 15;
     private static final int VERSION_3_ATTRIBUTE_COUNT = 16;        // @C9A
+    private static final int VERSION_4_ATTRIBUTE_COUNT = 18;        // @D1A @D2C
 
     /***********************************************************
      Instance Members
@@ -99,9 +102,11 @@ class PcmlData extends PcmlDocNode {
     private int    m_Type;          // type=, integer representing data type
     private int    m_Length;        // length=, integer literal
     private String m_LengthId;      // length=, element name
+    private boolean m_LengthWasSpecified; // Indicates whether length was specified.  @D0A
     private int    m_Precision;     // precison=, integer literal
     private int    m_Ccsid;         // ccsid=, integer literal
     private String m_CcsidId;       // ccsid=, element name
+    private boolean m_CcsidWasSpecified; // Indicates whether ccsid was specified.  @D0A
     private String m_Init;          // init=, string literal
     private String m_StructId;      // struct=, element name
 
@@ -113,6 +118,11 @@ class PcmlData extends PcmlDocNode {
     private String m_BidistringtypeStr;     // bidistringtype=, string literal       @C9A
     private int    m_Bidistringtype;        // bidistringtype=, integer representing value    @C9A
 
+    private boolean m_IsRfml;        // Indicates whether RFML versus PCML.  @D0A
+
+    // The following attributes added for PCML v4.0
+    private String m_TrimStr;        // trim=, string literal          @D1A
+    private String m_CharType;       // chartype=, string literal      @D2A
 
     /***********************************************************
      Semi-Transient Members --
@@ -125,12 +135,25 @@ class PcmlData extends PcmlDocNode {
     // Default constructor
     PcmlData()
     {
+      this(false);                                                   // @D0A
     }
 
     // Constructor with description
     PcmlData(PcmlAttributeList attrs)                               // @C3C
     {
+        this(attrs, false);                                         // @D0C
+    }
+
+    PcmlData(boolean isRfml)                                   // @D0A
+    {
+        m_IsRfml = isRfml;
+    }
+
+    // Constructor with description
+    PcmlData(PcmlAttributeList attrs, boolean isRfml)          // @D0A
+    {
         super(attrs);                                               // @C3C
+        m_IsRfml = isRfml;                                          // @D0A
         setNodeType(PcmlNodeType.DATA);                             // @C3C
 
         // **********************************
@@ -182,6 +205,12 @@ class PcmlData extends PcmlDocNode {
 
         // Set bidistringtype= member variable
         setBidiStringType(getAttributeValue("bidistringtype"));     // @C9A
+
+        // Set trim= attribute value
+        setTrim(getAttributeValue("trim"));                         // @D1A
+
+        // Set trim= attribute value
+        setCharType(getAttributeValue("chartype"));                 // @D2A
 
         m_scalarValue = null; // Transient data created as needed
         m_vectorValue = null; // Transient data created as needed
@@ -305,7 +334,7 @@ class PcmlData extends PcmlDocNode {
             // Make sure index is not out of bounds
             if (index < 0 || index >= myDimensions[i])
             {
-                throw new PcmlException(DAMRI.INDEX_OUT_OF_BOUNDS, new Object[] {new Integer(myDimensions[i]), new Integer(i), indices, getNameForException()} );
+                throw new PcmlException(DAMRI.INDEX_OUT_OF_BOUNDS, new Object[] {new Integer(myDimensions[i]-1), new Integer(i), indices, getNameForException()} );  // @D0C Subtract 1 from myDimensions to get the upper end of range to come out right in the message.
             }
 
             // If we have are not on the last (deepest) dimension
@@ -482,6 +511,8 @@ class PcmlData extends PcmlDocNode {
             returnCount = VERSION_1_ATTRIBUTE_COUNT;            // @C7A
         else if ( getDoc().getVersion().compareTo("3.0") < 0 )  // @C9A
             returnCount = VERSION_2_ATTRIBUTE_COUNT;            // @C9A
+        else if ( getDoc().getVersion().compareTo("4.0") < 0 )  // @D1A
+            returnCount = VERSION_3_ATTRIBUTE_COUNT;            // @D1A
         else                            // Anything else return the entire array
             return DATAATTRIBUTES;                              // @C7A
 
@@ -810,6 +841,18 @@ class PcmlData extends PcmlDocNode {
         return totalSize;
     }
 
+    // Get the trim= resolved element name, if any
+    public final String getTrim()                                   // @D1A
+    {                                                               // @D1A
+        return m_TrimStr;                                           // @D1A
+    }                                                               // @D1A
+
+    // Get the trim= resolved element name, if any
+    public final String getCharType()                               // @D2A
+    {                                                               // @D2A
+        return m_CharType;                                          // @D2A
+    }                                                               // @D2A
+
     boolean isArray()
     {
         if ( getCount() > 0 )
@@ -839,11 +882,19 @@ class PcmlData extends PcmlDocNode {
                     return false;
     }
 
+    // Returns true if the length attribute has been specified.        @D0A
+    public final boolean isLengthSpecified()
+    {
+      return (m_LengthWasSpecified || m_Length != 0 || m_LengthId != null);
+      // Note: This conditional is beefed-up to handle the case where a PcmlData object from an older version (before m_LengthWasSpecified was added) was serialized and then deserialized into the current version.
+    }
+
     // Returns true if this document element is supported at the
     // at the VRM of the current host.
     // Returns false if not.
     boolean isSupportedAtHostVRM() throws PcmlException             // @A1A
     {                                                               // @A1A
+        if (m_IsRfml) return true;                                  // @D0A
         int hostVrm = getAs400VRM();      // VRM of the AS/400 system  @A1A
 
         // If the minvrm= for this element is greater than the AS400 VRM
@@ -1319,6 +1370,8 @@ class PcmlData extends PcmlDocNode {
             return;
         }
 
+        m_CcsidWasSpecified = true;                           // @D0A
+
         // Try to parse an integer from the attribute value
         try
         {
@@ -1336,19 +1389,20 @@ class PcmlData extends PcmlDocNode {
 
     private void setInit(String init)
     {
-        // Handle null or empty string
-        if (init == null || init.equals(""))
-        {
-            m_Init = null;
-            return;
-        }
+// @D0D
+//        // Handle null or empty string
+//        if (init == null || init.equals(""))
+//        {
+//            m_Init = null;
+//            return;
+//        }
 
         // Save the attribute value
         m_Init = init;
         // checkAttributes() will verify the value against the data type
     }
 
-    private void setLength(String length)
+    protected void setLength(String length)           // @D0C
     {
         // Handle null or empty string
         if (length == null || length.equals(""))
@@ -1357,6 +1411,8 @@ class PcmlData extends PcmlDocNode {
             m_LengthId = null;
             return;
         }
+
+        m_LengthWasSpecified = true;  // @D0A
 
         // Try to parse an integer from the attribute value
         try
@@ -1617,6 +1673,32 @@ class PcmlData extends PcmlDocNode {
             m_Type = UNSUPPORTED;
     }
 
+    private void setTrim(String trimEnd)                            // @D1A
+    {                                                               // @D1A
+        // Handle null or empty string                              // @D1A
+        if (trimEnd == null || trimEnd.equals(""))                  // @D1A
+        {                                                           // @D1A
+            m_TrimStr = null;                                       // @D1A
+            return;                                                 // @D1A
+        }                                                           // @D1A
+
+        // Save the attribute value
+        m_TrimStr = trimEnd;                                        // @D1A
+    }
+
+    private void setCharType(String charType)                       // @D2A
+    {                                                               // @D2A
+        // Handle null or empty string                              // @D2A
+        if (charType == null || charType.equals(""))                // @D2A
+        {                                                           // @D2A
+            m_CharType = null;                                      // @D2A
+            return;                                                 // @D2A
+        }                                                           // @D2A
+
+        // Save the attribute value
+        m_CharType = charType;                                      // @D2A
+    }
+
     protected void checkAttributes()
     {
         //String resolvedName = null;
@@ -1662,6 +1744,10 @@ class PcmlData extends PcmlDocNode {
         // If an integer was specified for the ccsid, no checking is needed.
         // If a document element ID was was specified, make sure
         // it resolves to a <data> element with type="int".
+        if (m_IsRfml && m_CcsidWasSpecified && (getDataType() != CHAR))   // @D0A
+        {
+          getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("ccsid",  getAttributeValue("ccsid")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+        }
         if (m_CcsidId != null)
         {
             resolvedNode = resolveRelativeNode(m_CcsidId);
@@ -1685,8 +1771,8 @@ class PcmlData extends PcmlDocNode {
             }
         }
         else
-        // Do not allow ccsid= to be a literal value that is negative
-        if (m_Ccsid < 0)
+        // Do not allow ccsid= to be a literal value that is negative or greater than 65535.   @D0C
+        if (m_Ccsid < 0 || m_Ccsid > 65535)  // @D0C - added check for >65535.
         {
             getDoc().addPcmlSpecificationError(DAMRI.BAD_ATTRIBUTE_VALUE, new Object[] {makeQuotedAttr("ccsid", m_Ccsid), getBracketedTagName(), getNameForException()} ); // @A1C
         }
@@ -1794,6 +1880,24 @@ class PcmlData extends PcmlDocNode {
                         }
                         break;
 
+                }
+                // Extra logic for RFML.                                      @D0A
+                if (m_IsRfml)
+                {
+                  // If type="struct", the 'struct' attribute is required.
+                  if (getDataType() == STRUCT)
+                  {
+                    if (getAttributeValue("struct") == null ||
+                        getAttributeValue("struct").equals(""))
+                    {
+                      getDoc().addPcmlSpecificationError(DAMRI.NO_STRUCT, new Object[] {makeQuotedAttr("struct", null), getBracketedTagName(), getNameForException()} );
+                    }
+                  }
+                  // Otherwise, the 'length' attribute is required.
+                  else if (!m_LengthWasSpecified)
+                  {
+                    getDoc().addPcmlSpecificationError(DAMRI.NO_LENGTH, new Object[] {makeQuotedAttr("length", null), getBracketedTagName(), getNameForException()} );
+                  }
                 }
             }
         }
@@ -2005,8 +2109,36 @@ class PcmlData extends PcmlDocNode {
             if ( getDoc().getVersion().compareTo("3.0") < 0 )       // @C9A
             {                                                       // @C9A
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("bidistringtype", m_BidistringtypeStr), "3.0", getBracketedTagName(), getNameForException()} ); // @C9A
-            }                                                       // @C9A
         }                                                           // @C9A
+    }
+
+        // Verify the trim= attribute
+        if (m_TrimStr != null)                                      // @D1A
+        {                                                           // @D1A
+            // Only allow this attribute when the pcml version is 4.0 or higher (e.g. <pcml version="4.0">)
+            if ( getDoc().getVersion().compareTo("4.0") < 0 )       // @D1A
+            {                                                       // @D1A
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("trim", m_TrimStr), "4.0", getBracketedTagName(), getNameForException()} ); // @D1A
+            }                                                       // @D1A
+        }
+
+        // Verify the chartype= attribute
+        if (m_CharType != null)                                     // @D2A
+        {                                                           // @D2A
+            // Only allow this attribute when the pcml version is 4.0 or higher (e.g. <pcml version="4.0">)
+            if ( getDoc().getVersion().compareTo("4.0") < 0 )       // @D2A
+            {                                                       // @D2A
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("chartype", m_CharType), "4.0", getBracketedTagName(), getNameForException()} ); // @D2A
+            }                                                       // @D2A
+            else 
+            {
+                if (getDataType() != CHAR)                             // @D2A
+                {
+                  getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("chartype",  getAttributeValue("chartype")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+                }
+            }
+        }
+    
     }
 
 

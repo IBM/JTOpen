@@ -163,7 +163,7 @@ implements SQLLocator                                       // @B3C
         if (object instanceof Clob)
         {
                     //@G5A Start new code for updateable locator case
-                    try
+                    if (object instanceof AS400JDBCClobLocator)
                     {
                         AS400JDBCClobLocator clob = (AS400JDBCClobLocator) object;
                         synchronized (clob.getInternalLock())
@@ -172,15 +172,11 @@ implements SQLLocator                                       // @B3C
                             if (positionsToStartUpdates != null)
                             {
                                 Vector stringsToUpdate = clob.getStringsToUpdate();
-                                Enumeration stringsToUpdateElements = stringsToUpdate.elements();
-                                Enumeration positionsToStartUpdatesElements = positionsToStartUpdates.elements();
-                                for (int i = 0; positionsToStartUpdatesElements.hasMoreElements(); i++)
+                                for (int i = 0; i < stringsToUpdate.size(); i++)
                                 {
-                                    long startPosition = ((Long)positionsToStartUpdatesElements.nextElement()).longValue();
-                                    String updateString = (String)stringsToUpdateElements.nextElement();
+                                    long startPosition = ((Long)positionsToStartUpdates.elementAt(i)).longValue();     //@D3C
+                                    String updateString = (String)stringsToUpdate.elementAt(i);                        //@D3C
                                     locator_.writeData((int)startPosition, updateString.length(), converter_.stringToByteArray(updateString));
-                                    stringsToUpdate.remove(i);
-                                    positionsToStartUpdates.remove(i);
                                 }
                                 // If writeData calls do not throw an exception, update has been successfully made.
                                 positionsToStartUpdates = null;
@@ -188,10 +184,6 @@ implements SQLLocator                                       // @B3C
                                 set = true;
                             }
                         }
-                    }
-                    catch (ClassCastException e)
-                    {
-                        //ignore
                     }
                     //@G5A End new code
 

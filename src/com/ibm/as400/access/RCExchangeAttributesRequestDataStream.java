@@ -46,7 +46,7 @@ class RCExchangeAttributesRequestDataStream extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Sending remote command exchange client/server attributes request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending remote command exchange client/server attributes request...");
         super.write(out);
     }
 }
