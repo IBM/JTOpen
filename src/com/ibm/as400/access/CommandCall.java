@@ -259,7 +259,7 @@ public class CommandCall implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @see #getServerJob
+     @deprecated  Use getServerJob() instead.
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -518,10 +518,10 @@ public class CommandCall implements Serializable
         // Set our system into each of the messages.
         if (system_ != null)
         {
-        for (int i = 0; i < messageList_.length; ++i)
-        {
-            messageList_[i].setSystem(system_);
-        }
+            for (int i = 0; i < messageList_.length; ++i)
+            {
+                messageList_[i].setSystem(system_);
+            }
         }
 
         // Fire action completed event.
@@ -581,10 +581,10 @@ public class CommandCall implements Serializable
         // Set our system into each of the messages.
         if (system_ != null)
         {
-        for (int i = 0; i < messageList_.length; ++i)
-        {
-            messageList_[i].setSystem(system_);
-        }
+            for (int i = 0; i < messageList_.length; ++i)
+            {
+                messageList_[i].setSystem(system_);
+            }
         }
 
         // Fire action completed event.

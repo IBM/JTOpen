@@ -308,6 +308,7 @@ public class ProgramCall implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
+     @deprecated  Use getServerJob() instead.
      @see #getServerJob
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -564,22 +565,22 @@ public class ProgramCall implements Serializable
         // Run the program.
         try
         {
-        boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafety_);
-        // Retrieve the messages.
-        messageList_ = impl_.getMessageList();
-        // Set our system object into each of the messages.
+            boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafety_);
+            // Retrieve the messages.
+            messageList_ = impl_.getMessageList();
+            // Set our system object into each of the messages.
             if (system_ != null)
             {
-        for (int i = 0; i < messageList_.length; ++i)
-        {
-            messageList_[i].setSystem(system_);
-        }
+                for (int i = 0; i < messageList_.length; ++i)
+                {
+                    messageList_[i].setSystem(system_);
+                }
             }
 
-        // Fire action completed event.
-        fireActionCompleted();
-        return result;
-    }
+            // Fire action completed event.
+            fireActionCompleted();
+            return result;
+        }
         catch (ObjectDoesNotExistException e)
         {
             // Retrieve the messages.
