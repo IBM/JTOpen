@@ -264,8 +264,8 @@ public class JdbcMeLiveResultSet implements ResultSet
 
         if(onWhichRow_ == ROW_INSERT)                               //@A1A We want to get the values for the row we are inserting, not the value for the row the server cursor is on
         {
-            if(stmt_.getColumnTypes_[columnIndex-1] == Types.INTEGER){ //@A1A
-                return ((Integer)modifiedRowBuffer_[columnIdex-1]).intValue(); //@A1A
+            if(stmt_.columnTypes_[columnIndex-1] == Types.INTEGER){ //@A1A
+                return ((Integer)modifiedRowBuffer_[columnIndex-1]).intValue(); //@A1A
             }
             else return Integer.parseInt(modifiedRowBuffer_[columnIndex-1].toString());    //@A1A
         }
