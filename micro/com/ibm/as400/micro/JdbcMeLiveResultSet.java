@@ -236,7 +236,8 @@ public class JdbcMeLiveResultSet implements ResultSet
         if (columnIndex < 1 || columnIndex > currentRow_.length)
             throw new JdbcMeException("RS Column " + columnIndex, null);
 
-        return currentRow_[columnIndex-1].toString();
+        if(onWhichRow_ == ROW_INSERT)  return modifiedRowBuffer_[columnIndex-1].toString();    //@A1A We want to get the values for the row we are inserting, not the value for the row the server cursor is on
+        else return currentRow_[columnIndex-1].toString();
     }
 
     /**
@@ -260,6 +261,14 @@ public class JdbcMeLiveResultSet implements ResultSet
 
         if (columnIndex < 1 || columnIndex > currentRow_.length)
             throw new JdbcMeException("RS Column " + columnIndex, null);
+
+        if(onWhichRow_ == ROW_INSERT)                               //@A1A We want to get the values for the row we are inserting, not the value for the row the server cursor is on
+        {
+            if(stmt_.getColumnTypes_[columnIndex-1] == Types.INTEGER){ //@A1A
+                return ((Integer)modifiedRowBuffer_[columnIdex-1]).intValue(); //@A1A
+            }
+            else return Integer.parseInt(modifiedRowBuffer_[columnIndex-1].toString());    //@A1A
+        }
 
         // Optimize the getInt() of an Integer column
         if (stmt_.columnTypes_[columnIndex-1] == Types.INTEGER)
@@ -589,7 +598,7 @@ public class JdbcMeLiveResultSet implements ResultSet
      **/
     public void updateString(int columnIndex, String value) throws JdbcMeException 
     {
-        if (stmt_.getResultSetType() != ResultSet.CONCUR_UPDATABLE)
+        if (stmt_.getResultSetConcurrency() != ResultSet.CONCUR_UPDATABLE)  //A1C changed to call getResultSetConcurrency();
             throw new JdbcMeException("Cursor state invalid", null);
 
         if (currentRow_ == null || currentRow_.length != stmt_.numColumns_)
@@ -598,7 +607,13 @@ public class JdbcMeLiveResultSet implements ResultSet
         if (modifiedRowBuffer_ == null || modifiedRowBuffer_.length != currentRow_.length)
             modifiedRowBuffer_ = new Object[currentRow_.length];
 
-        System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);
+        //@A1C changed to ROW_INSERT from ROW_UPDATE.  If we are inserting a new row, we do not want to copy the data
+        //from the current row on the server to it.
+        if(onWhichRow_ != ROW_INSERT)    {   //@A1A
+            System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);      //@A1A
+            onWhichRow_ = ROW_UPDATE;  //@A1A we are updating a current row in the result set, not inserting a new row
+            currentRow_[columnIndex-1] = value; //@A1A set to new value so when a getXxx is called we can retrieve the new value
+        }
         
         if (columnIndex < 1 || columnIndex > modifiedRowBuffer_.length)
             throw new JdbcMeException("RS Column " + columnIndex, null);
@@ -639,16 +654,22 @@ public class JdbcMeLiveResultSet implements ResultSet
      **/
     public void updateInt(int columnIndex, int value) throws JdbcMeException 
     {
-        if (stmt_.getResultSetType() != ResultSet.CONCUR_UPDATABLE)
+        if (stmt_.getResultSetConcurrency() != ResultSet.CONCUR_UPDATABLE) //@A1C Changed to getResultSetConcurrency
             throw new JdbcMeException("Cursor state invalid", null);
+
+        if (currentRow_ == null || currentRow_.length != stmt_.numColumns_)     //@A1A Be consistent with updateString()
+            currentRow_ = new Object[stmt_.numColumns_];                        //@A1A
 
         if (modifiedRowBuffer_ == null || modifiedRowBuffer_.length != currentRow_.length)
             modifiedRowBuffer_ = new Object[currentRow_.length];
 
-        if (onWhichRow_ != ROW_UPDATE)
+        //@A1C changed to ROW_INSERT from ROW_UPDATE.  If we are inserting a new row, we do not want to copy the data
+        //from the current row on the server to it.
+        if (onWhichRow_ != ROW_INSERT)               //@A1C
         {
             System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);
-            onWhichRow_ = ROW_UPDATE;
+            onWhichRow_ = ROW_UPDATE;      //We are updating a current row in the result set, not inserting a new row
+            currentRow_[columnIndex-1] = new Integer(value); //@A1A Want to set the current rows value to the new value
         }
 
         if (columnIndex < 1 || columnIndex > modifiedRowBuffer_.length)
