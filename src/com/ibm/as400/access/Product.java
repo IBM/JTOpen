@@ -1030,6 +1030,7 @@ public class Product
       us.create(256*1024, true, "", (byte)0, "User space for PTF list", "*EXCLUDE");
       try
       {
+        pc.setThreadSafe(true); // We have to do it this way since UserSpace will make a native ProgramCall.
         if (!pc.run())
         {
           AS400Message[] messages = pc.getMessageList();
