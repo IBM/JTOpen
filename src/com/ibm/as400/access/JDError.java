@@ -356,7 +356,7 @@ error table.
      // @J4 - changed this method to call the method that takes an object ID.  Don't
      //       know why the same code was in two places.  A null object ID is handled
      //       by both this class and JDTrace. 
-     JDError.throwSQLException(null, sqlState);
+     JDError.throwSQLException((Object)null, sqlState);
   }
 
 
