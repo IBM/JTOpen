@@ -594,6 +594,8 @@ public class HTMLTableConverter extends StringConverter implements Serializable
     **/
     public void removeSectionCompletedListener(SectionCompletedListener listener)
     {
+        if(listener == null)                                //@KCA
+            throw new NullPointerException("listener");     //@KCA
         if (sectionCompletedSupport_ != null) sectionCompletedSupport_.removeSectionCompletedListener(listener); //@CRS
     }
 
