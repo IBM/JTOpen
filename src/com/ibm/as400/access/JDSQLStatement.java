@@ -358,7 +358,7 @@ Constructs a JDSQLStatement object.
       {
         if (tokenizer_.hasMoreTokens())
         {
-          token = tokenizer_.nextToken().toUpperCase();
+          token = tokenizer_.nextToken(); //@F3C
           if (!token.startsWith(LPAREN_))
           {
             selectTable_ = token;
