@@ -348,7 +348,7 @@ Sets the fetch size.
         // will be slow in many cases!
         //
         if (rowNumber > 0) {
-            first ();
+            first (true);         //@F1C
             relative (rowNumber - 1);
         }
         else {
@@ -401,24 +401,39 @@ Sets the fetch size.
 
 
 
-    public void first ()
-		throws SQLException
-	{
-        // If first block is cached, then move the index
-        // within the cache.
-        if (firstBlock_)
-            index_ = 0;
+  public void first ()
+  throws SQLException
+  {
+    // If first block is cached, then move the index
+    // within the cache.
+    if (firstBlock_)
+      first (false);   //@F1A
 
-        // Otherwise, change the cursor on the server.
-        else {
-		    fetch (DBSQLRequestDS.FETCH_FIRST);
-		    firstBlock_ = true;
-		    lastBlock_ = false;
-		    index_ = 0;
-    	}
-
-        row_.setRowIndex (index_);
+    // Otherwise, change the cursor on the server.
+    else
+    {
+      first (true);  //@F1A
     }
+
+    row_.setRowIndex (index_);
+  }
+
+
+
+  //@F1A Add method to control whether or not we go to the server
+  private void first(boolean goToServer)
+  throws SQLException
+  {
+    if (goToServer)
+    {
+      fetch (DBSQLRequestDS.FETCH_FIRST);  
+      firstBlock_ = true;                  
+      lastBlock_ = false;
+      index_ = 0;
+    }
+    else
+      index_ = 0;
+  }
 
 
 
