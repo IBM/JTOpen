@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUtilImpl.java
 //                                                                             
@@ -19,16 +19,12 @@ import java.io.IOException;
 /**
    <p>The AS400CertificateUtilImpl provides the base class for the implementation of the methods for accessing certificates in an AS400CertificateUtil object.  
 **/
-abstract class AS400CertificateUtilImpl  implements java.io.Serializable, AS400CertificateUtilImplConstants
+abstract class AS400CertificateUtilImpl  implements AS400CertificateUtilImplConstants
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-
-    static final long serialVersionUID = 4L;
-
-
-  Converter converter_;        // The string to AS400 data converter. @C0C @C1C
+  Converter converter_;        // The string to i5/OS data converter. @C0C @C1C
   AS400 system_ = null; 
 
   // Output parms for native methods    
@@ -37,14 +33,6 @@ abstract class AS400CertificateUtilImpl  implements java.io.Serializable, AS400C
   AS400Certificate[] certificates_;
   String cpfError_;
   byte[] handle_;
-   
-    
-
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 
   
  //********************************************************************/

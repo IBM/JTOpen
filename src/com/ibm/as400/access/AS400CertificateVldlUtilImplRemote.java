@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateVldlUtilImplRemote.java
 //                                                                             
@@ -21,15 +21,11 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateVldlUtilImplRemote provides the implementation of the  remote methods for accessing certificates in an AS400 validation list object.
+   <p>The AS400CertificateVldlUtilImplRemote provides the implementation of the remote methods for accessing certificates in an i5/OS validation list object.
 **/
-class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl  implements java.io.Serializable
+class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-    static final long serialVersionUID = 4L;
 
 
     private ProgramCall pgmCall_;

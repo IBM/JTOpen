@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUsrPrfUtilImplRemote.java
 //                                                                             
@@ -21,16 +21,11 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateUsrPrfUtilImplRemote provides the implementation of the remote methods for accessing certificates in an AS400 user profile object.
+   <p>The AS400CertificateUsrPrfUtilImplRemote provides the implementation of the remote methods for accessing certificates in an i5/OS user profile object.
  **/
-class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilImpl  implements java.io.Serializable
+class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-    static final long serialVersionUID = 4L;
-
 
   private ProgramCall pgmCall_;
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUsrPrfUtilImpl.java
 //                                                                             
@@ -18,34 +18,20 @@ import java.beans.PropertyVetoException;
 
 
 /**
-   <p>The AS400CertificateUsrPrfUtilImpl provides the base class for the implementation of the methods for accessing certificates in an AS400 user profile object.  
+   <p>The AS400CertificateUsrPrfUtilImpl provides the base class for the implementation of the methods for accessing certificates in an i5/OS user profile object.  
 **/
-abstract class AS400CertificateUsrPrfUtilImpl implements java.io.Serializable, AS400CertificateUtilImplConstants
+abstract class AS400CertificateUsrPrfUtilImpl implements AS400CertificateUtilImplConstants
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-
-
-    static final long serialVersionUID = 4L;
-
-
-
-  Converter converter_;        // The string to AS400 data converter. @C0C @C1C
+  Converter converter_;        // The string to i5/OS data converter. @C0C @C1C
   AS400 system_ = null;
   
   // Output parms for native methods
   String  cpfError_ = null;
   int numberCertificatesFound_;
   String  userName_ = null;  
-
-  
- 
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 
   
  //********************************************************************/
