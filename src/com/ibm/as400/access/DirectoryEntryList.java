@@ -21,6 +21,8 @@ import java.util.Hashtable;
 /**
  * The DirectoryEntryList class is used to retrieve a list of system
  * distribution directory entries.
+ * <p>
+ * By default, all entries are returned as if by calling addSelection(DirectoryEntryList.USER_PROFILE, "*").
  *
  * <pre>
  * AS400 system = new AS400();
@@ -50,7 +52,7 @@ public class DirectoryEntryList
   private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
   private AS400 system_;
-  private String keyValue_ = USER_PROFILE;
+  private String keyValue_ = null;
 
   private final Hashtable selectionValues_ = new Hashtable();
 
@@ -280,6 +282,8 @@ public class DirectoryEntryList
          ObjectDoesNotExistException
   {
     if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+
+    if (selectionValues_.isEmpty()) addSelection(USER_PROFILE, "*"); // The default.
 
     ProgramParameter[] parms = new ProgramParameter[9];
     int bufferSize = 33+636*20;
