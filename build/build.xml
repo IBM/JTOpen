@@ -35,7 +35,7 @@
 //    http://jakarta.apache.org/builds/jakarta-ant/release/v1.4.1/bin/
 //    Once installed, add the ant.jar to your CLASSPATH.
 //    To run a build:
-//      java org.apache.ant.tools.Main target1 target2 target3 ...
+//      java org.apache.tools.ant.Main target1 target2 target3 ...
 //    This assumes that a "build.xml" file (such as this one) exists in your
 //    current directory. Override this by using the -file flag.
 //
@@ -86,13 +86,6 @@
 // Location: http://java.sun.com/products/servlet/archive.html
 // Description: JSDK 2.1 Servlet APIs needed for the com.ibm.as400.util.servlet package.
 //
-// Filename: x4j400.jar and/or xerces400.jar
-// Location: https://www6.software.ibm.com/dl/as400exp/expastbjm3-p
-// Description: XML Parser (x4j400.jar = Xerces 3, xerces400.jar = Xerces 4) needed
-//              for the com.ibm.as400.data package. The x4j400.jar is part of the JTOpen download.
-//              The Xerces jar can be found at http://xml.apache.org/dist/xerces-j/ and should
-//              be renamed to xerces400.jar.
-//
 // Filename: jtStubs.jar
 // Location: http://oss.software.ibm.com/developerworks/opensource/jt400/jtStubs.jar
 // Description: JTOpen stub classes. Contains compile-time stubs for some JDBC, J2ME, JGSS, and browser functions.
@@ -111,6 +104,17 @@
 // Location: https://www6.software.ibm.com/dl/as400exp/expastbjm3-p
 // Description: Toolbox PDML runtime needed for the com.ibm.as400.vaccess package.
 //              This jar is part of the big JTOpen zip file.
+//
+// Filename: x4j400.jar and/or xerces400.jar
+// Location: https://www6.software.ibm.com/dl/as400exp/expastbjm3-p
+// Description: XML Parser (x4j400.jar = Xerces 3, xerces400.jar = Xerces 4) needed
+//              for the com.ibm.as400.data package. The x4j400.jar is part of the JTOpen download.
+//              The Xerces jar can be found at http://xml.apache.org/dist/xerces-j/ and should
+//              be renamed to xerces400.jar.
+//
+// Filename: xalan.jar
+// Location: http://xml.apache.org/xalan-j/index.html
+// Description: XSL Transformer needed for the com.ibm.as400.util package.
 //
 // *** Also required under JDK 1.3: ***
 // 
@@ -134,21 +138,51 @@
 //
 // Requisite executables
 // 
-//
-// It is recommended that you place the required executables in the "/jtopen_build/bin"
-// directory.
-//
 // Filename: preverify or preverify.exe
-// Location:
-// Description: Required to build the jt400Micro.jar.
+// Location: http://java.sun.com/products/j2mewtoolkit/101download.html
+// Description: J2ME Wireless Toolkit class file preverification tool required to build the
+//              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
 //
-// Filename: cvs.exe
+// Filename: cvs or cvs.exe
 // Location: http://www.wincvs.org
-// Description: Required to access the JTOpen CVS repository using the "source" target
-//              when running under Windows. This file must be in the PATH when this Ant
-//              script is run.
+// Description: Required to access the JTOpen CVS repository using the "source" target.
+//              This file must be in the PATH when this Ant script is run. Most versions of Linux
+//              already include a cvs executable. The location link is for Windows users to obtain
+//              a CVS client.
+//
+///////////////////////////////////////////////////////////////////////////////
+// 
+// Useful targets
+//
+//    all           - This is the default. Builds everything (compile, jar, zip, javadoc...),
+//                    assuming the source has been downloaded.
+//    clean         - Removes all built files and javadoc. Does not remove the /include
+//                    or /build subdirectories. This target is not a pre-requisite for any other
+//                    targets.
+//    clean-source  - Removes the source. This target is not a pre-requisite for any other
+//                    targets.
+//    source        - Downloads the JTOpen repository files off of the IBM CVS server
+//                    using an anonymous login. Internet connection required. This target
+//                    is not a pre-requisite for any other targets.
+//    jar           - Builds just the jars (and any pre-requisite targets, such as compile...).
+//    javadoc       - Builds just the javadoc (assuming the source has been downloaded).
+//    micro         - Builds just the jt400Micro.jar (including compiling and pre-verification).
+//    xerces-4.0    - Builds just the jt400-xerces-40.jar and jt400Native-xerces-40.jar files,
+//                    compiling against Xerces 4. At this time, the regular jars are built
+//                    against Xerces 3. This target is not a pre-requisite for any other targets.
+//    zip           - Builds just the doc.zip and src.zip files, assuming the source has
+//                    been downloaded and the javadoc has been built.
+//                    
+// Suggested build invocation:
+//
+//   java org.apache.tools.ant.Main clean clean-source source all
+//
+// The resulting jar and zip files can be found in the "dist" subdirectory.
+// The resulting class files can be found in the various "output" subdirectories.
+// The resulting javadoc can be found in the "javadoc" subdirectory.
 //
 ////////////////////////////////////////////////////////////////////////////-->
+  
 
 <project name="JTOpen" basedir="." default="all">
   
@@ -195,6 +229,7 @@
     <pathelement location="${include}/jtStubs.jar"/>
     <pathelement location="${include}/jnet.jar"/>
     <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
+    <pathelement location="${include}/xalan.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
   </path>
 
   <path id="jtopen.includes-xerces-4.0">
@@ -208,6 +243,7 @@
     <pathelement location="${include}/jtStubs.jar"/>
     <pathelement location="${include}/jnet.jar"/>
     <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
+    <pathelement location="${include}/xalan.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
   </path>
 
   <patternset id="exclude.native.optimizations">
@@ -239,40 +275,9 @@
 
 
 <!--///////////////////////////////////////////////////////////////////////////
-// 
-// TARGETS
-//
-// Useful targets are:
-//
-//    all           - This is the default. Builds everything (compile, jar, zip, javadoc...),
-//                    assuming the source has been downloaded.
-//    clean         - Removes all built files, javadoc, and source. Does not remove the /include
-//                    or /build subdirectories. This target is not a pre-requisite for any other
-//                    targets.
-//    clean-source  - Removes the source. This target is not a pre-requisite for any other
-//                    targets.
-//    source        - Downloads the JTOpen repository files off of the IBM CVS server
-//                    using an anonymous login. Internet connection required. This target
-//                    is not a pre-requisite for any other targets.
-//    jar           - Builds just the jars (and any pre-requisite targets, such as compile...).
-//    javadoc       - Builds just the javadoc (assuming the source has been downloaded).
-//    micro         - Builds just the jt400Micro.jar (including compiling and pre-verification).
-//    xerces-4.0    - Builds just the jt400-xerces-40.jar and jt400Native-xerces-40.jar files,
-//                    compiling against Xerces 4. At this time, the regular jars are built
-//                    against Xerces 3. This target is not a pre-requisite for any other targets.
-//    zip           - Builds just the doc.zip and src.zip files, assuming the source has
-//                    been downloaded and the javadoc has been built.
-//                    
-// Suggested build invocation:
-//
-//   java org.apache.ant.tools.Main clean clean-source source all
-//
-// The resulting jar and zip files can be found in the "dist" subdirectory.
-// The resulting class files can be found in the various "output" subdirectories.
-// The resulting javadoc can be found in the "javadoc" subdirectory.
-//
-////////////////////////////////////////////////////////////////////////////-->
-  
+    // TARGETS
+    ///////////////////////////////////////////////////////////////////////////-->
+
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: all
     ///////////////////////////////////////////////////////////////////////////-->
@@ -434,8 +439,9 @@
                      ${include}/jsse.jar,
                      ${include}/jta.jar,
                      ${include}/jtStubs.jar,
-                     ${include}/jnet.jar, or
-                     ${include}/midpapi.zip.
+                     ${include}/jnet.jar,
+                     ${include}/midpapi.zip, or
+                     ${include}/xalan.jar.
      </echo>
   </target>
 
@@ -450,8 +456,9 @@
                      ${include}/jsse.jar,
                      ${include}/jta.jar,
                      ${include}/jtStubs.jar,
-                     ${include}/jnet.jar, or
-                     ${include}/midpapi.zip.
+                     ${include}/jnet.jar,
+                     ${include}/midpapi.zip, or
+                     ${include}/xalan.jar.
      </echo>
   </target>
 
@@ -539,6 +546,7 @@
         <available file="${include}/jtStubs.jar" type="file"/>
         <available file="${include}/jnet.jar" type="file"/>
         <available file="${include}/midpapi.zip" type="file"/>
+        <available file="${include}/xalan.jar" type="file"/>
       </and>
     </condition>
     
@@ -711,7 +719,7 @@
      So, for now, we skip the javadoc step if we are running under JDK 1.4. -->
 
   <target name="javadoc" depends="init" unless="compileIncludesExist-1.4">
-    <javadoc packagenames="com.*,java.*,utilities"
+    <javadoc packagenames="com.*,utilities"
                     sourcepath="${source}:${source-contrib}:${source-micro}"
                     destdir="${javadoc}"
                     use="false"
