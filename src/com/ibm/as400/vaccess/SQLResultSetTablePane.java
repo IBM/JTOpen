@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,6 +42,16 @@ import java.sql.SQLWarning;
 import java.sql.Types;
 import java.util.Enumeration;
 
+import java.awt.datatransfer.StringSelection; //@D6A
+import javax.swing.JTextField; //@D6A
+import javax.swing.ActionMap; //@D6A
+import javax.swing.InputMap; //@D6A
+import javax.swing.text.DefaultEditorKit; //@D6A
+import javax.swing.KeyStroke; //@D6A
+import javax.swing.Action; //@D6A
+import java.awt.event.ActionEvent; //@D6A
+import javax.swing.AbstractAction; //@D6A
+import java.awt.Toolkit; //@D6A
 
 
 /**
@@ -136,485 +146,487 @@ table.load();
 </pre>
 **/
 public class SQLResultSetTablePane
-extends JComponent
-implements Serializable
+    extends JComponent
+    implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-// The variables and methods which have private commented out
-// had to be made package scope since some JVMs (IE and AS400)
-// does not allow inner class to access private items in their
-// containing class.
+  // The variables and methods which have private commented out
+  // had to be made package scope since some JVMs (IE and AS400)
+  // does not allow inner class to access private items in their
+  // containing class.
 
 
-// The table contained in this panel.
-/*private*/ transient JTable table_; //@B0C - made transient
-/*private*/ transient JScrollPane tablePane_; //@B0C - made transient
-// The data model for the table.
-/*private*/ SQLResultSetTableModel model_; //@B0C - made transient
+  // The table contained in this panel.
+  /*private*/
+  transient JTable table_; //@B0C - made transient
+  /*private*/transient JScrollPane tablePane_; //@B0C - made transient
+  // The data model for the table.
+  /*private*/SQLResultSetTableModel model_; //@B0C - made transient
 
-//@B0 - need to save the table's state since it's transient now.
-private Color tableColor_ = null; //@B0A
-private boolean tableShowHorizontalLines_ = true; //@B0A
-private boolean tableShowVerticalLines_ = true; //@B0A
+  //@B0 - need to save the table's state since it's transient now.
+  private Color tableColor_ = null; //@B0A
+  private boolean tableShowHorizontalLines_ = true; //@B0A
+  private boolean tableShowVerticalLines_ = true; //@B0A
 
-// Event support.
-transient private PropertyChangeSupport changeListeners_
-    = new PropertyChangeSupport(this);
-transient private VetoableChangeSupport vetoListeners_
-    = new VetoableChangeSupport(this);
-transient private ErrorEventSupport errorListeners_
-     = new ErrorEventSupport(this);
-transient private ListSelectionEventSupport selectionListeners_
-     = new ListSelectionEventSupport(this);
+  // Event support.
+  transient private PropertyChangeSupport changeListeners_
+      = new PropertyChangeSupport(this);
+  transient private VetoableChangeSupport vetoListeners_
+      = new VetoableChangeSupport(this);
+  transient private ErrorEventSupport errorListeners_
+      = new ErrorEventSupport(this);
+  transient private ListSelectionEventSupport selectionListeners_
+      = new ListSelectionEventSupport(this);
 
-// Adapter for listening for working events and enabling working cursor.
-transient private WorkingCursorAdapter worker_
-    = new WorkingCursorAdapter(this);
+  // Adapter for listening for working events and enabling working cursor.
+  transient private WorkingCursorAdapter worker_
+      = new WorkingCursorAdapter(this); 
 
-// Renderers for the different types of data, columns use these.
-/*private*/ DBCellRenderer rightCell_ = new DBCellRenderer(SwingConstants.RIGHT);
-/*private*/ DBCellRenderer leftCell_ = new DBCellRenderer(SwingConstants.LEFT);
-// @C1D /*private*/ DBDateCellRenderer dateCell_ = new DBDateCellRenderer(DBDateCellRenderer.FORMAT_DATE);
-// @C1D /*private*/ DBDateCellRenderer timeCell_ = new DBDateCellRenderer(DBDateCellRenderer.FORMAT_TIME);
-// @C1D /*private*/ DBDateCellRenderer timestampCell_ = new DBDateCellRenderer(DBDateCellRenderer.FORMAT_TIMESTAMP);
-// General types of data in columns.  Used to determine column renderer.
-private static final int TYPE_CHAR = 1;
-private static final int TYPE_TIME = 2;
-private static final int TYPE_TIMESTAMP = 3;
-private static final int TYPE_DATE = 4;
-private static final int TYPE_BIT = 5;
-private static final int TYPE_NUMBER = 6;
+  // Renderers for the different types of data, columns use these.
+  /*private*/DBCellRenderer rightCell_ = new DBCellRenderer(SwingConstants.RIGHT); 
+  /*private*/DBCellRenderer leftCell_ = new DBCellRenderer(SwingConstants.LEFT);
+  // @C1D /*private*/ DBDateCellRenderer dateCell_ = new DBDateCellRenderer(DBDateCellRenderer.FORMAT_DATE);
+  // @C1D /*private*/ DBDateCellRenderer timeCell_ = new DBDateCellRenderer(DBDateCellRenderer.FORMAT_TIME);
+  // @C1D /*private*/ DBDateCellRenderer timestampCell_ = new DBDateCellRenderer(DBDateCellRenderer.FORMAT_TIMESTAMP);
 
-/**
-Constructs a SQLResultSetTablePane object.
-**/
-public SQLResultSetTablePane ()
-{
+  DBCellSelector cellSelector_ = new DBCellSelector(); //@D6A
+  DBCellEditor cellEditor_ = new DBCellEditor(); //@D6A
+
+  // General types of data in columns.  Used to determine column renderer.
+  private static final int TYPE_CHAR = 1;
+  private static final int TYPE_TIME = 2;
+  private static final int TYPE_TIMESTAMP = 3;
+  private static final int TYPE_DATE = 4;
+  private static final int TYPE_BIT = 5;
+  private static final int TYPE_NUMBER = 6;
+
+  /**
+  Constructs a SQLResultSetTablePane object.
+  **/
+  public SQLResultSetTablePane()
+  {
     super();
 
     // Create table and model to hold data.
     model_ = new SQLResultSetTableModel();
 
-/* @B0M - moved to initializeTransient()
-
-    table_ = new JTable();
-    table_.setAutoCreateColumnsFromModel(false);
-    table_.setModel(model_);
-    table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-    // Listen for events, pass them on to our listeners.
-    model_.addPropertyChangeListener(changeListeners_);
-    model_.addVetoableChangeListener(vetoListeners_);
-    model_.addErrorListener(errorListeners_);
-    model_.addWorkingListener(worker_);
-    table_.getSelectionModel().addListSelectionListener(selectionListeners_);
-
-    // Build GUI
-         setLayout(new BorderLayout());
-    tablePane_ = new JScrollPane (table_); // @A1C
-    add("Center",tablePane_);
-
-*/
+    /* @B0M - moved to initializeTransient()
+    
+        table_ = new JTable();
+        table_.setAutoCreateColumnsFromModel(false);
+        table_.setModel(model_);
+        table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    
+        // Listen for events, pass them on to our listeners.
+        model_.addPropertyChangeListener(changeListeners_);
+        model_.addVetoableChangeListener(vetoListeners_);
+        model_.addErrorListener(errorListeners_);
+        model_.addWorkingListener(worker_);
+        table_.getSelectionModel().addListSelectionListener(selectionListeners_);
+    
+        // Build GUI
+             setLayout(new BorderLayout());
+        tablePane_ = new JScrollPane(table_); // @A1C
+        add("Center",tablePane_);
+    
+    */
 
     initializeTransient(); //@B0A
-}
+  }
 
 
-/**
-Constructs a SQLResultSetTablePane object.
-
-@param       connection   The SQL connection.
-@param       query        The SQL query.
-**/
-public SQLResultSetTablePane (SQLConnection connection,
-                          String query)
-{
+  /**
+  Constructs a SQLResultSetTablePane object.
+  
+  @param       connection   The SQL connection.
+  @param       query        The SQL query.
+  **/
+  public SQLResultSetTablePane(SQLConnection connection, String query)
+  {
     super();
 
     // Create table and model to hold data.
     // note: model validates parms
     model_ = new SQLResultSetTableModel(connection, query);
 
-/* @B0M - moved to initializeTransient()
-
-    table_ = new JTable();
-    table_.setAutoCreateColumnsFromModel(false);
-    table_.setModel(model_);
-    table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-    // Listen for events, pass them on to our listeners.
-    model_.addPropertyChangeListener(changeListeners_);
-    model_.addVetoableChangeListener(vetoListeners_);
-    model_.addErrorListener(errorListeners_);
-    model_.addWorkingListener(worker_);
-    table_.getSelectionModel().addListSelectionListener(selectionListeners_);
-
-    // Build GUI
-    setLayout(new BorderLayout());
-    tablePane_ = new JScrollPane (table_); // @A1C
-    add("Center",tablePane_);
-
-*/
+    /* @B0M - moved to initializeTransient()
+    
+        table_ = new JTable();
+        table_.setAutoCreateColumnsFromModel(false);
+        table_.setModel(model_);
+        table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    
+        // Listen for events, pass them on to our listeners.
+        model_.addPropertyChangeListener(changeListeners_);
+        model_.addVetoableChangeListener(vetoListeners_);
+        model_.addErrorListener(errorListeners_);
+        model_.addWorkingListener(worker_);
+        table_.getSelectionModel().addListSelectionListener(selectionListeners_);
+    
+        // Build GUI
+        setLayout(new BorderLayout());
+        tablePane_ = new JScrollPane(table_); // @A1C
+        add("Center",tablePane_);
+    
+    */
 
     initializeTransient(); //@B0A
-}
+  }
 
 
-// @C0A
-/**
-Constructs a SQLResultSetTablePane object.
-
-@param resultSet  The SQL result set.
-@param cacheAll   true to cache the entire result set when <a href="#load()">load()</a>
-                  is called, false to cache parts of the result set as they are
-                  needed.  Passing true may result in slow initial presentation of
-                  the data.  However, it may be necessary to pass true if the result
-                  set is expected to close when the model is still needed.
-**/
-public SQLResultSetTablePane (ResultSet resultSet, boolean cacheAll)
-{
+  // @C0A
+  /**
+  Constructs a SQLResultSetTablePane object.
+  
+  @param resultSet  The SQL result set.
+  @param cacheAll   true to cache the entire result set when <a href="#load()">load()</a>
+                    is called, false to cache parts of the result set as they are
+                    needed.  Passing true may result in slow initial presentation of
+                    the data.  However, it may be necessary to pass true if the result
+                    set is expected to close when the model is still needed.
+  **/
+  public SQLResultSetTablePane(ResultSet resultSet, boolean cacheAll)
+  {
     super();
 
     // Create table and model to hold data.
     // note: model validates parms
     model_ = new SQLResultSetTableModel(resultSet, cacheAll);
     initializeTransient();
-}
+  }
 
 
-/**
-Adds a listener to be notified when an error occurs.
-
-@param  listener  The listener.
-**/
-public void addErrorListener (ErrorListener listener)
-{
+  /**
+  Adds a listener to be notified when an error occurs.
+  
+  @param  listener  The listener.
+  **/
+  public void addErrorListener(ErrorListener listener)
+  {
     errorListeners_.addErrorListener(listener);
-}
+  }
 
 
-/**
-Adds a listener to be notified when the selection changes.
-
-@param  listener  The listener.
-**/
-public void addListSelectionListener (ListSelectionListener listener)
-{
+  /**
+  Adds a listener to be notified when the selection changes.
+  
+  @param  listener  The listener.
+  **/
+  public void addListSelectionListener(ListSelectionListener listener)
+  {
     selectionListeners_.addListSelectionListener(listener);
-}
+  }
 
 
-/**
-Adds a listener to be notified when the value of any bound
-property is changed.
-
-@param  listener  The listener.
-**/
-public void addPropertyChangeListener (PropertyChangeListener listener)
-{
+  /**
+  Adds a listener to be notified when the value of any bound
+  property is changed.
+  
+  @param  listener  The listener.
+  **/
+  public void addPropertyChangeListener(PropertyChangeListener listener)
+  {
     changeListeners_.addPropertyChangeListener(listener);
     super.addPropertyChangeListener(listener);
-}
+  }
 
 
-/**
-Adds a listener to be notified when the value of any constrained
-property is changed.
-
-@param  listener  The listener.
-**/
-public void addVetoableChangeListener (VetoableChangeListener listener)
-{
+  /**
+  Adds a listener to be notified when the value of any constrained
+  property is changed.
+  
+  @param  listener  The listener.
+  **/
+  public void addVetoableChangeListener(VetoableChangeListener listener)
+  {
     vetoListeners_.addVetoableChangeListener(listener);
     super.addVetoableChangeListener(listener);
-}
+  }
 
 
 
-/**
-Clears all SQL warnings.
-**/
-public void clearWarnings ()
-{
+  /**
+  Clears all SQL warnings.
+  **/
+  public void clearWarnings()
+  {
     model_.clearWarnings();
-}
+  }
 
 
-/**
-Closes the SQL result set this table represents.
-**/
-public void close()
-{
+  /**
+  Closes the SQL result set this table represents.
+  **/
+  public void close()
+  {
     model_.close();
-}
+  }
 
 
 
-/**
-Returns the column model for this table.
-
-@return  Model for this table's columns.
-**/
-public TableColumnModel getColumnModel()
-{
+  /**
+  Returns the column model for this table.
+  
+  @return  Model for this table's columns.
+  **/
+  public TableColumnModel getColumnModel()
+  {
     return table_.getColumnModel();
-}
+  }
 
 
 
-/**
-Returns the title of a column.  This is used for the table column heading.
-If an error occurs, null is returned.
-
-@param columnIndex The index of the column.  Indices start at 0.
-
-@return  The title of the column.
-**/
-public String getColumnTitle(int columnIndex)
-{
+  /**
+  Returns the title of a column.  This is used for the table column heading.
+  If an error occurs, null is returned.
+  
+  @param columnIndex The index of the column.  Indices start at 0.
+  
+  @return  The title of the column.
+  **/
+  public String getColumnTitle(int columnIndex)
+  {
     try
     {
-        return (String)(table_.getColumnModel().getColumn(columnIndex).getHeaderValue());
+      return(String)(table_.getColumnModel().getColumn(columnIndex).getHeaderValue());
     }
-    catch (Exception e)
+    catch(Exception e)
     {
-        Trace.log(Trace.WARNING, "getColumnTitle() error:" + e);
-        return null;
+      Trace.log(Trace.WARNING, "getColumnTitle() error:" + e);
+      return null;
     }
-}
+  }
 
 
 
-/**
-Returns the width of a column.
-If an error occurs, 0 is returned.
-
-@param columnIndex The index of the column.  Indices start at 0.
-
-@return  The width of the column.
-**/
-public int getColumnWidth(int columnIndex)
-{
+  /**
+  Returns the width of a column.
+  If an error occurs, 0 is returned.
+  
+  @param columnIndex The index of the column.  Indices start at 0.
+  
+  @return  The width of the column.
+  **/
+  public int getColumnWidth(int columnIndex)
+  {
     try
     {
-        return table_.getColumnModel().getColumn(columnIndex).getPreferredWidth(); //@B1C
+      return table_.getColumnModel().getColumn(columnIndex).getPreferredWidth(); //@B1C
     }
-    catch (Exception e)
+    catch(Exception e)
     {
-        Trace.log(Trace.WARNING, "getColumnWidth() error:" + e);
-        return 0;
+      Trace.log(Trace.WARNING, "getColumnWidth() error:" + e);
+      return 0;
     }
-}
+  }
 
 
 
-/**
-Returns the SQL connection with which to access data.
-
-@return The SQL connection.
-**/
-public SQLConnection getConnection ()
-{
+  /**
+  Returns the SQL connection with which to access data.
+  
+  @return The SQL connection.
+  **/
+  public SQLConnection getConnection()
+  {
     return model_.getConnection();
-}
+  }
 
 
 
-/**
-Returns the data model for the table.
-
-@return  The data model for the table.
-**/
-public SQLResultSetTableModel getDataModel()
-{
+  /**
+  Returns the data model for the table.
+  
+  @return  The data model for the table.
+  **/
+  public SQLResultSetTableModel getDataModel()
+  {
     return model_;
-}
+  }
 
 
 
-/**
-Returns the color used to draw grid lines.
+  /**
+  Returns the color used to draw grid lines.
+  
+  @return The color used to draw grid lines.
+  **/
+  public Color getGridColor()
+  {
+    //@B0D    return table_.getGridColor();
+    return tableColor_; //@B0A
+  }
 
-@return The color used to draw grid lines.
-**/
-public Color getGridColor()
-{
-//@B0D    return table_.getGridColor();
-  return tableColor_; //@B0A
-}
 
 
-
-/**
-Returns the SQL query used to generate the table data.
-
-@return The SQL query.
-**/
-public String getQuery ()
-{
+  /**
+  Returns the SQL query used to generate the table data.
+  
+  @return The SQL query.
+  **/
+  public String getQuery()
+  {
     return model_.getQuery();
-}
+  }
 
 
 
-// @C0A
-/**
-Returns the SQL result set.
-
-@return The SQL result set.
-**/
-public ResultSet getResultSet()
-{
+  // @C0A
+  /**
+  Returns the SQL result set.
+  
+  @return The SQL result set.
+  **/
+  public ResultSet getResultSet()
+  {
     return model_.getResultSet();
-}
+  }
 
 
 
-/**
-Returns the ListSelectionModel that is used to maintain row selection state.
-
-@return  The model that provides row selection state.
-**/
-public ListSelectionModel getSelectionModel()
-{
+  /**
+  Returns the ListSelectionModel that is used to maintain row selection state.
+  
+  @return  The model that provides row selection state.
+  **/
+  public ListSelectionModel getSelectionModel()
+  {
     return table_.getSelectionModel();
-}
+  }
 
 
 
-/**
-Returns whether horizontal lines are drawn between rows.
-@return true if horizontal lines are to be drawn; false otherwise.
-**/
-public boolean getShowHorizontalLines()
-{
-//@B0D    return table_.getShowHorizontalLines();
-  return tableShowHorizontalLines_; //@B0A
-}
+  /**
+  Returns whether horizontal lines are drawn between rows.
+  @return true if horizontal lines are to be drawn; false otherwise.
+  **/
+  public boolean getShowHorizontalLines()
+  {
+    //@B0D    return table_.getShowHorizontalLines();
+    return tableShowHorizontalLines_; //@B0A
+  }
 
 
 
-/**
-Returns whether vertical lines are drawn between columns.
-@return true if vertical lines are to be drawn; false otherwise.
-**/
-public boolean getShowVerticalLines()
-{
-//@B0D    return table_.getShowVerticalLines();
-  return tableShowVerticalLines_; //@B0A
-}
+  /**
+  Returns whether vertical lines are drawn between columns.
+  @return true if vertical lines are to be drawn; false otherwise.
+  **/
+  public boolean getShowVerticalLines()
+  {
+    //@B0D    return table_.getShowVerticalLines();
+    return tableShowVerticalLines_; //@B0A
+  }
 
 
 
-/**
-Returns the string value at the specifed row and column.
-Indices start at 0.
-If an error occurs, null is returned.
-
-@param  rowIndex            The row index.
-@param  columnIndex         The column index.
-
-@return The value at the specified row and column as a string.
-**/
-// Note that this method is dependent on the cell renderer of a column
-// being a JLabel.
-public String getStringValueAt (int rowIndex,
-                          int columnIndex)
-{
+  /**
+  Returns the string value at the specifed row and column.
+  Indices start at 0.
+  If an error occurs, null is returned.
+  
+  @param  rowIndex            The row index.
+  @param  columnIndex         The column index.
+  
+  @return The value at the specified row and column as a string.
+  **/
+  // Note that this method is dependent on the cell renderer of a column
+  // being a JLabel.
+  public String getStringValueAt(int rowIndex, int columnIndex)
+  {
     // Try to catch row index out of range.
-    if (rowIndex >= model_.getRowCount() )
+    if(rowIndex >= model_.getRowCount())
     {
-        Trace.log(Trace.WARNING, "getStringValueAt() column out of range");
-        return null;
+      Trace.log(Trace.WARNING, "getStringValueAt() column out of range");
+      return null;
     }
 
     try
     {
-        TableColumnModel cmodel = getColumnModel();
-        Component cellComp = cmodel.getColumn(columnIndex)
-            .getCellRenderer()
-            .getTableCellRendererComponent(table_,
-                getValueAt(rowIndex,columnIndex),
-                false,
-                false,
-                rowIndex,
-                columnIndex);
-        if (cellComp instanceof JLabel)
-            return ((JLabel)cellComp).getText();
-        else
-            return null;
+      TableColumnModel cmodel = getColumnModel();
+      Component cellComp = cmodel.getColumn(columnIndex)
+                           .getCellRenderer()
+                           .getTableCellRendererComponent(table_,
+                                                          getValueAt(rowIndex,columnIndex),
+                                                          false,
+                                                          false,
+                                                          rowIndex,
+                                                          columnIndex);
+      if(cellComp instanceof JLabel)
+        return((JLabel)cellComp).getText();
+      else
+        return null;
     }
     catch(Exception e)
     {
-        Trace.log(Trace.WARNING, "getStringValueAt() error:" + e);
-        return null;
+      Trace.log(Trace.WARNING, "getStringValueAt() error:" + e);
+      return null;
     }
-}
+  }
 
 
 
-/**
-Returns the value at the specifed row and column.
-Indices start at 0.
-If an error occurs, null is returned.
-
-@param  rowIndex            The row index.
-@param  columnIndex         The column index.
-
-@return The value at the specified row and column.
-**/
-public Object getValueAt (int rowIndex,
-                          int columnIndex)
-{
+  /**
+  Returns the value at the specifed row and column.
+  Indices start at 0.
+  If an error occurs, null is returned.
+  
+  @param  rowIndex            The row index.
+  @param  columnIndex         The column index.
+  
+  @return The value at the specified row and column.
+  **/
+  public Object getValueAt(int rowIndex, int columnIndex)
+  {
     try
     {
-        // must change the table column index to the
-        // model index
-        return model_.getValueAt(rowIndex,
-           getColumnModel().getColumn(columnIndex).getModelIndex());
+      // must change the table column index to the
+      // model index
+      return model_.getValueAt(rowIndex,
+                               getColumnModel().getColumn(columnIndex).getModelIndex());
     }
     catch(Exception e)
     {
-        Trace.log(Trace.WARNING, "getStringValueAt() error:" + e);
-        return null;
+      Trace.log(Trace.WARNING, "getStringValueAt() error:" + e);
+      return null;
     }
-}
+  }
 
 
 
-/**
-Returns the warnings generated by the JDBC connection, statement, and
-result set.
-The warnings from the result set will be
-linked to the end of any statement warnings, which in turn are linked
-to the end of any connection warnings.
-Warnings are cleared when <i>load()</i> or <i>clearWarnings()</i>
-is called.
-
-@return The warnings generated by the connection, statement, and
-result set, or null if none.
-**/
-public SQLWarning getWarnings ()
-{
+  /**
+  Returns the warnings generated by the JDBC connection, statement, and
+  result set.
+  The warnings from the result set will be
+  linked to the end of any statement warnings, which in turn are linked
+  to the end of any connection warnings.
+  Warnings are cleared when <i>load()</i> or <i>clearWarnings()</i>
+  is called.
+  
+  @return The warnings generated by the connection, statement, and
+  result set, or null if none.
+  **/
+  public SQLWarning getWarnings()
+  {
     return model_.getWarnings();
-}
+  }
 
 
 
-void handleFocus(FocusEvent event)                                                    // @C2A
-{                                                                                     // @C2A
+  void handleFocus(FocusEvent event)                                                    // @C2A
+  {                                                                                     // @C2A
     // Can not call this directly from inner                                             @C2A
     // class, since it is protected.                                                     @C2A
     processFocusEvent(new FocusEvent(this, event.getID(), event.isTemporary()));      // @C2A
-}                                                                                     // @C2A
+  }                                                                                     // @C2A
 
 
-/**
- * Initializes transient data.
-**/
-private void initializeTransient()
-{
+  /**
+   * Initializes transient data.
+  **/
+  private void initializeTransient()
+  {
     //@B0M - this code moved out of ctor
 
     table_ = new JTable();
@@ -622,7 +634,100 @@ private void initializeTransient()
     table_.setModel(model_);
     table_.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-    if (tableColor_ == null) tableColor_ = table_.getGridColor(); //@B0A
+    table_.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION); //@D6A
+    table_.setRowSelectionAllowed(true); //@D6A
+    table_.setColumnSelectionAllowed(true); //@D6A
+    table_.setCellSelectionEnabled(true); //@D6A
+
+    //@D6A - See if we can use the new JDK 1.3 function
+    boolean useNewBehavior;
+    try
+    {
+      Class.forName("javax.swing.ActionMap");
+      useNewBehavior = true;
+    }
+    catch(Throwable t)
+    {
+      Trace.log(Trace.WARNING, "Unable to load JDK 1.3 classes. Will use old behavior for SQLResultSetTablePane.");
+      useNewBehavior = false;
+    }
+
+    if (useNewBehavior) //@D6A
+    {
+      //@D6A - JTextField has a copy action already associated with it
+      // that was put there by the Swing implementation for this platform.
+      // We look that up and get the correct key mappings for this platform's
+      // copy function. We then add those mappings to the JTable.
+      Object keyToLookFor = null;
+      JTextField dummyField = new JTextField();
+      ActionMap dummyActions = dummyField.getActionMap();
+      Object[] allKeys = dummyActions.allKeys();
+      for(int i=0; i<allKeys.length && keyToLookFor == null; ++i)
+      {
+        if(dummyActions.get(allKeys[i]) instanceof DefaultEditorKit.CopyAction)
+        {
+          keyToLookFor = allKeys[i];
+        }
+      }
+      if(keyToLookFor != null)
+      {
+        InputMap dummyInputs = dummyField.getInputMap();
+        KeyStroke[] allPossibleKeys = dummyInputs.allKeys();
+        for(int i=0; i<allPossibleKeys.length; ++i)
+        {
+          Object actionForKey = dummyInputs.get(allPossibleKeys[i]);
+          if(actionForKey.equals(keyToLookFor))
+          {
+            table_.getInputMap().put(allPossibleKeys[i], keyToLookFor); // Add all the key bindings for this action
+          }
+        }
+        if(table_.getInputMap().size() > 0)
+        {
+          Action copyAction = new AbstractAction("copy")
+          {
+            public void actionPerformed(ActionEvent e)
+            {
+              if(e.getSource() == table_)
+              {
+                StringBuffer textToCopy = new StringBuffer();
+                int[] rows = table_.getSelectedRows();
+                int[] columns = table_.getSelectedColumns();
+                for (int i=0; i<rows.length; ++i)
+                {
+                  for (int j=0; j<columns.length; ++j)
+                  {
+                    if (table_.isCellSelected(rows[i], columns[j]))
+                    {
+                      textToCopy.append(table_.getValueAt(rows[i], columns[j]));
+                      textToCopy.append('\t');
+                    }
+                  }
+                  textToCopy.append('\n');
+                }
+                StringSelection dataToTransfer = new StringSelection(textToCopy.toString());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(dataToTransfer, dataToTransfer);
+              }
+              else
+              {
+                Trace.log(Trace.WARNING, "Copy action received from unknown source: "+e.getSource());
+              }
+            }
+          };
+          table_.getActionMap().put(keyToLookFor, copyAction);
+        }
+        else
+        {
+          Trace.log(Trace.WARNING, "Table copy function not enabled. No key bindings found.");
+        }
+      }
+      else
+      {
+        Trace.log(Trace.WARNING, "Table copy function not enabled. No copy actions found.");
+      }
+    }
+
+
+    if(tableColor_ == null) tableColor_ = table_.getGridColor(); //@B0A
 
     // Listen for events, pass them on to our listeners.
     model_.addPropertyChangeListener(changeListeners_);
@@ -633,7 +738,7 @@ private void initializeTransient()
 
     // Build GUI
     setLayout(new BorderLayout());
-    tablePane_ = new JScrollPane (table_); // @A1C
+    tablePane_ = new JScrollPane(table_); // @A1C
     add("Center",tablePane_);
 
     // Scrolling performance improvement.                                                  @C3A
@@ -642,16 +747,25 @@ private void initializeTransient()
     tablePane_.setDoubleBuffered(true);                                                 // @C3A
     tablePane_.getViewport().setDoubleBuffered(true);                                   // @C3A
 
-    // This option taken from Swing performance hints in JViewport javadoc                 @C3A
-    // and at http://java.sun.com/products/jfc/tsc/articles/performance/                   @C3A
-    tablePane_.getViewport().putClientProperty("EnableWindowBlit", Boolean.TRUE);       // @C3A
-
+    if (!useNewBehavior) //@D6A - don't need it if we are running JDK 1.3
+    {
+      // This option taken from Swing performance hints in JViewport javadoc                 @C3A
+      // and at http://java.sun.com/products/jfc/tsc/articles/performance/                   @C3A
+      tablePane_.getViewport().putClientProperty("EnableWindowBlit", Boolean.TRUE);       // @C3A
+    }
 
     // Pass on focus events from the table to our callers.                                 @C2A
-    table_.addFocusListener(new FocusListener() {                                       // @C2A
-        public void focusGained(FocusEvent event) { handleFocus(event); }               // @C2A
-        public void focusLost(FocusEvent event) { handleFocus(event); }                 // @C2A
-        });                                                                             // @C2A
+    table_.addFocusListener(new FocusListener()
+                            {                                       // @C2A
+                              public void focusGained(FocusEvent event)
+                              {
+                                handleFocus(event);
+                              }               // @C2A
+                              public void focusLost(FocusEvent event)
+                              {
+                                handleFocus(event);
+                              }                 // @C2A
+                            });                                                                             // @C2A
 
     //@B0A
     // We add a fake FocusListener whose real purpose is to uninstall
@@ -661,37 +775,37 @@ private void initializeTransient()
     addFocusListener(new SerializationListener(this)); //@B0A
     addFocusListener(new SerializationListener(model_, table_)); //@B0A
 
-}
+  }
 
 
 
-/**
-Loads the table based on the state of the system.  This causes the
-query to be run.
-The <i>query</i> and <i>connection</i> properties
-must be set before this method is called.
-The table heading is reconstructed to ensure it matches
-the data, so any column customization will be lost.
-**/
-public void load()
-{
+  /**
+  Loads the table based on the state of the system.  This causes the
+  query to be run.
+  The <i>query</i> and <i>connection</i> properties
+  must be set before this method is called.
+  The table heading is reconstructed to ensure it matches
+  the data, so any column customization will be lost.
+  **/
+  public void load()
+  {
     // refresh the result set data
     // note: model handles error conditions
     model_.load();
     refreshHeadings();
-}
+  }
 
 
-/**
-Restore the state of this object from an object input stream.
-It is used when deserializing an object.
-@param in The input stream of the object being deserialized.
-@exception IOException
-@exception ClassNotFoundException
-**/
-private void readObject(java.io.ObjectInputStream in)
-     throws IOException, ClassNotFoundException
-{
+  /**
+  Restore the state of this object from an object input stream.
+  It is used when deserializing an object.
+  @param in The input stream of the object being deserialized.
+  @exception IOException
+  @exception ClassNotFoundException
+  **/
+  private void readObject(java.io.ObjectInputStream in)
+  throws IOException, ClassNotFoundException
+  {
     // Restore the non-static and non-transient fields.
     in.defaultReadObject();
 
@@ -714,60 +828,60 @@ private void readObject(java.io.ObjectInputStream in)
     table_.setShowHorizontalLines(tableShowHorizontalLines_); //@B0A
     table_.setShowVerticalLines(tableShowVerticalLines_); //@B0A
 
-}
+  }
 
 
 
-/**
-Updates the table header to match the result set data.
-Any column customization will be lost.
-**/
-public void refreshHeadings()
-{
-  Runnable refreshHeading = new Runnable()
+  /**
+  Updates the table header to match the result set data.
+  Any column customization will be lost.
+  **/
+  public void refreshHeadings()
   {
-    public void run()
+    Runnable refreshHeading = new Runnable()
     {
+      public void run()
+      {
 
-    // Remove all columns.
-    // First copy enumereration, then delete each column.
-    TableColumnModel model = table_.getColumnModel();
-    int oldColumnCount = model.getColumnCount();
-    TableColumn oldColumns[] = new TableColumn[oldColumnCount];
-    Enumeration e = model.getColumns();
-    for (int i=0; e.hasMoreElements() ; ++i)
-    {
-        oldColumns[i] = (TableColumn)e.nextElement();
-    }
-    for (int i=0; i<oldColumnCount; ++i)
-    {
-         model.removeColumn(oldColumns[i]);
-    }
-
-    // set up columns to match data
-    int numColumns = model_.getColumnCount();
-
-    // Type of data in column.
-    int type, sqltype;
-
-    // Get size of font.  Note if this method is called too early,
-    // table_.getFont()==null, and column widths won't be adjusted.
-    int size = 0;
-    if (table_.getFont() != null)
-        // Note: 'M' is just used to get a reasonable width of a
-        // large character in this font.
-        size = table_.getFontMetrics(table_.getFont()).charWidth('M');
-    int colSize, colDataSize, colTitleSize;
-
-    // set up columns
-    for (int i=0; i<numColumns; ++i)
-    {
-        TableColumn col = new TableColumn(i);
-        col.setIdentifier(model_.getColumnID(i));
-
-        sqltype = model_.getColumnType(i);
-        switch (sqltype)
+        // Remove all columns.
+        // First copy enumereration, then delete each column.
+        TableColumnModel model = table_.getColumnModel();
+        int oldColumnCount = model.getColumnCount();
+        TableColumn oldColumns[] = new TableColumn[oldColumnCount];
+        Enumeration e = model.getColumns();
+        for(int i=0; e.hasMoreElements() ; ++i)
         {
+          oldColumns[i] = (TableColumn)e.nextElement();
+        }
+        for(int i=0; i<oldColumnCount; ++i)
+        {
+          model.removeColumn(oldColumns[i]);
+        }
+
+        // set up columns to match data
+        int numColumns = model_.getColumnCount();
+
+        // Type of data in column.
+        int type, sqltype;
+
+        // Get size of font.  Note if this method is called too early,
+        // table_.getFont()==null, and column widths won't be adjusted.
+        int size = 0;
+        if(table_.getFont() != null)
+          // Note: 'M' is just used to get a reasonable width of a
+          // large character in this font.
+          size = table_.getFontMetrics(table_.getFont()).charWidth('M');
+        int colSize, colDataSize, colTitleSize;
+
+        // set up columns
+        for(int i=0; i<numColumns; ++i)
+        {
+          TableColumn col = new TableColumn(i);
+          col.setIdentifier(model_.getColumnID(i));
+
+          sqltype = model_.getColumnType(i);
+          switch(sqltype)
+          {
             case Types.BIGINT:
             case Types.BIT:
             case Types.DECIMAL:
@@ -778,325 +892,337 @@ public void refreshHeadings()
             case Types.REAL:
             case Types.SMALLINT:
             case Types.TINYINT:
-                type = TYPE_NUMBER;
-                break;
+              type = TYPE_NUMBER;
+              break;
             case Types.DATE:
-                type = TYPE_DATE;
-                break;
+              type = TYPE_DATE;
+              break;
             case Types.TIME:
-                type = TYPE_TIME;
-                break;
+              type = TYPE_TIME;
+              break;
             case Types.TIMESTAMP:
-                type = TYPE_TIMESTAMP;
-                break;
+              type = TYPE_TIMESTAMP;
+              break;
             case Types.BINARY:
             case Types.LONGVARBINARY:
             case Types.VARBINARY:
-                type = TYPE_BIT;
-                break;
+              type = TYPE_BIT;
+              break;
             default:  // CHAR, LONGVARCHAR, NULL, OTHER, VARCHAR
-                type = TYPE_CHAR;
-        }
+              type = TYPE_CHAR;
+          }
 
-        String title = model_.getColumnName(i);
-        if (type == TYPE_CHAR ||
-            type == TYPE_BIT)
-        {
+          String title = model_.getColumnName(i);
+
+          if(type == TYPE_CHAR ||
+             type == TYPE_BIT ||
+             type == TYPE_DATE ||
+             type == TYPE_TIME ||
+             type == TYPE_TIMESTAMP)
+          {
             col.setCellRenderer(leftCell_);
-            col.setHeaderRenderer(new VObjectHeaderRenderer(
-                title,SwingConstants.LEFT));
-        }
-        else if (type == TYPE_DATE)
-        {
+            col.setHeaderRenderer(new VObjectHeaderRenderer(title, SwingConstants.LEFT));
+          }
+/*          else if(type == TYPE_DATE)
+          {
             col.setCellRenderer(leftCell_);     // @C1C
             col.setHeaderRenderer(new VObjectHeaderRenderer(
-                title,SwingConstants.LEFT));
-        }
-        else if (type == TYPE_TIME)
-        {
+                                                           title,SwingConstants.LEFT));
+          }
+          else if(type == TYPE_TIME)
+          {
             col.setCellRenderer(leftCell_);     // @C1C
             col.setHeaderRenderer(new VObjectHeaderRenderer(
-                title,SwingConstants.LEFT));
-        }
-        else if (type == TYPE_TIMESTAMP)
-        {
+                                                           title,SwingConstants.LEFT));
+          }
+          else if(type == TYPE_TIMESTAMP)
+          {
             col.setCellRenderer(leftCell_);     // @C1C
             col.setHeaderRenderer(new VObjectHeaderRenderer(
-                title,SwingConstants.LEFT));
-        }
-        else    // numeric
-        {
+                                                           title,SwingConstants.LEFT));
+          }
+*/          
+          else    // numeric
+          {
             col.setCellRenderer(rightCell_);
-            col.setHeaderRenderer(new VObjectHeaderRenderer(
-                title,SwingConstants.RIGHT));
-        }
+            col.setHeaderRenderer(new VObjectHeaderRenderer(title, SwingConstants.RIGHT));
+          }
 
-        // Adjust width if font size is available.
-        if (size != 0)
-        {
+          // Adjust width if font size is available.
+          if(size != 0)
+          {
             colDataSize = model_.getColumnWidth(i);
-            if (type == TYPE_BIT)
-                // bit data displayed in hex, need more room
-                colDataSize = colDataSize*2;
+            if(type == TYPE_BIT)
+              // bit data displayed in hex, need more room
+              colDataSize = colDataSize*2;
             colTitleSize = title.length();
             colSize = colDataSize>colTitleSize?colDataSize:colTitleSize;
             // add 10 to account for the empty border in the cells
             col.setPreferredWidth(colSize*size+10); //@B1C
+          }
+
+          if(!model_.isUpdatable()) //@D6A
+          {
+            col.setCellEditor(cellSelector_); //@D6A
+          }
+          else
+          {
+            col.setCellEditor(cellEditor_); //@D6A
+          }
+
+          table_.addColumn(col);
         }
 
-        table_.addColumn(col);
-    }
-
-    // Redo the panel.  This is needed in the case where there was
-    // no data previously, since no header would have been created
-    // for the table.  Only done if no previous columns, and now
-    // there are columns.
-    if (oldColumnCount == 0 && numColumns > 0)
-    {
-        if (tablePane_ != null)
+        // Redo the panel.  This is needed in the case where there was
+        // no data previously, since no header would have been created
+        // for the table.  Only done if no previous columns, and now
+        // there are columns.
+        if(oldColumnCount == 0 && numColumns > 0)
+        {
+          if(tablePane_ != null)
             remove(tablePane_);
-        tablePane_ = new JScrollPane (table_); // @A1C
-        add("Center",tablePane_);
-    }
+          tablePane_ = new JScrollPane(table_); // @A1C
+          add("Center",tablePane_);
+        }
 
-    // Refresh the pane.
-    validate();
+        // Refresh the pane.
+        validate();
 
-    }
-  };
+      }
+    };
 
-  // Try and refresh the heading in the event dispatcher thread.
-  // This is done because doing it inline seems to cause hangs,
-  // and Swing documentation seems to suggest doing all GUI
-  // work in the event dispatching thread.
-  try
-  {
-    SwingUtilities.invokeAndWait(refreshHeading);
-  }
-  catch(Error e)
-  {
-    // Error received.  Assume that the error was because we are
-    // already in the event dispatching thread.  Do work in the
-    // current thread.
-    Trace.log(Trace.DIAGNOSTIC, "invokeAndWait error:" + e);
-    refreshHeading.run();
-  }
-  catch(Exception e)
-  {
-    Trace.log(Trace.ERROR, "invokeAndWait exception:" + e);
-  }
-}
-
-
-
-/**
-Removes a listener from being notified when an error occurs.
-
-@param  listener  The listener.
-**/
-public void removeErrorListener (ErrorListener listener)
-{
-    errorListeners_.removeErrorListener(listener);
-}
-
-
-
-/**
-Removes a listener from being notified when the selection changes.
-
-@param  listener  The listener.
-**/
-public void removeListSelectionListener (ListSelectionListener listener)
-{
-    selectionListeners_.removeListSelectionListener(listener);
-}
-
-
-
-/**
-Removes a listener from being notified when the value of any bound
-property is changed.
-
-@param  listener  The listener.
-**/
-public void removePropertyChangeListener (PropertyChangeListener listener)
-{
-    changeListeners_.removePropertyChangeListener(listener);
-    super.removePropertyChangeListener(listener);
-}
-
-
-
-/**
-Removes a listener from being notified when the value of any constrained
-property is changed.
-
-@param  listener  The listener.
-**/
-public void removeVetoableChangeListener (VetoableChangeListener listener)
-{
-    vetoListeners_.removeVetoableChangeListener(listener);
-    super.removeVetoableChangeListener(listener);
-}
-
-
-
-/**
-Sets the title of a column.  This is used for the table column heading.
-
-@param columnIndex The index of column.  Indices start at 0.
-@param title       The title for the column.
-**/
-public void setColumnTitle(int columnIndex,
-                           String title)
-{
-    // Catch errors if the index is out of range.
+    // Try and refresh the heading in the event dispatcher thread.
+    // This is done because doing it inline seems to cause hangs,
+    // and Swing documentation seems to suggest doing all GUI
+    // work in the event dispatching thread.
     try
     {
-        table_.getColumnModel().getColumn(columnIndex).setHeaderValue(title);
+      SwingUtilities.invokeAndWait(refreshHeading);
+    }
+    catch(Error e)
+    {
+      // Error received.  Assume that the error was because we are
+      // already in the event dispatching thread.  Do work in the
+      // current thread.
+      Trace.log(Trace.DIAGNOSTIC, "invokeAndWait error:" + e);
+      refreshHeading.run();
     }
     catch(Exception e)
     {
-        Trace.log(Trace.WARNING, "setColumnTitle() error:" + e);
+      Trace.log(Trace.ERROR, "invokeAndWait exception:" + e);
+    }
+  }
+
+
+
+  /**
+  Removes a listener from being notified when an error occurs.
+  
+  @param  listener  The listener.
+  **/
+  public void removeErrorListener(ErrorListener listener)
+  {
+    errorListeners_.removeErrorListener(listener);
+  }
+
+
+
+  /**
+  Removes a listener from being notified when the selection changes.
+  
+  @param  listener  The listener.
+  **/
+  public void removeListSelectionListener(ListSelectionListener listener)
+  {
+    selectionListeners_.removeListSelectionListener(listener);
+  }
+
+
+
+  /**
+  Removes a listener from being notified when the value of any bound
+  property is changed.
+  
+  @param  listener  The listener.
+  **/
+  public void removePropertyChangeListener(PropertyChangeListener listener)
+  {
+    changeListeners_.removePropertyChangeListener(listener);
+    super.removePropertyChangeListener(listener);
+  }
+
+
+
+  /**
+  Removes a listener from being notified when the value of any constrained
+  property is changed.
+  
+  @param  listener  The listener.
+  **/
+  public void removeVetoableChangeListener(VetoableChangeListener listener)
+  {
+    vetoListeners_.removeVetoableChangeListener(listener);
+    super.removeVetoableChangeListener(listener);
+  }
+
+
+
+  /**
+  Sets the title of a column.  This is used for the table column heading.
+  
+  @param columnIndex The index of column.  Indices start at 0.
+  @param title       The title for the column.
+  **/
+  public void setColumnTitle(int columnIndex,
+                             String title)
+  {
+    // Catch errors if the index is out of range.
+    try
+    {
+      table_.getColumnModel().getColumn(columnIndex).setHeaderValue(title);
+    }
+    catch(Exception e)
+    {
+      Trace.log(Trace.WARNING, "setColumnTitle() error:" + e);
     }
     // Swing doesn't repaint without a little prodding.
     validate();
     repaint(); // @B2A
-}
+  }
 
 
 
-/**
-Sets the width of a column.
-
-@param columnIndex The index of column.  Indices start at 0.
-@param width       The column width.
-**/
-public void setColumnWidth(int columnIndex,
-                           int width)
-{
+  /**
+  Sets the width of a column.
+  
+  @param columnIndex The index of column.  Indices start at 0.
+  @param width       The column width.
+  **/
+  public void setColumnWidth(int columnIndex,
+                             int width)
+  {
     // Catch errors if the index being out of range.
     try
     {
-        table_.getColumnModel().getColumn(columnIndex).setPreferredWidth(width); //@B1C
-        table_.getColumnModel().getColumn(columnIndex).setWidth(width); // @B2A
+      table_.getColumnModel().getColumn(columnIndex).setPreferredWidth(width); //@B1C
+      table_.getColumnModel().getColumn(columnIndex).setWidth(width); // @B2A
     }
     catch(Exception e)
     {
-        Trace.log(Trace.WARNING, "setColumnWidth() error:" + e);
+      Trace.log(Trace.WARNING, "setColumnWidth() error:" + e);
     }
     validate(); // @B2A
     repaint(); // @B2A
-}
+  }
 
 
 
-/**
-Sets the SQL connection with which to access data.
-This property is bound and constrained.
-Note that the data in the table will not change until a
-<i>load()</i> is done.
-
-@param       connection              The SQL connection.
-@exception  PropertyVetoException   If the change is vetoed.
-**/
-public void setConnection (SQLConnection connection)
-    throws PropertyVetoException
-{
+  /**
+  Sets the SQL connection with which to access data.
+  This property is bound and constrained.
+  Note that the data in the table will not change until a
+  <i>load()</i> is done.
+  
+  @param       connection              The SQL connection.
+  @exception  PropertyVetoException   If the change is vetoed.
+  **/
+  public void setConnection(SQLConnection connection)
+  throws PropertyVetoException
+  {
     // Note: the model handles the binding and constraining.
     // note: model validates parms
     model_.setConnection(connection);
-}
+  }
 
 
 
-/**
-Sets the color used to draw grid lines.
-
-@param color The color used to draw the grid lines.
-**/
-public void setGridColor(Color color)
-{
+  /**
+  Sets the color used to draw grid lines.
+  
+  @param color The color used to draw the grid lines.
+  **/
+  public void setGridColor(Color color)
+  {
     table_.setGridColor(color);
     tableColor_ = color; //@B0A
-}
+  }
 
 
 
-/**
-Sets the SQL query used to build the table.
-This property is bound and constrained.
-Note that the data in the table will not change until a
-<i>load()</i> is done.
-
-@param       query                   The SQL query.
-@exception  PropertyVetoException   If the change is vetoed.
-**/
-public void setQuery (String query)
-    throws PropertyVetoException
-{
+  /**
+  Sets the SQL query used to build the table.
+  This property is bound and constrained.
+  Note that the data in the table will not change until a
+  <i>load()</i> is done.
+  
+  @param       query                   The SQL query.
+  @exception  PropertyVetoException   If the change is vetoed.
+  **/
+  public void setQuery(String query)
+  throws PropertyVetoException
+  {
     // Note: the model handles the binding and constraining.
     // note: model validates parms
     model_.setQuery(query);
-}
+  }
 
 
 
-// @C0A
-/**
-Sets the SQL result set used to build the table.
-If this is set, it is used instead of the SQL connection
-and SQL query.
-Note that the data in the table will not change until a
-<i>load()</i> is done.
-
-@param resultSet        The SQL result set.
-**/
-public void setResultSet(ResultSet resultSet)
-{
+  // @C0A
+  /**
+  Sets the SQL result set used to build the table.
+  If this is set, it is used instead of the SQL connection
+  and SQL query.
+  Note that the data in the table will not change until a
+  <i>load()</i> is done.
+  
+  @param resultSet        The SQL result set.
+  **/
+  public void setResultSet(ResultSet resultSet)
+  {
     model_.setResultSet(resultSet);
-}
+  }
 
 
 
-/**
-Sets the ListSelectionModel that is used to maintain row selection state.
-
-@param  model The model that provides the row selection state.
-**/
-public void setSelectionModel(ListSelectionModel model)
-{
+  /**
+  Sets the ListSelectionModel that is used to maintain row selection state.
+  
+  @param  model The model that provides the row selection state.
+  **/
+  public void setSelectionModel(ListSelectionModel model)
+  {
     // cleanup old listener
     table_.getSelectionModel().removeListSelectionListener(selectionListeners_);
     // make change
     table_.setSelectionModel(model);
     // listen to new model
     table_.getSelectionModel().addListSelectionListener(selectionListeners_);
-}
+  }
 
 
 
-/**
-Sets whether horizontal lines are drawn between rows.
-@param show true if horizontal lines are to be drawn; false otherwise.
-**/
-public void setShowHorizontalLines(boolean show)
-{
+  /**
+  Sets whether horizontal lines are drawn between rows.
+  @param show true if horizontal lines are to be drawn; false otherwise.
+  **/
+  public void setShowHorizontalLines(boolean show)
+  {
     table_.setShowHorizontalLines(show);
     tableShowHorizontalLines_ = show; //@B0A
-}
+  }
 
 
 
-/**
-Sets whether vertical lines are drawn between columns.
-@param show true if vertical lines are to be drawn; false otherwise.
-**/
-public void setShowVerticalLines(boolean show)
-{
+  /**
+  Sets whether vertical lines are drawn between columns.
+  @param show true if vertical lines are to be drawn; false otherwise.
+  **/
+  public void setShowVerticalLines(boolean show)
+  {
     table_.setShowVerticalLines(show);
     tableShowVerticalLines_ = show; //@B0A
-}
+  }
 
 
 
