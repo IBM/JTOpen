@@ -445,10 +445,10 @@
     <xsl:text/>:p.:hp2.<xsl:value-of select="$_ELEMENT"/><xsl:text> </xsl:text><xsl:number count="Elem"/>: <xsl:text/>
     <xsl:choose>
       <xsl:when test="@PromptMsgID!=''">
-        <xsl:text/>&amp;msg(<xsl:value-of select="@PromptMsgID"/>).
+        <xsl:text/>&amp;msg(<xsl:value-of select="@PromptMsgID"/>).<xsl:text/>
       </xsl:when>
       <xsl:when test="@Prompt!=''">
-        <xsl:text/><xsl:value-of select="@Prompt"/>
+        <xsl:text/><xsl:value-of select="@Prompt"/><xsl:text/>
       </xsl:when>
       <xsl:otherwise/>
     </xsl:choose>
