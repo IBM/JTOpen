@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataAreaImplRemote.java
 //                                                                             
@@ -49,7 +49,7 @@ class DataAreaImplRemote implements DataAreaImpl
 
     private boolean attributesRetrieved_;  // Flag indicating if this data area object contains current information regarding its corresponding AS/400 data area.
     private int dataAreaType_ = DataArea.UNINITIALIZED;  // Type of data area object.
-    private static final String PROGRAM_NAME = "/QSYS.LIB/QWCRDTAA.PGM";
+    private static final QSYSObjectPathName PROGRAM_NAME = new QSYSObjectPathName("/QSYS.LIB/QWCRDTAA.PGM");
 
     // For DecimalDataArea only:
     private int decimalPositions_ = 5;  // The default number of decimal positions.
@@ -94,7 +94,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the command.
-        if(!run(clrcmd))
+        if(!run(clrcmd, false))
         {
             // Throw AS400MessageList.
             processExceptions(getMessages());
@@ -133,7 +133,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String crtcmd = "QSYS/CRTDTAARA DTAARA(" + library_ + "/" + name_ + ") TYPE(*CHAR) LEN(" + String.valueOf(length_) + " " + ") VALUE('" + initialValue + "') TEXT('" + textDescription + "')" + " AUT(" + authority + ")";
 
         // Run the command.
-        if(!run(crtcmd))
+        if(!run(crtcmd, false))
         {
             // Throw AS400MessageList.
             processCreateExceptions(getMessages());
@@ -174,7 +174,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String crtcmd = "QSYS/CRTDTAARA DTAARA(" + library_ + "/" + name_ + ") TYPE(*DEC) LEN(" + String.valueOf(length_) + " " + String.valueOf(decimalPositions_) + ") VALUE(" + initialValue.toString() + ") TEXT('" + textDescription + "')" + " AUT(" + authority + ")";
 
         // Run the command.
-        if(!run(crtcmd))
+        if(!run(crtcmd, false))
         {
             // Throw AS400MessageList.
             processCreateExceptions(getMessages());
@@ -211,7 +211,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String crtcmd = "QSYS/CRTDTAARA DTAARA(" + library_ + "/" + name_ + ") TYPE(*LGL) LEN(1) VALUE('" + (initialValue ? "1" : "0") + "') TEXT('" + textDescription + "')" + " AUT(" + authority + ")";
 
         // Run the command.
-        if(!run(crtcmd))
+        if(!run(crtcmd, false))
         {
             // Throw AS400MessageList.
             processCreateExceptions(getMessages());
@@ -243,7 +243,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String dltcmd = "QSYS/DLTDTAARA DTAARA(" + library_ + "/" + name_ + ")";
 
         // Run the command.
-        if(!run(dltcmd))
+        if(!run(dltcmd, true))
         {
             // Throw AS400MessageList.
             processExceptions(getMessages());
@@ -335,11 +335,12 @@ class DataAreaImplRemote implements DataAreaImpl
     {
         if (messageList == null)
             return;
-
+        
         for (int msg = 0; msg < messageList.length; ++msg)
         {
             Trace.log(Trace.ERROR, messageList[msg].toString());
             String xid = messageList[msg].getID();
+            
             if (xid.equals("CPF1015"))
             {
                 Trace.log(Trace.ERROR, "Re-throwing as ObjectDoesNotExistException.");
@@ -498,7 +499,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram(PROGRAM_NAME, parmlist))	    //$B1C
+        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false))  // QWCRDTAA isn't threadsafe. $B1C
         {
             // Throw AS400MessageList
             processExceptions(rmtCmd_.getMessageList());
@@ -572,6 +573,7 @@ class DataAreaImplRemote implements DataAreaImpl
         retrieveAttributes();
     }
 
+    //$D2C
     /**
      Makes the API call to retrieve the character data area data and attributes.
      @return The String value read from the data area as a result of retrieving the data area's attributes.
@@ -583,6 +585,29 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
      **/
     public String retrieve(int offset, int length) throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+       if(AS400BidiTransform.isBidiCcsid(ccsid_))
+          return retrieve(offset, length, AS400BidiTransform.getStringType((char)ccsid_));
+       else
+          return retrieve(offset, length, BidiStringType.DEFAULT);
+    }
+
+
+    //$D2A
+    /**
+     Makes the API call to retrieve the character data area data and attributes.
+     @param stringType The Data Area bidi string type, as defined by the CDRA (Character
+                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 BidiStringType</a> for more information and valid values.
+     @return The String value read from the data area as a result of retrieving the data area's attributes.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  IllegalObjectTypeException  If the AS/400 object is not the required type.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     **/
+    public String retrieve(int offset, int length, int stringType) throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (dataAreaType_ != DataArea.CHARACTER_DATA_AREA && dataAreaType_ != DataArea.LOCAL_DATA_AREA)
         {
@@ -668,7 +693,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram(PROGRAM_NAME, parmlist))	    //$B1C
+        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false))  // QWCRDTAA isn't threadsafe. $B1C
         {
             // Throw AS400MessageList
             processExceptions(rmtCmd_.getMessageList());
@@ -729,7 +754,7 @@ class DataAreaImplRemote implements DataAreaImpl
 
         // The rest of the receiver array is the character data.
 
-        return converter_.byteArrayToString(dataReceived, 36, bytesReturned); //@A1C
+        return converter_.byteArrayToString(dataReceived, 36, bytesReturned, stringType); //@A1C //$D2C
     }
 
     /**
@@ -842,7 +867,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram(PROGRAM_NAME, parmlist))	    //$B1C
+        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false))  // QWCRDTAA isn't threadsafe. $B1C
         {
             // Throw AS400MessageList
             processExceptions(rmtCmd_.getMessageList());
@@ -930,7 +955,7 @@ class DataAreaImplRemote implements DataAreaImpl
         // do a read of the data too.
 
         // Read in the entire data area to get the total length
-        String obj = retrieve(-1, 1);
+        String obj = retrieve(-1, 1);        
 
         attributesRetrieved_ = true;
 
@@ -948,7 +973,7 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ServerStartupException  If the AS/400 server cannot be started.
      @exception  UnknownHostException  If the AS/400 system cannot be located.
      **/
-    private boolean run(String command) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ServerStartupException, UnknownHostException
+    private boolean run(String command, boolean threadSafe) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ServerStartupException, UnknownHostException
     {
         boolean result = false;
         if (rmtCmd_ == null)
@@ -956,7 +981,7 @@ class DataAreaImplRemote implements DataAreaImpl
             rmtCmd_ = new RemoteCommandImplRemote();
             rmtCmd_.setSystem(system_);
         }
-        result = rmtCmd_.runCommand(command);
+        result = rmtCmd_.runCommand(command, threadSafe);      // @B2C
         messageList_ = rmtCmd_.getMessageList();
 
         return result;
@@ -1038,6 +1063,8 @@ class DataAreaImplRemote implements DataAreaImpl
         dataAreaType_ = dataAreaType;
     }
 
+
+    //$D2C
     /**
      Writes the data to the character (or local) data area.  It writes <i>data.length()</i> characters from <i>data</i> to the data area beginning at <i>dataAreaOffset</i>. The first character in the data area is at offset 0.
      @param  data  The data to be written.
@@ -1053,6 +1080,32 @@ class DataAreaImplRemote implements DataAreaImpl
      **/
     public void write(String data, int dataAreaOffset) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
+       if(AS400BidiTransform.isBidiCcsid(ccsid_))
+          write(data, dataAreaOffset, AS400BidiTransform.getStringType((char)ccsid_));
+       else
+          write(data, dataAreaOffset, BidiStringType.DEFAULT);
+    }
+
+
+    //$D2A
+    /**
+     Writes the data to the character (or local) data area.  It writes <i>data.length()</i> characters from <i>data</i> to the data area beginning at <i>dataAreaOffset</i>. The first character in the data area is at offset 0.
+     @param  data  The data to be written.
+     @param  dataAreaOffset  The offset in the data area at which to start writing.
+     @param type The Data Area bidi string type, as defined by the CDRA (Character
+                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 BidiStringType</a> for more information and valid values.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     @exception  ServerStartupException  If the AS/400 server cannot be started.
+     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     **/
+    public void write(String data, int dataAreaOffset, int type) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
+    {
         // Assume the arguments have been validated by the public class.
         if (dataAreaType_ != DataArea.CHARACTER_DATA_AREA && dataAreaType_ != DataArea.LOCAL_DATA_AREA)
         {
@@ -1061,30 +1114,57 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Build the string for the write.
-        String wrtcmd = null;
+        //String wrtcmd = null;
+        byte[] wrtcmd;
 
         // convert to get the actual number of bytes being written.  In mixed
         // environments a character can expand to more than one byte.  The
         // number of byte is passed on the command.
         ConverterImplRemote ir = ConverterImplRemote.getConverter(system_.getCcsid(), system_); //@D1a
-        int dataLength = ir.stringToByteArray(data).length;                                     //@D1a
+        
+        // To allow bidi data to be written to a data area, each
+        // part (the beginning of the command, the data, the end of the commmand)
+        // must be converted into bytes and passed to command call.
+        byte[] part1;                                                                                     //@D2A
+        byte[] part2 = ir.stringToByteArray(data, type);                                          //@D1a  //$D2C
+        byte[] part3 = ir.stringToByteArray("')");                                                        //@D2A
+        int dataLength = part2.length;                                                                    //@D2C
 
         switch (dataAreaType_)
         {
             case DataArea.CHARACTER_DATA_AREA:
-                wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('" + data + "')"; //@D1c
+                //wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('" + data + "')"; //@D1c
+                part1 = ir.stringToByteArray("QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('");  //@D2C
                 break;
             case DataArea.LOCAL_DATA_AREA:
-                wrtcmd = "QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('" + data + "')";                                //@D1c
+                //wrtcmd = "QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('" + data + "')";                                //@D1c
+                part1 = ir.stringToByteArray("QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('");                                 //@D2C
                 break;
             default:
                 Trace.log(Trace.ERROR, "Programming error: write(String,int) was called as dataAreaType=" + dataAreaType_);
                 throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
-        // Run the command
-        if(!run(wrtcmd))
-        {
+        // Allocate the proper byte array size for the command.
+        wrtcmd = new byte[part1.length + dataLength + part3.length];                //@D2A
+
+        // Copy each part of the chgdtaara command bytes into the end byte array.
+        System.arraycopy(part1,0,wrtcmd,0,part1.length);                            //@D2A
+        System.arraycopy(part2,0,wrtcmd,part1.length,dataLength);                   //@D2A
+        System.arraycopy(part3,0,wrtcmd,part1.length+dataLength,part3.length);      //@D2A
+
+        if (rmtCmd_ == null)                                    //$D2A
+        {                                                       //$D2A
+            rmtCmd_ = new RemoteCommandImplRemote();            //$D2A
+            rmtCmd_.setSystem(system_);                         //$D2A
+        }                                                       //$D2A
+        
+        // Run the command as bytes
+        boolean result = rmtCmd_.runCommand(wrtcmd, false);     //@D2C
+        messageList_ = rmtCmd_.getMessageList();                //$D2A
+
+        if(!result)                                             //$D2C
+        {   
             // Throw AS400MessageList
             processExceptions(getMessages());
         }
@@ -1115,7 +1195,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + ") VALUE(" + data.toString() + ")";
 
         // Run the command
-        if(!run(wrtcmd))
+        if(!run(wrtcmd, false))
         {
             // Throw AS400MessageList
             processExceptions(getMessages());
@@ -1146,7 +1226,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + ") VALUE('" + (data ? "1" : "0") + "')";
 
         // Run the command
-        if(!run(wrtcmd))
+        if(!run(wrtcmd, false))
         {
             // Throw AS400MessageList
             processExceptions(getMessages());

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFile.java
 //                                                                             
@@ -85,6 +85,11 @@ public class IFSFile
   implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   /**
    The integrated file system path separator string used to separate paths in a path list.
@@ -406,6 +411,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; // @A7D Unnecessary assignment
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -444,6 +450,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       //returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -538,7 +545,8 @@ public class IFSFile
     catch (AS400SecurityException e)                            //D3a
     {                                                           //D3a
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);            //D3a
-      return 0L;                                                //D3a
+      //return 0L;                                              //D3a @B6d
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }                                                           //D3a
   }                                                             //D3a
 
@@ -562,7 +570,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+   // @D1 - New method because of changes to java.io.File in Java 2.
 
   public boolean createNewFile()
     throws IOException
@@ -578,6 +586,7 @@ public class IFSFile
      catch (AS400SecurityException e)
      {
         Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+        throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
      }
      return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -643,6 +652,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -684,7 +694,8 @@ public class IFSFile
       }
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-            return null;
+            //return null;      // @B6d
+            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -723,7 +734,8 @@ public class IFSFile
       }
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-            return null;
+            //return null;  // @B6d
+            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -758,7 +770,8 @@ public class IFSFile
       }
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-            return null;
+            // return null;  // @B6d
+            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -790,7 +803,8 @@ public class IFSFile
       }
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-            return null;
+            // return null;  // @B6d
+            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -868,6 +882,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1219,6 +1234,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1271,6 +1287,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;   //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1288,7 +1305,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
   **/
-   // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+   // @D1 - new method because of changes to java.io.File in Java 2.
   public boolean isHidden()
     throws IOException, AS400SecurityException
   {
@@ -1321,7 +1338,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
   **/
-   // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+   // @D1 - new method because of changes to java.io.File in Java 2.
 
   public boolean isReadOnly()
     throws IOException, AS400SecurityException
@@ -1387,7 +1404,8 @@ public class IFSFile
     catch (AS400SecurityException e)                            //D3a
     {                                                           //D3a
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);            //D3a
-      return 0L;                                                //D3a
+      //return 0L;                                              //D3a @B6d
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }                                                           //D3a
   }                                                             //D3a
 
@@ -1439,7 +1457,8 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      return 0L;
+      //return 0L;  // @B6d
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -1486,7 +1505,8 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
        Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-       return 0L;
+       // return 0L;  // @B6d
+       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -1664,7 +1684,8 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      return null;
+      // return null;  // @B6d
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -1847,7 +1868,8 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      return null;
+      // return null;  // @B6d
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -1959,6 +1981,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -2086,6 +2109,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; //@A7D Unnecessary assignment.
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -2117,7 +2141,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-     // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+     // @D1 - new method because of changes to java.io.File in Java 2.
   boolean setFixedAttributes(int attributes)
     throws IOException
   {
@@ -2159,7 +2183,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+   // @D1 - new method because of changes to java.io.File in Java 2.
 
   public boolean setHidden()
     throws IOException
@@ -2182,7 +2206,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+   // @D1 - new method because of changes to java.io.File in Java 2.
 
   public boolean setHidden(boolean attribute)
     throws IOException
@@ -2226,7 +2250,8 @@ public class IFSFile
    Changes the last modified time of the integrated file system object
    represented by this object to <i>time</i>.
    @param time The desired last modification time (measured in milliseconds
-   since January 1, 1970 00:00:00 GMT).
+   since January 1, 1970 00:00:00 GMT), or 0 to leave the last modification
+   time unchanged.
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2415,7 +2440,7 @@ public class IFSFile
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.File in Java 2.
+   // @D1 - new method because of changes to java.io.File in Java 2.
 
   public boolean setReadOnly()
     throws IOException
@@ -2440,7 +2465,7 @@ public class IFSFile
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
 
-  // @D1a new for v5r1 because of changes in java.io.File
+  // @D1a new method because of changes in java.io.File
   public boolean setReadOnly(boolean attribute)
     throws IOException
   {

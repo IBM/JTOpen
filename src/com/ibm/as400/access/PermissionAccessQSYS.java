@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionAccessQSYS.java
 //                                                                             
@@ -19,24 +19,24 @@ import java.net.UnknownHostException;
 import java.beans.PropertyVetoException;
 
 /**
- * The PermissionAccessQSYS class is provided to retrieve the user's 
+ * The PermissionAccessQSYS class is provided to retrieve the user's
  * permission information.
- * 
+ *
 **/
 class PermissionAccessQSYS extends PermissionAccess
-{   
+{
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
     /**
-     * Constructs a PermissionAccessQSYS object.   
+     * Constructs a PermissionAccessQSYS object.
      *
     **/
     public PermissionAccessQSYS(AS400 system)
     {
         super(system);
-    }    
-   
+    }
+
     /**
      * Adds the authorized user or user permission.
      * @param objName The object the authorized user will be added to.
@@ -63,28 +63,26 @@ class PermissionAccessQSYS extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall addUser= new CommandCall(as400_);
-        String cmd = getAddCommand(objName,permission);
-        addUser.setCommand(cmd);
+        CommandCall addUser= getAddCommand(as400_,objName,permission);
 
         if (addUser.run()!=true)
         {
            AS400Message[] msgList = addUser.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-        
-    } 
+        return;
+
+    }
 
     /**
      * Returns the command to add a authorized user.
     **/
-    private String getAddCommand(String objName,UserPermission permission)
+    private static CommandCall getAddCommand(AS400 sys, String objName,UserPermission permission)
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String objectType = objectPathName.getObjectType();
         if (!objectType.equals("AUTL"))
-            return getChgCommand(objName,permission);
+            return getChgCommand(sys,objName,permission);
         QSYSPermission qsysPermission = (QSYSPermission)permission;
         String userProfile=qsysPermission.getUserID();
         String object = objectPathName.getObjectName();
@@ -93,13 +91,15 @@ class PermissionAccessQSYS extends PermissionAccess
                          +" AUTL("+object+")"
                          +" USER("+userProfile+")"
                          +" AUT(*EXCLUDE)";
-        return command;
+        CommandCall cmd = new CommandCall(sys, command); //@A2C
+        cmd.setThreadSafe(false); // ADDAUTLE isn't threadsafe.  @A2A @A3C
+        return cmd;               //@A2C
     }
-    
+
     /**
      * Returns the command to clear a authorized user's permission.
     **/
-    private String getClrCommand(String objName,UserPermission permission)
+    private static CommandCall getClrCommand(AS400 sys, String objName,UserPermission permission)
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         QSYSPermission qsysPermission = (QSYSPermission)permission;
@@ -114,14 +114,14 @@ class PermissionAccessQSYS extends PermissionAccess
             objectType = "FILE";
 
         String command;
-                        
+
         if (objectType.equals("AUTL"))
         {
             command = "CHGAUTLE"
                       +" AUTL("+object+")"
                       +" USER("+userProfile+")"
                       +" AUT(*EXCLUDE)";
-        } else 
+        } else
         {
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
@@ -129,18 +129,20 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" USER("+userProfile+")"
                     +" AUT(*EXCLUDE)";
         }
-        return command;
+        CommandCall cmd = new CommandCall(sys, command); //@A2C
+        cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
+        return cmd;               //@A2C
     }
 
     /**
      * Returns the command to change a authorized user's permission.
-     * @param objName The object that the authorized information will be 
+     * @param objName The object that the authorized information will be
      *  set to.
      * @param permission The permission that will be changed.
      * @return The command to remove a authorized user.
      *
     **/
-    private String getChgCommand(String objName,UserPermission permission)
+    private static CommandCall getChgCommand(AS400 sys, String objName,UserPermission permission)
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         QSYSPermission qsysPermission = (QSYSPermission)permission;
@@ -153,7 +155,7 @@ class PermissionAccessQSYS extends PermissionAccess
         String objectType = objectPathName.getObjectType();
         if (objectType.toUpperCase().equals("MBR"))
             objectType = "FILE";
-                 
+
         boolean objMgt = qsysPermission.isManagement();
         boolean objExist = qsysPermission.isExistence();
         boolean objAlter = qsysPermission.isAlter();
@@ -166,7 +168,7 @@ class PermissionAccessQSYS extends PermissionAccess
         boolean datExecute = qsysPermission.isExecute();
         boolean autListManagement = qsysPermission.isAuthorizationListManagement();
         String authority="";
-        
+
         if(objMgt==true)
              authority=authority+"*OBJMGT ";
         if(objExist==true)
@@ -207,18 +209,11 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" USER("+userProfile+")"
                     +" AUT("+authority+")";
         }
-        return command;
+        CommandCall cmd = new CommandCall(sys, command); //@A2C
+        cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
+        return cmd;                //@A2C
     }
 
-
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
-    
     /**
      * Returns the command to remove a authorized user.
      * @param objName The object the authorized user will be removed from.
@@ -226,29 +221,32 @@ class PermissionAccessQSYS extends PermissionAccess
      * @return The command to remove a authorized user.
      *
     **/
-    private String getRmvCommand(String objName,String userName)
+    private static CommandCall getRmvCommand(AS400 sys, String objName,String userName)
     {
-        String command,object,objectType;
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
-        objectType = objectPathName.getObjectType();
+        String objectType = objectPathName.getObjectType();
+        boolean threadSafe;      //@A2A
+        String command,object;
         if (objectType.equals("AUTL"))
         {
             object = objectPathName.getObjectName();
             command = "RMVAUTLE"
                       +" AUTL("+object+")"
                       +" USER("+userName+")";
+            threadSafe = false; // RMVAUTLE isn't threadsafe.  @A2A @A3C
         } else if (objectType.equals("MBR"))
         {
             object = "QSYS.LIB/";
             if (!objectPathName.getLibraryName().equals(""))
                 object += objectPathName.getLibraryName()+".LIB/";
             object += objectPathName.getObjectName()+".FILE";
-            
+
             command="CHGAUT"
                     +" OBJ('"+object+"')"
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
+            threadSafe = true; //@A2A
         } else
         {
             command="CHGAUT"
@@ -256,13 +254,16 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
+            threadSafe = true; //@A2A
         }
-        return command;
-    } 
+        CommandCall cmd = new CommandCall(sys, command); //@A2C
+        cmd.setThreadSafe(threadSafe);  //@A2A
+        return cmd;                     //@A2C
+    }
 
     /**
-     * Returns the user's permission retrieved from the system. 
-     * @return The user's permission retrieved from the system. 
+     * Returns the user's permission retrieved from the system.
+     * @return The user's permission retrieved from the system.
      * @exception UnsupportedEncodingException The Character Encoding is not supported.
      *
     **/
@@ -331,18 +332,16 @@ class PermissionAccessQSYS extends PermissionAccess
                    IOException,
                    ServerStartupException,
                    UnknownHostException,
-                   PropertyVetoException    
+                   PropertyVetoException
     {
-        CommandCall removeUser = new CommandCall(as400_);
-        String cmd = getRmvCommand(objName,userName);
-        removeUser.setCommand(cmd);
+        CommandCall removeUser = getRmvCommand(as400_,objName,userName);
 
         if (removeUser.run()!=true)
         {
            AS400Message[] msgList = removeUser.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
+        return;
     }
 
     /**
@@ -369,25 +368,22 @@ class PermissionAccessQSYS extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall setAuthority = new CommandCall(as400_);
-        String cmd = getClrCommand(objName,permission);
-        setAuthority.setCommand(cmd);
+        CommandCall setAuthority = getClrCommand(as400_,objName,permission);
         if (setAuthority.run()!=true)
         {
            AS400Message[] msgList = setAuthority.getMessageList();
            throw new AS400Exception(msgList);
         }
 
-        cmd = getChgCommand(objName,permission);
-        setAuthority.setCommand(cmd);
+        setAuthority = getChgCommand(as400_,objName,permission);
         if (setAuthority.run()!=true)
         {
            AS400Message[] msgList = setAuthority.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-    } 
-    
+        return;
+    }
+
     /**
      * Sets authorization list of the object.
      * @param objName The object that the authorization list will be set to.
@@ -413,7 +409,7 @@ class PermissionAccessQSYS extends PermissionAccess
                    IOException,
                    ServerStartupException,
                    UnknownHostException,
-                   PropertyVetoException        
+                   PropertyVetoException
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String object = objectPathName.getObjectName();
@@ -442,14 +438,15 @@ class PermissionAccessQSYS extends PermissionAccess
                   +" AUTL("+autList+")";
         }
         setAUTL.setCommand(cmd);
+        setAUTL.setThreadSafe(false); // RVKOBJAUT,GRTOBJAUT not threadsafe.  @A2A @A3C
         if (setAUTL.run()!=true)
         {
            AS400Message[] msgList = setAUTL.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-    } 
-        
+        return;
+    }
+
     /**
      * Sets from authorization list of the object.
      * @param objName The object the authorized list will be set to.
@@ -495,21 +492,22 @@ class PermissionAccessQSYS extends PermissionAccess
                   +" OBJTYPE(*"+objectType+")"
                   +" USER(*PUBLIC)"
                   +" AUT(*AUTL)";
-        else 
+        else
             cmd = "GRTOBJAUT"
                   +" OBJ("+object+")"
                   +" OBJTYPE(*"+objectType+")"
                   +" USER(*PUBLIC)"
                   +" AUT(*EXCLUDE)";
         fromAUTL.setCommand(cmd);
+        fromAUTL.setThreadSafe(false); // GRTOBJAUT isn't threadsafe.  @A2A @A3C
         if (fromAUTL.run()!=true)
         {
            AS400Message[] msgList = fromAUTL.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
+        return;
     }
-    
+
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.
@@ -534,10 +532,10 @@ class PermissionAccessQSYS extends PermissionAccess
                    IOException,
                    ServerStartupException,
                    UnknownHostException,
-                   PropertyVetoException        
+                   PropertyVetoException
     {
-        return;    
-    } 
-    
-}        
-        
+        return;
+    }
+
+}
+

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionAccessDLO.java
 //                                                                             
@@ -13,29 +13,29 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyVetoException; 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 
 /**
- * the PermissionAccessDLO class is provided to retrieve the 
+ * the PermissionAccessDLO class is provided to retrieve the
  * user's permission information.
- * 
+ *
 **/
 class PermissionAccessDLO extends PermissionAccess
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    
+
     /**
-     * Constructs a PermissionAccessDLO object.   
+     * Constructs a PermissionAccessDLO object.
      *
     **/
     public PermissionAccessDLO(AS400 system)
     {
         super(system);
-    }    
+    }
 
     /**
      * Adds the authorized user or user permission.
@@ -63,18 +63,16 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall addUser= new CommandCall(as400_);
-        String cmd = getAddCommand(objName.toUpperCase(),permission); //@A2C: toUpperCase()
-        addUser.setCommand(cmd);
+        CommandCall addUser= getAddCommand(as400_, objName.toUpperCase(),permission); //@A2C: toUpperCase()
 
         if (addUser.run()!=true)
         {
            AS400Message[] msgList = addUser.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-        
-    } 
+        return;
+
+    }
 
     /**
      * Returns the command to add a authorized user.
@@ -83,24 +81,26 @@ class PermissionAccessDLO extends PermissionAccess
      * @return The command to add authorized user.
      *
     **/
-    private String getAddCommand(String objName,UserPermission permission)
+    private static CommandCall getAddCommand(AS400 sys, String objName,UserPermission permission)
     {
-        String name,folder,command;
         DLOPermission dloPermission = (DLOPermission)permission;
         String userProfile=dloPermission.getUserID();
         String authorityLevel=dloPermission.getDataAuthority();
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
-        name=objName.substring(index2+1);
+        String name=objName.substring(index2+1);
+        String folder;
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);
-        else 
+        else
             folder = "*NONE";
-        command="ADDDLOAUT"
+        String command="ADDDLOAUT"
                +" DLO('"+name+"')"
                +" FLR('"+folder+"')"
                +" USRAUT(("+userProfile+" "+authorityLevel+"))";
-        return command;
+        CommandCall cmd = new CommandCall(sys, command); //@A3C
+        cmd.setThreadSafe(false); // ADDDLOAUT isn't threadsafe.  @A3A @A4C
+        return cmd;
     }
 
     /**
@@ -110,34 +110,28 @@ class PermissionAccessDLO extends PermissionAccess
      * @return The command to change user's authority.
      *
     **/
-    private String getChgCommand(String objName,UserPermission permission)
+    private static CommandCall getChgCommand(AS400 sys, String objName,UserPermission permission)
     {
         DLOPermission dloPermission = (DLOPermission)permission;
-        String name,folder,command;
         String userProfile=dloPermission.getUserID();
         String authorityLevel=dloPermission.getDataAuthority();
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
-        name=objName.substring(index2+1);
+        String name=objName.substring(index2+1);
+        String folder;
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);
-        else 
+        else
             folder = "*NONE";
-        command="CHGDLOAUT"
+        String command="CHGDLOAUT"
                 +" DLO('"+name+"')"
                 +" FLR('"+folder+"')"
                 +" USRAUT(("+userProfile+" "+authorityLevel+"))";
-        return command;
+        CommandCall cmd = new CommandCall(sys, command); //@A3C
+        cmd.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
+        return cmd;
     }
 
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
-    
     /**
      * Returns the command to remove a authorized user.
      * @param objName The object that the authorized user will be removed from.
@@ -145,7 +139,7 @@ class PermissionAccessDLO extends PermissionAccess
      * @return The command to remove a authorized user.
      *
     **/
-    private String getRmvCommand(String objName,String userName)
+    private static CommandCall getRmvCommand(AS400 sys, String objName,String userName)
     {
         String name,folder;
         int index1 = objName.indexOf('/',1);
@@ -153,18 +147,20 @@ class PermissionAccessDLO extends PermissionAccess
         name=objName.substring(index2+1);
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);
-        else 
+        else
             folder = "*NONE";
         String command="RMVDLOAUT"
                        +" DLO('"+name+"')"
                        +" FLR('"+folder+"')"
                        +" USER(("+userName+"))";
-        return command;
-    } 
+        CommandCall cmd = new CommandCall(sys, command); //@A3C
+        cmd.setThreadSafe(false); // RMVDLOAUT isn't threadsafe.  @A3A @A4C
+        return cmd;
+    }
 
     /**
-     * Returns the user's permission retrieved from the system. 
-     * @return The user's permission retrieved from the system. 
+     * Returns the user's permission retrieved from the system.
+     * @return The user's permission retrieved from the system.
      * @exception UnsupportedEncodingException The Character Encoding is not supported.
      *
     **/
@@ -233,18 +229,16 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall rmvUser = new CommandCall(as400_);
-        String cmd = getRmvCommand(objName.toUpperCase(),userName); //@A2C: toUpperCase()
-        rmvUser.setCommand(cmd);
+        CommandCall rmvUser = getRmvCommand(as400_,objName.toUpperCase(),userName); //@A2C: toUpperCase()
 
         if (rmvUser.run()!=true)
         {
            AS400Message[] msgList = rmvUser.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-        
-    } 
+        return;
+
+    }
 
     /**
      * Sets the authorized user's permissions.
@@ -270,18 +264,16 @@ class PermissionAccessDLO extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall setAuthority = new CommandCall(as400_);
-        String cmd = getChgCommand(objName.toUpperCase(),permission); //@A2C: toUpperCase()
-        setAuthority.setCommand(cmd);
+        CommandCall setAuthority = getChgCommand(as400_,objName.toUpperCase(),permission); //@A2C: toUpperCase()
 
         if (setAuthority.run()!=true)
         {
            AS400Message[] msgList = setAuthority.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-        
-    } 
+        return;
+
+    }
 
     /**
      * Sets the authorization list of the object.
@@ -308,7 +300,7 @@ class PermissionAccessDLO extends PermissionAccess
                    IOException,
                    ServerStartupException,
                    UnknownHostException,
-                   PropertyVetoException        
+                   PropertyVetoException
     {
         objName = objName.toUpperCase(); //@A2A
         String name,folder;
@@ -317,7 +309,7 @@ class PermissionAccessDLO extends PermissionAccess
         name=objName.substring(index2+1);
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);
-        else 
+        else
             folder = "*NONE";
         CommandCall setAUTL=new CommandCall(as400_);
         String cmd;
@@ -327,7 +319,7 @@ class PermissionAccessDLO extends PermissionAccess
                   +" DLO('"+name+"')"
                   +" FLR('"+folder+"')"
                   +" AUTL("+oldValue+")";
-        } else 
+        } else
         {
             cmd = "CHGDLOAUT"
                   +" DLO('"+name+"')"
@@ -335,13 +327,14 @@ class PermissionAccessDLO extends PermissionAccess
                   +" AUTL("+autList+")";
         }
         setAUTL.setCommand(cmd);
+        setAUTL.setThreadSafe(false); // RMV/CHGDLOAUT not threadsafe. @A3A @A4C
         if (setAUTL.run()!=true)
         {
            AS400Message[] msgList = setAUTL.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
-    } 
+        return;
+    }
 
     /**
      * Sets from authorization list of the object.
@@ -377,7 +370,7 @@ class PermissionAccessDLO extends PermissionAccess
         name=objName.substring(index2+1);
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);
-        else 
+        else
             folder = "*NONE";
         CommandCall fromAUTL=new CommandCall(as400_);
         String cmd = "CHGDLOAUT"
@@ -385,19 +378,20 @@ class PermissionAccessDLO extends PermissionAccess
                      +" FLR('"+folder+"')"
                      +" USRAUT((*PUBLIC *AUTL))";
         fromAUTL.setCommand(cmd);
+        fromAUTL.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
         if (fromAUTL.run()!=true)
         {
            AS400Message[] msgList = fromAUTL.getMessageList();
            throw new AS400Exception(msgList);
         }
-        return;    
+        return;
     }
-                   
+
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.
      * @param sensitivityLevel The sensitivity level that will be set.
-     * Possible values : 
+     * Possible values :
      * <UL>
      *  <LI> *NONE - The object has no sensitivity restrictions.
      *  <LI> *PERSONAL - The object contains information intended for the user as an individual.
@@ -423,7 +417,7 @@ class PermissionAccessDLO extends PermissionAccess
                    IOException,
                    ServerStartupException,
                    UnknownHostException,
-                   PropertyVetoException      
+                   PropertyVetoException
     {
         objName = objName.toUpperCase(); //@A2A
         String name,folder;
@@ -432,7 +426,7 @@ class PermissionAccessDLO extends PermissionAccess
         name=objName.substring(index2+1);
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);
-        else 
+        else
             folder = "*NONE";
         CommandCall setSensitiv=new CommandCall(as400_);
         String sensitivity="";
@@ -453,18 +447,19 @@ class PermissionAccessDLO extends PermissionAccess
             default :
                 throw new ExtendedIllegalArgumentException("sensitivity",
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }            
+        }
         String cmd = "CHGDLOAUT"
                      +" DLO('"+name+"')"
                      +" FLR('"+folder+"')"
                      +" SENSITIV("+sensitivity+")";
         setSensitiv.setCommand(cmd);
+        setSensitiv.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
         if(setSensitiv.run()!=true)
         {
               AS400Message[] msgList=setSensitiv.getMessageList();
               throw new AS400Exception(msgList);
         }
         return;
-    } 
+    }
 
-}    
+}

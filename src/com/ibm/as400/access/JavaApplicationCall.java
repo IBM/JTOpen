@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JavaApplicationCall.java
 //                                                                             
@@ -139,6 +139,9 @@ public class JavaApplicationCall implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+    static final long serialVersionUID = 4L;
 
     // The variables represent the default standard in, standard out, and standard err port.
     private static int DEFAULT_STANDARD_ERROR_PORT = 2852;
@@ -321,13 +324,6 @@ public class JavaApplicationCall implements Serializable
 
 
 
-    /**
-     * Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
 
 
 
@@ -868,7 +864,7 @@ public class JavaApplicationCall implements Serializable
         openSocketsThread_.start();
 
         command_ = new CommandCall(getSystem());
-
+        command_.setThreadSafe(false); // JAVA cmd isn't threadsafe.  @A1A
         // Construct commandstring
         // 1.  CLASS
         // 2.  PARM
@@ -955,6 +951,8 @@ public class JavaApplicationCall implements Serializable
         //run the command
         boolean success = false;
 
+        // System.out.println(commandString);
+
         try
         {
            success = command_.run(commandString);
@@ -991,9 +989,8 @@ public class JavaApplicationCall implements Serializable
     }
 
 
-
     /**
-       Find a free port. If the port passed as a parameter is in use, try port+=3.  
+       Find a free port. If the port passed as a parameter is in use, try port+=3.
        If that is busy keep trying for up to 1000 times.
        If we cannot find a free port, return the original port.
     **/
@@ -1247,6 +1244,10 @@ public class JavaApplicationCall implements Serializable
             throw new IllegalArgumentException("garbageCollectionPriority");
     }
 
+
+
+
+
     /**
        Sets whether all Java class files should be run interpretively.
 
@@ -1270,7 +1271,10 @@ public class JavaApplicationCall implements Serializable
                      OPTIMIZE value associated Java program.  Java classes that need
                      a Java program created will use the optimization level specified
                      in the OPTIMIZE parameter.
-        </UL>
+
+       <li>*JIT      All Java class files will be run using the just in time
+                     compiler (JIT) regardless of the OPTIMIZE value
+                     used when the associated Java program was created.
 
        @param interpret  How all Java class files should be run interpretively.
        @exception PropertyVetoException If the change is voted.
@@ -1279,7 +1283,10 @@ public class JavaApplicationCall implements Serializable
     {
         if (interpret != null)
         {
-            if (interpret.equalsIgnoreCase("*OPTIMIZE") || interpret.equalsIgnoreCase("*NO") || interpret.equalsIgnoreCase("*YES"))
+            if (interpret.equalsIgnoreCase("*OPTIMIZE") ||
+                interpret.equalsIgnoreCase("*NO")       ||
+                interpret.equalsIgnoreCase("*YES")      ||
+                interpret.equalsIgnoreCase("*JIT"))         // @D2a
             {
                 String old = this.interpret_;
                 vetoableChange_.fireVetoableChange("interpret",old,interpret);
@@ -1350,6 +1357,10 @@ public class JavaApplicationCall implements Serializable
                        classes that run will be run interpreted even if there is an
                        optimized Java program associated with the class.
 
+       <li>*JIT        No Java program containing machine instruction sequences
+                       is created.  The class is run using the just in time
+                       compiler (JIT).
+
        <li>20          The Java program contains a compiled version of the class file
                        byte codes and has some additional compiler optimization.
                        Variables can be displayed but not modified while debugging.
@@ -1374,7 +1385,12 @@ public class JavaApplicationCall implements Serializable
     {
         if (opt != null)
         {
-            if (opt.equalsIgnoreCase("10") || opt.equalsIgnoreCase("*INTERPRET") || opt.equalsIgnoreCase("20") || opt.equalsIgnoreCase("30") || opt.equalsIgnoreCase("40"))
+            if (opt.equalsIgnoreCase("10")         ||
+                opt.equalsIgnoreCase("*INTERPRET") ||
+                opt.equalsIgnoreCase("*JIT")       ||   // @D2a
+                opt.equalsIgnoreCase("20")         ||
+                opt.equalsIgnoreCase("30")         ||
+                opt.equalsIgnoreCase("40"))
             {
                 String old = this.optimization_;
                 vetoableChange_.fireVetoableChange("optimization",old,opt);

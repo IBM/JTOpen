@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileImplProxy.java
 //                                                                             
@@ -160,7 +160,7 @@ implements IFSFileImpl
     }
   }
 
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean isHidden()
     throws IOException, AS400SecurityException
   {
@@ -172,7 +172,7 @@ implements IFSFileImpl
     }
   }
 
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean isReadOnly()
     throws IOException, AS400SecurityException
   {
@@ -305,7 +305,7 @@ implements IFSFileImpl
       return ProxyClientConnection.rethrow (e);
   }
 
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setFixedAttributes(int attributes)
     throws IOException
   {
@@ -320,7 +320,7 @@ implements IFSFileImpl
     }
   }
 
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setHidden(boolean attribute)
     throws IOException
   {
@@ -349,7 +349,7 @@ implements IFSFileImpl
     }
   }
 
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setReadOnly(boolean attribute)
     throws IOException
   {

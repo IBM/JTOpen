@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemValueList.java
 //                                                                             
@@ -16,8 +16,6 @@ package com.ibm.as400.access;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Calendar;
-import java.util.Date;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.beans.PropertyChangeListener;
@@ -26,11 +24,15 @@ import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.beans.PropertyVetoException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 public class SystemValueList implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   /**
    * Constant indicating the system value's type in AS400 is BINARY.
@@ -145,20 +147,22 @@ public class SystemValueList implements java.io.Serializable
     ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC")).trim(),
     ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC")).trim(),
     ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC")).trim(),
-  };      
+  };
 
   private static Hashtable list_ = null; // The list of all SystemValueInfo objects
-  private static Hashtable groups_ = null; // Provided for convenient lookup of system value groups
+  /*@C0D private*/ static Hashtable groups_ = null; // Provided for convenient lookup of system value groups
 
   // Initialize the hashtables
   static
   {
     // For V4R2, there are 125 system values and 35 network attributes.
     // For V4R3, there are an additional 5 system values.
+    // For V4R4, there are 2 additional system values and 2 additional network attributes.
+    // @D2 For V5R2, there are xx additional system values.
 
-    list_ = new Hashtable(165); // There are at least 160 system values
-    groups_ = new Hashtable(10); // There are 10 groups
-    Vector[] groupVector = new Vector[10]; // The group type is the index into this array of Vectors
+    list_ = new Hashtable(169); // There are at least 169 system values @C1C
+    groups_ = new Hashtable(groupCount_); // There are 10 groups @D4C
+    Vector[] groupVector = new Vector[groupCount_]; // The group type is the index into this array of Vectors @D4C
                                            // Each vector contains a list of system values that belong to that group.
     // Do V4R2 system values
     if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
@@ -170,7 +174,8 @@ public class SystemValueList implements java.io.Serializable
     int vrm420 = AS400.generateVRM(4, 2, 0);
     int vrm430 = AS400.generateVRM(4, 3, 0);
     int vrm440 = AS400.generateVRM(4, 4, 0); //@B0A
-    
+    int vrm510 = AS400.generateVRM(5, 1, 0); //@D2a
+
     // network attributes
     list_.put("ALRBCKFP", new SystemValueInfo("ALRBCKFP", AS400TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRBCKFP_DES")).trim()));
     list_.put("ALRCTLD", new SystemValueInfo("ALRCTLD", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRCTLD_DES")).trim()));
@@ -207,10 +212,10 @@ public class SystemValueList implements java.io.Serializable
     list_.put("RAR", new SystemValueInfo("RAR", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("RAR_DES")).trim()));
     list_.put("SYSNAME", new SystemValueInfo("SYSNAME", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("SYSNAME_DES")).trim()));
     list_.put("VRTAUTODEV", new SystemValueInfo("VRTAUTODEV", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("VRTAUTODEV_DES")).trim()));
-    
+
     // V4R4 network attributes
-    list_.put("ALWADDCLU", new SystemValueInfo("ALWADDCLU", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm440, "Allow add to cluser")); //@B0A - don't forget to add this to the MRI in V5R1!
-    list_.put("MDMCNTRYID", new SystemValueInfo("MDMCNTRYID", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_NET, vrm440, "Modem country ID")); //@B0A - don't forget to add this to the MRI in V5R1!
+    list_.put("ALWADDCLU", new SystemValueInfo("ALWADDCLU", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm440, ((String)ResourceBundleLoader.getSystemValueText("ALWADDCLU_DES")).trim() )); //@B0A @D1c
+    list_.put("MDMCNTRYID", new SystemValueInfo("MDMCNTRYID", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_NET, vrm440, ((String)ResourceBundleLoader.getSystemValueText("MDMCNTRYID_DES")).trim())); //@B0A @D1c
 
     // system values
     list_.put("QABNORMSW", new SystemValueInfo("QABNORMSW", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QABNORMSW_DES")).trim(), true));
@@ -347,11 +352,19 @@ public class SystemValueList implements java.io.Serializable
     list_.put("QPRCFEAT", new SystemValueInfo("QPRCFEAT", AS400TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_SYSCTL, vrm430, ((String)ResourceBundleLoader.getSystemValueText("QPRCFEAT_DES")).trim(),true));
 
     // V4R4 system values
-    list_.put("QCFGMSGQ", new SystemValueInfo("QCFGMSGQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_MSG, vrm440, "Configuration message queue")); //@B0A - don't forget to add the MRI
-    list_.put("QMLTTHDACN", new SystemValueInfo("QMLTTHDACN", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm440, "Multithreaded job action")); //@B0A - don't forget to add the MRI
-    
+    list_.put("QCFGMSGQ", new SystemValueInfo("QCFGMSGQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_MSG, vrm440, ((String)ResourceBundleLoader.getSystemValueText("QCFGMSGQ_DES")).trim())); //@B0A D1C
+    list_.put("QMLTTHDACN", new SystemValueInfo("QMLTTHDACN", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm440, ((String)ResourceBundleLoader.getSystemValueText("QMLTTHDACN_DES")).trim())); //@B0A D1C
+
+    //@D5M
+    list_.put("QMAXJOB",    new SystemValueInfo("QMAXJOB",    AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QMAXJOB_DES")).trim()));     //@D2a
+    list_.put("QMAXSPLF",   new SystemValueInfo("QMAXSPLF",   AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QMAXSPLF_DES")).trim()));    //@D2a
+    list_.put("QVFYOBJRST", new SystemValueInfo("QVFYOBJRST", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QVFYOBJRST_DES")).trim()));  //@D2a
+    list_.put("QSHRMEMCTL", new SystemValueInfo("QSHRMEMCTL", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QSHRMEMCTL_DES")).trim()));  //@D2a
+    list_.put("QLIBLCKLVL", new SystemValueInfo("QLIBLCKLVL", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_LIBL, vrm510, ((String)ResourceBundleLoader.getSystemValueText("QLIBLCKLVL_DES")).trim()));  //@D2a
+    list_.put("QPWDLVL",    new SystemValueInfo("QPWDLVL",    AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QPWDLVL_DES")).trim()));     //@D2a
+
     // Create the group vectors
-    for (int i=0; i<10; ++i)
+    for (int i=0; i<groupVector.length; ++i) //@D4C
     {
       groupVector[i] = new Vector();
     }
@@ -360,11 +373,12 @@ public class SystemValueList implements java.io.Serializable
     {
       SystemValueInfo obj = (SystemValueInfo)enum.nextElement();
       groupVector[obj.group_].addElement(obj);
+      groupVector[GROUP_ALL].addElement(obj); //@D3A
     }
 
     // Populate the group hashtable
-    for (int i=0; i<10; ++i)
-    {     
+    for (int i=0; i<groupVector.length; ++i) //@D4C
+    {
       groups_.put(getGroupName(i), groupVector[i]);
     }
   }   // end static initialization
@@ -404,24 +418,26 @@ public class SystemValueList implements java.io.Serializable
 
 
   /**
-  Adds a PropertyChangeListener. 
+  Adds a PropertyChangeListener.
     @see #removePropertyChangeListener
     @param listener The PropertyChangeListener.
   **/
   public void addPropertyChangeListener(PropertyChangeListener listener)
   {
-    this.changes_.addPropertyChangeListener(listener);
+    if (listener == null) throw new NullPointerException("listener"); //@C1A
+    changes_.addPropertyChangeListener(listener);
   }
 
 
   /**
-  Adds the VetoableChangeListener. 
+  Adds the VetoableChangeListener.
     @see #removeVetoableChangeListener
     @param listener The VetoableChangeListener.
   **/
   public void addVetoableChangeListener(VetoableChangeListener listener)
   {
-    this.vetos_.addVetoableChangeListener(listener);
+    if (listener == null) throw new NullPointerException("listener"); //@C1A
+    vetos_.addVetoableChangeListener(listener);
   }
 
 
@@ -440,7 +456,7 @@ public class SystemValueList implements java.io.Serializable
           ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
-    // Need to remove all of the system values that aren't supported
+/*@D4D    // Need to remove all of the system values that aren't supported
     // by our AS400's release level.
     int vrm = system_.getVRM();
     Enumeration enum = list_.elements();
@@ -456,17 +472,9 @@ public class SystemValueList implements java.io.Serializable
         vec.removeElement(obj);
       }
     }
+*///@D4D
     connected_ = true;
   }
-
-
-   /**
-    Returns the copyright.
-   **/
-   private static String getCopyright()
-   {
-     return Copyright.copyright;
-   }
 
 
   /**
@@ -480,7 +488,6 @@ public class SystemValueList implements java.io.Serializable
     @exception InterruptedException If this thread is interrupted.
     @exception IOException If an error occurs while communicating with the AS/400.
     @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-    @exception PropertyVetoException If the change is vetoed.
     @exception UnknownHostException If the AS/400 system cannot be located.
   **/
   public Vector getGroup(int group)
@@ -489,7 +496,7 @@ public class SystemValueList implements java.io.Serializable
                    InterruptedException,
                    IOException,
                    ObjectDoesNotExistException,
-                   PropertyVetoException,
+//@C0D                   PropertyVetoException,
                    UnknownHostException
   {
     if (!connected_)
@@ -502,18 +509,18 @@ public class SystemValueList implements java.io.Serializable
     }
 
     Vector vec = null;
-    if (group == GROUP_ALL)
-    {
+//@D3D    if (group == GROUP_ALL)
+//@D3D    {
       // Call retrieve() to get the data from the AS/400 and
       // create a Vector of corresponding SystemValue objects
-      vec = SystemValueUtility.retrieve(system_, list_.elements());
-    }
-    else
-    {
+//@D3D      vec = SystemValueUtility.retrieve(system_, list_.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
+//@D3D    }
+//@D3D    else
+//@D3D    {
       // Get the group vector
       Vector grp = (Vector)groups_.get(getGroupName(group));
-      vec = SystemValueUtility.retrieve(system_, grp.elements());
-    }
+      vec = SystemValueUtility.retrieve(system_, grp.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
+//@D3D    }
     return sort(vec);
   }
 
@@ -586,7 +593,7 @@ public class SystemValueList implements java.io.Serializable
     }
     return obj;
   }
-    
+
 
   /**
   Provided to initialize transient data if this object is de-serialized.
@@ -601,25 +608,25 @@ public class SystemValueList implements java.io.Serializable
 
 
   /**
-  Removes the PropertyChangeListener from the internal list.
-  If the PropertyChangeListener is not on the list, nothing is done.
+  Removes this listener from being notified when a bound property changes.
     @see #addPropertyChangeListener
     @param listener The PropertyChangeListener.
   **/
   public void removePropertyChangeListener(PropertyChangeListener listener)
   {
+    if (listener == null) throw new NullPointerException("listener"); //@C1A
     changes_.removePropertyChangeListener(listener);
   }
 
 
   /**
-  Removes the VetoableChangeListener from the internal list.
-  If the VetoableChangeListener is not on the list, nothing is done.
+  Removes this listener from being notified when a constrained property changes.
     @see #addVetoableChangeListener
     @param listener The VetoableChangeListener.
   **/
   public void removeVetoableChangeListener(VetoableChangeListener listener)
   {
+    if (listener == null) throw new NullPointerException("listener"); //@C1A
     vetos_.removeVetoableChangeListener(listener);
   }
 
@@ -652,7 +659,7 @@ public class SystemValueList implements java.io.Serializable
     @param vec The objects to sort.
     @return The Vector of sorted objects.
   **/
-  private Vector sort(Vector vec)
+  /*@C0D private*/ static Vector sort(Vector vec) //@C0C - made static
   {
     int len = vec.size();
     if (len < 2)

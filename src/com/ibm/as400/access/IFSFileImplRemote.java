@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileImplRemote.java
 //                                                                             
@@ -167,7 +167,7 @@ implements IFSFileImpl
    create a new file if and only if the file does not
    yet exist.
   **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public int createNewFile()
     throws IOException, AS400SecurityException
@@ -377,7 +377,7 @@ implements IFSFileImpl
    Get a list attribute reply from the server for a single entity (get the attributes
    of a specific object, not the attributes of every file in a directory).
   **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   private IFSListAttrsRep getAttributeSetFromServer(String file)
     throws IOException, AS400SecurityException
@@ -748,7 +748,7 @@ implements IFSFileImpl
    Determines if the integrated file system object represented by this
    object has its hidden attribute set.
   **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean isHidden()
     throws IOException, AS400SecurityException
@@ -777,7 +777,7 @@ implements IFSFileImpl
    Determines if the integrated file system object represented by this
    object has its hidden attribute set.
   **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean isReadOnly()
     throws IOException, AS400SecurityException
@@ -1309,8 +1309,11 @@ implements IFSFileImpl
     if (ds instanceof IFSReturnCodeRep)
     {
       returnCode = ((IFSReturnCodeRep) ds).getReturnCode();
-      success = (returnCode ==
-                 IFSReturnCodeRep.SUCCESS);
+      if (returnCode == IFSReturnCodeRep.SUCCESS)
+        success = true;
+      else
+        Trace.log(Trace.ERROR, "Error renaming file: " +
+                    "IFSReturnCodeRep return code = ", returnCode);
     }
     else
     {
@@ -1350,7 +1353,7 @@ implements IFSFileImpl
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setFixedAttributes(int attributes)
     throws IOException
@@ -1394,8 +1397,12 @@ implements IFSFileImpl
     boolean success = false;
     if (ds instanceof IFSReturnCodeRep)
     {
-      success = (((IFSReturnCodeRep) ds).getReturnCode() ==
-                 IFSReturnCodeRep.SUCCESS);
+      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc == IFSReturnCodeRep.SUCCESS)
+        success = true;
+      else
+        Trace.log(Trace.ERROR, "Error setting file attributes: " +
+                  "IFSReturnCodeRep return code = ", rc);
     }
     else
     {
@@ -1430,7 +1437,7 @@ implements IFSFileImpl
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setHidden(boolean attribute)
     throws IOException
@@ -1447,7 +1454,7 @@ implements IFSFileImpl
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
-    boolean result = false;
+    boolean success = false;
     IFSListAttrsRep attributes = null;
 
     // Setting the fixed attributes of a file involves
@@ -1513,8 +1520,12 @@ implements IFSFileImpl
 
           if (ds instanceof IFSReturnCodeRep)
           {
-             result = (((IFSReturnCodeRep) ds).getReturnCode() ==
-                         IFSReturnCodeRep.SUCCESS);
+             int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+             if (rc == IFSReturnCodeRep.SUCCESS)
+               success = true;
+             else
+               Trace.log(Trace.ERROR, "Error setting hidden attribute: " +
+                         "IFSReturnCodeRep return code = ", rc);
           }
           else
           {
@@ -1530,9 +1541,9 @@ implements IFSFileImpl
 
        }
        else
-          result = true;
+          success = true;
     }
-    return result;
+    return success;
   }
 
 
@@ -1590,8 +1601,12 @@ implements IFSFileImpl
     boolean success = false;
     if (ds instanceof IFSReturnCodeRep)
     {
-      success = (((IFSReturnCodeRep) ds).getReturnCode() ==
-                 IFSReturnCodeRep.SUCCESS);
+      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc == IFSReturnCodeRep.SUCCESS)
+        success = true;
+      else
+        Trace.log(Trace.ERROR, "Error setting last-modified date: " +
+                    "IFSReturnCodeRep return code = ", rc);
     }
     else
     {
@@ -1656,7 +1671,7 @@ implements IFSFileImpl
    @exception ServerStartupException If the AS/400 server cannot be started.
    @exception UnknownHostException If the AS/400 system cannot be located.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setReadOnly(boolean attribute)
     throws IOException
@@ -1673,7 +1688,7 @@ implements IFSFileImpl
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
-    boolean result = false;
+    boolean success = false;
     IFSListAttrsRep attributes = null;
 
     try
@@ -1736,8 +1751,12 @@ implements IFSFileImpl
 
           if (ds instanceof IFSReturnCodeRep)
           {
-             result = (((IFSReturnCodeRep) ds).getReturnCode() ==
-                         IFSReturnCodeRep.SUCCESS);
+             int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+             if (rc == IFSReturnCodeRep.SUCCESS)
+               success = true;
+             else
+               Trace.log(Trace.ERROR, "Error setting read-only attribute: " +
+                         "IFSReturnCodeRep return code = ", rc);
           }
           else
           {
@@ -1753,9 +1772,9 @@ implements IFSFileImpl
 
        }
        else
-          result = true;
+          success = true;
     }
-    return result;
+    return success;
   }
 
 

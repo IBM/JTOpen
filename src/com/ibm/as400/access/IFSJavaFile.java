@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSJavaFile.java
 //                                                                             
@@ -135,6 +135,10 @@ import java.net.MalformedURLException;
 public class IFSJavaFile extends java.io.File implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
   private IFSFile ifsFile_ = new IFSFile();
   private static final char AS400_SEPARATOR = '/';
@@ -471,7 +475,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    * @return true if the file is created, false otherwise.
    * @exception IOException If an I/O error occurs while communicating with the AS/400.
    **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean createNewFile()
                  throws IOException
   {
@@ -578,7 +582,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @see  #getAbsolutePath()
 **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public File getAbsoluteFile()
   {
@@ -620,7 +624,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @exception IOException If an I/O error occurs while communicating with the AS/400.
  * @see #getCanonicalPath
 **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public File getCanonicalFile() throws IOException
   {
@@ -724,7 +728,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @see  #getParent()
 **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public File getParentFile()
   {
@@ -864,7 +868,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return <code>true</code> if the file is hidden; <code>false</code> otherwise.
 **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean isHidden()
   {
@@ -1254,15 +1258,21 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     {
       if ((filter == null) || filter.accept(this, files[i].getName()))
       {
-        v.addElement(files[i]);
+        //v.addElement(files[i]);                         // @A6d
+        v.addElement(new IFSJavaFile(files[i]));          // @A6a
       }
     }
 
-    IFSJavaFile newFiles[] = new IFSJavaFile[v.size()];
+    // Create the array
+    IFSJavaFile newFiles[] = new IFSJavaFile[v.size()];   // @A6c
+/* @A6d
     for (int i = 0; i < files.length; i++)
     {
        newFiles[i] = new IFSJavaFile(files[i]);
     }
+*/
+    v.copyInto(newFiles);  // @A6a
+
     return newFiles;
   }
 
@@ -1404,11 +1414,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          of the AS/400 has only one root, the returned
  *          array contains only one element.
 **/
-  //@D1a New for v5r1 because of changes in Java 2.
+  //@D1a New method because of changes in Java 2.
   public static File[] listRoots()
   {
      IFSJavaFile[] roots = new IFSJavaFile[1];
-     roots[0] = new IFSJavaFile(IFSFile.separator);
+     //roots[0] = new IFSJavaFile(IFSFile.separator);  // @A6d
+     roots[0] = new IFSJavaFile(File.separator);  // @A6c
      return roots;
   }
 
@@ -1530,7 +1541,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *        00:00:00 GMT, January 1, 1970.
  * @return <code>true</code> if the time is set; <code>false</code> otherwise.
 **/
-  // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setLastModified(long time)
   {
@@ -1581,7 +1592,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return <code>true</code> if the read only attribute is set; <code>false</code> otherwise.
 **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setReadOnly()
   {
@@ -1644,7 +1655,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @exception MalformedURLException If the URL cannot be formed.
  *
 **/
-   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public URL toURL() throws MalformedURLException
   {

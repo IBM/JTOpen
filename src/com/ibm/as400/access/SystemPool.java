@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemPool.java
 //                                                                             
@@ -24,15 +24,15 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * The SystemPool class represents a system pool on an AS/400. It provides
- * facilities for retrieving and changing system pool information.  
+ * facilities for retrieving and changing system pool information.
  *
- * Here is a example: 
+ * Here is a example:
  *
  * <p><blockquote><pre>
  *  try {
  *      // Creates AS400 object.
  *      AS400 as400 = new AS400("systemName");
- *      // Constructs a SystemPool object 
+ *      // Constructs a SystemPool object
  *      SystemPool systemPool = new SystemPool(as400,"*SPOOL");
  *      // Gets system pool attributes.
  *      System.out.println("Paging option : "+systemPool.getPagingOption());
@@ -48,17 +48,17 @@ public class SystemPool
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-     
+
      /**
       * Constant used to indicate that the AS/400 should calculate
       * a system pool attribute.
      **/
      public static final float CALCULATE = -2;
      public static final int CALCULATE_INT = -2;
-     
+
      private static final Integer calculate_ = new Integer(-2);
      private static final Integer noChange_ = new Integer(-1);
-     
+
      // Private variable representing the object of AS/400 system.
      private AS400 system_;
 
@@ -71,12 +71,12 @@ public class SystemPool
      // Private variable representing the pool's name.
      private String poolName_;
 
-     // Private variable representing the identifier of the pool.      
+     // Private variable representing the identifier of the pool.
      private int poolIdentifier_ = 0;
-     
+
      private transient boolean connected_;
      private transient boolean cacheChanges_;
-     
+
      // Private variables representing event support.
      private transient PropertyChangeSupport changes_;
      private transient VetoableChangeSupport vetos_;
@@ -90,12 +90,12 @@ public class SystemPool
      private PoolInformationFormat poolFormat_;
      // This record holds the data for one system pool -- us.
      private Record poolRecord_;
-     
+
      // This table holds the data to be set on the API.
      private transient Hashtable changesTable_;
-     
+
      /**
-      * Constructs a SystemPool object. 
+      * Constructs a SystemPool object.
       **/
      public SystemPool()
      {
@@ -103,7 +103,7 @@ public class SystemPool
      }
 
      /**
-      * Constructs a SystemPool object. 
+      * Constructs a SystemPool object.
       *
       * @param system The AS/400 system.
       * @param poolName The name of the system pool.
@@ -114,40 +114,40 @@ public class SystemPool
             throw new NullPointerException ("system");
          if (poolName == null)
             throw new NullPointerException ("poolName");
-            
+
          system_ =  system;
          poolName_ = poolName;
-         
-//@B0D         access_ = new SystemPoolAccess(system);          
+
+//@B0D         access_ = new SystemPoolAccess(system);
          initializeTransient();
-//         attributes_ = retrievePoolAttributes();        
+//         attributes_ = retrievePoolAttributes();
 //         poolIdentifier_ = getPoolIdentifier();
      }
 
      /**
-      * Constructs a SystemPool object. 
+      * Constructs a SystemPool object.
       *
       * @param system The AS/400 system.
       * @param attributes The array of system pool attribute.
       **/
 /*     SystemPool(AS400 system, SystemPoolAttribute[] attributes)
-     {   
+     {
          system_ = system;
 //@B0D         access_ = new SystemPoolAccess(system);
 //         attributes_ = attributes;
          poolName_ = getPoolName();
          initializeFormats();
          initializeTransient();
-//         poolIdentifier_ = getPoolIdentifier();        
+//         poolIdentifier_ = getPoolIdentifier();
      }
 */
      /**
       * Adds a listener to be notified when the value of any bound property
       * changes.
       *
-      * @param listener The listener. 
+      * @param listener The listener.
       **/
-     public void addPropertyChangeListener(PropertyChangeListener listener) 
+     public void addPropertyChangeListener(PropertyChangeListener listener)
      {
        if (listener == null)
        {
@@ -160,9 +160,9 @@ public class SystemPool
       * Adds a listener to be notified when the value of any constrained
       * property changes.
       *
-      * @param listener The listener. 
+      * @param listener The listener.
       **/
-     public void addVetoableChangeListener(VetoableChangeListener listener) 
+     public void addVetoableChangeListener(VetoableChangeListener listener)
      {
        if (listener == null)
        {
@@ -191,7 +191,7 @@ public class SystemPool
      * @exception ObjectDoesNotExistException If the AS/400 object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
-     *            not supported. 
+     *            not supported.
     **/
     public synchronized void commitCache()
             throws AS400Exception,
@@ -208,64 +208,65 @@ public class SystemPool
       QSYSObjectPathName prgName = new QSYSObjectPathName("QSYS","QUSCHGPA","PGM");
       AS400Bin4 bin4 = new AS400Bin4();
       AS400Text text;
-    
+
       ProgramParameter[] parmList = new ProgramParameter[12];
-      
+
       parmList[0] = new ProgramParameter(bin4.toBytes(new Integer(poolIdentifier_)));
-      
+
       Object obj = changesTable_.get("poolSize");
       if (obj == null) obj = noChange_;
       parmList[1] = new ProgramParameter(bin4.toBytes(obj));
-      
+
       obj = changesTable_.get("poolActivityLevel");
       if (obj == null) obj = noChange_;
       parmList[2] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       obj = changesTable_.get("messageLogging");
       if (obj == null) obj = "Y"; // no change
       AS400Text text1 = new AS400Text(1, system_.getCcsid(), system_);
       parmList[3] = new ProgramParameter(text1.toBytes(obj));
-        
+
       byte[] errorInfo = new byte[32];
       parmList[4] = new ProgramParameter(errorInfo, 0); // don't care about error info
-        
+
       obj = changesTable_.get("pagingOption");
       if (obj == null) obj = "*SAME"; // no change
       AS400Text text10 = new AS400Text(10, system_.getCcsid(), system_);
       parmList[5] = new ProgramParameter(text10.toBytes(obj));
-        
+
       obj = changesTable_.get("priority");
       if (obj == null) obj = noChange_;
       parmList[6] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       obj = changesTable_.get("minimumPoolSize");
       if (obj == null) obj = noChange_;
       parmList[7] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       obj = changesTable_.get("maximumPoolSize");
       if (obj == null) obj = noChange_;
       parmList[8] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       obj = changesTable_.get("minimumFaults");
       if (obj == null) obj = noChange_;
       parmList[9] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       obj = changesTable_.get("perThreadFaults");
       if (obj == null) obj = noChange_;
       parmList[10] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       obj = changesTable_.get("maximumFaults");
       if (obj == null) obj = noChange_;
       parmList[11] = new ProgramParameter(bin4.toBytes(obj));
-        
+
       ProgramCall pgm = new ProgramCall(system_);
+      pgm.setThreadSafe(false);  // QUSCHGPA isn't threadsafe.   @B2A @B3C
 
       try
       {
         pgm.setProgram(prgName.getPath(), parmList);
       }
       catch(PropertyVetoException pve) {} // Quiet the compiler
-       
+
       if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
       {
         Trace.log(Trace.DIAGNOSTIC, "Setting system pool information.");
@@ -285,7 +286,7 @@ public class SystemPool
       }
       changesTable_.clear();
     }
-    
+
     /**
      * Connects to the 400 by loading system status information.
      * Does nothing if we have already connected.
@@ -324,7 +325,7 @@ public class SystemPool
       }
     }
 
-    
+
     /**
      * Gets the value for the specified field out of the
      * appropriate record in the format cache. If the particular
@@ -352,8 +353,8 @@ public class SystemPool
       }
       return obj;
     }
-    
-  
+
+
      /**
       * Returns the rate, in transitions per minute, of transitions
       * of threads from an active condition to an ineligible condition.
@@ -369,7 +370,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
      **/
      public float getActiveToIneligible()
         throws AS400SecurityException,
@@ -379,12 +380,12 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("activeToIneligible")).intValue()/(float)10.0;       
+       return (float)((Integer)get("activeToIneligible")).intValue()/(float)10.0;
      }
-     
+
      /**
       * Returns the rate, in transitions per minute, of transitions
-      * of threads from an active condition to a waiting condition. 
+      * of threads from an active condition to a waiting condition.
       *
       * @return The rate.
       * @exception AS400SecurityException If a security or authority error
@@ -397,7 +398,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public float getActiveToWait()
         throws AS400SecurityException,
@@ -407,9 +408,9 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("activeToWait")).intValue()/(float)10.0;       
+       return (float)((Integer)get("activeToWait")).intValue()/(float)10.0;
      }
-     
+
      /**
       * Returns the rate, shown in page faults per second, of
       * database page faults against pages containing either database data
@@ -429,8 +430,8 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
-      **/           
+      *            not supported.
+      **/
      public float getDatabaseFaults()
         throws AS400SecurityException,
                ErrorCompletingRequestException,
@@ -439,7 +440,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("databaseFaults")).intValue()/(float)10.0;       
+       return (float)((Integer)get("databaseFaults")).intValue()/(float)10.0;
      }
 
      /**
@@ -457,7 +458,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public float getDatabasePages()
         throws AS400SecurityException,
@@ -467,16 +468,16 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("databasePages")).intValue()/(float)10.0;       
+       return (float)((Integer)get("databasePages")).intValue()/(float)10.0;
      }
-     
+
      /**
       * Returns the description of the system pool.
       *
       * @return The description of the system pool.
       **/
      public String getDescription()
-     {                 
+     {
          if(poolName_.trim().equals("*MACHINE"))
             return ResourceBundleLoader.getText("SYSTEM_POOL_MACHINE");
          else if(poolName_.trim().equals("*BASE"))
@@ -487,7 +488,7 @@ public class SystemPool
             return ResourceBundleLoader.getText("SYSTEM_POOL_SPOOL");
          else
             return ResourceBundleLoader.getText("SYSTEM_POOL_OTHER");
-     }        
+     }
 
      /**
       * Returns the maximum number of threads that can be active in the pool
@@ -504,7 +505,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public int getMaximumActiveThreads()
         throws AS400SecurityException,
@@ -514,7 +515,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return ((Integer)get("maximumActiveThreads")).intValue();       
+       return ((Integer)get("maximumActiveThreads")).intValue();
      }
 
      /**
@@ -533,7 +534,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public float getNonDatabaseFaults()
         throws AS400SecurityException,
@@ -543,7 +544,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("nonDatabaseFaults")).intValue()/(float)10.0;       
+       return (float)((Integer)get("nonDatabaseFaults")).intValue()/(float)10.0;
      }
 
      /**
@@ -561,7 +562,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public float getNonDatabasePages()
         throws AS400SecurityException,
@@ -571,20 +572,20 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("nonDatabasePages")).intValue()/(float)10.0;       
+       return (float)((Integer)get("nonDatabasePages")).intValue()/(float)10.0;
      }
 
      /**
       * Returns the value indicating whether the system will dynamically
       * adjust the paging characteristics of the storage pool for optimum
       * performance. The following special values may be returned.
-      *     
-      *   *FIXED:   The system does not dynamically adjust the paging 
+      *
+      *   *FIXED:   The system does not dynamically adjust the paging
       *             characteristics.
-      *   *CALC:    The system dynamically adjusts the paging 
+      *   *CALC:    The system dynamically adjusts the paging
       *             characteristics.
-      *   USRDFN:   The system does not dynamically adjust the paging 
-      *             characteristics for the storage pool but uses values 
+      *   USRDFN:   The system does not dynamically adjust the paging
+      *             characteristics for the storage pool but uses values
       *             that have been defined through an API.
       *
       * @return The value indicating whether the system will dynamically adjust
@@ -599,7 +600,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public String getPagingOption()
         throws AS400SecurityException,
@@ -609,7 +610,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (String)get("pagingOption");       
+       return (String)get("pagingOption");
      }
 
      /**
@@ -626,7 +627,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public int getPoolIdentifier()
         throws AS400SecurityException,
@@ -681,7 +682,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public int getPoolSize()
         throws AS400SecurityException,
@@ -710,7 +711,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public int getReservedSize()
         throws AS400SecurityException,
@@ -727,7 +728,7 @@ public class SystemPool
       * Returns the subsystem with which this storage pool is associated.
       * The field will be blank for shared pools.
       *
-      * @return The subsystem name.      
+      * @return The subsystem name.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
       * @exception ErrorCompletingRequestException If an error occurs before
@@ -738,7 +739,7 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public String getSubsystemName()
         throws AS400SecurityException,
@@ -776,8 +777,8 @@ public class SystemPool
       * @exception ObjectDoesNotExistException If the AS/400 object does not
       *            exist.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
-      **/     
+      *            not supported.
+      **/
      public float getWaitToIneligible()
         throws AS400SecurityException,
                ErrorCompletingRequestException,
@@ -786,7 +787,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("waitToIneligible")).intValue()/(float)10.0;       
+       return (float)((Integer)get("waitToIneligible")).intValue()/(float)10.0;
      }
 
      /**
@@ -798,7 +799,7 @@ public class SystemPool
        format0300_ = new SSTS0300Format(system_);
        refreshCache();
      }
-     
+
      /**
       * Initializes transient data.
      **/
@@ -810,7 +811,7 @@ public class SystemPool
        cacheChanges_ = false;
        changesTable_ = new Hashtable(11);
      }
-     
+
     /**
      * Returns the current cache status.
      * The default behavior is no caching.
@@ -823,9 +824,9 @@ public class SystemPool
     {
       return cacheChanges_;
     }
-    
+
      /**
-      * Loads the system pool information. The AS/400 system and the system pool 
+      * Loads the system pool information. The AS/400 system and the system pool
       * name should be set before this method is invoked.
       *
       * Note: This method is equivalent to the refreshCache() method.
@@ -860,7 +861,7 @@ public class SystemPool
      }
 
     /*
-     * Refreshes the current system pool information. The 
+     * Refreshes the current system pool information. The
      * currently cached data is cleared and new data will
      * be retrieved from the system when needed. That is,
      * after a call to refreshCache(), a call to one of the get() or set()
@@ -875,11 +876,11 @@ public class SystemPool
      * @see #setCaching
     **/
     public synchronized void refreshCache()
-    {  
+    {
       // The next time a get() is done, the record data
       // will be reloaded.
       poolRecord_ = null;
-      
+
       // Clear the current cache of changes.
       changesTable_.clear();
     }
@@ -889,14 +890,14 @@ public class SystemPool
       *
       * @param listener The listener.
       **/
-     
+
      public void removePropertyChangeListener(PropertyChangeListener listener)
      {
         if(listener==null)
-           throw new NullPointerException("listener"); 
+           throw new NullPointerException("listener");
         changes_.removePropertyChangeListener(listener);
      }
-     
+
      /**
       * Removes a vetoable change listener.
       *
@@ -905,10 +906,10 @@ public class SystemPool
      public void removeVetoableChangeListener(VetoableChangeListener listener)
      {
         if(listener==null)
-           throw new NullPointerException("listener"); 
+           throw new NullPointerException("listener");
         vetos_.removeVetoableChangeListener(listener);
      }
-     
+
   /**
    * Loads system pool data from the AS/400 using the SSTS0300 format.
    * If the information is cached, this method does nothing.
@@ -922,37 +923,38 @@ public class SystemPool
                    IOException,
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
-  {    
+  {
     // Check to see if the format has been loaded already
     if (poolRecord_ != null) return;
-    
+
     QSYSObjectPathName prgName = new QSYSObjectPathName("QSYS","QWCRSSTS","PGM");
     AS400Bin4 bin4 = new AS400Bin4();
     AS400Text text;
-    
+
     ProgramParameter[] parmList = new ProgramParameter[5];
-    
+
     int receiverLength = format0300_.getNewRecord().getRecordLength();
-    parmList[0] = new ProgramParameter(receiverLength);           
+    parmList[0] = new ProgramParameter(receiverLength);
     parmList[1] = new ProgramParameter(bin4.toBytes(receiverLength));
-    
+
     text = new AS400Text(8, system_.getCcsid(), system_);
     parmList[2] = new ProgramParameter(text.toBytes(format0300_.getName()));
-    
+
     // Reset statistics parm
     text = new AS400Text(10, system_.getCcsid(), system_);
     parmList[3] = new ProgramParameter(text.toBytes("*NO")); // this parm is ignored for SSTS0100
-    
+
     byte[] errorInfo = new byte[32];
     parmList[4] = new ProgramParameter(errorInfo, 0);
-    
+
     ProgramCall pgm = new ProgramCall(system_);
+    pgm.setThreadSafe(false);  // QWCRSSTS isn't threadsafe.     @B2A @B3C
     try
     {
       pgm.setProgram(prgName.getPath(), parmList);
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
-        
+
     if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "Retrieving system pool information.");
@@ -971,7 +973,7 @@ public class SystemPool
       throw new AS400Exception(msgList);
     }
     byte[] retrievedData = parmList[0].getOutputData();
-    Record rec = format0300_.getNewRecord(retrievedData);    
+    Record rec = format0300_.getNewRecord(retrievedData);
     // It's possible we didn't retrieve all of the pools.
     // We may need to increase the fields in the record format to
     // hold more pool information and then do the API call again.
@@ -982,7 +984,7 @@ public class SystemPool
       retrieveInformation();
       return;
     }
-    
+
     // Now determine which system pool we are out of the list
     // This is the data returned on the API.
     int offsetToInfo = ((Integer)rec.getField("offsetToPoolInformation")).intValue();
@@ -1014,9 +1016,9 @@ public class SystemPool
       }
     }
     Trace.log(Trace.ERROR, "System pool '"+poolName_+"' not found.");
-    throw new ObjectDoesNotExistException(poolName_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);    
-  }    
-        
+    throw new ObjectDoesNotExistException(poolName_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+  }
+
   /**
    * Adjusts the 0300 format to be large enough to hold all of the
    * information returned on the API call.
@@ -1062,8 +1064,8 @@ public class SystemPool
       return true;
     }
     return false;
-  }  
-    
+  }
+
     /**
      * Sets the value for the specified field to value in the
      * appropriate record in the format cache.
@@ -1078,7 +1080,7 @@ public class SystemPool
                    ObjectDoesNotExistException,
                    PropertyVetoException,
                    UnsupportedEncodingException
-                   
+
     {
       // Retrieve the info out of our own record
       if (!connected_) connect();
@@ -1088,8 +1090,8 @@ public class SystemPool
       changes_.firePropertyChange(field, oldValue, value);
       if (!cacheChanges_) commitCache();
     }
-    
-  
+
+
     /**
      * Turns caching on or off.
      * If caching is turned off, the next get() or set() will go to the system.
@@ -1108,8 +1110,8 @@ public class SystemPool
       cacheChanges_ = cache;
       if (!cacheChanges_) refreshCache();
     }
-     
-    
+
+
      /**
       * Sets the minimum faults-per-second guideline,the faults per second for each active thread,
       * and the maximum faults-per-second guideline for this storage pool.
@@ -1119,9 +1121,9 @@ public class SystemPool
       * 2 or 3. If you want the system to calculate the priority, you must
       * specify SystemPool.CALCULATE for each parameter.
       *
-      * @param minValue The new minimum faults-per-second guideline. 
-      * @param perValue The new faults per second for each active thread. 
-      * @param maxValue The new maximum faults-per-second guideline. 
+      * @param minValue The new minimum faults-per-second guideline.
+      * @param perValue The new faults per second for each active thread.
+      * @param maxValue The new maximum faults-per-second guideline.
       * @exception AS400Exception If the AS/400 system returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
@@ -1137,7 +1139,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setFaults(float minValue, float perValue, float maxValue)
             throws AS400Exception,
@@ -1169,7 +1171,7 @@ public class SystemPool
          setMaximumFaults(maxValue);
        }
      }
-     
+
      /**
       * Sets the maximum faults-per-second guideline to use for this storage
       * pool. The sum of mimimum faults and per-thread faults must be less than the
@@ -1178,7 +1180,7 @@ public class SystemPool
       * 2 or 3. If you want the system to calculate the priority, you must
       * specify SystemPool.CALCULATE for this parameter.
       *
-      * @param value The new maximum faults-per-second guideline. 
+      * @param value The new maximum faults-per-second guideline.
       * @exception AS400Exception If the AS/400 system returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
@@ -1194,7 +1196,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setMaximumFaults(float value)
             throws AS400Exception,
@@ -1210,10 +1212,10 @@ public class SystemPool
        Integer maxFaults;
        if (value == CALCULATE) maxFaults = calculate_;
        else maxFaults = new Integer((int)(value*100));
-     
+
        set("maximumFaults", maxFaults);
      }
-     
+
      /**
       * Sets the maximum amount of storage to allocate to this storage pool
       * (as a percentage of total main storage). This value cannot be
@@ -1238,8 +1240,8 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
-      **/      
+      *            not supported.
+      **/
      public void setMaximumPoolSize(float value)
             throws AS400Exception,
                    AS400SecurityException,
@@ -1254,7 +1256,7 @@ public class SystemPool
        Integer obj;
        if (value == CALCULATE) obj = calculate_;
        else obj = new Integer((int)(value*100));
-     
+
        set("maximumPoolSize", obj);
      }
 
@@ -1287,7 +1289,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setMessageLogging(boolean log)
             throws AS400Exception,
@@ -1295,7 +1297,7 @@ public class SystemPool
                    ConnectionDroppedException,
                    ErrorCompletingRequestException,
                    InterruptedException,
-                   IOException,                  
+                   IOException,
                    ObjectDoesNotExistException,
                    PropertyVetoException,
                    UnsupportedEncodingException
@@ -1328,7 +1330,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setMinimumFaults(float value)
             throws AS400Exception,
@@ -1344,10 +1346,10 @@ public class SystemPool
        Integer obj;
        if (value == CALCULATE) obj = calculate_;
        else obj = new Integer((int)(value*100));
-     
+
        set("minimumFaults", obj);
      }
-     
+
      /**
       * Sets the minimum and maximum amount of storage to allocate to this storage pool
       * (as a percentage of total main storage). Maximum value cannot be
@@ -1357,7 +1359,7 @@ public class SystemPool
       * you must specify SystemPool.CALCULATE for each parameter.
       *
       * @param minValue The new minimum pool size.
-      * @param maxValue The new maximum pool size. 
+      * @param maxValue The new maximum pool size.
       * @exception AS400Exception If the AS/400 system returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
@@ -1373,8 +1375,8 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
-      **/      
+      *            not supported.
+      **/
      public void setMinAndMaxPoolSize(float minValue, float maxValue)
             throws AS400Exception,
                    AS400SecurityException,
@@ -1404,7 +1406,7 @@ public class SystemPool
        }
      }
 
-     
+
      /**
       * Sets the minimum amount of storage to allocate to this storage pool
       * (as a percentage of total main storage).  This value cannot be
@@ -1429,7 +1431,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
 
      public void setMinimumPoolSize(float value)
@@ -1446,20 +1448,20 @@ public class SystemPool
        Integer obj;
        if (value == CALCULATE) obj = calculate_;
        else obj = new Integer((int)(value*100));
-     
+
        set("minimumPoolSize", obj);
      }
 
      /**
       * Sets the value indicating whether the system dynamically adjust the
       * paging characteristics of the storage pool for optimum performance.
-      * Valid values are: 
+      * Valid values are:
       *<p>
       *<li> *SAME  - The paging option for the storage pool is not changed.
       *<li> *FIXED - The system will not dynamically adjust the paging
       *               characteristics; system default values are used.
       *<li> *CALC  - The system will dynamically adjust the paging
-      *               characteristics. 
+      *               characteristics.
       *
       * @param value The value indicating whether the system dynamically adjust
       *              the paging characteristics of the sorage pool for optimum
@@ -1479,7 +1481,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setPagingOption(String value)
             throws AS400Exception,
@@ -1487,7 +1489,7 @@ public class SystemPool
                    ConnectionDroppedException,
                    ErrorCompletingRequestException,
                    InterruptedException,
-                   IOException,                   
+                   IOException,
                    ObjectDoesNotExistException,
                    PropertyVetoException,
                    UnsupportedEncodingException
@@ -1505,7 +1507,7 @@ public class SystemPool
       * system value is set to 2 or 3. If you want the system to calculate
       * the priority, you must specify SystemPool.CALCULATE for this parameter.
       *
-      * @param value The new faults. 
+      * @param value The new faults.
       * @exception AS400Exception If the AS/400 system returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
@@ -1521,7 +1523,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setPerThreadFaults(float value)
             throws AS400Exception,
@@ -1529,7 +1531,7 @@ public class SystemPool
                    ConnectionDroppedException,
                    ErrorCompletingRequestException,
                    InterruptedException,
-                   IOException,                   
+                   IOException,
                    ObjectDoesNotExistException,
                    PropertyVetoException,
                    UnsupportedEncodingException
@@ -1537,7 +1539,7 @@ public class SystemPool
        Integer obj;
        if (value == CALCULATE) obj = calculate_;
        else obj = new Integer((int)(value*100));
-     
+
        set("perThreadFaults", obj);
      }
 
@@ -1561,7 +1563,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setPoolActivityLevel(int value)
             throws AS400Exception,
@@ -1569,7 +1571,7 @@ public class SystemPool
                    ConnectionDroppedException,
                    ErrorCompletingRequestException,
                    InterruptedException,
-                   IOException,                   
+                   IOException,
                    ObjectDoesNotExistException,
                    PropertyVetoException,
                    UnsupportedEncodingException
@@ -1577,12 +1579,12 @@ public class SystemPool
        set("poolActivityLevel", new Integer(value));
      }
 
-     /** 
+     /**
       * Sets the system pool name.
       *
       * @param poolName The name of the system pool.
       * @exception PropertyVetoException If the change is vetoed.
-      *            
+      *
       **/
      public void setPoolName(String poolName)
             throws PropertyVetoException
@@ -1605,7 +1607,7 @@ public class SystemPool
       * 1024 bytes. The minimum value is 32 kilobytes. For V4R3 and later, the
       * minimum is 256.
       *
-      * @param value The new size of the system pool. 
+      * @param value The new size of the system pool.
       * @exception AS400Exception If the AS/400 system returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
@@ -1621,7 +1623,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setPoolSize(int value)
             throws AS400Exception,
@@ -1633,7 +1635,7 @@ public class SystemPool
                    ObjectDoesNotExistException,
                    PropertyVetoException,
                    UnsupportedEncodingException
-     {  
+     {
        set("poolSize", new Integer(value));
      }
 
@@ -1661,7 +1663,7 @@ public class SystemPool
       *            exist.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
-      *            not supported. 
+      *            not supported.
       **/
      public void setPriority(int value)
             throws AS400Exception,
@@ -1677,7 +1679,7 @@ public class SystemPool
        set("priority", new Integer(value));
      }
 
-     /** 
+     /**
       * Sets the AS/400 system.
       * @param system The AS/400 system.
       * @exception PropertyVetoException If the change is vetoed.

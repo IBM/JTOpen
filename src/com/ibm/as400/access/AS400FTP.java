@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FTP.java
 //                                                                             
@@ -45,7 +45,7 @@ import java.beans.*;
  * a connection is made.  The integrated file system name
  * of objects in libraries must be used to access them.
  * For example, /QSYS.LIB/MYLIB.LIB/MYFILE.FILE.  See
- * <A HREF="com.ibm.as400.access.QSYSObjectPathName.html">
+ * <A HREF="QSYSObjectPathName.html">
  * QSYSObjectPathName</A> documentation for more information.
  * <P><LI>
  * Handling extra work necessary to put a save file
@@ -91,6 +91,7 @@ public class AS400FTP
 
 
 
+    static final long serialVersionUID = 4L;
 
 
     // **********************************************************
@@ -237,18 +238,16 @@ public class AS400FTP
              throw new IOException(e.getMessage());
           }
 
-          // FTPConnection connection = new FTPConnection();
-          AS400ImplRemote systemImpl = (AS400ImplRemote)system_.getImpl();
-          // Socket socket = connection.connect(super.getPort());
-          Socket socket = systemImpl.getConnection(super.getPort());
-          BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-          PrintWriter  writer = new PrintWriter(socket.getOutputStream(), true);
-
-          super.externallyConnected(system_.getSystemName(),
-                                    socket,
-                                    reader,
-                                    writer);
-          connected_ = true;
+          AS400ImplRemote systemImpl = (AS400ImplRemote)system_.getImpl();                               // @D2a
+          Socket socket = systemImpl.getConnection(super.getPort());                                     // @D2a
+          BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));    // @D2a
+          PrintWriter  writer = new PrintWriter(socket.getOutputStream(), true);                         // @D2a
+                                                                                                         // @D2a
+          super.externallyConnected(system_.getSystemName(),                                             // @D2a
+                                    socket,                                                              // @D2a
+                                    reader,                                                              // @D2a
+                                    writer);                                                             // @D2a
+          connected_ = true;                                                                             // @D2a
 
           inConnect_ = true;
 
@@ -262,8 +261,8 @@ public class AS400FTP
           }
           finally { inConnect_ = false; }
 
-          if (connected_)
-             super.fireEvent(FTPEvent.FTP_CONNECTED);
+          if (connected_)                                               // @D2a
+             super.fireEvent(FTPEvent.FTP_CONNECTED);                   // @D2a
        }
 
        return connected_;
@@ -773,6 +772,7 @@ public class AS400FTP
                   Trace.log(Trace.DIAGNOSTIC,"command string " + command);
 
                try { c.setCommand(command); } catch (PropertyVetoException pve) {}
+               c.setThreadSafe(false);  // CRTSAVF is not threadsafe.  @A1A
 
                try
                {
