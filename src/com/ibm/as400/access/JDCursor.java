@@ -248,7 +248,7 @@ Opens the cursor and describes the data format.
 @exception  SQLException    If an error occurs.
 **/
   DBDataFormat openDescribe (int openAttributes,
-                             boolean scrollable)
+                             int resultSetType)         //@KBC
   throws SQLException
   {
     DBDataFormat dataFormat = null;
@@ -276,7 +276,7 @@ Opens the cursor and describes the data format.
                 //@F1 an int with sensitive/insensitive/forward-only passed in as the choices to this 
                 //@F1 method.
                 //@F1 If we are pre-V5R2, send what we always have.
-                if (connection_.getVRM() < JDUtilities.vrm520)              //@F1A
+                /* @KBD if (connection_.getVRM() < JDUtilities.vrm520)              //@F1A
                 {
       request.setScrollableCursorFlag (scrollable ? 1 : 0);
                 }
@@ -296,6 +296,38 @@ Opens the cursor and describes the data format.
                     else //add more cases if this method starts being called with scrollable not always equal to false        //@F1A
                         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); //@F1A
                 }
+                */
+                String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                if(connection_.getVRM() <= JDUtilities.vrm520)    //@KBA
+                {
+                    //@KBA IF pre-V5R3 always set to NOT SCROLLABLE ASENSITIVE
+                    //if(resultSetType == ResultSet.TYPE_FORWARD_ONLY)    //@KBA
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@KBA        Option 0
+                    //else    //@KBA
+                    //    request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
+                }    //@KBA
+                else if(resultSetType == ResultSet.TYPE_FORWARD_ONLY)    //@KBA
+                {
+                    //@KBA
+                    //Determine if user set cursor sensitivity property                                              //@KBA
+                    if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))    //@KBA
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@KBA        Option 5
+                    else    //@KBA
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@KBA        Option 0
+                }    //@KBA
+                else if(resultSetType == ResultSet.TYPE_SCROLL_SENSITIVE)    //@KBA
+                {
+                    //@KBA
+                    //Determine if user set cursor sensitivity property                                              //@KBA
+                    if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))    //@KBA
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
+                    else    //@KBA
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@KBA        Option 3
+                }    //@KBA
+                else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@KBA
+                {
+                     request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
+                }    //@KBA
 
       reply = connection_.sendAndReceive (request, id_); //@P0C
 

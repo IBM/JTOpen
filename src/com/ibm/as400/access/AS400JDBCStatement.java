@@ -807,21 +807,35 @@ public class AS400JDBCStatement implements Statement
                     // no format was returned, then open the cursor. The
                     // result set must be forward only and read only.
                     // This is a server restriction.                                    @EBA
+                    // As of V5R3 the restriction to be forward only no longer applies  @KBA
                     if(sqlStatement != null)
                     {
                         if((isCall) && (numberOfResults_ > 0) && (resultSet_ == null))
                         {
                             JDServerRow row = new JDServerRow (
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
-                                                                                                      false), settings_);
+                                                                                                      resultSetType_), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
                                                                               connection_, id_, getBlockingFactor (sqlStatement,
                                                                                                                    row.getRowLength()));
-                            resultSet_ = new AS400JDBCResultSet (this,
-                                                                 sqlStatement, rowCache, connection_.getCatalog(),
-                                                                 cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
-                                                                 ResultSet.CONCUR_READ_ONLY, fetchDirection_,
-                                                                 fetchSize_);
+                            //if pre-v5r3 create a FORWARD_ONLY RESULT SET
+                            if(connection_.getVRM() < JDUtilities.vrm530)                                                           //@KBA
+                            {                             
+                                resultSet_ = new AS400JDBCResultSet (this,
+                                                                     sqlStatement, rowCache, connection_.getCatalog(),
+                                                                     cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
+                                                                     ResultSet.CONCUR_READ_ONLY, fetchDirection_,
+                                                                     fetchSize_);
+                            }
+                            else                                                                                                    //@KBA
+                            {                                                                                                       //@KBA
+                                resultSet_ = new AS400JDBCResultSet (this,                                                          //@KBA
+                                                                 sqlStatement, rowCache, connection_.getCatalog(),                  //@KBA
+                                                                 cursor_.getName(), maxRows_, resultSetType_,                       //@KBA
+                                                                 ResultSet.CONCUR_READ_ONLY, fetchDirection_,                       //@KBA
+                                                                 fetchSize_);                                                       //@KBA
+                            }
+
                             if(resultSet_.getConcurrency () != resultSetConcurrency_)
                                 postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                         }
@@ -1185,19 +1199,33 @@ public class AS400JDBCStatement implements Statement
                     // no format was returned, then open the cursor.  The result
                     // set must be forward only and read only.
                     // This is a server restriction.                                    @EBA
+                    // As of V5R3, the restriction to be forward only no longer applies @KBA
                     if((isCall == true) && (numberOfResults_ > 0))
                     {
                         JDServerRow row = new JDServerRow (connection_, id_,
-                                                           cursor_.openDescribe (openAttributes, false),
+                                                           cursor_.openDescribe (openAttributes, resultSetType_),             //@KBA
                                                            settings_);
                         JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (
                                                                                                                    sqlStatement, row.getRowLength()));
-                        resultSet_ = new AS400JDBCResultSet (this,
-                                                             sqlStatement, rowCache,
-                                                             connection_.getCatalog(), cursor_.getName(),
-                                                             maxRows_, ResultSet.TYPE_FORWARD_ONLY,
-                                                             ResultSet.CONCUR_READ_ONLY,
-                                                             fetchDirection_, fetchSize_);
+
+                        //if pre-v5r3 create a FORWARD_ONLY RESULT SET
+                            if(connection_.getVRM() < JDUtilities.vrm530)                                                           //@KBA
+                            {                             
+                                resultSet_ = new AS400JDBCResultSet (this,
+                                                                     sqlStatement, rowCache, connection_.getCatalog(),
+                                                                     cursor_.getName(), maxRows_, ResultSet.TYPE_FORWARD_ONLY,
+                                                                     ResultSet.CONCUR_READ_ONLY, fetchDirection_,
+                                                                     fetchSize_);
+                            }
+                            else                                                                                                    //@KBA
+                            {                                                                                                       //@KBA
+                                resultSet_ = new AS400JDBCResultSet (this,                                                          //@KBA
+                                                                 sqlStatement, rowCache, connection_.getCatalog(),                  //@KBA
+                                                                 cursor_.getName(), maxRows_, resultSetType_,                       //@KBA
+                                                                 ResultSet.CONCUR_READ_ONLY, fetchDirection_,                       //@KBA
+                                                                 fetchSize_);                                                       //@KBA
+                            }
+
                         if(resultSet_.getConcurrency () != resultSetConcurrency_)
                             postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
                     }
@@ -2215,6 +2243,34 @@ public class AS400JDBCStatement implements Statement
 
                     int openAttributes = cursor_.getOpenAttributes(null, blockCriteria_);    // @E1A
                     request.setOpenAttributes(openAttributes);    // @E1C
+
+                    //Set the cursor scrollability option if V5R3 or higher, prior to V5R3 we can only be forward only.
+                    if(connection_.getVRM() >= JDUtilities.vrm530)
+                    {
+                        String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F8A
+                        if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    //@KBA
+                        {
+                            //@KBA
+                            //Determine if user set cursor sensitivity property                                              //@KBA
+                            if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))    //@KBA
+                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@KBA        Option 5
+                            else    //@KBA
+                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@KBA        Option 0
+                        }    //@KBA
+                        else if(resultSetType_ == ResultSet.TYPE_SCROLL_SENSITIVE)    //@KBA
+                        {
+                            //@KBA
+                            //Determine if user set cursor sensitivity property                                              //@KBA
+                            if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))    //@KBA
+                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@KBA        Option 1
+                            else    //@KBA
+                                request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@KBA        Option 3
+                        }    //@KBA
+                        else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@KBA
+                        {
+                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@KBA        Option 2
+                        }    //@KBA
+                    }
 
                     reply = connection_.sendAndReceive (request, id_);    //@P0C
 
