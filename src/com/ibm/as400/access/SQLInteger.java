@@ -164,11 +164,11 @@ implements SQLData
                {                                                                         // @P1a
                   double doubleValue = Double.valueOf ((String) object).doubleValue ();  // @P1a
                                                                                          // @P1a
-                  if (( doubleValue > Short.MAX_VALUE ) || ( doubleValue < Short.MIN_VALUE )) // @P1a
+                  if (( doubleValue > Integer.MAX_VALUE ) || ( doubleValue < Integer.MIN_VALUE )) // @P1a
                   {                                                                      // @P1a
-                      truncated_ = 6;                                                    // @P1a
+                      truncated_ = 4;                                                    // @P1a
                   }                                                                      // @P1a
-                  value_ = (short) doubleValue;                                          // @P1a  
+                  value_ = (int) doubleValue;                                          // @P1a  
                }                                                                         // @P1a
                catch (NumberFormatException e)                                           // @P1a
                {                                                                         // @P1a
