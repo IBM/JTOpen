@@ -296,7 +296,7 @@ implements SQLData
     {
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(value_));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
         }
         catch(UnsupportedEncodingException e)
         {
