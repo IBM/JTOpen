@@ -22,7 +22,9 @@ import java.io.Serializable;
 public class SocketProperties implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    
+
+  static final long serialVersionUID = 6818790247993750518L;
+
     boolean keepAliveSet_ = false;
     boolean keepAlive_ = false;
     boolean receiveBufferSizeSet_ = false;
