@@ -41,6 +41,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
             }
             else
             {
+                if (inputData == null) inputData = new byte[0];
                 if (parameterMaxLength > 1024)
                 {
                     byte[] tempInputData;

@@ -287,7 +287,7 @@ public class ProgramParameter implements Serializable
     int getUsage()
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting parameter usage.");
-        int usage = (nullParameter_) ? NULL : (inputData_ == null) ? OUTPUT : (outputDataLength_ == 0) ? INPUT : INOUT;
+        int usage = nullParameter_ ? NULL : outputDataLength_ == 0 ? INPUT : inputData_ == null ? OUTPUT : INOUT;
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Parameter usage:", usage);
         return usage;
     }

@@ -529,6 +529,12 @@ public class MRI extends ListResourceBundle
         { "PROP_DESC_US_MUSTUSEPGMCALL", "Use ProgramCall to read and write user space data." }, //@E1a
         { "PROP_NAME_US_MUSTUSEPGMCALL", "mustUseProgramCall" },                 //@E1A
 
+        { "PROP_NAME_GROUPINFO", "groupInfo" },
+        { "PROP_DESC_GROUPINFO", "The group profile whose members are to be returned." },
+        { "PROP_NAME_USERINFO", "userInfo" },
+        { "PROP_DESC_USERINFO", "A description of which users are to be returned." },
+        { "PROP_NAME_USERPROFILE", "userProfile" },
+        { "PROP_DESC_USERPROFILE", "The profile names to include in the list." },
 
         // Proxy support MRI.     @B0A
         // #TRANNOTE ################################################################
