@@ -157,6 +157,7 @@ class StatementHandler
                 // output the updateCount
                 out_.writeInt(statement.getUpdateCount());
             }
+            out_.flush();
         }
         catch (SQLException e)
         {

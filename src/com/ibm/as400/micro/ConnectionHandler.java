@@ -142,6 +142,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(s);
             out_.writeInt(objectId);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -180,6 +181,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(s);
             out_.writeInt(objectId);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -225,6 +227,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(ps);
             out_.writeInt(objectId);
+            out_.flush();
 
             ResultSetMetaData rsmd = ps.getMetaData();
             
@@ -241,6 +244,7 @@ class ConnectionHandler
                     out_.writeInt(rsmd.getColumnType(i + 1));
                 }
             }
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -287,6 +291,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(ps);
             out_.writeInt(objectId);
+            out_.flush();
 
             ResultSetMetaData rsmd = ps.getMetaData();
             
@@ -303,6 +308,7 @@ class ConnectionHandler
                     out_.writeInt(rsmd.getColumnType(i + 1));
                 }
             }
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -331,7 +337,7 @@ class ConnectionHandler
             boolean b = in_.readBoolean();
             connection.setAutoCommit(b);
             out_.writeInt(1);
-
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -360,6 +366,7 @@ class ConnectionHandler
             int level = in_.readInt();
             connection.setTransactionIsolation(level);
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -387,6 +394,7 @@ class ConnectionHandler
         {
             connection.commit();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -414,6 +422,7 @@ class ConnectionHandler
         {
             connection.rollback();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {

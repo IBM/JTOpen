@@ -141,6 +141,7 @@ class JdbcMeService implements Service
                 int objectId = getNextObjectId();
                 map_.put(new Integer(objectId), new Integer(c.hashCode()));
                 out_.writeInt(objectId);
+                out_.flush();
             }
             catch (SQLException e)
             {
@@ -382,6 +383,7 @@ class JdbcMeService implements Service
             s = "null";
 
         out_.writeUTF(s);
+        out_.flush();
     }
 
 
@@ -490,6 +492,7 @@ class JdbcMeService implements Service
         {
             dataFlowType_ = type;
             out_.writeInt(1);
+            out_.flush();
         }
         else
         {
@@ -506,6 +509,7 @@ class JdbcMeService implements Service
         out_.writeInt(-1);
         out_.writeUTF("JDBC");
         out_.writeUTF(message);
+        out_.flush();
     }
 
 }

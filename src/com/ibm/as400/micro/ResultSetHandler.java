@@ -180,6 +180,7 @@ class ResultSetHandler
         {
             rs.deleteRow();
             out_.writeInt(1);  // Today, we will always say we worked today.
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -227,6 +228,7 @@ class ResultSetHandler
             // Update the row.
             rs.insertRow();
             out_.writeInt(1); // Today we will always say this worked today.
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -265,6 +267,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -303,6 +307,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -341,6 +347,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -379,6 +387,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -418,6 +428,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -457,6 +469,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -487,6 +501,7 @@ class ResultSetHandler
         {
             rs.beforeFirst();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -516,6 +531,7 @@ class ResultSetHandler
         {
             rs.afterLast();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -549,6 +565,7 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -582,6 +599,8 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -615,6 +634,8 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -648,6 +669,8 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -694,6 +717,7 @@ class ResultSetHandler
             // Update the row.
             rs.updateRow();
             out_.writeInt(1); // We will always say this worked today.
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -762,6 +786,7 @@ class ResultSetHandler
                 System.out.println("getDataFlowType(): Just what the heck did you ask for here? " + service_.getDataFlowType());
                 break;
             }
+            out_.flush();
         }
         catch (SQLException e)
         {
