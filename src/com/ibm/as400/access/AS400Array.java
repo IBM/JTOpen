@@ -27,7 +27,6 @@ public class AS400Array implements AS400DataType
 
 
 
-    private static final int defaultValue = 0;
     private AS400DataType arrayType = null;
     private int arraySize = -1;
     private boolean allowChanges = true;  // For beans: allow changes after null constructor until conversion method called
@@ -107,7 +106,15 @@ public class AS400Array implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-     return new Object[defaultValue];
+     int size = ( this.arraySize == -1 ? 0 : this.arraySize );
+     Object[] returnArray = new Object[size];
+     Object elementDefaultValue = ( this.arrayType == null ? null : this.arrayType.getDefaultValue() );
+
+     for (int i = 0; i < size; ++i)
+     {
+         returnArray[i] = elementDefaultValue;
+     }
+     return returnArray;
     }
 
     /**
