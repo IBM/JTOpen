@@ -40,6 +40,7 @@ class SystemProperties
     public static final String PROGRAMCALL_THREADSAFE = ACCESS_PREFIX + "ProgramCall.threadSafe";
     public static final String TUNNELPROXYSERVER_CLIENTCLEANUPINTERVAL = ACCESS_PREFIX + "TunnelProxyServer.clientCleanupInterval"; //@A2A
     public static final String TUNNELPROXYSERVER_CLIENTLIFETIME	= ACCESS_PREFIX + "TunnelProxyServer.clientLifetime"; //@A2A
+    public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
     //  *** Note: ***
     //
     // If you add a new system property, remember to add them to the following other files:

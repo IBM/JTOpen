@@ -72,13 +72,13 @@ import java.beans.*;
  * </ul>
 **/
 
-public class FTP
-             implements java.io.Serializable
+public class FTP implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
+    private static final boolean DEBUG = false;
 
 
     // **********************************************************
@@ -114,7 +114,7 @@ public class FTP
                          // infininte loop calling connect
     transient private boolean inConnect_ = false;
 
-    transient private String  lastMessage_ = "";
+    transient String  lastMessage_ = "";
 
                // default port
     private int port_ = 21;
@@ -129,6 +129,7 @@ public class FTP
     transient private PrintWriter ps_;
 
     transient private boolean externallyConnected_ = false;    // @D2a
+    boolean reuseSocket_ = true;  // default behavior is to reuse socket
 
                // Lists of listeners
     transient         PropertyChangeSupport changes_   = new PropertyChangeSupport(this);
@@ -164,6 +165,9 @@ public class FTP
     public static final int PASSIVE_MODE = 11;
 
 
+    private transient FTPThread activeModeObject_;
+    private transient Thread activeModeThread_;
+
 // -----------------------------------------------------------------------
    /**
     * Constructs an FTP object.
@@ -173,6 +177,7 @@ public class FTP
 
     public FTP()
     {
+      checkSocketProperty();  // see if "reuseSocket" property is set
     }
 
 
@@ -192,6 +197,7 @@ public class FTP
        try
        {
           setServer(server);
+          checkSocketProperty();  // see if "reuseSocket" property is set
        }
        catch (PropertyVetoException e) {}
     }
@@ -213,6 +219,7 @@ public class FTP
           setServer(server);
           setUser(user);
           setPassword(password);
+          checkSocketProperty();  // see if "reuseSocket" property is set
        }
        catch (PropertyVetoException e) {}
     }
@@ -662,6 +669,15 @@ public class FTP
            }
            catch (Exception e) {}
 
+           try
+           {
+             if (activeModeThread_ != null)
+             {
+               activeModeThread_.interrupt();
+             }
+           }
+           catch (Exception e) {}
+
            ps_.close();
            reader_.close();
            controlSocket_.close();
@@ -703,14 +719,13 @@ public class FTP
       connect();
 
       Socket dataSocket = null;
-      ServerSocket serverSocket = null;
       if (mode_ == PASSIVE_MODE)
       {
         dataSocket = getDataSocket();
       }
-      else  // active_mode
+      else
       {
-        serverSocket = getServerSocket();
+        initiateActiveMode();
       }
 
       String result = issueCommand(command + " " + fileName);
@@ -722,22 +737,18 @@ public class FTP
         if (dataSocket != null) { // passive_mode
           dataSocket.close();
         }
-        if (serverSocket != null) { // active_mode
-          serverSocket.close();
-        }
         throw new IOException(result);
       }
 
       if (Trace.isTraceOn())
         Trace.log(Trace.DIAGNOSTIC,"leaving put(file)");
 
-      fireEvent(FTPEvent.FTP_PUT);
-
-      if (serverSocket != null) // active_mode
+      if (dataSocket == null)
       {
-        dataSocket = serverSocket.accept();
-        serverSocket.close();
+        dataSocket = activeModeObject_.getSocket();
       }
+
+      fireEvent(FTPEvent.FTP_PUT);
 
       return new FTPOutputStream(dataSocket, this);
     }
@@ -972,14 +983,13 @@ public class FTP
       connect();
 
       Socket dataSocket = null;
-      ServerSocket serverSocket = null;
       if (mode_ == PASSIVE_MODE)
       {
         dataSocket = getDataSocket();
       }
       else  // active_mode
       {
-        serverSocket = getServerSocket();
+        initiateActiveMode();
       }
 
       issueCommand("RETR " + fileName);
@@ -993,15 +1003,12 @@ public class FTP
         if (dataSocket != null) { // passive_mode
           dataSocket.close();
         }
-        if (serverSocket != null) { // active_mode
-          serverSocket.close();
-        }
         throw new FileNotFoundException();
       }
 
-      if (serverSocket != null) { // active_mode
-        dataSocket = serverSocket.accept();
-        serverSocket.close();
+      if (dataSocket == null)
+      {
+        dataSocket = activeModeObject_.getSocket();
       }
 
       fireEvent(FTPEvent.FTP_RETRIEVED);
@@ -1269,6 +1276,19 @@ public class FTP
 
 
 
+// ---------------------------------------------------------------------------
+    /**
+     * Indicates whether the socket is reused for multiple file transfers, when in active mode.
+     * @return true if the socket is reused; false if a new socket is created.
+     * @see #setMode
+    **/
+    public boolean isReuseSocket()
+    {
+      return reuseSocket_;
+    }
+
+
+
 
 
 // ---------------------------------------------------------------------------
@@ -1324,6 +1344,16 @@ public class FTP
 
 
 
+  private void initiateActiveMode() throws IOException
+  {
+    if (!activeModeThread_.isAlive())
+    {
+      activeModeObject_.setLocalAddress(controlSocket_.getLocalAddress());
+      activeModeThread_.start();
+      activeModeObject_.waitUntilStarted();
+    }
+    activeModeObject_.issuePortCommand();
+  }
 
 // ---------------------------------------------------------------------------
    /**
@@ -1345,14 +1375,13 @@ public class FTP
         connect();
 
       Socket dataSocket = null;
-      ServerSocket serverSocket = null;
       if (mode_ == PASSIVE_MODE)
       {
         dataSocket = getDataSocket();
       }
       else  // active_mode
       {
-        serverSocket = getServerSocket();
+        initiateActiveMode();
       }
 
         String FTPCommand;                                      // @D4a
@@ -1375,10 +1404,10 @@ public class FTP
 
         if (lastMessage_.startsWith("125") || lastMessage_.startsWith("150"))
         {
-          if (serverSocket != null) // active_mode
+
+          if (dataSocket == null)
           {
-            dataSocket = serverSocket.accept();
-            serverSocket.close();
+            dataSocket = activeModeObject_.getSocket();
           }
 
            InputStream in = dataSocket.getInputStream();
@@ -1926,11 +1955,16 @@ public class FTP
       {
         throw new IllegalArgumentException("mode");
       }
+      if (mode == ACTIVE_MODE && activeModeThread_ == null)
+      {
+        activeModeObject_ = new FTPThread(this);
+        activeModeThread_ = new Thread(activeModeObject_);
+        activeModeThread_.setDaemon(true);
+        // Don't start the thread yet, because we need to set our local InetAddress into it first,
+        // and we don't know what that is until we have connect()ed.
+      }
       mode_ = mode;
     }
-
-
-
 
 // ---------------------------------------------------------------------------
    /**
@@ -2005,6 +2039,24 @@ public class FTP
 
        // Fire the property change event.
        changes_.firePropertyChange("port", new Integer(oldValue), new Integer(port));
+    }
+
+
+
+    /**
+     * Indicates whether to reuse a socket for multiple file transfers, when in active mode.
+     * By default, the "reuse socket" attribute is set to the value of the <tt>com.ibm.as400.access.FTP.reuseSocket</tt> property.
+     * If the property is not set, the default is <tt>true</tt> (sockets are reused).
+     * The "reuse socket" attribute (of an FTP object) cannot be reset after that object has connected to the server.
+     * @param reuse If true, the socket is reused.  If false, a new socket is created for each subsequent file transfer.
+     * @see #setMode
+    **/
+    public void setReuseSocket(boolean reuse)
+    {
+      if (connectionState_ != PARKED)
+        throw new IllegalStateException("connected");
+
+      reuseSocket_ = reuse;
     }
 
 
@@ -2214,7 +2266,7 @@ public class FTP
       if (theBack.length() > 0)
         theNewName = theNewName + "." + theBack;
 
-      System.out.println("generateNewName(): " + fromName +", " + toName + ", -> " + theNewName);
+      if (DEBUG) System.out.println("generateNewName(): " + fromName +", " + toName + ", -> " + theNewName);
       return theNewName;
     }
 
@@ -2310,35 +2362,14 @@ public class FTP
     }
 
 
-    /**
-     * Utility method used to establish "active" mode.
-     * 
-     * @return The server socket. 
-     */
-    final ServerSocket getServerSocket()
-      throws UnknownHostException, IOException
+    // Checks the "FTP.reuseSocket" system property.  If it's set, initializes reuseSocket_ accordingly.
+    private void checkSocketProperty()
     {
-      ServerSocket ss = new ServerSocket(0);
-      int p = ss.getLocalPort();
-      InetAddress inet = InetAddress.getLocalHost();
-      String addr = inet.getHostAddress();
-      StringTokenizer st = new StringTokenizer(addr, ".");
-      StringBuffer cmd = new StringBuffer("PORT ");
-      while (st.hasMoreTokens())
-      {
-        cmd.append(st.nextToken());
-        cmd.append(",");
+      String property = SystemProperties.getProperty(SystemProperties.FTP_REUSE_SOCKET);
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "FTP.reuseSocket system property: " +  property);
+      if (property != null) {
+        reuseSocket_ = (property.equalsIgnoreCase("true") ? true : false);
       }
-      cmd.append(p/256);
-      cmd.append(",");
-      cmd.append(p % 256);
-      String response = issueCommand(cmd.toString());
-      // A "successful" response will begin with 200.
-      if (!lastMessage_.startsWith("200"))
-      {
-        Trace.log(Trace.ERROR, "Unexpected response to " + cmd + ": " + lastMessage_);
-      }
-      return ss;
     }
 
 }
