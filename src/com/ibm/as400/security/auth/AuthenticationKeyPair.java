@@ -9,7 +9,8 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- Contains information used by {@link AuthenticationDomain AuthenticationDomain} when creating and processing instances of {@link AuthenticationToken AuthenticationToken}.  This class is instantiated by {@link AuthenticationDomain#publishPublicKey(Eid,String,long,int) publishPublicKey()}.
+ Contains information used by {@link AuthenticationDomain AuthenticationDomain} when creating and processing instances of {@link AuthenticationToken AuthenticationToken}.
+ <br>This class is instantiated by {@link AuthenticationDomain#publishPublicKey(Eid,String,long,int) publishPublicKey()}.
  **/
 public final class AuthenticationKeyPair {
 

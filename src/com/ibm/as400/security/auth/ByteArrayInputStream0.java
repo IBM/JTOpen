@@ -15,7 +15,7 @@ final class ByteArrayInputStream0 extends ByteArrayInputStream {
 
 
   /**
-   Returns the current value of <tt>ByteArrayInputStream.pos</tt>, which is protected in the parent class.
+   Returns the current value of <tt>ByteArrayInputStream.pos</tt>, which is "protected" in the parent class.
    @return The value of the <tt>pos</tt> field.
    **/
   int getPos() {

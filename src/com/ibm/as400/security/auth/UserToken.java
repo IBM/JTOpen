@@ -2,6 +2,7 @@ package com.ibm.as400.security.auth;
 
 import com.ibm.as400.access.BinaryConverter;
 import com.ibm.as400.access.CharConverter;
+import com.ibm.as400.access.Trace;
 import com.ibm.eim.*;
 import java.io.Serializable;
 import java.io.OutputStream;
@@ -88,12 +89,6 @@ typedef struct userToken
     out.write(CharConverter.stringToByteArray(Constants.CCSID,userName_));
     out.write(CharConverter.stringToByteArray(Constants.CCSID,registryName_));
     out.write(BinaryConverter.intToByteArray(totalLength));  // final redundant "shortcut length"
-
-///    // DEBUG
-///    byte[] bytes = CharConverter.stringToByteArray(Constants.CCSID,userName_);
-///    System.out.println("userName_.length() == " + userName_.length() + "; converted bytearray length == " + bytes.length);
-///    bytes = CharConverter.stringToByteArray(Constants.CCSID,registryName_);
-///    System.out.println("registryName_.length() == " + registryName_.length() + "; converted bytearray length == " + bytes.length);
   }
 
   static UserToken parse(ByteArrayInputStream0 in)
@@ -115,8 +110,8 @@ typedef struct userToken
     if (totalLength <= 0 ||
         totalLength-8 > in.available())  // we've already consumed 8 bytes
     {
-      System.out.println("DEBUG totalLength == " + totalLength + "; in.available() == " + in.available());
-      ///throw new ParseException("Incorrect totalLength field in User Token: " + totalLength, in.getPos()-4);
+      Trace.log(Trace.ERROR, "UserToken.parse(): totalLength == " + totalLength + "; in.available() == " + in.available());
+      throw new ParseException("Incorrect totalLength field in User Token: " + totalLength, in.getPos()-4);
     }
 
     in.read(intBuf);

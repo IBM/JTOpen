@@ -38,6 +38,7 @@ typedef struct tokenSignatureHeader
                                    // - signature
 } tokenSignatureHeader_t;
 */
+  private static final boolean DEBUG = false;
 
   static final int FIXED_FIELDS_LENGTH = 6*4;  // 6 'int' fields (each is 4 bytes)
   private static final int OFFSET_TO_VARIABLE_LENGTH_FIELDS = FIXED_FIELDS_LENGTH;
@@ -68,26 +69,20 @@ typedef struct tokenSignatureHeader
     version_ = version;
   }
 
-  static SignatureHeader getInstance(TokenManifest newManifest, /*SignatureAndManifest[]*/byte[] priorManifests, UserToken userToken, PrivateKey privateKey)
+  static SignatureHeader getInstance(TokenManifest newManifest, byte[] priorManifests, UserToken userToken, PrivateKey privateKey)
     throws EimException, IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException
   {
-    ///System.out.println("DEBUG SignatureHeader.getInstance(): priorManifests " + (priorManifests==null ? "null" : "not null"));
-
     // Assume caller has validated args.
 
     // Combine the Token Manifest, manifest list, and User Token into a single byte array that we can generate a signature for.
     ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
     newManifest.writeTo(outStream);
     if (priorManifests != null) {
-///      for (int i=0; i<priorManifests.length; i++) {
-///        priorManifests[i].writeTo(outStream);
-///      }
       outStream.write(priorManifests,0,priorManifests.length);  // write priorManifests to stream
     }
     userToken.writeTo(outStream);
     byte[] manifestsPlusUT = outStream.toByteArray();
     int signedLength = manifestsPlusUT.length;
-    ///System.out.println("DEBUG SigHeader.getInstance(): New signedLength == " + signedLength);
 
     // Generate a signature.
     Signature signer = Signature.getInstance("SHA1withRSA");
@@ -97,16 +92,8 @@ typedef struct tokenSignatureHeader
 
     // Determine new "total length of auth token".
 
-///    // If priorManifests is null, this is the sum of (length of current Signature Header) + (length of Token Manifest) + (length of User Token)
-///    // If priorManifests is non-null, this is the sum of (length of current Signature Header) + (length of Token Manifest) + (tokenLength from first SignatureHeader in priorManifests)
-
     // Total token length is the sum of (length of current Signature Header) + (length of Token Manifest) + (length of prior manifests) + (length of User Token).
     int tokenLength = (FIXED_FIELDS_LENGTH + signature.length) + newManifest.getLength();
-///    if (priorManifests == null) {
-///      tokenLength += userToken.getLength();   // add length of User Token
-///    }
-///    else {
-///      tokenLength += priorManifests[0].getSignatureHeader().getTokenLength(); // add prior total tokenLength
     if (priorManifests != null) {
       tokenLength += priorManifests.length;
     }

@@ -9,6 +9,8 @@ import com.ibm.eim.*;
 public interface Constants
 {
 
+  // TBD: Note to maintainer: The "original" of these return codes is file /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/atkn/qsyatkn.h
+
   /**
    EimException return code, indicating "No memory available. Unable to allocate required space."
    **/

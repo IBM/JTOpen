@@ -15,8 +15,8 @@ import com.ibm.eim.*;
  **/
 public final class AuthenticationDomain
 {
-  private static final boolean DEBUG = true; /// set to false before shipping
-  private static final String REGISTRY_NAME = "PKA_REG";
+  private static final boolean DEBUG = false;
+  private static final String REGISTRY_NAME = "__PKA_REG__";
   private static final String HOST_PREFIX = "__IBM_DEFINED__:eServerID=";  // host alias prefix
 
   // Constant used by bytesToHexString(), to generate hex string representations of byte arrays.
@@ -92,8 +92,13 @@ public final class AuthenticationDomain
   public ApplicationInfo getApplicationInfo(String tcpipHostName, int portNumber)
     throws EimException
   {
+    if (DEBUG) System.out.println("getApplicationInfo("+tcpipHostName+", "+portNumber+")");
+
     if (tcpipHostName == null) {
-      tcpipHostName = domain_.getHost(); // Default to local host.
+      try {
+        tcpipHostName = java.net.InetAddress.getLocalHost().getHostName(); // Default to local host.
+      }
+      catch (java.net.UnknownHostException e) { throw new EimException(e); }
     }
 
     // Get the EIDs whose alias matches the specified host.  Ideally there will be exactly one.
@@ -106,8 +111,28 @@ public final class AuthenticationDomain
         throw new EimException("EIM ID not found for host " + tcpipHostName, Constants.ATKNERR_EIMID_NOT_FOUND);
       case 1:   // exactly 1 match, this is what we want
         eid = (Eid)eidList.toArray()[0];
+        if (DEBUG) System.out.println("Found 1 EID: name=|"+eid.getName()+"|");
         break;
       default:  // multiple matches; ambiguity
+        if (DEBUG) {
+          System.out.println("Multiple EIM IDs found for host " + tcpipHostName);
+          Eid[] eids = new Eid[eidList.size()];
+          eidList.toArray(eids);
+          for (int i=0; i<eids.length; i++) {
+            Eid eID = eids[i];
+            System.out.println("Eid: name="+eID.getName());
+            String uuid = null;
+            try { uuid = eID.getUuid(); } catch (EimException ee) { System.out.println(ee.getMessage()); }
+            System.out.println("UUID="+uuid);
+            System.out.print("aliases=");
+            Set aliases = eID.getAliases();
+            Iterator iter = aliases.iterator();
+            while (iter.hasNext()) {
+              System.out.print((String)iter.next()+",");
+            }
+            System.out.println();
+          }
+        }
         throw new EimException("Multiple EIM IDs found for host " + tcpipHostName, Constants.ATKNERR_AMBIGUOUS);
     }
 
@@ -142,6 +167,7 @@ public final class AuthenticationDomain
       switch (matches) {
         case 0:
           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "EIM ID for host " + tcpipHostName + " has no entries for port " + portNumber);
+          // Tolerate this, just return the EID, and null for app instance ID.
         case 1:  // This is what we want.
           break;
         default:
@@ -251,6 +277,16 @@ public final class AuthenticationDomain
     // Build the Token Signature Header.
     SignatureHeader sigHeader = SignatureHeader.getInstance(tokenManifest, null, userToken, keyPair.getPrivate());
 
+    if (DEBUG) {
+      System.out.println("AuthenticationDomain.generate():");
+      System.out.println("private key:");
+      printByteArray(keyPair.getPrivate().getEncoded());
+      System.out.println("public key:");
+      printByteArray(keyPair.getPublic().getEncoded());
+      System.out.println("signature:");
+      printByteArray(sigHeader.getSignature());
+    }
+
     // Assemble the various parts into a new Authentication Token.
     AuthenticationToken authToken = new AuthenticationToken(sigHeader, tokenManifest, null, userToken);
 
@@ -299,13 +335,7 @@ public final class AuthenticationDomain
                         rcvInstanceID);                  // receiver App Inst ID
 
     // Build a new Token Signature Header.
-///    SignatureAndManifest[] priorManifests = authenticationToken.getAllManifests();
     byte[] priorManifests = authenticationToken.getPriorManifests();
-///    SignatureHeader newSigHeader =
-///      SignatureHeader.getInstance(newTokenManifest,
-///                                  priorManifests,
-///                                  authenticationToken.getUserToken(),
-///                                  keyPair.getPrivate());
     SignatureHeader newSigHeader =
       SignatureHeader.getInstance(newTokenManifest,
                                   authenticationToken,
@@ -368,7 +398,6 @@ public final class AuthenticationDomain
         //------------------------------------------------------------------
 
         // The RegistryUser class has no equals() method, so just compare targetUserNames.
-        ///RegistryUser[] users = (RegistryUser[])targets.toArray();
         RegistryUser[] users = new RegistryUser[targets.size()];
         targets.toArray(users);
         String userName = users[0].getTargetUserName(); // grab first one in list
@@ -392,7 +421,7 @@ public final class AuthenticationDomain
 
 
  private java.security.KeyPair generateKeyPair(int keySize)
-    throws /*EimException, IOException,*/ /*GeneralSecurityException*/NoSuchAlgorithmException, NoSuchProviderException
+    throws NoSuchAlgorithmException, NoSuchProviderException
  {
    if (keyPairGenerator_ == null) {
      keyPairGenerator_ = KeyPairGenerator.getInstance("RSA");
@@ -422,27 +451,6 @@ public final class AuthenticationDomain
    // Note: This sets up a new "registry user" entry, with name == <public key> .
    String publicKeyUnicodeString = bytesToHexString(keyPair.getPublic().getEncoded());
    Eid appEimID = keyPair.getEid();
-
-///   /////////// experiment starts here //////////////
-///
-///   appEimID.addAssociation(Association.EIM_TARGET, // TBD experiment
-///                           REGISTRY_NAME,
-///                           "thisIsJustATest"); // TBD experiment
-///
-///   appEimID.addAssociation(Association.EIM_TARGET, // TBD experiment
-///                           REGISTRY_NAME,
-///                           "thisIsAnotherTest"); // TBD experiment
-///
-///   Set associations = appEimID.getAssociations(Association.EIM_TARGET);
-///   Iterator iter = associations.iterator();
-///   Association assoc = null;
-///   while (iter.hasNext()) {
-///     assoc = (Association)iter.next();
-///     System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///   }
-///
-///   /////////// experiment ends   here //////////////
-
    appEimID.addAssociation(Association.EIM_TARGET,
                            REGISTRY_NAME,
                            publicKeyUnicodeString);
@@ -450,7 +458,6 @@ public final class AuthenticationDomain
    // Get the Registry User object for the Association that we just added.
 
    Set targets = appEimID.findTarget(REGISTRY_NAME);
-   ///System.out.println("DEBUG publish(): Number of targets == " + targets.size());
    if (targets.isEmpty()) {  // This should never happen unless we have a bug.
      Trace.log(Trace.ERROR, "No targets in registry " + REGISTRY_NAME + " for EID " + appEimID.getName());
      throw new EimException("No RegistryUser is associated with the specified EID", Constants.INTERNAL_ERROR);
@@ -459,10 +466,8 @@ public final class AuthenticationDomain
    boolean found = false;
    RegistryUser regUser = null;
    // If the addAssociation worked, there should now be exactly 1 RegistryUser with a targetUserName matching the public key.
-   ///System.out.println("DEBUG publicKeyUnicodeString == |" + publicKeyUnicodeString + "|");
    while (iterator.hasNext() && !found) {
      regUser = (RegistryUser)iterator.next();
-     ///System.out.println("DEBUG regUser.getTargetUserName() == |" + regUser.getTargetUserName() + "|");
      if (regUser.getTargetUserName().equals(publicKeyUnicodeString)) {
        found = true;
      }
@@ -486,7 +491,7 @@ public final class AuthenticationDomain
    Updates the information in the passed-in AuthenticationKeyPair object.
    **/
   private void renewKeyPair(AuthenticationKeyPair keyPair)
-    throws EimException, IOException, /*GeneralSecurityException*/NoSuchAlgorithmException, NoSuchProviderException
+    throws EimException, IOException, NoSuchAlgorithmException, NoSuchProviderException
   {
     if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Renewing keypair.");
     //------------------------------------------------------------------
@@ -524,7 +529,6 @@ public final class AuthenticationDomain
     }
 
     if (targets.size() != 0) {
-      ///RegistryUser[] regUsers = (RegistryUser[])targets.toArray();
       RegistryUser[] regUsers = new RegistryUser[targets.size()];
       targets.toArray(regUsers);
       for (int i=0; i<regUsers.length; i++) {
@@ -541,7 +545,7 @@ public final class AuthenticationDomain
 
  // Throws an EimException if verification fails.
   private void verify(AuthenticationToken authToken, Eid currentAppEimID, String currentAppInstanceID)
-    throws EimException, IOException, /*GeneralSecurityException*/NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException, SignatureException
+    throws EimException, IOException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException, SignatureException
   {
     // Check that we are the intended receiver.
     // Compare receiver info in the token to the caller's EIM ID and
@@ -549,8 +553,6 @@ public final class AuthenticationDomain
 
     if (!currentAppEimID.getName().equals(authToken.getManifest().getReceiverEidName()))
     {
-///      System.out.println("DEBUG AuthDomain.verify(): currentAppEimID.getName() == |" + currentAppEimID.getName() + "|");
-///      System.out.println("DEBUG AuthDomain.verify(): authToken.getManifest().getReceiverEidName() == |" + authToken.getManifest().getReceiverEidName() + "|");
       throw new EimException("Receiver EIM ID in token does not match current application", Constants.ATKNERR_TKN_EIMID_MISMATCH);
     }
 
@@ -564,9 +566,6 @@ public final class AuthenticationDomain
     String senderEidName = authToken.getManifest().getSenderEidName();
     String senderAppInstanceID = authToken.getManifest().getSenderAppInstanceID();
     String senderTimestamp = authToken.getManifest().getSenderTimestamp();
-    ///System.out.println("senderEidName: |" + senderEidName + "|");
-    ///System.out.println("senderAppInstanceID: |" + senderAppInstanceID + "|");
-    ///System.out.println("senderTimestamp: |" + senderTimestamp + "|");
     Set eids = domain_.getEidsByName(senderEidName);
     switch (eids.size()) {
       case 0:
@@ -579,30 +578,6 @@ public final class AuthenticationDomain
 
     Eid senderEid = (Eid)eids.toArray()[0]; // We know the array has length==1.
     Set targets = senderEid.findTarget(REGISTRY_NAME, senderAppInstanceID + "=" + senderTimestamp);
-/*
-    ///TBD experiment:
-    if (targets.isEmpty()) {
-      System.out.println("DEBUG: No RegistryUser's returned from findTarget.");
-    }
-    else
-    {
-      Iterator iterator = targets.iterator();
-      RegistryUser user = null;
-      while (iterator.hasNext()) {
-        user = (RegistryUser)iterator.next();
-        System.out.println("RegistryUser.getTargetUserName: |"+user.getTargetUserName()+"|");
-        System.out.println("RegistryUser.getRegistryName: |"+user.getRegistryName()+"|");
-        System.out.println("RegistryUser.getAdditionalInfo:");
-        Set addlInfos = user.getAdditionalInfo();
-        Iterator iter = addlInfos.iterator();
-        while (iter.hasNext()) {
-          String addlInfo = (String)iter.next();
-          System.out.println("|"+addlInfo+"|");
-        }
-      }
-    }
-    /// Experiment to here.
-*/
 
     switch (targets.size()) {
       case 0:
@@ -646,7 +621,7 @@ public final class AuthenticationDomain
   // Utility method for debugging.
   // Logs data from a byte array starting at offset for the length specified.
   // Output sixteen bytes per line, two hexadecimal digits per byte, one space between bytes.
-  private static void printByteArray(byte[] data)
+  static void printByteArray(byte[] data)
   {
     if (data == null) System.out.println("null");
     else
@@ -686,28 +661,6 @@ public final class AuthenticationDomain
       if (Trace.isTraceOn()) {
         Trace.log(Trace.DIAGNOSTIC, "AuthenticationDomain.removeTargetAssociations("+appEimID.getName()+","+additionalInfo+ ") found no targets.");
       }
-///      // List all source and target associations for the specified EID.
-///      System.out.println("DEBUG: All source associations for the EID:");
-///      Set associations = appEimID.getAssociations(Association.EIM_SOURCE);
-///      Iterator iter = associations.iterator();
-///      while (iter.hasNext()) {
-///        Association assoc = (Association)iter.next();
-///        System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///      }
-///      System.out.println("DEBUG: All target associations for the EID:");
-///      associations = appEimID.getAssociations(Association.EIM_TARGET);
-///      iter = associations.iterator();
-///      while (iter.hasNext()) {
-///        Association assoc = (Association)iter.next();
-///        System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///      }
-///      System.out.println("DEBUG: All associations for the EID:");
-///      associations = appEimID.getAssociations(Association.EIM_SOURCE_AND_TARGET);
-///      iter = associations.iterator();
-///      while (iter.hasNext()) {
-///        Association assoc = (Association)iter.next();
-///        System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///      }
     }
     else {
       Iterator iterator = targets.iterator();
@@ -719,47 +672,6 @@ public final class AuthenticationDomain
       }
     }
   }
-
-///  private static void removeAssociations(Eid appEimID, String additionalInfo, int associationType)
-///    throws EimException
-///  {
-///    // The associations of interest are those with the specified "additional info" string.
-///    Set targets = appEimID.findTarget(REGISTRY_NAME, additionalInfo);
-///    if (targets.isEmpty()) {
-///      System.out.println("DEBUG: AuthDomain.removeAssociations("+appEimID.getName()+","+additionalInfo+","+associationType + ") found no targets.");
-///      // List all source and target associations for the specified EID.     DEBUG xxxxxx
-///      System.out.println("DEBUG: All source associations for the EID:");
-///      Set associations = appEimID.getAssociations(Association.EIM_SOURCE);
-///      Iterator iter = associations.iterator();
-///      while (iter.hasNext()) {
-///        Association assoc = (Association)iter.next();
-///        System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///      }
-///      System.out.println("DEBUG: All target associations for the EID:");
-///      associations = appEimID.getAssociations(Association.EIM_TARGET);
-///      iter = associations.iterator();
-///      while (iter.hasNext()) {
-///        Association assoc = (Association)iter.next();
-///        System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///      }
-///      System.out.println("DEBUG: All associations for the EID:");
-///      associations = appEimID.getAssociations(Association.EIM_SOURCE_AND_TARGET);
-///      iter = associations.iterator();
-///      while (iter.hasNext()) {
-///        Association assoc = (Association)iter.next();
-///        System.out.println("DEBUG assoc.getUid() == |" + assoc.getUid() + "|");
-///      }
-///    }
-///    else {
-///      Iterator iterator = targets.iterator();
-///      while (iterator.hasNext()) {
-///        RegistryUser regUser = (RegistryUser)iterator.next();
-///        appEimID.removeAssociation(associationType,
-///                                   REGISTRY_NAME,
-///                                   regUser.getTargetUserName());
-///      }
-///    }
-///  }
 
 
   // Converts a byte array into its hex string representation.
