@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: JPing.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  JPing.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package utilities;
@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 
 
 /**
- *  The JPing class is used to determine if OS/400 services are running.
+ *  The JPing class is used to determine if services are running.
  *  <p>
  *  
  *  JPing can be run as a command line program, as follows:
@@ -42,8 +42,8 @@ import java.util.ResourceBundle;
  *  <dd>Displays the help text.
  *  The -help option may be abbreviated to -h or -?.
  *
- *  <dt><b><code>-service </b></code><var>0S/400 Service</var>
- *  <dd>Specifies the specific OS/400 service to ping.
+ *  <dt><b><code>-service </b></code><var>Service</var>
+ *  <dd>Specifies the specific service to ping.
  *  The -service option may be abbreviated to -s.  The valid
  *  services include:  <i>as-file, as-netprt, as-rmtcmd, as-dtaq,
  *  as-database, as-ddm, as-central,</i> and <i>as-signon</i>.  If this
@@ -76,7 +76,7 @@ import java.util.ResourceBundle;
  *  Connection Verified
  *  </PRE></BLOCKQUOTE>
  *
- *  To determine, in a program, if the OS/400 services are running, use
+ *  To determine, in a program, if the services are running, use
  *  com.ibm.as400.access.AS400JPing.
  *
  *  @see com.ibm.as400.access.AS400JPing

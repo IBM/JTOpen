@@ -36,7 +36,7 @@ public class AS400CredentialEvent extends EventObject {
 	 **/
 	public static final int CR_REFRESH = 2;
 	/**
-	 Event ID indicating that a credential was used to change OS/400 thread identity.
+	 Event ID indicating that a credential was used to change the thread identity.
 	 **/
 	public static final int CR_SWAP = 3;
 

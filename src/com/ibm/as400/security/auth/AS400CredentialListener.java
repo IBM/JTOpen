@@ -45,7 +45,7 @@ void destroyed(AS400CredentialEvent event);
 void refreshed(AS400CredentialEvent event);
 /**
  * Invoked when a credential has been used to change the
- * OS/400 thread identity.
+ * thread identity.
  *
  * @param event
  *		The credential event.

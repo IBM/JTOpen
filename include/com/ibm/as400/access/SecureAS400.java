@@ -20,7 +20,7 @@ import java.io.IOException;
 import com.ibm.sslight.SSLightKeyRing;
 
 /**
- The SecureAS400 class represents a secure iSeries server sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable server at OS/400 release V4R4 or later.
+ The SecureAS400 class represents a secure server sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable server at release V4R4 or later.
  **/
 public class SecureAS400 extends AS400
 {

@@ -99,7 +99,7 @@ void refresh() throws RefreshFailedException;
  */
 public void setCredential(AS400Credential credential);
 /**
- * Attempts to swap the OS/400 thread identity based on this
+ * Attempts to swap the thread identity based on this
  * credential.
  *
  * @param genRtnCr

@@ -6,10 +6,10 @@ import java.beans.PropertyVetoException;
  * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
  **
  * <p>
- * The ValidationList class represents an AS/400 validation list object.
+ * The ValidationList class represents a server validation list object.
  * <p>
  * Note: The ability to find and modify the list is dependent on
- * the access rights of the signed-on AS/400 user to the
+ * the access rights of the signed-on user profile to the
  * validation list.
  *
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
@@ -36,7 +36,7 @@ public ValidationList() {
 	super();
 }
 /**
- * Constructs a validation list for the given AS/400 system.
+ * Constructs a validation list for the given server.
  * <p>
  * Note: The <i>Path</i> property must be set prior to taking action against
  * the object.
@@ -50,7 +50,7 @@ public ValidationList(AS400 as400) {
 	setAS400(as400);
 }
 /**
- * Constructs a validation list for the given AS/400 system and path.
+ * Constructs a validation list for the given server and path.
  *
  * @param as400
  *		com.ibm.as400.access.AS400
@@ -64,7 +64,7 @@ public ValidationList(AS400 as400, QSYSObjectPathName path) {
 	setPath(path);
 }
 /**
- * Constructs a validation list for the given AS/400 system
+ * Constructs a validation list for the given server
  * and object/library names.
  *
  * @param as400

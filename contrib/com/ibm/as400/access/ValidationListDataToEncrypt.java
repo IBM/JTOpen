@@ -19,7 +19,7 @@ public ValidationListDataToEncrypt() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as AS/400 bytes.
+ * Constructs a ValidationListTranslatedData from a structure stored as server bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -31,7 +31,7 @@ public ValidationListDataToEncrypt(byte[] buffer, int offset) {
 	super(buffer, offset);
 }
 /**
- * Constructs a ValidationListTranslatedData from the specified AS/400 <i>bytes</i>
+ * Constructs a ValidationListTranslatedData from the specified server <i>bytes</i>
  * which are encoded in the given <i>ccsid</i>.
  *
  * @param ccsid int
@@ -43,10 +43,10 @@ public ValidationListDataToEncrypt(int ccsid, byte[] bytes) {
 /**
  * Constructs a ValidationListTranslatedData from the given string.
  * <p>
- * The translated bytes are derived by converting the string to AS/400 bytes
+ * The translated bytes are derived by converting the string to server bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
- * of the current AS/400 user.
+ * of the current user.
  *
  * @param s java.lang.String
  * @param ccsid int
@@ -56,7 +56,7 @@ public ValidationListDataToEncrypt(String s, int ccsid, AS400 as400) {
 	super(s, ccsid, as400);
 }
 /**
- * Returns the length to be specified in the written AS/400 byte structure
+ * Returns the length to be specified in the written server byte structure
  * if the assigned data is null.
  * <p>
  * Typically this value is 0. However, there are some cases where

@@ -25,7 +25,7 @@ public ValidationListTranslatedData() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as AS/400 bytes.
+ * Constructs a ValidationListTranslatedData from a structure stored as server bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -43,7 +43,7 @@ public ValidationListTranslatedData(byte[] buffer, int offset) {
 			buffer, offset + getReadOffsetTBytes())));
 }
 /**
- * Constructs a ValidationListTranslatedData from the specified AS/400 <i>bytes</i>
+ * Constructs a ValidationListTranslatedData from the specified server <i>bytes</i>
  * which are encoded in the given <i>ccsid</i>.
  *
  * @param ccsid int
@@ -57,10 +57,10 @@ public ValidationListTranslatedData(int ccsid, byte[] bytes) {
 /**
  * Constructs a ValidationListTranslatedData from the given string.
  * <p>
- * The translated bytes are derived by converting the string to AS/400 bytes
+ * The translated bytes are derived by converting the string to server bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
- * of the current AS/400 user.
+ * of the current user.
  *
  * @param s java.lang.String
  * @param ccsid int
@@ -72,7 +72,7 @@ public ValidationListTranslatedData(String s, int ccsid, AS400 as400) {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to AS/400 bytes for use by the validation list APIs.
+ * written to server bytes for use by the validation list APIs.
  * <p>
  * This is the length of the entire structure, not just the translated bytes.
  *
@@ -86,7 +86,7 @@ public int getByteLength() {
 	return total;
 }
 /**
- * Returns the AS/400 bytes comprising the translated data.
+ * Returns the server bytes comprising the translated data.
  * <p>
  * For text conversion, the bytes will be interpreted using the assigned ccsid.
  *
@@ -100,7 +100,7 @@ public byte[] getBytes() {
  * <p>
  * Valid CCSID values are in the range 1 through 65535. The special value 0
  * can be used to indicate the default CCSID for the current user (when
- * the validation list APIs are invoked on the AS/400 system). In some cases,
+ * the validation list APIs are invoked on the server). In some cases,
  * primarily attribute data, the special value -1 is also allowed. This
  * indicates that no CCSID value is stored with the data (i.e. binary data,
  * where no conversion is required).
@@ -112,7 +112,7 @@ public int getCcsid() {
 }
 /**
  * Returns the offset of CCSID information in the structure when the receiver is
- * read from AS/400 bytes.
+ * read from server bytes.
  * @return int
  */
 protected int getReadOffsetCcsid() {
@@ -120,7 +120,7 @@ protected int getReadOffsetCcsid() {
 }
 /**
  * Returns the offset of the length of the translated bytes when the receiver
- * is read from an AS/400 byte structure.
+ * is read from a server byte structure.
  * @return int
  */
 protected int getReadOffsetTByteLength() {
@@ -128,14 +128,14 @@ protected int getReadOffsetTByteLength() {
 }
 /**
  * Returns the offset of the translated bytes when the receiver is read from an
- * AS/400 byte structure.
+ * server byte structure.
  * @return int
  */
 protected int getReadOffsetTBytes() {
 	return 8;
 }
 /**
- * Returns the result of converting the assigned AS/400 bytes to a Java String
+ * Returns the result of converting the assigned server bytes to a Java String
  * using the assigned CCSID. Returns null if the assigned ccsid is -1, since
  * the bytes do not represent text.
  * <p>
@@ -161,7 +161,7 @@ public String getString(AS400 as400) {
 		(String)new AS400Text(bytes_.length, ccsid, as400).toObject(bytes_);
 }
 /**
- * Returns the length to be specified in the written AS/400 byte structure
+ * Returns the length to be specified in the written server byte structure
  * if the assigned data is null.
  * <p>
  * Typically this value is set to 0. However, there are some cases where
@@ -181,7 +181,7 @@ protected int getWriteNullDataLength() {
 }
 /**
  * Returns the offset of CCSID information in the structure when the receiver
- * is written to AS/400 bytes.
+ * is written to server bytes.
  * @return int
  */
 protected int getWriteOffsetCcsid() {
@@ -189,7 +189,7 @@ protected int getWriteOffsetCcsid() {
 }
 /**
  * Returns the offset of the length of the translated bytes when the receiver
- * is written to an AS/400 byte structure.
+ * is written to an server byte structure.
  * @return int
  */
 protected int getWriteOffsetTByteLength() {
@@ -197,14 +197,14 @@ protected int getWriteOffsetTByteLength() {
 }
 /**
  * Returns the offset of the translated bytes when the receiver is written to an
- * AS/400 byte structure.
+ * server byte structure.
  * @return int
  */
 protected int getWriteOffsetTBytes() {
 	return getReadOffsetTBytes();
 }
 /**
- * Indicates whether the given CCSID is valid for tagging AS/400 data.
+ * Indicates whether the given CCSID is valid for tagging server data.
  * @return true if valid; false if not.
  */
 protected boolean isValidCcsid(int ccsid) {
@@ -296,7 +296,7 @@ protected boolean isValidCcsid(int ccsid) {
 	return isValid;
 }
 /**
- * Sets the AS/400 bytes comprising the translated data.
+ * Sets the server bytes comprising the translated data.
  * <p>
  * For text conversion, the bytes will be interpreted using the assigned ccsid.
  *
@@ -308,10 +308,10 @@ public void setBytes(byte[] bytes) {
 /**
  * Sets the bytes comprising the translated data from the given string.
  * <p>
- * The translated bytes are derived by converting the string to AS/400 bytes
+ * The translated bytes are derived by converting the string to server bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
- * of the current AS/400 user.
+ * of the current user.
  *
  * @param s java.lang.String
  * @param ccsid int
@@ -347,7 +347,7 @@ public void setBytes(String s, int ccsid, AS400 as400) {
  * <p>
  * Valid CCSID values are in the range 1 through 65535. The special value 0
  * can be used to indicate the default CCSID for the current user (when
- * the validation list APIs are invoked on the AS/400 system). In some cases,
+ * the validation list APIs are invoked on the server). In some cases,
  * primarily attribute data, the special value -1 is also allowed. This
  * indicates that no CCSID value is stored with the data (i.e. binary data,
  * where no conversion is required).
@@ -364,7 +364,7 @@ public void setCcsid(int ccsid) {
 }
 /**
  * Returns the byte array resulting from converting this object to a structure
- * usable by the AS/400 APIs.
+ * usable by the server APIs.
  *
  * @return byte[]
  */
@@ -375,9 +375,9 @@ public byte[] toBytes() {
 	return buffer;
 }
 /**
- * Converts this object to a byte structure usable by the AS/400 APIs.
+ * Converts this object to a byte structure usable by the server APIs.
  * <p>
- * The AS/400 bytes are inserted into the <i>buffer</i> starting at the given
+ * The server bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]

@@ -204,7 +204,7 @@ public AS400 getSystem() {
  * @exception IOException
  *        If an error occurs while communicating with the server.
  * @exception ObjectDoesNotExistException
- *        If the OS/400 object does not exist.
+ *        If the server object does not exist.
  * @exception UnsupportedEncodingException
  *        If the character encoding is not supported.
  *
@@ -223,7 +223,7 @@ public User getUser()
 }
 /**
  * Returns the name of a user profile associated with
- * the OS/400 thread when work is performed on
+ * the thread when work is performed on
  * behalf of the principal.
  *
  * @return

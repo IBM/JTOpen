@@ -26,20 +26,20 @@ import java.util.Random;
  * The ProfileTokenCredential class represents an iSeries system profile token.
  *
  * <p> A profile token provides a timed credential representing an
- * authenticated OS/400 user profile and password. A profile token can be
- * established in either a remote (not running on the target OS/400) or local
- * (running on the target OS/400) context. Once created, it may be
+ * authenticated server user profile and password. A profile token can be
+ * established in either a remote (not running on the target server) or local
+ * (running on the target server) context. Once created, it may be
  * serialized or distributed as required by the application.
  *
  * <p> When referenced from a running process on the associated iSeries system,
- * a profile token can be used to modify or <i>swap</i> the OS/400 thread
+ * a profile token can be used to modify or <i>swap</i> the thread
  * identity and perform a specific task or tasks on behalf of the
  * authenticated user. However, a profile token generated on one iSeries
  * system cannot be used to swap thread identity on any other system.
  *
  * <p> An application of this support would be in a single tier
  * application running on the server when a designated operation must be
- * run under the OS/400 authorities and permissions of a specific
+ * run under the server authorities and permissions of a specific
  * user profile. A profile token can be used to swap identity prior
  * to performing the operation. Support is also provided to swap
  * back to the original identity upon completion.
@@ -52,7 +52,7 @@ import java.util.Random;
  * passing the user ID and password over the network. The profile token can
  * be distributed as required to the program on the second tier, which can
  * perform the <i>swap()</i> and run designated operations under the
- * OS/400 authorities and permissions assigned to the user.
+ * server authorities and permissions assigned to the user.
  *
  * <p> <b>Note:</b> While inherently more secure than passing a user profile
  * and password due to limited life span, profile tokens should still be
@@ -81,13 +81,13 @@ import java.util.Random;
  *   pt.setTokenType(ProfileTokenCredential.TYPE_SINGLE_USE);
  *   pt.setToken("USERID", "PASSWORD");
  *
- *  // Swap the OS/400 thread identity, retrieving a credential to
+ *  // Swap the thread identity, retrieving a credential to
  *  // swap back to the original identity later.
  *   AS400Credential cr = pt.swap(true);
  *
  *  // Perform work under the swapped identity at this point.
  *
- *  // Swap back to the original OS/400 thread identity.
+ *  // Swap back to the original thread identity.
  *   cr.swap();
  *
  *  // Clean up the credentials.
@@ -478,7 +478,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * @param isReusable
     *        true if the credential can be used to swap
-    *        OS/400 thread identity multiple times;
+    *        thread identity multiple times;
     *        otherwise false.
     *
     * @param isRenewable
@@ -576,7 +576,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * @return
     *        true if the credential can be used to swap
-    *        OS/400 thread identity multiple times;
+    *        thread identity multiple times;
     *        otherwise false.
     *
     */

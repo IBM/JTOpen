@@ -23,7 +23,7 @@ public interface ProfileHandleImpl extends AS400CredentialImpl {
 
 /**
  * Generates and returns a profile handle based on
- * the current OS/400 thread identity.
+ * the current thread identity.
  *
  * @return
  *		The handle bytes.

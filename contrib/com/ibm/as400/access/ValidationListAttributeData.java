@@ -23,7 +23,7 @@ public ValidationListAttributeData() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as AS/400 bytes.
+ * Constructs a ValidationListTranslatedData from a structure stored as server bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -36,7 +36,7 @@ public ValidationListAttributeData(byte[] buffer, int offset) {
 }
 /**
  * Returns the offset of CCSID information in the structure when the receiver
- * is written to AS/400 bytes.
+ * is written to server bytes.
  * @return int
  */
 protected int getWriteOffsetCcsid() {
@@ -44,7 +44,7 @@ protected int getWriteOffsetCcsid() {
 }
 /**
  * Returns the offset of the length of the translated bytes when the receiver
- * is written to an AS/400 byte structure.
+ * is written to an server byte structure.
  * @return int
  */
 protected int getWriteOffsetTByteLength() {
@@ -52,7 +52,7 @@ protected int getWriteOffsetTByteLength() {
 }
 /**
  * Returns the offset of the translated bytes when the receiver is written to an
- * AS/400 byte structure.
+ * server byte structure.
  * @return int
  */
 protected int getWriteOffsetTBytes() {

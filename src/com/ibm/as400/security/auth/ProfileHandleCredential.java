@@ -24,7 +24,7 @@ import java.beans.PropertyVetoException;
  * for iSeries system profile handles. It is provided to fill a secondary
  * role in support of other credentials when running on the
  * local iSeries system. A profile handle credential provides the ability
- * to store the current OS/400 thread identity and restore that
+ * to store the current thread identity and restore that
  * identity after performing a swap based on another
  * credential (i.e. ProfileTokenCredential).
  *
@@ -149,7 +149,7 @@ void invalidateProperties() {
 	handle_ = null;
 }
 /**
- * Sets the handle based on the current OS/400 thread identity.
+ * Sets the handle based on the current thread identity.
  *
  * <p> The <i>system</i> property must be set prior to
  * invoking this method.

@@ -45,7 +45,7 @@ public String[] basicAuthenticationPrompt();
  *
  * @param isReusable
  *		true if the credential can be used to swap
- *		OS/400 thread identity multiple times;
+ *		thread identity multiple times;
  *		otherwise false.
  *
  * @param isRenewable

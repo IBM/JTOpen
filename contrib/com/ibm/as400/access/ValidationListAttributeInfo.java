@@ -43,7 +43,7 @@ public ValidationListAttribute[] getAttributes() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to AS/400 bytes for use by the validation list APIs.
+ * written to server bytes for use by the validation list APIs.
  *
  * @return int
  */
@@ -55,7 +55,7 @@ public int getByteLength() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to AS/400 bytes for use by the validation list APIs.
+ * written to server bytes for use by the validation list APIs.
  *
  * @return int
  */
@@ -76,7 +76,7 @@ public void setAttributes(ValidationListAttribute[] attributes) {
 	attributes_ = attributes;
 }
 /**
- * Sets the data for assigned attributes from the AS/400 bytes in the specified <i>buffer</i>.
+ * Sets the data for assigned attributes from the server bytes in the specified <i>buffer</i>.
  * <p>
  * This method is called when finding an entry with specific attributes. The attribute identifiers
  * are provided as input to the API, and a buffer is returned with the corresponding
@@ -104,7 +104,7 @@ public void setAttributesData(byte[] buffer, int offset) {
 }
 /**
  * Returns the byte array resulting from converting this object to a structure
- * usable by the AS/400 APIs.
+ * usable by the server APIs.
  *
  * @return byte[]
  */
@@ -115,9 +115,9 @@ public byte[] toBytes() {
 	return buffer;
 }
 /**
- * Converts this object to a structure usable by the AS/400 APIs.
+ * Converts this object to a structure usable by the server APIs.
  * <p>
- * The AS/400 bytes are inserted into the <i>buffer</i> starting at the given
+ * The server bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]

@@ -1112,7 +1112,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
                                    ).append(toString()).toString());
    }
    /**
-    * Attempts to swap the OS/400 thread identity based on the
+    * Attempts to swap the thread identity based on the
     * credential.
     *
     * <p> No return credential is generated.
@@ -1134,7 +1134,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
       swap(false);
    }
    /**
-    * Attempts to swap the OS/400 thread identity based on this
+    * Attempts to swap the thread identity based on this
     * credential.
     *
     * <p> <b>Note:</b> This method affects the running user
@@ -1271,7 +1271,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
       return 1; //mod 3
    }
    /**
-    * The minimum OS/400 VRM level supported by credentials of
+    * The minimum VRM level supported by credentials of
     * this type.
     *
     * <p> Superclass assumes V4R5M0; subclasses may override as necessary.

@@ -22,7 +22,7 @@ package com.ibm.as400.security.auth;
 public interface AS400SwappableCredential {
 
 /**
- * Attempts to swap the OS/400 thread identity based on the
+ * Attempts to swap the thread identity based on the
  * credential.
  *
  * <p> No return credential is generated.

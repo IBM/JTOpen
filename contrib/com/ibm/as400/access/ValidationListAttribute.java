@@ -31,7 +31,7 @@ public ValidationListAttribute() {
  * Constructs a validation list attribute.
  * <p>
  * The <i>as400</i> is used to translate the assigned identifier when converted
- * to AS/400 bytes.
+ * to server bytes.
  *
  * @param as400
  *		com.ibm.as400.access.AS400
@@ -41,9 +41,9 @@ public ValidationListAttribute(AS400 as400) {
 	setAS400(as400);
 }
 /**
- * Returns the AS/400 system assigned to the attribute.
+ * Returns the server assigned to the attribute.
  * <p>
- * Used to translate the assigned identifier when converted to AS/400 bytes.
+ * Used to translate the assigned identifier when converted to server bytes.
  *
  * @return com.ibm.as400.access.AS400
  */
@@ -51,7 +51,7 @@ public AS400 getAS400() {
 	return as400_;
 }
 /**
- * Returns the attribute's parameter structure when written to AS/400 bytes.
+ * Returns the attribute's parameter structure when written to server bytes.
  * <p>
  * This structure includes only the fixed fields for the parameter.
  *
@@ -71,7 +71,7 @@ private AS400Structure getAttribEntryStruct() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to AS/400 bytes for use by the validation list APIs.
+ * written to server bytes for use by the validation list APIs.
  * <p>
  * The size varies based on usage of the receiver. If there is no associated data,
  * it is assumed that the structure being written is to identify an attribute
@@ -173,9 +173,9 @@ public int getType() {
 	return type_;
 }
 /**
- * Sets the AS/400 system assigned to the attribute.
+ * Sets the server assigned to the attribute.
  * <p>
- * Used to translate the assigned identifier when converted to AS/400 bytes.
+ * Used to translate the assigned identifier when converted to server bytes.
  *
  * @param as400 com.ibm.as400.access.AS400
  */
@@ -255,7 +255,7 @@ public void setType(int type) {
 }
 /**
  * Returns the byte array resulting from converting this object to a structure
- * usable by the AS/400 APIs.
+ * usable by the server APIs.
  *
  * @return byte[]
  */
@@ -266,9 +266,9 @@ public byte[] toBytes() {
 	return buffer;
 }
 /**
- * Converts this object to a structure usable by the AS/400 APIs.
+ * Converts this object to a structure usable by the server APIs.
  * <p>
- * The AS/400 bytes are inserted into the <i>buffer</i> starting at the given
+ * The server bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]
@@ -317,9 +317,9 @@ public int toBytes(byte[] buffer, int offset) {
 }
 /**
  * Converts the attribute and any associated data to a structure usable by the
- * AS/400 APIs.
+ * server APIs.
  * <p>
- * The AS/400 bytes are inserted into the <i>buffer</i> starting at the given
+ * The server bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  * <p>
  * This method writes the bytes in a format expected when the attribute data is
