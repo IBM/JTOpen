@@ -113,6 +113,7 @@ import java.util.Vector;
 public class ListRowData extends RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 1232409461443729991L;
 
   private RowMetaData metadata_;                 // The metadata.
   transient private RowDataSupport rowdataSupport_;        // The list of row data listeners.

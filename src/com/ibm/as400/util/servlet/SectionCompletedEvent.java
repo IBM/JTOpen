@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SectionCompletedEvent.java
 //                                                                             
@@ -19,6 +19,7 @@ package com.ibm.as400.util.servlet;
 public class SectionCompletedEvent extends java.util.EventObject
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 5950825305973561860L;
 
    private String section_;		// The completed section of data.
 

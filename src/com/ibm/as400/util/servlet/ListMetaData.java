@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ListMetaData.java
 //                                                                             
@@ -38,6 +38,7 @@ import java.io.Serializable;
 public class ListMetaData implements RowMetaData, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -230291530342866669L;
 
    // metadata values.
    private int columnCount_ = 0;       // The number of columns.

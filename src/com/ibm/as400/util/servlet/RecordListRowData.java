@@ -30,8 +30,8 @@ import java.util.Vector;
 *  <UL>
 *    <LI>An entry in a data queue.</LI>
 *    <LI>The parameter data provided to or returned by a program call.</LI>
-*    <LI>A record to be written to or read from an AS/400 or iSeries file.</LI>
-*    <LI>Any data returned from the AS/400 or iSeries that needs to be converted between AS/400 or iSeries
+*    <LI>A record to be written to or read from a server or iSeries file.</LI>
+*    <LI>Any data returned from the server or iSeries that needs to be converted between i5/OS
 *    format and Java format.</LI>
 *  </UL>
 *
@@ -61,7 +61,7 @@ import java.util.Vector;
 *  <P>The following example creates a RecordListRowData object and adds the records from a
 *  sequential file.
 *  <BLOCKQUOTE><PRE>
-*  <P>       // Create an AS400 object.
+*  <P>       // Create an object to represent the server system.
 *  AS400 mySystem = new AS400("mySystem.myCompany.com");
 *  <P>       // Create a file object that represents the file.
 *  SequentialFile sf = new SequentialFile(mySystem, ifspath);
@@ -80,6 +80,7 @@ import java.util.Vector;
 public class RecordListRowData extends RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 7785461189425222072L;
 
   private RecordFormat recordFormat_;            // The record format.
   private RecordFormatMetaData metadata_;        // The record metadata.

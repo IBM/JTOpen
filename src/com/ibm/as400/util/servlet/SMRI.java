@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SMRI.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.util.servlet;
 import java.util.ListResourceBundle;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for the IBM Toolbox for Java.
 **/
 public class SMRI extends ListResourceBundle
 {

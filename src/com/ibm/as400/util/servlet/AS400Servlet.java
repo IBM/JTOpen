@@ -33,7 +33,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
   *  The AS400Servlet class is an abstract class that represents an HTML Servlet.
   *  <p>
   *  A connection pool can be used to share connections and manage the number of 
-  *  connections a servlet user can have to the AS/400 or iSeries. When using connection 
+  *  connections a servlet user can have to the server or iSeries. When using connection 
   *  pooling and a system is requested, a fully functional AS400 object is returned 
   *  to the calling application. It is then up to the application to return the AS400 
   *  object to the pool. It is not recommended that an application use this object to 
@@ -44,6 +44,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 public abstract class AS400Servlet extends AuthenticationServlet
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 8682226107563431693L;
 
    private String head_ = "<html>\n<body>\n";
    private String end_ = "</body>\n</html>\n";
@@ -125,11 +126,11 @@ public abstract class AS400Servlet extends AuthenticationServlet
    
    
    /**
-     *  Returns an AS400 object.
+     *  Returns an object representing the server.
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
-     *  @return The AS400 system object.
+     *  @return The system object.
      **/
     public AS400 getSystem()
 		throws ConnectionPoolException  
@@ -161,13 +162,13 @@ public abstract class AS400Servlet extends AuthenticationServlet
                                      
 
     /**
-     *  Returns an AS400 object. It uses the specified <i>system</i>.
+     *  Returns an object representing the server. It uses the specified <i>systemName</i>.
      *  
-     *  @param  systemName  The name of the AS/400 or iSeries.  
+     *  @param  systemName  The name of the server or iSeries.  
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
-     *  @return The AS400 systen object.
+     *  @return The system object.
      **/
     public AS400 getSystem(String systemName)
 		throws ConnectionPoolException   
@@ -198,15 +199,15 @@ public abstract class AS400Servlet extends AuthenticationServlet
     
     
     /**
-     *  Returns an AS400 object. It connects to the specified <i>service</i>.
+     *  Returns an object representing the server. It connects to the specified <i>service</i>.
      *  
-     *  @param  service  The name of the AS/400 or iSeries service.  
+     *  @param  service  The name of the server or iSeries service.  
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the AS/400 or iSeries.
+     *  @exception IOException If an error occurs while communicating with the server or iSeries.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
-     *  @return The AS400 systen object.
+     *  @return The system object.
      **/
     public AS400 getSystem(int service)
 		throws AS400SecurityException, IOException, ConnectionPoolException
@@ -246,18 +247,18 @@ public abstract class AS400Servlet extends AuthenticationServlet
     
     
     /**
-     *  Returns an AS400 object. It connects to the specified <i>system</i> and <i>service</i>.
+     *  Returns an object representing the server. It connects to the specified <i>systemName</i> and <i>service</i>.
      *  
-     *  @param system   The name of the AS/400 or iSeries.
-     *  @param service  The name of the AS/400 or iSeries service.
+     *  @param systemName   The name of the server or iSeries.
+     *  @param service  The name of the server or iSeries service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the AS/400 or iSeries.
+     *  @exception IOException If an error occurs while communicating with the server or iSeries.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
-     *  @return The AS400 systen object.
+     *  @return The system object.
      **/
-    public AS400 getSystem(String system, int service)
+    public AS400 getSystem(String systemName, int service)
 		throws AS400SecurityException, IOException, ConnectionPoolException   
     {
 	Thread currentThread = Thread.currentThread();
@@ -272,14 +273,14 @@ public abstract class AS400Servlet extends AuthenticationServlet
         {
             if (connectionPool_ != null)
             {
-                sys = connectionPool_.getConnection(system, uid, pwd, service);
+                sys = connectionPool_.getConnection(systemName, uid, pwd, service);
 
                 // do this so the signon dialog or expiration warning will not display                            // @B2A
                 sys.setGuiAvailable(false);
             }
             else
             {
-                sys = new AS400(system, uid, pwd);
+                sys = new AS400(systemName, uid, pwd);
                 
                 // do this so the signon dialog or expiration warning will not display                            // @B2A
                 sys.setGuiAvailable(false);
@@ -294,15 +295,15 @@ public abstract class AS400Servlet extends AuthenticationServlet
 
     
     /**
-     *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, and <i>password</i>.  
+     *  Returns an object representing the server. It uses the specified <i>systemName</i>, <i>user ID</i>, and <i>password</i>.  
      *
-     *  @param  systemName  The name of the AS/400 or iSeries.  
+     *  @param  systemName  The name of the server or iSeries.  
      *  @param  userId  The user ID to use to connect to the system.  
      *  @param  password  The password to use to connect to the system.  
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
-     *  @return The AS400 systen object.
+     *  @return The system object.
      **/
     public AS400 getSystem(String systemName, String userId, String password)
 		throws ConnectionPoolException                 
@@ -327,18 +328,18 @@ public abstract class AS400Servlet extends AuthenticationServlet
    
     
     /**
-     *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
+     *  Returns an object representing the server. It uses the specified <i>systemName</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
      * 
-     *  @param  systemName  The name of the AS/400 or iSeries.  
+     *  @param  systemName  The name of the server or iSeries.  
      *  @param  userId  The user ID to use to connect to the system.
      *  @param  password  The password to use to connect to the system.  
-     *  @param  service  The name of the AS/400 or iSeries service.
+     *  @param  service  The name of the server or iSeries service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the AS/400 or iSeries.
+     *  @exception IOException If an error occurs while communicating with the server or iSeries.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
-     *  @return The AS400 systen object.
+     *  @return The system object.
      **/
     public AS400 getSystem(String systemName, String userId, String password, int service)
 		throws AS400SecurityException, IOException, ConnectionPoolException
@@ -446,9 +447,9 @@ public abstract class AS400Servlet extends AuthenticationServlet
 
 
    /**
-    *  Return the AS400 object to the pool when connection pooling is being used.
+    *  Return the system object to the pool when connection pooling is being used.
     *
-    *  @param system The AS400 system object.
+    *  @param system The system object.
     **/
    public void returnSystem(AS400 system)                  // @A7C
    {

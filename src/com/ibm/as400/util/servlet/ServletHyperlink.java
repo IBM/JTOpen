@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ServletHyperlink.java
 //                                                                             
@@ -67,6 +67,7 @@ import javax.servlet.http.*;
 public class ServletHyperlink extends HTMLHyperlink 
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 6349134986210346587L;
 
     private HttpServletResponse response_;             // An http servlet response **this needs to be
                                                        // transient or else you can't do serialization.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AuthenticationServlet.java
 //                                                                             
@@ -36,6 +36,7 @@ import com.ibm.as400.access.Trace;
 public class AuthenticationServlet extends HttpServlet
 {
     private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    static final long serialVersionUID = 3761917964251765027L;
 
     /**
       * The realm used for this servlet instance.
@@ -132,8 +133,8 @@ public class AuthenticationServlet extends HttpServlet
 
 
     /**
-     * Retrieve the realm that was used for the authentication.  For the AS/400, the realm is the
-     * AS/400 name.
+     * Retrieve the realm that was used for the authentication.  For the server, the realm is the
+     * iSeries server name.
      *
      * @return     The realm.
      */
@@ -381,8 +382,8 @@ public class AuthenticationServlet extends HttpServlet
 
 
     /**
-      * Set the realm that will be used for the authentication.  For the AS/400, the realm is the
-      * AS/400 name.
+      * Set the realm that will be used for the authentication.  For the server, the realm is the
+      * iSeries server name.
       *
       * @param realm The realm, which refers to the system name.
       **/

@@ -53,7 +53,7 @@ import java.util.Vector;
  *
  * <P>The following example creates a ResourceListRowData object using an RUserList:
  * <P><BLOCKQUOTE><PRE>
- * <P>          // Create an AS400 system object.
+ * <P>          // Create an object to represent the server system.
  * AS400 mySystem = new AS400("mySystem.myCompany.com");
  * <P>          // Create a resource user list.
  * RUserList userList = new RUserList(sys);
@@ -82,6 +82,7 @@ import java.util.Vector;
 public class ResourceListRowData extends RowData implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 1081925300369525536L;
 
    private ResourceListMetaData  metadata_;               // The metadata.
    private ResourceList          resourceList_;           // The resource list.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceListMetaData.java
 //                                                                             
@@ -26,6 +26,7 @@ import com.ibm.as400.resource.Presentation;
 class ResourceListMetaData implements RowMetaData, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 773517785366319026L;
 
    private ResourceList  resourceList_;           // The resource list.
    private Object[]      columnAttributeIDs_;     // The column attributes.

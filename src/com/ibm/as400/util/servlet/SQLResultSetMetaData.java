@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetMetaData.java
 //                                                                             
@@ -49,6 +49,7 @@ import java.sql.Types;
 public class SQLResultSetMetaData implements RowMetaData, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 6743260415904796964L;
 
    transient private ResultSetMetaData metadata_;     // The result set metadata.
    private String[] columnLabels_;                       // The column label list.
