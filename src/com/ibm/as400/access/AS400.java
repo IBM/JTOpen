@@ -633,9 +633,10 @@ public class AS400 implements Serializable
      <p>This method is functionally equivalent to the <i>validateSignon()</i> method.  It does not alter the user profile assigned to this object, impact the status of existing connections, or otherwise impact the user and authorities under which the application is running.
      <p>The system name needs to be set prior to calling this method.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @param  userId  The user profile name.
      @param  password  The user profile password.
-     @return  true if successful; false otherwise.
+     @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
      **/
@@ -3462,7 +3463,8 @@ public class AS400 implements Serializable
 
     /**
      Validates the user ID and password on the server but does not add to the signed-on list.  The system name, user ID, and password need to be set prior to calling this method.
-     @return  true if successful; false otherwise.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
      **/
@@ -3487,8 +3489,9 @@ public class AS400 implements Serializable
 
     /**
      Validates the user ID and password on the server but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @param  password  The user profile password to validate.
-     @return  true if successful; false otherwise.
+     @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
      **/
@@ -3524,9 +3527,10 @@ public class AS400 implements Serializable
 
     /**
      Validates the user ID and password on the server but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @param  userId  The user profile name to validate.
      @param  password  The user profile password to validate.
-     @return  true if successful; false otherwise.
+     @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
      **/
