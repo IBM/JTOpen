@@ -137,7 +137,7 @@ Closes the connection to the proxy server.
             else
                 socket_ = new PxSocketContainer (name, port);
             output_     = new BufferedOutputStream (socket_.getOutputStream());
-            input_      = new BufferedInputStream (socket_.getInputStream());
+            input_      = new BufferedInputStream(new RetryInputStream(socket_.getInputStream())); // @A2C
 
             readDaemon_ = new PxClientReadDaemon(input_);
             readDaemon_.start();
