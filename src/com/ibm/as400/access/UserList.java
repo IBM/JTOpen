@@ -434,16 +434,18 @@ Returns the list of users in the user list.
       load();
     }
 
+    if (listOffset == -1) number = length_;
+
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
     
     ProgramParameter[] parms2 = new ProgramParameter[7];
-    int len = length_*62; // 0150 format has 62 bytes per user
+    int len = number*62; // 0150 format has 62 bytes per user
     parms2[0] = new ProgramParameter(len); // receiver variable
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
     parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? length_ : number)); // number of records to return
+    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(number)); // number of records to return
     parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? -1 : listOffset+1)); // starting record
     parms2[6] = errorCode_;
 

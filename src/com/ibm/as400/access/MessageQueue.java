@@ -479,6 +479,8 @@ need replies.
       load();
     }
 
+    if (listOffset == -1) number = length_;
+
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
@@ -488,7 +490,7 @@ need replies.
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
     parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? length_ : number)); // number of records to return
+    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(number)); // number of records to return
     parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? -1 : listOffset+1)); // starting record
     parms2[6] = errorCode_;
 
@@ -766,7 +768,7 @@ need replies.
     BinaryConverter.intToByteArray(1, selectionInfo, 28); // number of selection criteria
     BinaryConverter.intToByteArray(54, selectionInfo, 32); // offset of starting mesage keys
     BinaryConverter.intToByteArray(62, selectionInfo, 36); // offset of identifiers
-    BinaryConverter.intToByteArray(6, selectionInfo, 40); // number of identifiers to return
+    BinaryConverter.intToByteArray(7, selectionInfo, 40); // number of identifiers to return
     text10.toBytes(selectionCriteria_, selectionInfo, 44);
     System.arraycopy(userStartingMessageKey, 0, selectionInfo, 54, 4);
     System.arraycopy(workstationStartingMessageKey, 0, selectionInfo, 58, 4);

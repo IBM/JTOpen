@@ -339,6 +339,8 @@ oldest to newest.
       load();
     }
 
+    if (listOffset == -1) number = length_;
+
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
@@ -348,7 +350,7 @@ oldest to newest.
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
     parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? length_ : number)); // number of records to return
+    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(number)); // number of records to return
     parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? -1 : listOffset+1)); // starting record
     parms2[6] = errorCode_;
 
@@ -568,8 +570,8 @@ oldest to newest.
     BinaryConverter.intToByteArray(maxMessageLength_, selectionInfo, 56); // Only used for fields 401, 402, 403, or 404.
     BinaryConverter.intToByteArray(maxMessageHelpLength_, selectionInfo, 60); // Only used for fields 301 or 302.
     BinaryConverter.intToByteArray(80, selectionInfo, 64); // offset of identifiers
-    BinaryConverter.intToByteArray(5, selectionInfo, 68); // number of identifiers to return
-    BinaryConverter.intToByteArray(100, selectionInfo, 72); // offset of call message queue name
+    BinaryConverter.intToByteArray(6, selectionInfo, 68); // number of identifiers to return
+    BinaryConverter.intToByteArray(104, selectionInfo, 72); // offset of call message queue name
     BinaryConverter.intToByteArray(1, selectionInfo, 76); // size of call message queue name
     BinaryConverter.intToByteArray(302, selectionInfo, 80); // Message with replacement data
     BinaryConverter.intToByteArray(603, selectionInfo, 84); // Sending program name
