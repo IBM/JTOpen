@@ -33,9 +33,6 @@ final class SQLBlob implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // public static field to prevent the need to instanceof the SQLData types
-    public static final int SQL_TYPE = SQLData.BLOB;
-
     private static final byte[] default_ = new byte[0];
 
     private int maxLength_;
@@ -244,6 +241,11 @@ final class SQLBlob implements SQLData
     // DESCRIPTION OF SQL TYPE                                 //
     //                                                         //
     //---------------------------------------------------------//
+
+    public int getSQLType()
+    {
+        return SQLData.BLOB;
+    }
 
     public String getCreateParameters()
     {

@@ -30,9 +30,6 @@ final class SQLClobLocator implements SQLLocator
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // public static field to prevent the need to instanceof the SQLData types
-    public static final int SQL_TYPE = SQLData.CLOB_LOCATOR;
-
     private AS400JDBCConnection     connection_;
     private SQLConversionSettings   settings_;
     private ConvTable               converter_;
@@ -277,6 +274,11 @@ final class SQLClobLocator implements SQLLocator
     // DESCRIPTION OF SQL TYPE                                 //
     //                                                         //
     //---------------------------------------------------------//
+
+    public int getSQLType()
+    {
+        return SQLData.CLOB_LOCATOR;
+    }
 
     public String getCreateParameters()
     {

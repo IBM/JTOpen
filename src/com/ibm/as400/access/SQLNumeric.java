@@ -32,9 +32,6 @@ implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // public static field to prevent the need to instanceof the SQLData types
-    public static final int SQL_TYPE = SQLData.NUMERIC;
-
     // Private data.
     private static final BigDecimal default_ = BigDecimal.valueOf(0); // @C2A
 
@@ -164,6 +161,11 @@ implements SQLData
     // DESCRIPTION OF SQL TYPE                                 //
     //                                                         //
     //---------------------------------------------------------//
+
+    public int getSQLType()
+    {
+        return SQLData.NUMERIC;
+    }
 
     public String getCreateParameters()
     {

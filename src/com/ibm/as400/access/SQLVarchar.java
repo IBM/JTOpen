@@ -32,9 +32,6 @@ implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // public static field to prevent the need to instanceof the SQLData types
-    public static final int SQL_TYPE = SQLData.VARCHAR;
-
     // Private data.
     private SQLConversionSettings   settings_;
     private int                     length_;
@@ -186,6 +183,11 @@ implements SQLData
     // DESCRIPTION OF SQL TYPE                                 //
     //                                                         //
     //---------------------------------------------------------//
+
+    public int getSQLType()
+    {
+        return SQLData.VARCHAR;
+    }
 
     public String getCreateParameters()
     {

@@ -32,9 +32,6 @@ final class SQLClob implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // public static field to prevent the need to instanceof the SQLData types
-    public static final int SQL_TYPE = SQLData.CLOB;
-
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
     private SQLConversionSettings   settings_;
@@ -208,6 +205,11 @@ final class SQLClob implements SQLData
     // DESCRIPTION OF SQL TYPE                                 //
     //                                                         //
     //---------------------------------------------------------//
+
+    public int getSQLType()
+    {
+        return SQLData.CLOB;
+    }
 
     public String getCreateParameters()
     {

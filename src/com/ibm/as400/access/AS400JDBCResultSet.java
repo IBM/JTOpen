@@ -2437,14 +2437,14 @@ public class AS400JDBCResultSet implements ResultSet
             // Treat this differently from the other get's.  If the data is not a       // @C1A
             // BINARY, VARBINARY, or BLOB, and we have access to the bytes, then return // @C1A @D4C
             // the bytes directly.                                                      // @C1A
-            if((!(data.SQL_TYPE == SQLData.BINARY)) 
-               && (!(data.SQL_TYPE == SQLData.VARBINARY))
-               && (!(data.SQL_TYPE == SQLData.BLOB))                                   // @D4A
-               && (!(data.SQL_TYPE == SQLData.BLOB_LOCATOR))                           // @D4A
-               && (!(data.SQL_TYPE == SQLData.CHAR_FOR_BIT_DATA))                      // @M0A
-               && (!(data.SQL_TYPE == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
-               && (!(data.SQL_TYPE == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
-               && (!(data.SQL_TYPE == SQLData.ROWID))                                  // @M0A
+            if((!(data.getSQLType() == SQLData.BINARY)) 
+               && (!(data.getSQLType() == SQLData.VARBINARY))
+               && (!(data.getSQLType() == SQLData.BLOB))                                   // @D4A
+               && (!(data.getSQLType() == SQLData.BLOB_LOCATOR))                           // @D4A
+               && (!(data.getSQLType() == SQLData.CHAR_FOR_BIT_DATA))                      // @M0A
+               && (!(data.getSQLType() == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
+               && (!(data.getSQLType() == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
+               && (!(data.getSQLType() == SQLData.ROWID))                                  // @M0A
                && (data != null)
                && (row_ instanceof JDServerRow))                                       // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
@@ -5382,9 +5382,9 @@ public class AS400JDBCResultSet implements ResultSet
             int columnIndex0 = columnIndex - 1;
 
             //@G7A If the data is a locator, then set its handle.
-            if(columnValue != null && (sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
-                                       sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                                       sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+            if(columnValue != null && (sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                                       sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                                       sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
             {     //@G8C                                              //@G7A
                 try
                 {                                                                                  //@G7A 

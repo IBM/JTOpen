@@ -1325,9 +1325,9 @@ public class AS400JDBCStatement implements Statement
             for(int i = 1; i <= fieldCount; ++i)
             {                             // @B2A
                 SQLData sqlData = resultRow.getSQLData(i);
-                if((sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
-                    sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                    sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))             // @B2A
+                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))             // @B2A
 
                     lastPrepareContainsLocator_ = true;                         // @B2A
             }                                                                   // @B2A

@@ -34,9 +34,6 @@ implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // public static field to prevent the need to instanceof the SQLData types
-    public static final int SQL_TYPE = SQLData.LONG_VARCHAR_FOR_BIT_DATA;
-
     // Private data.
     private static final byte[]     default_    = new byte[0]; // @C2A
 
@@ -214,6 +211,11 @@ implements SQLData
     // DESCRIPTION OF SQL TYPE                                 //
     //                                                         //
     //---------------------------------------------------------//
+
+    public int getSQLType()
+    {
+        return SQLData.LONG_VARCHAR_FOR_BIT_DATA;
+    }
 
     public String getCreateParameters()
     {

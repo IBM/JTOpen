@@ -160,17 +160,17 @@ implements JDRow
         // @A0A
         // Added code to trim the data if it is of SQLChar
         // or SQLVarchar type.
-        if(toData.SQL_TYPE == SQLData.VARCHAR)            // @A0A
+        if(toData.getSQLType() == SQLData.VARCHAR)            // @A0A
             ((SQLVarchar)toData).trim();                  // @A0A
-        else if(toData.SQL_TYPE == SQLData.CHAR)          // @A0A
+        else if(toData.getSQLType() == SQLData.CHAR)          // @A0A
             ((SQLChar) toData).trim();                    // @A0A
-        else if(toData.SQL_TYPE == SQLData.GRAPHIC)
+        else if(toData.getSQLType() == SQLData.GRAPHIC)
             ((SQLGraphic)toData).trim();
-        else if(toData.SQL_TYPE == SQLData.VARGRAPHIC)
+        else if(toData.getSQLType() == SQLData.VARGRAPHIC)
             ((SQLVargraphic)toData).trim();
-        else if(toData.SQL_TYPE == SQLData.LONG_VARCHAR)
+        else if(toData.getSQLType() == SQLData.LONG_VARCHAR)
             ((SQLLongVarchar)toData).trim();
-        else if(toData.SQL_TYPE == SQLData.LONG_VARGRAPHIC)
+        else if(toData.getSQLType() == SQLData.LONG_VARGRAPHIC)
             ((SQLLongVargraphic)toData).trim();
 
         return toData;

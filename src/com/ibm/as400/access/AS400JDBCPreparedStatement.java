@@ -221,9 +221,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 {
                     SQLData sqlData = parameterRow_.getSQLData(i+1);
                     parameters[i] = sqlData.toObject();
-                    if(containsLocator_ == LOCATOR_UNKNOWN && (sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR || 
-                                                               sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                                                               sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+                    if(containsLocator_ == LOCATOR_UNKNOWN && (sqlData.getSQLType() == SQLData.CLOB_LOCATOR || 
+                                                               sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                                                               sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
                     {
                         containsLocator_ = LOCATOR_FOUND;
                     }
@@ -1572,9 +1572,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    if((sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
-                        sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                        sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -1928,9 +1928,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             {
 
                 // If the data is a locator, then set its handle.
-                if((sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
-                    sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                    sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
                 {
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -2677,9 +2677,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    if((sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
-                        sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                        sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -2791,9 +2791,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             if(parameterValue != null)
             {                                                                   // @B6C
                 // If the data is a locator, then set its handle.                                              @B6A
-                if((sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
-                    sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
-                    sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
+                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
                 {                                                        // @B6A
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));   // @B6A
