@@ -19,10 +19,11 @@ final class CADSPool
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   private ClientAccessDataStream[] streams_ = new ClientAccessDataStream[4];
+  private final Object streamsLock_ = new Object(); //@P1A
 
   final ClientAccessDataStream getUnusedStream()
   {
-    synchronized(streams_)
+    synchronized(streamsLock_) //@P1C
     {
       int max = streams_.length;
       for (int i=0; i<max; ++i)

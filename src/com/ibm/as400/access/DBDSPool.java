@@ -22,16 +22,25 @@ final class DBDSPool
 
   // Request streams.
   private static DBSQLRPBDS[] dbsqlrpbdsPool_ = new DBSQLRPBDS[4];
+  private static final Object dbsqlrpbdsPoolLock_ = new Object(); //@P1A
   private static DBSQLDescriptorDS[] dbsqldescriptordsPool_ = new DBSQLDescriptorDS[4];
+  private static final Object dbsqldescriptordsPoolLock_ = new Object(); //@P1A
   private static DBSQLResultSetDS[] dbsqlresultsetdsPool_ = new DBSQLResultSetDS[4];
+  private static final Object dbsqlresultsetdsPoolLock_ = new Object(); //@P1A
   private static DBSQLRequestDS[] dbsqlrequestdsPool_ = new DBSQLRequestDS[4];
+  private static final Object dbsqlrequestdsPoolLock_ = new Object(); //@P1A
   private static DBNativeDatabaseRequestDS[] dbnativedatabaserequestdsPool_ = new DBNativeDatabaseRequestDS[4];
+  private static final Object dbnativedatabaserequestdsPoolLock_ = new Object(); //@P1A
   private static DBReturnObjectInformationRequestDS[] dbreturnobjectinformationrequestdsPool_ = new DBReturnObjectInformationRequestDS[4];
+  private static final Object dbreturnobjectinformationrequestdsPoolLock_ = new Object(); //@P1A
   private static DBSQLAttributesDS[] dbsqlattributesdsPool_ = new DBSQLAttributesDS[4];
+  private static final Object dbsqlattributesdsPoolLock_ = new Object(); //@P1A
   private static DBXARequestDS[] dbxarequestdsPool_ = new DBXARequestDS[4];
+  private static final Object dbxarequestdsPoolLock_ = new Object(); //@P1A
 
   // Reply streams.
   private static DBReplyRequestedDS[] dbreplyrequesteddsPool_ = new DBReplyRequestedDS[4];
+  private static final Object dbreplyrequesteddsPoolLock_ = new Object(); //@P1A
 
   static final DBStoragePool storagePool_ = new DBStoragePool();
   
@@ -41,9 +50,9 @@ final class DBDSPool
 
   static final DBReplyRequestedDS getDBReplyRequestedDS()
   {
-    DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_;
-    synchronized(pool)
+    synchronized(dbreplyrequesteddsPoolLock_) //@P1C
     {
+      DBReplyRequestedDS[] pool = dbreplyrequesteddsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<pool.length; ++i)
       {
@@ -73,9 +82,9 @@ final class DBDSPool
   
   static final DBXARequestDS getDBXARequestDS(int a, int b, int c, int d)
   {
-    DBXARequestDS[] pool = dbxarequestdsPool_;
-    synchronized(pool)
+    synchronized(dbxarequestdsPoolLock_) //@P1C
     {
+      DBXARequestDS[] pool = dbxarequestdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<pool.length; ++i)
       {
@@ -104,9 +113,9 @@ final class DBDSPool
 
   static final DBSQLAttributesDS getDBSQLAttributesDS(int a, int b, int c, int d)
   {
-    DBSQLAttributesDS[] pool = dbsqlattributesdsPool_;
-    synchronized(pool)
+    synchronized(dbsqlattributesdsPoolLock_) //@P1C
     {
+      DBSQLAttributesDS[] pool = dbsqlattributesdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<pool.length; ++i)
       {
@@ -135,9 +144,9 @@ final class DBDSPool
 
   static final DBNativeDatabaseRequestDS getDBNativeDatabaseRequestDS(int a, int b, int c, int d)
   {
-    DBNativeDatabaseRequestDS[] pool = dbnativedatabaserequestdsPool_;
-    synchronized(pool)
+    synchronized(dbnativedatabaserequestdsPoolLock_) //@P1C
     {
+      DBNativeDatabaseRequestDS[] pool = dbnativedatabaserequestdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<pool.length; ++i)
       {
@@ -166,9 +175,9 @@ final class DBDSPool
 
   static final DBReturnObjectInformationRequestDS getDBReturnObjectInformationRequestDS(int a, int b, int c, int d)
   {
-    DBReturnObjectInformationRequestDS[] pool = dbreturnobjectinformationrequestdsPool_;
-    synchronized(pool)
+    synchronized(dbreturnobjectinformationrequestdsPoolLock_) //@P1C
     {
+      DBReturnObjectInformationRequestDS[] pool = dbreturnobjectinformationrequestdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<pool.length; ++i)
       {
@@ -197,9 +206,9 @@ final class DBDSPool
 
   static final DBSQLDescriptorDS getDBSQLDescriptorDS(int a, int b, int c, int d)
   {
-    DBSQLDescriptorDS[] pool = dbsqldescriptordsPool_;
-    synchronized(pool)
+    synchronized(dbsqldescriptordsPoolLock_) //@P1C
     {
+      DBSQLDescriptorDS[] pool = dbsqldescriptordsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<max; ++i)
       {
@@ -228,9 +237,9 @@ final class DBDSPool
 
   static final DBSQLRequestDS getDBSQLRequestDS(int a, int b, int c, int d)
   {
-    DBSQLRequestDS[] pool = dbsqlrequestdsPool_;
-    synchronized(dbsqlrequestdsPool_)
+    synchronized(dbsqlrequestdsPoolLock_) //@P1C
     {
+      DBSQLRequestDS[] pool = dbsqlrequestdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<max; ++i)
       {
@@ -259,9 +268,9 @@ final class DBDSPool
 
   static final DBSQLResultSetDS getDBSQLResultSetDS(int a, int b, int c, int d)
   {
-    DBSQLResultSetDS[] pool = dbsqlresultsetdsPool_;
-    synchronized(dbsqlresultsetdsPool_)
+    synchronized(dbsqlresultsetdsPoolLock_) //@P1C
     {
+      DBSQLResultSetDS[] pool = dbsqlresultsetdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<max; ++i)
       {
@@ -290,9 +299,9 @@ final class DBDSPool
 
   static final DBSQLRPBDS getDBSQLRPBDS(int a, int b, int c, int d)
   {
-    DBSQLRPBDS[] pool = dbsqlrpbdsPool_;
-    synchronized(dbsqlrpbdsPool_)
+    synchronized(dbsqlrpbdsPoolLock_) //@P1C
     {
+      DBSQLRPBDS[] pool = dbsqlrpbdsPool_; //@P1M
       int max = pool.length;
       for (int i=0; i<max; ++i)
       {
