@@ -41,29 +41,29 @@ class BidiText
 /**
  *  BidiFlagSet qualifying the character data
  */
-    public BidiFlagSet  flags;
+  public BidiFlagSet  flags;
 /**
  *  character array containing the data
  */
-    public char[]       data;
+  public char[]       data;
 /**
  *  offset of the "interesting" data within the character array
  */
-    public int          offset;
+  public int          offset;
 /**
  *  length of the "interesting" data within the character array
  */
-    public int          count;
+  public int          count;
 
 /**
  *  Constructor with no arguments to create a flags member with
  *  a DEFAULT value.  There is no data and no character array,
  *  but a default BidiFlagSet is created and referred to in "flags".
  */
-    public BidiText()
-    {
-        this.flags = new BidiFlagSet();
-    }
+  public BidiText()
+  {
+    this.flags = new BidiFlagSet();
+  }
 
 /**
  *  Constructs a BidiText object based on an existing
@@ -73,10 +73,10 @@ class BidiText
  *  @param  initFlags   The Bidi flags of the data.
  *  @param  initData    The character data.
  */
-    public BidiText(BidiFlagSet initFlags, char[] initData)
-    {
-        this(initFlags, initData, 0, initData.length, initData.length);
-    }
+  public BidiText(BidiFlagSet initFlags, char[] initData)
+  {
+    this(initFlags, initData, 0, initData.length, initData.length);
+  }
 
 /**
  *  Constructs a BidiText object based on an existing
@@ -91,17 +91,17 @@ class BidiText
  *                          larger than "length" to reserve space for
  *                          adding more data).
  */
-    public BidiText(BidiFlagSet initFlags,
-                    char[] initData,
-                    int offset,
-                    int length,
-                    int capacity)
-    {
-        this.flags = new BidiFlagSet(initFlags);
-        this.data = new char[capacity];
-        System.arraycopy(initData, offset, this.data, 0, length);
-        this.count = length;
-    }
+  public BidiText(BidiFlagSet initFlags,
+                  char[] initData,
+                  int offset,
+                  int length,
+                  int capacity)
+  {
+    this.flags = new BidiFlagSet(initFlags);
+    this.data = new char[capacity];
+    System.arraycopy(initData, offset, this.data, 0, length);
+    this.count = length;
+  }
 
 /**
  *  Constructs a BidiText object based on an existing
@@ -111,15 +111,15 @@ class BidiText
  *  @param  initFlags   The Bidi flags of the data.
  *  @param  str         The character data.
  */
-    public BidiText(BidiFlagSet initFlags, String str)
-    {
-        this.flags = new BidiFlagSet(initFlags);
-        this.count = str.length();
-        // it would be nicer to use str.toCharArray, but it has bugs on
-        // Arabic NT
-        this.data = new char[count];
-        str.getChars(0, count, this.data, 0);
-    }
+  public BidiText(BidiFlagSet initFlags, String str)
+  {
+    this.flags = new BidiFlagSet(initFlags);
+    this.count = str.length();
+    // it would be nicer to use str.toCharArray, but it has bugs on
+    // Arabic NT
+    this.data = new char[count];
+    str.getChars(0, count, this.data, 0);
+  }
 
 /**
  *  Compare two BidiText objects.
@@ -128,18 +128,18 @@ class BidiText
  *  @param  other       The BidiText to compare to this.
  *  @return true if the BidiText objects are equal, false otherwise.
  */
-    public boolean equals(BidiText other)
+  public boolean equals(BidiText other)
+  {
+    if (other == null)  return false;
+    if (this.count != other.count)  return false;
+    if (this.flags.value != other.flags.value)  return false;
+    for (int i = 0; i < this.count; i++)
     {
-        if (other == null)  return false;
-        if (this.count != other.count)  return false;
-        if (this.flags.value != other.flags.value)  return false;
-        for (int i = 0; i < this.count; i++)
-        {
-            if (this.data[this.offset + i] !=
-                other.data[other.offset + i])  return false;
-        }
-        return true;
+      if (this.data[this.offset + i] !=
+          other.data[other.offset + i])  return false;
     }
+    return true;
+  }
 
 /**
  *  Replace the character data <em>reference</em> in the BidiText object.
@@ -156,32 +156,32 @@ class BidiText
  *  @param  newOffset   The offset of the "interesting" data in newData.
  *  @param  newLength   The length of the "interesting" data in newData.
  */
-    public void setCharsRef(char[] newData, int newOffset, int newLength)
-    {
-        this.data = newData;
-        this.offset = newOffset;
-        this.count = newLength;
-    }
+  public void setCharsRef(char[] newData, int newOffset, int newLength)
+  {
+    this.data = newData;
+    this.offset = newOffset;
+    this.count = newLength;
+  }
 
 /**
  *  Extract the character data from a BidiText in character array format
  *  @return A string containing a copy of the "interesting" data.
  */
-    public char[] toCharArray()
-    {
-        char[] copyChars = new char[this.count];
-        System.arraycopy(this.data, this.offset, copyChars, 0, count);
-        return copyChars;
-    }
+  public char[] toCharArray()
+  {
+    char[] copyChars = new char[this.count];
+    System.arraycopy(this.data, this.offset, copyChars, 0, count);
+    return copyChars;
+  }
 
 /**
  *  Extract the character data from a BidiText in string format
  *  @return A string containing a copy of the "interesting" data.
  */
-    public String toString()
-    {
-        return new String(this.data, this.offset, this.count);
-    }
+  public String toString()
+  {
+    return new String(this.data, this.offset, this.count);
+  }
 
 /**
  *  Transform the data in the "this" BidiText object and return the resulting
@@ -204,12 +204,12 @@ class BidiText
  *  @param  dstFlags    Bidi flags of the destination BidiText.
  *  @return A BidiText which is the transformation of the "this" BidiText.
  */
-    public BidiText transform(BidiFlagSet dstFlags)
-    {
-        BidiTransform bdx = new BidiTransform();
-        bdx.flags.setAllFlags(dstFlags);
-        return this.transform(bdx);
-    }
+  public BidiText transform(BidiFlagSet dstFlags)
+  {
+    BidiTransform bdx = new BidiTransform();
+    bdx.flags.setAllFlags(dstFlags);
+    return this.transform(bdx);
+  }
 
 /**
  *  Transform the data in the "this" BidiText object and return the resulting
@@ -240,46 +240,60 @@ class BidiText
  *  @return A BidiText which is the transformation of the "this" BidiText.
  *  If destination data is not required, a null is returned.
  */
-    public BidiText transform(BidiTransform bdx)
+  public BidiText transform(BidiTransform bdx)
+  {
+    char[] data;
+    BidiText dst = new BidiText();
+    dst.flags.setAllFlags(bdx.flags);
+    dst.data = new char[this.count];
+    if (bdx.myOrder == null)   bdx.myOrder = new BidiOrder();
+    bdx.myOrder.order(this, dst, bdx);
+
+    if (this.flags.getText() != dst.flags.getText())
     {
-        char[] data;
-        BidiText dst = new BidiText();
-        dst.flags.setAllFlags(bdx.flags);
-        dst.data = new char[this.count];
-        if (bdx.myOrder == null)   bdx.myOrder = new BidiOrder();
-        bdx.myOrder.order(this, dst);
+      if (bdx.myShape == null)
+      {
+        bdx.myShape = new BidiShape();
+        bdx.flags1 = new BidiFlagSet();
+        bdx.flags2 = new BidiFlagSet();
+      }
+      bdx.flags1.setAllFlags(this.flags);
+      bdx.flags2.setAllFlags(dst.flags);
+      // The following flag settings are because the shape method
+      // goes from LTR if the out orientation is RTL and the
+      // in orientation is different from the out orientation.
 
-        if (this.flags.getText() != dst.flags.getText())
-        {
-            if (bdx.myShape == null)
-            {
-                bdx.myShape = new BidiShape();
-                bdx.flags1 = new BidiFlagSet();
-                bdx.flags2 = new BidiFlagSet();
-            }
-            bdx.flags1.setAllFlags(this.flags);
-            bdx.flags2.setAllFlags(dst.flags);
-            // The following flag settings are because the shape method
-            // goes from LTR if the out orientation is RTL and the
-            // in orientation is different from the out orientation.
+//@BD1 Heba M Naguib 5/6/2001
+//@BD1
+//@BD1            if (dst.flags.getType() == BidiFlag.TYPE_IMPLICIT || //@BD1
+//@BD1                dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL) {
+//@BD1                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
+//@BD1                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_RTL);
+//@BD1            }
+//@BD1            else {
+//@BD1                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
+//@BD1                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_LTR);
+//@BD1            }
+//@BD1 
 
-//            if (dst.flags.getType() == BidiFlag.TYPE_IMPLICIT || //@BD1
-//Commented by Heba M Naguib
-            if (dst.flags.getType() == BidiFlag.TYPE_VISUAL &&
-                dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL)
-            {
-                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
-                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_RTL);
-            }
-//Commented Heba M Naguib //@BD1
-/*            else {//@BD1
+/*          if (dst.flags.getType() == BidiFlag.TYPE_VISUAL ){//@BD1
+           if( dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL) {//@BD1
+              bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
+              bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_RTL);//@BD1
+             }               //@BD1
+            else {//@BD1
                 bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
                 bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
-            }
-*/
-            bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data);
-        }
-        return dst;
+               }//@BD1
+           }//@BD1
+ */
+      //@BD2a start
+      //Passing real orientation attributes to "shape".
+      //In case of RTL shaping is done from left to right
+      //In case of LTR shaping is done from right to left
+//@BD2a end
+      bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data);
     }
-
+    return dst;
+  }
 }
