@@ -1060,8 +1060,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      * Returns the current cache status.
      * The default behavior is no caching.
      * @return true if caching is enabled, false otherwise.
-     * @see refreshCache
-     * @see setCaching
+     * @see #refreshCache
+     * @see #setCaching
     **/
     public boolean isCaching()
     {
@@ -1171,8 +1171,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      * methods will go to the system to retrieve the value.
      *
      * If caching is not enabled, this method does nothing.
-     * @see isCaching
-     * @see setCaching
+     * @see #isCaching
+     * @see #setCaching
     **/
     public void refreshCache()
     {  
@@ -1265,8 +1265,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *              immediately. Any cached changes that are not committed
      *              when caching is turned off will be lost.
      *              The default behavior is no caching.
-     * @see isCaching
-     * @see refreshCache
+     * @see #isCaching
+     * @see #refreshCache
     **/
     public void setCaching(boolean cache)
     {

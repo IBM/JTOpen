@@ -148,7 +148,7 @@ public class RootPermission extends UserPermission
      * Sets the alter object authority.
      * @param authority  true to set the object authority of alter on; 
      * false to set the object authority of alter off.
-     * @see isAlter
+     * @see #isAlter
      *
     **/
     public synchronized void setAlter(boolean authority)
@@ -219,7 +219,7 @@ public class RootPermission extends UserPermission
      * Sets the existence object authority.
      * @param authority  true to set the object authority of existence on;
      * false to set the object authority of existence off.
-     * @see isExistence
+     * @see #isExistence
     **/
     public synchronized void setExistence(boolean authority)
     {
@@ -235,7 +235,7 @@ public class RootPermission extends UserPermission
      * Sets the management object authority.
      * @param authority  true to set the object authority of management on;
      * false to set the object authority of management off.
-     * @see isManagement
+     * @see #isManagement
     **/
     public synchronized void setManagement(boolean authority)
     {
@@ -251,7 +251,7 @@ public class RootPermission extends UserPermission
      * Sets the reference object authority.
      * @param authority true to set the object authority of reference on;
      * false to set the object authority of reference off.
-     * @see isReference
+     * @see #isReference
      *
     **/
     public synchronized void setReference(boolean authority)

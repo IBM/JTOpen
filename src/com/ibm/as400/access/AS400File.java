@@ -1129,7 +1129,7 @@ abstract public class AS400File implements Serializable
 
   /**
    *Returns the record format of this file.
-   *@see AS400File#create(com.ibm.as400.RecordFormat, java.lang.String)
+   *@see AS400File#create(com.ibm.as400.access.RecordFormat, java.lang.String)
    *@see AS400File#setRecordFormat
    *@return The record format of the file.  If the record format has
    *not been set, null is returned.
