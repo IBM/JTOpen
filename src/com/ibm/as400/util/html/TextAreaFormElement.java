@@ -246,10 +246,8 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
         s.append(">\n");
 
         if (text_ != null)
-        {
             s.append(text_);
-            s.append("\n");
-        }
+            // @C2D    
 
         s.append("</textarea>");
 
