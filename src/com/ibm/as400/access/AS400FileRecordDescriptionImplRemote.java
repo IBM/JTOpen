@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileRecordDescriptionImplRemote.java
 //                                                                             
@@ -29,9 +29,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**
- *The AS400FileRecordDescription class represents the record descriptions of an AS/400 physical
- *or logical file.  This class is used to retrieve the file field description
- *of an AS/400 physical or logical file, and to create Java source code
+ *The AS400FileRecordDescription class represents the record descriptions of a physical
+ *or logical file on the server.  This class is used to retrieve the file field description
+ *of a physical or logical file, and to create Java source code
  *for a class extending from
  *<a href = "RecordFormat.html">RecordFormat</a> that
  *can then be compiled and used as input to the
@@ -46,9 +46,9 @@ import java.beans.PropertyVetoException;
  *and
  *<a href="#retrieveRecordFormat">retrieveRecordFormat()</a> methods
  *contains enough information to use to describe the record format of the
- *existing AS/400 file from which it was generated.  The record formats
+ *existing file from which it was generated.  The record formats
  *generated are not meant for creating files with the same format as the
- *file from which they are retrieved.  Use the AS/400 Copy File (CPYF) command to create
+ *file from which they are retrieved.  Use the i5/OS Copy File (CPYF) command to create
  *a file with the same format as an existing file.
  *<br>
  *AS400FileRecordDescription objects generate the following events:
@@ -82,7 +82,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
   private AS400FileImplBase theFile_ = null; //@C0C @B5C
   // The path name for the SequentialFile
 
-  // The AS/400 the file is on
+  // The server where the file is located
   private AS400ImplRemote system_ = null; //@B5C
 
   // Used for synchronizing the QTEMP/JT4FFD and QTEMP/JT4FD files across threads
@@ -159,7 +159,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'B': // Binary field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
 //      if (digits < 6)
         if(digits < 5) // @A2C
         {
@@ -297,7 +297,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'F': // Float field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         //@A1A: Retrieve byte length to determine if field is single or double
         // precision
@@ -605,7 +605,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'P': // Packed decimal field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         fd = new PackedDecimalFieldDescription(new AS400PackedDecimal(digits, decimalPositions),
                                                fieldName);
@@ -632,7 +632,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'S': // Zoned decimal field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         fd = new ZonedDecimalFieldDescription(new AS400ZonedDecimal(digits, decimalPositions),
                                               fieldName);
@@ -760,8 +760,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *appended to it.  The name of the file is the name of the class with the extension .java.<br>
    *The source files generated can be compiled and used as input to the
    *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a> method.<br>
-   *The AS/400 system to which to connect and the integrated file system
-   *pathname for the file must be set prior to invoking this method.
+   *The server to which to connect, and the integrated file system
+   *pathname for the file, must be set prior to invoking this method.
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400FileRecordDescription#setPath
    *@see AS400FileRecordDescription#setSystem
@@ -771,14 +771,14 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *is used to specify the package statement in the source code for the class.
    * If this value is null, no package statement is specified in the source code for the class.
 
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    *@return An array of Strings: { rfName0, contents0, rfName1, contents1, etc... }.
   **/
   public /*@E0D synchronized */ String[] createRecordFormatSource(String packageName) //@C0C
@@ -790,7 +790,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     //////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve the field information for the file
     //////////////////////////////////////////////////////////////////////////////////////////
-    // Generate file on the AS/400 containing the file field description
+    // Generate file on the server containing the file field description
     //////////////////////////////////////////////////////////////////////////////////////////
     String cmd = "DSPFFD FILE(" + library_ + "/" + file_ + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FFD)";
     //@B5D theFile_.chooseImpl();
@@ -831,7 +831,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     //////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve the key field information for the file
     //////////////////////////////////////////////////////////////////////////////////////////
-    // Generate file on the AS/400 containing the key field description
+    // Generate file on the server containing the key field description
     cmd = "DSPFD FILE(" + library_ + "/" + file_ + ") TYPE(*ACCPTH) OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FD)";
     Record[] keyRecords = null; //@E0A
     synchronized(lockJT4FD_)    //@E0A
@@ -1007,6 +1007,62 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
   }
 
 
+  /**
+   *Returns the attributes of a save file, as a record with format SaveFileAttrFormat.
+   *This method is provided for exclusive use by the SaveFile class.
+
+   *@return The save file's attributes.
+
+   *@exception AS400Exception If the server returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception IOException If an error occurs while communicating with the
+   *server.
+   *@exception InterruptedException If this thread is interrupted.
+  **/
+  Record getSavefileAttributes()
+  throws AS400Exception,
+      AS400SecurityException,
+      InterruptedException,
+      IOException
+  {
+    // Generate a file on the server, containing the basic attrs description.
+    String cmd = "DSPFD FILE(" + library_ + "/" + file_ + ") TYPE(*ATR) FILEATR(*SAVF) OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FD)";
+    Record[] attrRecords = null;
+    synchronized(lockJT4FD_)
+    {
+      AS400Message[] msgs = theFile_.execute(cmd);
+
+      if(msgs.length > 0)
+      {
+        if(!(msgs[0].getID().equals("CPF9861") || msgs[0].getID().equals("CPF3030")))
+        {
+          throw new AS400Exception(msgs);
+        }
+      }
+      else
+      { // Unexpected reply
+        throw new InternalErrorException("DSPFFD failed to return success message.", InternalErrorException.UNKNOWN);
+      }
+
+      // Read all the records from the file so we can extract the key field information locally
+      AS400FileImplBase dspffd = (AS400FileImplBase)system_.loadImpl("com.ibm.as400.access.AS400FileImplNative",
+                                             "com.ibm.as400.access.AS400FileImplRemote");
+      dspffd.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT4FD.FILE",
+                    new SaveFileAttrFormat(system_.getCcsid()), false, false, false);
+      attrRecords = dspffd.readAll("seq", 100);
+      if (attrRecords.length == 0) {
+        Trace.log(Trace.ERROR, "No records were returned from command " + cmd);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      }
+      // Implementation note: I tried using read() and read(0) instead of readAll(), but some needed logic is missing along those paths; so we'll just use what works.
+
+      dspffd.delete();
+    }
+
+    return attrRecords[0];
+  }
+
+
   //@B5A
   /**
    * Used internally to parse the pathname and set the individual
@@ -1047,7 +1103,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *RecordFormat object.  If the file is a multiple format logical file, the
    *RecordFormat array may contain
    *more than one RecordFormat object.
-   *The AS/400 system to which to connect and the integrated file system
+   *The server to which to connect and the integrated file system
    *pathname for the file must be set prior to invoking this method.
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400FileRecordDescription#setPath
@@ -1055,14 +1111,14 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
 
    *@return The record format(s) for the file.
 
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
 
   **/
   public /*@E0D synchronized */ RecordFormat[] retrieveRecordFormat()
@@ -1074,7 +1130,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     //////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve the field information for the file
     //////////////////////////////////////////////////////////////////////////////////////////
-    // Generate file on the AS/400 containing the file field description
+    // Generate file on the server containing the file field description
     //////////////////////////////////////////////////////////////////////////////////////////
     String cmd = "DSPFFD FILE(" + library_ + "/" + file_ + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FFD)";
     //@B5D theFile_.chooseImpl();
@@ -1116,7 +1172,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     //////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve the key field information for the file
     //////////////////////////////////////////////////////////////////////////////////////////
-    // Generate file on the AS/400 containing the key field description
+    // Generate file on the server containing the key field description
     cmd = "DSPFD FILE(" + library_ + "/" + file_ + ") TYPE(*ACCPTH) OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FD)";
     Record[] keyRecords = null; //@E0A
     synchronized(lockJT4FD_)    //@E0A
@@ -1183,13 +1239,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       { // Number of key fields is greater than 0
         for(int j = 0; j < numberOfKeyFields; ++j, ++keyRecordNumber)
         { // Add a key field description to the record format
-          String keyFieldName = ((String)keyRecords[keyRecordNumber].getField("APKEYF")).trim();
-          // The DDS reference says that you can specify *NONE for a key field if you don't
-          // want it to actually be treated as a key field in a logical file.
-          if (!keyFieldName.equalsIgnoreCase("*NONE"))
-          {
-            rfs[i].addKeyFieldDescription(keyFieldName);
-          }
+          rfs[i].addKeyFieldDescription(((String)keyRecords[keyRecordNumber].getField("APKEYF")).trim());
         }
       }
     }
@@ -1313,7 +1363,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'B': // Binary field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
 //      if (digits < 6)
         if(digits < 5) // @A2C
         {
@@ -1471,7 +1521,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'F': // Float field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         //@A1A: Retrieve byte length to determine if field is single or double
         // precision
@@ -1849,7 +1899,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'P': // Packed decimal field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         sourceFile.println("    addFieldDescription(new PackedDecimalFieldDescription(new AS400PackedDecimal(" +
                            String.valueOf(digits) + ", " + String.valueOf(decimalPositions) + "), \"" +
@@ -1885,7 +1935,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'S': // Zoned decimal field
-        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         sourceFile.println("    addFieldDescription(new ZonedDecimalFieldDescription(new AS400ZonedDecimal(" +
                            String.valueOf(digits) + ", " + String.valueOf(decimalPositions) + "), \"" +
@@ -2208,7 +2258,7 @@ class QWHDRFFDFormat extends RecordFormat
     // Field length in bytes
     addFieldDescription(new ZonedDecimalFieldDescription(z50, "WHFLDB"));
     // Number of digits
-    addFieldDescription(new ZonedDecimalFieldDescription(z20, "WHFLDD"));
+    addFieldDescription(new ZonedDecimalFieldDescription(z20, "WHFLDO"));
     // Number of decimal positions
     addFieldDescription(new ZonedDecimalFieldDescription(z20, "WHFLDP"));
     // Field text description
