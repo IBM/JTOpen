@@ -1313,6 +1313,17 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.LAZY_CLOSE);
     }
 
+    //@KBL
+    /**
+    *  Indicates whether input locators are of type hold.
+    *  @return true if input locators are of type hold; false otherwise.
+    *  The default value is true.
+    **/
+    public boolean isHoldInputLocators()
+    {
+        return properties_.getBoolean(JDProperties.HOLD_LOCATORS);
+    }
+
     /**
     *  Indicates whether to add newly prepared statements to the   
     *  SQL package specified on the "package" property.  This property
@@ -1378,6 +1389,17 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.PROMPT);
     }
 
+    //@KBL
+    /**
+    *  Indicates whether statements remain open until a transaction boundary when autocommit is off and they
+    *  are associated with Lob locators.
+    *  @return true if statements are only closed at transaction boundaries; false otherwise.
+    *  The default value is false.
+    **/
+    public boolean isHoldStatements()
+    {
+        return properties_.getBoolean(JDProperties.HOLD_STATEMENTS);
+    }
 
     // @J3 new method
     /**
@@ -2173,6 +2195,53 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "fullOpen: " + fullOpen);
+    }
+
+    //@KBL
+    /**
+    *  Sets whether input locators are allocated as hold locators.
+    *  @param value true if locators should be allocated as hold locators; false otherwise.
+    *  The default value is true.
+    **/
+    public void setHoldInputLocators(boolean value)
+    {
+        String property = "holdInputLocators";
+        Boolean oldValue = new Boolean(isHoldInputLocators());
+        Boolean newValue = new Boolean(value);
+
+        if (value)
+            properties_.setString(JDProperties.HOLD_LOCATORS, TRUE_);
+        else
+            properties_.setString(JDProperties.HOLD_LOCATORS, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
+    }   
+       
+    //@KBL
+    /**
+    *  Sets whether statements should remain open until a transaction boundary when autocommit is off
+    *  and they are associated with Lob locators.
+    *  @param value true if statements should remain open; false otherwise.
+    *  The default value is false.
+    **/
+    public void setHoldStatements(boolean value)
+    {
+        String property = "holdStatements";
+        Boolean oldValue = new Boolean(isHoldStatements());
+        Boolean newValue = new Boolean(value);
+
+        if (value)
+            properties_.setString(JDProperties.HOLD_STATEMENTS, TRUE_);
+        else
+            properties_.setString(JDProperties.HOLD_STATEMENTS, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
     }
 
     // @A1A

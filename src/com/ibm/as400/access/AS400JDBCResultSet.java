@@ -3611,6 +3611,14 @@ public class AS400JDBCResultSet implements ResultSet
         // Get the data and check for SQL NULL.   @A1C
         wasNull_ = row_.isNull (columnIndex);
         wasDataMappingError_ = row_.isDataMappingError(columnIndex);
+
+        //@KBL if a locator is used, tell the statement associated with it
+        SQLData sqlData = row_.getSQLType(columnIndex);             //@KBL
+        if(sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||          //@KBL
+           sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||          //@KBL
+           sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR)          //@KBL
+            statement_.setAssociatedWithLocators(true);             //@KBL
+
         if(wasNull_ || wasDataMappingError_)
             return null;
         else
@@ -5527,6 +5535,7 @@ public class AS400JDBCResultSet implements ResultSet
                                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
                                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
             {     //@G8C                                              //@G7A
+                statement_.setAssociatedWithLocators(true);   //@KBL
                 try
                 {                                                                                  //@G7A 
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A

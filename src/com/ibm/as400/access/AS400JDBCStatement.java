@@ -119,8 +119,9 @@ public class AS400JDBCStatement implements Statement
     int                     updateCount_;    // private protected
     private     String      packageCriteria_;    // @A1A
     int                     behaviorOverride_ = 0;    // @F9a
-
-
+    private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
+    private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
+    
     /**
     Constructs an AS400JDBCStatement object.
     
@@ -405,6 +406,15 @@ public class AS400JDBCStatement implements Statement
                 cursor_.close (JDCursor.REUSE_NO);
             }
 
+            //@KBL If the user specified to keep statements open until a transaction boundary and locators are associated 
+            // with the statement, do not close the RPB or ORS until a transaction boundary is reached.
+            if(isAssociatedWithLocators() && (connection_.getProperties().getBoolean(JDProperties.HOLD_STATEMENTS)) && (connection_.getAutoCommit() == false))
+            {
+                setHoldStatement(true);
+                closed_ = true;     // Want the statement to only be available for use internally, user should not be able to use the statement.
+                return;             // Mark the statement as closed, but don't notify the connection it has been closed or delete the RPB and ORS.
+            }
+
             // Delete the RPB.  Remember the error information                                             @EDC
             // in order to report later...                                                                 @EDC
             SQLException e = null;    // @EDA
@@ -490,7 +500,99 @@ public class AS400JDBCStatement implements Statement
         }
     }
 
+    //@KBL
+    /*
+    Finish releasing a partially-closed statement's resources.  A statement may become partially closed if, for example, 
+    the user called close on the statement and it was associated with a locator.  
+    This method will delete any RPB and ORS associated with the statement.".
+    @exception SQLException if an error occurs
+    */
+    void finishClosing()
+    throws SQLException
+    {
+        synchronized(internalLock_)
+        {
+            // Delete the RPB.  Remember the error information                                             
+            // in order to report later...                                                                 
+            SQLException e = null;    
+            if(rpbCreated_)
+            {    
+                DBSQLRPBDS request3 = null;    
+                DBReplyRequestedDS reply = null;    
+                try
+                {    
+                    request3 = DBDSPool.getDBSQLRPBDS(DBSQLRPBDS.FUNCTIONID_DELETE_RPB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);    //@P0C
 
+                    reply = connection_.sendAndReceive(request3, id_);    
+
+                    int errorClass = reply.getErrorClass();    
+                    int returnCode = reply.getReturnCode();    
+                    if(errorClass != 0)
+                    {    
+                        if(returnCode < 0)
+                        {    
+                            try
+                            {    
+                                JDError.throwSQLException(connection_, id_, errorClass, returnCode);    
+                            }    
+                            catch(SQLException e2)
+                            {    
+                                e = e2;    
+                            }    
+                        }    
+                        else
+                        {    
+                            postWarning (JDError.getSQLWarning(connection_, id_, errorClass, returnCode));    
+                        }    
+                    }    
+                }
+                finally
+                {    
+                    if(request3 != null) request3.inUse_ = false;    
+                    if(reply != null) reply.inUse_ = false;
+                }
+            }    
+
+            // Delete the ORS.
+            //
+            // We must use get a reply here even though we do not
+            // need any information from it.  Otherwise the next
+            // flow would be based on this ORS, which gets deleted.
+            // In that case, we would always get an "ORS not found"
+            // error.
+            // In this case, we also need it to force a send of
+            // all of the previous datastreams, since this is the
+            // last one for this statement.
+            //
+            // Make sure not to base future requests on this ORS.                                   
+            DBSQLResultSetDS request2 = null;    
+            try
+            {    
+                request2 = DBDSPool.getDBSQLResultSetDS(DBSQLResultSetDS.FUNCTIONID_DELETE_RESULTS_SET, id_, 0, 0);    
+
+                connection_.send(request2, id_, false);    
+            }
+            finally
+            {    
+                if(request2 != null) request2.inUse_ = false;    
+            }
+
+            // Ignore errors, since we would not be able to get
+            // the message text anyway (because the ORS is gone.)
+
+            closed_ = true;
+            setHoldStatement(false);                //the statement is no longer left open
+            connection_.notifyClose (this, id_);
+
+            if(JDTrace.isTraceOn())
+                JDTrace.logClose (this);
+
+            // Rethrow any exception that surfaced when deleting the RPB.                              
+            if(e != null)    
+                throw e;    
+        }
+
+    }
 
     /**
     Closes the result set and cursor.
@@ -2559,6 +2661,43 @@ public class AS400JDBCStatement implements Statement
     }
 
 
+    //@KBL
+    /*
+    Sets whether or not the statement has been partially closed and if the remaining resources
+    should be freed when a transaction boundary is reached.
+    A statement may become partially closed if the user specified to keep statements associated with
+    locators open until a transaction boundary by setting the "hold statements" connection property to true.
+    */
+    void setHoldStatement(boolean hold){
+        holdStatement_ = hold;
+    }
+
+    //@KBL
+    /*
+    Returns whether or not the statement has been partially closed.
+    A statement may become partially closed if the user specified to keep statements associated with
+    locators open until a transaction boundary by setting the "hold statements" connection property to true.
+    */  
+    boolean isHoldStatement()
+    {
+        return holdStatement_;
+    }
+
+    //@KBL
+    /*
+    Sets whether or not this statement object has been used to access a locator.
+    */
+    void setAssociatedWithLocators(boolean hasLocator){
+        associatedWithLocators_ = hasLocator;
+    }
+
+    //@KBL
+    /*
+    Returns whether or not this statement object has been used to access a locator.
+    */
+    boolean isAssociatedWithLocators(){
+        return associatedWithLocators_;
+    }
 
     /**
     Indicates if the statement is closed.

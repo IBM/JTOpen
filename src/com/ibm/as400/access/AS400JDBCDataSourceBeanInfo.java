@@ -193,6 +193,19 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             fullOpen.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_FULL_OPEN"));                                 // @W1A
             fullOpen.setShortDescription(AS400JDBCDriver.getResource("FULL_OPEN_DESC"));                                 // @W1A
 
+            //@KBL  Added support to specify if input locators should be allocated as type hold or not hold
+            PropertyDescriptor holdLocators = new PropertyDescriptor("holdInputLocators", beanClass, "isHoldInputLocators", "setHoldInputLocators");   //@KBL
+            holdLocators.setBound(true);                                                                                              //@KBL
+            holdLocators.setConstrained(false);                                                                                       //@KBL
+            holdLocators.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_HOLD_LOCATORS"));                                      //@KBL
+            holdLocators.setShortDescription(AS400JDBCDriver.getResource("HOLD_LOCATORS_DESC"));                                      //@KBL
+
+            PropertyDescriptor holdStatements = new PropertyDescriptor("holdStatements", beanClass, "isHoldStatements", "setHoldStatements");    // @KBL
+            holdStatements.setBound(true);                                                                                       // @KBL
+            holdStatements.setConstrained(false);                                                                                 // @KBL
+            holdStatements.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_HOLD_STATEMENTS"));                                  // @KBL
+            holdStatements.setShortDescription(AS400JDBCDriver.getResource("HOLD_STATEMENTS_DESC"));                                  // @KBL
+
             PropertyDescriptor lazyClose = new PropertyDescriptor("lazyClose", beanClass, "isLazyClose", "setLazyClose");    // @A1A
             lazyClose.setBound(true);                                                                                       // @A1A
             lazyClose.setConstrained(false);                                                                                 // @A1A
@@ -492,7 +505,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, bidiImplicitReordering, bidiNumericOrdering};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA
         }
         catch(Exception e)
         {

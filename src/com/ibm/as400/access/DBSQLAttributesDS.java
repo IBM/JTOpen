@@ -87,6 +87,22 @@ extends DBBaseRequestDS
         addParameter(0x3824, (byte)value);                                 // @E1A      //@KBC
     }                                                                       // @E1A     //@KBC
 
+    //@KBL
+    //Sets whether or not input locators should be allocated as type hold.
+    void setInputLocatorType(int value)                                  //@KBL
+    throws DBDataStreamException                                         //@KBL
+    {                                                                    //@KBL
+        addParameter(0x3829, (byte)value);                               //@KBL
+    }
+
+    //@KBL
+    //Sets whether or not locators should be scoped to the transaction or to the cursor.
+    void setLocatorPersistence(int value)                                //@KBL
+    throws DBDataStreamException                                         //@KBL
+    {                                                                    //@KBL
+        addParameter(0x3830, (short)value);                               //@KBL
+    }
+
     /**
        Sets the Client CCSID parameter in the data stream.
        @param value	the value to be used to set the default

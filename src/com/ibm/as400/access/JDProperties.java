@@ -132,12 +132,14 @@ class JDProperties implements Serializable
     static final int              AUTO_COMMIT             = 59;   // @KBA
     static final int              BIDI_IMPLICIT_REORDERING = 60;    //@K24
     static final int              BIDI_NUMERIC_ORDERING   = 61;     //@K24
-
+    static final int              HOLD_LOCATORS           = 62;   // @KBL
+    static final int              HOLD_STATEMENTS = 63;     //@KBL
+    
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 62;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 64;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24   
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL 
 
 
 
@@ -162,6 +164,7 @@ class JDProperties implements Serializable
     private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
     private static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
     private static final String FULL_OPEN_              = "full open";              // @W1a
+    private static final String HOLD_LOCATORS_          = "hold input locators";          // @KBL
     private static final String KEY_RING_NAME_          = "key ring name";          // @F1A
     private static final String KEY_RING_PASSWORD_      = "key ring password";      // @F1A
     private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
@@ -206,6 +209,7 @@ class JDProperties implements Serializable
     private static final String AUTO_COMMIT_            = "true autocommit";            //@KBA
     private static final String BIDI_IMPLICIT_REORDERING_ = "bidi implicit reordering"; //@K24
     private static final String BIDI_NUMERIC_ORDERING_  = "bidi numeric ordering";      //@K24
+    private static final String HOLD_STATEMENTS_ = "hold statements";   //@KBL
 
 
 
@@ -1070,6 +1074,16 @@ class JDProperties implements Serializable
         dpi_[i].choices[1]  = TRUE_;
         defaults_[i]        = FALSE_;
 
+        // Hold Locators.  @KBL
+        i = HOLD_LOCATORS;
+        dpi_[i] = new DriverPropertyInfo (HOLD_LOCATORS_, "");
+        dpi_[i].description = "HOLD_LOCATORS_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = FALSE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = TRUE_;
+        
         // Bidi implicit reordering @K24
         i = BIDI_IMPLICIT_REORDERING;
         dpi_[i] = new DriverPropertyInfo (BIDI_IMPLICIT_REORDERING_, "");
@@ -1084,6 +1098,16 @@ class JDProperties implements Serializable
         i = BIDI_NUMERIC_ORDERING;
         dpi_[i] = new DriverPropertyInfo (BIDI_NUMERIC_ORDERING_, "");
         dpi_[i].description = "BIDI_NUMERIC_ORDERING_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = FALSE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = FALSE_;
+
+        // Hold Statements.  @KBL
+        i = HOLD_STATEMENTS;
+        dpi_[i] = new DriverPropertyInfo (HOLD_STATEMENTS_, "");
+        dpi_[i].description = "HOLD_STATEMENTS_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = FALSE_;

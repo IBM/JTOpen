@@ -525,6 +525,9 @@ implements Connection
             || (checkStatementHoldability_ && getVRM() >= JDUtilities.vrm520))  // @F3A
             markCursorsClosed(false);                                           // @B4A
 
+        if(!getAutoCommit())        //@KBL if auto commit is off, check to see if any statements have been partially closed
+            markStatementsClosed(); //@KBL
+
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Transaction commit");
     }
@@ -1389,10 +1392,49 @@ implements Connection
 
         Enumeration enum = statements_.elements();                              // @DAA
         while (enum.hasMoreElements())                                           // @DAC
-            ((AS400JDBCStatement)enum.nextElement()).markCursorClosed(isRollback); // @DAC @F3C
+        {                                                                       //@KBL
+            AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();  //@KBL
+            //@KBLD ((AS400JDBCStatement)enum.nextElement()).markCursorClosed(isRollback); // @DAC @F3C 
+            // If the statement is held open, all of the result sets have already been closed
+            if(!statement.isHoldStatement())                                        //@KBL
+                statement.markCursorClosed(isRollback);                             //@KBL
+        }                                                                           //@KBL
     }
 
-
+    //@KBL
+    /*
+    If a statement associated with locators has been partially closed, finish closing the statement object.
+    A statement may become partially closed if the user closed the statement and set the "hold statements" connection 
+    property to true when making the connection.  Additionally, the statement must have been used to access a locator.
+    */
+    private void markStatementsClosed()
+    {
+        if(!statements_.isEmpty())                                                           
+            {                                                                                    
+                // Make a clone of the vector, since it will be modified as each statement       
+                // closes itself.                                                                
+                // @KBL Close any statements the user called close on that were associated with locators.
+                Vector statements = (Vector)statements_.clone();                                 
+                Enumeration enum = statements.elements();                                        
+                while (enum.hasMoreElements())                                                    
+                {                                                                                
+                    AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       
+                    try                                                                          
+                    {                                                                            
+                        if(statement.isHoldStatement())                                          
+                        {                                                                        
+                            statement.setAssociatedWithLocators(false);                          
+                            statement.finishClosing();                                                    
+                        }                                                                        
+                    }                                                                            
+                    catch (SQLException e)                                                       
+                    {                                                                            
+                        if (JDTrace.isTraceOn())                                                  
+                            JDTrace.logInformation (this, "Closing statement after rollback failed: " + e.getMessage()); 
+                    }                                                                            
+                }                                                                                
+            }                                                                                    
+    }
 
     /**
     Returns the native form of an SQL statement without
@@ -1938,6 +1980,11 @@ implements Connection
             AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @DAA
             try
             {                                                                          // @J4a
+                if(statement.isHoldStatement())                                           //@KBL user already called close, now completely close it
+                {                                                                       //@KBL
+                    statement.setAssociatedWithLocators(false);                          //@KBL
+                    statement.finishClosing();                                          //@KBL
+                }                                                                       //@KBL
                 // @J4a
                 if (! statement.isClosed())                                               // @DAC
                     statement.close();                                                    // @DAC
@@ -2138,6 +2185,8 @@ implements Connection
             // @F3 Passing true means we called markCursorClosed from rollback.
             markCursorsClosed(true);                                        // @B4A @F3C
 
+            markStatementsClosed(); //@KBL
+
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Transaction rollback");
         }
@@ -2174,6 +2223,8 @@ implements Connection
         processSavepointRequest(SQLCommand);
 
         sp.setStatus(AS400JDBCSavepoint.CLOSED);                  
+
+        markStatementsClosed();         //@KBL
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Rollback with savepoint " + sp.getName() + " complete.");
@@ -3345,6 +3396,29 @@ implements Connection
                             JDTrace.logInformation(this, msg);
                         }
                     }
+
+                    //@KBL - added support for hold/not hold locators
+                    // Specifies whether input locators should be allocated as type hold locators or not hold locators.  
+                    // If the locators are of type hold, they will not be released when a commit is done.
+                    boolean holdLocators = properties_.getBoolean(JDProperties.HOLD_LOCATORS);
+                    if(!holdLocators)       // Only need to set it if it is false, by default host server sets them to hold.
+                    {
+                        request.setInputLocatorType(0xD5);
+                        if(JDTrace.isTraceOn())
+                            JDTrace.logInformation(this, "Hold Locators = " + holdLocators);
+                    }
+
+                    //@KBL - added support for locator persistance.  The JDBC specification says locators should be 
+                    // scoped to the transaction (ie. commit, rollback, or connection.close()) if auto commit is off
+                    // host server added two options for the optional Locator Persistence ('3830'x') connection attribute:
+                    // 0 -- Locators without the hold property are freed when cursor closed (locators scoped to the cursor).
+                    // 1 -- Locators without the hold property are freed when the transaction is completed (locators scoped to the transaction).
+                    //
+                    // By default this is set to 0 by the host server, but to comply with the JDBC specification, 
+                    // we should always set it to 1.
+                    // Note:  this only applies when auto commit is off.  The property has no effect if auto commit is on.
+                    // Locators are always scoped to the cursor when auto-commit is on.
+                    request.setLocatorPersistence(1);
                 }
 
 
