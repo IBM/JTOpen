@@ -33,7 +33,8 @@ implements Enumeration
 
 
     private IFSFile[]       contents_;
-    private boolean         done_;
+    private IFSFile[]       contentsPending_ = new IFSFile[0];  // @A1a
+    private boolean         contentsArePending_;  // @A1a - replaces 'done_'
     private IFSFile         file_;
     private IFSFileFilter   filter_;
     private int             index_;
@@ -48,19 +49,21 @@ implements Enumeration
         file_ = file;
         filter_ = filter;
         pattern_ = pattern;
-        nextBlock();
+        nextBlock();  // Prime the pump.
+        nextBlock();  // Move pending-contents into current-contents.   @A1a
     }
 
 
     public boolean hasMoreElements()
     {
-        return (!done_ || (index_ < contents_.length));
+        return (contentsArePending_ || (index_ < contents_.length));  // @A1c
     }
 
 
     private void nextBlock()
     throws AS400SecurityException, IOException
     {           
+/* @A1d
         contents_ = file_.listFiles0(filter_, pattern_, MAXIMUM_GET_COUNT_, restartName_);
         index_ = 0;
         done_ = (contents_.length < MAXIMUM_GET_COUNT_);
@@ -68,6 +71,20 @@ implements Enumeration
             restartName_ = contents_[contents_.length - 1].getName();
         else
             restartName_ = null;
+*/
+
+// @A1a
+        contents_ = contentsPending_;
+        index_ = 0;
+        if (contentsPending_.length != 0) {
+          contentsPending_ = file_.listFiles0(filter_, pattern_, MAXIMUM_GET_COUNT_, restartName_);
+        }
+        contentsArePending_ = (contentsPending_.length != 0);
+        if (contentsArePending_)
+            restartName_ = contentsPending_[contentsPending_.length - 1].getName();
+        else
+            restartName_ = null;
+        // Note: The use of contents_ and contentsPending_ allows us to "look ahead" and detect end-of-list where the number of files on the system is an exact multiple of MAXIMUM_GET_COUNT_.
     }
 
 
