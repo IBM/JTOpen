@@ -43,14 +43,6 @@ public abstract class IPPacket {
     }
 	
     /**
-     * Returns this packet as a string.
-     * @return String this packet .
-     */
-	public String toString() {
-		return "";
-	}
-
-    /**
      * Returns a printable representation of this packet.
      * @param filter	    FormatProperties object for filtering this packet.
      * @return	    Returns a string representation of this packet.

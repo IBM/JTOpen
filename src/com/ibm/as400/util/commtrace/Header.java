@@ -18,7 +18,7 @@ import java.util.Properties;
 
 /**
  * Parent header class.<br>
- * Contains both the raw header and the ray payload.<br>
+ * Contains both the raw header and the raw payload.<br>
  * Maintains a pointer to the next header.<br>
  */
 public abstract class Header {
@@ -211,7 +211,7 @@ public abstract class Header {
     }
 
     /**
-     * Returns a printable representation of this header. 
+     * Returns a printable representation of this header.<br>
      * Without any specific formatting for the particular type of Header.
      * @return	    String this header.
      */
