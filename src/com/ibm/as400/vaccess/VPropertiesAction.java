@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VPropertiesAction.java
 //                                                                             
@@ -35,7 +35,7 @@ import java.util.Hashtable;
 
 /**
 The VPropertiesAction class is an action that presents a
-properties pane for an AS/400 resource in a modeless dialog.
+properties pane for a server resource in a modeless dialog.
 
 <p>If a property dialog is already visible for the object,
 then it will be given focus.

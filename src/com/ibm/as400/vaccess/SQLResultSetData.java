@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetData.java
 //                                                                             
@@ -220,7 +220,7 @@ synchronized public int getColumnDisplaySize(int index)
     try
     {
         // For most types, we just consult with JDBC.  However, for times, dates, and          @C1A
-        // timestamps, JDBC reports the display size for the AS/400 format.  And these         @C1A
+        // timestamps, JDBC reports the display size for the server format.  And these         @C1A
         // GUIs actually internationalize the Strings before displaying them.  So for          @C1A
         // these types, we need to compute our own display sizes.                              @C1A
         switch(resultSetMetaData_.getColumnType(index+1)) {                                 // @C1A

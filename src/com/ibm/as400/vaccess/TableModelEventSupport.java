@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: TableModelEventSupport.java
 //                                                                             
@@ -124,16 +124,6 @@ Fires a table changed event.
                 listeners_[i].tableChanged (new TableModelEvent (actualSource_,
                     firstRowIndex, lastRowIndex, columnIndex, type));
         }
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

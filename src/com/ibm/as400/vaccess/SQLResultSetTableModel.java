@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetTableModel.java
 //                                                                             
@@ -74,7 +74,7 @@ from error conditions.
 and query and displays it using a JTable:
 
 <pre>
-// Register the AS/400 Toolbox for Java JDBC driver.
+// Register the IBM Toolbox for Java JDBC driver.
 DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
 <br>
 // Create the SQLResultSetTableModel object.
@@ -102,7 +102,7 @@ model.load();
 and displays it using a JTable:
 
 <pre>
-// Register the AS/400 Toolbox for Java JDBC driver.
+// Register the IBM Toolbox for Java JDBC driver.
 DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
 <br>
 // Use JDBC to execute the SQL query directly.
@@ -504,7 +504,7 @@ public class SQLResultSetTableModel
       {
         /* @D3D
         // For most types, we just consult with JDBC.  However, for times, dates, and
-        // timestamps, JDBC reports the display size for the AS/400 format.  And these
+        // timestamps, JDBC reports the display size for the server format.  And these
         // GUIs actually internationalize the Strings before displaying them.  So for
         // these types, we need to compute our own display sizes.
         switch(resultSetMetaData_.getColumnType(columnIndex+1)) {

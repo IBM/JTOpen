@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VJavaGetResult.java
 //                                                                             
@@ -137,7 +137,7 @@ class VJavaGetResult implements Runnable
             // is out of the sockets.  This code will not wait
             // forever.  This thread is the one that called
             // the Java API.  Since it has control again, the
-            // Java program on the AS/400 is done.  We just have
+            // Java program on the server is done.  We just have
             // to get all the data out of the sockets.
             long localCounter = readCounter_;                       // @D1A
                                                                     // @D1A
@@ -155,7 +155,7 @@ class VJavaGetResult implements Runnable
         }
         else if(Thread.currentThread() == outputThread_)
         {
-            // stream used to receive output from as/400
+            // stream used to receive output from server
             String receiveStr;
             while(!javaAppRunOver_)
             {
@@ -175,7 +175,7 @@ class VJavaGetResult implements Runnable
         }
         else
         {
-           // stream used to receive error message from as/400
+           // stream used to receive error message from server
             String errorStr = null;
             while(!javaAppRunOver_)
             {

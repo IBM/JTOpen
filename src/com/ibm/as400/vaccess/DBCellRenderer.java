@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBCellRenderer.java
 //                                                                             
@@ -57,15 +57,6 @@ public DBCellRenderer (int horizontalAlignment)
     super ();
     setHorizontalAlignment (horizontalAlignment);
     setBorder (new EmptyBorder (0,5,0,5));
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 

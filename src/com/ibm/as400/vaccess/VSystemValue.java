@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemValue.java
 //                                                                             
@@ -27,10 +27,10 @@ import java.beans.PropertyVetoException;
 
 /**
  * The VSystemValue class defines the representation of a 
- * system value in an AS/400 for use in various models 
+ * system value in a server for use in various models 
  * and panes in this package.
  * You must explicitly call load() to load the information from
- * the AS/400.
+ * the server.
  * 
  * <p>Most errors are reported as ErrorEvents rather than
  * throwing exceptions.  Users should listen for ErrorEvents
@@ -149,14 +149,6 @@ class VSystemValue implements VObject
     public VAction[] getActions()
     {
         return actions_;
-    }
-
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
     /**
@@ -320,7 +312,7 @@ class VSystemValue implements VObject
  
 
     /**
-     * Loads information about the object from the AS/400.
+     * Loads information about the object from the server.
     **/    
     public void load()
     {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VUser.java
 //                                                                             
@@ -34,10 +34,10 @@ import java.util.Enumeration;//@A1A
 
 
 /**
-The VUser class defines the representation of a user on an
-AS/400 for use in various models and panes in this package.
+The VUser class defines the representation of a user on a
+server for use in various models and panes in this package.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -175,14 +175,6 @@ implements VObject, Serializable
         workingEventSupport_.addWorkingListener (listener);
     }
 
-	/**
-	Copyright.
-	**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
 
 
 	/**
@@ -286,9 +278,9 @@ implements VObject, Serializable
 
     //@A1A
 	/**
-	Returns the AS/400 system on which the user resides.
+	Returns the system on which the user resides.
 
-	@return The AS/400 system on which the user resides.
+	@return The system on which the user resides.
 
 	**/
     public AS400 getSystem ()
@@ -342,7 +334,7 @@ implements VObject, Serializable
 
 
 	/**
-	Loads information about the object from the AS/400.
+	Loads information about the object from the server.
 	**/
     public void load ()
     {

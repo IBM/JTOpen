@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DialogAction.java
 //                                                                             
@@ -51,13 +51,6 @@ Constructs a DialogAction object.
     public DialogAction (VObject object)
     {
         super (object);
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

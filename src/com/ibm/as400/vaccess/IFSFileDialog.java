@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileDialog.java
 //                                                                             
@@ -94,7 +94,7 @@ public class IFSFileDialog extends Dialog
 Constructs an IFSFileDialog object.
 @param parent The parent.
 @param title The title of the dialog.
-@param system The AS/400 system.
+@param system The system.
 **/
     public IFSFileDialog(Frame parent, String title, AS400 system)
     {

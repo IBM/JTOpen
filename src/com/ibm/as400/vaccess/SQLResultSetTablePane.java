@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetTablePane.java
 //                                                                             
@@ -92,7 +92,7 @@ from error conditions.
 and query and displays it using a JTable:
 
 <pre>
-// Register the AS/400 Toolbox for Java JDBC driver.
+// Register the IBM Toolbox for Java JDBC driver.
 DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
 <br>
 // Create the SQLResultSetTablePane object.
@@ -119,7 +119,7 @@ table.load();
 and displays it using a JTable:
 
 <pre>
-// Register the AS/400 Toolbox for Java JDBC driver.
+// Register the IBM Toolbox for Java JDBC driver.
 DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
 <br>
 // Use JDBC to execute the SQL query directly.

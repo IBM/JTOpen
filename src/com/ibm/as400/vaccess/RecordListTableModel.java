@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListTableModel.java
 //                                                                             
@@ -31,14 +31,14 @@ import java.util.Vector;
 
 /**
 The RecordListTableModel class represents a table that contains
-the records of an AS/400 file using record-level access.
+the records of a server file using record-level access.
 This model can be used to create a table of the results.
 
 <p>This class should be used by users who wish to change the default
 interface for the table.  When the default look and behavior is
 sufficient, RecordListTablePane can be used.
 
-<p>Users must call <i>close()</i> to ensure that the AS/400
+<p>Users must call <i>close()</i> to ensure that the server
 resources are properly freed when this model is no longer needed.
 
 <p>The data in the model is retrieved from the system when
@@ -138,7 +138,7 @@ Constant indicating search type of less than or equal.
 static public final int KEY_LE = RecordListData.KEY_LE;
 
 
-//The AS/400 file from which records are being displayed.
+//The server file from which records are being displayed.
 private RecordListData   tableData_ = new RecordListData();
 
 // Column information
@@ -194,7 +194,7 @@ public RecordListTableModel ()
 Constructs a RecordListTableModel object.
 This constructor sets the <i>keyed</i> property to false.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 @param       fileName        The file name.
  The name is specified as a fully qualified path name in the library file system.
 **/
@@ -221,7 +221,7 @@ public RecordListTableModel (AS400 system,
 Constructs a RecordListTableModel object.
 This constructor sets the <i>keyed</i> property to true.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 @param       fileName        The keyed file name.
  The name is specified as a fully qualified path name in the library file system.
 @param      key             The values which make up the key with which
@@ -307,7 +307,7 @@ public void addWorkingListener (WorkingListener listener)
 
 
 /**
-Closes the AS400 file this model represents.
+Closes the server file this model represents.
 **/
 public void close ()
 {
@@ -498,9 +498,9 @@ public int getSearchType ()
 
 
 /**
-Returns the AS400 where the file is located.
+Returns the system where the file is located.
 
-@return The AS400 where the file is located.
+@return The system where the file is located.
 **/
 public AS400 getSystem ()
 {
@@ -858,11 +858,11 @@ public void setSearchType (int searchType)
 
 
 /**
-Sets the AS400 where the file is located.
+Sets the system where the file is located.
 This property is bound and constrained.
 Note that the data will not change until a <i>load()</i> is done.
 
-@param       system                  The AS400 where the file is located.
+@param       system                  The system where the file is located.
 @exception  PropertyVetoException   If the change is vetoed.
 **/
 public void setSystem (AS400 system)

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: WorkingCursorAdapter.java
 //                                                                             
@@ -37,8 +37,8 @@ the cursor is changed.  If no component is set, or a parent frame
 is not available, then the cursor will not be changed.
 
 <p>The following example creates a tree model filled with
-the contents of a directory in the integrated file system of an
-AS/400.  It will use a WorkingCursorAdapter object to change the
+the contents of a directory in the integrated file system of a
+server.  It will use a WorkingCursorAdapter object to change the
 cursor as needed.
 
 <pre>
@@ -136,16 +136,6 @@ cursor changes.
     public Component getComponent ()
     {
         return component_;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

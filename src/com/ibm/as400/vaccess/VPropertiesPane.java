@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VPropertiesPane.java
 //                                                                             
@@ -21,16 +21,16 @@ import java.awt.Component;
 The VPropertiesPane interface defines the representation of a
 properties pane.  A properties pane is a graphical user interface
 that allows the user to view and optionally edit properties of
-an AS/400 resource.
+a server resource.
 
 <p>When the user makes a change using the editor, the properties
 pane fires a change event.  This signals to the dialog that a
 change was made so that it can enable the Apply button.  The change
-to the underlying AS/400 resource is not made at this time.  This
+to the underlying server resource is not made at this time.  This
 way the user can still choose to cancel the changes.
 
 <p>When the user clicks the OK or Apply button, then applyChanges()
-is called.  The change to the underlying AS/400 resource is made at
+is called.  The change to the underlying server resource is made at
 this time.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -94,7 +94,7 @@ on potentially long-running operations.
 
 /**
 Applies the changes made by the user.
-It will change the resources on the AS/400.
+It will change the resources on the server.
 
 @exception Exception   If an error occurs.
 **/

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VPrinterOutput.java
 //                                                                             
@@ -35,7 +35,7 @@ import java.util.Vector;
 
 /**
 The VPrinterOutput class defines the representation of a
-list of spooled files on an AS/400 for use in various models
+list of spooled files on a server for use in various models
 and panes in this package.
 
 <p>A VPrinterOutput object has no children.  Its details
@@ -43,7 +43,7 @@ children are the spooled files (VOutput objects) in
 this list.
 
 <p>You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -398,7 +398,7 @@ Constructs a VPrinterOutput object.
 /**
 Constructs a VPrinterOutput object.
 
-@param  system      The AS/400 on which the output resides.
+@param  system      The server on which the output resides.
 **/
     public VPrinterOutput (AS400 system)
     {
@@ -433,7 +433,7 @@ Constructs a VPrinterOutput object.
 Constructs a VPrinterOutput object.
 
 @param  parent   The parent.
-@param  system   The AS/400 on which the output resides.
+@param  system   The server on which the output resides.
 **/
     public VPrinterOutput (VNode parent, AS400 system)
     {
@@ -585,15 +585,6 @@ Returns the number of children.
     public int getChildCount ()
     {
         return 0;
-    }
-
-
-/**
-Returns the copyright.
-**/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 
@@ -784,9 +775,9 @@ Returns the output queue list filter.
 
 
 /**
-Returns the AS/400 on which the output resides.
+Returns the system on which the output resides.
 
-@return The AS/400 on which the output resides.
+@return The system on which the output resides.
 **/
     public AS400 getSystem ()
     {
@@ -880,7 +871,7 @@ Indicates if the details children are sortable.
     }
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public synchronized void load ()
     {
@@ -1107,10 +1098,10 @@ this funtion inorder to update the details children.
     }
 
 /**
-Sets the AS/400 on which the output resides.  A call to load() must be done
+Sets the system on which the output resides.  A call to load() must be done
 after calling this funtion inorder to update the details children.
 
-@param system The AS/400 on which the output resides.
+@param system The system on which the output resides.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceListDetailsModel.java
 //                                                                             
@@ -70,7 +70,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a details model filled with
-details about the jobs running on an AS/400.  It then presents
+details about the jobs running on a server.  It then presents
 the table in a JTable object.
 
 <blockquote><pre>
@@ -99,7 +99,7 @@ frame.show();
 // The JTable will appear empty until we tell the
 // ResourceListDetailsModel to load.  This gives us 
 // control of when the list of jobs is retrieved 
-// from the AS/400.
+// from the server.
 detailsModel.load();
 </pre></blockquote>
 **/

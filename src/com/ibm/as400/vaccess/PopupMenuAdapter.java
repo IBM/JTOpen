@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PopupMenuAdapter.java
 //                                                                             
@@ -59,16 +59,6 @@ Constructs a PopupMenuAdapter object.
         pane_               = pane;
         actionContext_      = actionContext;
         propertiesAction_   = new VPropertiesAction ();
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

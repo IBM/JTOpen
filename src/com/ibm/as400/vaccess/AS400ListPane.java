@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ListPane.java
 //                                                                             
@@ -35,9 +35,9 @@ import java.io.Serializable;
 
 /**
 The AS400ListPane class represents a graphical user interface
-that presents a list of the contents of an AS/400 resource,
+that presents a list of the contents of a server resource,
 known as the root.  You must explicitly call load() to load the
-information from the AS/400.
+information from the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -51,7 +51,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a list pane filled with
-the list of printers on an AS/400.
+the list of printers on a server.
 
 <pre>
 // Set up the list pane.
@@ -123,7 +123,7 @@ Constructs an AS400ListPane object.
 /**
 Constructs an AS400ListPane object.
 
-@param  root    The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root    The root, or the server resource, from which all information for the model is gathered.
 
 **/
     public AS400ListPane (VNode root)
@@ -233,16 +233,6 @@ Indicates if certain actions are confirmed with the user.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the list model.
 
 @return The list model.
@@ -255,9 +245,9 @@ Returns the list model.
 
 
 /**
-Returns the root, or the AS/400 resource, from which all information for the model is gathered.
+Returns the root, or the server resource, from which all information for the model is gathered.
 
-@return     The root, or the AS/400 resource, from which all information for the model is gathered. It will be null if none has been set.
+@return     The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public VNode getRoot ()
     {
@@ -377,7 +367,7 @@ Indicates if the object is selected.
 
 
 /**
-Loads the information from the AS/400.
+Loads the information from the server.
 **/
     public void load ()
     {
@@ -499,9 +489,9 @@ is true.
 
 
 /**
-Sets the root, or the AS/400 resource, from which all information for the model is gathered. It will not take effect until load() is done.
+Sets the root, or the server resource, from which all information for the model is gathered. It will not take effect until load() is done.
 
-@param  root   The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root   The root, or the server resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException If the change is vetoed.
 **/
@@ -614,10 +604,6 @@ Implements the VPane interface.
     private class VPane_
     implements VPane, Serializable
     {
-        private String getCopyright ()
-        {
-            return Copyright_v.copyright;
-        }
 
         public VObject getObjectAt (Point point)
         {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSysvalArrayDialog.java
 //                                                                             
@@ -307,14 +307,6 @@ import com.ibm.as400.access.AS400Exception;
     
             return pane;
         }
-
-        /**
-     	 * Returns the copyright.
-        **/
-    	private static String getCopyright()
-	    {
-    	    return Copyright_v.copyright;
-	    }
 
         /**
          * Returns the insets.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VTableColumn.java
 //                                                                             
@@ -50,16 +50,6 @@ Constructs a VTableColumn object.
     {
         super (columnIndex);
         setIdentifier (propertyIdentifier);
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

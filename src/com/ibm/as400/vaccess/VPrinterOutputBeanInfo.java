@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VPrinterOutputBeanInfo.java
 //                                                                             
@@ -126,13 +126,6 @@ Returns the bean descriptor.
     public BeanDescriptor getBeanDescriptor ()
     {
         return new BeanDescriptor (beanClass_);
-    }
-
-
-// Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

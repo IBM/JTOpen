@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VObjectCellEditor.java
 //                                                                             
@@ -74,16 +74,6 @@ Builds the component as needed.
         panel.add ("Center", defaultComponent);
 
         return panel;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSDirectoryCreateAction.java
 //                                                                             
@@ -145,16 +145,6 @@ Processes an editing stopped event.
         catch (Exception e) {
             errorEventSupport_.fireError (e);
         }
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

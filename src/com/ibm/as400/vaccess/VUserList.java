@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VUserList.java
 //                                                                             
@@ -37,9 +37,9 @@ import java.util.Enumeration;
 
 /**
 The VUserList class defines the representation of a user list
-on an AS/400 for use in various models and panes in this package.
+on a server for use in various models and panes in this package.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -152,7 +152,7 @@ implements VNode, Serializable
     /**
     Constructs a VUserList object.
 
-    @param system   The AS/400 system from which the user will be retrieved.
+    @param system   The system from which the user will be retrieved.
     **/
     public VUserList (AS400 system)
     {
@@ -181,7 +181,7 @@ implements VNode, Serializable
     Constructs a VUserList object.
 
     @param parent   The parent.
-    @param system   The AS/400 system from which the user will be retrieved..
+    @param system   The system from which the user will be retrieved..
     **/
     public VUserList (VNode parent, AS400 system)
     {
@@ -576,9 +576,9 @@ implements VNode, Serializable
 
 
     /**
-    Returns the AS/400 system from which the user will be retrieved.
+    Returns the system from which the user will be retrieved.
 
-    @return The AS/400 system from which the user will be retrieved.
+    @return The system from which the user will be retrieved.
     **/
     public AS400 getSystem ()
     {
@@ -674,7 +674,7 @@ implements VNode, Serializable
 
 
     /**
-    Loads information about the object from the AS/400.
+    Loads information about the object from the server.
     **/
     public void load()
     {
@@ -720,9 +720,9 @@ implements VNode, Serializable
         // This line used to be the last line in the method but
         // that caused an infininte loop.  The event support
         // calls load().  Since isLoaded_ is still
-        // false, userList ran to the AS/400 to get user info again.
+        // false, userList ran to the server to get user info again.
         // My moving isLoaded=true to here, the event support
-        // knows we have the info and there is no need to go to the AS/400.
+        // knows we have the info and there is no need to go to the server.
         isLoaded_ = true;                                           // @B1m
 
         if (error != null)
@@ -887,9 +887,9 @@ implements VNode, Serializable
 
 
     /**
-    Sets the AS/400 system in which the user information resides.
+    Sets the system in which the user information resides.
 
-    @param system The AS/400 system in which the user information resides.
+    @param system The system in which the user information resides.
 
     @exception PropertyVetoException If the change is vetoed.
     **/

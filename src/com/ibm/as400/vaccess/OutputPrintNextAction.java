@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputPrintNextAction.java
 //                                                                             
@@ -42,13 +42,6 @@ Constructs an OutputPrintNextAction object.
         super (object);
         splF_ = splF;
         parent_ = parent;
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

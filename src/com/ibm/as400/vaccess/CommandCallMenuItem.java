@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandCallMenuItem.java
 //                                                                             
@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 /**
 The CommandCallMenuItem class represents a menu item
-that calls an AS/400 CL command when selected.
+that calls a server CL command when selected.
 Results of the command are returned in a message list.
 
 <p>CommandCallMenuItem objects generate the following events:
@@ -111,7 +111,7 @@ implements Serializable
 
     @param  text    The menu item text, or null if there is no text.
     @param  icon    The menu item icon, or null if there is no icon.
-    @param  system  The AS/400 on which commands are run.
+    @param  system  The server on which commands are run.
     **/
     public CommandCallMenuItem(String text,
                              Icon icon,
@@ -128,7 +128,7 @@ implements Serializable
 
     @param  text    The menu item text, or null if there is no text.
     @param  icon    The menu item icon, or null if there is no icon.
-    @param  system  The AS/400 on which commands are run.
+    @param  system  The server on which commands are run.
     @param  command The command.
     **/
     public CommandCallMenuItem(String text,
@@ -143,7 +143,7 @@ implements Serializable
 
 
     /**
-    Adds a listener to be notified when a command has been run on the AS/400.
+    Adds a listener to be notified when a command has been run on the server.
 
     @param  listener  The listener.
     **/
@@ -192,16 +192,6 @@ constrained property changes.
     }
 
 
-
-    /**
-    Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
     /**
     Returns the command.
 
@@ -242,9 +232,9 @@ constrained property changes.
 
 
     /**
-    Returns the AS/400 on which commands are run.
+    Returns the system on which commands are run.
 
-    @return  The AS400 on which commands are run.
+    @return  The system on which commands are run.
     **/
     public AS400 getSystem()
     {
@@ -350,9 +340,9 @@ Removes a vetoable change listener.
 
 
     /**
-    Sets the AS/400 on which commands are run.
+    Sets the system on which commands are run.
  
-    @param  system The AS/400 on which commands are run.
+    @param  system The system on which commands are run.
 
     @exception PropertyVetoException If the change is vetoed.
     **/
@@ -384,8 +374,6 @@ Removes a vetoable change listener.
             // Set the cursor back.
             cursorAdapter.stopWorking (new WorkingEvent (this));
         }
-
-        private String getCopyright () { return Copyright_v.copyright; }
 
     }
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ErrorEvent.java
 //                                                                             
@@ -40,12 +40,6 @@ public class ErrorEvent extends java.util.EventObject
     exception_ = exception;
 
     Trace.log (Trace.DIAGNOSTIC, "Error event: (" + exception.getClass () + ") " + exception.getMessage ()); // @B0C
-  }
-
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright_v.copyright;
   }
 
   /**

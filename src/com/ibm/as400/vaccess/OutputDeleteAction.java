@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputDeleteAction.java
 //                                                                             
@@ -45,13 +45,6 @@ Constructs an OutputDeleteAction object.
         super (object, confirmTitleText_, confirmMessageText_);
         splF_ = splF;
         parent_ = parent;
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

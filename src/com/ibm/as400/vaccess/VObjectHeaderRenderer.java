@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VObjectHeaderRenderer.java
 //                                                                             
@@ -80,16 +80,6 @@ Constructs a VObjectHeaderRenderer object.
         super (text);
         setHorizontalAlignment (horizontalAlignment);
         setBorder (new CompoundBorder (new BevelBorder(BevelBorder.RAISED), new EmptyBorder (0,5,0,5)));
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

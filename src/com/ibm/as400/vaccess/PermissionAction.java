@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionAction.java
 //                                                                             
@@ -18,7 +18,7 @@ import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.Permission;
 
 /**
-The PermissionAction class defines a permission change action to be performed on an AS/400 resource.
+The PermissionAction class defines a permission change action to be performed on a server resource.
 
 Most errors are reported as ErrorEvents rather than throwing exceptions. Users should listen for ErrorEvents in
 order to diagnose and recover from error conditions.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VObjectListener.java
 //                                                                             
@@ -30,7 +30,7 @@ extends EventListener
 
 
 /**
-Invoked when an AS/400 resource is changed.
+Invoked when a server resource is changed.
 
 @param event The event.
 **/
@@ -39,7 +39,7 @@ Invoked when an AS/400 resource is changed.
 
 
 /**
-Invoked when an AS/400 resource is created.
+Invoked when a server resource is created.
 
 @param event The event.
 **/
@@ -48,7 +48,7 @@ Invoked when an AS/400 resource is created.
 
 
 /**
-Invoked when an AS/400 resource is deleted.
+Invoked when a server resource is deleted.
 
 @param event The event.
 **/

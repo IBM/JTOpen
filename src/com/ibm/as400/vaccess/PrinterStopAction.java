@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterStopAction.java
 //                                                                             
@@ -70,13 +70,6 @@ Constructs an PrinterStopAction object.
     {
         super (object);
         printer_ = printer;
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

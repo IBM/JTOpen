@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VIFSFile.java
 //                                                                             
@@ -32,7 +32,7 @@ import java.util.Vector;
 
 /**
 The VIFSFile class defines the representation of a file
-in the integrated file system of an AS/400 for use in
+in the integrated file system of a server for use in
 various models and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -103,7 +103,7 @@ implements VObject, VIFSConstants, Serializable
 /**
 Constructs a VIFSFile object. The system and path properties
 will need to be set before using any method requiring a
-connection to the AS/400.
+connection to the server.
 **/
     public VIFSFile ()
     {
@@ -132,7 +132,7 @@ Constructs a VIFSFile object.
 /**
 Constructs a VIFSFile object.
 
-@param  system      The AS/400 on which the file resides.
+@param  system      The server on which the file resides.
 @param  path        The fully qualified path name of the file. 
 **/
     public VIFSFile (AS400 system, String path)
@@ -407,9 +407,9 @@ Returns the size.
 
 
 /**
-Returns the AS/400 on which the file resides.
+Returns the system on which the file resides.
 
-@return The AS/400 on which the file resides.
+@return The system on which the file resides.
 
 @see com.ibm.as400.access.IFSFile#getSystem
 **/
@@ -524,7 +524,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load ()
     {
@@ -675,9 +675,9 @@ Sets the fully qualified path name of the file.
 
 
 /**
-Sets the AS/400 on which the file resides.
+Sets the system on which the file resides.
 
-@param system The AS/400 on which the file resides.
+@param system The system on which the file resides.
 
 @exception PropertyVetoException If the change is vetoed.
 

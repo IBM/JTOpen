@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VUserAndGroup.java
 //                                                                             
@@ -90,7 +90,7 @@ public class  VUserAndGroup
     
     /**
     Constructs a VUserAndGroup object.
-    @param as400   The AS/400 system in which the user information resides.
+    @param as400   The system in which the user information resides.
     **/ 
     public VUserAndGroup(AS400 as400)
     {
@@ -105,7 +105,7 @@ public class  VUserAndGroup
     /**
     Constructs a VUserAndGroup object.
     @param parent   The parent.
-    @param system   The AS/400 system in which the user information resides.
+    @param system   The system in which the user information resides.
     **/
     public VUserAndGroup(VNode parent, AS400 system)
     {
@@ -398,8 +398,8 @@ public class  VUserAndGroup
     }
 
     /**
-    Returns the AS/400 system in which the user information resides.
-    @return The AS/400 system in which the user information resides.
+    Returns the system in which the user information resides.
+    @return The system in which the user information resides.
     **/    
     public AS400 getSystem()
     {
@@ -462,7 +462,7 @@ public class  VUserAndGroup
     }
 
     /**
-    Loads information about the object from the AS/400.
+    Loads information about the object from the server.
     **/
     public void load()
     {

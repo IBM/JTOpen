@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VPrinter.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.vaccess;
 
-// Java Toolbox for AS/400 imports
+// Toolbox imports
 import com.ibm.as400.access.AS400;  // @A15A
 import com.ibm.as400.access.Printer;
 import com.ibm.as400.access.PrintObject;
@@ -44,8 +44,8 @@ import java.util.Enumeration;
 
 
 /**
-The VPrinter class defines the representation of an
-AS/400 printer for use in various models and panes
+The VPrinter class defines the representation of a
+server printer for use in various models and panes
 in this package.
 
 <p>A VPrinter object has no children.  Its details
@@ -223,7 +223,7 @@ Property identifier for the status.
     static final int DRAWERSEP_FILE = -1;
     static final int DRAWERSEP_DEVD = -2;
 
-    // AS/400 strings
+    // Server strings
     static final String ENDString_ = "END";
     static final String HELDString_ = "HELD";
     static final String HLDString_ = "HLD";
@@ -464,15 +464,6 @@ Returns the number of children.
     public int getChildCount ()
     {
         return 0;
-    }
-
-
-/**
-Returns the copyright.
-**/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 /**
@@ -1391,9 +1382,9 @@ Initializes the transient data.
     }
 
 /**
-Loads information about the object from the AS/400.  A printer must be
+Loads information about the object from the server.  A printer must be
 specified either on construction or from a call to setPrinter() inorder
-to get information about the object from the AS/400.
+to get information about the object from the server.
 **/
     public void load ()
     {
@@ -1748,10 +1739,6 @@ Listens for events from the actions and adjusts the actions accordingly.
     private class VObjectListener_                                          //@A8A
     implements VObjectListener, Serializable
     {
-        private String getCopyright ()
-        {
-            return Copyright_v.copyright;
-        }
 
         public void objectChanged (VObjectEvent event)
         {

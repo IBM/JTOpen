@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MessageUtilities.java
 //                                                                             
@@ -42,16 +42,6 @@ class MessageUtilities
     private static final String replySystemDefaultUsedTypeText_     = ResourceLoader.getText ("MESSAGE_TYPE_REPLY_SYSTEM_DEFAULT_USED");
     private static final String replyFromSystemReplyListTypeText_   = ResourceLoader.getText ("MESSAGE_TYPE_REPLY_FROM_SYSTEM_REPLY_LIST");
     private static final String unexpectedTypeText_                 = ResourceLoader.getText ("MESSAGE_TYPE_UNEXPECTED");
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VJob.java
 //                                                                             
@@ -40,10 +40,10 @@ import javax.swing.tree.TreeNode;
 
 
 /**
-The VJob class defines the representation of a job on an
-AS/400 for use in various models and panes in this package.
+The VJob class defines the representation of a job on a
+server for use in various models and panes in this package.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -587,7 +587,7 @@ Constructs a VJob object.
 /**
 Constructs a VJob object.
 
-@param system       The AS/400 system on which the job resides.
+@param system       The system on which the job resides.
 @param job          The job.
 **/
     public VJob (AS400 system, Job job)
@@ -618,7 +618,7 @@ Constructs a VJob object.
 /**
 Constructs a VJob object.
 
-@param system       The AS/400 system on which the job resides.
+@param system       The system on which the job resides.
 @param job          The job.
 **/
     public VJob (AS400 system, RJob job)
@@ -650,7 +650,7 @@ Constructs a VJob object.
 Constructs a VJob object.
 
 @param parent   The parent.
-@param system   The AS/400 system on which the job resides.
+@param system   The system on which the job resides.
 @param job      The job.
 **/
     public VJob (VNode parent, AS400 system, Job job)
@@ -685,7 +685,7 @@ Constructs a VJob object.
 Constructs a VJob object.
 
 @param parent   The parent.
-@param system   The AS/400 system on which the job resides.
+@param system   The system on which the job resides.
 @param job      The job.
 **/
     public VJob (VNode parent, AS400 system, RJob job)
@@ -1265,9 +1265,9 @@ Returns a property value.
 
 
 /**
-Returns the AS/400 system on which the job resides.
+Returns the system on which the job resides.
 
-@return The AS/400 system on which the job resides.
+@return The system on which the job resides.
 **/
     public AS400 getSystem ()
     {
@@ -1367,7 +1367,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load()
     {
@@ -1594,9 +1594,9 @@ Sets the job.
 
 
 /**
-Sets the AS/400 on which the job resides.
+Sets the system on which the job resides.
 
-@param system The AS/400 on which the job resides.
+@param system The system on which the job resides.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

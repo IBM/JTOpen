@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VJobList.java
 //                                                                             
@@ -34,9 +34,9 @@ import java.util.Vector;
 
 /**
 The VJobList class defines the representation of a job list on
-an AS/400 for use in various models and panes in this package.
+a server for use in various models and panes in this package.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -219,7 +219,7 @@ Constructs a VJobList object.
 /**
 Constructs a VJobList object.
 
-@param system   The AS/400 system on which the list resides.
+@param system   The system on which the list resides.
 **/
     public VJobList (AS400 system)
     {
@@ -241,7 +241,7 @@ Constructs a VJobList object.
 Constructs a VJobList object.
 
 @param parent   The parent.
-@param system   The AS/400 system on which the list resides.
+@param system   The system on which the list resides.
 **/
     public VJobList (VNode parent, AS400 system)
     {
@@ -594,9 +594,9 @@ Returns a property value.
 
 
 /**
-Returns the AS/400 on which the list resides.
+Returns the system on which the list resides.
 
-@return The AS/400 system on which the list resides.
+@return The system on which the list resides.
 **/
     public AS400 getSystem ()
     {
@@ -687,7 +687,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load()
     {
@@ -900,9 +900,9 @@ Sets the job number.  The default is *ALL.
 
 
 /**
-Sets the AS/400 system on which the list resides.
+Sets the system on which the list resides.
 
-@param system The AS/400 system on which the list resides.
+@param system The system on which the list resides.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VUtilities.java
 //                                                                             
@@ -199,7 +199,7 @@ Adds the component as a row and sets its grid bag constraints.
 
 
 /**
-Formats help text from an AS/400 Message.  This text may have
+Formats help text from an AS400Message.  This text may have
 imbed \n's in it.
 
 <p>Remember that JLabels and Labels do not handle
@@ -238,7 +238,7 @@ gives you the same effect as a JLabel.
 // @A1A
 // @B0C - rewrote.
 /**
-Formats help text from an AS/400 Message.  This text may have
+Formats help text from an AS400Message.  This text may have
 imbed \n's in it at word breaks only.
 
 <p>Remember that JLabels and Labels do not handle
@@ -315,15 +315,6 @@ gives you the same effect as a JLabel.
         return output.toString();
 */  //@B0D
 
-    }
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

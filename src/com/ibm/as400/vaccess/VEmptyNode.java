@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VEmptyNode.java
 //                                                                             
@@ -130,16 +130,6 @@ Returns the number of children.
     public int getChildCount ()
     {
         return 0;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 
@@ -310,7 +300,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads the information from the AS/400.
+Loads the information from the server.
 **/
     public void load ()
     {

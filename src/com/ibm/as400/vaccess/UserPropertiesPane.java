@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: UserPropertiesPane.java
 //                                                                             
@@ -253,14 +253,6 @@ implements VPropertiesPane
         tabbedPane.setSelectedIndex (0);
 
         return tabbedPane;
-    }
-
-    /**
-     Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
     // @A1A

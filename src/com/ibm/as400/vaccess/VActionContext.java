@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VActionContext.java
 //                                                                             
@@ -64,7 +64,7 @@ to create dialogs.
 
 
 /**
-Prompts the user to edit the text for an AS/400 resource.
+Prompts the user to edit the text for a server resource.
 This will start an edit session usually within
 a graphical component.
 

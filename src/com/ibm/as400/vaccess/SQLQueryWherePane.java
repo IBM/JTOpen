@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLQueryWherePane.java
 //                                                                             
@@ -443,8 +443,6 @@ to the clause.
                     dialog.dispose();
                     functionComplete();
                 }
-                private String getCopyright()
-                { return Copyright_v.copyright;}
             }  // end of ActionListenerAdapter
         );
         JButton cancelButton = new JButton(ResourceLoader.getQueryText("DBQUERY_BUTTON_CANCEL"));
@@ -743,8 +741,6 @@ to the clause.
                     dialog.dispose();
                     functionComplete();
                 }
-                private String getCopyright()
-                { return Copyright_v.copyright;}
             }  // end of ActionListenerAdapter
         );
         JButton cancelButton = new JButton(ResourceLoader.getQueryText("DBQUERY_BUTTON_CANCEL"));
@@ -1046,8 +1042,6 @@ to the clause.
                     // End dialog
                     dialog.dispose();
                 }
-                private String getCopyright()
-                { return Copyright_v.copyright;}
             }  // end of ActionListenerAdapter
         );
         JButton cancelButton = new JButton(ResourceLoader.getQueryText("DBQUERY_BUTTON_CANCEL"));
@@ -1195,8 +1189,6 @@ to the clause.
                     // End dialog
                     dialog.dispose();
                 }
-                private String getCopyright()
-                { return Copyright_v.copyright;}
             }  // end of ActionListenerAdapter
         );
         JButton cancelButton = new JButton(ResourceLoader.getQueryText("DBQUERY_BUTTON_CANCEL"));

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: TreeModelEventSupport.java
 //                                                                             
@@ -181,16 +181,6 @@ Fires a tree structure changed event.
             for (int i = 0; i < listeners_.length; ++i)
                 listeners_[i].treeStructureChanged (new TreeModelEvent (source_, path));
         }
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

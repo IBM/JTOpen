@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandCallButton.java
 //                                                                             
@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 /**
 The CommandCallButton class represents a button
-that calls an AS/400 CL command when pressed.
+that calls a server CL command when pressed.
 Results of the command are returned in a message list.
 
 <p>CommandCallButton objects generate the following events:
@@ -111,7 +111,7 @@ implements Serializable
 
     @param  text    The button text, or null if there is no text.
     @param  icon    The button icon, or null if there is no icon.
-    @param  system  The AS/400 on which commands are run.
+    @param  system  The server on which commands are run.
     **/
     public CommandCallButton(String text,
                              Icon icon,
@@ -128,7 +128,7 @@ implements Serializable
 
     @param  text    The button text, or null if there is no text.
     @param  icon    The button icon, or null if there is no icon.
-    @param  system  The AS/400 on which commands are run.
+    @param  system  The server on which commands are run.
     @param  command The command.
     **/
     public CommandCallButton(String text,
@@ -143,7 +143,7 @@ implements Serializable
 
 
     /**
-    Adds a listener to be notified when a command has been run on the AS/400.
+    Adds a listener to be notified when a command has been run on the server.
 
     @param  listener  The listener.
     **/
@@ -192,16 +192,6 @@ constrained property changes.
     }
 
 
-
-    /**
-    Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
     /**
     Returns the command that is run when the button is pressed.
 
@@ -242,9 +232,9 @@ constrained property changes.
 
 
     /**
-    Returns the AS/400 on which commands are run.
+    Returns the system on which commands are run.
 
-    @return  The AS400 on which commands are run.
+    @return  The system on which commands are run.
     **/
     public AS400 getSystem()
     {
@@ -350,9 +340,9 @@ Removes a vetoable change listener.
 
 
     /**
-    Sets the AS/400 on which commands are run.
+    Sets the system on which commands are run.
 
-    @param  system The AS/400 on which commands are run.
+    @param  system The system on which commands are run.
 
     @exception PropertyVetoException If the change is vetoed.
     **/
@@ -384,8 +374,6 @@ Removes a vetoable change listener.
             // Set the cursor back.
             cursorAdapter.stopWorking (new WorkingEvent (this));
         }
-
-        private String getCopyright () { return Copyright_v.copyright; }
 
     }
 

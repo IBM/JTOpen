@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLQueryTablePane.java
 //                                                                             
@@ -64,7 +64,7 @@ implements Serializable //@B0A - for consistency
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-// In AS400 language, library = schema, system = catalog.
+// In i5/OS language, library = schema, system = catalog.
 
 // This class is not meant to be serialized, it should be transient.
 // This class has items marked transient even though it is not
@@ -228,15 +228,6 @@ private void fillClause()
     }
     else
         clause_.setText("");
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 

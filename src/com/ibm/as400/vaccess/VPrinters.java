@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VPrinters.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.vaccess;
 
-// Java Toolkit for AS/400 imports
+// Toolbox imports
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.Printer;
 import com.ibm.as400.access.PrinterList;
@@ -49,7 +49,7 @@ import java.util.Vector;
 
 /**
 The VPrinters class represents
-a list of AS/400 printers for use in various models
+a list of server printers for use in various models
 and panes in this package.
 
 <p>Both the children and details children of a VPrinters
@@ -162,7 +162,7 @@ Constructs a VPrinters object.
 /**
 Constructs a VPrinters object.
 
-@param  system      The AS/400 from which the list will be retrieved.
+@param  system      The server from which the list will be retrieved.
 **/
     public VPrinters( AS400 system )
     {
@@ -180,7 +180,7 @@ Constructs a VPrinters object.
 Constructs a VPrinters object.
 
 @param  parent      The parent.
-@param  system      The AS/400 from which the list will be retrieved.
+@param  system      The server from which the list will be retrieved.
 **/
     public VPrinters(VNode parent, AS400 system )
     {
@@ -309,14 +309,6 @@ This is the number of printers.
         updateChildren();
 
         return children_.length;
-    }
-
-/**
-Copyright.
-**/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 /**
@@ -541,9 +533,9 @@ Returns a property value.
     }
 
 /**
-Returns the AS/400 from which the list will be retrieved.
+Returns the system from which the list will be retrieved.
 
-@return The AS/400 from which the list will be retrieved.
+@return The system from which the list will be retrieved.
 **/
     public AS400 getSystem ()
     {
@@ -614,7 +606,7 @@ Indicates if the details children are sortable.
     }
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public /* @A4D synchronized */ void load ()
     {
@@ -626,7 +618,7 @@ Loads information about the object from the AS/400.
     }
 
 /**
-Loads the children (printers) from the AS/400
+Loads the children (printers) from the server
 **/
     private /* @A4D synchronized */ void loadChildren ()
         throws Exception
@@ -761,11 +753,11 @@ value *ALL. The default for the printerFilter is *ALL.
     }
 
 /**
-Sets the AS/400 from which the list will be retrieved.  A call
+Sets the system from which the list will be retrieved.  A call
 to load() must be done after calling this funtion inorder to
 update the details and tree children.
 
-@param system The AS/400 from which the list will be retrieved.
+@param system The system from which the list will be retrieved.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

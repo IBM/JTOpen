@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VJobLogMessage.java
 //                                                                             
@@ -27,7 +27,7 @@ import javax.swing.Icon;
 
 /**
 The VJobLogMessage class defines the representation of
-a job log message on an AS/400 for use in various models
+a job log message on a server for use in various models
 and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -330,7 +330,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load ()
     {

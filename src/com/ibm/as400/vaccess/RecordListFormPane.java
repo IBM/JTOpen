@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListFormPane.java
 //                                                                             
@@ -37,7 +37,7 @@ import java.io.Serializable;
 
 /**
 The RecordListFormPane class represents a form that is filled in with the fields
-of a file on the AS/400.  The form displays one record at a time
+of a file on the server.  The form displays one record at a time
 and provides buttons that allow the user to scroll forward,
 backward, to the first or last record, or refresh the
 view of the file.
@@ -47,7 +47,7 @@ view of the file.
 when <i>load()</i> is called.  If <i>load()</i> is not called,
 the form will be empty.
 
-<p>Users must call <i>close()</i> to ensure that the AS/400
+<p>Users must call <i>close()</i> to ensure that the server
 resources are properly freed when this form is no longer needed.
 
 <p>Most errors are reported by firing ErrorEvents, rather
@@ -205,7 +205,7 @@ public RecordListFormPane ()
 Constructs a RecordListFormPane object.
 This constructor sets the <i>keyed</i> property to false.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 @param       fileName        The file name.
  The name is specified as a fully qualified path name in the library file system.
 **/
@@ -242,7 +242,7 @@ public RecordListFormPane (AS400 system,
 Constructs a RecordListFormPane object.
 This constructor sets the <i>keyed</i> property to true.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 @param       fileName        The file name.
  The name is specified as a fully qualified path name in the library file system.
 @param      key             The values which make up the key with which
@@ -309,7 +309,7 @@ public void addErrorListener (ErrorListener listener)
 
 
 /**
-Closes the AS/400 file this form represents.
+Closes the server file this form represents.
 **/
 public void close()
 {
@@ -421,15 +421,6 @@ public void displayPrevious ()
 }
 
 
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
-}
-
-
 
 /**
 Returns the index of the record currently being displayed.
@@ -517,9 +508,9 @@ public int getSearchType ()
 
 
 /**
-Returns the AS400 where the file is located.
+Returns the system where the file is located.
 
-@return The AS400 where the file is located.
+@return The system where the file is located.
 **/
 public AS400 getSystem ()
 {
@@ -979,12 +970,12 @@ public void setSearchType (int searchType)
 
 
 /**
-Sets the AS400 where the file is located.
+Sets the system where the file is located.
 This property is bound and constrained.
 Note that the data in the form will not change
 until a <i>load()</i> is done.
 
-@param       system                  The AS400 where the file is located.
+@param       system                  The system where the file is located.
 @exception  PropertyVetoException   If the change is vetoed.
 **/
 public void setSystem (AS400 system)

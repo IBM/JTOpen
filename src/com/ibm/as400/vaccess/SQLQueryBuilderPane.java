@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLQueryBuilderPane.java
 //                                                                             
@@ -47,7 +47,7 @@ to determine the list of tables which the user can choose from, however
 the user is not prevented from using tables not in these schemas.
 
 <p>It is up to the user to register a JDBC driver when using this class.
-For example, the following code registers the AS/400 Toolbox for Java
+For example, the following code registers the IBM Toolbox for Java
 JDBC driver.
 <pre>
    DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());
@@ -631,7 +631,7 @@ public boolean getUserSelectTableSchemas ()
 
 /**
 Gets data from the system.
-If the <i>connection</i> is null, the AS/400 JDBC driver will
+If the <i>connection</i> is null, the server JDBC driver will
 be used, and the user will be prompted for sign-on information.
 **/
 synchronized public void load()

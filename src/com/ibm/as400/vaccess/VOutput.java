@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VOutput.java
 //                                                                             
@@ -22,7 +22,7 @@ import java.util.Calendar;
 
 /**
 The VOutput class defines the representation of a
-spooled file output on an AS/400 for use in various
+spooled file output on a server for use in various
 models and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -282,13 +282,6 @@ Returns the list of actions that can be performed.
     }
 
 
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
-    }
-
-
 /**
 Returns the default action.
 
@@ -514,7 +507,7 @@ Returns the spooled file.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public synchronized void load ()
     {

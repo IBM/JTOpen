@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400DetailsPane.java
 //                                                                             
@@ -50,9 +50,9 @@ import java.util.Vector;
 
 /**
 The AS400DetailsPane class represents a graphical user interface
-that displays the details regarding the contents of an AS/400
+that displays the details regarding the contents of a server
 resource, known as the root.  You must explicitly call load() to
-load the information from the AS/400.
+load the information from the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -163,7 +163,7 @@ Constructs an AS400DetailsPane object.
 /**
 Constructs an AS400DetailsPane object.
 
-@param  root  The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root  The root, or the server resource, from which all information for the model is gathered.
 **/
     public AS400DetailsPane (VNode root)
     {
@@ -286,16 +286,6 @@ Indicates if certain actions are confirmed with the user.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the model that contains data for the table.
 
 @return The model that contains data for the table.
@@ -308,7 +298,7 @@ Returns the model that contains data for the table.
 
 
 /**
-Returns the root, or the AS/400 resource, from which all information for the model is gathered.
+Returns the root, or the server resource, from which all information for the model is gathered.
 
 @return     The parent root, or null if none.
 **/
@@ -442,7 +432,7 @@ Indicates if the object is selected.
 
 
 /**
-Loads the information from the AS/400.
+Loads the information from the server.
 **/
     public void load ()
     {
@@ -566,9 +556,9 @@ is true.
 
 
 /**
-Sets the root, or the AS/400 resource, from which all information for the model is gathered.
+Sets the root, or the server resource, from which all information for the model is gathered.
 
-@param  root   The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root   The root, or the server resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException If the change is vetoed.
 **/
@@ -709,7 +699,6 @@ class updates the columns of the table as needed.
             }
         }
 
-        private String getCopyright ()             { return Copyright_v.copyright; }
     }
 
 
@@ -769,10 +758,6 @@ Implements the VPane interface.
     private class VPane_
     implements VPane, Serializable
     {
-        private String getCopyright ()
-        {
-            return Copyright_v.copyright;
-        }
 
         public VNode getRoot ()
         {

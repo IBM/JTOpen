@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListData.java
 //                                                                             
@@ -37,7 +37,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-The RecordListData class represents the records in a AS400 file that are
+The RecordListData class represents the records in a server file that are
 accessed either sequentially or by key by using the record-level
 access classes in com.ibm.as400.access.
 This class handles caching and storing the data fields so they can be
@@ -171,7 +171,7 @@ public void addWorkingListener (WorkingListener listener)
 
 
 /**
-Closes the AS400 file this record list represents.
+Closes the server file this record list represents.
 **/
 synchronized public void close ()
 {
@@ -225,7 +225,7 @@ synchronized public int getColumnDisplaySize(int index)
     }
 
     // For most types, we just consult with RLA.  However, for times, dates, and           @C1A
-    // timestamps, RLA reports the display size for the AS/400 format.  And these          @C1A
+    // timestamps, RLA reports the display size for the server format.  And these          @C1A
     // GUIs actually internationalize the Strings before displaying them.  So for          @C1A
     // these types, we need to compute our own display sizes.                              @C1A
 
@@ -281,15 +281,6 @@ synchronized public String getColumnName(int index)
         throw new IndexOutOfBoundsException("index");
     }
     return fields_[index].getFieldName();
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 
@@ -391,9 +382,9 @@ public int getSearchType ()
 
 
 /**
-Returns the AS400 where the file is located.
+Returns the system where the file is located.
 
-@return The AS400 where the file is located.
+@return The system where the file is located.
 **/
 public AS400 getSystem ()
 {
@@ -870,10 +861,10 @@ public void setSearchType (int searchType)
 
 
 /**
-Sets the AS400 where the file is located.
+Sets the system where the file is located.
 Note that the data will not change until a <i>load()</i> is done.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 **/
 public void setSystem (AS400 system)
 {

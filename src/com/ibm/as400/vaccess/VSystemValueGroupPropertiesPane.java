@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemValueGroupPropertiesPane.java
 //                                                                             
@@ -38,7 +38,7 @@ import java.awt.event.KeyListener;
 
 /**
  * The VSystemValueGroupPropertiesPane class defines the property panel
- * of a system value group on an AS/400 for use in various models 
+ * of a system value group on a server for use in various models 
  * and panes in this package.
  * 
  * <p>Most errors are reported as ErrorEvents rather than
@@ -165,14 +165,6 @@ class VSystemValueGroupPropertiesPane implements VPropertiesPane
         pane.addTab (generalTabText_, null, generalTab);
         pane.setSelectedIndex (0);
         return pane;
-    }
-    
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
     
     /**

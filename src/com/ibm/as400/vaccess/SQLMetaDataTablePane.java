@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLMetaDataTablePane.java
 //                                                                             
@@ -82,15 +82,6 @@ public SQLMetaDataTablePane (SQLMetaDataTableModel model)
     table_.addColumn(column);
     // build panel with table and headings
     setupPane();
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 

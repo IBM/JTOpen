@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VObject.java
 //                                                                             
@@ -19,7 +19,7 @@ import javax.swing.Icon;
 
 /**
 The VObject interface defines the representation of an
-AS/400 resource for use in various models and panes in this
+server resource for use in various models and panes in this
 package.
 
 <p>An object has any number of properties.  These are
@@ -28,7 +28,7 @@ property identifiers.  Every object has at least name and
 desctiption properties, and most will define more.
 
 <p>Many of these methods are not called directly by
-programs.  Instead, they are called by the AS/400 panes
+programs.  Instead, they are called by the server panes
 to respond to the user interface as needed.
                  
 <p>Most errors are reported as ErrorEvents rather than
@@ -194,7 +194,7 @@ This is called when rendering the VObject in a user interface.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     abstract public void load ();
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionNameCellObject.java
 //                                                                             
@@ -43,14 +43,6 @@ class PermissionNameCellObject
         name_ = name;
         groupIndicator_ = group;
     }
-
-    /**
-     * Copyright.
-     **/
-     private static String getCopyright()
-     {
-         return Copyright_v.copyright;
-     }
 
     /**
      * Returns the icon.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AbstractVAction.java
 //                                                                             
@@ -200,19 +200,9 @@ Fires a stop working event.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
+Returns the affected AS400 object.
 
-
-
-/**
-Returns the affected AS/400 object.
-
-@return The AS/400 object.
+@return The server object.
 **/
     public VObject getObject ()
     {

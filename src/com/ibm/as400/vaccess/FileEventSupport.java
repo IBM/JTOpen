@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FileEventSupport.java
 //                                                                             
@@ -190,16 +190,6 @@ Fires a file open event.
             for (int i = 0; i < listeners_.length; ++i)
                 listeners_[i].fileClosed (new FileEvent (source_, FileEvent.FILE_OPENED));
         }
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

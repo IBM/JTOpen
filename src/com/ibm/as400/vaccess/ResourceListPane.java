@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceListPane.java
 //                                                                             
@@ -91,7 +91,7 @@ frame.show();
 <br>
 // The ResourceListPane will appear empty until we
 // load it.  This gives us control of when the list
-// of messages is retrieved from the AS/400.
+// of messages is retrieved from the server.
 listPane.load();
 </pre></blockquote>
 

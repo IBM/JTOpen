@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemValueDetailsPropertiesPane.java
 //                                                                             
@@ -49,7 +49,7 @@ import java.awt.event.ItemListener;
 
 /**
  * The VSystemValueDetailsPropertiesPane class defines the  property panel
- * of a system value on an AS/400 for use in various models 
+ * of a system value on a server for use in various models 
  * and panes in this package.
  * 
  * <p>Most errors are reported as ErrorEvents rather than
@@ -237,14 +237,6 @@ class  VSystemValueDetailsPropertiesPane
         }
         pane.setSelectedIndex(0);
         return pane;
-    }
-
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
     /**

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListTablePane.java
 //                                                                             
@@ -43,13 +43,13 @@ import java.util.Enumeration;
 
 /**
 The RecordListTablePane class represents a table that contains
-the records and fields of an AS/400 file using record-level access.
+the records and fields of a server file using record-level access.
 
 <p>The data in the table is retrieved from the system when
 <i>load()</i> is called.  If <i>load()</i> is not called,
 the table will be empty.
 
-<p>Users must call <i>close()</i> to ensure that the AS/400
+<p>Users must call <i>close()</i> to ensure that the server
 resources are properly freed when this table is no longer needed.
 
 <p>Most errors are reported by firing ErrorEvents, rather
@@ -201,7 +201,7 @@ public RecordListTablePane ()
 Constructs a RecordListTablePane object.
 This constructor sets the <i>keyed</i> property to false.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 @param       fileName        The file name.
  The name is specified as a fully qualified path name in the library file system.
 **/
@@ -241,7 +241,7 @@ public RecordListTablePane (AS400 system,
 Constructs a RecordListTablePane object.
 This constructor sets the <i>keyed</i> property to true.
 
-@param       system          The AS400 where the file is located.
+@param       system          The system where the file is located.
 @param       fileName        The keyed file name.
  The name is specified as a fully qualified path name in the library file system.
 @param      key             The values which make up the key with which
@@ -333,7 +333,7 @@ public void addVetoableChangeListener (VetoableChangeListener listener)
 
 
 /**
-Closes the AS/400 file this table represents.
+Closes the server file this table represents.
 **/
 public void close()
 {
@@ -396,16 +396,6 @@ public int getColumnWidth(int columnIndex)
         Trace.log(Trace.WARNING, "getColumnWidth() error:" + e);
         return 0;
     }
-}
-
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 
@@ -523,9 +513,9 @@ public boolean getShowVerticalLines()
 
 
 /**
-Returns the AS400 where the file is located.
+Returns the system where the file is located.
 
-@return The AS400 where the file is located.
+@return The system where the file is located.
 **/
 public AS400 getSystem ()
 {
@@ -734,10 +724,6 @@ public void refreshHeadings()
 {
   Runnable refreshHeading = new Runnable()
   {
-    private String getCopyright()
-    {
-      return Copyright_v.copyright;
-    }
     public void run()
     {
 
@@ -1119,12 +1105,12 @@ public void setShowVerticalLines(boolean show)
 
 
 /**
-Sets the AS400 where the file is located.
+Sets the system where the file is located.
 This property is bound and constrained.
 Note that the data in the table will not change until a
 <i>load()</i> is done.
 
-@param       system                  The AS400 where the file is located.
+@param       system                  The system where the file is located.
 @exception  PropertyVetoException   If the change is vetoed.
 **/
 public void setSystem (AS400 system)

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceLoader.java
 //                                                                             
@@ -46,16 +46,6 @@ class ResourceLoader
     private static ResourceBundle   resources_                  = null;
     private static ResourceBundle   printResources_             = null;
     private static ResourceBundle   queryResources_             = null;
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
 
 
 

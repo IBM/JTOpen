@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemValueGroup.java
 //                                                                             
@@ -37,10 +37,10 @@ import javax.swing.table.TableColumn;
 
 /**
  * The VSystemValueGroup class defines the representation of a 
- * system value group on an AS/400 for use in various models 
+ * system value group on a server for use in various models 
  * and panes in this package.
  * You must explicitly call load() to load the information from
- * the AS/400.
+ * the server.
  *
  * <p>Most errors are reported as ErrorEvents rather than
  * throwing exceptions.  Users should listen for ErrorEvents
@@ -442,7 +442,7 @@ class VSystemValueGroup implements VNode
     }
     
     /**
-     * Loads information about the object from the AS/400.
+     * Loads information about the object from the server.
      **/    
     public void load()
     {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSTextFileDocument.java
 //                                                                             
@@ -51,9 +51,9 @@ import java.io.Serializable;
 /**
 The IFSTextFileDocument class implements an underlying model
 for text components, where the text is the contents of a text
-file located in the integrated file system of an AS/400.
+file located in the integrated file system of a server.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Use this class in conjuction with any JTextComponent or
 any other component that works with the Document interface.
@@ -74,7 +74,7 @@ in order to diagnose and recover from error conditions.
 
 <p>The following example creates a document which contains
 the contents of a text file in the integrated file system
-of an AS/400.  It then presents the document in a JTextArea
+of a server.  It then presents the document in a JTextArea
 object.
 
 <pre>
@@ -88,7 +88,7 @@ JFrame frame = new JFrame ("My Window");
 frame.getContentPane().add(new JScrollPane(textArea));
 
 <br>
-// Load the information from the AS/400.
+// Load the information from the server.
 document.load ();
 </pre>
 **/
@@ -163,7 +163,7 @@ Constructs a IFSTextFileDocument object.
 /**
 Constructs a IFSTextFileDocument object.
 
-@param      system                   The AS/400 system on which the file resides.
+@param      system                   The system on which the file resides.
 @param      path                     The fully qualified path name of the file that this object represents.
 **/
     public IFSTextFileDocument (AS400 system, String path)
@@ -334,16 +334,6 @@ a given offset within the document.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the root element that views should be based upon
 unless some other mechanism for assigning views to element
 structures is provided.
@@ -501,7 +491,7 @@ Returns a named style.
 
 
 /**
-Returns the AS/400 system on which the file resides.
+Returns the system on which the file resides.
 
 @return  The system, or null if the system has not been set.
 **/
@@ -622,7 +612,7 @@ last read or written.
 
 /**
 Loads the contents of the document from the file on the
-AS/400.
+server.
 **/
     public void load ()
     {
@@ -832,7 +822,7 @@ executed. The runnable itself may not make any mutations.
 
 
 /**
-Saves the contents of the document to the file on the AS/400.
+Saves the contents of the document to the file on the server.
 This will creates the file if it does not already exist.
 **/
     public void save ()
@@ -971,9 +961,9 @@ Sets the path name of the file.
 
 
 /**
-Sets the AS/400 system on which the file resides.
+Sets the system on which the file resides.
 
-@param  system  The AS/400 system on which the file resides.
+@param  system  The system on which the file resides.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

@@ -451,14 +451,6 @@ class PermissionMainPanel
     {
         return listField.getText().trim();
     }
-
-    /**
-     * Copyright.
-     **/
-     private static String getCopyright()
-     {
-         return Copyright_v.copyright;
-     }
      
     /**
      *  Return Insets object that defines the interval with the border.

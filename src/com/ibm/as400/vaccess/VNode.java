@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VNode.java
 //                                                                             
@@ -19,7 +19,7 @@ import javax.swing.tree.TreeNode;
 
 /**
 The VNode interface defines the representation of an
-AS/400 resource that exists in a hierarchy.
+server resource that exists in a hierarchy.
 
 <p>In the hierarchy, a node has exactly one parent and
 any number of children.  Note that there may be a different
@@ -29,7 +29,7 @@ in tree views, while the details hierarchy is for list and details
 views.
 
 <p>Many of these methods are not called directly by
-programs.  Instead, they are called by the AS/400 panes
+programs.  Instead, they are called by the server panes
 to respond to the user interface as needed.
                  
 <p>Most errors are reported as ErrorEvents rather than

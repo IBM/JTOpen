@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemStatusPane.java
 //                                                                             
@@ -130,7 +130,7 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
    /**
     * Constructs a VSystemStatusPane object.
     *
-    * @param system The AS/400 system in which the system status information
+    * @param system The system in which the system status information
     *               resides.
    **/
    public VSystemStatusPane(AS400 system)
@@ -418,7 +418,7 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
    }
 
    /**
-    * Loads system status information from the AS/400.
+    * Loads system status information from the server.
    **/
    public void load()
 
@@ -597,10 +597,10 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
 
 
    /**
-    * Sets the root, or the AS/400 resource, from which all information
+    * Sets the root, or the server resource, from which all information
     * for the model is gathered.
     *
-    * @param root The root, or the AS/400 resource, from which all
+    * @param root The root, or the server resource, from which all
     *              information for the model is gathered. 
     * @exception PropertyVetoException If the proposed change to root
     *            is unacceptable.

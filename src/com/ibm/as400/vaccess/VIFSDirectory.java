@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VIFSDirectory.java
 //                                                                             
@@ -42,10 +42,10 @@ import java.util.Vector;
 
 /**
 The VIFSDirectory class defines the representation of a
-directory in the integrated file system of an AS/400 for use
+directory in the integrated file system of a server for use
 in various models and panes in this package.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -233,7 +233,7 @@ Constructs a VIFSDirectory object.
 /**
 Constructs a VIFSDirectory object.
 
-@param  system      The AS/400 on which the file resides.
+@param  system      The server on which the file resides.
 @param  path        The fully qualified path name of the file.
 **/
     public VIFSDirectory (AS400 system, String path)
@@ -715,9 +715,9 @@ Returns a property value.
 
 
 /**
-Returns the AS/400 on which the file resides.
+Returns the system on which the file resides.
 
-@return The AS/400 on which the file resides.
+@return The system on which the file resides.
 
 @see com.ibm.as400.access.IFSFile#getSystem
 **/
@@ -869,7 +869,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load ()
     {
@@ -899,7 +899,7 @@ Loads information about the object from the AS/400.
 
 
 /**
-Loads the children from the AS/400.
+Loads the children from the server.
 **/
     private void loadChildren ()
     {
@@ -1209,9 +1209,9 @@ of * and ?.  The default is to include all files and directories.
 
 
 /**
-Sets the AS/400 system on which the file resides.
+Sets the system on which the file resides.
 
-@param system The AS/400 system on which the file resides.
+@param system The system on which the file resides.
 
 @exception PropertyVetoException If the change is vetoed.
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterPropertiesPane.java
 //                                                                             
@@ -1013,15 +1013,6 @@ Returns the editor pane.
         tabbedPane.addTab (includeText_, null, printerOutput_.propertiesPane_.buildIncludePane());
         tabbedPane.setSelectedIndex (0);
         return tabbedPane;
-    }
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
     private Vector getWriterStatusVector()

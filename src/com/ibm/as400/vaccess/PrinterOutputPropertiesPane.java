@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterOutputPropertiesPane.java
 //                                                                             
@@ -559,13 +559,6 @@ Also used by VPrinter class
             }
 
         return thePane;
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

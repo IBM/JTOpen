@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ListModel.java
 //                                                                             
@@ -29,9 +29,9 @@ import java.util.Vector;
 /**
 The AS400ListModel class implements an underlying model for
 a list, where all information for the model is gathered
-from the contents of an AS/400 resource, known as the root.
+from the contents of a server resource, known as the root.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Use this class if you want to customize the graphical
 user interface that presents a list.  If you do not need
@@ -51,7 +51,7 @@ in order to diagnose and recover from error conditions.
 
 <p>The following example creates a list model filled with
 the contents of a directory in the integrated file system
-of an AS/400.  It then presents the list in a JList object.
+of a server.  It then presents the list in a JList object.
 
 <pre>
 // Set up the list model and JList.
@@ -105,7 +105,7 @@ Constructs an AS400ListModel object.
 /**
 Constructs an AS400ListModel object.
 
-@param  root    The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root    The root, or the server resource, from which all information for the model is gathered.
 **/
     public AS400ListModel (VNode root)
     {
@@ -183,16 +183,6 @@ on potentially long-running operations.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the element at the specifed index.
 
 @param  index   The index.
@@ -216,9 +206,9 @@ Returns the element at the specifed index.
 
 
 /**
-Returns the root, or the AS/400 resource, from which all information for the model is gathered.
+Returns the root, or the server resource, from which all information for the model is gathered.
 
-@return     The root, or the AS/400 resource, from which all information for the model is gathered. It will be null if none has been set.
+@return     The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public VNode getRoot ()
     {
@@ -267,7 +257,7 @@ Initializes transient data.
 
 
 /**
-Loads the information from the AS/400.
+Loads the information from the server.
 **/
     public void load ()
     {
@@ -367,10 +357,10 @@ Removes a working listener.
 
 
 /**
-  Sets the root, or the AS/400 resource, from which all information for the model is gathered. It will not take effect until load() is done.
+  Sets the root, or the server resource, from which all information for the model is gathered. It will not take effect until load() is done.
 
 
-@param  root    The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root    The root, or the server resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException If the change is vetoed.
 **/
@@ -449,13 +439,6 @@ Listens for explorer events and adjusts the model accordingly.
     private class VObjectListener_
     implements VObjectListener, Serializable
     {
-
-
-
-        private String getCopyright ()
-        {
-            return Copyright_v.copyright;
-        }
 
 
 

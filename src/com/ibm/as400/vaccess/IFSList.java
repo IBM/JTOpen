@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSList.java
 //                                                                             
@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
   * The IFSList class represents a
   *  AWT list class extension that can display a list of files, directories
-  *  or both from an AS/400.
+  *  or both from a server.
   *
   *  Error events are generated if errors are encountered.
   *
@@ -249,8 +249,8 @@ class IFSList extends java.awt.List
     }
 
     /**
-      * Returns the system object that represents the AS/400 to list.
-      * @return The system object that represents the AS/400 to list.
+      * Returns the system object that represents the server to list.
+      * @return The system object that represents the server to list.
       **/
     public AS400 getSystem()
     {
@@ -383,7 +383,7 @@ class IFSList extends java.awt.List
     /**
       * Sets the system to list.
       *
-      * @param system The AS400 object that represents the system.
+      * @param system The system.
       **/
     public void setSystem(AS400 system)
     {
@@ -395,8 +395,4 @@ class IFSList extends java.awt.List
     }
 
 
-    private static String getCopyright()
-    {
-       return Copyright_v.copyright;
-    }
 }

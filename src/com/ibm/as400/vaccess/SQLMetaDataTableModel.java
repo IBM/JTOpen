@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLMetaDataTableModel.java
 //                                                                             
@@ -155,16 +155,6 @@ synchronized public Object clone ()
     System.arraycopy(types_, 0, clone.types_, 0 , types_.length);
 
     return clone;
-}
-
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 
@@ -331,7 +321,7 @@ public void load ()
                         data_[curRow][FIELD_TYPE_] = resultSet.getString(6);
                         // The following code should not be necessary when using
                         // most drivers, but makes the length values correct
-                        // when using the AS400 JDBC driver.
+                        // when using the i5/OS JDBC driver.
                         // These values came from the ODBC description of precision
                         // (in 2.0 ref, Appendix D page 624).
                         switch (types_[curRow])

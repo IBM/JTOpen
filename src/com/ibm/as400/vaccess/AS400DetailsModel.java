@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400DetailsModel.java
 //                                                                             
@@ -33,9 +33,9 @@ import java.util.Vector;
 /**
 The AS400DetailsModel class implements an underlying model for
 a table, where all information for the model is gathered
-from the contents of an AS/400 resource, known as the root.
+from the contents of a server resource, known as the root.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Use this class if you want to customize the graphical
 user interface that presents a table.  If you do not need
@@ -54,7 +54,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a details model filled with
-details about the jobs running on an AS/400.  It then presents
+details about the jobs running on a server.  It then presents
 the table in a JTable object.
 
 <pre>
@@ -110,7 +110,7 @@ Constructs an AS400DetailsModel object.
 /**
 Constructs an AS400DetailsModel object.
 
-@param  root    The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root    The root, or the server resource, from which all information for the model is gathered.
 
 **/
     public AS400DetailsModel (VNode root)
@@ -184,16 +184,6 @@ on potentially long-running operations.
     public void addWorkingListener (WorkingListener listener)
     {
         workingEventSupport_.addWorkingListener (listener);
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 
@@ -300,9 +290,9 @@ Returns the object at the specifed row.
 
 
 /**
-Returns the root, or the AS/400 resource, from which all information for the model is gathered.
+Returns the root, or the server resource, from which all information for the model is gathered.
 
-@return     The root, or the AS/400 resource, from which all information for the model is gathered. It will be null if none has been set.
+@return     The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public VNode getRoot ()
     {
@@ -422,7 +412,7 @@ Indicates if the cell is editable.
 
 
 /**
-Loads the information from the AS/400. 
+Loads the information from the server. 
 **/
     public void load ()
     {
@@ -510,9 +500,9 @@ Removes a working listener.
 
 
 /**
-Sets the root, or the AS/400 resource, from which all information for the model is gathered. It will not take effect until load() is done.
+Sets the root, or the server resource, from which all information for the model is gathered. It will not take effect until load() is done.
 
-@param  root   The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root   The root, or the server resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException If the change is vetoed.
 **/
@@ -600,13 +590,6 @@ Listens for explorer events and adjusts the model accordingly.
     private class VObjectListener_
     implements VObjectListener, Serializable
     {
-
-
-
-        private String getCopyright ()
-        {
-            return Copyright_v.copyright;
-        }
 
 
 

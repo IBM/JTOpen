@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataQueueDocumentBeanInfo.java
 //                                                                             
@@ -130,16 +130,6 @@ Returns the bean descriptor.
     public BeanDescriptor getBeanDescriptor ()
     {
         return new BeanDescriptor (beanClass_);
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

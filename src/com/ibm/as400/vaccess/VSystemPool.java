@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemPool.java
 //                                                                             
@@ -36,8 +36,8 @@ import java.io.Serializable;
 import java.util.Enumeration;
 
 /**
- * The VSystemPool class defines the representation of system pool on an
- * AS/400 for use in various models and panes in this package.
+ * The VSystemPool class defines the representation of system pool on a
+ * server for use in various models and panes in this package.
  *
  * <p>Most errors are reported as ErrorEvents rather than throwing exceptions.
  *    Users should listen for ErrorEvents in order to diagnose and recover
@@ -264,9 +264,9 @@ implements VObject, Serializable
     }
 
     /**
-     * Returns the AS/400 system in which the system pool information resides.
+     * Returns the system in which the system pool information resides.
      *
-     * @return The AS/400 system in which the system pool information resides.
+     * @return The system in which the system pool information resides.
     **/
     public AS400 getSystem ()
     {
@@ -333,7 +333,7 @@ implements VObject, Serializable
 
 
     /**
-     * Loads information about the object from the AS/400.
+     * Loads information about the object from the server.
     **/
     public void load ()
     {

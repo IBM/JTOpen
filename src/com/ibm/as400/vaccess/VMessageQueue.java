@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VMessageQueue.java
 //                                                                             
@@ -36,10 +36,10 @@ import java.util.Enumeration;
 
 /**
 The VMessageQueue class defines the representation of a
-message queue on an AS/400 for use in various models and
+message queue on a server for use in various models and
 panes in this package.
 You must explicitly call load() to load the information from
-the AS/400.
+the server.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -220,7 +220,7 @@ Constructs a VMessageQueue object.
 /**
 Constructs a VMessageQueue object.
 
-@param system   The AS/400 on which the message queue resides.
+@param system   The server on which the message queue resides.
 **/
     public VMessageQueue (AS400 system)
     {
@@ -236,7 +236,7 @@ Constructs a VMessageQueue object.
 /**
 Constructs a VMessageQueue object.
 
-@param  system      The AS/400 on which the message queue resides.
+@param  system      The server on which the message queue resides.
 @param  path        The fully qualified integrated file system path name of the message queue. The path  must be in the format of /QSYS.LIB/libname.LIB/messageQueue.MSGQ.
 **/
     public VMessageQueue (AS400 system, String path)
@@ -256,7 +256,7 @@ Constructs a VMessageQueue object.
 Constructs a VMessageQueue object.
 
 @param  parent      The parent.
-@param  system      The AS/400 on which the message queue resides.
+@param  system      The server on which the message queue resides.
 @param  path        The fully qualified integrated file system path name of the message queue. The path  must be in the format of /QSYS.LIB/libname.LIB/messageQueue.MSGQ.
 **/
     public VMessageQueue (VNode parent, AS400 system, String path)
@@ -599,9 +599,9 @@ Returns the severity.
 
 
 /**
-Returns the AS/400 on which the message queue exists.
+Returns the system on which the message queue exists.
 
-@return The AS/400 on which the message queue exists.
+@return The system on which the message queue exists.
 **/
     public AS400 getSystem ()
     {
@@ -707,7 +707,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load ()
     {
@@ -762,7 +762,7 @@ Loads information about the object from the AS/400.
 
 
 /**
-Loads more messages from the AS/400.
+Loads more messages from the server.
 
 @param index    The index needed.
 **/
@@ -933,9 +933,9 @@ Sets the severity.
 
 
 /**
-Sets the AS/400 on which the message queue resides.
+Sets the system on which the message queue resides.
 
-@param system The AS/400 on which the message queue resides.
+@param system The system on which the message queue resides.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VObjectCellRenderer.java
 //                                                                             
@@ -88,17 +88,6 @@ Constructs a VObjectCellRenderer object.
     {
         initialize ();
         setHorizontalAlignment (horizontalAlignment);
-    }
-
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemValueModifyAction.java
 //                                                                             
@@ -26,7 +26,7 @@ import java.util.EventObject;
 
 /**
  * The VSystemValueModifyAction class defines the modify action 
- * of a system value on an AS/400 .
+ * of a system value on a server .
  * 
  * <p>Most errors are reported as ErrorEvents rather than
  * throwing exceptions.  Users should listen for ErrorEvents
@@ -106,15 +106,6 @@ class VSystemValueModifyAction implements VAction
     public void addWorkingListener(WorkingListener listener)
     {
         workingEventSupport_.addWorkingListener(listener);
-    }
-
-
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
     
     /**

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VAction.java
 //                                                                             
@@ -17,7 +17,7 @@ package com.ibm.as400.vaccess;
 
 /**
 The VAction interface defines an action to be performed
-on an AS/400 resource.
+on a server resource.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramCallButton.java
 //                                                                             
@@ -34,7 +34,7 @@ import java.io.Serializable;
 
 /**
 The ProgramCallButton class represents a button
-that calls an AS/400 program when pressed.
+that calls a server program when pressed.
 Results of the program are returned in a message list.
 
 <p>ProgramCallButton objects generate the following events:
@@ -112,7 +112,7 @@ implements Serializable
 
     @param  text        The button text, or null if there is no text.
     @param  icon        The button icon, or null if there is no icon.
-    @param  system      The AS/400 on which the programs are run.
+    @param  system      The server on which the programs are run.
     **/
     public ProgramCallButton(String text,
                              Icon icon,
@@ -129,7 +129,7 @@ implements Serializable
 
     @param  text        The button text, or null if there is no text.
     @param  icon        The button icon, or null if there is no icon.
-    @param  system      The AS/400 on which the programs are run.
+    @param  system      The server on which the programs are run.
     @param  program     The program name as a fully qualified path name
                         in the library file system.
                         The library and program name must each be
@@ -214,16 +214,6 @@ constrained property changes.
 
 
     /**
-    Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-    /**
     Returns the message list resulting from the last program call
     that was run.
 
@@ -274,9 +264,9 @@ constrained property changes.
 
 
     /**
-    Returns the AS/400 on which programs are run.
+    Returns the system on which programs are run.
 
-    @return  The AS400 on which programs are run.
+    @return  The system on which programs are run.
     **/
     public AS400 getSystem()
     {
@@ -368,7 +358,7 @@ Removes a vetoable change listener.
 
 
     /**
-    Sets the list of parameters to pass to the AS/400 program.
+    Sets the list of parameters to pass to the server program.
 
     @param parmlist  A list of up to 35 parameters with which to run the program.
                      It will replace any parameters previously set.
@@ -397,9 +387,9 @@ Removes a vetoable change listener.
 
 
     /**
-    Sets the AS/400 on which programs are run.
+    Sets the system on which programs are run.
 
-    @param  system The AS/400 on which programs are run.
+    @param  system The system on which programs are run.
 
     @exception PropertyVetoException If the change is vetoed.
     **/
@@ -432,9 +422,7 @@ Removes a vetoable change listener.
             cursorAdapter.stopWorking (new WorkingEvent (this));
         }
 
-        private String getCopyright () { return Copyright_v.copyright; }
-
-    }
+     }
 
 
 }

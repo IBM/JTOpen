@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSysvalTextDialog.java
 //                                                                             
@@ -289,14 +289,6 @@ import java.awt.LayoutManager;
                                         int3++);
             }
             return ((Component)jPanel1);
-        }
-
-        /** 
-    	 * Returns the copyright.
-        **/
-    	private static String getCopyright()
-        {
-    	    return Copyright_v.copyright;
         }
         
         /** The key is pressed.

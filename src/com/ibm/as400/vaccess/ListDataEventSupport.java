@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ListDataEventSupport.java
 //                                                                             
@@ -131,16 +131,6 @@ Fires an interval removed event.
                 listeners_[i].intervalRemoved (new ListDataEvent (source_,
                     ListDataEvent.INTERVAL_REMOVED, index0, index1));
         }
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VEnumeration.java
 //                                                                             
@@ -38,16 +38,6 @@ implements Enumeration
     public boolean hasMoreElements()
     {
         return pos < vobj_.getChildCount();
-    }
-
-
-
-    /**
-    Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

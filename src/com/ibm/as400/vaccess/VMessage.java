@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VMessage.java
 //                                                                             
@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 /**
 The VMessage class defines the representation of a message
-returned from an AS/400 for use in various models and panes
+returned from a server for use in various models and panes
 in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -163,16 +163,6 @@ Returns the list of actions that can be performed.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the default action.
 
 @return Always null.  There is no default action.
@@ -298,7 +288,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load ()
     {

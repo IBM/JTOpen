@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCDataSourcePaneGUI.java
 //                                                                             
@@ -80,7 +80,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_FORMAT.AJDSP_TIME_SEP_LABEL", "Separator:  "},
       {"AJDSP_FORMAT.EditorBounds", "245,280,972,648"},
       {"AJDSP_GENERAL", "General"},
-      {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "AS/400 system:"},
+      {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "iSeries system:"},
       {"AJDSP_GENERAL.AJDSP_AS400SERVER_TEXTBOX", ""},
       {"AJDSP_GENERAL.AJDSP_DATASOURCE_NAME_LABEL", "Data source name:"},
       {"AJDSP_GENERAL.AJDSP_DATASOURCE_NAME_TEXTBOX", ""},

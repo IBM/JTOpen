@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MessagePropertiesPane.java
 //                                                                             
@@ -242,16 +242,6 @@ Returns the graphical component.
         pane.addTab (generalTabText_, null, generalTab);
         pane.setSelectedIndex (0);
         return pane;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

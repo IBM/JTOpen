@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputMoveAction.java
 //                                                                             
@@ -96,13 +96,6 @@ catches the state change of radio buttons
             // disable the printer field
             printerField_.setEnabled(false);
             }
-    }
-
-
-// Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright_v.copyright;
     }
 
 

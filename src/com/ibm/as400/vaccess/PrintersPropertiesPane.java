@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintersPropertiesPane.java
 //                                                                             
@@ -202,14 +202,6 @@ Builds Include pane for the properties pane
 
         return thePane;
     }
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
-}
 
 /**
 Returns the editor pane.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSysvalDatePane.java
 //                                                                             
@@ -133,13 +133,6 @@ import java.awt.event.KeyEvent;
             return ((Component)jTabbe0);
         }
 
-        /** 
-	     * Returns the copyright.
-    	**/
-	    private static String getCopyright()
-    	{
-        	return Copyright_v.copyright;
-	    }
         /**
          * Returns the date in the textfield.
          *

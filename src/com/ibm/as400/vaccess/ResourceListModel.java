@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceListModel.java
 //                                                                             
@@ -57,7 +57,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a list model filled with
-the contents of a user list from an AS/400.  It then presents
+the contents of a user list from a server.  It then presents
 the list in a JList object.
 
 <blockquote><pre>
@@ -81,7 +81,7 @@ frame.show();
 // The JList will appear empty until we tell the
 // ResourceListModel to load.  This gives us control
 // of when the list of users is retrieved from the
-// AS/400.
+// server.
 listModel.load();
 </pre></blockquote>
 **/

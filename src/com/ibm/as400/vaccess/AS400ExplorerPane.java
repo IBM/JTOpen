@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ExplorerPane.java
 //                                                                             
@@ -46,10 +46,10 @@ import java.io.Serializable;
 /**
 The AS400ExplorerPane class represents a graphical user interface
 that is useful for working with the hierarchy of objects rooted
-at an AS/400 resource.  The graphical user interface presents a
+at a server resource.  The graphical user interface presents a
 tree on the left side and the details of the selected resource
 in the right side.  You must explicitly call load() to load the
-information from the AS/400.
+information from the server.
 
 <p>AS400ExplorerPane objects generate the following events:
 <ul>
@@ -61,7 +61,7 @@ information from the AS/400.
 
 <p>The following example creates an explorer pane filled with
 the contents of a directory in the integrated file system
-of an AS/400.
+of a server.
 
 <pre>
 // Set up the explorer pane.
@@ -150,7 +150,7 @@ Constructs an AS400ExplorerPane object.
 /**
 Constructs an AS400ExplorerPane object.
 
-@param  root     The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root     The root, or the server resource, from which all information for the model is gathered.
 **/
     public AS400ExplorerPane (VNode root)
     {
@@ -308,16 +308,6 @@ Indicates if certain actions are confirmed with the user.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the column model that is used to maintain the columns
 of the details.  This provides the ability to programmatically
 add and remove columns.
@@ -389,9 +379,9 @@ hierarchy. The last element in the path will be this object.
 
 
 /**
-Returns the root, or the AS/400 resource, from which all information for the model is gathered.
+Returns the root, or the server resource, from which all information for the model is gathered.
 
-@return     The root, or the AS/400 resource, from which all information for the model is gathered. It will be null if none has been set.
+@return     The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public VNode getRoot ()
     {
@@ -556,7 +546,7 @@ Indicates if the object in the tree is currently visible in the tree.
 
 
 /**
-Loads the objects from the AS/400.
+Loads the objects from the server.
 **/
     public void load ()
     {
@@ -694,9 +684,9 @@ programmatically select and deselect objects.
 
 
 /**
-Sets the root, or the AS/400 resource, from which all information for the model is gathered. It will not take effect until load() is done.
+Sets the root, or the server resource, from which all information for the model is gathered. It will not take effect until load() is done.
 
-@param  root    The root, or the AS/400 resource, from which all information for the model is gathered.
+@param  root    The root, or the server resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException It the change is vetoed.
 **/
@@ -762,8 +752,6 @@ selection in the tree pane accordingly.
                 treePane_.getSelectionModel ().setSelectionPath (treePane_.getPath (object));
             }
         }
-
-        private String getCopyright ()             { return Copyright_v.copyright; }
     }
 
 
@@ -798,7 +786,6 @@ details pane.
             }
         }
 
-        private String getCopyright ()             { return Copyright_v.copyright; }
     }
 
 

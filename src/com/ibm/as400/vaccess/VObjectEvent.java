@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VObjectEvent.java
 //                                                                             
@@ -19,7 +19,7 @@ import java.util.EventObject;
 
 /**
 The VObjectEvent class represents an event that
-is fired when an AS/400 resource is changed,
+is fired when a server resource is changed,
 created, or deleted.
 
 @see VObjectListener
@@ -43,7 +43,7 @@ extends EventObject
 Constructs a VObjectEvent object.
 
 @param  source      The event source.
-@param  object      The affected AS/400 resource.
+@param  object      The affected server resource.
 **/
     public VObjectEvent (Object source, VObject object)
     {
@@ -67,8 +67,8 @@ Constructs a VObjectEvent object.
 Constructs a VObjectEvent object.
 
 @param  source      The event source.
-@param  object      The affected AS/400 resource.
-@param  parent      The parent of the affected AS/400 resource.
+@param  object      The affected server resource.
+@param  parent      The parent of the affected server resource.
                     This is only relevant for object created
                     events.
 **/
@@ -82,19 +82,9 @@ Constructs a VObjectEvent object.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
+Returns the affected server resource.
 
-
-
-/**
-Returns the affected AS/400 resource.
-
-@return The AS/400 resource.
+@return The server resource.
 **/
     public VObject getObject ()
     {
@@ -104,7 +94,7 @@ Returns the affected AS/400 resource.
 
 
 /**
-Returns the parent of the affected AS/400 resource.
+Returns the parent of the affected server resource.
 This is only relevant for object created events.
 
 @return The parent, or null if none was set.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ErrorDialogAdapter.java
 //                                                                             
@@ -36,7 +36,7 @@ component is set, then a default frame will be used.
 
 <p>The following example creates an explorer pane filled
 with the contents of a directory in the integrated file
-system of an AS/400.  It will use an ErrorDialogAdapter
+system of a server.  It will use an ErrorDialogAdapter
 object to display all errors in a message dialog.
 
 <pre>
@@ -157,16 +157,6 @@ for dialogs.
     public Component getComponent ()
     {
         return component_;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VActionAdapter.java
 //                                                                             
@@ -37,7 +37,7 @@ class hierarchy to the javax.swing.Action class hierarchy.
 
 <p>The following example creates an action adapter which is
 used to put up a properties pane for a directory in the integrated
-file system of an AS/400.  The action adapter is then attached
+file system of a server.  The action adapter is then attached
 to a menu item, so that the action is performed when the menu
 item is selected.
 
@@ -151,16 +151,6 @@ bound property changes.
     public void addPropertyChangeListener (PropertyChangeListener listener)
     {
         propertyChangeSupport_.addPropertyChangeListener (listener);
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

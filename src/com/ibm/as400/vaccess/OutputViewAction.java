@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputViewAction.java
 //                                                                             
@@ -411,16 +411,6 @@ Creates the menu bar.
 
 
 /**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
-    }
-
-
-
-/**
 Returns the text for this action.
 
 @return The text for the action.
@@ -667,15 +657,6 @@ PropertyChangeListener.
             else if (changedProperty.equals("spooledFile")) {
                 spooledFile_ = spooledFileViewer_.getSpooledFile();
             }
-        }
-
-
-        /**
-        Copyright.
-        **/
-        private String getCopyright ()
-        {
-            return Copyright_v.copyright;
         }
 
     }

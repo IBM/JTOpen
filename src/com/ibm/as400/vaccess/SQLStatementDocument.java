@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLStatementDocument.java
 //                                                                             
@@ -38,7 +38,7 @@ The SQLStatementDocument class represents SQL statement that is
 issued when <i>execute()</i> is called.
 
 <p>It is up to the user to register a JDBC driver when using this class.
-For example, the following code registers the AS/400 Toolbox for Java
+For example, the following code registers the IBM Toolbox for Java
 JDBC driver.
 <pre>
    DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());
@@ -276,15 +276,6 @@ Returns the SQL connection used to execute statements.
 public SQLConnection getConnection ()
 {
     return connection_;
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemValueList.java
 //                                                                             
@@ -37,10 +37,10 @@ import java.util.Enumeration;
 
 /**
  * The VSystemValueList class defines the representation of a 
- * system value list in an AS/400 for use in various models 
+ * system value list in a server for use in various models 
  * and panes in this package.
  * You must explicitly call load() to load the information from
- * the AS/400.
+ * the server.
  * 
  * <p>Most errors are reported as ErrorEvents rather than
  * throwing exceptions.  Users should listen for ErrorEvents
@@ -133,7 +133,7 @@ public class VSystemValueList implements VNode, java.io.Serializable
 
     /**
      * Constructs a VSystemValueList object.
-     * @param system  The AS/400 system.
+     * @param system  The system.
     **/    
     public VSystemValueList(AS400 system)
     {
@@ -144,7 +144,7 @@ public class VSystemValueList implements VNode, java.io.Serializable
     /**
      * Constructs a VSystemValueList object.
      *  @param parentNode    The parent node.
-     *  @param system         The AS/400 system.
+     *  @param system         The system.
     **/
     public VSystemValueList(VNode parentNode, AS400 system)
     {
@@ -414,10 +414,10 @@ public class VSystemValueList implements VNode, java.io.Serializable
     }
     
     /**
-     * Returns the AS/400 system in which the system 
+     * Returns the system in which the system 
      * values resides.
      * 
-     * @return The AS/400 system in which the system
+     * @return The system in which the system
      * values resides.
      * 
      * @see com.ibm.as400.access.SystemValueList
@@ -488,7 +488,7 @@ public class VSystemValueList implements VNode, java.io.Serializable
     }
     
     /**
-     * Loads information about the object from the AS/400.
+     * Loads information about the object from the server.
     **/    
     public void load()
     {
@@ -581,9 +581,9 @@ public class VSystemValueList implements VNode, java.io.Serializable
     }
 
     /**
-     * Sets the AS400 system from which the system values will be retrieved.
+     * Sets the system from which the system values will be retrieved.
      *
-     * @param   system The AS/400 system object.
+     * @param   system The system object.
      * @exception PropertyVetoException If the change is vetoed.
      * @see     #getSystem
     **/

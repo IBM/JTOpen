@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLStatementMenuItem.java
 //                                                                             
@@ -36,7 +36,7 @@ The SQLStatementMenuItem class represents a menu item that issues a
 SQL statement when chosen.
 
 <p>It is up to the user to register a JDBC driver when using this class.
-For example, the following code registers the AS/400 Toolbox for Java
+For example, the following code registers the IBM Toolbox for Java
 JDBC driver.
 <pre>
    DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());
@@ -214,15 +214,6 @@ Returns the SQL connection used to execute statements.
 public SQLConnection getConnection ()
 {
     return connection_;
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 
@@ -615,11 +606,6 @@ public void actionPerformed(ActionEvent ev)
     worker_.stopWorking(new WorkingEvent(this));
 
     workingListeners_.fireStopWorking ();
-}
-
-private String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 }  // end of class MenuListener_

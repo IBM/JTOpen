@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLResultSetFormPane.java
 //                                                                             
@@ -50,7 +50,7 @@ when <i>load()</i> is called.  If <i>load()</i> is not called,
 the form will be empty.
 
 <p>It is up to the user to register a JDBC driver when using this class.
-For example, the following code registers the AS/400 Toolbox for Java
+For example, the following code registers the IBM Toolbox for Java
 JDBC driver.
 <pre>
    DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());

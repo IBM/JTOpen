@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSDeleteAction.java
 //                                                                             
@@ -55,16 +55,6 @@ Constructs an IFSDeleteAction object.
     {
         super (object, confirmTitleText_, confirmMessageText_);
         file_ = file;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VQueuedMessage.java
 //                                                                             
@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 /**
 The VQueuedMessage class defines the representation of
-a queued message on an AS/400 for use in various models
+a queued message on a server for use in various models
 and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -198,16 +198,6 @@ Returns the actions that can be performed.
     public VAction[] getActions ()
     {
         return actions_;
-    }
-
-
-
-/**
-Copyright.
-**/
-    private static String getCopyright ()
-    {
-        return Copyright_v.copyright;
     }
 
 
@@ -385,7 +375,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the AS/400.
+Loads information about the object from the server.
 **/
     public void load ()
     {

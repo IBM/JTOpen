@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ErrorEventSupport.java
 //                                                                             
@@ -212,16 +212,6 @@ void fireError(ErrorEvent event)
             errorListeners_[i].errorOccurred(event);
         }
     }
-}
-
-
-
-/**
-Copyright.
-**/
-private static String getCopyright ()
-{
-    return Copyright_v.copyright;
 }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VSystemStatus.java
 //                                                                             
@@ -45,10 +45,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 
 /**
- * The VSystemStatus class defines the representation of system status on an
- * AS/400 for use in various models and panes in this package.
+ * The VSystemStatus class defines the representation of system status on a
+ * server for use in various models and panes in this package.
  * The method load() must be explicitly called to load the information from
- * the AS/400.
+ * the server.
 
  * <p>Most errors are reported as ErrorEvents rather than throwing exceptions.
  *    Users should listen for ErrorEvents in order to diagnose and recover
@@ -158,7 +158,7 @@ public class VSystemStatus implements VNode, Serializable //@B0C
 
    /**
     * Constructs a VSystemStatus object.
-    * @exception AS400Exception If the AS/400 system returns an error
+    * @exception AS400Exception If the system returns an error
                  message.
     * @exception AS400SecurityException If a security or authority error
                  occurs.
@@ -168,8 +168,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                  the request is completed.
     * @exception InterruptedException If this thread is interrupted.
     * @exception IOException If an error occurs while communicating with
-                 the AS/400.
-    * @exception ObjectDoesNotExistException If the AS/400 object does not
+                 the server.
+    * @exception ObjectDoesNotExistException If the server object does not
                  exist.
     * @exception PropertyVetoException If the change is vetoed.
     * @exception UnsupportedEncodingException If the character encoding is
@@ -195,9 +195,9 @@ public class VSystemStatus implements VNode, Serializable //@B0C
    /**
     * Constructs a VSystemStatus object.
     *
-    * @param system The AS/400 system in which the system status information
+    * @param system The system in which the system status information
     *               resides.
-    * @exception AS400Exception If the AS/400 system returns an error
+    * @exception AS400Exception If the system returns an error
                  message.
     * @exception AS400SecurityException If a security or authority error
                  occurs.
@@ -207,8 +207,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                  the request is completed.
     * @exception InterruptedException If this thread is interrupted.
     * @exception IOException If an error occurs while communicating with
-                 the AS/400.
-    * @exception ObjectDoesNotExistException If the AS/400 object does not
+                 the server.
+    * @exception ObjectDoesNotExistException If the server object does not
                  exist.
     * @exception PropertyVetoException If the change is vetoed.
     * @exception UnsupportedEncodingException If the character encoding is
@@ -239,7 +239,7 @@ public class VSystemStatus implements VNode, Serializable //@B0C
        * Constructs a VSystemStatus object.
        *
        * @param systemStatus The underlying system status object.
-       * @exception AS400Exception If the AS/400 system returns an error
+       * @exception AS400Exception If the system returns an error
                     message.
        * @exception AS400SecurityException If a security or authority error
                     occurs.
@@ -249,8 +249,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                     the request is completed.
        * @exception InterruptedException If this thread is interrupted.
        * @exception IOException If an error occurs while communicating with
-                    the AS/400.
-       * @exception ObjectDoesNotExistException If the AS/400 object does not
+                    the server.
+       * @exception ObjectDoesNotExistException If the server object does not
                     exist.
        * @exception PropertyVetoException If the change is vetoed.
        * @exception UnsupportedEncodingException If the character encoding is
@@ -275,8 +275,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
     * Constructs a VSystemStatus object.
     *
     * @param parent The parent.
-    * @param system The AS/400 system from which the user will be retrieved.
-    * @exception AS400Exception If the AS/400 system returns an error
+    * @param system The system from which the user will be retrieved.
+    * @exception AS400Exception If the system returns an error
                  message.
     * @exception AS400SecurityException If a security or authority error
                  occurs.
@@ -286,8 +286,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                  the request is completed.
     * @exception InterruptedException If this thread is interrupted.
     * @exception IOException If an error occurs while communicating with
-                 the AS/400.
-    * @exception ObjectDoesNotExistException If the AS/400 object does not
+                 the server.
+    * @exception ObjectDoesNotExistException If the server object does not
                  exist.
     * @exception PropertyVetoException If the change is vetoed.
     * @exception UnsupportedEncodingException If the character encoding is
@@ -552,9 +552,9 @@ public class VSystemStatus implements VNode, Serializable //@B0C
    }
 
    /**
-    * Returns the AS/400 system in which the system status information resides.
+    * Returns the system in which the system status information resides.
     *
-    * @return The AS/400 system in which the system status information resides.
+    * @return The system in which the system status information resides.
     *
     * @see com.ibm.as400.access.SystemStatus#getSystem
    **/
@@ -624,7 +624,7 @@ public class VSystemStatus implements VNode, Serializable //@B0C
    }
 
    /**
-    * Loads information about the object from the AS/400.
+    * Loads information about the object from the server.
    **/
    public void load ()
    {   
@@ -775,10 +775,10 @@ public class VSystemStatus implements VNode, Serializable //@B0C
    }
 
    /**
-    * Sets the AS/400 system in which the system status information resides.
+    * Sets the system in which the system status information resides.
     *
     * @see com.ibm.as400.access.SystemStatus#setSystem
-    * @param system The AS/400 system in which the system status information
+    * @param system The system in which the system status information
     *               resides.
     * @exception PropertyVetoException If the change is vetoed.
    **/

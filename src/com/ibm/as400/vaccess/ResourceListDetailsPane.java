@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceListDetailsPane.java
 //                                                                             
@@ -116,7 +116,7 @@ frame.show();
 <br>
 // The ResourceListDetailsPane will appear empty until
 // we load it.  This gives us control of when the list
-// of users is retrieved from the AS/400.
+// of users is retrieved from the server.
 detailsPane.load();
 </pre></blockquote>
 
