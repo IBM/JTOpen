@@ -61,13 +61,14 @@ import com.ibm.as400.access.*;
  *  If this option is not specified, the PCML will be loaded when the ToolboxME ProgramCall
  *  request is made.  The PCML will be loaded during runtime and will decrease performance.
  *
+ *  This option may be abbreviated
  *  <code>-pc</code>.  
  *  </dd>
  *
  *  <dt><b><code>-port</b></code> port</dt>
  *  <dd>
  *  Specifies the port to use for accepting connections from clients. This option may be abbreviated -po.
- *  The default port is 3470. 
+ *  The default port is 3470.   This option may be abbreviated
  *  <code>-po</code>.  
  *  </dd>
  *  
@@ -114,7 +115,7 @@ public class MEServer implements Runnable
 
     private static int port_;
     private static int threadIndex_ = 0;
-    
+
     private static final Vector           expectedOptions_  = new Vector();
     private static final Hashtable      shortcuts_             = new Hashtable();
 
@@ -174,7 +175,7 @@ public class MEServer implements Runnable
                 connection_.close();
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error closing MEServer SQL Connection.", e);
         }
@@ -185,7 +186,7 @@ public class MEServer implements Runnable
             system_ = null;
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error disconnecting all services on MEServer.", e);
         }
@@ -198,7 +199,7 @@ public class MEServer implements Runnable
             input_ = null;
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error closing MEServer input stream.", e);
         }
@@ -209,7 +210,7 @@ public class MEServer implements Runnable
             output_ = null;
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error closing MEServer output stream.", e);
         }
@@ -223,21 +224,21 @@ public class MEServer implements Runnable
                 verbose_.println ( ResourceBundleLoader_m.getText ("ME_CONNECTION_CLOSED", Thread.currentThread().getName() ) );
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error closing MEServer socket.", e);
         }
 
         try
         {
-            for (Enumeration e = cachedJDBCTransactions_.keys() ; e.hasMoreElements() ;) 
+            for (Enumeration e = cachedJDBCTransactions_.keys() ; e.hasMoreElements() ;)
             {
                 ((AS400JDBCResultSet) cachedJDBCTransactions_.get(e)).close();
                 cachedJDBCTransactions_.remove(e);
             }
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error closing SQL Result Set.", e);
         }
@@ -418,7 +419,7 @@ public class MEServer implements Runnable
                 output_.write(b, 0, b.length);
             } 
         }
-        
+
         output_.flush();
     }
 
@@ -437,7 +438,7 @@ public class MEServer implements Runnable
     {
         String queueName = input_.readUTF();
         int dataType = input_.readInt();
-        
+
         if (Trace.isTraceOn())
             Trace.log(Trace.INFORMATION, "Performing ToolboxME Data Queue Write...");
 
@@ -449,9 +450,9 @@ public class MEServer implements Runnable
             {
                 int len = input_.readInt();
                 byte[] data = new byte[len];
-                
+
                 input_.readFully(data);
-                
+
                 dq.write(data);
             }
             else if (dataType == MEConstants.DATA_QUEUE_STRING)
@@ -681,14 +682,14 @@ public class MEServer implements Runnable
                 Properties prop = new Properties();
 
                 if (info != MEConstants.NO_CONNECTION_PROPERTIES)
-                {   
+                {
                     // Read in each connection property name and value.
                     for (int i=0; i<info; ++i)
                     {
                         prop.put(input_.readUTF(), input_.readUTF());
                     }
                 }
-                
+
                 connection_ = driver_.connect(system_, prop, null);
             }
 
@@ -702,6 +703,327 @@ public class MEServer implements Runnable
 
             output_.writeInt(MEConstants.SQL_STATEMENT_SUCCEEDED);
             output_.writeInt(transactionID);
+            output_.flush();
+        }
+        catch (SQLException e)
+        {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.ERROR, e);
+
+            output_.writeInt(MEConstants.SQL_EXCEPTION);
+            output_.writeUTF( e.getMessage() );
+            output_.flush();
+        }
+    }
+
+
+    /**
+     * Receives the SQL query datastream from the client and executes the statement.
+     * The query will either return a Result Set or the output data for all the output
+     * parameters registered.
+     *
+     * The only output parameters that are NOT supported are:  ARRAY, DISTINCT,
+     * JAVA_OBJECT, REF, STRUCT, and TINYINT.  
+     *
+     * Datastream request format:
+     *  String - Database URL
+     *  String - SQL query to execute
+     *  int - the callable statement parameter type (intput/output)
+     *  int/string - the parameter value.
+     *
+     * Datastream reply format:
+     *  int - query status (e.g. successful)
+     *
+     * And if it is successful:
+     *  int - transaction ID for this statement
+     *  or
+     *  String[] - the array of output parameter data.
+     **/
+    private void doSQLCallable(int action) throws IOException
+    {
+        if (Trace.isTraceOn())
+            Trace.log(Trace.INFORMATION, "Performing ToolboxME SQL...");
+
+        try
+        {
+            if (connection_ == null)
+            {
+                // Read in the number of connection properties
+                int info = input_.readInt();
+
+                Properties prop = new Properties();
+
+                if (info != MEConstants.NO_CONNECTION_PROPERTIES)
+                {
+                    // Read in each connection property name and value.
+                    for (int i=0; i<info; ++i)
+                    {
+                        prop.put(input_.readUTF(), input_.readUTF());
+                    }
+                }
+
+                connection_ = driver_.connect(system_, prop, null);
+            }
+
+            String query = input_.readUTF();
+
+            // The statement has to be scrollable for the user to be able to call next(), previous(), or absolute( x )
+            // in any order.  Otherwise an invalid cursor state will be received.
+            CallableStatement cs = connection_.prepareCall(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+
+            // Read in the number of callable statement input parameters.
+            int inputSize = input_.readInt();
+            
+            if (Trace.isTraceOn())
+                Trace.log(Trace.INFORMATION, "Number of Input Parameters: " + inputSize);
+
+            if (inputSize != MEConstants.NO_CALLABLE_PARAMETERS)
+            {  
+                for (int i=0; i<inputSize; ++i)
+                {
+                    int index = input_.readInt();
+                    String value = input_.readUTF();
+
+                    if (Trace.isTraceOn())
+                            Trace.log(Trace.INFORMATION, "Input Index: " + index + " Value:" + value);
+
+                    cs.setString(index, value.equals("null") ? null : value);
+                }
+            }
+
+            // Read in the number of callable statement output parameters
+            int outputSize = input_.readInt();
+
+            Vector outputParms = null;
+            
+            if (Trace.isTraceOn())
+                Trace.log(Trace.INFORMATION, "Number of Ouput Parameters: " + outputSize);
+
+            // If there are no callable output parameters.
+            if (outputSize != MEConstants.NO_CALLABLE_PARAMETERS)
+            {
+                outputParms = new Vector(outputSize);
+
+                // Read in each parameter type and value.
+                for (int j=0; j<outputSize; ++j)
+                {
+                    
+                    int index = input_.readInt();
+                    int value = input_.readInt();
+
+                    outputParms.addElement(new OutputParameterData(index, value));
+
+                    if (Trace.isTraceOn())
+                        Trace.log(Trace.INFORMATION, "Output Index: " + index + " Value: " + value);
+                    
+                        // Determine the type of the output data and register the output parameter.
+                        switch (value)
+                        {
+                        //case Types.ARRAY:                                            
+                        //    cs.registerOutParameter(index, Types.ARRAY);
+                        //    break;
+                        case Types.BIGINT:
+                            cs.registerOutParameter(index, Types.BIGINT);
+                            break;
+                        case Types.BINARY:
+                            cs.registerOutParameter(index, Types.BINARY);
+                            break;
+                        case Types.BIT:
+                            cs.registerOutParameter(index, Types.BIT);
+                            break;
+                        case Types.CHAR:
+                            cs.registerOutParameter(index, Types.CHAR);
+                            break;
+                        case Types.DATE:
+                            cs.registerOutParameter(index, Types.DATE);
+                            break;
+                        case Types.DECIMAL:
+                            cs.registerOutParameter(index, Types.DECIMAL);
+                            break;
+                            //case Types.DISTINCT:
+                            //    cs.registerOutParameter(index, Types.DISTINCT);
+                            //    break;
+                        case Types.DOUBLE:
+                            cs.registerOutParameter(index, Types.DOUBLE);
+                            break;
+                        case Types.FLOAT:
+                            cs.registerOutParameter(index, Types.FLOAT);
+                            break;
+                        case Types.INTEGER:
+                            cs.registerOutParameter(index, Types.INTEGER);
+                            break;
+                            //case Types.JAVA_OBJECT:
+                            //    cs.registerOutParameter(index, Types.JAVA_OBJECT);
+                            //    break;
+                        case Types.LONGVARBINARY:
+                            cs.registerOutParameter(index, Types.LONGVARBINARY);
+                            break;
+                        case Types.LONGVARCHAR:
+                            cs.registerOutParameter(index, Types.LONGVARCHAR);
+                            break;
+                        case Types.NULL:
+                            cs.registerOutParameter(index, Types.NULL);
+                            break;
+                        case Types.NUMERIC:
+                            cs.registerOutParameter(index, Types.NUMERIC);
+                            break;
+                        case Types.REAL:
+                            cs.registerOutParameter(index, Types.REAL);
+                            break;
+                            //case Types.REF:
+                            //    cs.registerOutParameter(index, Types.REF);
+                            //    break;
+                        case Types.SMALLINT:
+                            cs.registerOutParameter(index, Types.SMALLINT);
+                            break;
+                            //case Types.STRUCT:
+                            //    cs.registerOutParameter(index, Types.STRUCT);
+                            //    break;
+                        case Types.TIME:
+                            cs.registerOutParameter(index, Types.TIME);
+                            break;
+                        case Types.TIMESTAMP:
+                            cs.registerOutParameter(index, Types.TIMESTAMP);
+                            break;
+                            //case Types.TINYINT:
+                            //    cs.registerOutParameter(index, Types.TINYINT);
+                            //    break;
+                        case Types.VARBINARY:
+                            cs.registerOutParameter(index, Types.VARBINARY);
+                            break;
+                        case Types.VARCHAR:
+                            cs.registerOutParameter(index, Types.VARCHAR);
+                            break;
+                        }
+                }
+            }
+
+
+            ResultSet rs = null;
+            
+            if (action != MEConstants.SQL_CALLABLE_GET_OUTPUT)
+                rs = cs.executeQuery();
+            else
+                cs.execute();   // ??? Check for boolean return value.
+
+            String[] data = null;
+
+            if (action == MEConstants.SQL_CALLABLE_GET_OUTPUT)
+            {
+                data = new String[outputSize];
+
+                // Loop through the hashtable and get the key (parameter index)
+                // and the key value (parameter java.sql.Types)
+                for (int i=0; i<outputSize; ++i)
+                {
+                    int index = ( (OutputParameterData) outputParms.elementAt(i)).index_;
+                    int type = ( (OutputParameterData) outputParms.elementAt(i)).type_;
+                    
+                    // If the request if for output data, then get the String value
+                    // of the output and add it to a String array.
+                    switch (type)
+                    {
+                    //case Types.ARRAY:                                            
+                    //    data[i] = getArray(index);
+                    //    break;
+                    case Types.BIGINT:
+                        data[i] = String.valueOf(cs.getLong(index));
+                        break;
+                    case Types.BINARY:
+                        data[i] = new String(cs.getBytes(index));
+                        break;
+                    case Types.BIT:
+                        data[i] = String.valueOf(cs.getLong(index));
+                        break;
+                    case Types.CHAR:
+                        data[i] = cs.getString(index);
+                        break;
+                    case Types.DATE:
+                        data[i] = cs.getDate(index).toString();
+                        break;
+                    case Types.DECIMAL:
+                        data[i] = cs.getBigDecimal(index).toString();
+                        break;
+                        //case Types.DISTINCT:
+                        //    data[i] = getArray(index);
+                        //    break;
+                    case Types.DOUBLE:
+                        data[i] = String.valueOf(cs.getDouble(index));
+                        break;
+                    case Types.FLOAT:
+                        data[i] = String.valueOf(cs.getFloat(index));
+                        break;
+                    case Types.INTEGER:
+                        data[i] = String.valueOf(cs.getInt(index));
+                        break;
+                        //case Types.JAVA_OBJECT:
+                        //    data[i] = getArray(index);
+                        //    break;
+                    case Types.LONGVARBINARY:
+                        data[i] = new String(cs.getBytes(index));
+                        break;
+                    case Types.LONGVARCHAR:
+                        data[i] = cs.getString(index);
+                        break;
+                    case Types.NULL:
+                        data[i] = new String("null");
+                        break;
+                    case Types.NUMERIC:
+                        data[i] = cs.getBigDecimal(index).toString();
+                        break;
+                    case Types.REAL:
+                        data[i] = String.valueOf(cs.getFloat(index));
+                        break;
+                        //case Types.REF:
+                        //    data[i] = cs.getRef(index).getBaseTypeName();
+                        //    break;
+                    case Types.SMALLINT:
+                        data[i] = String.valueOf(cs.getShort(index));
+                        break;
+                        //case Types.STRUCT:
+                        //    data[i] = getArray(index);
+                        //    break;
+                    case Types.TIME:
+                        data[i] = cs.getTime(index).toString();
+                        break;
+                    case Types.TIMESTAMP:
+                        data[i] = cs.getTimestamp(index).toString();
+                        break;
+                        //case Types.TINYINT:
+                        //    data[i] = getArray(index);
+                        //    break;
+                    case Types.VARBINARY:
+                        data[i] = new String(cs.getBytes(index));
+                        break;
+                    case Types.VARCHAR:
+                        data[i] = cs.getString(index);
+                        break;
+                    }
+                }
+            }
+            
+            output_.writeInt(MEConstants.SQL_STATEMENT_SUCCEEDED);
+            output_.flush();
+
+            // If the client request was to get the parameter output data.
+            if (action == MEConstants.SQL_CALLABLE_GET_OUTPUT)
+            {
+                int size = data.length;
+
+                output_.writeInt(size);
+                output_.flush();
+
+                for (int i=0; i<size; ++i)
+                {
+                    output_.writeUTF(data[i]);
+                }
+            }
+            else
+            {
+                int transactionID = cacheTransaction(rs);
+                output_.writeInt(transactionID);
+            }
+
             output_.flush();
         }
         catch (SQLException e)
@@ -736,7 +1058,7 @@ public class MEServer implements Runnable
             {
                 // Read in the number of connection properties
                 int info = input_.readInt(); 
-                
+
                 Properties prop = new Properties();
 
                 if (info != MEConstants.NO_CONNECTION_PROPERTIES)
@@ -758,7 +1080,7 @@ public class MEServer implements Runnable
 
             Statement s = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
             int rowCount = s.executeUpdate(update);
-            
+
             output_.writeInt(MEConstants.SQL_STATEMENT_SUCCEEDED);
             output_.writeInt(rowCount);
             output_.flush();
@@ -785,7 +1107,7 @@ public class MEServer implements Runnable
 
         Integer key = new Integer(transactionID);
         ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-        
+
         if (rs == null)
         {
             output_.writeInt(MEConstants.SQL_POSITION_CURSOR_FAILED);
@@ -796,7 +1118,7 @@ public class MEServer implements Runnable
             try
             {
                 boolean b = false;
-                
+
                 if (sqlCommand == MEConstants.SQL_NEXT)
                     b = rs.next();
                 else if (sqlCommand == MEConstants.SQL_PREVIOUS)
@@ -813,7 +1135,7 @@ public class MEServer implements Runnable
 
                 if (Trace.isTraceOn())
                     Trace.log(Trace.INFORMATION, "ToolboxME SQL Cursor Position Successful: " + b);
-                
+
                 output_.writeInt(MEConstants.SQL_POSITION_CURSOR_SUCCESSFUL);
                 output_.writeBoolean(b);
                 output_.flush();
@@ -840,7 +1162,7 @@ public class MEServer implements Runnable
 
         Integer key = new Integer(transactionID);
         ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-        
+
         if (rs == null)
         {
             output_.writeInt(MEConstants.SQL_REQUEST_FAILED);
@@ -848,7 +1170,7 @@ public class MEServer implements Runnable
         }
         else
         {
-            try 
+            try
             {
                 output_.writeInt( rs.getRow() );
                 output_.flush();
@@ -863,7 +1185,7 @@ public class MEServer implements Runnable
                 output_.writeUTF( e.getMessage() );
                 output_.flush();
             }
-            
+
         }
     }
 
@@ -880,7 +1202,7 @@ public class MEServer implements Runnable
 
         Integer key = new Integer(transactionID);
         ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-        
+
         if (rs == null)
         {
             output_.writeInt(MEConstants.SQL_REQUEST_FAILED);
@@ -894,14 +1216,14 @@ public class MEServer implements Runnable
                 output_.flush();
 
                 int numColumns = rs.getMetaData().getColumnCount();                  
-                
+
                 output_.writeInt(numColumns);
                 output_.flush();
 
                 for (int i=1; i<=numColumns; ++i)
                 {
                     String s = rs.getString(i);
-                    
+
                     output_.writeUTF(s);
                     output_.flush();
                 }
@@ -945,13 +1267,13 @@ public class MEServer implements Runnable
         return prog;
     }
 
-    
+
     /**
      *  Load a ProgramCallDocument.
      **/
     private ProgramCallDocument loadDocument(String pcml)
     {
-        try 
+        try
         {
             return getPCMLDocument(pcml);
         }
@@ -972,7 +1294,7 @@ public class MEServer implements Runnable
                     output_.flush();
                 }
                 catch (IOException e)
-                { 
+                {
                     if (Trace.isTraceErrorOn ())
                         Trace.log (Trace.ERROR, "Error returning exception, from PCML load, to ME client.", e);
                 }
@@ -984,7 +1306,7 @@ public class MEServer implements Runnable
         {
             if (pcml == null)
                 verbose_.println( ResourceBundleLoader_m.getText("ME_PCML_ERROR") );
-            
+
             if (Trace.isTraceOn())
                 Trace.log(Trace.ERROR, n);
 
@@ -998,7 +1320,7 @@ public class MEServer implements Runnable
                     output_.flush();
                 }
                 catch (IOException e)
-                { 
+                {
                     if (Trace.isTraceErrorOn ())
                         Trace.log (Trace.ERROR, "Error returning exception, from PCML load, to ME client.", e);
                 }
@@ -1160,7 +1482,7 @@ public class MEServer implements Runnable
             {
                 // Process next datastream from client.
                 int cmd = input_.readInt();
-                
+
                 if (Trace.isTraceOn())
                     Trace.log(Trace.DATASTREAM, "ME Datastream Request: " + Integer.toHexString(cmd));
 
@@ -1184,23 +1506,29 @@ public class MEServer implements Runnable
                 case MEConstants.SQL_QUERY:
                     doSQLQuery();
                     break;
+                case MEConstants.SQL_CALLABLE_QUERY:
+                    doSQLCallable(cmd);
+                    break;
+                case MEConstants.SQL_CALLABLE_GET_OUTPUT:
+                    doSQLCallable(cmd);
+                    break;
                 case MEConstants.SQL_ABSOLUTE:
-                    doSQLMove(MEConstants.SQL_ABSOLUTE);
+                    doSQLMove(cmd);
                     break;
                 case MEConstants.SQL_CLOSE:
                     doSQLClose();
                     break;
                 case MEConstants.SQL_FIRST:
-                    doSQLMove(MEConstants.SQL_FIRST);
+                    doSQLMove(cmd);
                     break;
                 case MEConstants.SQL_LAST:
-                    doSQLMove(MEConstants.SQL_LAST);
+                    doSQLMove(cmd);
                     break;
                 case MEConstants.SQL_NEXT:
-                    doSQLMove(MEConstants.SQL_NEXT);
+                    doSQLMove(cmd);
                     break;
                 case MEConstants.SQL_PREVIOUS:
-                    doSQLMove(MEConstants.SQL_PREVIOUS);
+                    doSQLMove(cmd);
                     break;
                 case MEConstants.SQL_ROW_DATA:
                     doSQLGetRowData();
@@ -1228,11 +1556,11 @@ public class MEServer implements Runnable
         catch (Exception e)
         {
             if (Trace.isTraceErrorOn ())
-                    Trace.log (Trace.ERROR, e);
+                Trace.log (Trace.ERROR, e);
 
             stop(e.getMessage());
         }
-        
+
         close();
     }
 
@@ -1267,7 +1595,7 @@ public class MEServer implements Runnable
         boolean retVal = false;
 
         try
-        {   
+        {
             system_ = new AS400(serverName, userid, resolve(bytes));
 
             // Wireless devices don't have NLS support in the KVM yet.
@@ -1291,7 +1619,7 @@ public class MEServer implements Runnable
         int retCode = MEConstants.SIGNON_SUCCEEDED;
 
         if (!retVal)
-        {   
+        {
             system_ = null;
             retCode = MEConstants.SIGNON_FAILED;
         }
@@ -1314,7 +1642,7 @@ public class MEServer implements Runnable
             output_.writeUTF(failure);
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error returning exception, during stop, to ME client.", e);
         }
@@ -1324,7 +1652,7 @@ public class MEServer implements Runnable
             output_.flush();
         }
         catch (Exception e)
-        { 
+        {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error flushing output stream during MEServer stop.", e);
         }
@@ -1470,7 +1798,6 @@ public class MEServer implements Runnable
         out.println ();
         out.println ("  -pcml     [pcml doc]");
         out.println ("  -port     port");
-        out.println ("  -reload   [pcml doc]");
         out.println ("  -verbose  [true | false]");
         out.println ("  -help");
         out.println ();                                                    
@@ -1478,7 +1805,6 @@ public class MEServer implements Runnable
         out.println ("  -v   [true | false]");  
         out.println ("  -pc  pcml doc1 [;pcml doc2;...]");
         out.println ("  -po  port");                                         
-        out.println ("  -rl  pcml doc1 [;pcml doc2;...]");
         out.println ("  -h");                                               
         out.println ("  -?");                                               
     }
