@@ -201,7 +201,13 @@ implements CallableStatement
             // Cache all the parm names and numbers.
 
             Statement s = connection_.createStatement();
-            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME from QSYS2.SYSPROCS WHERE ROUTINE_SCHEMA = '" + sqlStatement_.getSchema() + 
+            String catalogSeparator = "";                                                           //@74A Added a check for the naming used.  Need to use separator appropriate to naming.
+            if (connection_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))  //@74A
+                catalogSeparator = ".";                                                             //@74A
+            else                                                                                    //@74A
+                catalogSeparator = "/";                                                             //@74A
+
+            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME from QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + sqlStatement_.getSchema() + //@74C
                                           "' AND ROUTINE_NAME = '" + sqlStatement_.getProcedure() + 
                                           "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
 
@@ -211,7 +217,7 @@ implements CallableStatement
 
             String specificName = rs.getString(1);
 
-            rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2.SYSPARMS WHERE " +
+            rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
                                 " SPECIFIC_NAME = '" + specificName + "' AND SPECIFIC_SCHEMA = '" + sqlStatement_.getSchema() + "'");
 
             while(rs.next())
