@@ -653,7 +653,6 @@ public class AS400JDBCStatement implements Statement
                     //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);       //@F8A
                     //@K1D     else  //else property set to sensitive                                                    //@F8A
                     //@K1D         request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);          //@F8A
-                    }
                     //@K1D }
                     //If earlier than V5R2, do what we always have                                                       //@K1A
                     if(connection_.getVRM() < JDUtilities.vrm520)                                                        //@K1A
