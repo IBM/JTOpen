@@ -930,7 +930,7 @@ public class Command implements Serializable
     String prodLib = handler.getProductLibrary();
     boolean added = false;
     if (panelGroup != null) xmlPanelGroup_ = panelGroup.trim();
-    if (prodLib != null) xmlProductLibrary_ = prodLib.trim();
+    if (prodLib != null && !prodLib.equalsIgnoreCase("__NONE")) xmlProductLibrary_ = prodLib.trim();
 
     refreshedParsedXML_ = true;
   }
@@ -953,36 +953,40 @@ public class Command implements Serializable
     // otherwise the API used by PanelGroup won't find the help text.
     // First, check to see if it's there.
     boolean added = false;
-    Job job = new Job(system_); // Current job
-    String[] userLibraries = job.getUserLibraryList();
-    String[] sysLibraries = job.getSystemLibraryList();
-    String curLibrary = job.getCurrentLibrary();
-    boolean exists = false;
-    if (curLibrary.trim().equalsIgnoreCase(xmlProductLibrary_))
+    String prdLib = getXMLProductLibrary();
+    if (prdLib != null)
     {
-      exists = true;
-    }
-    for (int i=0; i<userLibraries.length && !exists; ++i)
-    {
-      if (userLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
+      Job job = new Job(system_); // Current job
+      String[] userLibraries = job.getUserLibraryList();
+      String[] sysLibraries = job.getSystemLibraryList();
+      String curLibrary = job.getCurrentLibrary();
+      boolean exists = false;
+      if (curLibrary.trim().equalsIgnoreCase(prdLib))
       {
         exists = true;
       }
-    }
-    for (int i=0; i<sysLibraries.length && !exists; ++i)
-    {
-      if (sysLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
+      for (int i=0; i<userLibraries.length && !exists; ++i)
       {
-        exists = true;
+        if (userLibraries[i].trim().equalsIgnoreCase(prdLib))
+        {
+          exists = true;
+        }
       }
-    }
-    if (!exists)
-    {
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs: Adding "+xmlProductLibrary_+" to library list.");
-      // We have to try to add it.
-      String addlible = "ADDLIBLE LIB("+xmlProductLibrary_+")";
-      CommandCall cc = new CommandCall(system_, addlible);
-      added = cc.run();
+      for (int i=0; i<sysLibraries.length && !exists; ++i)
+      {
+        if (sysLibraries[i].trim().equalsIgnoreCase(prdLib))
+        {
+          exists = true;
+        }
+      }
+      if (!exists)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs: Adding "+prdLib+" to library list.");
+        // We have to try to add it.
+        String addlible = "ADDLIBLE LIB("+prdLib+")";
+        CommandCall cc = new CommandCall(system_, addlible);
+        added = cc.run();
+      }
     }
 
     Vector keywords = handler.getKeywords();
@@ -1003,7 +1007,7 @@ public class Command implements Serializable
     // Remove the product library from the library list if we added it.
     if (added)
     {
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+xmlProductLibrary_+" from library list.");
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+prdLib+" from library list.");
       String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";
       CommandCall cc = new CommandCall(system_, rmvlible);
       cc.run();
