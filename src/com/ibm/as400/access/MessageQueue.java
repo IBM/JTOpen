@@ -548,8 +548,12 @@ need replies.
       String messageQueueLibraryUsed = conv.byteArrayToString(data, offset+59, 10).trim();
       String dateSent = conv.byteArrayToString(data, offset+69, 7); // CYYMMDD
       String timeSent = conv.byteArrayToString(data, offset+76, 6); // HHMMSS
-
-      messages[i] = new QueuedMessage(this, messageSeverity, messageIdentifier, messageType,
+      MessageQueue mq = this;
+      if (messageQueueLibraryUsed.length() > 0 && messageQueue.length() > 0)
+      {
+        mq = new MessageQueue(system_, QSYSObjectPathName.toPath(messageQueueLibraryUsed, messageQueue, "MSGQ"));
+      }
+      messages[i] = new QueuedMessage(mq, messageSeverity, messageIdentifier, messageType,
                                       messageKey, messageFileName, messageFileLibrarySpecified, dateSent, timeSent);
 
       // Our 7 fields should've come back.
