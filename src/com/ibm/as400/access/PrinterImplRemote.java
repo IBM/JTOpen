@@ -39,6 +39,7 @@ class PrinterImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_AFP);         // advanced function printing
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ALIGNFORMS);  // align forms 
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ALWDRTPRT);   // allow direct printing 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_AUTOEND);     // automatically end writer?
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_BTWNCPYSTS);  // between copies status 
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_BTWNFILESTS); // between files status 
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHAR_ID);     // set of graphic characters
@@ -95,16 +96,16 @@ class PrinterImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRTFM);      // User transform program name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRTFMLIB);   // User transform program library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCS2ASCII);   // transform SCS to ASCII
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WRTNGSTS);    // writing status 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTNGDATASTS); // waiting for data status 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTNGDEVSTS);  // waiting for device status 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTNGMSGSTS);  // waiting for message status 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNAME);  // writer job name 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNUM);   // writer job number 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBSTS);   // writer job status 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBUSER);  // writer job user name 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRAUTOEND);  // when to automatically end writer 
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRSTRTD);    // writer started 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WRTNGSTS);    // writing status
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTNGDATASTS); // waiting for data status
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTNGDEVSTS);  // waiting for device status
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTNGMSGSTS);  // waiting for message status
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNAME);  // writer job name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNUM);   // writer job number
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBSTS);   // writer job status
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBUSER);  // writer job user name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRAUTOEND);  // when to automatically end writer
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRSTRTD);    // writer started
             fAttrIDsToRtvBuilt_ = true;
         }
     }
