@@ -259,7 +259,10 @@ public class CommandHelpRetriever
   };
 
   private static final String[][] transformedHTMLParms_ = getTransformedHTMLParms(Locale.getDefault());
-  private static final String[][] transformedUIMParms_ = getTransformedUIMParms(Locale.getDefault());
+  // Don't ask for UIM MRI unless someone calls the UIM methods.  Do this so this tool
+  // works with V5R2 MRI.
+//  private static final String[][] transformedUIMParms_ = getTransformedUIMParms(Locale.getDefault());
+  private static String[][] transformedUIMParms_;
 
   // Find the XSL document, generate an XSL template, load the resource bundles,
   // and generate the MRI strings.
@@ -1061,7 +1064,8 @@ public class CommandHelpRetriever
     String[][] transformedParms = null;
     if (locale == null) // Just use the default locale of the JVM. We already pre-loaded that MRI.
     {
-      transformedParms = transformedUIMParms_;
+      //transformedParms = transformedUIMParms_;
+      transformedParms = getTransformedUIMParms(Locale.getDefault());
     }
     else
     {
