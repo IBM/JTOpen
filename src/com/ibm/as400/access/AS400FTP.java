@@ -1007,8 +1007,8 @@ public class AS400FTP
    /**
     * Sets the data transfer type.  Valid values are:
     * <UL>
-    * <LI>ASCII
-    * <LI>BINARY
+    * <LI>{@link FTP#ASCII ASCII}
+    * <LI>{@link FTP#BINARY BINARY}
     * </UL>
     * <P>
     * If a connection does not
