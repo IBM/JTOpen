@@ -394,7 +394,14 @@
     <!-- Generate value for "Description" cell of table row using parameter prompt text.  -->
       <xsl:text>&#xa;</xsl:text>
       <td valign="top">
-        <xsl:value-of select="@Prompt"/>
+        <xsl:choose>
+          <xsl:when test="@Prompt!=''">
+            <xsl:value-of select="@Prompt"/>
+          </xsl:when>  
+          <xsl:otherwise>
+            &nbsp;
+          </xsl:otherwise>
+        </xsl:choose>      
       </td>
 
     <!-- Generate values for "Choices" cell of table row                     -->
