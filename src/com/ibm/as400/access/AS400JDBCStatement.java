@@ -103,6 +103,7 @@ implements Statement
     private     String                  name_;
     private     String                  nameOverride_;
     int                     numberOfResults_;       // private protected
+    int                     positionOfSyntaxError_;  //@F10A
     boolean                 prefetch_;              // private protected
     private     int                     queryTimeout_;
     AS400JDBCResultSet      resultSet_;             // private protected
@@ -118,7 +119,7 @@ implements Statement
     private     SQLWarning              sqlWarning_;
     JDTransactionManager    transactionManager_;    // private protected
     int                     updateCount_;           // private protected
-    private     String                  packageCriteria_;             // @A1A
+    private     String      packageCriteria_;             // @A1A
     int                     behaviorOverride_ = 0;  // @F9a
 
 
@@ -214,7 +215,7 @@ implements Statement
         {                                                                         //@F4A
             connection.setCheckStatementHoldability(true);                        //@F4A
         }                                                                         //@F4A
-
+                        
         try                                                                        // @F9a
         {                                                                          // @F9a
            behaviorOverride_ = connection_.getProperties().getInt(JDProperties.BEHAVIOR_OVERRIDE); // @F9a
@@ -630,9 +631,9 @@ implements Statement
                         || (resultSetType_ == ResultSet.TYPE_SCROLL_INSENSITIVE)                                       //@F8A
                         || (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE)))           //@F8A
                     {
-                    if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
+                        if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);
-                    else
+                        else 
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); 
                     }
                     //@F8 If we are V5R2 or later, send new numbers based on what the user
@@ -702,6 +703,8 @@ implements Statement
 
                     else if (errorClass != 0)
                     {
+                        positionOfSyntaxError_ = sqlca.getErrd(5); //@F10A
+
                         if (returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
                         else
@@ -998,6 +1001,8 @@ implements Statement
 
                     if (errorClass != 0)
                     {
+                        positionOfSyntaxError_ = reply.getSQLCA().getErrd(5); //@F10A
+
                         if (returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
                         else
@@ -1101,8 +1106,11 @@ implements Statement
                     int errorClass = reply.getErrorClass();
                     int returnCode = reply.getReturnCode();
 
+                    DBReplySQLCA sqlca = reply.getSQLCA ();  //@F10M
+
                     if (errorClass != 0)
                     {
+                        positionOfSyntaxError_ = sqlca.getErrd(5); //@F10A 
                         if (returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
                         else
@@ -1112,7 +1120,7 @@ implements Statement
                     transactionManager_.processCommitOnReturn(reply);           // @E2A
 
                     // Compute the update count.
-                    DBReplySQLCA sqlca = reply.getSQLCA ();
+                    //@F10M DBReplySQLCA sqlca = reply.getSQLCA ();
                     updateCount_ = sqlca.getErrd (3);    //@F1C
                     rowCountEstimate_ = -1;                                     // @ECA
 
@@ -1194,14 +1202,14 @@ implements Statement
             else
             {
 
-                // Sync up the RPB.
+// Sync up the RPB.
                 syncRPB ();
 
                 DBSQLRequestDS request = null; //@P0A
                 DBReplyRequestedDS reply = null; //@P0A
                 try
                 {
-                    int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT; //@F5A
+                    int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_SQLCA; //@F5A @F10C
                     //@F5A If we are on a server that supports extended column descriptors and if the               //@F5A
                     //@F5A user asked for them, send the extended column descriptors code point.                   //@F5A
                     boolean extendedMetaData = false;                                                              //@F5A
@@ -1245,9 +1253,11 @@ implements Statement
 
                     int errorClass = reply.getErrorClass();
                     int returnCode = reply.getReturnCode();
-
+                                        
                     if (errorClass != 0)
                     {
+                        positionOfSyntaxError_ = reply.getSQLCA().getErrd(5); //@F10A
+
                         if (returnCode < 0)
                             JDError.throwSQLException (connection_, id_, errorClass, returnCode);
                         else
@@ -1677,11 +1687,11 @@ implements Statement
             // Prepare and execute.
             JDServerRow resultRow = commonPrepare (sqlStatement);
             commonExecute (sqlStatement, resultRow);
-
+                                   
             if ((behaviorOverride_ & 1) == 0)                                  // @F9a
             {                                                                  // @F9a
-            if (resultSet_ == null)
-                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+               if (resultSet_ == null)
+                  JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
             }
                                                                                // @F9a
             return resultSet_;
@@ -2041,7 +2051,7 @@ implements Statement
                  or null if the application did not request auto-generated keys or 
                  did not execute the statement before calling this method.
     
-    @exception SQLException     If the statement is not open,
+    @exception SQLException     If the statement is not open,  
                                 if connecting to a V5R1 or earlier version of OS/400, 
                                 or an error occurs.
     @since Modification 5
@@ -2254,6 +2264,24 @@ implements Statement
     }
 
 
+    //@F10A
+    /**
+    Will return the value of the last syntax error that came back from the server.
+    
+    @return     The value of the character of the last syntax error from the server,
+                or 0 if no errors occurred or the value is not known.
+    
+    @exception  SQLException    If the statement is not open.
+    **/
+    public int getPositionOfSyntaxError ()
+    throws SQLException
+    {
+        synchronized(internalLock_)
+        {                                            
+            checkOpen ();
+            return positionOfSyntaxError_;
+        }
+    }
 
 
     /**

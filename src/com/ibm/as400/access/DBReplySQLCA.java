@@ -31,7 +31,7 @@ class DBReplySQLCA
     private int     offset_;
     private int     length_;
     // Add 96 to offset_ for Errd1, 100 to offset_ for Errd2, etc.
-    private static final int[]   locationFromOffset_ = {96, 100, 104, 108};  //@F1A
+    private static final int[]   locationFromOffset_ = {96, 100, 104, 108, 112};  //@F1A @F4C
 
 
 
@@ -143,7 +143,7 @@ class DBReplySQLCA
         return((b & (byte)0x02) > 0);                                          // @E2A
     }                                                                           // @E2A
 
-        
+
     // @F2A Added method for auto-generated key support.
     //
     // ONLY call this method after checking if sqlState != 0 because otherwise the error 
@@ -174,7 +174,7 @@ class DBReplySQLCA
 
     // Returns the SQLState
     // It needs to run thru EbcdicToAscii since it is a string
-   final public String getSQLState (ConvTable converter) throws DBDataStreamException //@P0C
+    final public String getSQLState (ConvTable converter) throws DBDataStreamException //@P0C
     {
         if (length_ <= 6)
             return null;
