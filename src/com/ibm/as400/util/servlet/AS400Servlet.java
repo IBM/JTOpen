@@ -15,6 +15,8 @@ package com.ibm.as400.util.servlet;
 
 import java.util.Properties;
 import java.io.IOException;
+import java.beans.PropertyVetoException;
+
 
 import javax.servlet.http.*;
 import javax.servlet.*;
@@ -55,7 +57,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
 		
    
    
-	/**
+   /**
     *  Close the connection pool.
     **/
 	public void destroy()
@@ -123,34 +125,43 @@ public abstract class AS400Servlet extends AuthenticationServlet
    
    
    /**
-	  *  Returns an AS400 object.
+     *  Returns an AS400 object.
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The AS400 system object.
-	 **/
+     **/
     public AS400 getSystem()
 		throws ConnectionPoolException  
     {
-		Thread currentThread = Thread.currentThread();
-		String threadId = currentThread.getName();		
-		Properties p = (Properties)getSessionData().get(threadId);
-		String sysName = p.getProperty("realm");
-		String uid = p.getProperty("uid");
-		String pwd = p.getProperty("pwd");
-		
-		AS400 sys;
-		if (connectionPool_ != null)
-			sys = connectionPool_.getConnection(sysName, uid, pwd);
-		else
-			sys = new AS400(sysName, uid, pwd);
-		
-		return sys;    
+	Thread currentThread = Thread.currentThread();
+	String threadId = currentThread.getName();		
+	Properties p = (Properties)getSessionData().get(threadId);
+	String sysName = p.getProperty("realm");
+	String uid = p.getProperty("uid");
+	String pwd = p.getProperty("pwd");
+	
+	AS400 sys;
+
+        if (connectionPool_ != null)
+            sys = connectionPool_.getConnection(sysName, uid, pwd);
+        else
+            sys = new AS400(sysName, uid, pwd);
+
+        try
+        {
+            // do this so the signon dialog or expiration warning will not display                            // @B2A
+            sys.setGuiAvailable(false);
+        }
+        catch (PropertyVetoException e)
+        { }
+
+	return sys;    
     }
                                      
 
     /**
-	  *  Returns an AS400 object. It uses the specified <i>system</i>.
+     *  Returns an AS400 object. It uses the specified <i>system</i>.
      *  
      *  @param  systemName  The name of the AS/400.  
      *
@@ -161,24 +172,33 @@ public abstract class AS400Servlet extends AuthenticationServlet
     public AS400 getSystem(String systemName)
 		throws ConnectionPoolException   
     {
-		Thread currentThread = Thread.currentThread();
-		String threadId = currentThread.getName();
-		Properties p = (Properties)getSessionData().get(threadId);
-		String uid = p.getProperty("uid");
-		String pwd = p.getProperty("pwd");
-		
-		AS400 sys;
-		if (connectionPool_ != null)
-			sys = connectionPool_.getConnection(systemName, uid, pwd);
-		else
-			sys = new AS400(systemName, uid, pwd);
-		
-		return sys;    
+	Thread currentThread = Thread.currentThread();
+	String threadId = currentThread.getName();
+	Properties p = (Properties)getSessionData().get(threadId);
+	String uid = p.getProperty("uid");
+	String pwd = p.getProperty("pwd");
+	
+	AS400 sys;
+
+        if (connectionPool_ != null)
+            sys = connectionPool_.getConnection(systemName, uid, pwd);
+        else
+            sys = new AS400(systemName, uid, pwd);
+
+        try
+        {
+            // do this so the signon dialog or expiration warning will not display                            // @B2A
+            sys.setGuiAvailable(false);
+        }
+        catch (PropertyVetoException e)
+        { }
+
+	return sys;    
     }
     
     
     /**
-	  *  Returns an AS400 object. It connects to the specified <i>service</i>.
+     *  Returns an AS400 object. It connects to the specified <i>service</i>.
      *  
      *  @param  service  The name of the AS/400 service.  
      *
@@ -191,28 +211,42 @@ public abstract class AS400Servlet extends AuthenticationServlet
     public AS400 getSystem(int service)
 		throws AS400SecurityException, IOException, ConnectionPoolException
     {
-		Thread currentThread = Thread.currentThread();
-		String threadId = currentThread.getName();
-		Properties p = (Properties)getSessionData().get(threadId);
-		String sysName = p.getProperty("realm");
-		String uid = p.getProperty("uid");
-		String pwd = p.getProperty("pwd");
+	Thread currentThread = Thread.currentThread();
+	String threadId = currentThread.getName();
+	Properties p = (Properties)getSessionData().get(threadId);
+	String sysName = p.getProperty("realm");
+	String uid = p.getProperty("uid");
+	String pwd = p.getProperty("pwd");
 				
-		AS400 sys;
-		if (connectionPool_ != null)
-			sys = connectionPool_.getConnection(sysName, uid, pwd, service);
-		else
-		{
-			sys = new AS400(sysName, uid, pwd);
-			sys.connectService(service);
-		}
-		
-		return sys;
+        AS400 sys = null;
+
+        try
+        {
+            if (connectionPool_ != null)
+            {
+                sys = connectionPool_.getConnection(sysName, uid, pwd, service);
+
+                // do this so the signon dialog or expiration warning will not display                            // @B2A
+                sys.setGuiAvailable(false);
+            }
+            else
+            {
+                sys = new AS400(sysName, uid, pwd);
+                
+                // do this so the signon dialog or expiration warning will not display                            // @B2A
+                sys.setGuiAvailable(false);
+                sys.connectService(service);
+            }
+        }
+        catch (PropertyVetoException e)
+        { }
+				
+	return sys;
     }
     
     
     /**
-	  *  Returns an AS400 object. It connects to the specified <i>system</i> and <i>service</i>.
+     *  Returns an AS400 object. It connects to the specified <i>system</i> and <i>service</i>.
      *  
      *  @param system   The name of the AS400.
      *  @param service  The name of the AS/400 service.
@@ -226,55 +260,78 @@ public abstract class AS400Servlet extends AuthenticationServlet
     public AS400 getSystem(String system, int service)
 		throws AS400SecurityException, IOException, ConnectionPoolException   
     {
-		Thread currentThread = Thread.currentThread();
-		String threadId = currentThread.getName();
-		Properties p = (Properties)getSessionData().get(threadId);
-		String uid = p.getProperty("uid");
-		String pwd = p.getProperty("pwd");
+	Thread currentThread = Thread.currentThread();
+	String threadId = currentThread.getName();
+	Properties p = (Properties)getSessionData().get(threadId);
+	String uid = p.getProperty("uid");
+	String pwd = p.getProperty("pwd");
 		
-		AS400 sys;
-		if (connectionPool_ != null)
-			sys = connectionPool_.getConnection(system, uid, pwd, service);
-		else
-		{
-			sys = new AS400(system, uid, pwd);
-			sys.connectService(service);
-		}
+        AS400 sys =  null;
+
+        try
+        {
+            if (connectionPool_ != null)
+            {
+                sys = connectionPool_.getConnection(system, uid, pwd, service);
+
+                // do this so the signon dialog or expiration warning will not display                            // @B2A
+                sys.setGuiAvailable(false);
+            }
+            else
+            {
+                sys = new AS400(system, uid, pwd);
+                
+                // do this so the signon dialog or expiration warning will not display                            // @B2A
+                sys.setGuiAvailable(false);
+                sys.connectService(service);
+            }
+        }
+        catch (PropertyVetoException e)
+        { }
 		
-		return sys;
+	return sys;
     }
 
     
     /**
-	  *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, and <i>password</i>.  
-	  *
+     *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, and <i>password</i>.  
+     *
      *  @param  systemName  The name of the AS/400.  
-	  *  @param  userId  The user ID to use to connect to the system.  
-	  *  @param  password  The password to use to connect to the system.  
+     *  @param  userId  The user ID to use to connect to the system.  
+     *  @param  password  The password to use to connect to the system.  
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The AS400 systen object.
-	 **/
+     **/
     public AS400 getSystem(String systemName, String userId, String password)
 		throws ConnectionPoolException                 
     {
-		AS400 sys;
-		if (connectionPool_ != null)
-			sys = connectionPool_.getConnection(systemName, userId, password);
-		else
-			sys = new AS400(systemName, userId, password);
+        AS400 sys = null;
 
-		return sys;    
+        if (connectionPool_ != null)
+            sys = connectionPool_.getConnection(systemName, userId, password);
+        else
+            sys = new AS400(systemName, userId, password);
+
+        try
+        {
+            // do this so the signon dialog or expiration warning will not display                            // @B2A
+            sys.setGuiAvailable(false);
+        }
+        catch (PropertyVetoException e)
+        { }
+
+	return sys;    
     }
    
     
     /**
-	  *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
-	  *
+     *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
+     * 
      *  @param  systemName  The name of the AS/400.  
-	  *  @param  userId  The user ID to use to connect to the system.  
-	  *  @param  password  The password to use to connect to the system.  
+     *  @param  userId  The user ID to use to connect to the system.
+     *  @param  password  The password to use to connect to the system.  
      *  @param  service  The name of the AS/400 service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
@@ -282,23 +339,35 @@ public abstract class AS400Servlet extends AuthenticationServlet
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The AS400 systen object.
-	 **/
+     **/
     public AS400 getSystem(String systemName, String userId, String password, int service)
 		throws AS400SecurityException, IOException, ConnectionPoolException
     {
-		AS400 sys;
-		if (connectionPool_ != null)
-		{
-         log(loader_.getText("PROP_DESC_USEPOOL"));                                        //$A1C
-			sys = connectionPool_.getConnection(systemName, userId, password, service);
-		}
-		else
-		{
-			sys = new AS400(systemName, userId, password);
-			sys.connectService(service);
-		}
+	AS400 sys = null;
+
+	try
+	{
+	    if (connectionPool_ != null)
+	    {
+		log(loader_.getText("PROP_DESC_USEPOOL"));                                        //$A1C
+   	        sys = connectionPool_.getConnection(systemName, userId, password, service);
+
+		// do this so the signon dialog or expiration warning will not display                            // @B2A
+	        sys.setGuiAvailable(false);
+	    }
+	    else
+	    {
+		sys = new AS400(systemName, userId, password);
+
+		// do this so the signon dialog or expiration warning will not display                            // @B2A
+	        sys.setGuiAvailable(false);
+		sys.connectService(service);
+	    }
+	}
+	catch (PropertyVetoException e)
+	{ }
 		
-		return sys;
+	return sys;
     }
    
    
@@ -391,17 +460,17 @@ public abstract class AS400Servlet extends AuthenticationServlet
 
 
    /**
-	 * Method used to validate authority.
-	 *
-	 * @param   realm  The realm to validate against.
-	 * @param   uid  The user ID to use for validation.
-	 * @param   pw  The password to use for validation.
+    * Method used to validate authority.
+    *
+    * @param   realm  The realm to validate against.
+    * @param   uid  The user ID to use for validation.
+    * @param   pw  The password to use for validation.
     *
     * @return  always true.
     *
-	 * @exception   SecurityException  This exception should be thrown if validation fails.
-	 * @exception   IOException  This exception should be thrown if a communication error occurs during validation.
-	 **/
+    * @exception   SecurityException  This exception should be thrown if validation fails.
+    * @exception   IOException  This exception should be thrown if a communication error occurs during validation.
+    **/
    final public boolean validateAuthority(String realm, String uid, String pw)                                //$A5C
 		throws SecurityException, IOException
 	{
