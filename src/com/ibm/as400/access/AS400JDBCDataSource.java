@@ -3011,10 +3011,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * Gets the socket keepalive option.
     * @return The value of the socket keepalive option.
     **/
-    /*public boolean getKeepAlive()
+    public boolean getKeepAlive()
     {
         return sockProps_.getKeepAlive();
-    }*/
+    }
 
     /**
     * Gets the socket receive buffer size option.  NOTE: This does not get
@@ -3022,10 +3022,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * by the underlying socket code.
     * @return The value of the socket receive buffer size option.
     **/
-    /*public int getReceiveBufferSize()
+    public int getReceiveBufferSize()
     {
         return sockProps_.getReceiveBufferSize();
-    }*/
+    }
 
     /**
     * Gets the socket send buffer size option.  NOTE: This does not get
@@ -3033,46 +3033,46 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * by the underlying socket code.
     * @return The value of the socket send buffer size option.
     **/
-    /*public int getSendBufferSize()
+    public int getSendBufferSize()
     {
         return sockProps_.getSendBufferSize();
-    }*/
+    }
 
     /**
     * Gets the socket linger option in seconds.
     * @return The value of the socket linger option.
     **/
-    /*public int getSoLinger()
+    public int getSoLinger()
     {
         return sockProps_.getSoLinger();
-    }*/
+    }
 
     /**
     * Gets the socket timeout option in milliseconds.
     * @return The value of the socket timeout option.
     **/
-    /*public int getSoTimeout()
+    public int getSoTimeout()
     {
         return sockProps_.getSoTimeout();
-    }*/
+    }
 
     /**
     * Gets the socket TCP no delay option.
     * @return The value of the socket TCP no delay option.
     **/
-    /*public boolean getTcpNoDelay()
+    public boolean getTcpNoDelay()
     {
         return sockProps_.getTcpNoDelay();
-    }*/
+    }
 
     /**
     * This property allows the turning on of socket keep alive.
     * @param keepAlive The keepalive option value.
     **/
-    /*public void setKeepAlive(boolean keepAlive)
+    public void setKeepAlive(boolean keepAlive)
     {
         sockProps_.setKeepAlive(keepAlive);
-    }*/
+    }
 
     /**
     * This property sets the receive buffer size socket option to the
@@ -3083,10 +3083,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * the backlog of incoming data.  This value must be greater than 0.
     * @param size The socket receive buffer size option value.
     **/
-    /*public void setReceiveBufferSize(int size)
+    public void setReceiveBufferSize(int size)
     {
         sockProps_.setReceiveBufferSize(size);
-    }*/
+    }
 
     /**
     * This property sets the send buffer size socket option to the
@@ -3096,10 +3096,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * than 0.
     * @param size The socket send buffer size option value.
     **/
-    /*public void setSendBufferSize(int size)
+    public void setSendBufferSize(int size)
     {
         sockProps_.setSendBufferSize(size);
-    }*/
+    }
 
     /**
     * This property allows the turning on of socket linger with the
@@ -3107,10 +3107,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * property is platform specific.
     * @param seconds The socket linger option value.
     **/
-    /*public void setSoLinger(int seconds)
+    public void setSoLinger(int seconds)
     {
         sockProps_.setSoLinger(seconds);
-    }*/
+    }
 
     /**
     * This property enables/disables socket timeout with the
@@ -3119,19 +3119,19 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * infinite timeout.
     * @param milliseconds The socket timeout option value.
     **/
-    /*public void setSoTimeout(int milliseconds)
+    public void setSoTimeout(int milliseconds)
     {
         sockProps_.setSoTimeout(milliseconds);
-    }*/
+    }
 
     /**
     * This property allows the turning on of the TCP no delay socket option.
     * @param noDelay The socket TCP no delay option value.
     **/
-    /*public void setTcpNoDelay(boolean noDelay)
+    public void setTcpNoDelay(boolean noDelay)
     {
         sockProps_.setTcpNoDelay(noDelay);
-    }*/
+    }
     // @F1A End of new socket option methods
 
     /**
