@@ -1358,7 +1358,7 @@ implements IFSFileImpl
         nonexistentDirs.addElement(directory);
         directory = IFSFile.getParent(directory);
       }
-      while (directory != null & (exists(directory) != IFSReturnCodeRep.SUCCESS));
+      while ((directory != null) && (exists(directory) != IFSReturnCodeRep.SUCCESS));
     } else
     {
      returnCode = IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME;
