@@ -32,7 +32,7 @@
 //    with how to run builds using Ant.
 //    See http://jakarta.apache.org/ant to download and read up on it.
 //    For those with less time on their hands, get the binary from:
-//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.5Beta1/bin/
+//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.5/bin/
 //    Once installed, add the ant.jar to your CLASSPATH.
 //    To run a build:
 //      java org.apache.tools.ant.Main target1 target2 target3 ...
@@ -88,7 +88,7 @@
 //              Extract the servlet.jar from the jsdk zip file after download.
 //
 // Filename: jtStubs.jar
-// Location: http://oss.software.ibm.com/developerworks/opensource/jt400/jtStubs.jar
+// Location: /jtopen_build/include
 // Description: JTOpen stub classes. Contains compile-time stubs for some JDBC, J2ME, JGSS, and browser functions.
 //              This file now exists in the JTOpen repository, under the /include directory.
 //
