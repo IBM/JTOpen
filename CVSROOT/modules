@@ -28,3 +28,6 @@
 access -a src/com/ibm/as400/access
 qcdemo -a demos/qcdemo
 
+# add an alias for "all"
+all -a .
+
