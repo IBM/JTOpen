@@ -23,9 +23,6 @@ import java.util.ResourceBundle;
 **/
 class ResourceBundleLoader_s
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   private String x = Copyright.copyright;
    private static MissingResourceException resourceException_;
    private static ResourceBundle resources_;
 
