@@ -99,15 +99,22 @@ Closes the cursor.
     // Close the cursor for good.  This makes sure that
     // the cursor is not left around.
     DBSQLRequestDS request = null; //@P0A
+    boolean keepDS = false; //@P1A
     try
     {
       request = DBDSPool.getDBSQLRequestDS (DBSQLRequestDS.FUNCTIONID_CLOSE, id_, 0, 0); //@P0C
       request.setReuseIndicator (reuseFlag);
 
+      
       if (lazyClose_)                                             // @E2A
+      {
+        keepDS = true; //@P1A
         connection_.sendAndHold(request, id_);                  // @E2A
-      else                                                        // @E2A
+      }
+      else
+      {                                                        // @E2A
         connection_.send (request, id_);
+      }
     }
     catch (DBDataStreamException e)
     {
@@ -115,7 +122,7 @@ Closes the cursor.
     }
     finally
     {
-      if (request != null) request.inUse_ = false;
+      if (request != null && !keepDS) request.inUse_ = false; //@P1C
     }
 
     closed_ = true;

@@ -114,6 +114,7 @@ Write the datastream.
         ByteArrayOutputStream concatented = new ByteArrayOutputStream();
         for(int i = 0; i < count_; ++i) {
             requests_[i].write(concatented);
+            requests_[i].inUse_ = false; //@P1A
         }
                                                 
         synchronized(out)                                     // @W1a
