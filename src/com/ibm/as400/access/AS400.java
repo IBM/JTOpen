@@ -2418,26 +2418,26 @@ public class AS400 implements Serializable
         // First, see if we are running on an iSeries server.
         if (AS400.onAS400)
         {
-            String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
-            if (currentUserID == null)
+            boolean tryToGetCurrentUserID = false;
+            // If user ID is not set and we're using user ID/password, then we get it and set it up.
+            if (userId.length() == 0 && byteType == 0)
             {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID information not available, user ID: '"  + userId + "'");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID.");
+                tryToGetCurrentUserID = true;
             }
-            else
+            // If we are running on an iSeries server, then *CURRENT for user ID means we want to connect using current user ID.
+            if (userId.equals("*CURRENT"))
             {
-                // If user ID is not set and we're using user ID/password, then we get it and set it up.
-                if (userId.length() == 0 && byteType == 0)
-                {
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID: "  + currentUserID);
-                    return currentUserID;
-                }
-                // If we are running on an iSeries server, then *CURRENT for user ID means we want to connect using current user ID.
-                if (userId.equals("*CURRENT"))
-                {
-                    // Get current user ID and use it.
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Replacing *CURRENT as user ID: " + currentUserID);
-                    return currentUserID;
-                }
+                // Get current user ID and use it.
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Replacing *CURRENT as user ID.");
+                tryToGetCurrentUserID = true;
+            }
+            if (tryToGetCurrentUserID)
+            {
+                String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID: "  + currentUserID);
+                if (currentUserID != null) return currentUserID;
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID information not available, user ID: '"  + userId + "'");
             }
         }
 

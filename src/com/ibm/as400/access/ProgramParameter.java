@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ProgramParameter.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ProgramParameter.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -24,15 +24,10 @@ import java.io.Serializable;
 
 /**
  The ProgramParameter class is used with ProgramCall and ServiceProgramCall to pass parameter data to a program, from a program, or both.  Input data is passed to a program as a byte array with <i>setInputData</i>.  Output data is requested from a program by specifying the amount of data to return with <i>setOutputDataLength</i>.  To get the output data once the program has run use <i>getOutputData</i>.  These values may also be set on the constructor.
- @see com.ibm.as400.access.ProgramCall
- @see com.ibm.as400.access.ServiceProgramCall
  **/
 public class ProgramParameter implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -46,7 +41,8 @@ public class ProgramParameter implements Serializable
      **/
     public static final int PASS_BY_REFERENCE = 2;
 
-    // Valid values for parameter type.
+    // Valid values for parameter usage.
+    static final int NULL = 0xFF;
     static final int INPUT  = 1;
     static final int OUTPUT = 2;
     static final int INOUT  = 3;
@@ -55,6 +51,7 @@ public class ProgramParameter implements Serializable
     private int parameterType_ = PASS_BY_VALUE;
 
     // Parameter data.
+    private boolean nullParameter_ = true;
     private byte[] inputData_ = null;
     private int outputDataLength_ = 0;
     private byte[] outputData_ = null;
@@ -87,6 +84,7 @@ public class ProgramParameter implements Serializable
     public ProgramParameter(byte[] inputData)
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, input data:", inputData);
+        nullParameter_ = false;
         inputData_ = inputData;
     }
 
@@ -102,6 +100,7 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+        nullParameter_ = false;
         outputDataLength_ = outputDataLength;
     }
 
@@ -118,6 +117,7 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+        nullParameter_ = false;
         inputData_ = inputData;
         outputDataLength_ = outputDataLength;
     }
@@ -137,6 +137,7 @@ public class ProgramParameter implements Serializable
             throw new ExtendedIllegalArgumentException("parameterType (" + parameterType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         parameterType_ = parameterType;
+        nullParameter_ = false;
         inputData_ = inputData;
     }
 
@@ -160,6 +161,7 @@ public class ProgramParameter implements Serializable
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         parameterType_ = parameterType;
+        nullParameter_ = false;
         outputDataLength_ = outputDataLength;
     }
 
@@ -184,6 +186,7 @@ public class ProgramParameter implements Serializable
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         parameterType_ = parameterType;
+        nullParameter_ = false;
         inputData_ = inputData;
         outputDataLength_ = outputDataLength;
     }
@@ -276,9 +279,19 @@ public class ProgramParameter implements Serializable
     int getUsage()
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting parameter usage.");
-        int usage = (inputData_ == null) ? OUTPUT : (outputDataLength_ == 0) ? INPUT : INOUT;
+        int usage = (nullParameter_) ? NULL : (inputData_ == null) ? OUTPUT : (outputDataLength_ == 0) ? INPUT : INOUT;
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Parameter usage:", usage);
         return usage;
+    }
+
+    /**
+     Indicates if this object represents a null parameter.
+     @return  true if the parameter is null; false otherwise.
+     **/
+    public boolean isNullParameter()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if null parameter:", nullParameter_);
+        return nullParameter_;
     }
 
     // Deserialize and initialize transient data.
@@ -332,8 +345,21 @@ public class ProgramParameter implements Serializable
         byte[] oldValue = inputData_;
         byte[] newValue = inputData;
         vetoableChangeListeners_.fireVetoableChange("inputData", oldValue, newValue);
+        nullParameter_ = false;
         inputData_ = inputData;
         propertyChangeListeners_.firePropertyChange("inputData", oldValue, newValue);
+    }
+
+    /**
+     Sets the parameter to null.  Calling this method will clear any set input data or output data length.  Setting input data or an output data length will make the parameter not null.
+     @param  inputData  The parameter data to be used as input to the program.
+     **/
+    public void setNullParameter(boolean nullParameter)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting null parameter:", nullParameter);
+        nullParameter_ = nullParameter;
+        inputData_ = null;
+        outputDataLength_ = 0;
     }
 
     // Sets the parameter data that has been received from the program.
@@ -360,6 +386,7 @@ public class ProgramParameter implements Serializable
         Integer oldValue = new Integer(outputDataLength_);
         Integer newValue = new Integer(outputDataLength);
         vetoableChangeListeners_.fireVetoableChange("outputDataLength", oldValue, newValue);
+        nullParameter_ = false;
         outputDataLength_ = outputDataLength;
         propertyChangeListeners_.firePropertyChange("outputDataLength", oldValue, newValue);
     }

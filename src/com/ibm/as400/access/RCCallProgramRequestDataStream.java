@@ -35,50 +35,45 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
             int parameterUsage = parameterList[i].getUsage();
             byte[] compressedInputData = null;
 
-            if (dataStreamLevel >= 3)  // Server allows RLE.
+            if (parameterUsage == ProgramParameter.OUTPUT)
             {
-                if (parameterUsage == ProgramParameter.OUTPUT)
+                parameterUsage += 20;
+            }
+            else
+            {
+                if (parameterMaxLength > 1024)
                 {
-                    parameterUsage += 20;
-                }
-                else
-                {
-                    if (parameterMaxLength > 1024)
+                    byte[] tempInputData;
+                    if (inputData.length == parameterMaxLength)
                     {
-                        byte[] tempInputData;
-                        if (parameterUsage == ProgramParameter.INPUT || inputData.length == parameterMaxLength)
-                        {
-                            tempInputData = inputData;
-                        }
-                        else
-                        {
-                            tempInputData = new byte[parameterMaxLength];
-                            System.arraycopy(inputData, 0, tempInputData, 0, inputData.length);
-                        }
-                        compressedInputData = DataStreamCompression.compressRLE(tempInputData, 0, tempInputData.length, DataStreamCompression.DEFAULT_ESCAPE);
-                        if (compressedInputData != null)
-                        {
-                            parameterLength = compressedInputData.length;
-                            parameterUsage += 20;
-                        }
+                        tempInputData = inputData;
+                    }
+                    else
+                    {
+                        tempInputData = new byte[parameterMaxLength];
+                        System.arraycopy(inputData, 0, tempInputData, 0, inputData.length);
+                    }
+                    compressedInputData = DataStreamCompression.compressRLE(tempInputData, 0, tempInputData.length, DataStreamCompression.DEFAULT_ESCAPE);
+                    if (compressedInputData != null)
+                    {
+                        parameterLength = compressedInputData.length;
+                        parameterUsage += 20;
                     }
                 }
             }
             if (parameterUsage < 20)
             {
-                if (parameterUsage != ProgramParameter.OUTPUT)
+                for (parameterLength = inputData.length; parameterLength >= 1 && inputData[parameterLength - 1] == 0; --parameterLength);
+                compressedInputData = inputData;
+                if (parameterUsage == ProgramParameter.INOUT && dataStreamLevel >= 5)
                 {
-                    for (parameterLength = inputData.length; parameterLength >= 1 && inputData[parameterLength - 1] == 0; --parameterLength);
-                    compressedInputData = inputData;
-                }
-                if (parameterUsage == ProgramParameter.INOUT && dataStreamLevel >= 5)  // Server allows 33 value.
-                {
+                    // Server allows 33 value.
                     parameterUsage += 30;
                 }
                 else
                 {
-                parameterUsage += 10;
-            }
+                    parameterUsage += 10;
+                }
             }
             dataStreamLength +=  12 + parameterLength;
             parameterList[i].length_ = parameterLength;
@@ -123,15 +118,23 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
             // Set parameter data length.
             set32bit(parameterList[i].maxLength_, index + 6);
             // Set parameter usage.
-            set16bit(parameterList[i].usage_, index + 10);
-            // Write the input data into the data stream.
-            switch (parameterList[i].usage_)
+            if (parameterList[i].usage_ == ProgramParameter.NULL && dataStreamLevel < 6)
             {
-                case 12:
-                case 22:
-                    break;
-                default:
-                    System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterList[i].length_);
+                // Server does not allow null parameters.
+                set16bit(ProgramParameter.INPUT, index + 10);
+            }
+            else
+            {
+                set16bit(parameterList[i].usage_, index + 10);
+                // Write the input data into the data stream.
+                switch (parameterList[i].usage_)
+                {
+                    case 22:
+                    case 0xFF:
+                        break;
+                    default:
+                        System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterList[i].length_);
+                }
             }
 
             // Advance 12 + parameter length in data stream.

@@ -328,7 +328,13 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         byte[] parameterFormatBytes = new byte[serviceParameterList.length * 4];
         for (int i = 0; i < serviceParameterList.length; ++i)
         {
-            BinaryConverter.intToByteArray(serviceParameterList[i].getParameterType(), parameterFormatBytes, i * 4);
+            int parameterType = serviceParameterList[i].getParameterType();
+            if (serverDataStreamLevel_ < 6 && serviceParameterList[i].getUsage() == ProgramParameter.NULL)
+            {
+                // Server does not allow null parameters.
+                parameterType = ProgramParameter.PASS_BY_VALUE;
+            }
+            BinaryConverter.intToByteArray(parameterType, parameterFormatBytes, i * 4);
         }
         programParameterList[3] = new ProgramParameter(parameterFormatBytes);
 

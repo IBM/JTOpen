@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.net.Socket;
 import java.util.Hashtable;
 
@@ -169,7 +170,41 @@ class PortMapper
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to server...");
         Socket socket = new Socket(systemName, srvPort);
+        PortMapper.setSocketProperties(socket, socketProperties);
 
+        // We use the port returned in the previous reply to establish a new socket connection to the requested service...
+        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
+            try
+            {
+                if (useSSL.useSslight_) throw new Exception();
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
+                ((SocketContainerJSSE)sc).setSystemNameAndPort(systemName, srvPort);
+                sc.setSocket(socket);
+                sc.setServiceName(serviceName);
+            }
+            catch (Throwable e)
+            {
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE falling back to sslight:", e);
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
+                ((SocketContainerSSL)sc).setOptions(useSSL);
+                sc.setSocket(socket);
+                sc.setServiceName(serviceName);
+            }
+        }
+        else
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting an inet socket to " + serviceName);
+            sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerInet");
+            sc.setSocket(socket);
+            sc.setServiceName(serviceName);
+        }
+        return sc;
+    }
+
+    static void setSocketProperties(Socket socket, SocketProperties socketProperties) throws SocketException
+    {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket options...");
         if (socketProperties.keepAliveSet_)
         {
@@ -210,46 +245,16 @@ class PortMapper
         if (Trace.traceOn_)
         {
             Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
-            try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout()); } catch(Throwable t) {}
-            try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout()); } catch (Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay()); } catch (Throwable t) {}
         }
-
-        // We use the port returned in the previous reply to establish a new socket connection to the requested service...
-        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
-            try
-            {
-                if (useSSL.useSslight_) throw new Exception();
-                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
-                ((SocketContainerJSSE)sc).setSystemNameAndPort(systemName, srvPort);
-                sc.setSocket(socket);
-                sc.setServiceName(serviceName);
-            }
-            catch (Throwable e)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE falling back to sslight:", e);
-                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
-                ((SocketContainerSSL)sc).setOptions(useSSL);
-                sc.setSocket(socket);
-                sc.setServiceName(serviceName);
-            }
-        }
-        else
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting an inet socket to " + serviceName);
-            sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerInet");
-            sc.setSocket(socket);
-            sc.setServiceName(serviceName);
-        }
-        return sc;
     }
 }

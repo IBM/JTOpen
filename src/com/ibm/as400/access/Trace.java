@@ -515,6 +515,7 @@ public class Trace
             try
             {
                 setFileName (file);
+                destination_.println("Toolbox for Java - " + Copyright.version);
             }
             catch (IOException e)
             {
