@@ -91,6 +91,19 @@ Constructs a QueuedMessage object.
       key_ = messageKey;
     }
 
+//@G1A
+/**
+ * Constructs a QueuedMessage object. Called from JobLog.getMessages().
+**/
+    QueuedMessage(AS400 system, int messageSeverity, String messageIdentifier,
+                  int messageType, byte[] messageKey, String messageFileName, String messageLibraryName, 
+                  String dateSent, String timeSent)
+    {
+      super(messageIdentifier, null, messageFileName, messageLibraryName, messageSeverity, messageType, null, null, dateSent, timeSent, null);
+      setSystem(system);
+      key_ = messageKey;
+    }
+
 /**
  * Constructs a QueuedMessage object. Used by MessageQueue.receive().
 **/
@@ -100,6 +113,7 @@ Constructs a QueuedMessage object.
                   String sendingProgramName, String dateSent, String timeSent,
                   byte[] replacementData, String messageData, String messageHelp)
     {
+      this(messageQueue.getSystem(), messageSeverity, messageIdentifier, messageType, messageKey, messageFileName
       super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, messageHelp, dateSent, timeSent, null);
       messageQueue_ = messageQueue;
       setSystem(messageQueue_.getSystem()); //@G1A
