@@ -91,12 +91,26 @@ implements SQLData
         }
 
         else if (object instanceof Number) {
-            value_ = ((Number) object).longValue();
+          // Compute truncation by getting the value as a double
+          // and comparing it against MAX_VALUE/MIN_VALUE.
+          double doubleValue = ((Number) object).doubleValue ();
 
-            // Compute truncation. @Wz put the following three lines back in
-            double doubleValue = ((Number) object).doubleValue();
-            if (doubleValue != value_)
-               truncated_ = Double.toString(doubleValue - value_).length() / 2;
+          if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE )) // @D9a
+          {
+              // Note:  Truncated here is set to 1 byte because the
+              //        value has to be something positive in order
+              //        for the code that checks it to do the right
+              //        thing.
+              truncated_ = 1;                                                       // @D9a
+          }
+
+          value_ = ((Number) object).longValue();
+
+          // @D9d
+          // Compute truncation. @Wz put the following three lines back in
+          // double doubleValue = ((Number) object).doubleValue();
+          // if (doubleValue != value_)
+          //    truncated_ = Double.toString(doubleValue - value_).length() / 2;
         }
 
         else if (object instanceof Boolean)

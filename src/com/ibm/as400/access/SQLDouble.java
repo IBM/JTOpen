@@ -100,37 +100,57 @@ implements SQLData
     public void set (Object object, Calendar calendar, int scale)
         throws SQLException
     {
-        truncated_ = 0;
+      truncated_ = 0;
 
-        if (object instanceof String) {
-            try {
-                value_ = Double.valueOf ((String) object).doubleValue ();
-                //@E2D int objectLength = ((String) object).length ();
-                //@E2D int valueLength = Double.toString (value_).length ();
-                //@E2D if (valueLength < objectLength)
-                //@E2D     truncated_ = objectLength - valueLength;
-            }
-            catch (NumberFormatException e) {
-                JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
-        
-        else if (object instanceof BigDecimal) {
-            value_ = ((BigDecimal) object).doubleValue ();
-            int objectLength = SQLDataFactory.getPrecision ((BigDecimal) object);
-            int valueLength = SQLDataFactory.getPrecision (new BigDecimal (value_));
-            if (valueLength < objectLength)
-                truncated_ = objectLength - valueLength;
-        }
+      if (object instanceof String) {
+          try {
+              value_ = Double.valueOf ((String) object).doubleValue ();
+              // You can't test for data truncation of a number by testing
+              // the lengths of two string versions of it.
+              // Example string that should work but will fail:
+              //      "4.749000000000E+00"
+              //@E2D int objectLength = ((String) object).length ();
+              //@E2D int valueLength = Double.toString (value_).length ();
+              //@E2D if (valueLength < objectLength)
+              //@E2D     truncated_ = objectLength - valueLength;
+          }
+          catch (NumberFormatException e) {
+              JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          }
+      }
 
-        else if (object instanceof Number)
-            value_ = ((Number) object).doubleValue();
+      // @ D9d
+      // else if (object instanceof BigDecimal) {
+      //     value_ = ((BigDecimal) object).doubleValue ();
+      //     int objectLength = SQLDataFactory.getPrecision ((BigDecimal) object);
+      //     int valueLength = SQLDataFactory.getPrecision (new BigDecimal (value_));
+      //     if (valueLength < objectLength)
+      //         truncated_ = objectLength - valueLength;
+      // }
 
-        else if (object instanceof Boolean)
-            value_ = (((Boolean) object).booleanValue() == true) ? 1d : 0d;
+      else if (object instanceof Number)
+      {
+          // Set the value to the right type.
+          value_ = ((Number) object).doubleValue();
 
-        else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          // Get the whole number portion of that value.
+          long value = (long) value_;                      // @D9a
+
+          // Get the original value as a long.  This is the
+          // largest precision we can test for for a truncation.
+          long truncTest = ((Number) object).longValue();  // @D9a
+
+          // If they are not equal, then we truncated significant
+          // data from the original value the user wanted us to insert.
+          if (truncTest != value)                          // @D9a
+              truncated_ = 1;                              // @D9a
+      }
+
+      else if (object instanceof Boolean)
+          value_ = (((Boolean) object).booleanValue() == true) ? 1d : 0d;
+
+      else
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
     }
 
 

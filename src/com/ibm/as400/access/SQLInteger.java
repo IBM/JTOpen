@@ -115,6 +115,8 @@ implements SQLData
     public void set (Object object, Calendar calendar, int scale)
         throws SQLException
     {
+        truncated_ = 0;                                                     // @D9c
+
         if (object instanceof String) {
             try {
                 value_ = Integer.parseInt ((String) object);
@@ -124,13 +126,30 @@ implements SQLData
             }
         }
 
-        else if (object instanceof Number) {
-            value_ = ((Number) object).intValue();
+        else if (object instanceof Number)
+        {
+          // Compute truncation by getting the value as a long
+          // and comparing it against MAX_VALUE/MIN_VALUE.  You
+          // do this because truncation of the decimal portion of
+          // the value is insignificant.  We only care if the
+          // whole number portion of the value is too large/small
+          // for the column.
+          long longValue = ((Number) object).longValue ();                              // @D9c
+          if (( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))   // @D9c
+          {
+              // Note:  Truncated here is set to 4 bytes.  This is based on
+              //        the idea that a long was used and an int was the
+              //        column type.  We could check for different types
+              //        and provide a more accurate number, but I don't
+              //        really know that this field is of any use to people
+              //        in this case anyway (for example, you could have a
+              //        float (4 bytes) that didn't fit into a bigint (8
+              //        bytes) without some data truncation.
+              truncated_ = 4;                                                           // @D9c
+          }
 
-            // Compute truncation. @Wz put the following three lines back in
-            double doubleValue = ((Number) object).doubleValue ();
-            if (doubleValue != value_)
-                truncated_ = Double.toString (doubleValue - value_).length () / 2;
+          // Store the value.
+          value_ = (int) longValue;                                                     // @D9c
         }
 
         else if (object instanceof Boolean)

@@ -115,22 +115,45 @@ implements SQLData
             }
         }
 
-        else if (object instanceof Double) {
-            value_ = ((Double) object).floatValue ();
-            if (((Double) object).doubleValue () > value_)
-                truncated_ = 8;
+        // @D9d
+        //  We do not start messing with floating point values trying
+        //  to figure out if they truncate.  The performance of this
+        //  in the BigDecimal case below is probably slower then creating
+        //  a table on the system.
+        //
+        //else if (object instanceof Double) {
+        //    value_ = ((Double) object).floatValue ();
+        //    if (((Double) object).doubleValue () > value_)
+        //        truncated_ = 8;
+        //}
+        //
+        // @D9d
+        //else if (object instanceof BigDecimal) {
+        //    value_ = ((BigDecimal) object).floatValue ();
+        //    int objectLength = SQLDataFactory.getPrecision ((BigDecimal) object);
+        //    int valueLength = SQLDataFactory.getPrecision (new BigDecimal (value_));
+        //    if (valueLength < objectLength)
+        //        truncated_ = objectLength - valueLength;
+        //}
+
+        else if (object instanceof Number)
+        {
+            // Set the value to the right type.
+            value_ = ((Number) object).floatValue();  // @D9c
+
+            // Get the whole number portion of that value.
+            long value = (long) value_;               // @D9c
+
+            // Get the original value as a long.  This is the
+            // largest precision we can test for for a truncation.
+            long truncTest = ((Number) object).longValue();  // @D9c
+
+            // If they are not equal, then we truncated significant
+            // data from the original value the user wanted us to insert.
+            if (truncTest != value)     // @D9c
+                truncated_ = 1;
         }
 
-        else if (object instanceof BigDecimal) {
-            value_ = ((BigDecimal) object).floatValue ();
-            int objectLength = SQLDataFactory.getPrecision ((BigDecimal) object);
-            int valueLength = SQLDataFactory.getPrecision (new BigDecimal (value_));
-            if (valueLength < objectLength)
-                truncated_ = objectLength - valueLength;
-        }
-
-        else if (object instanceof Number) 
-            value_ = ((Number) object).floatValue();            
 
         else if (object instanceof Boolean)
             value_ = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
