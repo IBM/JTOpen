@@ -152,6 +152,8 @@ job.setAttributeValue(RJob.DATE_FORMAT, RJob.DATE_FORMAT_JULIAN);
 job.commitAttributeChanges();
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.Job Job} instead, as this package may be removed in the future.
 @see RJobList
 **/
 public class RJob

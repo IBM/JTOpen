@@ -67,6 +67,8 @@ for(long i = 0; i &lt; numberOfUsers; ++i)
 userList.close();
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.UserList UserList} instead, as this package may be removed in the future.
 @see RUser
 **/
 public class RUserList

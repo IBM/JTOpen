@@ -61,6 +61,8 @@ RQueuedMessage queuedMessage = messageQueue.resourceAt(0);
 String messageText = (String)queuedMessage.getAttributeValue(RQueuedMessage.MESSAGE_TEXT);
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.QueuedMessage QueuedMessage} instead, as this package may be removed in the future.
 @see RMessageQueue
 @see RJobLog
 **/

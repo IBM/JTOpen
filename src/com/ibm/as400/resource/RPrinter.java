@@ -98,6 +98,8 @@ printer.setAttributeValue(RPrinter.FORM_TYPE, RPrinter.FORM_TYPE_ALL);
 printer.commitAttributeChanges();
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.Printer Printer} instead, as this package may be removed in the future.
 @see RPrinterList
 **/
 public class RPrinter

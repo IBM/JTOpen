@@ -145,6 +145,8 @@ user.setAttributeValue(RUser.PRINT_DEVICE, RUser.PRINT_DEVICE_WORK_STATION);
 user.commitAttributeChanges();
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.User User} instead, as this package may be removed in the future.
 @see RUserList
 **/
 public class RUser

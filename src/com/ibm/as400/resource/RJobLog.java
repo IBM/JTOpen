@@ -97,6 +97,8 @@ for(long i = 0; i &lt; numberOfMessages; ++i)
 jobLog.close();
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.JobLog JobLog} instead, as this package may be removed in the future.
 @see RQueuedMessage
 **/
 public class RJobLog

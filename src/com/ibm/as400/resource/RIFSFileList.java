@@ -82,7 +82,8 @@ for(long i = 0; i &lt; 50; ++i)
 // Close the list.
 fileList.close();
 </pre></blockquote>
-
+@deprecated Use
+{@link com.ibm.as400.access.IFSFile IFSFile} instead, as this package may be removed in the future.
 @see RIFSFile
 **/
 public class RIFSFileList

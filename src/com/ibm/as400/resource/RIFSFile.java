@@ -76,7 +76,8 @@ file.setAttributeValue(RIFSFile.LAST_MODIFIED, new Date());
 // Commit the attribute change.
 file.commitAttributeChanges();
 </pre></blockquote>
-
+@deprecated Use
+{@link com.ibm.as400.access.IFSFile IFSFile} instead, as this package may be removed in the future.
 @see RIFSFileList
 **/
 //-----------------------------------------------------------------------------------------

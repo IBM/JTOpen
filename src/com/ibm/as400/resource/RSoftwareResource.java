@@ -58,6 +58,8 @@ RSoftwareResource product = new RSoftwareResource(system, "5722JC1");
 // Get the load error indicator.
 String loadErrorIndicator = (String)product.getAttributeValue(RSoftwareResource.LOAD_ERROR_INDICATOR);
 </pre></blockquote>
+@deprecated Use
+{@link com.ibm.as400.access.Product Product} instead, as this package may be removed in the future.
 **/
 //
 // Implementation notes:

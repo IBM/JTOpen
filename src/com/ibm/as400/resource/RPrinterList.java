@@ -70,6 +70,8 @@ for(long i = 0; i &lt; numberOfPrinters; ++i)
 printerList.close();
 </pre></blockquote>
 
+@deprecated Use
+{@link com.ibm.as400.access.PrinterList PrinterList} instead, as this package may be removed in the future.
 @see RPrinter
 **/
 public class RPrinterList

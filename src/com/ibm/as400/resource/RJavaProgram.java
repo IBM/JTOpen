@@ -71,6 +71,8 @@ javaProgram.setAttributeValue(RJavaProgram.ENABLE_PERFORMANCE_COLLECTION, RJavaP
 // Commit the attribute change.
 javaProgram.commitAttributeChanges();
 </pre></blockquote>
+@deprecated Use
+{@link com.ibm.as400.access.JavaProgram JavaProgram} instead, as this package may be removed in the future.
 **/
 public class RJavaProgram
 extends ChangeableResource

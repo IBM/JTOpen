@@ -88,6 +88,8 @@ for(long i = 0; i &lt; numberOfJobs; ++i)
 jobList.close();
 </pre></blockquote>
                                                                                      
+@deprecated Use
+{@link com.ibm.as400.access.JobList JobList} instead, as this package may be removed in the future.
 @see RJob
 **/
 public class RJobList
