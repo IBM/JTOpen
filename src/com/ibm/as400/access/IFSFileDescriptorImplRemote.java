@@ -314,8 +314,23 @@ implements IFSFileDescriptorImpl
   {
       synchronized (server_)
       {
-          IFSExchangeAttrRep rep =
-            (IFSExchangeAttrRep)server_.getExchangeAttrReply();
+          DataStream ds = server_.getExchangeAttrReply();
+          IFSExchangeAttrRep rep = null;
+          try { rep = (IFSExchangeAttrRep)ds; }
+          catch (ClassCastException e)
+          {
+            if (ds instanceof IFSReturnCodeRep)
+            {
+              int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+              Trace.log(Trace.ERROR, "Unexpected IFSReturnCodeRep, return code ", rc);
+              throw new ExtendedIOException(rc);
+            }
+            else {
+              String className = ( ds == null ? "null" : ds.getClass().getName());
+              Trace.log(Trace.ERROR, "Unexpected reply from Exchange Server Attributes: " + className);
+              throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+            }
+          }
 
           // Note: For releases after V5R2, we ask for Datastream Level 8;
           // for V4R5 or later, we ask for Datastream Level 2;
@@ -328,7 +343,7 @@ implements IFSFileDescriptorImpl
             requestedDatastreamLevel_ = 0;
           if (rep == null)
           {
-              IFSDataStream ds = null;
+              ds = null;
               try
               {
                 int[] preferredCcsids;        // @A2A
