@@ -310,6 +310,10 @@ Returns the position at which a pattern is found in the CLOB.
       char[] temp = data_;
       data_ = new char[newSize];
       System.arraycopy(temp, 0, data_, 0, temp.length);
+      int numPad = offset - temp.length;        //Determine if we need to Pad with single byte space before we write the new data_          @K1A
+      //the number of spaces we need to pad is equal to the offset we want to start writing at minus the length of the current clob(temp)   @K1A
+      for(int i=0; i<numPad; i++)                                                                                                         //@K1A
+          data_[i+temp.length] = '\u0020';                                                                                                //@K1A
     }
     int numChars = newSize - offset;
     System.arraycopy(charsToWrite, 0, data_, offset, numChars);
@@ -355,6 +359,10 @@ Returns the position at which a pattern is found in the CLOB.
       char[] temp = data_;
       data_ = new char[newSize];
       System.arraycopy(temp, 0, data_, 0, temp.length);
+      int numPad = offset - temp.length;        //Determine if we need to Pad with single byte space before we write the new data_          @K1A
+      //the number of spaces we need to pad is equal to the offset we want to start writing at minus the length of the current clob(temp)   @K1A
+      for(int i=0; i<numPad; i++)                                                                                                         //@K1A
+          data_[i+temp.length] = '\u0020';                                                                                                //@K1A
     }
     int numChars = newSize - clobOffset;
     System.arraycopy(charsToWrite, offset, data_, clobOffset, numChars);
