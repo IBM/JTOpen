@@ -118,6 +118,7 @@ Write the datastream.
 
         out.write(concatented.toByteArray());
         out.flush();
+	if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", concatented.toByteArray()); //@A1A
 	}
 
 

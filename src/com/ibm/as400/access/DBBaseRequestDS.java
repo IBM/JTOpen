@@ -893,7 +893,8 @@ Overrides the superclass to write the datastream.
                     synchronized(out) {                                                         // @E3A
                         out.write(compressedBytes, 0, compressedSizeWithHeader);                // @E3A
                     }                                                                           // @E3A
-                }                                                                               // @E3A
+		    if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", compressedBytes, 0, compressedSizeWithHeader); //@E6A
+		}                                                                               // @E3A
                 else {                                                                          // @E3A
                     rleCompressed_ = false;   // Compression failed.                            // @E3A
                 }                                                                               // @E3A
@@ -918,6 +919,7 @@ Overrides the superclass to write the datastream.
             synchronized(out) {
                 out.write (data_, 0, currentOffset_);
             }
+	    if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A
         }                                                                                       // @E3A
 
         // Free the storage for others to use.  We
