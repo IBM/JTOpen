@@ -675,37 +675,43 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       // Start thread if it has not been initialized.
       if (maintenance_ == null)
       {
-        maintenance_ = new PoolMaintenance();
-        maintenance_.start();
-        // Give thread a chance to start.
-        if (!maintenance_.isRunning())             //@A1A
+        synchronized(this) //@CRS
         {
-          try
-          {                                //@A1A																 //@A1A
-            Thread.sleep(10);                      //@A1A
-          }                                //@A1A
-          catch (InterruptedException e)             //@A1A
+          if (maintenance_ == null) //@CRS
           {
-            /*Should not happen*/
-          }                                //@A1A
+            maintenance_ = new PoolMaintenance();
+            maintenance_.start();
+            // Give thread a chance to start.
+            if (!maintenance_.isRunning())             //@A1A
+            {
+              try
+              {                                //@A1A																 //@A1A
+                Thread.sleep(10);                      //@A1A
+              }                                //@A1A
+              catch (InterruptedException e)             //@A1A
+              {
+                /*Should not happen*/
+              }                                //@A1A
+            }
+            // If thread has still not started, keep giving it chances for 5 minutes.
+            for (int i = 1; !maintenance_.isRunning() && i<6000; i++)      //@A1C 
+            {
+               try
+               {                    //@A1A										 //@A1A
+                 Thread.sleep(50);                    //@A1A
+               }                          //@A1A
+               catch (InterruptedException e)
+               {  /*Should not happen*/
+               }                              //@A1A
+            }                                                        
+            if (!maintenance_.isRunning())                   //@A1A
+              Trace.log(Trace.WARNING, "maintenance thread failed to start");   //@A1A
+          }
         }
-        // If thread has still not started, keep giving it chances for 5 minutes.
-        for (int i = 1; !maintenance_.isRunning() && i<6000; i++)      //@A1C 
-        {
-          try
-          {                    //@A1A										 //@A1A
-            Thread.sleep(50);                    //@A1A
-          }                          //@A1A
-          catch (InterruptedException e)
-          {  /*Should not happen*/
-          }                              //@A1A
-        }                                                        
-        if (!maintenance_.isRunning())                   //@A1A
-          Trace.log(Trace.WARNING, "maintenance thread failed to start");   //@A1A
       }
       // Restart the thread.
-      else if (!maintenance_.isRunning())
-        maintenance_.setRunning(true);
+//@CRS      else if (!maintenance_.isRunning())
+      if (!maintenance_.isRunning()) maintenance_.setRunning(true); //@CRS
     }
 
     //Check to see if a connection list exists for this system/userId combination

@@ -325,42 +325,43 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     {
       if (maintenance_ == null)
       {
-        maintenance_ = new PoolMaintenance();
-        maintenance_.start();                     // Start the first time.
-        // Give thread a chance to start.                                      
-        if (!maintenance_.isRunning())                                         //@A2C
+        synchronized(this) //@CRS
         {
-          //@A2A
-                    try
-                    {                                                                //@A2A
-            //@A2A
-            Thread.sleep(10);                                              //@A2A
-          }                                                                  //@A2A
-          catch (InterruptedException e)                                     //@A2A
+          if (maintenance_ == null) //@CRS
           {
-            //Ignore  	        					   //@A2A
-          }                                                                  //@A2A
-        }                                                                      //@A2A
-        // If thread has still not started, keep giving it chances for 5 minutes.
-        for (int i = 1; !maintenance_.isRunning() && i<6000; i++)              //@A2A
-        {
-          //@A2A
-                    try
-                    {                  //@A2A
-            //@A2A
-            Thread.sleep(50);                                              //@A2A
-          }                  //@A2A
-          catch (InterruptedException ie)            //@A2A
-          {
-            //Ignore							   //@A2A
-          }                  //@A2A
-        }                    //@A2A
-        if (!maintenance_.isRunning())             //@A2A
-                    JDTrace.logInformation (this, "maintenance thread failed to start");    //@A2A
-      }                     //@A2A
-
-      else if (!maintenance_.isRunning())
-        maintenance_.setRunning(true);            // Restart.
+            maintenance_ = new PoolMaintenance();
+            maintenance_.start();                     // Start the first time.
+            // Give thread a chance to start.                                      
+            if (!maintenance_.isRunning())                                         //@A2C
+            {
+              try
+              {                                                                //@A2A
+                Thread.sleep(10);                                              //@A2A
+              }                                                                  //@A2A
+              catch (InterruptedException e)                                     //@A2A
+              {
+                //Ignore  	        					   //@A2A
+              }                                                                  //@A2A
+            }                                                                      //@A2A
+            // If thread has still not started, keep giving it chances for 5 minutes.
+            for (int i = 1; !maintenance_.isRunning() && i<6000; i++)              //@A2A
+            {
+              try
+              {                  //@A2A
+                Thread.sleep(50);                                              //@A2A
+              }                  //@A2A
+              catch (InterruptedException ie)            //@A2A
+              {
+                //Ignore							   //@A2A
+              }                  //@A2A
+            }                    //@A2A
+            if (!maintenance_.isRunning())             //@A2A
+              JDTrace.logInformation (this, "maintenance thread failed to start");    //@A2A
+          }                     //@A2A
+        }
+      }
+//@CRS      else if (!maintenance_.isRunning())
+      if (!maintenance_.isRunning()) maintenance_.setRunning(true);            // Restart. @CRS
     }
     else if (isRunMaintenance() && !isThreadUsed())
       lastSingleThreadRun_ = System.currentTimeMillis();
