@@ -986,6 +986,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             finally
             {
                 batch_.removeAllElements();
+                batchExecute_ = false;                                          //@K1A
                 if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Done batching.");
             }
             return updateCounts;
