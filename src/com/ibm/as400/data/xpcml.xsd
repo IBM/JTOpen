@@ -38,7 +38,7 @@
 
 
   <!-- Define key/keyref link between the name of a struct          -->
-  <!-- and the struct attribute of a dataFieldarm field.            -->
+  <!-- and the struct attribute of a parameter field.            -->
   <xs:key name="StructKey">
     <xs:selector xpath="struct"/>
     <xs:field xpath="@name"/>
@@ -169,7 +169,7 @@
        </xs:complexType>
 
 
-<!-- Integer parameter (4 bytes; signed or unsigned) -->
+<!-- Integer parameter (4 bytes on server) -->
     <xs:element name="intParm" type="intParmType"  nillable="true" substitutionGroup="intParmGroup"   />
       <xs:complexType name="intParmType" >
          <xs:simpleContent>
@@ -199,7 +199,7 @@
   </xs:complexType>
 
 
-<!-- Unsigned Integer parameter (4 bytes; signed or unsigned) -->
+<!-- Unsigned Integer parameter (4 bytes on server) -->
     <xs:element name="unsignedIntParm" type="unsignedIntParmType" nillable="true" substitutionGroup="unsignedIntParmGroup"   />
       <xs:complexType name="unsignedIntParmType">
          <xs:simpleContent>
@@ -229,7 +229,7 @@
   </xs:complexType>
 
 
-<!-- Short integer parameter (2 bytes; signed or unsigned) -->
+<!-- Short integer parameter (2 bytes on server) -->
     <xs:element name="shortParm" type="shortParmType" nillable="true" substitutionGroup="shortParmGroup"   />
       <xs:complexType name="shortParmType">
          <xs:simpleContent>
@@ -259,7 +259,7 @@
   </xs:complexType>
 
 
-<!-- Unsigned Short integer parameter (2 bytes; signed or unsigned) -->
+<!-- Unsigned Short integer parameter (2 bytes on server) -->
     <xs:element name="unsignedShortParm" type="unsignedShortParmType" nillable="true" substitutionGroup="unsignedShortParmGroup"   />
       <xs:complexType name="unsignedShortParmType">
          <xs:simpleContent>
@@ -289,7 +289,7 @@
   </xs:complexType>
 
 
-<!-- Long integer parameter (8 bytes; signed or unsigned) -->
+<!-- Long integer parameter (8 bytes on server) -->
     <xs:element name="longParm" type="longParmType" nillable="true" substitutionGroup="longParmGroup"   />
       <xs:complexType name="longParmType">
          <xs:simpleContent>
@@ -381,7 +381,7 @@
     </xs:simpleContent>
   </xs:complexType>
 
-<!-- Float parameter (4 bytes; signed) -->
+<!-- Float parameter (4 bytes on server) -->
     <xs:element name="floatParm" type="floatParmType" nillable="true" substitutionGroup="floatParmGroup"   />
       <xs:complexType name="floatParmType">
          <xs:simpleContent>
@@ -411,7 +411,7 @@
   </xs:complexType>
 
 
-<!-- Double parameter (8 bytes; signed) -->
+<!-- Double parameter (8 bytes on server) -->
     <xs:element name="doubleParm" type="doubleParmType" nillable="true" substitutionGroup="doubleParmGroup"   />
       <xs:complexType name="doubleParmType">
          <xs:simpleContent>
@@ -675,70 +675,7 @@
      </xs:complexType>
 
 
-   <xs:element name="rdml">
-     <xs:complexType>
-       <xs:sequence>
-         <xs:element ref="structOrRecord" minOccurs="1" maxOccurs="unbounded"/>
-       </xs:sequence>
-       <xs:attribute name="version" use="required">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="4.0"/>
-            <!-- The version list will grow over time. -->
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:attribute>
-     </xs:complexType>
-
-     <!-- Define key/keyref link between the name of a struct          -->
-     <!-- and the struct attribute of a dataFieldarm field.            -->
-     <xs:key name="structKey">
-       <xs:selector xpath="dStruct"/>
-       <xs:field xpath="@name"/>
-     </xs:key>
-
-     <xs:keyref name="sfRef" refer="structKey">
-        <xs:selector xpath="structField" />
-        <xs:field xpath="@struct" />          
-     </xs:keyref>
-
-     <!-- Define key/keyref link between the format name of a record   -->
-     <!-- and a reference to that name by another record.              -->
-     <xs:key name="formatKey">
-       <xs:selector xpath="record"/>
-       <xs:field xpath="@format"/>
-     </xs:key>
-
-     <xs:keyref name="formatRef" refer="formatKey">
-        <xs:selector xpath="record" />
-        <xs:field xpath="@formatRef" />
-     </xs:keyref>
-  </xs:element>
-
-  <!-- Define type record to be used to hold fields of data  -->
-   <xs:element name="record" substitutionGroup="structOrRecord">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element ref="dataOrStruct" minOccurs="1" maxOccurs="unbounded"/>
-      </xs:sequence>
-      <xs:attribute name="id" type="xs:ID"/>
-      <xs:attribute name="format" type="string10"/>
-      <xs:attribute name="formatRef" type="string10"/>
-    </xs:complexType>
-   </xs:element>
-
-  <!-- "XML Schema provides a mechanism, called substitution groups, that allows elements to be 
-    substituted for other elements. More specifically, elements can be assigned to a special group of
-    elements that are said to be substitutable for a particular named element called the head element.
-    ... [The members of a substitution group] can be used anyplace that we are able to use [the group's 
-    head element]. ... [The substitution group] simply provides a mechanism for allowing elements to be
-    used interchangeably." - The XML Schema Primer -->
-
-  <!-- Define types needed to define fields used in records and record formats -->
-  <!-- Continuing with RFML restriction of no nested structs                   -->
-  <xs:element name="dStruct" type="structureFieldArray" substitutionGroup="dataOrStruct"/>
-
-  <xs:complexType name="structureFieldArray">
+   <xs:complexType name="structureFieldArray">
     <xs:sequence>
        <xs:group ref="structureField" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
@@ -747,18 +684,11 @@
   </xs:complexType>
 
 
-  <!-- Abstract type for "struct or record". -->
-  <xs:element name="structOrRecord" abstract="true" />
-
-  <!-- Abstract type for "struct or record". -->
+ 
+  <!-- Abstract type for "struct or program". -->
   <xs:element name="structOrProgram" abstract="true" />
 
-  <!-- Abstract type for "data or struct". -->
-  <xs:element name="dataOrStruct" abstract="true" substitutionGroup="structOrRecord"/>
-
-  <!-- Abstract type for all data fields. -->
-  <xs:element name="dataField" abstract="true" substitutionGroup="dataOrStruct"/>
-
+ 
   <!-- Abstract type for all data field types. -->
   <xs:element name="stringFieldGroup" type="stringFieldType" abstract="true" />
   <xs:element name="intFieldGroup" type="intFieldType" abstract="true" />
