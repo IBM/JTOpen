@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLVarchar.java
+// Filename: SQLLongVarchar.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -27,7 +27,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLVarchar
+final class SQLLongVarchar
 implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
@@ -41,7 +41,7 @@ implements SQLData
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
-    SQLVarchar(int maxLength, SQLConversionSettings settings)
+    SQLLongVarchar(int maxLength, SQLConversionSettings settings)
     {
         settings_       = settings;
         length_         = 0;
@@ -212,7 +212,7 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "VARCHAR";
+        return "LONG VARCHAR";
     }
 
     public int getMaximumPrecision()
@@ -232,7 +232,7 @@ implements SQLData
 
     public int getNativeType()
     {
-        return 448;
+        return 456;
     }
 
     public int getPrecision()
@@ -257,7 +257,7 @@ implements SQLData
 
     public String getTypeName()
     {
-        return "VARCHAR";
+        return "LONG VARCHAR";
     }
 
     public boolean isSigned()

@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLVarchar.java
+// Filename: SQLVargraphic.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -27,7 +27,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLVarchar
+final class SQLVargraphic
 implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
@@ -41,7 +41,7 @@ implements SQLData
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
-    SQLVarchar(int maxLength, SQLConversionSettings settings)
+    SQLVargraphic(int maxLength, SQLConversionSettings settings)
     {
         settings_       = settings;
         length_         = 0;
@@ -52,15 +52,14 @@ implements SQLData
 
     public Object clone()
     {
-        return new SQLVarchar(maxLength_, settings_);
+        return new SQLVargraphic(maxLength_, settings_);
     }
 
-    // @A2A
     // Added method trim() to trim the string.
-    public void trim()                                // @A2A
-    {                                                 // @A2A
-        value_ = value_.trim();                       // @A2A
-    }                                                 // @A2A
+    public void trim()
+    {
+        value_ = value_.trim();
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -78,7 +77,10 @@ implements SQLData
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiStringType);
+        // If the field is VARGRAPHIC, length_ contains the number
+        // of characters in the string, while the converter is expecting
+        // the number of bytes. Thus, we need to multiply length_ by 2.
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_*2, bidiStringType);
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -93,7 +95,8 @@ implements SQLData
 
             // The length in the first 2 bytes is actually the length in characters.
             byte[] temp = ccsidConverter.stringToByteArray(value_, bidiStringType);
-            BinaryConverter.unsignedShortToByteArray(temp.length, rawBytes, offset);
+            BinaryConverter.unsignedShortToByteArray(temp.length/2, rawBytes, offset);
+
             if(temp.length > maxLength_)
             {
                 maxLength_ = temp.length;
@@ -105,7 +108,7 @@ implements SQLData
             // For varchar fields the actual data is often smaller than the field width.
             // That means whatever is in the buffer from the previous send is sent to the
             // server.  The data stream includes actual data length so the old bytes are not 
-            // written to the database, but the junk left over may decrease the affectiveness 
+            // written to the database, but the junk left over may decrease the effectiveness 
             // of compression.  The following code will write hex 0s to the buffer when
             // actual length is less that field length.  Note the 0s are written only if 
             // the field length is pretty big.  The data stream code (DBBaseRequestDS)
@@ -132,45 +135,46 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        String value = null;                                                        // @C1A
+        String value = null;
 
         if(object instanceof String)
-            value = (String) object;                                                // @C1C
+            value = (String)object;
 
         else if(object instanceof Number)
-            value = object.toString();                                              // @C1C
+            value = object.toString();
 
         else if(object instanceof Boolean)
-            value = object.toString();                                              // @C1C
+            value = object.toString();
 
         else if(object instanceof Time)
-            value = SQLTime.timeToString((Time) object, settings_, calendar);      // @C1C
+            value = SQLTime.timeToString((Time)object, settings_, calendar);
 
         else if(object instanceof Timestamp)
-            value = SQLTimestamp.timestampToString((Timestamp) object, calendar);  // @C1C
+            value = SQLTimestamp.timestampToString((Timestamp)object, calendar);
 
-        else if(object instanceof java.util.Date)                                  // @F5M @F5C
-            value = SQLDate.dateToString((java.util.Date) object, settings_, calendar); // @C1C @F5C
+        else if(object instanceof java.util.Date)
+            value = SQLDate.dateToString((java.util.Date)object, settings_, calendar);
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
-        {                                                                          // @C1C
-            Clob clob = (Clob)object;                                              // @C1C
-            value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
-        }                                                                          // @C1C
+        {
+            Clob clob = (Clob)object;
+            value = clob.getSubString(1, (int)clob.length());
+        }
 
-        if(value == null)                                                          // @C1C
+        if(value == null)
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        value_ = value;                                                            // @C1A
+
+        value_ = value;
 
         // Truncate if necessary.
         int valueLength = value_.length();
 
-        int truncLimit = maxLength_;              // @F2a
+        int truncLimit = maxLength_ / 2;
 
-        if(valueLength > truncLimit)             // @F2c
+        if(valueLength > truncLimit)
         {
-            value_ = value_.substring(0, truncLimit); // @F2c
-            truncated_ = valueLength - truncLimit;     // @F2c
+            value_ = value_.substring(0, truncLimit);
+            truncated_ = valueLength - truncLimit;
         }
         else
             truncated_ = 0;
@@ -191,10 +195,10 @@ implements SQLData
 
     public int getDisplaySize()
     {
-        return maxLength_;
+        return maxLength_ / 2;
     }
 
-    //@F1A JDBC 3.0
+    // JDBC 3.0
     public String getJavaClassName()
     {
         return "java.lang.String";   
@@ -212,12 +216,12 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "VARCHAR";
+        return "VARGRAPHIC";
     }
 
     public int getMaximumPrecision()
     {
-        return 32739;
+        return 16369;
     }
 
     public int getMaximumScale()
@@ -232,7 +236,7 @@ implements SQLData
 
     public int getNativeType()
     {
-        return 448;
+        return 464;
     }
 
     public int getPrecision()
@@ -257,7 +261,7 @@ implements SQLData
 
     public String getTypeName()
     {
-        return "VARCHAR";
+        return "VARGRAPHIC";
     }
 
     public boolean isSigned()

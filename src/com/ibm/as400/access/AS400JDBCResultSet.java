@@ -2391,6 +2391,7 @@ public class AS400JDBCResultSet implements ResultSet
                 && (!(data instanceof SQLBlob))                                         // @D4A
                 && (!(data instanceof SQLBlobLocator))                                  // @D4A
                 && (!(data instanceof SQLCharForBitData))                               // @M0A
+                && (!(data instanceof SQLLongVarcharForBitData))                        // @M0A
                 && (!(data instanceof SQLVarcharForBitData))                            // @M0A
                 && (!(data instanceof SQLRowID))                                        // @M0A
                 && (data != null)

@@ -231,7 +231,7 @@ class SQLDataFactory
                 return new SQLBlob(maxLength - 4, settings);       // @D1C
 
             case Types.CHAR:
-                return new SQLChar(maxLength, false, settings);
+                return new SQLChar(maxLength, settings);
 
             case Types.CLOB:
                 return new SQLClob(maxLength - 4, settings);    // @D1C @E1C
@@ -276,17 +276,26 @@ class SQLDataFactory
                 return new SQLTimestamp(settings);
 
             case Types.VARBINARY:
+            {
+                if(vrm >= JDUtilities.vrm530)
+                    return new SQLVarbinary(maxLength, settings);
+                else
+                    return new SQLVarcharForBitData(maxLength, settings);
+            }
+
             case Types.LONGVARBINARY:                               // @D0A
             {                                                                    // @M0C - changed the code to return a 
                 if(vrm >= JDUtilities.vrm530)                                    // @M0C - SQLVarbinary for v5r3 and newer
                     return new SQLVarbinary(maxLength, settings);                // @M0C - only because the old SQLVarbinary
                 else                                                             // @M0C - function has been moved to
-                    return new SQLVarcharForBitData(maxLength, false, settings); // @M0C - SQLVarcharForBitData
+                    return new SQLLongVarcharForBitData(maxLength, settings);    // @M0C - SQLVarcharForBitData
             }                                                                    // @M0C
 
             case Types.VARCHAR:
+                return new SQLVarchar(maxLength, settings);
+
             case Types.LONGVARCHAR:                                 // @D0A
-                return new SQLVarchar(maxLength, false, false, settings);  // @E1C
+                return new SQLLongVarchar(maxLength, settings);     // @E1C
 
             default:
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_INVALID);
@@ -359,30 +368,30 @@ class SQLDataFactory
 
             case 448:                           // Varchar.
                 if((ccsid == 65535) && (translateBinary == false))   //@E4C
-                    return new SQLVarcharForBitData(length - 2, false, settings);  // @M0C - changed from SQLVarbinary
+                    return new SQLVarcharForBitData(length - 2, settings);  // @M0C - changed from SQLVarbinary
                 else
-                    return new SQLVarchar(length - 2, false, false, settings);
+                    return new SQLVarchar(length - 2, settings);
 
             case 456:                           // Varchar long.
                 if((ccsid == 65535) && (translateBinary == false))    //@E4C
-                    return new SQLVarcharForBitData(length - 2, true, settings);  // @M0C - changed from SQLVarbinary
+                    return new SQLLongVarcharForBitData(length - 2, settings);  // @M0C - changed from SQLVarbinary
                 else
-                    return new SQLVarchar(length - 2, false, true, settings);
+                    return new SQLLongVarchar(length - 2, settings);
 
             case 452:                           // Char.
                 if((ccsid == 65535) && (translateBinary == false))    //@E4C
                     return new SQLCharForBitData(length, settings);  // @M0C - changed from SQLBinary
                 else
-                    return new SQLChar(length, false, settings);
+                    return new SQLChar(length, settings);
 
             case 464:                           // Graphic (pure DBCS).
-                return new SQLVarchar(length - 2, true, false, settings); // @C1C @C4C
+                return new SQLVargraphic(length - 2, settings); // @C1C @C4C
 
             case 472:                           // Graphic long (pure DBCS).
-                return new SQLVarchar(length - 2, true, true, settings); // @C1C @C4C
+                return new SQLLongVargraphic(length - 2, settings); // @C1C @C4C
 
             case 468:                           // Graphic fix (pure DBCS).
-                return new SQLChar(length, true, settings); // @C1C @C4C
+                return new SQLGraphic(length, settings); // @C1C @C4C
 
             case 480:                           // Float.
                 if(length == 4)
@@ -484,16 +493,16 @@ class SQLDataFactory
             return new SQLBlob(length, settings);          // @D1C @G1C Remove length-4
 
         else if(nativeType.equals("CHAR"))
-            return new SQLChar(length, false, settings);
+            return new SQLChar(length, settings);
 
         else if(nativeType.equals("CHARACTE"))
-            return new SQLChar(length, false, settings);
+            return new SQLChar(length, settings);
 
         else if(nativeType.equals("CHARACTER"))
-            return new SQLChar(length, false, settings);
+            return new SQLChar(length, settings);
 
         else if(nativeType.equals("CHARACTER VARYING"))
-            return new SQLVarchar(length, false, false, settings);     // @E1C
+            return new SQLVarchar(length, settings);     // @E1C
 
         else if(nativeType.equals("CLOB"))
             return new SQLClob(length, settings);           // @D1C @E1C @G1C Remove length-4
@@ -535,10 +544,10 @@ class SQLDataFactory
         }
 
         else if(nativeType.equals("GRAPHIC"))
-            return new SQLChar(length, true, settings); // @C1C @C4C
+            return new SQLGraphic(length, settings); // @C1C @C4C
 
         else if(nativeType.equals("GRAPHIC VARYING"))
-            return new SQLVarchar(length, true, false, settings); // @C1C @C4C @E1C
+            return new SQLVargraphic(length, settings); // @C1C @C4C @E1C
 
         else if(nativeType.equals("INTEGER"))
             return new SQLInteger();
@@ -577,17 +586,17 @@ class SQLDataFactory
             if(vrm >= JDUtilities.vrm530)                                  // @M0C - only for v5r3 and newer       
                 return new SQLVarbinary(length, settings);                 // @M0C - because the original function 
             else                                                           // @M0C - from SQLVarbinary has been moved 
-                return new SQLVarcharForBitData(length, false, settings);  // @M0C - to SQLVarcharForBitData in order 
+                return new SQLVarcharForBitData(length, settings);         // @M0C - to SQLVarcharForBitData in order 
         }                                                                  // @M0C - to add support for real VARBINARY
 
         else if(nativeType.equals("VARCHAR"))
-            return new SQLVarchar(length, false, false, settings);     // @E1C
+            return new SQLVarchar(length, settings);     // @E1C
 
         else if(nativeType.equals("VARG"))
-            return new SQLVarchar(length, true, false, settings);      // @E1C
+            return new SQLVargraphic(length, settings);      // @E1C
 
         else if(nativeType.equals("VARGRAPH"))
-            return new SQLVarchar(length, true, false, settings);      // @E1C
+            return new SQLVargraphic(length, settings);      // @E1C
 
         else
         {

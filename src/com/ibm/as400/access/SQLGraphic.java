@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLVarchar.java
+// Filename: SQLGraphic.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.ByteArrayInputStream;
+import java.io.CharConversionException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
@@ -27,40 +28,31 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLVarchar
+final class SQLGraphic
 implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
-    private int                     length_;
     private int                     maxLength_;
     private int                     truncated_;
     private String                  value_;
+    private String                  originalValue_;
 
-    // Note: maxLength is in bytes not counting 2 for LL.
-    //
-    SQLVarchar(int maxLength, SQLConversionSettings settings)
+    SQLGraphic(int maxLength, SQLConversionSettings settings)
     {
         settings_       = settings;
-        length_         = 0;
         maxLength_      = maxLength;
         truncated_      = 0;
         value_          = "";
+        originalValue_  = "";
     }
 
     public Object clone()
     {
-        return new SQLVarchar(maxLength_, settings_);
+        return new SQLGraphic(maxLength_, settings_);
     }
-
-    // @A2A
-    // Added method trim() to trim the string.
-    public void trim()                                // @A2A
-    {                                                 // @A2A
-        value_ = value_.trim();                       // @A2A
-    }                                                 // @A2A
 
     //---------------------------------------------------------//
     //                                                         //
@@ -71,54 +63,49 @@ implements SQLData
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
-        length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);
-
         int bidiStringType = settings_.getBidiStringType();
+
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiStringType);
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiStringType);
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException
     {
-        try
+        //   We originally padded with a single byte space.  We now have the
+        //   ccsid so we can figure out if that was right or not.  If we should
+        //   have use the double byte space, re-pad.
+        int ccsid = ccsidConverter.getCcsid();
+        if(ccsid != 13488 && ccsid != 1200)
         {
-            int bidiStringType = settings_.getBidiStringType();
-            // if bidiStringType is not set by user, use ccsid to get value
-            if(bidiStringType == -1)
-                bidiStringType = ccsidConverter.bidiStringType_;
-
-            // The length in the first 2 bytes is actually the length in characters.
-            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiStringType);
-            BinaryConverter.unsignedShortToByteArray(temp.length, rawBytes, offset);
-            if(temp.length > maxLength_)
+            int valueLength = originalValue_.length();
+            int exactLength = getDisplaySize();
+            if(valueLength < exactLength)
             {
-                maxLength_ = temp.length;
-                JDError.throwSQLException(this, JDError.EXC_INTERNAL);
-            }
-            System.arraycopy(temp, 0, rawBytes, offset+2, temp.length);
-
-            // The buffer we are filling with data is big enough to hold the entire field.
-            // For varchar fields the actual data is often smaller than the field width.
-            // That means whatever is in the buffer from the previous send is sent to the
-            // server.  The data stream includes actual data length so the old bytes are not 
-            // written to the database, but the junk left over may decrease the affectiveness 
-            // of compression.  The following code will write hex 0s to the buffer when
-            // actual length is less that field length.  Note the 0s are written only if 
-            // the field length is pretty big.  The data stream code (DBBaseRequestDS)
-            // does not compress anything smaller than 1K.
-            if((maxLength_ > 256) && (maxLength_ - temp.length > 16))
-            {
-                int stopHere = offset + 2 + maxLength_;
-                for(int i=offset + 2 + temp.length; i<stopHere; i++)
-                    rawBytes[i] = 0x00;
+                StringBuffer buffer = new StringBuffer(originalValue_);
+                char c = '\u3000';
+                for(int i = valueLength; i < exactLength; ++i)
+                    buffer.append(c);
+                value_ = buffer.toString();
             }
         }
-        catch(Exception e)
+
+        int bidiStringType = settings_.getBidiStringType();
+
+        // if bidiStringType is not set by user, use ccsid to get value
+        if(bidiStringType == -1)
+            bidiStringType = ccsidConverter.bidiStringType_;
+
+        try
         {
+            ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiStringType);
+        }
+        catch(CharConversionException e)
+        {
+            maxLength_ = ccsidConverter.stringToByteArray(value_, bidiStringType).length;
             JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
         }
     }
@@ -132,50 +119,58 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        String value = null;                                                        // @C1A
+        String value = null;
 
         if(object instanceof String)
-            value = (String) object;                                                // @C1C
+            value = (String) object;
 
         else if(object instanceof Number)
-            value = object.toString();                                              // @C1C
+            value = object.toString();
 
         else if(object instanceof Boolean)
-            value = object.toString();                                              // @C1C
+            value = object.toString();
 
         else if(object instanceof Time)
-            value = SQLTime.timeToString((Time) object, settings_, calendar);      // @C1C
+            value = SQLTime.timeToString((Time) object, settings_, calendar);
 
         else if(object instanceof Timestamp)
-            value = SQLTimestamp.timestampToString((Timestamp) object, calendar);  // @C1C
+            value = SQLTimestamp.timestampToString((Timestamp) object, calendar);
 
-        else if(object instanceof java.util.Date)                                  // @F5M @F5C
-            value = SQLDate.dateToString((java.util.Date) object, settings_, calendar); // @C1C @F5C
+        else if(object instanceof java.util.Date)
+            value = SQLDate.dateToString((java.util.Date) object, settings_, calendar);
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
-        {                                                                          // @C1C
-            Clob clob = (Clob)object;                                              // @C1C
-            value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
-        }                                                                          // @C1C
-
-        if(value == null)                                                          // @C1C
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        value_ = value;                                                            // @C1A
-
-        // Truncate if necessary.
-        int valueLength = value_.length();
-
-        int truncLimit = maxLength_;              // @F2a
-
-        if(valueLength > truncLimit)             // @F2c
         {
-            value_ = value_.substring(0, truncLimit); // @F2c
-            truncated_ = valueLength - truncLimit;     // @F2c
+            Clob clob = (Clob)object;
+            value = clob.getSubString(1, (int)clob.length());
+        }
+
+        if(value == null)
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+
+        value_ = value;
+        originalValue_ = value;
+
+
+        // Set to the exact length.
+        int valueLength = value_.length();
+        int exactLength = getDisplaySize();
+        if(valueLength < exactLength)
+        {
+            StringBuffer buffer = new StringBuffer(value_);
+            char c = '\u0020';
+            for(int i = valueLength; i < exactLength; ++i)
+                buffer.append(c);
+            value_ = buffer.toString();
+            truncated_ = 0;
+        }
+        else if(valueLength > exactLength)
+        {
+            value_ = value_.substring(0, exactLength);
+            truncated_ = valueLength - exactLength;
         }
         else
             truncated_ = 0;
-
-        length_ = value_.length();
     }
 
     //---------------------------------------------------------//
@@ -191,13 +186,12 @@ implements SQLData
 
     public int getDisplaySize()
     {
-        return maxLength_;
+        return maxLength_ / 2;
     }
 
-    //@F1A JDBC 3.0
     public String getJavaClassName()
     {
-        return "java.lang.String";   
+        return "java.lang.String";
     }
 
     public String getLiteralPrefix()
@@ -212,12 +206,12 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "VARCHAR";
+        return "GRAPHIC";
     }
 
     public int getMaximumPrecision()
     {
-        return 32739;
+        return 16382;
     }
 
     public int getMaximumScale()
@@ -232,7 +226,7 @@ implements SQLData
 
     public int getNativeType()
     {
-        return 448;
+        return 468;
     }
 
     public int getPrecision()
@@ -252,12 +246,12 @@ implements SQLData
 
     public int getType()
     {
-        return java.sql.Types.VARCHAR;
+        return java.sql.Types.CHAR;
     }
 
     public String getTypeName()
     {
-        return "VARCHAR";
+        return "GRAPHIC";
     }
 
     public boolean isSigned()
@@ -305,7 +299,7 @@ implements SQLData
     {
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_)); // @F3C
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_.trim()));
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())
@@ -346,7 +340,7 @@ implements SQLData
     {
         truncated_ = 0;
 
-        // If value equals "true" or "false", then return the
+        // If value equals "true", "false", "1", or "0", then return the
         // corresponding boolean, otherwise an empty string is
         // false, a non-empty string is true.
         String trimmedValue = value_.trim();        
@@ -490,16 +484,14 @@ implements SQLData
     public String toString()
     {
         // Truncate to the max field size if needed.
-        // Do not signal a DataTruncation per the spec. @B1A
+        // Do not signal a DataTruncation per the spec.
         int maxFieldSize = settings_.getMaxFieldSize();
         if((value_.length() > maxFieldSize) && (maxFieldSize > 0))
         {
-            // @B1D truncated_ = value_.length() - maxFieldSize;
             return value_.substring(0, maxFieldSize);
         }
         else
         {
-            // @B1D truncated_ = 0;
             return value_;
         }
     }
@@ -530,6 +522,12 @@ implements SQLData
             JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
             return null;
         }
+    }
+
+    // Added method trim() to trim the string.
+    public void trim()
+    {
+        value_ = value_.trim();
     }
 }
 

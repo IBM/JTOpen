@@ -4471,20 +4471,25 @@ implements DatabaseMetaData
         }
         // @M0A - end new support
 
-        typeSamples.addElement(new SQLChar(32756, false, settings_));              // @D0C
+        typeSamples.addElement(new SQLChar(32765, settings_));              // @D0C
         typeSamples.addElement(new SQLCharForBitData(32765, settings_));           // @M0A
         typeSamples.addElement(new SQLDate(settings_));                            // @D0C
         typeSamples.addElement(new SQLDecimal(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                           // @D0C
+        typeSamples.addElement(new SQLGraphic(16382, settings_));
         typeSamples.addElement(new SQLInteger());                                  // @D0C
         typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLReal(settings_));                            // @D0C
         typeSamples.addElement(new SQLSmallint());                                 // @D0C
         typeSamples.addElement(new SQLTime(settings_));                            // @D0C
         typeSamples.addElement(new SQLTimestamp(settings_));                       // @D0C
+        typeSamples.addElement(new SQLLongVarchar(32739, settings_));
+        typeSamples.addElement(new SQLLongVargraphic(16369, settings_));
+        typeSamples.addElement(new SQLLongVarcharForBitData(32739, settings_));
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C
-        typeSamples.addElement(new SQLVarcharForBitData(32739, false, settings_)); // @M0A
+        typeSamples.addElement(new SQLVarcharForBitData(32739, settings_));        // @M0A
+        typeSamples.addElement(new SQLVargraphic(16369, settings_));
         if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)
         {       // @B4D B5A @D0C
             typeSamples.addElement(new SQLBlob(15728640, settings_));           // @B4D B5A @D0C

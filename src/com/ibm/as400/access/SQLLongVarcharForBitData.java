@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLVarcharForBitData.java
+// Filename: SQLLongVarcharForBitData.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -29,7 +29,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-final class SQLVarcharForBitData
+final class SQLLongVarcharForBitData
 implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
@@ -43,7 +43,7 @@ implements SQLData
     private int                     truncated_;
     private byte[]                  value_;
 
-    SQLVarcharForBitData(int maxLength, SQLConversionSettings settings)
+    SQLLongVarcharForBitData(int maxLength, SQLConversionSettings settings)
     {
         settings_       = settings;
         length_         = 0;
@@ -54,7 +54,7 @@ implements SQLData
 
     public Object clone()
     {
-        return new SQLVarcharForBitData(maxLength_, settings_);
+        return new SQLLongVarcharForBitData(maxLength_, settings_);
     }
 
     //---------------------------------------------------------//
@@ -240,7 +240,7 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "VARCHAR";
+        return "LONG VARCHAR";
     }
 
     public int getMaximumPrecision()
@@ -260,7 +260,7 @@ implements SQLData
 
     public int getNativeType()
     {
-        return 448;
+        return 456;
     }
 
     public int getPrecision()
@@ -280,12 +280,12 @@ implements SQLData
 
     public int getType()
     {
-        return java.sql.Types.VARBINARY;
+        return java.sql.Types.LONGVARBINARY;
     }
 
     public String getTypeName()
     {
-        return "VARCHAR() FOR BIT DATA";
+        return "LONG VARCHAR() FOR BIT DATA";
     }
 
     public boolean isSigned()

@@ -164,9 +164,17 @@ Sets the row to map from.
             ((SQLVarchar) toData).trim();                   // @A0A
         else if (toData instanceof SQLChar)                 // @A0A
             ((SQLChar) toData).trim();                      // @A0A
-
+        else if(toData instanceof SQLGraphic)
+            ((SQLGraphic)toData).trim();
+        else if(toData instanceof SQLVargraphic)
+            ((SQLVargraphic)toData).trim();
+        else if(toData instanceof SQLLongVarchar)
+            ((SQLLongVarchar)toData).trim();
+        else if(toData instanceof SQLLongVargraphic)
+            ((SQLLongVargraphic)toData).trim();
+        
         return toData;
-	}
+    }
 
 
 
