@@ -10,30 +10,29 @@ import java.io.IOException;
 import java.text.ParseException;
 
 /**
- * Represents a User Token within an Authentication Token.
+ * Represents a User Token within an Identity Token.
  **/
 final class UserToken implements Serializable {
 
-/* From /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/atkn/atknAuthToken.H :
-
-typedef struct userToken
-{
-    int version;                   // Version of this user token.
-    int totalLength;               // Total length of the user token.
-                                   // This includes this structure and
-                                   // all of the data fields.
-    int useridLength;              // Length of the registry user.
-    int useridOffset;              // Offset from the start of this
-                                   // structure to the registry user.
-    int userRegistryLength;        // Length of the user registry.
-    int userRegistryOffset;        // Offset from the start of this
-                                   // structure to the user registry.
-    //char fields[];               // Array of char for data fields:
-                                   // - userid
-                                   // - userRegistry
-    //int  shortcutLength;         // Hidden length.
-} userToken_t;
-*/
+// From /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/itkn/itknIdenToken.H :
+// 
+// typedef struct userToken
+// {
+//     int version;                   // Version of this user token.
+//     int totalLength;               // Total length of the user token.
+//                                    // This includes this structure and
+//                                    // all of the data fields.
+//     int useridLength;              // Length of the registry user.
+//     int useridOffset;              // Offset from the start of this
+//                                    // structure to the registry user.
+//     int userRegistryLength;        // Length of the user registry.
+//     int userRegistryOffset;        // Offset from the start of this
+//                                    // structure to the user registry.
+//     //char fields[];               // Array of char for data fields:
+//                                    // - userid
+//                                    // - userRegistry
+//     //int  shortcutLength;         // Hidden length.
+// } userToken_t;
 
   static final int FIXED_FIELDS_LENGTH = 7*4;  // 7 'int' fields (each is 4 bytes)
   private static final int OFFSET_TO_VARIABLE_LENGTH_FIELDS = 6*4;  // don't count the final "shortcut length" field
@@ -46,7 +45,7 @@ typedef struct userToken
   UserToken(String userName, String registryName)
   {
     // Assume caller has validated args.
-    this(userName, registryName, AuthenticationToken.TOKEN_VERSION_1);
+    this(userName, registryName, IdentityToken.TOKEN_VERSION_1);
   }
 
   private UserToken(String userName, String registryName, int version)
@@ -80,7 +79,7 @@ typedef struct userToken
     int registryNameLength = 2*(registryName_.length());  // 2 bytes per char
     int totalLength = FIXED_FIELDS_LENGTH + userNameLength + registryNameLength; // total length of UT
 
-    out.write(BinaryConverter.intToByteArray(AuthenticationToken.TOKEN_VERSION_1)); // version
+    out.write(BinaryConverter.intToByteArray(IdentityToken.TOKEN_VERSION_1)); // version
     out.write(BinaryConverter.intToByteArray(totalLength));
     out.write(BinaryConverter.intToByteArray(userNameLength));
     out.write(BinaryConverter.intToByteArray(OFFSET_TO_VARIABLE_LENGTH_FIELDS)); // offset to userName field
@@ -100,8 +99,8 @@ typedef struct userToken
     // Check the version.
     in.read(intBuf);
     int version = BinaryConverter.byteArrayToInt(intBuf, 0);
-    if (version != AuthenticationToken.TOKEN_VERSION_1) {
-      throw new EimException("Unsupported User Token version: " + version, Constants.ATKNERR_TKN_VERSION_NOT_SUPPORTED);
+    if (version != IdentityToken.TOKEN_VERSION_1) {
+      throw new EimException("Unsupported User Token version: " + version, Constants.ITKNERR_TKN_VERSION_NOT_SUPPORTED);
     }
 
     // Sanity-check the totalLength field.

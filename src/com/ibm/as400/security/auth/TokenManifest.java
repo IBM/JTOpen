@@ -9,51 +9,49 @@ import java.io.IOException;
 import java.text.ParseException;
 
 /**
- * Represents a Token Manifest within an Authentication Token.
+ * Represents a Token Manifest within an Identity Token.
  **/
 final class TokenManifest implements Serializable {
 
-/* From /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/atkn/atknAuthToken.H :
-
-typedef struct tokenManifest
-{
-    int version;                   // Version of this token manifest.
-    int totalLength;               // Total length of the token
-                                   // manifest. This includes this
-                                   // structure and all of the data
-                                   // fields.
-    int counter;                   // Token manifest counter.
-    int senderEimIdLength;         // Length of the senders EIM ID.
-    int senderEimIdOffset;         // Offset from the start of this
-                                   // structure to the EIM ID.
-    int senderAppIdLength;         // Length of the senders application
-                                   // ID.
-    int senderAppIdOffset;         // Offset from the start of this
-                                   // structure to the senders
-                                   // application ID.
-    int senderTimestampLength;     // Length of the senders timestamp
-                                   // used to identify the public key.
-    int senderTimestampOffset;     // Offset from the start of this
-                                   // structure to the senders timestamp.
-    int receiverEimIdLength;       // Length of the EIM ID of expected
-                                   // receiver.
-    int receiverEimIdOffset;       // Offset from the start of this
-                                   // structure to the EIM ID of
-                                   // expected receiver.
-    int receiverAppIdLength;       // Length of the application id of
-                                   // expected receiver.
-    int receiverAppIdOffset;       // Offset from the start of this
-                                   // structure to the application ID 
-                                   // expected receiver.
-  //char fields[];                 // Array of char for data fields:
-                                   // - senderEimId
-                                   // - senderAppId
-                                   // - senderTimestamp
-                                   // - receiverEimId
-                                   // - receiverAppId
-} tokenManifest_t;
-
-*/
+// From /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/itkn/itknIdenToken.H :
+// 
+// typedef struct tokenManifest
+// {
+//     int version;                   // Version of this token manifest.
+//     int totalLength;               // Total length of the token
+//                                    // manifest. This includes this
+//                                    // structure and all of the data
+//                                    // fields.
+//     int counter;                   // Token manifest counter.
+//     int senderEimIdLength;         // Length of the senders EIM ID.
+//     int senderEimIdOffset;         // Offset from the start of this
+//                                    // structure to the EIM ID.
+//     int senderAppIdLength;         // Length of the senders application
+//                                    // ID.
+//     int senderAppIdOffset;         // Offset from the start of this
+//                                    // structure to the senders
+//                                    // application ID.
+//     int senderTimestampLength;     // Length of the senders timestamp
+//                                    // used to identify the public key.
+//     int senderTimestampOffset;     // Offset from the start of this
+//                                    // structure to the senders timestamp.
+//     int receiverEimIdLength;       // Length of the EIM ID of expected
+//                                    // receiver.
+//     int receiverEimIdOffset;       // Offset from the start of this
+//                                    // structure to the EIM ID of
+//                                    // expected receiver.
+//     int receiverAppIdLength;       // Length of the application id of
+//                                    // expected receiver.
+//     int receiverAppIdOffset;       // Offset from the start of this
+//                                    // structure to the application ID 
+//                                    // expected receiver.
+//   //char fields[];                 // Array of char for data fields:
+//                                    // - senderEimId
+//                                    // - senderAppId
+//                                    // - senderTimestamp
+//                                    // - receiverEimId
+//                                    // - receiverAppId
+// } tokenManifest_t;
 
   static final int FIXED_FIELDS_LENGTH = 13*4;  // 13 'int' fields (each is 4 bytes)
   private static final int OFFSET_TO_VARIABLE_LENGTH_FIELDS = FIXED_FIELDS_LENGTH;
@@ -69,7 +67,7 @@ typedef struct tokenManifest
   TokenManifest(int counter, String sndEidName, String sndAppID, String sndTimestamp, String rcvEidName, String rcvAppID)
   {
     // Assume caller has validated args.
-    this(counter, sndEidName, sndAppID, sndTimestamp, rcvEidName, rcvAppID, AuthenticationToken.TOKEN_VERSION_1);
+    this(counter, sndEidName, sndAppID, sndTimestamp, rcvEidName, rcvAppID, IdentityToken.TOKEN_VERSION_1);
   }
 
   private TokenManifest(int counter, String sndEidName, String sndAppID, String sndTimestamp, String rcvEidName, String rcvAppID, int version)
@@ -133,7 +131,7 @@ typedef struct tokenManifest
     int rcvAppIdLength     = 2*(rcvAppID_.length());
     int totalLength = FIXED_FIELDS_LENGTH + sndEidLength + sndAppIdLength + sndTimestampLength + rcvEidLength + rcvAppIdLength;
 
-    out.write(BinaryConverter.intToByteArray(AuthenticationToken.TOKEN_VERSION_1)); // version
+    out.write(BinaryConverter.intToByteArray(IdentityToken.TOKEN_VERSION_1)); // version
     out.write(BinaryConverter.intToByteArray(totalLength));
     out.write(BinaryConverter.intToByteArray(counter_));
 
@@ -173,8 +171,8 @@ typedef struct tokenManifest
     // Check the version.
     in.read(intBuf);
     int version = BinaryConverter.byteArrayToInt(intBuf, 0);
-    if (version != AuthenticationToken.TOKEN_VERSION_1) {
-      throw new EimException("Unsupported Token Manifest version: " + version, Constants.ATKNERR_TKN_VERSION_NOT_SUPPORTED);
+    if (version != IdentityToken.TOKEN_VERSION_1) {
+      throw new EimException("Unsupported Token Manifest version: " + version, Constants.ITKNERR_TKN_VERSION_NOT_SUPPORTED);
     }
 
     // Sanity-check the totalLength field.

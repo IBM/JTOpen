@@ -11,46 +11,46 @@ import java.text.ParseException;
 
 
 /**
- * Represents a Token Signature Header within an Authentication Token.
+ * Represents a Token Signature Header within an Identity Token.
  **/
 final class SignatureHeader implements Serializable {
 
-/* From /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/atkn/atknAuthToken.H :
+// From /osxpf/v5r2m0f.xpf/cur/cmvc/base.pgm/sy.xpf/itkn/itknIdenToken.H :
+// 
+// typedef struct tokenSignatureHeader
+// {
+//     int version;                   // Version of this signature header.
+//     int totalLength;               // Total length of the token
+//                                    // signature.  This includes this
+//                                    // structure and the data fields.
+//     int authTokenLength;           // Length of the entire
+//                                    // identity token starting at
+//                                    // this signature header.
+//     int signedLength;              // Length of the data that was
+//                                    // signed.  This would start at the
+//                                    // token manifest immediately after
+//                                    // this header and continue to the
+//                                    // end of the user token.
+//     int signatureLength;           // Length of the signature.
+//     int signatureOffset;           // Offset from the start of this
+//                                    // structure to the signature.
+//   //char fields[];                 // Array of char for data fields:
+//                                    // - signature
+// } tokenSignatureHeader_t;
 
-typedef struct tokenSignatureHeader
-{
-    int version;                   // Version of this signature header.
-    int totalLength;               // Total length of the token
-                                   // signature.  This includes this
-                                   // structure and the data fields.
-    int authTokenLength;           // Length of the entire
-                                   // authentication token starting at
-                                   // this signature header.
-    int signedLength;              // Length of the data that was
-                                   // signed.  This would start at the
-                                   // token manifest immediately after
-                                   // this header and continue to the
-                                   // end of the user token.
-    int signatureLength;           // Length of the signature.
-    int signatureOffset;           // Offset from the start of this
-                                   // structure to the signature.
-  //char fields[];                 // Array of char for data fields:
-                                   // - signature
-} tokenSignatureHeader_t;
-*/
   private static final boolean DEBUG = false;
 
   static final int FIXED_FIELDS_LENGTH = 6*4;  // 6 'int' fields (each is 4 bytes)
   private static final int OFFSET_TO_VARIABLE_LENGTH_FIELDS = FIXED_FIELDS_LENGTH;
 
   static final int OFFSET_TO_HEADER_LENGTH = 4; // offset to signature header length field.
-  static final int OFFSET_TO_TOKEN_LENGTH = 8; // offset to authTokenLength_ field.
+  static final int OFFSET_TO_TOKEN_LENGTH = 8; // offset to tokenTotalLength_ field.
 
   // Version of this token signature header
   private int version_;
 
-  // Length of the entire authentication token starting at this signature header.
-  private int authTokenLength_;
+  // Length of the entire identity token starting at this signature header.
+  private int tokenTotalLength_;
 
   // Length of the data that was signed.  This would start at the token manifest immediately after this header and continue to the end of the user token.
   private int signedLength_;
@@ -64,7 +64,7 @@ typedef struct tokenSignatureHeader
   private SignatureHeader(byte[] signature, int tokenLength, int signedLength, int version)
   {
     signature_ = signature;
-    authTokenLength_ = tokenLength;
+    tokenTotalLength_ = tokenLength;
     signedLength_ = signedLength;
     version_ = version;
   }
@@ -90,34 +90,34 @@ typedef struct tokenSignatureHeader
     signer.update(manifestsPlusUT);
     byte[] signature = signer.sign();
 
-    // Determine new "total length of auth token".
+    // Determine new "total length of identity token".
 
     // Total token length is the sum of (length of current Signature Header) + (length of Token Manifest) + (length of prior manifests) + (length of User Token).
-    int tokenLength = (FIXED_FIELDS_LENGTH + signature.length) + newManifest.getLength();
+    int tokenTotalLength = (FIXED_FIELDS_LENGTH + signature.length) + newManifest.getLength();
     if (priorManifests != null) {
-      tokenLength += priorManifests.length;
+      tokenTotalLength += priorManifests.length;
     }
-    tokenLength += userToken.getLength();
+    tokenTotalLength += userToken.getLength();
 
-    return new SignatureHeader(signature, tokenLength, signedLength, AuthenticationToken.TOKEN_VERSION_1);
+    return new SignatureHeader(signature, tokenTotalLength, signedLength, IdentityToken.TOKEN_VERSION_1);
   }
 
 
-  static SignatureHeader getInstance(TokenManifest newManifest, AuthenticationToken authToken, PrivateKey privateKey)
+  static SignatureHeader getInstance(TokenManifest newManifest, IdentityToken token, PrivateKey privateKey)
     throws EimException, IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException
   {
     // Assume caller has validated args.
 
     // Combine the token's current Sig Header and Token Manifest with any prior manifests.
     ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
-    authToken.getSignatureHeader().writeTo(outStream);
-    authToken.getManifest().writeTo(outStream);
-    byte[] priorManifests = authToken.getPriorManifests();
+    token.getSignatureHeader().writeTo(outStream);
+    token.getManifest().writeTo(outStream);
+    byte[] priorManifests = token.getPriorManifests();
     if (priorManifests != null) {
       outStream.write(priorManifests, 0, priorManifests.length);
     }
     byte[] currentPlusPriorManifests = outStream.toByteArray();
-    return getInstance(newManifest, currentPlusPriorManifests, authToken.getUserToken(), privateKey);
+    return getInstance(newManifest, currentPlusPriorManifests, token.getUserToken(), privateKey);
   }
 
   /**
@@ -130,7 +130,7 @@ typedef struct tokenSignatureHeader
 
   int getTokenLength()
   {
-    return authTokenLength_;
+    return tokenTotalLength_;
   }
   byte[] getSignature()
   {
@@ -147,9 +147,9 @@ typedef struct tokenSignatureHeader
   {
     // Assume caller has validated arg.
 
-    out.write(BinaryConverter.intToByteArray(AuthenticationToken.TOKEN_VERSION_1)); // version
+    out.write(BinaryConverter.intToByteArray(IdentityToken.TOKEN_VERSION_1)); // version
     out.write(BinaryConverter.intToByteArray(FIXED_FIELDS_LENGTH + signature_.length)); // length of this signature header
-    out.write(BinaryConverter.intToByteArray(authTokenLength_)); // total length of entire auth token
+    out.write(BinaryConverter.intToByteArray(tokenTotalLength_)); // total length of entire token
     out.write(BinaryConverter.intToByteArray(signedLength_));
     out.write(BinaryConverter.intToByteArray(signature_.length));
     out.write(BinaryConverter.intToByteArray(OFFSET_TO_VARIABLE_LENGTH_FIELDS));  // offset to signature
@@ -165,19 +165,19 @@ typedef struct tokenSignatureHeader
     // Check the version.
     in.read(intBuf);
     int version = BinaryConverter.byteArrayToInt(intBuf, 0);
-    if (version != AuthenticationToken.TOKEN_VERSION_1) {
-      throw new EimException("Unsupported Token Signature Header version: " + version, Constants.ATKNERR_TKN_VERSION_NOT_SUPPORTED);
+    if (version != IdentityToken.TOKEN_VERSION_1) {
+      throw new EimException("Unsupported Token Signature Header version: " + version, Constants.ITKNERR_TKN_VERSION_NOT_SUPPORTED);
     }
 
-    // Sanity-check the totalLength field.  This indicates the length of the signature header.
+    // Sanity-check the signature header length field.  This indicates the length of the signature header.
     in.read(intBuf);
-    int totalLength = BinaryConverter.byteArrayToInt(intBuf, 0);
-    if (totalLength <= 0 || totalLength > in.available()) {
-      throw new ParseException("Incorrect totalLength field in Token Signature Header: " + totalLength, in.getPos()-4);
+    int sigHeaderLength = BinaryConverter.byteArrayToInt(intBuf, 0);
+    if (sigHeaderLength <= 0 || sigHeaderLength > in.available()) {
+      throw new ParseException("Incorrect signature header length field in Token Signature Header: " + sigHeaderLength, in.getPos()-4);
     }
 
     in.read(intBuf);
-    int authTokenLength = BinaryConverter.byteArrayToInt(intBuf, 0);
+    int tokenTotalLength = BinaryConverter.byteArrayToInt(intBuf, 0);
 
     in.read(intBuf);
     int signedLength = BinaryConverter.byteArrayToInt(intBuf, 0);
@@ -190,13 +190,13 @@ typedef struct tokenSignatureHeader
     byte[] signature = new byte[signatureLength];
     in.read(signature);
 
-    return new SignatureHeader(signature, authTokenLength, signedLength, version);
+    return new SignatureHeader(signature, tokenTotalLength, signedLength, version);
   }
 
   boolean equals(SignatureHeader other)
   {
     return (other != null &&
-            authTokenLength_ == other.getTokenLength() &&
+            tokenTotalLength_ == other.getTokenLength() &&
             signedLength_ == other.getSignedLength() &&
             java.util.Arrays.equals(signature_, other.getSignature()));
   }

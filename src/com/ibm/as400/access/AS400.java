@@ -32,7 +32,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.ibm.as400.security.auth.AuthenticationToken;
+import com.ibm.as400.security.auth.IdentityToken;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
@@ -106,9 +106,9 @@ public class AS400 implements Serializable
      **/
     public static final int AUTHENTICATION_SCHEME_PROFILE_TOKEN = 2;
     /**
-     Constant indicating the authentication scheme is authentication token.
+     Constant indicating the authentication scheme is identity token.
      **/
-    public static final int AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN = 3;
+    public static final int AUTHENTICATION_SCHEME_IDENTITY_TOKEN = 3;
 
     /**
      Constant indicating that the JGSS framework must be used when no password or profile token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
@@ -286,29 +286,29 @@ public class AS400 implements Serializable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name and authentication token.
+     Constructs an AS400 object.  It uses the specified system name and identity token.
      @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  authenticationToken  The authentication token to use to authenticate to the server.
+     @param  identityToken  The identity token to use to authenticate to the server.
      **/
-    public AS400(String systemName, AuthenticationToken authenticationToken)
+    public AS400(String systemName, IdentityToken identityToken)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with authentication token, system name: '" + systemName + "'");
-        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "authentication token: " + authenticationToken);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with identity token, system name: '" + systemName + "'");
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "identity token: " + identityToken);
         if (systemName == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
-        if (authenticationToken == null)
+        if (identityToken == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'authenticationToken' is null.");
-            throw new NullPointerException("authenticationToken");
+            Trace.log(Trace.ERROR, "Parameter 'identityToken' is null.");
+            throw new NullPointerException("identityToken");
         }
         construct();
         systemName_ = resolveSystem(systemName);
-        bytes_ = store(authenticationToken.toBytes());
-        byteType_ = AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN;
+        bytes_ = store(identityToken.toBytes());
+        byteType_ = AUTHENTICATION_SCHEME_IDENTITY_TOKEN;
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -1053,7 +1053,7 @@ public class AS400 implements Serializable
      <br>   AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
      <br>   AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
      <br>   AUTHENTICATION_SCHEME_PROFILE_TOKEN - profile tokens are used.
-     <br>   AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN - authentication tokens are used.
+     <br>   AUTHENTICATION_SCHEME_IDENTITY_TOKEN - identity tokens are used.
      @return  The authentication scheme in use for this object.
      **/
     public int getAuthenticationScheme()
@@ -2617,23 +2617,23 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets or resets the authentication token for this object.  Using this method will clear any set password.
-     @param  authenticationToken  The authentication token.
+     Sets or resets the identity token for this object.  Using this method will clear any set password.
+     @param  identityToken  The identity token.
      **/
-    public void setAuthenticationToken(AuthenticationToken authenticationToken)
+    public void setIdentityToken(IdentityToken identityToken)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting authentication token.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting identity token.");
 
-        if (authenticationToken == null)
+        if (identityToken == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'authenticationToken' is null.");
-            throw new NullPointerException("authenticationToken");
+            Trace.log(Trace.ERROR, "Parameter 'identityToken' is null.");
+            throw new NullPointerException("identityToken");
         }
 
         synchronized (this)
         {
-            bytes_ = store(authenticationToken.toBytes());
-            byteType_ = AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN;
+            bytes_ = store(identityToken.toBytes());
+            byteType_ = AUTHENTICATION_SCHEME_IDENTITY_TOKEN;
             signonInfo_ = null;
         }
     }
