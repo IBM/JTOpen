@@ -19,7 +19,7 @@ import java.util.*;
 
 class FTPOutputStream extends FilterOutputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     private FTP client_;
@@ -63,5 +63,14 @@ class FTPOutputStream extends FilterOutputStream
     }
 
 
+    //@A1A: The performance of the default write() method in
+    // FilterOutputStream is atrocious. The javadoc says it only
+    // writes one byte at a time to the underlying stream and that
+    // subclasses should provide a more efficient implementation.
+    // We override it here to make it faster.
+    public void write(byte[] b, int off, int len) throws IOException //@A1A
+    {                                                                //@A1A
+      out.write(b, off, len); // out is inherited from the parent      @A1A
+    }                                                                //@A1A
 }
 
