@@ -1,3 +1,4 @@
+// TBD: Revamp the synchronization logic???
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
@@ -390,6 +391,29 @@ final class ConnectionList
   public int getConnectionCount()
   {
     return connectionList_.size();      
+  }
+
+
+  /**
+   *  Indicates whether at least one of the pool items in the list is
+   *  currently connected to any service; that is, whether at least one pool item
+   *  is not in a disconnected state.
+   *
+   *  @return true if a connection exists
+   **/
+  boolean hasConnectedConnection()
+  {
+    synchronized (connectionList_)
+    {
+      int size = connectionList_.size();       
+      for (int i=0; i<size; i++)
+      {
+        PoolItem item = (PoolItem)connectionList_.elementAt(i);  
+        // Check to see if that connection is connected.
+        if (item.getAS400Object().isConnected()) return true; 
+      }
+    }
+    return false;
   }
 
 
