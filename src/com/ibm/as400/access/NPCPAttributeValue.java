@@ -309,17 +309,17 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
            // get the string for the object lib
            if (name != null)
-           {/* check for default case when resource are *INLINE   @B5A */
-              if (0 == name.compareTo("F1DFLT"))                 /* @B5A */
-              {
-                lib = "          "; /* Library will be blank in this case @B5A */
-              } else {                                           /* @B5A */
+           {/* check for default case when resource are *INLINE   @B5A@B6C */
+            //  if (0 == name.compareTo("F1DFLT"))                 /* @B5A@B6C */
+          //    {
+            //    lib = "          "; /* Library will be blank in this case @B5A@B6D */
+              //} else {                                           /* @B5A@B6D */
                  attr = attrTable_.get(new Integer(ifsAttr.libraryID_));
                  if (attr != null)
                 {
                    lib  = ((NPAttrString)attr).get();
                 }
-              }    /*  end Else            @B5A */
+             // }    /*  end Else            @B5A@B6D */
            }
 
            // get the string for the object type
