@@ -29,7 +29,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 
 /**
   *  The AS400Servlet class is an abstract class that represents an HTML Servlet.
-  *
+  *  <p>
   *  A connection pool can be used to share connections and manage the number of 
   *  connections a servlet user can have to the AS/400. When using connection 
   *  pooling and a system is requested, a fully functional AS400 object is returned 
