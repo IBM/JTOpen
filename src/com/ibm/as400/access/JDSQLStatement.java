@@ -57,6 +57,7 @@ class JDSQLStatement
     // already take place.
     private static final String     AS_             = "AS";
     private static final String     CALL_           = "CALL";
+    private static final String     CALL0_          = "?";                      // @E1A
     private static final String     CALL1_          = "?=";
     private static final String     CALL2_          = "?=CALL";
     private static final String     COMMA_          = ",";
@@ -89,6 +90,7 @@ class JDSQLStatement
 
 
     private String          correlationName_            = null;
+    private boolean         hasReturnValueParameter_    = false;    // @E1A
     private boolean         isCall_                     = false;
     private boolean         isDeclare_                  = false;
     private boolean         isCurrentOf_                = false;
@@ -107,6 +109,7 @@ class JDSQLStatement
     private String          selectTable_                = null;
     private StringTokenizer tokenizer_                  = null;
     private String          value_;
+    private String          valueForServer_             = null;     // @E1A
 
 
 
@@ -216,12 +219,22 @@ Constructs a JDSQLStatement object.
         }
 
         // If the statement is a CALL...
-        else if ((firstWord.equals (CALL_))
-                 || (firstWord.equals (CALL1_))
-                 || (firstWord.equals (CALL2_))) {
+        else if ((firstWord.equals (CALL_))) {                                      // @E1A
+// @E1D                 || (firstWord.equals (CALL1_))
+// @E1D                 || (firstWord.equals (CALL2_))) {
             isCall_ = true;
             nativeType_ = TYPE_CALL;
         }
+
+        // If the statement is a ?=CALL...                                             @E1A
+        else if ((firstWord.equals (CALL0_))                                        // @E1A
+                 || (firstWord.equals (CALL1_))                                     // @E1A
+                 || (firstWord.equals (CALL2_))) {                                  // @E1A
+            isCall_ = true;                                                         // @E1A
+            nativeType_ = TYPE_CALL;                                                // @E1A
+            hasReturnValueParameter_ = true;                                        // @E1A
+            --numberOfParameters_;  // We will "fake" the first one.                // @E1A
+        }                                                                           // @E1A
 
         // If the statement is a CONNECT, etc...
         else if ((firstWord.equals (CONNECT_))
@@ -315,6 +328,17 @@ Constructs a JDSQLStatement object.
                 || (isSelect_ && ! isForFetchOrReadOnly_)                               // @A1A
                 || (isDeclare_);                                                        // @A1A
         }                                                                               // @A1A
+
+        // If there is a return value parameter, strip if off now.                         @E1A
+        // The server does not understand these.                                           @E1A
+        if (hasReturnValueParameter_) {                                                 // @E1A
+            int call = value_.toUpperCase().indexOf(CALL_);                             // @E1A
+            if (call != -1)                                                             // @E1A
+                value_ = value_.substring(call);                                        // @E1A
+        }                                                                               // @E1A
+
+        // Trim once and for all.                                                          @E1A
+        value_ = value_.trim();                                                         // @E1A
     }
 
 
@@ -376,6 +400,20 @@ Returns the single table name for a SELECT statement.
     {
         return selectTable_;
     }
+
+
+
+// @E1A
+/**
+Indicates if the SQL statement has a return value parameter.
+
+@return true if the SQL statement has a return value parameter,
+        false otherwise.
+**/
+    boolean hasReturnValueParameter()                                   // @E1A
+    {                                                                   // @E1A
+        return hasReturnValueParameter_;                                // @E1A
+    }                                                                   // @E1A
 
 
 
@@ -612,7 +650,7 @@ native SQL if conversion was requested.
 **/
     public String toString ()
     {
-        return value_.trim();
+        return value_;                                                     // @E1C
     }
 
 

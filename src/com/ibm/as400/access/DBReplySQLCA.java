@@ -52,6 +52,17 @@ class DBReplySQLCA
 
 
 
+    // @E4A
+    final public int getErrd1 () throws DBDataStreamException           // @E4A
+    {                                                                   // @E4A
+        if (length_ <= 6)                                               // @E4A
+            return 0;                                                   // @E4A
+                                                                        // @E4A
+        return BinaryConverter.byteArrayToInt (data_, offset_ + 96);    // @E4A
+    }                                                                   // @E4A
+
+
+
     final public int getErrd2 () throws DBDataStreamException
     {
         if (length_ <= 6)                                               // @D1A

@@ -140,6 +140,11 @@ implements SQLData
     }
 
 
+    public void set(int value)                                                          // @E2A
+    {                                                                                   // @E2A
+        value_ = value;                                                                 // @E2A
+    }                                                                                   // @E2A
+
 
 //---------------------------------------------------------//
 //                                                         //

@@ -35,16 +35,14 @@ import java.util.Map;
 Use Connection.prepareCall() to create new CallableStatement
 objects.
 
-<p>JDBC provides a stored procedure escape syntax that allows
-stored procedures to be called in a standard way for all database
-systems.  This escape syntax has one form that includes a result
-parameter and one form that does not.  DB2 for OS/400 does not support
-the form with the result parameter.
-
 <p>Parameters are indexed sequentially, by number, starting
 at 1.  The caller must register output parameters before executing
 the stored procedure.
 **/
+//
+// @E2D - Removed paragraph in javadoc that describes escape syntax
+//        and the limitation of not supporting return values.
+//
 public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
@@ -59,6 +57,7 @@ implements CallableStatement
 
 
     private SQLData[]           registeredTypes_;
+    private boolean             returnValueParameterRegistered_;        // @E2A
     private boolean			    wasNull_;
 
 
@@ -104,6 +103,7 @@ Constructs an AS400JDBCCallableStatement object.
         registeredTypes_ = new SQLData[parameterCount_];
 	    for (int i = 0; i < parameterCount_; ++i)
 	        registeredTypes_[i] = null;
+        returnValueParameterRegistered_ = false;                            // @E2A
 
 	    wasNull_ = false;
     }
@@ -132,6 +132,7 @@ previous value.
         if (registeredTypes_ != null)
     	    for (int i = 0; i < parameterCount_; ++i)
 	            registeredTypes_[i] = null;
+            returnValueParameterRegistered_ = false;                            // @E2A
     }
 
 
@@ -815,6 +816,19 @@ for SQL NULL.
     {
         checkOpen ();
 
+        // Check if the parameter index refers to the return value parameter.              @E2A
+        // If it is not parameter index 1, then decrement the parameter index,             @E2A
+        // since we are "faking" the return value parameter.                               @E2A
+        if (useReturnValueParameter_) {                                                 // @E2A
+            if (parameterIndex == 1) {                                                  // @E2A
+                if (!returnValueParameterRegistered_)                                   // @E2A
+                    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);     // @E2A
+                return returnValueParameter_;                                           // @E2A
+            }                                                                           // @E2A
+            else                                                                        // @E2A
+                --parameterIndex;                                                       // @E2A
+        }                                                                               // @E2A
+
         // Validate the parameter index.
         if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
@@ -875,6 +889,21 @@ it was set.
       throws SQLException
     {
         checkOpen ();
+
+            // Check if the parameter index refers to the return value parameter.              @E2A
+            // If so, it must be registed as an INTEGER.                                       @E2A
+            // If it is not parameter index 1, then decrement the parameter index,             @E2A
+            // since we are "faking" the return value parameter.                               @E2A
+            if (useReturnValueParameter_) {                                                 // @E2A
+                if (parameterIndex == 1) {                                                  // @E2A
+                    if (sqlType != Types.INTEGER)                                           // @E2A
+                        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);         // @E2A
+                    returnValueParameterRegistered_ = true;                                 // @E2A
+                    return;                                                                 // @E2A
+                }                                                                           // @E2A
+                else                                                                        // @E2A
+                    --parameterIndex;                                                       // @E2A
+            }                                                                               // @E2A
 
         // Validate the parameter index.
         if ((parameterIndex < 1) || (parameterIndex > parameterCount_))

@@ -55,6 +55,16 @@ a target SQL type.
 // 1. See implementation note in AS400JDBCStatement.java about
 //    "private protected" methods.
 //
+// @F2A
+// 2. We need to support ?=CALL statements.  This is where the stored
+//    procedure returns an INTEGER value, and we treat it as the
+//    first parameter marker.  The database and host server support
+//    the return value, but not as a parameter marker.  Consequently,
+//    we have to fake it as the first parameter marker.  If this appears,
+//    in the SQL statement, we strip it off and maintain this separately.
+//    Of course in that case we are always mapping the caller's parameter
+//    indices to the server's indices by decrementing by 1 as needed.
+//
 public class AS400JDBCPreparedStatement
 extends AS400JDBCStatement
 implements PreparedStatement
@@ -77,7 +87,9 @@ implements PreparedStatement
             boolean[]           parameterSet_;          // private protected
     private boolean             prepared_;
     private JDServerRow         resultRow_;
+            SQLInteger          returnValueParameter_;  // private protected            @F2A
     private JDSQLStatement      sqlStatement_;
+            boolean             useReturnValueParameter_; // private protected          @F2A
 
 
 
@@ -126,9 +138,16 @@ Constructs an AS400JDBCPreparedStatement object.
         parameterOffsets_           = new int[parameterCount_];
         parameterSet_               = new boolean[parameterCount_];
 		sqlStatement_               = sqlStatement;
+        useReturnValueParameter_    = sqlStatement.hasReturnValueParameter();       // @F2A
 
-        if (JDTrace.isTraceOn())                                                    // @D1A
+        if (useReturnValueParameter_)                                               // @F2A
+            returnValueParameter_   = new SQLInteger();                             // @F2A
+
+        if (JDTrace.isTraceOn()) {                                                  // @D1A @F2C
             JDTrace.logInformation (this, "Preparing [" + sqlStatement_ + "]");     // @D1A
+            if (useReturnValueParameter_)                                           // @F2A
+                JDTrace.logInformation(this, "Suppressing return value parameter (?=CALL)"); // @F2A
+        }                                                                           // @F2A
 
         // Do not allow statements to be immediately
         // executed.  If we did not do this, then some
@@ -291,6 +310,9 @@ previous value.
 	    }
 
 	    // @E1D parameterTotalSize_ = 0;
+
+            if (useReturnValueParameter_)                                       // @F2A
+                returnValueParameter_.set(0);                                   // @F2A
     }
 
 
@@ -355,6 +377,15 @@ Performs common operations needed after an execute.
                 parameterRow_.setServerData (resultData);
                 parameterRow_.setRowIndex (0);                
             }
+
+            // Handle the return value parameter, if needed.                           @F2A
+            try {                                                                   // @F2A
+                if (useReturnValueParameter_)                                       // @F2A
+                    returnValueParameter_.set(reply.getSQLCA().getErrd1());         // @F2A
+            }                                                                       // @F2A
+	    	catch (DBDataStreamException e) {                                       // @F2A
+		    	JDError.throwSQLException (JDError.EXC_INTERNAL, e);                // @F2A
+    		}                                                                       // @F2A
         }
     }
 
@@ -1736,6 +1767,16 @@ and performs all appropriate validation.
         throws SQLException
     {
         checkOpen ();
+            // Check if the parameter index refers to the return value parameter.          @F2A
+            // This is an OUT parameter, so sets are not allowed.  If its not              @F2A
+            // parameter index 1, then decrement the parameter index, since we             @F2A
+            // are "faking" the return value parameter.                                    @F2A
+            if (useReturnValueParameter_) {                                             // @F2A
+                if (parameterIndex == 1)                                                // @F2A
+                    JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);      // @F2A
+                else                                                                    // @F2A
+                    --parameterIndex;                                                   // @F2A
+            }
 
         // Validate the parameter index.
         if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
