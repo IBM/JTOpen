@@ -207,16 +207,16 @@ class PortMapper
         if (Trace.traceOn_)
         {
             Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
-            Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress());
-            Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort());
-            Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress());
-            Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort());
-            Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive());
-            Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize());
-            Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize());
-            Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger());
-            Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout());
-            Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay());
+            try { Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout()); } catch(Throwable t) {}
+            try { Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay()); } catch(Throwable t) {}
         }
 
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...
