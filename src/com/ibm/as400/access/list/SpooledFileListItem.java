@@ -184,6 +184,7 @@ public class SpooledFileListItem
   private int totalPages_;
   private int copiesLeftToPrint_;
   private String priority_;
+  private int ippJobID_;
 
   private byte[] internalJobID_;
   private byte[] internalSplID_;
@@ -198,7 +199,7 @@ public class SpooledFileListItem
                       int spooledFileNumber, int totalPages, int currentPage, int copiesLeftToPrint,
                       String outputQueueName, String outputQueueLib, String userData, String status,
                       String formType, String priority, byte[] internalJobID, byte[] internalSplID,
-                      String deviceType, String jobSystemName)
+                      String deviceType, String jobSystemName, String dateOpened, String timeOpened)
   {
     spooledFileName_ = spooledFileName;
     jobName_ = jobName;
@@ -218,6 +219,8 @@ public class SpooledFileListItem
     internalSplID_ = internalSplID;
     deviceType_ = deviceType;
     jobSystemName_ = jobSystemName;
+    dateOpened_ = dateOpened;
+    timeOpened_ = timeOpened;
     format_ = SpooledFileOpenList.FORMAT_0100;
   }
 
@@ -230,9 +233,7 @@ public class SpooledFileListItem
   {
     this(spooledFileName, jobName, jobUser, jobNumber, spooledFileNumber, totalPages, currentPage,
          copiesLeftToPrint, outputQueueName, outputQueueLib, userData, status, formType, priority,
-         internalJobID, internalSplID, deviceType, jobSystemName);
-    dateOpened_ = dateOpened;
-    timeOpened_ = timeOpened;
+         internalJobID, internalSplID, deviceType, jobSystemName, dateOpened, timeOpened);
     printerAssigned_ = printerAssigned;
     printerName_ = printerName;
     format_ = SpooledFileOpenList.FORMAT_0200;
@@ -243,7 +244,8 @@ public class SpooledFileListItem
                       String dateOpened, String timeOpened, String spooledFileSchedule,
                       String jobSystemName, String userData, String formType,
                       String outputQueueName, String outputQueueLib, int asp, int size,
-                      int sizeMult, int totalPages, int copiesLeftToPrint, String priority)
+                      int sizeMult, int totalPages, int copiesLeftToPrint, String priority,
+                      int ippJobID)
   {
     jobName_ = jobName;
     jobUser_ = jobUser;
@@ -265,6 +267,7 @@ public class SpooledFileListItem
     totalPages_ = totalPages;
     copiesLeftToPrint_ = copiesLeftToPrint;
     priority_ = priority;
+    ippJobID_ = ippJobID;
     format_ = SpooledFileOpenList.FORMAT_0300;
   }
 
@@ -416,6 +419,20 @@ public class SpooledFileListItem
   public byte[] getInternalSpooledFileIdentifier()
   {
     return internalJobID_;
+  }
+
+  /**
+   * Returns the Internet Print Protocol (IPP) job identifier assigned by the
+   * system based on the output queue to which the file was added or moved.
+   * This value ranges from 1 to 2,147,483,647 and is not guaranteed to be unique
+   * for a given output queue. This value will be 0 when retrieved from servers
+   * running OS/400 V5R2 and earlier.
+   * <P>Available in format: {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300},
+   * @return The IPP job identifier.
+  **/
+  public String getIPPJobIdentifier()
+  {
+    return jobName_;
   }
 
   /**

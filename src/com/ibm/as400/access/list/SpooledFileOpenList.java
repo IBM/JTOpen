@@ -231,6 +231,11 @@ public class SpooledFileOpenList extends OpenList
   private String[] statusFilter_;
   private String[] deviceFilter_;
 
+  // V5R2 and higher
+  private String systemNameFilter_;
+  private Date startDateFilter_;
+  private Date endDateFilter_;
+
   private Vector sortKeys_ = new Vector();
 
   /**
@@ -276,6 +281,32 @@ public class SpooledFileOpenList extends OpenList
   **/
   protected byte[] callOpenListAPI() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
+    // Figure out our filter parameter. We do this first so we know which API format to call.
+    int filterInfoLength = 0;
+    boolean useOSPF0200 = false;
+    int vrm = system_.getVRM();
+    if (vrm >= 0x050200 && (systemNameFilter_ != null ||
+                            startDateFilter_ != null || endDateFilter_ != null))
+    {
+      // OSPF0200 filter format
+      useOSPF0200 = true;
+      filterInfoLength = 110;
+      if (userFilter_ != null) filterInfoLength += 10*userFilter_.length;
+      if (queueFilter_ != null) filterInfoLength += 20*queueFilter_.length;
+      if (statusFilter_ != null) filterInfoLength += 10*statusFilter_.length;
+      if (deviceFilter_ != null) filterInfoLength += 10*deviceFilter_.length;
+    }
+    else
+    {
+      // OSPF0100 filter format
+      useOSPF0200 = false;
+      filterInfoLength = 92;
+      if (userFilter_ != null && userFilter_.length > 1) filterInfoLength += 12*(userFilter_.length-1);
+      if (queueFilter_ != null && queueFilter_.length > 1) filterInfoLength += 20*(queueFilter_.length-1);
+      if (statusFilter_ != null && statusFilter_.length > 1) filterInfoLength += 12*(statusFilter_.length-1);
+      if (deviceFilter_ != null && deviceFilter_.length > 1) filterInfoLength += 12*(deviceFilter_.length-1);
+    }
+
     // Generate text objects based on system CCSID
     final int ccsid = system_.getCcsid();
     CharConverter conv = new CharConverter(ccsid);
@@ -283,12 +314,12 @@ public class SpooledFileOpenList extends OpenList
     AS400Text text6 = new AS400Text(6, ccsid, system_);
 
     // Setup program parameters
-    ProgramParameter[] parms = new ProgramParameter[9];
+    ProgramParameter[] parms = new ProgramParameter[useOSPF0200 ? 10 : 9];
     parms[0] = new ProgramParameter(1); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // length of receiver variable
     parms[2] = new ProgramParameter(80); // list information
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(-1)); // number of records to return
-    
+
     // Figure out our sort parameter.
     int numSortKeys = sortKeys_.size();
     int actualSortKeys = numSortKeys;
@@ -324,121 +355,230 @@ public class SpooledFileOpenList extends OpenList
       }
     }
     parms[4] = new ProgramParameter(sortInfo); // sort information
-    
-    // Figure out our filter parameter.
-    int filterInfoLength = 92;
-    if (userFilter_ != null && userFilter_.length > 1) filterInfoLength += 12*(userFilter_.length-1);
-    if (queueFilter_ != null && queueFilter_.length > 1) filterInfoLength += 20*(queueFilter_.length-1);
-    if (statusFilter_ != null && statusFilter_.length > 1) filterInfoLength += 12*(statusFilter_.length-1);
-    if (deviceFilter_ != null && deviceFilter_.length > 1) filterInfoLength += 12*(deviceFilter_.length-1);
 
     byte[] filterInfo = new byte[filterInfoLength];
     offset = 0;
-    if (userFilter_ == null || userFilter_.length == 0)
+    if (!useOSPF0200)
     {
-      // Assume *ALL
-      BinaryConverter.intToByteArray(1, filterInfo, 0); // number of user names
-      offset += 4;
-      System.arraycopy(ALL, 0, filterInfo, offset, 10);
-      offset += 12;
-    }
-    else
-    {  
-      BinaryConverter.intToByteArray(userFilter_.length, filterInfo, offset); // number of user names
-      offset += 4;
-      for (int i=0; i<userFilter_.length; ++i)
+      // Fill in the filter info for the OSPF0100 format
+      if (userFilter_ == null || userFilter_.length == 0)
       {
-        text10.toBytes(userFilter_[i], filterInfo, offset); // user names
+        // Assume *ALL
+        BinaryConverter.intToByteArray(1, filterInfo, 0); // number of user names
+        offset += 4;
+        System.arraycopy(ALL, 0, filterInfo, offset, 10);
         offset += 12;
       }
-    }
-    if (queueFilter_ == null || queueFilter_.length == 0)
-    {
-      BinaryConverter.intToByteArray(1, filterInfo, offset); // number of output queues
-      offset += 4;
-      System.arraycopy(ALL, 0, filterInfo, offset, 10);
-      offset += 10;
-      text10.toBytes("", filterInfo, offset); // output queue library name
-      offset += 10;
-    }
-    else
-    {
-      BinaryConverter.intToByteArray(queueFilter_.length, filterInfo, offset); // number of qualified output queue names
-      offset += 4;
-      for (int i=0; i<queueFilter_.length; ++i)
+      else
       {
-        QSYSObjectPathName pn = new QSYSObjectPathName(queueFilter_[i]); // number of output queues
-        text10.toBytes(pn.getObjectName(), filterInfo, offset); // output queue name
+        BinaryConverter.intToByteArray(userFilter_.length, filterInfo, offset); // number of user names
+        offset += 4;
+        for (int i=0; i<userFilter_.length; ++i)
+        {
+          text10.toBytes(userFilter_[i], filterInfo, offset); // user names
+          offset += 12;
+        }
+      }
+      if (queueFilter_ == null || queueFilter_.length == 0)
+      {
+        BinaryConverter.intToByteArray(1, filterInfo, offset); // number of output queues
+        offset += 4;
+        System.arraycopy(ALL, 0, filterInfo, offset, 10);
         offset += 10;
-        text10.toBytes(pn.getLibraryName(), filterInfo, offset); // output queue library name
+        text10.toBytes("", filterInfo, offset); // output queue library name
         offset += 10;
       }
-    }
-    if (formTypeFilter_ == null)
-    {
-      System.arraycopy(ALL, 0, filterInfo, offset, 10);
-    }
-    else
-    {
-      text10.toBytes(formTypeFilter_, filterInfo, offset); // form type
-    }
-    offset += 10;
-    if (userDataFilter_ == null)
-    {
-      System.arraycopy(ALL, 0, filterInfo, offset, 10);
-    }
-    else
-    {
-      text10.toBytes(userDataFilter_, filterInfo, offset); // user-specified data
-    }
-    offset += 10;
-    if (statusFilter_ == null || statusFilter_.length == 0)
-    {
-      BinaryConverter.intToByteArray(1, filterInfo, offset); // number of statuses
-      offset += 4;
-      System.arraycopy(ALL, 0, filterInfo, offset, 10);
-      offset += 12;
-    }
-    else
-    {
-      BinaryConverter.intToByteArray(statusFilter_.length, filterInfo, offset); // number of statuses
-      offset += 4;
-      for (int i=0; i<statusFilter_.length; ++i)
+      else
       {
-        text10.toBytes(statusFilter_[i], filterInfo, offset); // status
+        BinaryConverter.intToByteArray(queueFilter_.length, filterInfo, offset); // number of qualified output queue names
+        offset += 4;
+        for (int i=0; i<queueFilter_.length; ++i)
+        {
+          QSYSObjectPathName pn = new QSYSObjectPathName(queueFilter_[i]); // number of output queues
+          text10.toBytes(pn.getObjectName(), filterInfo, offset); // output queue name
+          offset += 10;
+          text10.toBytes(pn.getLibraryName(), filterInfo, offset); // output queue library name
+          offset += 10;
+        }
+      }
+      if (formTypeFilter_ == null)
+      {
+        System.arraycopy(ALL, 0, filterInfo, offset, 10);
+      }
+      else
+      {
+        text10.toBytes(formTypeFilter_, filterInfo, offset); // form type
+      }
+      offset += 10;
+      if (userDataFilter_ == null)
+      {
+        System.arraycopy(ALL, 0, filterInfo, offset, 10);
+      }
+      else
+      {
+        text10.toBytes(userDataFilter_, filterInfo, offset); // user-specified data
+      }
+      offset += 10;
+      if (statusFilter_ == null || statusFilter_.length == 0)
+      {
+        BinaryConverter.intToByteArray(1, filterInfo, offset); // number of statuses
+        offset += 4;
+        System.arraycopy(ALL, 0, filterInfo, offset, 10);
         offset += 12;
       }
-    }
-    if (deviceFilter_ == null || deviceFilter_.length == 0)
-    {
-      BinaryConverter.intToByteArray(1, filterInfo, offset); // number of devices
-      offset += 4;
-      System.arraycopy(ALL, 0, filterInfo, offset, 10);
-      offset += 12;
+      else
+      {
+        BinaryConverter.intToByteArray(statusFilter_.length, filterInfo, offset); // number of statuses
+        offset += 4;
+        for (int i=0; i<statusFilter_.length; ++i)
+        {
+          text10.toBytes(statusFilter_[i], filterInfo, offset); // status
+          offset += 12;
+        }
+      }
+      if (deviceFilter_ == null || deviceFilter_.length == 0)
+      {
+        BinaryConverter.intToByteArray(1, filterInfo, offset); // number of devices
+        offset += 4;
+        System.arraycopy(ALL, 0, filterInfo, offset, 10);
+        offset += 12;
+      }
+      else
+      {
+        BinaryConverter.intToByteArray(deviceFilter_.length, filterInfo, offset); // number of devices
+        offset += 4;
+        for (int i=0; i<deviceFilter_.length; ++i)
+        {
+          text10.toBytes(deviceFilter_[i], filterInfo, offset); // device
+          offset += 12;
+        }
+      }
     }
     else
     {
-      BinaryConverter.intToByteArray(deviceFilter_.length, filterInfo, offset); // number of devices
-      offset += 4;
-      for (int i=0; i<deviceFilter_.length; ++i)
+      // Fill in the filter info for the OSPF0200 format
+      offset = 110;
+      BinaryConverter.intToByteArray(106, filterInfo, 0); // length of filter information (just the fixed portion)
+      BinaryConverter.intToByteArray(10, filterInfo, 12); // length of user name entry
+      BinaryConverter.intToByteArray(20, filterInfo, 24); // length of output queue name entry
+      BinaryConverter.intToByteArray(10, filterInfo, 36); // length of spooled file status entry
+      BinaryConverter.intToByteArray(10, filterInfo, 48); // length of printer device name entry
+      if (userFilter_ != null && userFilter_.length > 0)
       {
-        text10.toBytes(deviceFilter_[i], filterInfo, offset); // device
-        offset += 12;
+        BinaryConverter.intToByteArray(offset, filterInfo, 4); // offset to user name entries
+        BinaryConverter.intToByteArray(userFilter_.length, filterInfo, 8); // number of user name entries
+        for (int i=0; i<userFilter_.length; ++i)
+        {
+          text10.toBytes(userFilter_[i], filterInfo, offset); // user name
+          offset += 10;
+        }
+      }
+      if (queueFilter_ != null && queueFilter_.length > 0)
+      {
+        BinaryConverter.intToByteArray(offset, filterInfo, 16); // offset to output queue name entries
+        BinaryConverter.intToByteArray(queueFilter_.length, filterInfo, 20); // number of output queue name entries
+        for (int i=0; i<queueFilter_.length; ++i)
+        {
+          QSYSObjectPathName pn = new QSYSObjectPathName(queueFilter_[i]); // number of output queues
+          text10.toBytes(pn.getObjectName(), filterInfo, offset); // output queue name
+          offset += 10;
+          text10.toBytes(pn.getLibraryName(), filterInfo, offset); // output queue library name
+          offset += 10;
+        }
+      }
+      if (statusFilter_ != null && statusFilter_.length > 0)
+      {
+        BinaryConverter.intToByteArray(offset, filterInfo, 28); // offset to spooled file status entries
+        BinaryConverter.intToByteArray(statusFilter_.length, filterInfo, 32); // number of spooled file status entries
+        for (int i=0; i<statusFilter_.length; ++i)
+        {
+          text10.toBytes(statusFilter_[i], filterInfo, offset); // spooled file status
+          offset += 10;
+        }
+      }
+      if (deviceFilter_ != null && deviceFilter_.length > 0)
+      {
+        BinaryConverter.intToByteArray(offset, filterInfo, 40); // offset to printer device name entries
+        BinaryConverter.intToByteArray(deviceFilter_.length, filterInfo, 44); // number of printer device name entries
+        for (int i=0; i<deviceFilter_.length; ++i)
+        {
+          text10.toBytes(deviceFilter_[i], filterInfo, offset); // printer device name
+          offset += 10;
+        }
+      }
+      if (formTypeFilter_ == null)
+      {
+        System.arraycopy(ALL, 0, filterInfo, 52, 10);
+      }
+      else
+      {
+        text10.toBytes(formTypeFilter_, filterInfo, 52); // form type
+      }
+      if (userDataFilter_ == null)
+      {
+        System.arraycopy(ALL, 0, filterInfo, 62, 10);
+      }
+      else
+      {
+        text10.toBytes(userDataFilter_, filterInfo, 62); // user-specified data
+      }
+      if (systemNameFilter_ == null)
+      {
+        System.arraycopy(ALL, 0, filterInfo, 72, 8);
+      }
+      else
+      {
+        AS400Text text8 = new AS400Text(8, ccsid, system_);
+        text8.toBytes(systemNameFilter_, filterInfo, 72); // system name
+      }
+      if (startDateFilter_ == null && endDateFilter_ == null)
+      {
+        // Both are null, don't filter.
+        System.arraycopy(ALL, 0, filterInfo, 80, 7); // starting creation date
+        for (int i=87; i<106; ++i) filterInfo[i] = 0x40; // starting creation time, ending creation date, ending creation time
+      }
+      else if (startDateFilter_ == null)
+      {
+        // Start is null, end is specified. Filter all dates up to the end date.
+        conv.stringToByteArray("*FIRST ", filterInfo, 80); // starting creation date
+        for (int i=87; i<93; ++i) filterInfo[i] = 0x40; // starting creation time
+        String cyymmddhhmmss = getOS400DateString(endDateFilter_);
+        conv.stringToByteArray(cyymmddhhmmss, filterInfo, 93); // ending creation date and time
+      }
+      else if (endDateFilter_ == null)
+      {
+        // Start is specified, end is null. Filter all dates from the start date onward.
+        String cyymmddhhmmss = getOS400DateString(startDateFilter_);
+        conv.stringToByteArray(cyymmddhhmmss, filterInfo, 80); // starting creation date and time
+        conv.stringToByteArray("*LAST  ", filterInfo, 93); // ending creation date
+        for (int i=100; i<106; ++i) filterInfo[i] = 0x40; // ending creation time
+      }
+      else
+      {
+        // Both start and end are specified.
+        String cyymmddhhmmss = getOS400DateString(startDateFilter_);
+        conv.stringToByteArray(cyymmddhhmmss, filterInfo, 80); // starting creation date and time
+        cyymmddhhmmss = getOS400DateString(endDateFilter_);
+        conv.stringToByteArray(cyymmddhhmmss, filterInfo, 93); // ending creation date and time
       }
     }
+
     parms[5] = new ProgramParameter(filterInfo); // filter information
-    
+
     // Figure out our job parameter.
     byte[] nameUserNumber = new byte[26];
     text10.toBytes(jobName_, nameUserNumber, 0);
     text10.toBytes(jobUser_, nameUserNumber, 10);
     text6.toBytes(jobNumber_, nameUserNumber, 20);
     parms[6] = new ProgramParameter(nameUserNumber); // qualified job name
-    
+
     parms[7] = new ProgramParameter(conv.stringToByteArray(format_)); // format of the generated list
     parms[8] = EMPTY_ERROR_CODE_PARM;
     // We default to OSPF0100 to be compatible with pre-V5R2 systems.
-//    parms[9] = new ProgramParameter(); // format of filter information
+    if (useOSPF0200)
+    {
+      parms[9] = new ProgramParameter(conv.stringToByteArray("OSPF0200")); // format of filter information
+    }
 
     // Call the program
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLSPL.PGM", parms);
@@ -606,20 +746,24 @@ public class SpooledFileOpenList extends OpenList
         String deviceType = conv.byteArrayToString(data, offset+136, 10).trim(); // Not in 0300 format.
         int offsetToExtension = BinaryConverter.byteArrayToInt(data, offset+148);
         String jobSystemName = null;
+        String dateOpened = null;
+        String timeOpened = null;
         if (offsetToExtension > 0)
         {
           // There is an extension.
           int lengthOfExtension = BinaryConverter.byteArrayToInt(data, offset+152);
           jobSystemName = conv.byteArrayToString(data, offset+offsetToExtension, 8).trim(); // This is a CHAR(10) in 0300 format.
+          dateOpened = conv.byteArrayToString(data, offset+offsetToExtension+8, 7); 
+          timeOpened = conv.byteArrayToString(data, offset+offsetToExtension+15, 6);
         }
         if (format_.equals(FORMAT_0200))
         {
           // format OSPL0200 only
-          String dateOpened = conv.byteArrayToString(data, offset+160, 7);
-          String timeOpened = conv.byteArrayToString(data, offset+167, 6);
+          dateOpened = conv.byteArrayToString(data, offset+160, 7);
+          timeOpened = conv.byteArrayToString(data, offset+167, 6);
           String printerAssigned = conv.byteArrayToString(data, offset+173, 1); // Not in 0300 format.
           String printerName = conv.byteArrayToString(data, offset+174, 10).trim(); // Not in 0300 format.
-        
+
           sp[i] = new SpooledFileListItem(spooledFileName, jobName, jobUser, jobNumber, spooledFileNumber,
                                           totalPages, currentPage, copiesLeftToPrint, outputQueueName,
                                           outputQueueLib, userData, status, formType, priority,
@@ -631,7 +775,8 @@ public class SpooledFileOpenList extends OpenList
           sp[i] = new SpooledFileListItem(spooledFileName, jobName, jobUser, jobNumber, spooledFileNumber,
                                           totalPages, currentPage, copiesLeftToPrint, outputQueueName,
                                           outputQueueLib, userData, status, formType, priority,
-                                          internalJobID, internalSplID, deviceType, jobSystemName);
+                                          internalJobID, internalSplID, deviceType, jobSystemName,
+                                          dateOpened, timeOpened);
         }
       }
       else
@@ -657,11 +802,15 @@ public class SpooledFileOpenList extends OpenList
         int totalPages = BinaryConverter.byteArrayToInt(data, offset+120);
         int copiesLeftToPrint = BinaryConverter.byteArrayToInt(data, offset+124);
         String priority = conv.byteArrayToString(data, offset+128, 1); // This is a CHAR(2) in 0200 format.
-
+        int ippJobID = 0;
+        if (data.length >= 136)
+        {
+          ippJobID = BinaryConverter.byteArrayToInt(data, offset+132); // This is for systems after V5R2.
+        }
         sp[i] = new SpooledFileListItem(jobName, jobUser, jobNumber, spooledFileName, spooledFileNumber,
-                                status, dateOpened, timeOpened, spooledFileSchedule, jobSystemName,
-                                userData, formType, outputQueueName, outputQueueLib, asp, size, sizeMult,
-                                totalPages, copiesLeftToPrint, priority);
+                                        status, dateOpened, timeOpened, spooledFileSchedule, jobSystemName,
+                                        userData, formType, outputQueueName, outputQueueLib, asp, size, sizeMult,
+                                        totalPages, copiesLeftToPrint, priority, ippJobID);
 
       }
       offset += recordLength;
@@ -675,6 +824,29 @@ public class SpooledFileOpenList extends OpenList
   protected int getBestGuessReceiverSize(int number)
   {
     return 100+(136*number);
+  }
+
+
+  /**
+   * Returns the end creation date being used to filter the list of spooled files.
+   * @return The end creation date, or null if the end creation date used will be the latest
+   * date in the list.
+   * @see #getFilterCreationDateStart
+  **/
+  public Date getFilterCreationDateEnd()
+  {
+    return endDateFilter_;
+  }
+
+  /**
+   * Returns the start creation date being used to filter the list of spooled files.
+   * @return The start creation date, or null if the start creation date used will be the earliest
+   * date in the list.
+   * @see #getFilterCreationDateEnd
+  **/
+  public Date getFilterCreationDateStart()
+  {
+    return startDateFilter_;
   }
 
   /**
@@ -714,6 +886,19 @@ public class SpooledFileOpenList extends OpenList
   public String getFilterJobNumber()
   {
     return jobNumber_;
+  }
+
+  /**
+   * Returns the job system name used to determine which spooled files belong in the list.
+   * @return The job system name, "*CURRENT" for the current system, or the default of "*ALL"
+   * to indicate the list is not being filtered by job system name.
+   * Note that the job system name filter is only used when connecting to servers running
+   * OS/400 V5R2 and higher.
+   * @see #setFilterJobSystemName
+  **/
+  public String getFilterJobSystemName()
+  {
+    return systemNameFilter_;
   }
 
   /**
@@ -778,9 +963,62 @@ public class SpooledFileOpenList extends OpenList
     return format_;
   }
 
+  // Helper method that returns a String in the format CYYMMDDHHMMSS.
+  private static final String getOS400DateString(Date d)
+  {
+    Calendar c = Calendar.getInstance();
+    c.clear();
+    c.setTime(d);
+    int year = c.get(Calendar.YEAR);
+    int yy = year % 100;
+    int month = c.get(Calendar.MONTH)+1;
+    int day = c.get(Calendar.DAY_OF_MONTH);
+    int hour = c.get(Calendar.HOUR_OF_DAY);
+    int minute = c.get(Calendar.MINUTE);
+    int second = c.get(Calendar.SECOND);
+    StringBuffer buf = new StringBuffer();
+    buf.append(year < 2000 ? "0" : "1");
+    if (yy < 10) buf.append('0');
+    buf.append(yy);
+    if (month < 10) buf.append('0');
+    buf.append(month);
+    if (day < 10) buf.append('0');
+    buf.append(day);
+    if (hour < 10) buf.append('0');
+    buf.append(hour);
+    if (minute < 10) buf.append('0');
+    buf.append(minute);
+    if (second < 10) buf.append('0');
+    buf.append(second);
+    return buf.toString();
+  }
+
+  /**
+   * Sets the creation date range used to filter the list of spooled files. By default,
+   * the list is not filtered by creation date.
+   * Note that the creation date filter is only used when connecting to servers running
+   * OS/400 V5R2 and higher.
+   * @param start The start date. All spooled files with a creation date and time equal to
+   * or later than the start date will be selected. Specify null to indicate that the earliest
+   * creation date and later will be selected, up to the specified <i>end</i> date.
+   * @param end The end date. All spooled files with a creation date and time equal to
+   * or earlier than the end date will be selected. Specify null to indicate that the latest
+   * creation date and earlier will be selected, down to the specified <i>start</i> date.
+   * @see #getFilterCreationDateStart
+   * @see #getFilterCreationDateEnd
+   * @see #setFilterCreationDate(String,String)
+  **/
+  public void setFilterCreationDate(Date start, Date end)
+  {
+    startDateFilter_ = start;
+    endDateFilter_ = end;
+    resetHandle();
+  }
+
+
   /**
    * Sets the printer device names used to filter the list of spooled files.
-   * param devices The array of printer device names. Only spooled files that belong to the specified
+   * @param devices The array of printer device names. Only spooled files that belong to the specified
    * printer devices are returned in the list. Specify null to clear the status filter, so that spooled files
    * in the list are no longer filtered based on device.
   **/
@@ -829,6 +1067,21 @@ public class SpooledFileOpenList extends OpenList
       jobUser_ = "";
       jobNumber_ = "";
     }
+    resetHandle();
+  }
+
+  /**
+   * Sets the job system name used to filter the list of spooled files. Specifying null
+   * resets it to its default value of "*ALL".
+   * Note that the job system name filter is only used when connecting to servers running
+   * OS/400 V5R2 and higher.
+   * @param systemName Only spooled files created on <i>systemName</i>will be included in the list.
+   * Specify "*CURRENT" to return only spooled files created on the current system.
+   * @see #getFilterJobSystemName
+  **/
+  public void setFilterJobSystemName(String systemName)
+  {
+    systemNameFilter_ = systemName;
     resetHandle();
   }
 
