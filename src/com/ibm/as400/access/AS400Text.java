@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ import java.io.IOException;
 
 /**
    The AS400Text class provides character set conversion between Java String objects and
-   AS/400 native code pages.
+   OS/400 native code pages.
    <P>Note that in the past few releases, several constructors were deprecated because
    they did not accept an AS400 system object as an argument. Due to recent changes in 
    the behavior of the character conversion routines, this system object is no longer
@@ -29,11 +29,11 @@ import java.io.IOException;
 **/
 public class AS400Text implements AS400DataType
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
-    static final long serialVersionUID = 4L;
+  static final long serialVersionUID = 4L;
 
   private int length_;
   private int ccsid_ = 65535;
@@ -47,11 +47,11 @@ public class AS400Text implements AS400DataType
   /**
     Constructs an AS400Text object.
     It uses the most likely CCSID based on the default locale.
-    @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
+    @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
   **/
   public AS400Text(int length)
   {
-    if(length < 0)
+    if (length < 0)
     {
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
@@ -62,16 +62,16 @@ public class AS400Text implements AS400DataType
 
   /**
     Constructs an AS400Text object.
-    @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
-    @param  ccsid  The CCSID of the AS/400 text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+    @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
+    @param  ccsid  The CCSID of the OS/400 text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
   **/
   public AS400Text(int length, int ccsid)
   {
-    if(length < 0)
+    if (length < 0)
     {
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
-    if(ccsid < 0) //@D2A
+    if (ccsid < 0) //@D2A
     {
       //@D2A
       throw new ExtendedIllegalArgumentException("ccsid (" + String.valueOf(ccsid) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); //@D2A
@@ -84,16 +84,16 @@ public class AS400Text implements AS400DataType
 
   /**
     Constructs AS400Text object.
-    @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
+    @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
     @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
   **/
   public AS400Text(int length, String encoding)
   {
-    if(length < 0)
+    if (length < 0)
     {
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
-    if(encoding == null)
+    if (encoding == null)
     {
       throw new NullPointerException("encoding");
     }
@@ -116,9 +116,9 @@ public class AS400Text implements AS400DataType
 
   /**
     Constructs an AS400Text object. The ccsid used for conversion will be the ccsid of the <i>system</i> object.
-    @param  length  The byte length of the AS/400 text.
+    @param  length  The byte length of the OS/400 text.
                     It must be greater than or equal to zero.
-    @param  system  The AS/400 system from which the conversion table may be downloaded.
+    @param  system  The server from which the conversion table may be downloaded.
    */
   public AS400Text(int length, AS400 system)
   {
@@ -128,26 +128,26 @@ public class AS400Text implements AS400DataType
 
   /**
     Constructs an AS400Text object.
-    @param  length  The byte length of the AS/400 text.
+    @param  length  The byte length of the OS/400 text.
                     It must be greater than or equal to zero.
-    @param  ccsid  The CCSID of the AS/400 text.
+    @param  ccsid  The CCSID of the OS/400 text.
                    It must refer to a valid and available CCSID.
                    The value 65535 will cause the data type to use
                    the most likely CCSID based on the default locale.
-    @param  system  The AS/400 system from which the conversion table may be downloaded.
+    @param  system  The server from which the conversion table may be downloaded.
    */
   public AS400Text(int length, int ccsid, AS400 system)
   {
-    if(length < 0)
+    if (length < 0)
     {
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
-    if(ccsid < 0) //@D2A
+    if (ccsid < 0) //@D2A
     {
       //@D2A
       throw new ExtendedIllegalArgumentException("ccsid (" + String.valueOf(ccsid) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); //@D2A
     } //@D2A
-    if(system == null)
+    if (system == null)
     {
       throw new NullPointerException("system");
     }
@@ -164,26 +164,26 @@ public class AS400Text implements AS400DataType
   // will call fillInConverter() on each AS400Text object returned.
   /**
     Constructs an AS400Text object.
-    @param  length  The byte length of the AS/400 text.
+    @param  length  The byte length of the OS/400 text.
                     It must be greater than or equal to zero.
-    @param  ccsid  The CCSID of the AS/400 text.
+    @param  ccsid  The CCSID of the OS/400 text.
                    It must refer to a valid and available CCSID.
                    The value 65535 will cause the data type to use
                    the most likely CCSID based on the default locale.
-    @param  system  The AS/400 system from which the conversion table may be downloaded.
+    @param  system  The server from which the conversion table may be downloaded.
    */
   AS400Text(int length, int ccsid, AS400Impl system)
   {
-    if(length < 0)
+    if (length < 0)
     {
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
-    if(ccsid < 0) //@D2A
+    if (ccsid < 0) //@D2A
     {
       //@D2A
       throw new ExtendedIllegalArgumentException("ccsid (" + String.valueOf(ccsid) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); //@D2A
     } //@D2A
-    if(system == null)
+    if (system == null)
     {
       throw new NullPointerException("system");
     }
@@ -206,7 +206,7 @@ public class AS400Text implements AS400DataType
     {
       return super.clone();  // Object.clone does not throw exception
     }
-    catch(CloneNotSupportedException e)
+    catch (CloneNotSupportedException e)
     {
       Trace.log(Trace.ERROR, "Unexpected cloning error", e);
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
@@ -216,7 +216,7 @@ public class AS400Text implements AS400DataType
 
   /**
     Returns the byte length of the data type.
-    @return  The number of bytes in the AS/400 representation of the data type.
+    @return  The number of bytes in the OS/400 representation of the data type.
    **/
   public int getByteLength()
   {
@@ -230,7 +230,7 @@ public class AS400Text implements AS400DataType
    **/
   public int getCcsid()
   {
-    if(ccsid_ == 65535) setTable(); //@D2A
+    if (ccsid_ == 65535) setTable(); //@D2A
     return ccsid_; //@D2A
   }
 
@@ -264,7 +264,7 @@ public class AS400Text implements AS400DataType
    **/
   public String getEncoding()
   {
-    if(encoding_ == null) setTable(); //@D2A
+    if (encoding_ == null) setTable(); //@D2A
 //@D2D      setTable(); // Make sure the table is set
 //@D2D      if (tableImpl_ != null) return tableImpl_.getEncoding();
 //@D2D      return table_.getEncoding();
@@ -315,7 +315,7 @@ public class AS400Text implements AS400DataType
       {
         Trace.log(Trace.CONVERSION, "AS400Text object initializing with "+encoding_+", "+ccsid_+", "+system_); //@D2A
       }
-      if(encoding_ != null) //@D2A
+      if (encoding_ != null) //@D2A
       {
         //@D2A
         try                                         //@D2M
@@ -325,7 +325,7 @@ public class AS400Text implements AS400DataType
           ccsid_ = table.getCcsid();               //@D2M
           tableImpl_ = table.impl; //@D0A          //@D2M
         }                                           //@D2M
-        catch(UnsupportedEncodingException e)      //@D2M
+        catch (UnsupportedEncodingException e)      //@D2M
         {
           //@D2M
           throw new ExtendedIllegalArgumentException("encoding (" + encoding_ + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); //@D2M
@@ -336,10 +336,10 @@ public class AS400Text implements AS400DataType
         //@D2A
         try
         {
-          if(system_ == null)
+          if (system_ == null)
           {
             Converter table; //@F0C
-            if(ccsid_ == 65535)
+            if (ccsid_ == 65535)
             {
               table = new Converter(); // I realize this is deprecated, but the user never specified a ccsid or a system object. @F0C
               ccsid_ = table.getCcsid();
@@ -352,7 +352,7 @@ public class AS400Text implements AS400DataType
           }
           else
           {
-            if(ccsid_ == 65535)
+            if (ccsid_ == 65535)
             {
               ccsid_ = system_.getCcsid();
             }
@@ -361,7 +361,7 @@ public class AS400Text implements AS400DataType
           }
           encoding_ = tableImpl_.getEncoding(); //@D2A @F0C
         }
-        catch(UnsupportedEncodingException e)
+        catch (UnsupportedEncodingException e)
         {
           throw new ExtendedIllegalArgumentException("ccsid (" + String.valueOf(ccsid_) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -375,9 +375,9 @@ public class AS400Text implements AS400DataType
 
 
   /**
-    Converts the specified Java object to AS/400 format.
+    Converts the specified Java object to OS/400 format.
     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-    @return  The AS/400 representation of the data type.
+    @return  The OS/400 representation of the data type.
    **/
   public byte[] toBytes(Object javaValue)
   {
@@ -388,10 +388,10 @@ public class AS400Text implements AS400DataType
 
 
   /**
-    Converts the specified Java object into AS/400 format in the specified byte array.
+    Converts the specified Java object into OS/400 format in the specified byte array.
     @param  javaValue  The object corresponding to the data type. It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-    @param  as400Value  The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-    @return  The number of bytes in the AS/400 representation of the data type.
+    @param  as400Value  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
+    @return  The number of bytes in the OS/400 representation of the data type.
    **/
   public int toBytes(Object javaValue, byte[] as400Value)
   {
@@ -400,15 +400,15 @@ public class AS400Text implements AS400DataType
 
 
   /**
-    Converts the specified Java object into AS/400 format in the specified byte array.
+    Converts the specified Java object into OS/400 format in the specified byte array.
     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-    @param  as400Value  The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-    @param  offset  The offset into the byte array for the start of the AS/400 value.  It must be greater than or equal to zero.
-    @return  The number of bytes in the AS/400 representation of the data type.
+    @param  as400Value  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
+    @param  offset  The offset into the byte array for the start of the OS/400 value.  It must be greater than or equal to zero.
+    @return  The number of bytes in the OS/400 representation of the data type.
    **/
   public int toBytes(Object javaValue, byte[] as400Value, int offset)
   {
-    if(AS400BidiTransform.isBidiCcsid(getCcsid()))                         //$E2A
+    if (AS400BidiTransform.isBidiCcsid(getCcsid()))                         //$E2A
       return toBytes(javaValue, as400Value, offset, AS400BidiTransform.getStringType((char)getCcsid()));   //$E2A
     else
       return toBytes(javaValue, as400Value, offset, BidiStringType.DEFAULT);    //$E0C   $E2C
@@ -416,32 +416,59 @@ public class AS400Text implements AS400DataType
 
 
   /**
-    Converts the specified Java object into AS/400 format in the specified byte array.
+    Converts the specified Java object into OS/400 format in the specified byte array.
     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-    @param  as400Value  The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-    @param  offset  The offset into the byte array for the start of the AS/400 value.  It must be greater than or equal to zero.
+    @param  as400Value  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
+    @param  offset  The offset into the byte array for the start of the OS/400 value.  It must be greater than or equal to zero.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representataion Architecture). See <a href="BidiStringType.html">
                 BidiStringType</a> for more information and valid values.
-    @return  The number of bytes in the AS/400 representation of the data type.
+    @return  The number of bytes in the OS/400 representation of the data type.
     @see com.ibm.as400.access.BidiStringType
    **/
   public int toBytes(Object javaValue, byte[] as400Value, int offset, int type)     //$E0A
   {
     // Check here to avoid sending bad data to Converter and ConvTable
-    if(javaValue == null)
+    if (javaValue == null)
     {
       throw new NullPointerException("javaValue");
     }
 
-    byte[] eValue = null;
+//@G0D    byte[] eValue = null;
     setTable(); // Make sure the table is set
-      eValue = tableImpl_.stringToByteArray((String)javaValue, type);    //$E0C
+
+    //@G0C - We need to pad the String before the conversion in the case of 
+    // a Bidi CCSID, because the Bidi transform needs to affect the entire
+    // String so it knows where the padding spaces need to go.
+
+    String toConvert = (String)javaValue;
+
+    // We can't pad the String after the transform if we're bidi.
+    if (AS400BidiTransform.isBidiCcsid(ccsid_)) // We can use ccsid_ since we already called setTable().
+    {
+      int numPadBytes = length_ - toConvert.length();
+      if (numPadBytes > 0)
+      {
+        char[] cbuf = toConvert.toCharArray();
+        char[] paddedBuf = new char[cbuf.length+numPadBytes]; // Since all of our Bidi maps are SBCS, we can add one char for each extra byte we need.
+        System.arraycopy(cbuf, 0, paddedBuf, 0, cbuf.length);
+        for (int i=cbuf.length; i<paddedBuf.length; ++i)
+        {
+          paddedBuf[i] = (char)0x0020; // SBCS space
+        }
+        toConvert = new String(paddedBuf);
+        if (Trace.traceOn_)
+        {
+          Trace.log(Trace.CONVERSION, "Pre-padded Bidi String with "+numPadBytes+" spaces from '"+javaValue+"' to '"+toConvert+"'");
+        }
+      }
+    }
+    byte[] eValue = tableImpl_.stringToByteArray(toConvert, type);    //$E0C
 
     // Check that converted data fits within data type
-    if(eValue.length > length_)
+    if (eValue.length > length_)
     {
-      throw new ExtendedIllegalArgumentException("javaValue (" + javaValue.toString() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("javaValue (" + toConvert.toString() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     System.arraycopy(eValue, 0, as400Value, offset, eValue.length);  // Let this line throw ArrayIndexException
 
@@ -454,44 +481,44 @@ public class AS400Text implements AS400DataType
 
     // Build padding string
     int index = offset+eValue.length;
-    if(index < as400Value.length && index < offset+length_)
+    if (index < as400Value.length && index < offset+length_)
     {
-      if(padding_ == null)
+      if (padding_ == null)
       {
         // Convert padding string using appropriate ccsid
-          padding_ = tableImpl_.stringToByteArray("\u0020"); // the single-byte space
-          // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
-          switch(padding_.length)
-          {
-            case 0: // char wasn't in table
+        padding_ = tableImpl_.stringToByteArray("\u0020"); // the single-byte space
+        // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
+        switch (padding_.length)
+        {
+          case 0: // char wasn't in table
+            padding_ = tableImpl_.stringToByteArray("\u3000");
+            break;
+          case 1: // char may be a single-byte substitution character
+            if (padding_[0] == 0x3F || padding_[0] == 0x7F || padding_[0] == 0x1A)
+            {
               padding_ = tableImpl_.stringToByteArray("\u3000");
-              break;
-            case 1: // char may be a single-byte substitution character
-              if(padding_[0] == 0x3F || padding_[0] == 0x7F || padding_[0] == 0x1A)
-              {
-                padding_ = tableImpl_.stringToByteArray("\u3000");
-              }
-              break;
-            case 2: // char may be a double-byte substitution character
-              int s = (0xFFFF & BinaryConverter.byteArrayToShort(padding_, 0));
-              if(s == 0xFEFE || s == 0xFFFD || s == 0x003F || s == 0x007F || s == 0x001A)
-              {
-                padding_ = tableImpl_.stringToByteArray("\u3000");
-              }
-              break;
-            default:
+            }
+            break;
+          case 2: // char may be a double-byte substitution character
+            int s = (0xFFFF & BinaryConverter.byteArrayToShort(padding_, 0));
+            if (s == 0xFEFE || s == 0xFFFD || s == 0x003F || s == 0x007F || s == 0x001A)
+            {
+              padding_ = tableImpl_.stringToByteArray("\u3000");
+            }
+            break;
+          default:
             if (Trace.traceOn_)
             {
-                Trace.log(Trace.WARNING, "AS400Text.toBytes(): Padding character not found for 0x0020 or 0x3000 under ccsid "+tableImpl_.getCcsid(), padding_, 0, padding_.length);
-                Trace.log(Trace.WARNING, "Using 0x40 as default padding character.");
-              }
-              padding_ = new byte[] { 0x40};
-          }
+              Trace.log(Trace.WARNING, "AS400Text.toBytes(): Padding character not found for 0x0020 or 0x3000 under ccsid "+tableImpl_.getCcsid(), padding_, 0, padding_.length);
+              Trace.log(Trace.WARNING, "Using 0x40 as default padding character.");
+            }
+            padding_ = new byte[] { 0x40};
         }
+      }
       // Copy padding bytes into destination as many times as necessary
       // Could've used a StringBuffer and a System.arraycopy, but this is faster...
       int max = (offset+length_) < as400Value.length ? (offset+length_) : as400Value.length;
-      for(int i=0; i<max-index; ++i)
+      for (int i=0; i<max-index; ++i)
       {
         as400Value[i+index] = padding_[i % padding_.length];
       }
@@ -499,14 +526,14 @@ public class AS400Text implements AS400DataType
 
     // Copy padding bytes into destination as many times as necessary
     // Could've used a StringBuffer and a System.arraycopy, but this is faster...
-        int max = (offset+length_) < as400Value.length ? (offset+length_) : as400Value.length;
-    for(int i=0; i<max-index; ++i)
+    int max = (offset+length_) < as400Value.length ? (offset+length_) : as400Value.length;
+    for (int i=0; i<max-index; ++i)
     {
       as400Value[i+index] = padding_[i % padding_.length];
     }
     if (Trace.traceOn_)
     {
-      Trace.log(Trace.CONVERSION, "AS400Text.toBytes(): Converted javaValue ("+javaValue+") to:", as400Value, offset, length_);
+      Trace.log(Trace.CONVERSION, "AS400Text.toBytes(): Converted javaValue ("+toConvert+") to:", as400Value, offset, length_);
     }
 
     return length_;
@@ -514,43 +541,43 @@ public class AS400Text implements AS400DataType
 
 
   /**
-    Converts the specified AS/400 data type to a Java object.
-    @param  as400Value  The array containing the data type in AS/400 format.  The entire data type must be represented.
+    Converts the specified OS/400 data type to a Java object.
+    @param  as400Value  The array containing the data type in OS/400 format.  The entire data type must be represented.
     @return  The String object corresponding to the data type.
    **/
   public Object toObject(byte[] as400Value)
   {
     // Check here to avoid sending bad data to Converter and ConvTable
-    if(as400Value == null)
+    if (as400Value == null)
     {
       throw new NullPointerException("as400Value");
     }
     setTable(); // Make sure the table is set
-      return tableImpl_.byteArrayToString(as400Value, 0, length_); //@D0A  $E0C   $E2C
-    }
+    return tableImpl_.byteArrayToString(as400Value, 0, length_); //@D0A  $E0C   $E2C
+  }
 
 
   /**
-    Converts the specified AS/400 data type to a Java object.
-    @param  as400Value  The array containing the data type in AS/400 format.  The entire data type must be represented.
-    @param  offset  The offset into the byte array for the start of the AS/400 value. It must be greater than or equal to zero.
+    Converts the specified OS/400 data type to a Java object.
+    @param  as400Value  The array containing the data type in OS/400 format.  The entire data type must be represented.
+    @param  offset  The offset into the byte array for the start of the OS/400 value. It must be greater than or equal to zero.
     @return  The String object corresponding to the data type.
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
     // Check here to avoid sending bad data to Converter and ConvTable
-    if(as400Value == null)
+    if (as400Value == null)
     {
       throw new NullPointerException("as400Value");
     }
     setTable(); // Make sure the table is set
-      return tableImpl_.byteArrayToString(as400Value, offset, length_); //@D0A  $E0C  $E2C
-    }
+    return tableImpl_.byteArrayToString(as400Value, offset, length_); //@D0A  $E0C  $E2C
+  }
 
   /**
-    Converts the specified AS/400 data type to a Java object.
-    @param  as400Value  The array containing the data type in AS/400 format.  The entire data type must be represented.
-    @param  offset  The offset into the byte array for the start of the AS/400 value. It must be greater than or equal to zero.
+    Converts the specified OS/400 data type to a Java object.
+    @param  as400Value  The array containing the data type in OS/400 format.  The entire data type must be represented.
+    @param  offset  The offset into the byte array for the start of the OS/400 value. It must be greater than or equal to zero.
     @param type The bidi string type, as defined by the CDRA (Character
                 Data Representataion Architecture). See <a href="BidiStringType.html">
                 BidiStringType</a> for more information and valid values.
@@ -560,11 +587,11 @@ public class AS400Text implements AS400DataType
   public Object toObject(byte[] as400Value, int offset, int type)           //$E0A
   {
     // Check here to avoid sending bad data to Converter and ConvTable
-    if(as400Value == null)
+    if (as400Value == null)
     {
       throw new NullPointerException("as400Value");
     }
     setTable(); // Make sure the table is set
-      return tableImpl_.byteArrayToString(as400Value, offset, length_, type); //@D0A
-    }
+    return tableImpl_.byteArrayToString(as400Value, offset, length_, type); //@D0A
+  }
 }
