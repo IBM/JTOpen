@@ -114,9 +114,18 @@ Constructor.
 
       // If no default schema was specified, then
       // derive it from the list.
+      // @E1 do this only for SQL naming!  If we tell the system to use a default schema
+      //     then the library list is ignored.  That would break some apps using system naming.  
+      //     For example, suppose the libraries property is "libraries=lib1,lib2,lib3", and the 
+      //     file is in lib3.  If we take the first one off the list and set it to be the default
+      //     (remember the others will be ignored when a default is set) the apps that 
+      //     used to find a file in lib3 no longer work.  The behavior as now coded
+      //     consistent through v5r1.  In v5r2 we *may* change to make the first 
+      //     item the default.  The user would override this behavior by starting the
+      //     list with a comma.  Check the v5r2 code to see if the change was made. 
       if ((defaultSchema_ == null)
-          && ! startsWithComma)                         // @E2a don't set default schema if first char is a comma
-      // && (naming.equals (JDProperties.NAMING_SQL)))  // @E1d @C1C
+          && (! startsWithComma)                         // @E2a don't set default schema if first char is a comma
+          && (naming.equals (JDProperties.NAMING_SQL)))  // @E1c @C1C
       {
         if (liblPosition != 0)
           defaultSchema_ = list_[0];
