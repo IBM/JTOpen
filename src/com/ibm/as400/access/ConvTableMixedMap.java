@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableMixedMap.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 **/
 abstract class ConvTableMixedMap extends ConvTable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   
   ConvTableSingleMap sbTable_ = null; // The single-byte portion of this mixed-byte table.
@@ -31,6 +31,7 @@ abstract class ConvTableMixedMap extends ConvTable
   private static final char dbSubChar_ = '\uFEFE'; // Double-byte EBCDIC substitution character
   private static final char sbSubUnic_ = '\u001A'; // Single-byte Unicode substitution character @E4A
   private static final char dbSubUnic_ = '\uFFFD'; // Double-byte Unicode substitution character @E4A
+  private static final char euro_ = '\u20AC'; // Euro character @F0A
   
   static final byte shiftOut_ = 0x0E; // Byte used to shift-out of single byte mode @E7C
   static final byte shiftIn_ = 0x0F;  // Byte used to shift-in to single byte mode @E7C
@@ -142,30 +143,66 @@ abstract class ConvTableMixedMap extends ConvTable
       if (inSBMode)
       {
         // In single byte mode. Look for character in single byte table.
-        sbLookup = sbTable_.fromUnicode_[curChar];
-        if (sbLookup == sbSubChar_ && curChar != sbSubUnic_) //@E4C
+        //@F0C - We only look in the single byte table first if we the upper byte is 0x00 or
+        //       if the character is the Euro (0x20AC).
+        if ((curChar & 0xFF00) == 0x0000 || curChar == euro_) //@F0A
         {
-          // Character wasn't in single byte table. Check double byte table.
-          dbLookup = dbTable_.fromUnicode_[curChar];
-          if (dbLookup == dbSubChar_ && curChar != dbSubUnic_) //@E4C
+          sbLookup = sbTable_.fromUnicode_[curChar];
+          if (sbLookup == sbSubChar_ && curChar != sbSubUnic_) //@E4C
           {
-            // Character wasn't in the double byte table either, so use substitution character.
-            dest[destPos++] = sbSubChar_;
+            // Character wasn't in single byte table. Check double byte table.
+            dbLookup = dbTable_.fromUnicode_[curChar];
+            if (dbLookup == dbSubChar_ && curChar != dbSubUnic_) //@E4C
+            {
+              // Character wasn't in the double byte table either, so use substitution character.
+              dest[destPos++] = sbSubChar_;
+            }
+            else
+            {
+              // Character found in double byte table. Shift out of single byte mode.
+              inSBMode = false;
+              dest[destPos++] = shiftOut_;
+              dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
+              dest[destPos++] = (byte)(0x00FF & dbLookup);
+            }
           }
           else
           {
-            // Character found in double byte table. Shift out of single byte mode.
+            // Character found in single byte table.
+            dest[destPos++] = sbLookup;
+          }
+        }
+        else //@F0A
+        {
+          //@F0 - Character must be a double-byte character (and not the Euro)...
+          dbLookup = dbTable_.fromUnicode_[curChar];
+          if (dbLookup == dbSubChar_ && curChar != dbSubUnic_)
+          {
+            //@F0 - Check the single byte table last.
+            sbLookup = sbTable_.fromUnicode_[curChar];
+            if (sbLookup == sbSubChar_ && curChar != sbSubUnic_)
+            {
+              //@F0 - Assume double-byte mode for the substitution character.
+              inSBMode = false;
+              dest[destPos++] = shiftOut_;
+              dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
+              dest[destPos++] = (byte)(0x00FF & dbLookup);
+            }
+            else
+            {
+              //@F0 - Interestingly, we found a single-byte conversion.
+              dest[destPos++] = sbLookup;
+            }
+          }
+          else
+          {
+            //@F0 - Found a double-byte conversion.
             inSBMode = false;
             dest[destPos++] = shiftOut_;
             dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
             dest[destPos++] = (byte)(0x00FF & dbLookup);
           }
-        }
-        else
-        {
-          // Character found in single byte table.
-          dest[destPos++] = sbLookup;
-        }
+        }  
       }
       else
       {
