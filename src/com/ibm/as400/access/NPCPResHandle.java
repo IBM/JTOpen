@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPResHandle.java
 //                                                                             
@@ -29,12 +29,6 @@ class NPCPResHandle extends NPCodePoint
     NPCPResHandle()
     {
 	super(NPCodePoint.RESOURCE_HANDLE);
-    }
-
-    // add copyright
-    static private String getCopyright()
-    {
-	return Copyright.copyright;
     }
 
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: WriterJobListImplRemote.java
 //                                                                             
@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The WriterJobList class is used to build a list of AS/400 writer job objects of type
+ * The WriterJobList class is used to build a list of i5/OS writer job objects of type
  * WriterJob.  The list can be filtered by writer job name or output queue.
  *
  * @see WriterJob
@@ -23,8 +23,6 @@ package com.ibm.as400.access;
 class WriterJobListImplRemote extends PrintObjectListImplRemote
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private String x = Copyright.copyright;     // @A1C - Copyright change
 
     // static private binary data for default attribute to
     // retrieve on a writer jobs when listing writer jobs

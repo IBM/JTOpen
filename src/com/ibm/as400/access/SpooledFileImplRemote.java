@@ -58,14 +58,14 @@ implements SpooledFileImpl
      *              which can also be retrieved from the message object returned
      *              on the getMessage() method.
      *
-     * @exception AS400Exception If the AS/400 system  returns an error message.
+     * @exception AS400Exception If the system  returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is
      *                                            completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void answerMessage(String reply)
       throws AS400Exception,
@@ -343,13 +343,13 @@ implements SpooledFileImpl
      *       position on this output queue.  The output queue and this spooled
      *       file must reside on the same system.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public NPCPIDSplF copy(OutputQueueImpl outputQueue)
       throws AS400Exception,
@@ -407,12 +407,12 @@ implements SpooledFileImpl
 
 
     /**
-      * Deletes the spooled file on the AS/400.
+      * Deletes the spooled file on the server.
       *
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public void delete()
@@ -453,7 +453,6 @@ implements SpooledFileImpl
 // @D2A  retrieve only one attribute
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-        String x = Copyright.copyright;
         if (!fAttrIDsToRtvBuilt_) {
             attrsToRetrieve_.addAttrID(attrToRtv);
         }
@@ -488,10 +487,10 @@ implements SpooledFileImpl
       *
       * @return The AS400Message object that contains the message text,
       *   type, severity, id, date, time, and default reply.
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public AS400Message getMessage()
@@ -547,13 +546,13 @@ implements SpooledFileImpl
      *  <i>holdType</i> may be null.  If <i>holdType</i> is not specified, the default is
      * *IMMED.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public void hold(String holdType)
       throws AS400Exception,
@@ -595,15 +594,15 @@ implements SpooledFileImpl
      *
      * @param targetSpooledFile The spooled file to move this
      *       spooled file after.  The targetSpooledFile and this spooled file
-     *       must reside on the same AS/400.
+     *       must reside on the same system.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public void move(SpooledFileImpl targetSpooledFile) // @A4C
       throws AS400Exception,
@@ -645,15 +644,15 @@ implements SpooledFileImpl
      * @param targetOutputQueue The output queue to move the
      *       spooled file to.  The spooled file will be moved to the first
      *       position on this output queue.  The output queue and this spooled
-     *       file must reside on the same AS/400.
+     *       file must reside on the same system.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void move(OutputQueueImpl targetOutputQueue)  // @A4C
       throws AS400Exception,
@@ -686,13 +685,13 @@ implements SpooledFileImpl
 
     /**
      * Moves the spooled file to the first position on the output queue.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void moveToTop()
       throws AS400Exception,
@@ -722,14 +721,14 @@ implements SpooledFileImpl
 
 
     /**
-     * Releases a held spooled file on the AS/400.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * Releases a held spooled file on the server.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void release()
       throws AS400Exception,
@@ -842,7 +841,7 @@ implements SpooledFileImpl
 
     /**
       * Sends the spooled file to another user on the same system or to
-      * a remote system on the network.  The equivalent of the AS/400
+      * a remote system on the network.  The equivalent of the server
       * Send Network Spooled File
       * (SNDNETSPLF) command will be issued against the spooled file.
       *
@@ -865,10 +864,10 @@ implements SpooledFileImpl
       *                        *NORMAL or *HIGH.  *NORMAL is the default.
       * </UL>
       *
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public void sendNet(PrintParameterList sendOptions)
@@ -913,9 +912,9 @@ implements SpooledFileImpl
 
     /**
       * Sends a spooled file to be printed on a remote system.
-      * The equivalent of the AS/400 Send TCP/IP Spooled File
+      * The equivalent of the server Send TCP/IP Spooled File
       * (SNDTCPSPLF) command will be issued against the spooled file.
-      * This is the AS/400 version of the TCP/IP LPR command.
+      * This is the server version of the TCP/IP LPR command.
       *
       * @param sendOptions A print parameter list that contains the
       *  parameters for the send.  The following attributes MUST be set:
@@ -933,7 +932,7 @@ implements SpooledFileImpl
       *   <LI> ATTR_DESTOPTION - Specifies a destination-dependant option.  These options will
       *                          be sent to the remote system with the spooled file.
       *   <LI> ATTR_DESTINATION - Specifies the type of system to which the spooled file is
-      *                           being sent.  When sending to other AS/400 systems, this value
+      *                           being sent.  When sending to other systems, this value
       *                           should be *AS/400.  May also be *OTHER or *PSF/2.
       *                           *OTHER is the default.
       *   <LI> ATTR_INTERNETADDR - Specifies the Internet address of the receiving system.
@@ -949,10 +948,10 @@ implements SpooledFileImpl
       *   <LI> ATTR_USRDTATFM - Specifies the name of the user data transform.
       * </UL>
       *
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public void sendTCP(PrintParameterList sendOptions)
@@ -1003,13 +1002,13 @@ implements SpooledFileImpl
      * @param attributes A print parameter list that contains the
      *  attributes to be changed.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400
+     * @exception IOException If an error occurs while communicating with the server
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void setAttributes(PrintParameterList attributes)
       throws AS400Exception,

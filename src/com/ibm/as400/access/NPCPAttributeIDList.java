@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPAttributeIDList.java
 //                                                                             
@@ -310,12 +310,6 @@ class NPCPAttributeIDList extends NPCodePoint implements Cloneable
        {
           idList_[index] = 0;
        }
-    }
-
-    // add copyright
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: WriterJobImplRemote.java
 //                                                                             
@@ -16,9 +16,9 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The WriterJob class represents an AS/400 writer job.
+ * The WriterJob class represents a server writer job.
  *  An instance of this class can be used to manipulate an individual
- *  AS/400 writer.  Use the start method to obtain a instance of this class.
+ *  i5/OS writer.  Use the start method to obtain a instance of this class.
  *
  * See <a href="WriterJobAttrs.html">Writer Job Attributes</a> for
  * valid attributes.
@@ -30,7 +30,6 @@ implements WriterJobImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;     // @A1C - Copyright change
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
 
@@ -50,7 +49,7 @@ implements WriterJobImpl
 
 
     /**
-     * Ends a writer on the AS/400.
+     * Ends a writer on the server.
      *
      * @param endType When to end the writer.
      *  May be any of the following values:
@@ -62,13 +61,13 @@ implements WriterJobImpl
      *  <i>endType</i> may be null.  If <i>endType</i> is not specified, the default is
      * *IMMED.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void end(String endType)
       throws AS400Exception,
@@ -113,7 +112,6 @@ implements WriterJobImpl
 // @B3A  retrieve only one attribute 
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-        String x = Copyright.copyright;     
 	if (!fAttrIDsToRtvBuilt_) {
 	    attrsToRetrieve_.addAttrID(attrToRtv);
         }
@@ -141,13 +139,13 @@ implements WriterJobImpl
 
 
     /**
-     * Starts a writer on the AS/400.
-     * Use this method to start a new writer job on the given AS/400
+     * Starts a writer on the server.
+     * Use this method to start a new writer job on the given system
      * with the specified parameters.
      * @param system The system on which to start the writer job.
      * @param printer The printer that should be used
      *                to start the writer job.  This printer
-     *                must reside on the same AS/400 system that the
+     *                must reside on the same system that the
      *                writer job is being started.
      * @param options Optional.  A print parameter list that contains
      *                          a list of attributes to start the writer job.
@@ -215,15 +213,15 @@ implements WriterJobImpl
      *
      * @param outputQueue Optional.  The output queue to start the
      *                               writer job.  The output queue must reside on
-     *                               the same AS/400 system that the writer job
+     *                               the same system that the writer job
      *                               is being created.
      *
      * @return A writer job object that was created.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
     public /* static @A1D */ NPCPIDWriter start(AS400Impl system,  // @A2C

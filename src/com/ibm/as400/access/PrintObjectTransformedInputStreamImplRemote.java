@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectTransformedInputStreamImplRemote.java
 //                                                                             
@@ -21,7 +21,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectTransformedInputStream class is used to read transformed data
-from an AS/400 spooled file.  The type of transform to be performed on the data
+from a server spooled file.  The type of transform to be performed on the data
 is dependent on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
@@ -41,7 +41,6 @@ implements PrintObjectTransformedInputStreamImpl
 
 
     // Private data
-    private String x = Copyright.copyright;      // @A2C - Copyright change
     private NPConversation  conversation_;       // conversation with Network Print Server
     private NPCPAttribute   cpCPFMsg_;           // CPF message code point
     private NPCodePoint     cpObjHndl_;          // input stream handle code point
@@ -62,12 +61,12 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
 @param  spooledFile The SpooledFile.
 @param  transformOptions The PrintParameterList options to be used when opening the SpooledFile.
 
-@exception AS400Exception If the AS/400 system returns an error message.
+@exception AS400Exception If the system returns an error message.
 @exception AS400SecurityException If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 @exception InterruptedException If this thread is interrupted.
-@exception RequestNotSupportedException If the requested function is not supported because the AS/400
+@exception RequestNotSupportedException If the requested function is not supported because the server
            system is not at the correct level.
 **/
     public synchronized void createPrintObjectTransformedInputStream(SpooledFileImpl spooledFile,  // @A3A
@@ -111,7 +110,7 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
                 cidConv = true;//    @B2A
                 // prepare the 'CPxxxx' (where xxxx is the actual code page) to be 'Cpxxx' @B2A  
                 convTarget = tempTarget.replace('P', 'p');
-                /* table of target ASCII CCSIDs can be found in the "OS/400 Workstation 
+                /* table of target ASCII CCSIDs can be found in the "i5/OS Workstation 
                    Customization Reference" that can be found on the Information Center for 
                    iSeries publications.                                          @B2A */        
                 switch (ccsid) //    @B2A  "Euro Phase 2 = EP2 "
@@ -251,7 +250,7 @@ Returns the number of bytes available (with blocking).
 /**
 Closes the input stream and releases any resources associated with it.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public void close() throws IOException
     {
@@ -341,7 +340,7 @@ starting at the array offset <i>dataOffset</i>.
 @return The total number of bytes read into the buffer, or -1 if there is
 no more data because the end of file has been reached.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
@@ -490,7 +489,7 @@ Seeks to location <i>offset</i> within the stream.
 
 @param  offset  The number of bytes to seek from current mark.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     private void seekFromCur(int offset)
        throws IOException
@@ -546,7 +545,7 @@ No action is taken if the number of bytes to skip is not positive.
 
 @return The actual number of bytes skipped.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public long skip(long bytesToSkip) throws IOException
     {

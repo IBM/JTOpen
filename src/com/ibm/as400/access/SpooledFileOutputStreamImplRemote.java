@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileOutputStreamImplRemote.java
 //                                                                             
@@ -17,14 +17,13 @@ import java.io.OutputStream;
 import java.io.IOException;
 
 /**
-  * The SpooledFileOutputStream class is used to write data into an AS/400 spooled file.
+  * The SpooledFileOutputStream class is used to write data into a server spooled file.
   **/
 class SpooledFileOutputStreamImplRemote
 implements SpooledFileOutputStreamImpl
 {   
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;     // @A1C - Copyright change
     static final String DT_AUTO = "*AUTO";
     static final String DT_PRTF = "*PRTF";
 
@@ -47,7 +46,7 @@ implements SpooledFileOutputStreamImpl
 
     /**
       * Constructs a SpooledFileOutputStream object.
-      * Use this object to create a new spooled file on the given AS/400
+      * Use this object to create a new spooled file on the given system
       * with the specified parameters.
       * @param system The system on which to create the spooled file.
       * @param options       Optional.  A print parameter list that contains
@@ -313,10 +312,10 @@ implements SpooledFileOutputStreamImpl
       *                          is being created.
       * @return An output stream that can be used to write data into the spooled
       *         file and to close the spooled file.
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
 
@@ -417,7 +416,7 @@ implements SpooledFileOutputStreamImpl
     /**
       * Closes the stream.
       * It must be called to release any resources associated with the stream.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void close()
        throws IOException
@@ -524,7 +523,7 @@ implements SpooledFileOutputStreamImpl
 
 
     /** Flushes the stream.  This will write any buffered output bytes.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void flush()
         throws IOException
@@ -579,7 +578,7 @@ implements SpooledFileOutputStreamImpl
     /**
       * Generates the create request.
       * @param strDataType  The PRTDEVTYPE to use (*SCS, *AFPDS, *USERASCII)...
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     private synchronized void makeCreateRequest(String strDataType)
        throws IOException
@@ -646,7 +645,7 @@ implements SpooledFileOutputStreamImpl
       * Generates the write request.
       * @param buf  The array of bytes to write.
       * @param length  The length of data to write.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     private synchronized void makeWriteRequest(byte[] buf,
                                                int    offset,
@@ -709,7 +708,7 @@ implements SpooledFileOutputStreamImpl
       * @param offset The start offset in the data.
       * @param length The number of bytes that are written.
       *
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
 
     public synchronized void write(byte data[], int offset, int length)

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// JTOpen (AS/400 Toolbox for Java - OSS version)
+// JTOpen (IBM Toolbox for Java - OSS version)
 //
 // Filename: PrinterImplRemote.java
 //
@@ -27,7 +27,6 @@ class PrinterImplRemote extends PrintObjectImplRemote
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;     // @A4C - Copyright change
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
     private static final String NAME = "name";

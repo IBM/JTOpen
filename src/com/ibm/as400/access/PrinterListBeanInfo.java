@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterListBeanInfo.java
 //                                                                             
@@ -65,12 +65,6 @@ public class PrinterListBeanInfo extends PrintObjectListBeanInfo
     public BeanDescriptor getBeanDescriptor()
     {
         return new BeanDescriptor(beanClass);
-    }
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
     // PrinterList does not define any additional events so we

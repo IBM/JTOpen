@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCSFontData.java
 //                                                                             
@@ -217,12 +217,5 @@ class SCSFontData extends Object
                                        (byte)0xFF,     /* 905  */
                                        (byte)0xFF,     /*1026  */
                                        (byte)0xFF };   /*1002  */
-
-
-    // add copyright
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
-    }
 
 }

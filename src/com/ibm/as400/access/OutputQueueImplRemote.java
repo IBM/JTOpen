@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputQueueImplRemote.java
 //                                                                             
@@ -16,9 +16,9 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The OutputQueue class represents an AS/400 output queue.
+ * The OutputQueue class represents a server output queue.
  * An instance of this class can be used to manipulate an individual
- * AS/400 output queue (hold, release, clear, and so on).
+ * i5/OS output queue (hold, release, clear, and so on).
  *
  * See <a href="OutputQueueAttrs.html">Output Queue Attributes</a> for
  * valid attributes.
@@ -30,7 +30,6 @@ implements OutputQueueImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;  // @A1C - Copyright change
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
 
@@ -83,7 +82,7 @@ implements OutputQueueImpl
 
 
     /**
-     * Clears the output queue on the AS/400.
+     * Clears the output queue on the server.
      *
      * @param clearOptions A PrintParameterList object that may have any of the
      *        following attributes set:
@@ -100,13 +99,13 @@ implements OutputQueueImpl
      * </UL>
      *  clearOptions may be null.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public void clear(PrintParameterList clearOptions)
       throws AS400Exception,
@@ -159,7 +158,6 @@ implements OutputQueueImpl
 // @A3A  retrieve only one attribute 
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-        String x = Copyright.copyright;     
 	if (!fAttrIDsToRtvBuilt_) {
 	    attrsToRetrieve_.addAttrID(attrToRtv);
         }
@@ -170,15 +168,15 @@ implements OutputQueueImpl
 
 
     /**
-     * Holds the output queue on the AS/400.
+     * Holds the output queue on the server.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public void hold()
       throws AS400Exception,
@@ -211,15 +209,15 @@ implements OutputQueueImpl
 
 
     /**
-     * Releases a held output queue on the AS/400.
+     * Releases a held output queue on the server.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public void release()
       throws AS400Exception,

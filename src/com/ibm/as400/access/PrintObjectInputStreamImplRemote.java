@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectInputStreamImplRemote.java
 //                                                                             
@@ -27,7 +27,6 @@ implements PrintObjectInputStreamImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;     // @A1C - Copyright change
     private NPConversation conversation_;
     private NPCodePoint    cpObjHndl_;       // Spooled File handle or Resource Handle code point
     private NPCPID         cpObjID_;         // spooled file or resource ID codepoint

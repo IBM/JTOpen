@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPIDTargetSplF.java
 //                                                                             
@@ -71,12 +71,6 @@ class NPCPIDTargetSplF extends NPCPIDSplF implements Cloneable
     {
        NPCPIDTargetSplF cp = new NPCPIDTargetSplF(this);
        return cp;
-    }
-
-    // add copyright
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 } // NPCPIDTargetSplF

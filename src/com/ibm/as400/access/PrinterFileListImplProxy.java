@@ -20,8 +20,6 @@ implements ProxyImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;     // Copyright  
-
     PrinterFileListImplProxy()
     {
         super("PrinterFileList");

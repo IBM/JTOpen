@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterListImplRemote.java
 //                                                                             
@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The PrinterList class is used to build a list of AS/400 printer objects of type Printer.
+ * The PrinterList class is used to build a list of i5/OS printer objects of type Printer.
  * The list can be filtered by printer name.
  *
  *@see Printer
@@ -23,8 +23,6 @@ package com.ibm.as400.access;
 class PrinterListImplRemote extends PrintObjectListImplRemote
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private String x = Copyright.copyright;     // @A1C - Copyright change
 
     // static private binary data for default attribute to
     // retrieve on a printer when listing printer devices
@@ -102,7 +100,7 @@ class PrinterListImplRemote extends PrintObjectListImplRemote
     /**
      * Creates a new Printer object.
      *
-     * @param system The AS/400 on which the printer devices exist.
+     * @param system The server on which the printer devices exist.
      * @param reply The datastream with which to reply.
      *
      * @return The newly created Printer object.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPData.java
 //                                                                             
@@ -30,12 +30,6 @@ class NPCPData extends NPCodePoint
     NPCPData()
     {
         super(NPCodePoint.DATA);
-    }
-
-    // add copyright
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputQueueListImplRemote.java
 //                                                                             
@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The OutputQueueList class is used to build a list of AS/400 output queue objects of type OutputQueue.
+ * The OutputQueueList class is used to build a list of i5/OS output queue objects of type OutputQueue.
  * The list can be filtered by library and queue name.
  *
  * @see OutputQueue
@@ -23,8 +23,6 @@ package com.ibm.as400.access;
 class OutputQueueListImplRemote extends PrintObjectListImplRemote
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private String x = Copyright.copyright;     // @A1C - Copyright change
 
     // static private binary data for default attribute to
     // retrieve on a output queue file when listing output queues

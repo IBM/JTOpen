@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPDataAnalyzer.java
 //                                                                             
@@ -28,13 +28,6 @@ class NPDataAnalyzer extends Object
     private static final String DT_AFPDS     = "*AFPDS";
     private static final String DT_USERASCII = "*USERASCII";
     private static final String DT_SCS       = "*SCS";
-
-
-    // needed for copyright statement
-    static private String getCopyright()
-    {
-         return Copyright.copyright;
-    }
 
     private static boolean dataIsAFP(byte[] buf, int offset, int len)
     {
@@ -229,7 +222,7 @@ class NPDataAnalyzer extends Object
                              /*************************************************
                              * CASE ATTR_CHAR_SET                             *
                              *  we don't support the other attributes on the  *
-                             *   the AS/400.                                  *
+                             *   the server.                                  *
                              *   BREAK                                        *
                              *************************************************/
                              case ATTR_CHAR_SET:
@@ -567,7 +560,7 @@ class NPDataAnalyzer extends Object
       * @param buf The data buffer.
       * @param offset Offset into the data buffer to start at.
       * @param len The number of bytes to analyze.
-      * @return A string with the AS/400 Printer Device Type
+      * @return A string with the server Printer Device Type
       *         value of what this data is most likely (*SCS,
       *          *AFPDS or *USERASCII).
       **/

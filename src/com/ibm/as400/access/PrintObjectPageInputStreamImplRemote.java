@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectPageInputStreamImplRemote.java
 //                                                                             
@@ -22,7 +22,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectPageInputStream class is used to read data out of an
-AS/400 spooled file one page at a time.  The page of data may be
+i5/OS spooled file one page at a time.  The page of data may be
 transformed, depending on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
@@ -46,7 +46,6 @@ implements PrintObjectPageInputStreamImpl
 
 
     // Private data
-    private String x = Copyright.copyright;     // @A2C - Copyright change
     private NPConversation  conversation_;       // conversation with Network Print Server
     private NPCPAttribute   cpCPFMsg_;           // CPF message code point
     private NPCodePoint     cpObjHndl_;          // page input stream handle code point
@@ -69,12 +68,12 @@ Constructs a PrintObjectPageInputStream object.
 @param  spooledFile The SpooledFile.
 @param  openOptions The PrintParameterList options to be used when opening the SpooledFile.
 
-@exception AS400Exception If the AS/400 system returns an error message.
+@exception AS400Exception If the system returns an error message.
 @exception AS400SecurityException If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 @exception InterruptedException If this thread is interrupted.
-@exception RequestNotSupportedException If the requested function is not supported because the AS/400
+@exception RequestNotSupportedException If the requested function is not supported because the server
            system is not at the correct level.
 **/
     public synchronized void createPrintObjectPageInputStream(SpooledFileImpl spooledFile, // @A3C
@@ -162,7 +161,7 @@ Returns the number of bytes remaining in the current page.
 /**
 Closes the input stream and releases any resources associated with it.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public void close() throws IOException
     {
@@ -309,7 +308,7 @@ Repositions the stream to the next page.
 
 @return True if the stream is positioned to the next page; false otherwise.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public boolean nextPage() throws IOException
     {
@@ -324,7 +323,7 @@ Repositions the stream to the previous page.
 @return True if the stream is positioned to the previous page;
 false otherwise.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public boolean previousPage() throws IOException
     {
@@ -344,7 +343,7 @@ starting at the array offset <i>dataOffset</i>.
 @return The total number of bytes read into the buffer, or -1 if there is
 no more data because the end of the page stream has been reached.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
@@ -419,7 +418,7 @@ Repositions the stream to the last marked position.
 If the stream has not been marked or if the mark has been invalidated,
 an IOException is thrown.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public synchronized void reset() throws IOException
     {
@@ -504,7 +503,7 @@ Retrieves the number of pages in the stream, whether the number of pages
 is estimated or an accurate value, and the number of bytes in the first page.
 These values are then stored in the appropriate instance variables.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     private void retrievePageInformation() throws IOException
     {
@@ -580,7 +579,7 @@ Repositions the stream to page <i>page</i>.
 
 @return True if the stream is positioned to the specified page; false otherwise.
 
-@exception IOException If an error occurs while communicating with the AS/400,
+@exception IOException If an error occurs while communicating with the server,
 or an error occurs selecting the specified page.
 @exception IllegalArgumentException If <i>page</i> is negative.
 **/
@@ -659,7 +658,7 @@ Seeks to location <i>offset</i> within the stream.
 
 @param  offset  The number of bytes to seek from current mark.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     private void seekFromCur(int offset)
        throws IOException
@@ -716,7 +715,7 @@ No action is taken if the number of bytes to skip is not positive.
 
 @return The actual number of bytes skipped.
 
-@exception IOException If an error occurs while communicating with the AS/400.
+@exception IOException If an error occurs while communicating with the server.
 **/
     public long skip(long bytesToSkip) throws IOException
     {

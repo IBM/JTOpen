@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPSplFHandle.java
 //                                                                             
@@ -27,12 +27,6 @@ class NPCPSplFHandle extends NPCodePoint
     NPCPSplFHandle()
     {
         super(NPCodePoint.SPOOLED_FILE_HANDLE);
-    }
-
-    // add copyright
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 }

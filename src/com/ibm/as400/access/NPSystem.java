@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPSystem.java
 //                                                                             
@@ -146,7 +146,7 @@ class NPSystem extends Object implements Runnable
 
                         // Only start the cleanup thread if more than       @A2A
                         // one conversation has been started, -AND-         @A2A 
-                        // the OS/400 object is configured to start         @A3A   
+                        // the AS400 object is configured to start         @A3A   
                         // threads.                                         @A3A
 
                         if( as400System_.isThreadUsed() )                // @A3A 
@@ -395,13 +395,6 @@ class NPSystem extends Object implements Runnable
             cleanupThread_.stop();
             cleanupThread_ = null;
         }
-    }
-
-
-    // add copyright
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 } // NPSystem class
