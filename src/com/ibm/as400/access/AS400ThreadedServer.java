@@ -63,10 +63,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             if (discardList_.remove(id))
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ReplyList: Discarded datastream:", id);
-                if (ds instanceof DBReplyRequestedDS)
-                {
-                    ((DBReplyRequestedDS)ds).inUse_ = false;
-                }
+                ClassDecoupler.freeDBReplyStream(ds);
                 return;
             }
             int hash = ds.getCorrelation() % 16;
@@ -138,10 +135,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             if (ds != null)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DiscardList: Discarded datastream:", correlation);
-                if (ds instanceof DBReplyRequestedDS)
-                {
-                    ((DBReplyRequestedDS)ds).inUse_ = false;
-                }
+                ClassDecoupler.freeDBReplyStream(ds);
                 return;
             }
             synchronized (ids_)
@@ -328,7 +322,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 }
                 else  // Construct a DDMDataStream.
                 {
-                    reply = DDMDataStream.construct(inStream_, replyStreams_, system_);
+                  reply = ClassDecoupler.constructDDMDataStream(inStream_, replyStreams_, system_);
                 }
                 // Note: the thread is blocked on the above call if the inputStream has nothing to receive.
 
