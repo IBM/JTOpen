@@ -459,10 +459,10 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
 
             // @M0A - added support for hex constant parser option
             PropertyDescriptor translateHex = new PropertyDescriptor("translateHex", beanClass, "getTranslateHex", "setTranslateHex");
-            maximumScale.setBound(true);
-            maximumScale.setConstrained(false);
-            maximumScale.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_HEX"));
-            maximumScale.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));
+            translateHex.setBound(true);                                                                        //@K5C
+            translateHex.setConstrained(false);                                                                 //@K5C
+            translateHex.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_HEX"));                //@K5C
+            translateHex.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));                //@K5C
 
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
