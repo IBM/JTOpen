@@ -26,11 +26,29 @@ class JDSQLTokenizer extends Object implements Enumeration
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
+    /**
+    Constant containing the default delimiters for SQLTokenizers.
+    **/
     public static final String DEFAULT_DELIMITERS = " \t\n\r\f";
 
+    /**
+    Constant indicating the token is a delimiter.
+    **/
     private static final int TOKEN_TYPE_DELIMITER = 1;
+
+    /**
+    Constant indicating the token is a comment.
+    **/
     private static final int TOKEN_TYPE_COMMENT = 2;
+
+    /**
+    Constant indicating the token is a literal.
+    **/
     private static final int TOKEN_TYPE_LITERAL = 4;
+
+    /**
+    Constant indicating the token is part of the SQL statement.
+    **/
     private static final int TOKEN_TYPE_SQL = 8;
 
     private char[] buffer;
@@ -190,7 +208,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return false;
     }
 
-    /* scans the SQL statement for delimiters and stores each tokens info in an SQLToken object */
+    /**
+    Scans the SQL statement for delimiters and stores each tokens info in an SQLToken object.
+    
+    @return                         Array of SQLToken objects containing token information.
+    **/
     private SQLToken[] scanForTokens() {
         Vector tokens = new Vector();
         
@@ -230,6 +252,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return (SQLToken[])tokens.toArray(new SQLToken[]{});
     }
 
+    /**
+    Scans a block comment from the current position of the tokenizer.
+    
+    @return                         An SQLToken containing information about the block comment.
+    **/    
     private SQLToken scanBlockComment() {
         int start = pos;
         int length = 0;
@@ -254,6 +281,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return new SQLToken(start, length, type);
     }
 
+    /**
+    Scans a single line comment from the current position of the tokenizer.
+    
+    @return                         An SQLToken containing information about the single line comment.
+    **/    
     private SQLToken scanSLComment() {
         int start = pos;
         int length = 0;
@@ -274,6 +306,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return new SQLToken(start, length, type);
     }
 
+    /**
+    Scans a single quote literal from the current position of the tokenizer.
+    
+    @return                         An SQLToken containing information about the literal.
+    **/    
     private SQLToken scanSQLiteral() {
         int start = pos;
         int length = 0;
@@ -294,6 +331,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return new SQLToken(start, length, type);
     }
 
+    /**
+    Scans a double quote literal from the current position of the tokenizer.
+    
+    @return                         An SQLToken containing information about the literal.
+    **/    
     private SQLToken scanDQLiteral() {
         int start = pos;
         int length = 0;
@@ -314,6 +356,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return new SQLToken(start, length, type);
     }
 
+    /**
+    Scans a delimiter from the current position of the tokenizer.
+    
+    @return                         An SQLToken containing information about the delimiter.
+    **/    
     private SQLToken scanDelimiter() {
         int start = pos;
         int length = 1;
@@ -325,6 +372,11 @@ class JDSQLTokenizer extends Object implements Enumeration
         return new SQLToken(start, length, type);
     }
 
+    /**
+    Scans an SQL token from the current position of the tokenizer.
+    
+    @return                         An SQLToken containing information about the SQL token.
+    **/    
     private SQLToken scanSQL() {
         int start = pos;
         int length = 0;
@@ -348,24 +400,43 @@ class JDSQLTokenizer extends Object implements Enumeration
         return new SQLToken(start, length, type);
     }
 
-    /* SQLToken inner class stores information about
-       the location of tokens inside of the SQL
-       statement for this JDSQLTokenizer object */
+    /**
+    SQLToken inner class stores information about
+    the location of tokens inside of the SQL
+    statement for this JDSQLTokenizer object.
+    **/
     private class SQLToken {
         int start;
         int length;
         int type;
 
+        /**
+        Constructor to create an SQLToken object.
+        **/
         public SQLToken(int start, int length, int type) {
             this.start = start;
             this.length = length;
             this.type = type;
         }
 
+        /**
+        Method to return the actual value of the token.
+        @return String containing the token value.
+        **/
         public String getToken() {
             return new String(buffer, start, length);
         }
 
+        /**
+        Method to return the type of the token.
+        @return One of the following constants:
+        <ul>
+          <li>TOKEN_TYPE_COMMENT
+          <li>TOKEN_TYPE_DELIMITER
+          <li>TOKEN_TYPE_LITERAL
+          <li>TOKEN_TYPE_SQL
+        </ul>
+        **/
         public int getType() {
             return type;
         }
