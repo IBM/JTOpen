@@ -172,10 +172,14 @@ Constructor.
           && (! startsWithComma)                         // @E2a don't set default schema if first char is a comma
           && (naming.equals (JDProperties.NAMING_SQL)))  // @E1c @C1C
       {
-        if (liblPosition != 0)
-          defaultSchema_ = list_[0];
-        else if (list_.length > 1)
-          defaultSchema_ = list_[1];
+        //@KBA  Fix for JTOpen Bug 4025 - *LIBL is not added to the list_ array.  Therefore, the first thing in the
+        // list_ array should become the default schema, provided that there was a libraries list.
+        //@KBD if (liblPosition != 0)
+        //@KBD   defaultSchema_ = list_[0];
+        //@KBD else if (list_.length > 1)
+        //@KBD   defaultSchema_ = list_[1];
+          if(list_length > 0)                   //@KBA
+              defaultSchema_ = list_[0];        //@KBA
       }
 
       // Reverse the order of the 'F' libraries, so that
