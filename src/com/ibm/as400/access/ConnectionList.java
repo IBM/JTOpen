@@ -67,9 +67,9 @@ class ConnectionList
 	{
 		if (log_ != null)
 			log(loader_.getText("CL_CLEANUP", new String[] {systemName_, userID_} ));
-		int size = connectionList_.size();  
 		synchronized (connectionList_) 
 		{
+			int size = connectionList_.size();	//@A5M
 			for (int i=0; i<size; i++)
 			{
 				PoolItem p = (PoolItem)connectionList_.elementAt(i); 
@@ -81,6 +81,7 @@ class ConnectionList
 	}
 
 
+	//@A5C  Changed method to private.
 	/**
 	 *  Return a connection, which can connect to an AS400 service.
 	 *
@@ -93,12 +94,13 @@ class ConnectionList
 	 *  @exception IOException If a communications error occured.
 	 *  @exception ConnectionPoolException If max connection limit is reached.
 	 **/
-	PoolItem createNewConnection(int service, boolean connect, boolean secure, 
-				     ConnectionPoolEventSupport poolListeners) 	 
-	throws AS400SecurityException, IOException, ConnectionPoolException  //@A1C
+	private PoolItem createNewConnection(int service, boolean connect, boolean secure, 
+										 ConnectionPoolEventSupport poolListeners)   
+	throws AS400SecurityException, IOException, ConnectionPoolException	 //@A1C
 	{     
 		if (log_ != null)
 			log(loader_.getText("CL_CREATING", new String[] {systemName_, userID_} ));
+
 		if ((properties_.getMaxConnections() > 0) && 
 			(getConnectionCount() >= properties_.getMaxConnections()))
 		{
@@ -126,23 +128,23 @@ class ConnectionList
 			sys.getAS400Object().connectService(service);
 		}
 
-		if (!properties_.isThreadUsed()) 	        	//@A2A
+		if (!properties_.isThreadUsed())				//@A2A
 		{							//@A2A
-		    try                                                 //@A2A
-		    {                                                   //@A2A
-			sys.getAS400Object().setThreadUsed(false);	//@A2A
-		    }                                                   //@A2A
-		    catch (java.beans.PropertyVetoException e)          //@A2A
-		    {                                                   //@A2A
-			//Ignore                                        //@A2A
-		    }                                                   //@A2A
+			try
+			{												  //@A2A												   //@A2A
+				sys.getAS400Object().setThreadUsed(false);	//@A2A
+			}													//@A2A
+			catch (java.beans.PropertyVetoException e)			//@A2A
+			{													//@A2A
+				//Ignore                                        //@A2A
+			}													//@A2A
 		}							//@A2A
 
-		// the item is in use since we are going to return it to caller
+		// set the item is in use since we are going to return it to caller
 		sys.setInUse(true);
 		connectionList_.addElement(sys);  
 
-		ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_CREATED);  
+		ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys, ConnectionPoolEvent.CONNECTION_CREATED); //@A5C
 		poolListeners.fireConnectionCreatedEvent(poolEvent);  
 		if (log_ != null)
 			log(loader_.getText("CL_CREATED", new String[] {systemName_, userID_} ));
@@ -230,35 +232,41 @@ class ConnectionList
 	throws AS400SecurityException, IOException, ConnectionPoolException
 	{
 		PoolItem poolItem = null;
-		int size = connectionList_.size();
-		for (int i=0; i<size; i++)
+		synchronized(connectionList_)  //@A5A
 		{
-			PoolItem item = (PoolItem)connectionList_.elementAt(i);    
-			// check to see if that connection is in use
-			if (!item.isInUse())
+			int size = connectionList_.size();
+			for (int i=0; i<size; i++)
 			{
-				if (secure && item.getAS400Object() instanceof SecureAS400)
+				PoolItem item = (PoolItem)connectionList_.elementAt(i);    
+				// check to see if that connection is in use
+				if (!item.isInUse())
 				{
-					// return item found
-					poolItem = item; 
-					break;   
-				}
-				else if (!secure && !(item.getAS400Object() instanceof SecureAS400))
-				{
-					// return item found
-					poolItem = item; 
-					break;
+					if (secure && item.getAS400Object() instanceof SecureAS400)
+					{
+						// return item found
+						poolItem = item; 
+						break;   
+					}
+					else if (!secure && !(item.getAS400Object() instanceof SecureAS400))
+					{
+						// return item found
+						poolItem = item; 
+						break;
+					}
 				}
 			}
-		}
+			if (poolItem != null)  //@A5A
+			{
+				poolItem.setInUse(true);  //@A5M
+			}
+		} //end synchronized
 
 		if (poolItem == null)
 		{
 			// didn't find a suitable connection, create a new one
-			poolItem = createNewConnection (0, false, secure, poolListeners);   
+			poolItem = createNewConnection (0, false, secure, poolListeners);
 		}
 
-		poolItem.setInUse(true);          
 		return poolItem;
 	}
 
@@ -278,50 +286,27 @@ class ConnectionList
 	throws AS400SecurityException, IOException, ConnectionPoolException
 	{
 		PoolItem poolItem = null;
-		int size = connectionList_.size();       
-		for (int i=0; i<size; i++)
+		synchronized (connectionList_)	//@B1A
 		{
-			PoolItem item = (PoolItem)connectionList_.elementAt(i);  
-			// check to see if that connection is in use
-			if (!item.isInUse())
-			{
-				if (secure && item.getAS400Object() instanceof SecureAS400 &&
-					item.getAS400Object().isConnected(service))
-				{
-					Trace.log(Trace.INFORMATION, "Using already connected connection");
-					poolItem = item;
-					break;
-				}
-				else if (!secure && !(item.getAS400Object() instanceof SecureAS400) &&
-						 item.getAS400Object().isConnected(service))
-				{
-					Trace.log(Trace.INFORMATION, "Using already connected connection");
-					poolItem = item;
-					break;
-				}
-			}
-		}
-
-		if (poolItem == null)
-		{
-			// must not have found a suitable connected system, use the first available
-			size = connectionList_.size();     
+			int size = connectionList_.size();       
 			for (int i=0; i<size; i++)
 			{
-				PoolItem item = (PoolItem)connectionList_.elementAt(i);   
+				PoolItem item = (PoolItem)connectionList_.elementAt(i);  
 				// check to see if that connection is in use
 				if (!item.isInUse())
 				{
-					if (secure && item.getAS400Object() instanceof SecureAS400)
+					if (secure && item.getAS400Object() instanceof SecureAS400 &&
+						item.getAS400Object().isConnected(service))
 					{
-						Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
-						poolItem = item;                  
+						Trace.log(Trace.INFORMATION, "Using already connected connection");
+						poolItem = item;
 						break;
 					}
-					else if (!secure && !(item.getAS400Object() instanceof SecureAS400))
+					else if (!secure && !(item.getAS400Object() instanceof SecureAS400) &&
+							 item.getAS400Object().isConnected(service))
 					{
-						Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
-						poolItem = item;                  
+						Trace.log(Trace.INFORMATION, "Using already connected connection");
+						poolItem = item;
 						break;
 					}
 				}
@@ -329,11 +314,40 @@ class ConnectionList
 
 			if (poolItem == null)
 			{
-				poolItem = createNewConnection(service, true, secure, poolListeners);  
+				// must not have found a suitable connected system, use the first available
+				//@B1D size = connectionList_.size();     
+				for (int i=0; i<size; i++)
+				{
+					PoolItem item = (PoolItem)connectionList_.elementAt(i);   
+					// check to see if that connection is in use
+					if (!item.isInUse())
+					{
+						if (secure && item.getAS400Object() instanceof SecureAS400)
+						{
+							Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
+							poolItem = item;                  
+							break;
+						}
+						else if (!secure && !(item.getAS400Object() instanceof SecureAS400))
+						{
+							Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
+							poolItem = item;                  
+							break;
+						}
+					}
+				}
 			}
+			if (poolItem != null)  //B1A
+			{
+				poolItem.setInUse(true); //@B1M
+			}
+		}//@B1A end synchronized block
+
+		if (poolItem == null)
+		{
+			poolItem = createNewConnection(service, true, secure, poolListeners);
 		}
 
-		poolItem.setInUse(true);      
 		return poolItem;
 	}
 
@@ -441,68 +455,73 @@ class ConnectionList
 	 * @exception AS400SecurityException If a security error occured.
 	 * @exception IOException If a communications error occured.
 	 **/
-	synchronized void removeAndReplace(ConnectionPoolEventSupport poolListeners)    
+	void removeAndReplace(ConnectionPoolEventSupport poolListeners)	  //@B1D synchronized
 	throws AS400SecurityException, IOException
 	{    
-		int size = connectionList_.size();  
-		for (int i=size-1; i>=0; i--)
+		synchronized (connectionList_)	//@B1A
 		{
-			PoolItem p = (PoolItem)connectionList_.elementAt(i);    
+			int size = connectionList_.size();  
+			for (int i=size-1; i>=0; i--)
+			{
+				PoolItem p = (PoolItem)connectionList_.elementAt(i);    
 
-			if ((properties_.getMaxInactivity() >= 0) && 
-				(p.getInactivityTime() >= properties_.getMaxInactivity()))
-			{
-				// remove any item that has exceeded inactivity time
-				if (log_ != null)
-					log(loader_.getText("CL_REMUNUSED", new String[] {systemName_, userID_} ));
-				p.getAS400Object().disconnectAllServices();
-				connectionList_.removeElementAt(i);
-				ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED); 
-				poolListeners.fireConnectionExpiredEvent(poolEvent);  
-			}
-			else
-			{
-				if ((properties_.getMaxUseCount() >= 0) &&
-					(p.getUseCount() >= properties_.getMaxUseCount()))
+				if ((properties_.getMaxInactivity() >= 0) && 
+					(p.getInactivityTime() >= properties_.getMaxInactivity()))
 				{
-					// replace any item that exceeded maximum use count with new ones	
+					// remove any item that has exceeded inactivity time
 					if (log_ != null)
-						log(loader_.getText("CL_REPUSE", new String[] {systemName_, userID_} ));
-					p.getAS400Object().disconnectAllServices();
-					PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400));
-					reconnectAllServices(p, newItem);
-					connectionList_.removeElementAt(i);             
-					connectionList_.insertElementAt(newItem, i);    
-					p = newItem;
-					ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED); 
-					poolListeners.fireConnectionExpiredEvent(poolEvent);  
-				}
-				if ((properties_.getMaxLifetime() >= 0) &&
-					(p.getLifeSpan() >= properties_.getMaxLifetime()))
-				{
-					// replace any item that has lived past expected lifetime
-					if (log_ != null)
-						log(loader_.getText("CL_REPLIFE", new String[] {systemName_, userID_} ));
-					p.getAS400Object().disconnectAllServices();
-					PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400)); 
-					reconnectAllServices(p, newItem);
-					connectionList_.removeElementAt(i);           
-					connectionList_.insertElementAt(newItem, i);             
-					p = newItem;
-					ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED); 
-					poolListeners.fireConnectionExpiredEvent(poolEvent);  
-				}
-				if ((properties_.getMaxUseTime() >= 0) &&
-					(p.getInUseTime() >= properties_.getMaxUseTime()))
-				{
-					// maximum usage time exceeded.  try and disconnect, then remove from list
+						log(loader_.getText("CL_REMUNUSED", new String[] {systemName_, userID_} ));
 					p.getAS400Object().disconnectAllServices();
 					connectionList_.removeElementAt(i);
-					ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED); 
+					ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
 					poolListeners.fireConnectionExpiredEvent(poolEvent);  
 				}
-			}//end else
-		}//end for
+				else
+				{
+					if ((properties_.getMaxUseCount() >= 0) &&
+						(p.getUseCount() >= properties_.getMaxUseCount()))
+					{
+						// replace any item that exceeded maximum use count with new ones	
+						if (log_ != null)
+							log(loader_.getText("CL_REPUSE", new String[] {systemName_, userID_} ));
+						p.getAS400Object().disconnectAllServices();
+						PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400));
+						reconnectAllServices(p, newItem);
+						connectionList_.removeElementAt(i);             
+						connectionList_.insertElementAt(newItem, i);
+						AS400 sys = p.getAS400Object();	//@A5A
+						p = newItem;
+						ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys, ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
+						poolListeners.fireConnectionExpiredEvent(poolEvent);  
+					}
+					if ((properties_.getMaxLifetime() >= 0) &&
+						(p.getLifeSpan() >= properties_.getMaxLifetime()))
+					{
+						// replace any item that has lived past expected lifetime
+						if (log_ != null)
+							log(loader_.getText("CL_REPLIFE", new String[] {systemName_, userID_} ));
+						p.getAS400Object().disconnectAllServices();
+						PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400)); 
+						reconnectAllServices(p, newItem);
+						connectionList_.removeElementAt(i);           
+						connectionList_.insertElementAt(newItem, i);             
+						AS400 sys = p.getAS400Object();	//@A5A
+						p = newItem;
+						ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys, ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
+						poolListeners.fireConnectionExpiredEvent(poolEvent);  
+					}
+					if ((properties_.getMaxUseTime() >= 0) &&
+						(p.getInUseTime() >= properties_.getMaxUseTime()))
+					{
+						// maximum usage time exceeded.  try and disconnect, then remove from list
+						p.getAS400Object().disconnectAllServices();
+						connectionList_.removeElementAt(i);
+						ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
+						poolListeners.fireConnectionExpiredEvent(poolEvent);  
+					}
+				}//end else
+			}//end for
+		}//@B1A end synchronized
 	}
 
 
@@ -520,7 +539,7 @@ class ConnectionList
 				//if there are no more elements remaining in the list, remove and 
 				//return false.
 				if (size == 0)
-				    return false;
+					return false;
 				//incrementally search the list, looking for elements that are not in 
 				//use to remove
 
@@ -543,20 +562,21 @@ class ConnectionList
 	 **/
 	void removeElement(AS400 systemToFind)
 	{
-	    synchronized(connectionList_)   //@A3A
-	    {
-		int size = connectionList_.size();        
-		for (int i=0; i<size; i++)
+		synchronized(connectionList_)	//@A3A
 		{
-			PoolItem item = (PoolItem)connectionList_.elementAt(i);
-			if (item.getAS400Object().equals(systemToFind))   //@A3C //@A4C
+			int size = connectionList_.size();        
+			for (int i=0; i<size; i++)
 			{
-				connectionList_.removeElement(item);
-				return;		//@A3A
-			}
-		}  
-	    }				    
+				PoolItem item = (PoolItem)connectionList_.elementAt(i);
+				if (item.getAS400Object().equals(systemToFind))	  //@A3C //@A4C
+				{
+					connectionList_.removeElement(item);
+					return;		//@A3A
+				}
+			}  
+		}                   
 	}
+
 
 	/**
 	 *  Sets the event log to log events. The default is to not log events.
@@ -595,7 +615,7 @@ class ConnectionList
 						if (!item.isInUse())
 						{
 							if (item.getInactivityTime() > t || oldest == 0)
-						    {
+							{
 								oldest = i;
 								t = item.getInactivityTime();
 							}

@@ -27,32 +27,46 @@ public class ConnectionPoolEvent extends java.util.EventObject
 
   /**
    Event ID indicating that a connection pool has been closed.
+   A call to getSource() on an event with this ID will return a reference to a ConnectionPool object.
    **/
   public static final int CONNECTION_POOL_CLOSED = 0;
 
   /**
    Event ID indicating that a connection has been created.
+   A call to getSource() on an event with this ID will return a reference to an AS400 object
+   if fired from an AS400ConnectionPool; or, a reference to a javax.sql.PooledConnection object
+   if fired from an AS400JDBCConnectionPool.
    **/
   public static final int CONNECTION_CREATED = 1;
 
   /**
    Event ID indicating that a connection has been given to an application.
+  A call to getSource() on an event with this ID will return a reference to an AS400 object
+  if fired from an AS400ConnectionPool; or, a reference to a javax.sql.PooledConnection object
+  if fired from an AS400JDBCConnectionPool.
    **/
   public static final int CONNECTION_RELEASED = 2;
 
   /**
    Event ID indicating that a connection has been returned to the pool.
+  A call to getSource() on an event with this ID will return a reference to an AS400 object
+  if fired from an AS400ConnectionPool; or, a reference to a javax.sql.PooledConnection object
+  if fired from an AS400JDBCConnectionPool.
    **/
   public static final int CONNECTION_RETURNED = 3;
 
   /**
    Event ID indicating that a connection has been cleaned up by the 
    maintenance thread because one or more of its properties expired.
+  A call to getSource() on an event with this ID will return a reference to an AS400 object
+  if fired from an AS400ConnectionPool; or, a reference to a javax.sql.PooledConnection object
+  if fired from an AS400JDBCConnectionPool.
    **/
   public static final int CONNECTION_EXPIRED = 4;
 
   /**
    Event ID indicating that the maintenance thread is running.
+   A call to getSource() on an event with this ID will return a reference to a ConnectionPool object.
    **/
   public static final int MAINTENANCE_THREAD_RUN = 5;
 

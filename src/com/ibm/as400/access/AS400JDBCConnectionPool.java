@@ -145,7 +145,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
                      connections[i].remove();
 
                      // Notify listeners that the connection expired
-                     ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED);
+                     ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(poolConnection, ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
                      poolListeners_.fireConnectionExpiredEvent(poolEvent);
                   }
                   else if (getMaxUseTime() > 0 &&
@@ -159,7 +159,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
                      connections[i].remove();                  
 
                      // Notify listeners that the connection expired
-                     ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED);
+                     ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(poolConnection, ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
                      poolListeners_.fireConnectionExpiredEvent(poolEvent);
                   }
                }
@@ -294,11 +294,15 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
          synchronized (availablePool_)
          {        
             for (int i=0; i< numberOfConnections; i++) 
-               availablePool_.addElement(createPooledConnection());
+            { //@A5A
+              AS400JDBCPooledConnection poolConnection = createPooledConnection(); //@A5A
+              availablePool_.addElement(poolConnection); //@A5C
+              
+              // Notify the listeners.
+              ConnectionPoolEvent event = new ConnectionPoolEvent(poolConnection, ConnectionPoolEvent.CONNECTION_CREATED);  //@A5M @A5C
+              poolListeners_.fireConnectionCreatedEvent(event); //@A5M
+            } //@A5A
          }
-         // Notify the listeners.
-         ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_CREATED);  
-         poolListeners_.fireConnectionCreatedEvent(event);
       }
       catch (SQLException e)
       {
@@ -417,7 +421,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
          throw new ConnectionPoolException(sql);
       }
       // Notify the listeners that a connection was released.
-      ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RELEASED);  
+      ConnectionPoolEvent event = new ConnectionPoolEvent(pooledConnection, ConnectionPoolEvent.CONNECTION_RELEASED);  //@A5C
       poolListeners_.fireConnectionReleasedEvent(event);
 
       return connection;
@@ -458,7 +462,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       }
       
       // Notify the listeners that a connection was released.
-      ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RELEASED);  
+      ConnectionPoolEvent event = new ConnectionPoolEvent(pooledConnection, ConnectionPoolEvent.CONNECTION_RELEASED);  //@A5C
       poolListeners_.fireConnectionReleasedEvent(event);
       return pooledConnection;
    }
@@ -617,7 +621,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
             closePooledConnection(connection);
 
             // Notify listeners that the connection expired
-            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_EXPIRED);
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(connection, ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
             poolListeners_.fireConnectionExpiredEvent(poolEvent);
          }
          else
@@ -631,7 +635,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
             }
             
             // Notify listeners that a connection was returned.
-            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RETURNED);
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(connection, ConnectionPoolEvent.CONNECTION_RETURNED); //@A5C
             poolListeners_.fireConnectionReturnedEvent(poolEvent);
          }         
 
