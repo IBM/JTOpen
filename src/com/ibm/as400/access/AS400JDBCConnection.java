@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ statements.
 public class AS400JDBCConnection
 implements Connection
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -129,7 +129,12 @@ implements Connection
 
 
     static final int            BIGINT_SUPPORTED_       = 0x00040500; // @D0A
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "1         "; // @EDA
+    
+    // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
+    //        The server passes it along to database to enable correct package caching of
+    //        "where current of" statements.  This flag affects only package caching. 
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R2M01   "; // @EDA F8c
+
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
     private static final int            INITIAL_STATEMENT_TABLE_SIZE_ = 256;    // @DAA

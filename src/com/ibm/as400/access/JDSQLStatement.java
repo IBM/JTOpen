@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 //
 class JDSQLStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -628,22 +628,38 @@ class JDSQLStatement
 
         isImmediatelyExecutable_ = ! (intermediate || isSelect_);
 
-        // @A1C
-        // Changed the logic to determine isPackaged_ from the
-        // "package criteria" property.
-        if (packageCriteria.equalsIgnoreCase(JDProperties.PACKAGE_CRITERIA_DEFAULT))
-        {  // @A1A
-            isPackaged_ = intermediate
-                          || (isSelect_ && ! isForFetchOrReadOnly_)
-                          || (isDeclare_);
-        }                                                                               // @A1A
-        else
-        {                                                                          // @A1A
-            isPackaged_ = (isInsert_ && isSubSelect_)                                   // @A1A
-                          || (isCurrentOf_ && isUpdateOrDelete_)                                  // @A1A
-                          || (isSelect_ && ! isForFetchOrReadOnly_)                               // @A1A
-                          || (isDeclare_);                                                        // @A1A
-        }                                                                               // @A1A
+        // @F8a Update package caching criteria to match ODBC and what is stated in 
+        // @F8a our properties page.
+        // @F8a 
+        // @F8d // @A1C
+        // @F8d // Changed the logic to determine isPackaged_ from the
+        // @F8d // "package criteria" property.
+        // @F8d if (packageCriteria.equalsIgnoreCase(JDProperties.PACKAGE_CRITERIA_DEFAULT))
+        // @F8d {  // @A1A
+        // @F8d     isPackaged_ = intermediate
+        // @F8d                   || (isSelect_ && ! isForFetchOrReadOnly_)
+        // @F8d                   || (isDeclare_);
+        // @F8d }                                                                          // @A1A
+        // @F8d else
+        // @F8d {                                                                          // @A1A
+        // @F8d     isPackaged_ = (isInsert_ && isSubSelect_)                              // @A1A
+        // @F8d                   || (isCurrentOf_ && isUpdateOrDelete_)                   // @A1A
+        // @F8d                   || (isSelect_ && ! isForFetchOrReadOnly_)                // @A1A
+        // @F8d                   || (isDeclare_);                                         // @A1A
+        // @F8d }                                                                          // @A1A
+
+                                                 
+        isPackaged_ =   ((numberOfParameters_ > 0) && !isCurrentOf_ && !isUpdateOrDelete_) // @F8a
+                      || (isInsert_ && isSubSelect_)                                       // @F8a
+                      || (isSelect_ && isForUpdate_)                                       // @F8a
+                      || (isDeclare_);                                                     // @F8a
+                                                                                           // @F8a
+        if (packageCriteria.equalsIgnoreCase(JDProperties.PACKAGE_CRITERIA_SELECT))        // @F8a
+        {                                                                                  // @F8a
+           isPackaged_ = isPackaged_ || isSelect_;                                         // @F8a
+        }                                                                                  // @F8a
+        
+
 
         // If there is a return value parameter, strip if off now.                         @E1A
         // The server does not understand these.                                           @E1A
