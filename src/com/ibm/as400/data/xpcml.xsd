@@ -34,7 +34,6 @@
        </xs:restriction>
      </xs:simpleType>
    </xs:attribute>
-   <xs:attribute name="validate" type="xs:boolean"/>
   </xs:complexType>
 
 
@@ -50,24 +49,27 @@
   </xs:keyref>
 </xs:element>
 
+<!-- Program tag and attributes -->
 <xs:element name="program" substitutionGroup="structOrProgram">
   <xs:complexType>
     <xs:sequence>
-      <xs:element ref="parameterList" minOccurs="1" maxOccurs="1"/>
+      <xs:element ref="parameterList" minOccurs="1" maxOccurs="1"/>     <!-- Used as a wrapper tag around the parameter list for the program -->
     </xs:sequence>
-    <xs:attribute name="name" type="string50" use="required" />
-    <xs:attribute name="path" type="xs:string"/>
-    <xs:attribute name="parseOrder" type="xs:string"/>
-    <xs:attribute name="entryPoint" type="xs:string"/>
-    <xs:attribute name="returnValue" type="returnValueType"/>
-    <xs:attribute name="threadSafe" type="xs:boolean"  />
-    <xs:attribute name="epccsid" type="ccsidType"/>
+    <xs:attribute name="name" type="string50" use="required" />         <!-- Name of the program --> 
+    <xs:attribute name="path" type="xs:string"/>                        <!-- Path to the program object. Default is to assume in lib QSYS -->
+    <xs:attribute name="parseOrder" type="xs:string"/>                  <!-- Specifies the order in which parameters will be parsed -->
+                                                                        <!-- Value is blank separated list of parameter names --> 
+    <xs:attribute name="entryPoint" type="xs:string"/>                  <!-- Specifies entry point within a service program object -->
+    <xs:attribute name="returnValue" type="returnValueType"/>           <!-- Specifies type of value, if any, returned from a service program call -->
+    <xs:attribute name="threadSafe" type="xs:boolean"  />               <!-- When calling a Java program and iSeries program on same server set to true -->
+                                                                        <!-- to call the iSeries program in same job and on same thread as the Java program -->
+    <xs:attribute name="epccsid" type="ccsidType"/>                     <!-- Specifies the ccsid of the entry point within a service program -->
   </xs:complexType>
 </xs:element>
 
 <xs:element name="parameterList">
   <xs:complexType>
-      <xs:group ref="programParameter" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:group ref="programParameter" minOccurs="1" maxOccurs="unbounded"/>      <!-- A parameter list is made up of one or more parameters -->
    </xs:complexType>
 
 </xs:element>
@@ -79,8 +81,8 @@
 	<xs:element ref="stringParmArrayGroup"/>
 	<xs:element ref="intParmGroup"/>
 	<xs:element ref="intParmArrayGroup"/>
-      <xs:element ref="unsignedIntParmGroup"/>
-      <xs:element ref="unsignedIntParmArrayGroup"/>
+        <xs:element ref="unsignedIntParmGroup"/>
+        <xs:element ref="unsignedIntParmArrayGroup"/>
 	<xs:element ref="shortParmGroup"/>
 	<xs:element ref="shortParmArrayGroup"/>
 	<xs:element ref="unsignedShortParmGroup"/>
@@ -90,17 +92,17 @@
 	<xs:element ref="zonedDecimalParmGroup"/>
 	<xs:element ref="zonedDecimalParmArrayGroup"/>
 	<xs:element ref="packedDecimalParmGroup"/>
-      <xs:element ref="packedDecimalParmArrayGroup"/>
+        <xs:element ref="packedDecimalParmArrayGroup"/>
 	<xs:element ref="floatParmGroup"/>
 	<xs:element ref="floatParmArrayGroup"/>
 	<xs:element ref="doubleParmGroup"/>
 	<xs:element ref="doubleParmArrayGroup"/>
 	<xs:element ref="hexBinaryParmGroup"/>
 	<xs:element ref="hexBinaryParmArrayGroup"/>
-      <xs:element ref="structParmGroup"/>
-      <xs:element ref="structParmArrayGroup"/>
-      <xs:element ref="structArrayGroup"/>
-      <xs:element ref="struct"/>
+        <xs:element ref="structParmGroup"/>
+        <xs:element ref="structParmArrayGroup"/>
+        <xs:element ref="structArrayGroup"/>
+        <xs:element ref="struct"/>
       </xs:choice>
 
 </xs:group>
@@ -142,6 +144,7 @@
        </xs:simpleContent>
    </xs:complexType>
 
+<!-- Array of string parameters -->
   <xs:element name="arrayOfStringParm" type="stringParmArrayType" substitutionGroup="stringParmArrayGroup" nillable="true" />
   <xs:complexType name="stringParmArrayType">
     <xs:sequence>
@@ -149,19 +152,18 @@
     </xs:sequence>
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
-    <xs:attribute name="count" type="xs:string" />      
-    <xs:attribute name="length" type="xs:string"/>
-    <xs:attribute name="storageEncoding" type="xs:string"/>
-    <xs:attribute name="ccsid" type="xs:string"/>
-    <xs:attribute name="trim" type="trimType" />
-    <xs:attribute name="bytesPerChar" type="charType" />
-    <xs:attribute name="bidiStringType" type="bidiStringTypeType" />
+    <xs:attribute name="count" type="xs:string" />                     <!-- Number of elements in the array -->    
+    <xs:attribute name="length" type="xs:string"/>                     <!-- Specifies the length of each string -->
+    <xs:attribute name="ccsid" type="xs:string"/>                      <!-- Specifies the host ccsid for each string -->
+    <xs:attribute name="trim" type="trimType" />                       <!-- Specifies how to trim whitespace -->
+    <xs:attribute name="bytesPerChar" type="charType" />               <!-- Specifies the size of each character (chartype in PCML) -->
+    <xs:attribute name="bidiStringType" type="bidiStringTypeType" />   <!-- Specifies the bidirectional string type -->
   </xs:complexType>
 
       <xs:complexType name="stringElementType">
         <xs:simpleContent>
            <xs:extension base="xs:string">
-                <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+                <xs:attribute name="index" type="xs:nonNegativeInteger"  />    <!-- Specifies the index into the array -->
            </xs:extension>
         </xs:simpleContent>
        </xs:complexType>
@@ -181,7 +183,7 @@
   <xs:element name="arrayOfIntParm" type="intParmArrayType" substitutionGroup="intParmArrayGroup" nillable="true" />
   <xs:complexType name="intParmArrayType">
     <xs:sequence>
-      <xs:element name="i" type="intElementType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="i" type="intElementType" minOccurs="0" maxOccurs="unbounded"/>     <!-- i is the tag used for non-struct array elements -->
     </xs:sequence>
     <xs:attribute name="count" type="xs:string" />      
     <xs:attributeGroup ref="commonParmAttrs"/>
@@ -336,8 +338,8 @@
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
     <xs:attribute name="count" type="xs:string" />      
-    <xs:attribute name="totalDigits" type="xs:positiveInteger"/>
-    <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger"/>
+    <xs:attribute name="totalDigits" type="xs:positiveInteger"/>           <!-- Specifies the total length of the number  (length in PCML) -->
+    <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger"/>     <!-- Specifies the number of fractional digits (precision in PCML) -->
   </xs:complexType>
 
   <xs:complexType name="zonedDecimalElementType">
@@ -439,18 +441,18 @@
   </xs:complexType>
 
 
-<!-- base64 binary parameter (any number of bytes; unsigned) -->
+<!-- Hex binary parameter (any number of bytes; unsigned) -->
     <xs:element name="hexBinaryParm" type="hexBinaryParmType"  substitutionGroup="hexBinaryParmGroup"   />
       <xs:complexType name="hexBinaryParmType">
          <xs:simpleContent>
             <xs:extension base="hexBinaryFieldType">
-              <xs:attribute name="totalBytes" type="xs:string"/> 
+              <xs:attribute name="totalBytes" type="xs:string"/>               <!-- Specifies the length in bytes (length in PCML) -->
               <xs:attributeGroup ref="commonParmAttrs"/>
             </xs:extension>
          </xs:simpleContent>
       </xs:complexType>
 
-<!-- hexBinaryParmParm array type -->
+<!-- hexBinaryParm array type -->
   <xs:element name="arrayOfHexBinaryParm" type="hexBinaryParmArrayType" substitutionGroup="hexBinaryParmArrayGroup" nillable="true" />
   <xs:complexType name="hexBinaryParmArrayType">
     <xs:sequence>
@@ -476,7 +478,8 @@
          <xs:complexContent>
             <xs:extension base="structureParmArray">
                <xs:attribute name="struct" type="string50"/>  
-               <xs:attribute name="passMode" type="passModeType"/>
+               <xs:attribute name="passMode" type="passModeType"/>     <!-- Specifies whether the parameter is passed by value or reference (passby in PCML) -->
+                                                                       <!-- Value only allowed for integer parameters -->
                <xs:attribute name="count" type="xs:string"/>
             </xs:extension>
          </xs:complexContent>
@@ -486,7 +489,7 @@
   <xs:element name="arrayOfStructParm" type="structParmArrayType" substitutionGroup="structParmArrayGroup" nillable="true" />
   <xs:complexType name="structParmArrayType">
     <xs:sequence>
-       <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>  <!-- struct_i tag used to represent struct or struct parm array elements -->
     </xs:sequence>
     <xs:attribute name="count" type="xs:string" />      
     <xs:attributeGroup ref="commonParmAttrs"/>
@@ -502,34 +505,47 @@
     </xs:complexContent>
   </xs:complexType>
 
+
+<!-- Struct element -->
   <xs:element name="struct" type="structureParmArray" substitutionGroup="structOrProgram" />
 
 <!-- Struct array type -->
   <xs:element name="arrayOfStruct" type="structArrayType" substitutionGroup="structArrayGroup" nillable="true" />
   <xs:complexType name="structArrayType">
     <xs:sequence>
-       <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>
+       <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>  <!-- struct_i used to represent struct elements in an array -->
     </xs:sequence>
-    <xs:attribute name="name" type="string50"/>
-    <xs:attribute name="count" type="xs:string" />
-    <xs:attribute name="passDirection" type="passDirectionType"/>
-    <xs:attribute name="offset" type="xs:string" />
-    <xs:attribute name="offsetFrom" type="xs:string" />
-    <xs:attribute name="outputSize" type="xs:string" />  
-    <xs:attribute name="minvrm" type="string10" />
-    <xs:attribute name="maxvrm" type="string10" />
+    <xs:attribute name="name" type="string50"/>                         <!-- The name of the struct -->
+    <xs:attribute name="count" type="xs:string" />                      <!-- Number of elements in the array -->
+    <xs:attribute name="passDirection" type="passDirectionType"/>       <!-- Used to specify whether this is an input,  -->
+                                                                        <!-- output, or input and output struct (usage in PCML) -->
+    <xs:attribute name="offset" type="xs:string" />                     <!-- Specifies the offset to the struct within an output parameter -->
+    <xs:attribute name="offsetFrom" type="xs:string" />                 <!-- Specifies the base location from which the offset -->
+                                                                        <!-- attribute is relative -->
+    <xs:attribute name="outputSize" type="xs:string" />                 <!-- Specifies the number of bytes to reserve for output -->
+                                                                        <!-- data for the element -->
+    <xs:attribute name="minvrm" type="string10" />                      <!-- Specifies the lowest version of OS/400 on which -->
+                                                                        <!-- this element exists -->
+    <xs:attribute name="maxvrm" type="string10" />                      <!-- Specifies the highest version of OS/400 on which -->
+                                                                        <!-- this element exists -->
   </xs:complexType>
 
 
 <!-- Attributes that are common to all data field types. -->
   <xs:attributeGroup name="commonParmAttrs">
-     <xs:attribute name="passDirection" type="passDirectionType"/>
-     <xs:attribute name="passMode" type="passModeType" />
-     <xs:attribute name="offset" type="xs:string" />
-     <xs:attribute name="offsetFrom" type="xs:string" />
-     <xs:attribute name="outputSize" type="xs:string" />  
-     <xs:attribute name="minvrm" type="string10" />
-     <xs:attribute name="maxvrm" type="string10" />
+     <xs:attribute name="passDirection" type="passDirectionType"/>      <!-- Used to specify whether this is an input, -->
+                                                                        <!-- output, or input and output parameter (usage in PCML) -->
+     <xs:attribute name="passMode" type="passModeType" />               <!-- Specifies whether the parameter is passed by -->
+                                                                        <!-- reference or value (passby in PCML) -->
+     <xs:attribute name="offset" type="xs:string" />                    <!-- Specifies the offset to the element within an output parameter -->
+     <xs:attribute name="offsetFrom" type="xs:string" />                <!-- Specifies the base location from which the offset -->
+                                                                        <!-- attribute is relative -->
+     <xs:attribute name="outputSize" type="xs:string" />                <!-- Specifies the number of bytes to reserve for output -->
+                                                                        <!-- data for the element -->
+     <xs:attribute name="minvrm" type="string10" />                     <!-- Specifies the lowest version of OS/400 on which -->
+                                                                        <!-- this element exists -->
+     <xs:attribute name="maxvrm" type="string10" />                     <!-- Specifies the highest version of OS/400 on which -->
+                                                                        <!-- this element exists -->
   </xs:attributeGroup>
 
   <xs:simpleType name="passDirectionType">
@@ -757,11 +773,7 @@
   <xs:element name="hexBinaryFieldGroup" type="hexBinaryFieldType" abstract="true" />
   <xs:element name="structFieldGroup" type="structFieldType" abstract="true" />
 
-<!-- Not supporting date and time fields  
-  <xs:element name="dateFieldGroup" type="dateFieldType" abstract="true" />
-  <xs:element name="timeFieldGroup" type="timeFieldType" abstract="true" />
-  <xs:element name="timeStampFieldGroup" type="timeStampFieldType" abstract="true" />
--->
+
 
   <!-- Declare each field element to be a specific field type -->
   <xs:element name="stringField" type="stringFieldType" substitutionGroup="stringFieldGroup" nillable="true"/>
@@ -776,11 +788,6 @@
   <xs:element name="doubleField" type="doubleFieldType" nillable="true" substitutionGroup="doubleFieldGroup" />
   <xs:element name="floatField" type="floatFieldType" nillable="true" substitutionGroup="floatFieldGroup" />
 
-<!-- Not supporting date and time fields yet 
-  <xs:element name="dateField" type="dateFieldType" substitutionGroup="dateFieldGroup" />
-  <xs:element name="timeField" type="timeFieldType" substitutionGroup="timeFieldGroup" />
-  <xs:element name="timeStampField" type="timeStampFieldType" substitutionGroup="timeStampFieldGroup"  />
--->
 
   <xs:element name="structField" type="structFieldType" nillable="true" substitutionGroup="structFieldGroup" />
 
@@ -820,13 +827,9 @@
      </xs:simpleContent>
    </xs:complexType>
   <!-- Note: The ccsid attribute indicates the field's encoding (CCSID) on the server. -->
-  <!-- The storageEncoding attribute represents a non-iSeries specific means for       -->
-  <!-- representing encoding.  If this is used and included we will need to map the    -->
-  <!-- value here to a valid iSeries ccsid value.                                      -->
-  <!-- TBD: bidiStringType  -->
-  <!-- TBD: maxLength value="32766" -->
 
-  <!-- base64 Binary field -->
+
+  <!-- hexBinary field -->
   <!-- Maps to AS400ByteArray -->
    <xs:complexType name="hexBinaryFieldType"> 
      <xs:simpleContent>
@@ -835,7 +838,7 @@
         </xs:extension>
      </xs:simpleContent>
    </xs:complexType>
-  <!-- TBD - The other option for base type is 'hexBinaryParm'. -->
+  
 
   <!-- Float field -->
   <!-- Maps to AS400Float4 -->
@@ -856,7 +859,6 @@
          </xs:extension>
      </xs:simpleContent>
    </xs:complexType>
-  <!-- Note on the use of period versus comma for the decimal point: According to "XML Schema Part 2", "[The] decimal [datatype] has a lexical representation consisting of a finite-length sequence of decimal digits ... separated by a period as a decimal indicator ...".  We will stay consistent with the XML Schema convention, and will only recognize the period. -->
 
   <!-- packedDecimal field -->
   <!-- Maps to AS400PackedDecimal -->
@@ -869,7 +871,6 @@
          </xs:extension>
      </xs:simpleContent>
    </xs:complexType>
-  <!-- Note on the use of period versus comma for the decimal point: According to "XML Schema Part 2", "[The] decimal [datatype] has a lexical representation consisting of a finite-length sequence of decimal digits ... separated by a period as a decimal indicator ...".  We will stay consistent with the XML Schema convention, and will only recognize the period. -->
 
   <!-- int field -->
   <!-- Maps to AS400Bin4 -->
@@ -932,89 +933,7 @@
      </xs:simpleContent>
    </xs:complexType>
 
-<!-- Date and time fields not supported -->
-  <!-- Date field -->
-<!-- 
-   <xs:complexType name="dateFieldType">
-     <xs:simpleContent>
-         <xs:extension base="xs:date">
-          <xs:attribute name="format" default="iso">
-              <xs:simpleType>
-                 <xs:restriction base="xs:string">
-                    <xs:enumeration value="job"/>
-                    <xs:enumeration value="mdy"/>
-                    <xs:enumeration value="dmy"/>
-                    <xs:enumeration value="ymd"/>
-                    <xs:enumeration value="jul"/>
-                    <xs:enumeration value="iso"/>
-                    <xs:enumeration value="usa"/>
-                    <xs:enumeration value="eur"/>
-                    <xs:enumeration value="jis"/>
-                 </xs:restriction>
-              </xs:simpleType>
-         </xs:attribute>
-           <xs:attribute name="separator">
-              <xs:simpleType>
-                <xs:restriction base="xs:string">
-                  <xs:enumeration value="job"/>
-                  <xs:enumeration value="slash"/>
-                 <xs:enumeration value="dash"/>
-                  <xs:enumeration value="period"/>
-                 <xs:enumeration value="comma"/>
-                  <xs:enumeration value="blank"/>
-                </xs:restriction>
-             </xs:simpleType>
-           </xs:attribute>
-           <xs:attributeGroup ref="commonFieldAttrs"/>
-         </xs:extension>
-     </xs:simpleContent>
-   </xs:complexType>
--->
-  <!-- Time field -->
-<!--
-   <xs:complexType name="timeFieldType">
-     <xs:simpleContent>
-         <xs:extension base="xs:time">
-           <xs:attribute name="format" default="iso">
-              <xs:simpleType>
-                 <xs:restriction base="xs:string">
-                    <xs:enumeration value="hms"/>
-                    <xs:enumeration value="iso"/>
-                    <xs:enumeration value="usa"/>
-                    <xs:enumeration value="eur"/>
-                    <xs:enumeration value="jis"/>
-                 </xs:restriction>
-              </xs:simpleType>
-           </xs:attribute>
-           <xs:attribute name="separator">
-              <xs:simpleType>
-                <xs:restriction base="xs:string">
-                  <xs:enumeration value="job"/>
-                  <xs:enumeration value="colon"/>
-                  <xs:enumeration value="period"/>
-                  <xs:enumeration value="comma"/>
-                  <xs:enumeration value="blank"/>
-                </xs:restriction>
-              </xs:simpleType>
-           </xs:attribute>
-           <xs:attributeGroup ref="commonFieldAttrs"/>
-         </xs:extension>
-     </xs:simpleContent>
-   </xs:complexType>
--->
 
-  <!-- Timestamp field -->
-<!-- 
-
-   <xs:complexType name="timeStampFieldType">
-     <xs:simpleContent>
-         <xs:extension base="xs:dateTime">
-           <xs:attributeGroup ref="commonFieldAttrs"/>
-         </xs:extension>
-     </xs:simpleContent>
-   </xs:complexType>
-
--->
 
   <!-- struct Field -->
    <xs:complexType name="structFieldType">
@@ -1036,7 +955,7 @@
    <xs:attribute name="description" type="string50"/>
    <xs:attribute name="defaultValue" type="xs:string"/>  <!-- max length of string is 65535 -->
    <xs:attribute name="nullable" type="xs:boolean"/>
-   <xs:attribute name="isEmptyString" type="xs:boolean"/>
+   <xs:attribute name="isEmptyString" type="xs:boolean"/>   <!-- used to indicate this is an empty string -->
 </xs:attributeGroup>
 
 <!-- Utility types.  -->
