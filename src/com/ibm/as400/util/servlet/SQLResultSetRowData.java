@@ -169,26 +169,7 @@ public class SQLResultSetRowData extends RowData
     resultSet_ = null;
   }
 
-
-    /**
-     *  Sets the metadata.  
-     *
-     *  @param metadata The SQLResultSetMetaData.
-     *
-     **/
-    public void setMetaData(SQLResultSetMetaData metadata)                   //@D5A
-    {
-        if (metadata == null)
-            throw new NullPointerException("metadata");
-
-        SQLResultSetMetaData old = metadata_;
-
-        metadata_ = metadata;
-
-        changes_.firePropertyChange("metadata", old, metadata);
-    }
-
-
+    
   /**
   *  Sets the SQL result set.  The remaining rows are read from
   *  the ResultSet starting at the current cursor position.  The

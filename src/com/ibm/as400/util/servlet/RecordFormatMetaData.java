@@ -123,6 +123,9 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
      **/
     public String getColumnAlignment(int columnIndex)      //@D5A
     {
+        // Validate that the record format is set.
+        validateRecordFormat("Attempting to get the column alignment");
+
         // Validate the column parameter.
         validateColumnIndex(columnIndex);
 
@@ -138,6 +141,9 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
     **/
     public String getColumnDirection(int columnIndex)    //@D5A
     {
+         // Validate that the record format is set.
+        validateRecordFormat("Attempting to get the column direction");
+
         // Validate the column parameter.
         validateColumnIndex(columnIndex);
 
@@ -528,9 +534,12 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
 
       if (changes_ != null) changes_.firePropertyChange("recordFormat", old, recordFormat); //@CRS
 
-      // Initialize the label array.
-      columnLabel_ = new String[getColumnCount()];
-   }
+        // Initialize the label array.
+        int count = getColumnCount();                             //@D5A
+        columnLabel_ = new String[count];                      //@D5C
+        columnAlignment_ = new String[count];                //@D5A
+        columnDirection_ = new String[count];                 //@D5A
+    }
 
    /**
    *  Validates the column index.

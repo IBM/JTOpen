@@ -55,6 +55,10 @@ class ResourceListMetaData implements RowMetaData, java.io.Serializable
 
       setResourceList(resourceList);
       setColumnAttributeIDs(columnAttributeIDs);
+
+      columnAlignment_ = new String[ getColumnCount() ];
+        columnDirection_ = new String[ getColumnCount() ];
+
    }
 
 
@@ -321,6 +325,9 @@ class ResourceListMetaData implements RowMetaData, java.io.Serializable
         if ( !(alignment.equals(HTMLConstants.LEFT))  && !(alignment.equals(HTMLConstants.RIGHT)) && !(alignment.equals(HTMLConstants.CENTER)) && !(alignment.equals(HTMLConstants.JUSTIFY)) )
             throw new ExtendedIllegalArgumentException("alignment", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
+        if (columnAlignment_ == null)
+            columnAlignment_ = new String[getColumnCount()];
+
         columnAlignment_[columnIndex] = alignment;
     }
 
@@ -341,6 +348,9 @@ class ResourceListMetaData implements RowMetaData, java.io.Serializable
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
             throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        if (columnDirection_ == null)
+            columnDirection_ = new String[getColumnCount()];
 
         columnDirection_[columnIndex] = dir;
     }

@@ -492,12 +492,13 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       try
       {
          metadata_ = metadata;
-         columnLabels_ = new String[getColumnCount()];
+            int count = getColumnCount();                                          //@D5A
+            columnLabels_ = new String[count];                                 //@D5C
          for (int i=0; i< columnLabels_.length; i++)
             columnLabels_[i] = metadata_.getColumnLabel(i+1);
 
-            columnAlignment_ = new String[getColumnCount()];            //@D5A
-            columnDirection_ = new String[getColumnCount()];             //@D5A
+            columnAlignment_ = new String[count];                             //@D5A
+            columnDirection_ = new String[count];                              //@D5A
       }
       catch (SQLException e)
       {
@@ -620,6 +621,8 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          columnTypeName_ = new String[columnCount_];
          columnPrecision_ = new int[columnCount_];
          columnScale_ = new int[columnCount_];
+            columnAlignment_ = new String[columnCount_];        //@D5A
+            columnDirection_ = new String[columnCount_];         //@D5A
 
          for (int columnIndex = 0; columnIndex < columnCount_; columnIndex++)
          {
@@ -629,6 +632,8 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
             columnTypeName_[columnIndex] = getColumnTypeName(columnIndex);
             columnPrecision_[columnIndex] = getPrecision(columnIndex);
             columnScale_[columnIndex] = getScale(columnIndex);
+                columnAlignment_[columnIndex] = getColumnAlignment(columnIndex);        //@D5A
+                columnDirection_[columnIndex] = getColumnDirection(columnIndex);          //@D5A
          }
       isCached_ = true;            // data has now been cached.
       }

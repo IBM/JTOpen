@@ -134,4 +134,24 @@ public interface RowMetaData
    *  @exception RowDataException If a row data error occurred.
    **/
    public abstract void setColumnLabel(int columnIndex, String label) throws RowDataException;
+
+
+
+    /**
+      *  Sets the specified horizontal <i>alignment</i> for the column data specified by <i>columnIndex</i>.
+      *  @param columnIndex The column index (0-based).
+      *  @param alignment The horizontal column alignment.  One of the following constants
+      *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+      *  @see com.ibm.as400.util.html.HTMLConstants
+      **/
+    public abstract void setColumnAlignment(int columnIndex, String alignment) throws RowDataException;  //@D5A
+
+
+    /**
+    *  Sets the specified <i>direction</i> for the column data specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @param dir The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public abstract void setColumnDirection(int columnIndex, String alignment) throws RowDataException;  //@D5A
 }
