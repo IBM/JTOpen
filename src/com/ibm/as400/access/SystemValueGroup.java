@@ -64,7 +64,7 @@ public class SystemValueGroup implements java.io.Serializable
   
   /**
    * Constructs a SystemValueGroup object. The group of system value names is initialized to be empty.
-   * @param system The AS/400 that this group of system value names references.
+   * @param system The AS/400 or iSeries that this group of system value names references.
    * @param groupName The user-defined group name to be used.
    * @param groupDescription The user-defined group description to be used.
   **/
@@ -84,7 +84,7 @@ public class SystemValueGroup implements java.io.Serializable
   /**
    * Constructs a SystemValueGroup object. The group of system value names is initialized to
    * contain the system value names in <i>names</i>.
-   * @param system The AS/400 that this group of system value names references.
+   * @param system The AS/400 or iSeries that this group of system value names references.
    * @param groupName The user-defined group name to be used.
    * @param groupDescription The user-defined group description to be used.
    * @param names The array of system value names to be initially added to this group.
@@ -111,7 +111,10 @@ public class SystemValueGroup implements java.io.Serializable
    * contain all of the system value names in the system-defined group <i>groupIndicator</i>. For example, 
    * specifying SystemValueList.GROUP_ALL for <i>groupIndicator</i> would result in this group of
    * system value names being initialized to contain all system value and network attribute names.
-   * @param system The AS/400 that this group of system values references.
+   * <P>
+   * Note: This constructor now makes a connection to the <I>system</I> in order to retrieve the
+   * release level of the server.
+   * @param system The AS/400 or iSeries that this group of system values references.
    * @param groupName The user-defined group name to be used.
    * @param groupDescription The user-defined group description to be used.
    * @param group The system value group constant indicating the set of system value names to be
@@ -136,10 +139,26 @@ public class SystemValueGroup implements java.io.Serializable
     Vector original = (Vector)SystemValueList.groups_.get(SystemValueList.getGroupName(group)); // getGroupName validates the group parm
     int len = original.size();
     values_ = new Vector();
-    values_.setSize(len);
+//@C0D    values_.setSize(len);
+    int vrm = 0x7FFFFFFF; //@C0A - If we can't get the vrm, add all the values.
+    try //@C0A
+    {
+      vrm = system.getVRM(); //@C0A
+    }
+    catch(Exception e) //@C0A
+    {
+      if (Trace.traceOn_) //@C0A
+      {
+        Trace.log(Trace.WARNING, "Couldn't retrieve VRM for system value group:", e); //@C0A
+      }
+    }
     for (int i=0; i<len; ++i)
     {
-      values_.setElementAt(original.elementAt(i), i); // Copy the SystemValueInfo objects into the new Vector
+      SystemValueInfo svi = (SystemValueInfo)original.elementAt(i); //@C0A
+      if (svi.release_ <= vrm) //@C0A
+      {
+        values_.addElement(svi); // Copy the SystemValueInfo objects into the new Vector @C0C
+      }
     }
   }
     
@@ -351,9 +370,9 @@ public class SystemValueGroup implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-   * @exception UnknownHostException If the AS/400 system cannot be located.
+   * @exception IOException If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException If the server object does not exist.
+   * @exception UnknownHostException If the system cannot be located.
    * @see com.ibm.as400.access.SystemValue#clear
   **/
   public static void refresh(Vector systemValues)
