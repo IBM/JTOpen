@@ -95,7 +95,7 @@ public class FTP
     // **********************************************************
 
                // connect to this server, with the specified user and password
-               // Do not just grab "cleanPassword"!!!!  Always use getPassword()
+               // Do not just grab "clearPassword"!!!!  Always use getPassword()
     private String server_;
     private String user_;
     transient private String  clearPassword_ = null;
