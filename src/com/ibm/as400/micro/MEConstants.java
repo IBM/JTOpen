@@ -144,73 +144,89 @@ interface MEConstants
     static final int SQL_QUERY = 0x1351;
 
     /**
+     *  Constant indicating an SQL callable query request.
+     **/
+    static final int SQL_CALLABLE_QUERY = 0x1352;
+
+    /**
+     *  Constant indicating an SQL callable get output data request.
+     **/
+    static final int SQL_CALLABLE_GET_OUTPUT = 0x1353;
+
+    /**
      *  Constant indicating an SQL close request.
      **/
-    static final int SQL_CLOSE = 0x1352;
+    static final int SQL_CLOSE = 0x1354;
 
     /**
      *  Constant indicating an SQL first request.
      **/
-    static final int SQL_FIRST = 0x1353;
+    static final int SQL_FIRST = 0x1355;
 
     /**
      *  Constant indicating an SQL lst request.
      **/
-    static final int SQL_LAST = 0x1354;
+    static final int SQL_LAST = 0x1356;
 
     /**
      *  Constant indicating an SQL next request.
      **/
-    static final int SQL_NEXT = 0x1355;
+    static final int SQL_NEXT = 0x1357;
 
     /**
      *  Constant indicating an SQL previous request.
      **/
-    static final int SQL_PREVIOUS = 0x1356;
+    static final int SQL_PREVIOUS = 0x1358;
 
     /**
      *  Constant indicating an SQL update request.
      **/
-    static final int SQL_UPDATE = 0x1357;
+    static final int SQL_UPDATE = 0x1359;
 
     /**
      *  Constant indicating an SQL row number request.
      **/
-    static final int SQL_ROW_NUMBER = 0x1358;
+    static final int SQL_ROW_NUMBER = 0x1360;
 
     /**
      *  Constant indicating an SQL row data request.
      **/
-    static final int SQL_ROW_DATA = 0x1359;
+    static final int SQL_ROW_DATA = 0x1361;
 
     /**
      *  Constant indicating the SQL result set has been closed.
      **/
-    static final int SQL_RESULT_SET_CLOSED = 0x1360;
+    static final int SQL_RESULT_SET_CLOSED = 0x1362;
 
     /**
      *  Constant indicating the SQL statement succeeded.
      **/
-    static final int SQL_STATEMENT_SUCCEEDED = 0x1361;
+    static final int SQL_STATEMENT_SUCCEEDED = 0x1363;
 
     /**
      *  Constant indicating an SQL exception occurred.
      **/
-    static final int SQL_EXCEPTION = 0x1362;
+    static final int SQL_EXCEPTION = 0x1364;
 
     /**
      *  Constant indicating the positioning of the SQL cursor was successful.
      **/
-    static final int SQL_POSITION_CURSOR_SUCCESSFUL = 0x1363;
+    static final int SQL_POSITION_CURSOR_SUCCESSFUL = 0x1365;
 
     /**
      *  Constant indicating the positioning of the SQL cursor failed.
      **/
-    static final int SQL_POSITION_CURSOR_FAILED = 0x1364;
+    static final int SQL_POSITION_CURSOR_FAILED = 0x1366;
 
-    static final int SQL_REQUEST_FAILED = 0x1365;
+    static final int SQL_REQUEST_FAILED = 0x1367;
 
-    static final int SQL_REQUEST_SUCCESSFUL = 0x1366;
+    static final int SQL_REQUEST_SUCCESSFUL = 0x1368;
 
-    static final int NO_CONNECTION_PROPERTIES = 0x1367;
+    static final int NO_CONNECTION_PROPERTIES = 0x1369;
+
+    static final int NO_CALLABLE_PARAMETERS = 0x1370;
+
+    static final int SQL_TYPE_INPUT = 0x1371;
+
+    static final int SQL_TYPE_OUTPUT = 0x1372;
 }
