@@ -214,14 +214,14 @@ need replies.
 
 
 
-    private transient   PropertyChangeSupport   propertyChangeSupport_;
-    private transient   VetoableChangeSupport   vetoableChangeSupport_;
+  private transient   PropertyChangeSupport   propertyChangeSupport_;
+  private transient   VetoableChangeSupport   vetoableChangeSupport_;
 
   private AS400 system_;
   private String path_;
 
   private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
-  private static final byte[] blankKey_ = new byte[] { 0x40, 0x40, 0x40, 0x40 };
+  private static final byte[] blankKey_ = new byte[] { 0x40, 0x40, 0x40, 0x40};
 
   private int length_;
   private byte[] handle_; // handle that references the user space used by the open list APIs
@@ -248,8 +248,8 @@ need replies.
    * @see #setPath
    * @see #setSystem
 **/
-    public MessageQueue()
-    {
+  public MessageQueue()
+  {
     path_ = CURRENT;
   }
 
@@ -260,8 +260,8 @@ need replies.
    * @param system The system.
    * @see #setPath
 **/
-    public MessageQueue(AS400 system)
-    {
+  public MessageQueue(AS400 system)
+  {
     if (system == null) throw new NullPointerException("system");
     system_ = system;
     path_ = CURRENT;
@@ -275,8 +275,8 @@ need replies.
    *             of the message queue, or {@link #CURRENT CURRENT} to refer to the user's
    *             default message queue.
 **/
-    public MessageQueue(AS400 system, String path)
-    {
+  public MessageQueue(AS400 system, String path)
+  {
     if (system == null) throw new NullPointerException("system");
     if (path == null) throw new NullPointerException("path");
     system_ = system;
@@ -295,11 +295,11 @@ need replies.
    * @param listener The listener.
    * @see #removePropertyChangeListener
   **/
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
+  public void addPropertyChangeListener(PropertyChangeListener listener)
+  {
     if (listener == null) throw new NullPointerException("listener");
     if (propertyChangeSupport_ == null) propertyChangeSupport_ = new PropertyChangeSupport(this);
-        propertyChangeSupport_.addPropertyChangeListener(listener);
+    propertyChangeSupport_.addPropertyChangeListener(listener);
   }
 
 
@@ -310,11 +310,11 @@ need replies.
    * @param listener The listener.
    * @see #removeVetoableChangeListener
   **/
-    public void addVetoableChangeListener(VetoableChangeListener listener)
-    {
+  public void addVetoableChangeListener(VetoableChangeListener listener)
+  {
     if (listener == null) throw new NullPointerException("listener");
     if (vetoableChangeSupport_ == null) vetoableChangeSupport_ = new VetoableChangeSupport(this);
-        vetoableChangeSupport_.addVetoableChangeListener(listener);
+    vetoableChangeSupport_.addVetoableChangeListener(listener);
   }
 
 
@@ -364,28 +364,28 @@ need replies.
   }
 
 
-    /**
-      * Returns the status of help text formatting.  Possible values are:
-      * <UL>
-      * <LI>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - The help text is returned as a string of characters.
-      * This is the default.
-   * <LI>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - The help text contains
-      * formatting characters.  The formatting characters are:
-      * <UL>
-      * &N -- Force a new line <BR>
-      * &P -- Force a new line and indent the new line six characters <BR>
-      * &B -- Force a new line and indent the new line four characters
-      * </UL>
-      * <LI>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - The MessageFile class replaces
-   * formatting characters with newline and space characters.
-      * </UL>
-      * @return  The status of help text formatting.
-   * @see #setHelpTextFormatting
-      **/
-   public int getHelpTextFormatting()
-   {
-      return helpTextFormatting_;
-   }
+  /**
+    * Returns the status of help text formatting.  Possible values are:
+    * <UL>
+    * <LI>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - The help text is returned as a string of characters.
+    * This is the default.
+ * <LI>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - The help text contains
+    * formatting characters.  The formatting characters are:
+    * <UL>
+    * &N -- Force a new line <BR>
+    * &P -- Force a new line and indent the new line six characters <BR>
+    * &B -- Force a new line and indent the new line four characters
+    * </UL>
+    * <LI>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - The MessageFile class replaces
+ * formatting characters with newline and space characters.
+    * </UL>
+    * @return  The status of help text formatting.
+ * @see #setHelpTextFormatting
+    **/
+  public int getHelpTextFormatting()
+  {
+    return helpTextFormatting_;
+  }
 
 
 /**
@@ -404,7 +404,7 @@ need replies.
         load();
       }
     }
-    catch(Exception e)
+    catch (Exception e)
     {
       if (Trace.traceOn_)
       {
@@ -423,10 +423,10 @@ need replies.
    * to oldest.
    * @see #setListDirection
 **/
-   public boolean getListDirection()
-   {
-      return listDirection_;
-   }
+  public boolean getListDirection()
+  {
+    return listDirection_;
+  }
 
 
 /**
@@ -463,7 +463,7 @@ need replies.
     {
       throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
-    
+
     if (system_ == null)
     {
       throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -481,7 +481,7 @@ need replies.
 
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
-    
+
     ProgramParameter[] parms2 = new ProgramParameter[7];
     int len = 400*number;
     parms2[0] = new ProgramParameter(len); // receiver variable
@@ -497,7 +497,7 @@ need replies.
     {
       throw new AS400Exception(pc2.getMessageList());
     }
-    
+
     byte[] listInfo = parms2[3].getOutputData();
     int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
@@ -618,14 +618,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public Enumeration getMessages ()
-        throws  AS400Exception,
-                AS400SecurityException,
-                ErrorCompletingRequestException,
-                InterruptedException,
-                IOException,
-                ObjectDoesNotExistException
-    {
+  public Enumeration getMessages()
+  throws  AS400Exception,
+  AS400SecurityException,
+  ErrorCompletingRequestException,
+  InterruptedException,
+  IOException,
+  ObjectDoesNotExistException
+  {
     if (system_ == null)
     {
       throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -635,64 +635,8 @@ need replies.
     {
       load(); // Need to get the length_
     }
-    
+
     return new QueuedMessageEnumeration(this, length_);
-    }
-
-
-  /**
-   * Helper class. Used to wrap the QueuedMessage[] with an Enumeration.
-  **/
-  static class QueuedMessageEnumeration implements Enumeration
-  {
-    private QueuedMessage[] messageCache_;
-    private MessageQueue mq_;
-    private int counter_;
-    private int numMessages_;
-    private int listOffset_ = 0;
-    private int cachePos_ = 0;
-    QueuedMessageEnumeration(MessageQueue mq, int length)
-    {
-      mq_ = mq;
-      numMessages_ = length;
-    }
-
-    public final boolean hasMoreElements()
-    {
-      return counter_ < numMessages_;
-    }
-
-    public final Object nextElement()
-    {
-      if (counter_ >= numMessages_)
-      {
-        throw new NoSuchElementException();
-      }
-
-      if (messageCache_ == null || cachePos_ >= messageCache_.length)
-      {
-        try
-        {
-          messageCache_ = mq_.getMessages(listOffset_, 1000);
-          if (Trace.traceOn_)
-          {
-            Trace.log(Trace.DIAGNOSTIC, "Loaded next block in QueuedMessageEnumeration: "+messageCache_.length+" messages at offset "+listOffset_+" out of "+numMessages_+" total.");
-          }
-        }
-        catch(Exception e)
-        {
-          if (Trace.traceOn_)
-          {
-            Trace.log(Trace.ERROR, "Exception while loading nextElement() in QueuedMessageEnumeration:", e);
-          }
-          throw new NoSuchElementException();
-        }
-        cachePos_ = 0;
-        listOffset_ += messageCache_.length;
-      }
-      ++counter_;
-      return messageCache_[cachePos_++];
-    }
   }
 
 
@@ -705,8 +649,8 @@ need replies.
    * message queue.
    * @see #setPath
 **/
-    public String getPath()
-    {
+  public String getPath()
+  {
     return path_;
   }
 
@@ -722,8 +666,8 @@ need replies.
    * </ul>
    * @see #setSelection
 **/
-    public String getSelection()
-    {
+  public String getSelection()
+  {
     return selectionCriteria_;
   }
 
@@ -733,8 +677,8 @@ need replies.
    * @return The severity of the messages which are returned.
    * @see #setSeverity
 **/
-    public int getSeverity()
-    {
+  public int getSeverity()
+  {
     return severity_;
   }
 
@@ -756,30 +700,30 @@ need replies.
    * @return The system.
    * @see #setSystem
 **/
-    public AS400 getSystem()
-    {
+  public AS400 getSystem()
+  {
     return system_;
   }
 
-    /**
-     * Returns the starting message key, if one has been set.
-     * @return The key, or null if none has been set.
-     * @see #setUserStartingMessageKey
-    **/
-    public byte[] getUserStartingMessageKey()
-    {
-      return userStartingMessageKey_;
-    }
+  /**
+   * Returns the starting message key, if one has been set.
+   * @return The key, or null if none has been set.
+   * @see #setUserStartingMessageKey
+  **/
+  public byte[] getUserStartingMessageKey()
+  {
+    return userStartingMessageKey_;
+  }
 
-    /**
-     * Returns the starting message key, if one has been set.
-     * @return The key, or null if none has been set.
-     * @see #setWorkstationStartingMessageKey
-    **/
-    public byte[] getWorkstationStartingMessageKey()
-    {
-      return workstationStartingMessageKey_;
-    }
+  /**
+   * Returns the starting message key, if one has been set.
+   * @return The key, or null if none has been set.
+   * @see #setWorkstationStartingMessageKey
+  **/
+  public byte[] getWorkstationStartingMessageKey()
+  {
+    return workstationStartingMessageKey_;
+  }
 
 /**
    * Loads the list of messages on the system. This method informs the
@@ -810,7 +754,7 @@ need replies.
     {
       close();
     }
-    
+
     // Generate text objects based on system CCSID
     final int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
@@ -848,7 +792,7 @@ need replies.
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(82)); // length of receiver variable
     parms[2] = new ProgramParameter(80); // list information
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // number of records to return (have to specify at least 1... for some reason 0 doesn't work)
-    parms[4] = new ProgramParameter(new byte[] { sort_ && selectionCriteria_.equals(ALL) ? (byte)0xF1 : (byte)0xF0 }); // Sort information, '0' = no sort, '1' = sort if *ALL is specified
+    parms[4] = new ProgramParameter(new byte[] { sort_ && selectionCriteria_.equals(ALL) ? (byte)0xF1 : (byte)0xF0}); // Sort information, '0' = no sort, '1' = sort if *ALL is specified
     parms[5] = new ProgramParameter(selectionInfo); // Message selection information
     parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(selectionInfo.length)); // Size of message selection information
     byte[] userOrQueueInfo = new byte[21];
@@ -870,7 +814,7 @@ need replies.
     parms[7] = new ProgramParameter(userOrQueueInfo); // User or queue information
     parms[8] = new ProgramParameter(44); // Message queues used
     parms[9] = errorCode_;
-    
+
     // Call the program
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLMSG.PGM", parms);
     if (!pc.run())
@@ -879,7 +823,7 @@ need replies.
     }
 
     isConnected_ = true;
-    
+
     // List information returned
     byte[] listInformation = parms[2].getOutputData();
     handle_ = new byte[4];
@@ -904,7 +848,7 @@ need replies.
     }
     byte[] listInfo2 = parms2[3].getOutputData();
     length_ = BinaryConverter.byteArrayToInt(listInfo2, 0);
-    
+
     if (Trace.traceOn_)
     {
       Trace.log(Trace.DIAGNOSTIC, "Loaded message list with length = "+length_+" and handle: ", handle_);
@@ -916,7 +860,7 @@ need replies.
 **/
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
   {
-        in.defaultReadObject();
+    in.defaultReadObject();
   }
 
 
@@ -936,14 +880,14 @@ need replies.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
    * @see com.ibm.as400.access.QueuedMessage#getKey
 **/
-    public QueuedMessage receive(byte[] messageKey)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public QueuedMessage receive(byte[] messageKey)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     return receive(messageKey, 0, REMOVE, ANY);
   }
 
@@ -1035,17 +979,17 @@ need replies.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
    * @see com.ibm.as400.access.QueuedMessage#getKey
 **/
-    public QueuedMessage receive(byte[] messageKey,
-                                 int waitTime,
-                                 String messageAction,
-                                 String messageType)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public QueuedMessage receive(byte[] messageKey,
+                               int waitTime,
+                               String messageAction,
+                               String messageType)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageAction == null) throw new NullPointerException("messageAction");
     if (messageType == null) throw new NullPointerException("messageType");
     if (!messageAction.equals(OLD) &&
@@ -1054,7 +998,7 @@ need replies.
     {
       throw new ExtendedIllegalArgumentException("messageAction", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    
+
     if (!messageType.equals(ANY) &&
         !messageType.equals(COMPLETION) &&
         !messageType.equals(COPY) &&
@@ -1069,7 +1013,7 @@ need replies.
     {
       throw new ExtendedIllegalArgumentException("messageType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    
+
     if (messageKey == null && (messageType.equals(COPY) || messageType.equals(NEXT) || messageType.equals(PREVIOUS)))
     {
       throw new ExtendedIllegalArgumentException("messageKey", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -1077,7 +1021,10 @@ need replies.
 
     if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-    if (messageKey == null) messageKey = new byte[] { 0x40, 0x40, 0x40, 0x40 }; // Use all spaces for null key.
+    if (messageKey == null) messageKey = new byte[]
+      {
+        0x40, 0x40, 0x40, 0x40
+      }; // Use all spaces for null key.
 
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
@@ -1120,12 +1067,12 @@ need replies.
 
     int bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
     int bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
-    
+
     if (bytesReturned == 8 && bytesAvailable == 0) return null; // No message found.
 
     int messageSeverity = BinaryConverter.byteArrayToInt(data, 8);
     String messageIdentifier = conv.byteArrayToString(data, 12, 7).trim(); // Blank for impromptu message.
-    
+
     boolean isImpromptu = messageIdentifier.length() == 0;
 
     int returnedType = Integer.parseInt(conv.byteArrayToString(data, 19, 2));
@@ -1133,7 +1080,7 @@ need replies.
     System.arraycopy(data, 21, returnedKey, 0, 4); // Blank for a message action of *REMOVE.
     String messageFileName = conv.byteArrayToString(data, 25, 10).trim();
     String messageFileLibraryUsed = conv.byteArrayToString(data, 45, 10).trim();
-    
+
     String sendingJob = conv.byteArrayToString(data, 55, 10).trim();
     String sendingUserProfile = conv.byteArrayToString(data, 65, 10).trim();
     String sendingJobNumber = conv.byteArrayToString(data, 75, 6);
@@ -1141,11 +1088,11 @@ need replies.
     String dateSent = conv.byteArrayToString(data, 97, 7); // CYYMMDD
     String timeSent = conv.byteArrayToString(data, 104, 6); // HHMMSS
     String alertOption = conv.byteArrayToString(data, 135, 9).trim();
-    
+
     int ccsidStatusText = BinaryConverter.byteArrayToInt(data, 127);
     int ccsidMessage = BinaryConverter.byteArrayToInt(data, 144);
     int lengthDataReturned = BinaryConverter.byteArrayToInt(data, 152);
-    
+
     int ccsidToUse = ccsidMessage;
     if (ccsidStatusText == -1 || ccsidToUse == 0 || ccsidToUse == 65535)
     {
@@ -1160,20 +1107,20 @@ need replies.
       System.arraycopy(data, 176, impromptuMessageBytes, 0, lengthDataReturned);
       String impromptuMessage = conv2.byteArrayToString(impromptuMessageBytes, 0, lengthDataReturned, 0);
       QueuedMessage message = new QueuedMessage(this, messageSeverity, messageIdentifier,
-                                 returnedType, returnedKey, messageFileName, messageFileLibraryUsed,
-                                 sendingJob, sendingUserProfile, sendingJobNumber,
-                                 sendingProgramName, dateSent, timeSent,
-                                 impromptuMessageBytes, impromptuMessage, null, alertOption);
+                                                returnedType, returnedKey, messageFileName, messageFileLibraryUsed,
+                                                sendingJob, sendingUserProfile, sendingJobNumber,
+                                                sendingProgramName, dateSent, timeSent,
+                                                impromptuMessageBytes, impromptuMessage, null, alertOption);
       resetHandle();
       return message;
     }
 
     int lengthMessageReturned = BinaryConverter.byteArrayToInt(data, 160);
     int lengthHelpReturned = BinaryConverter.byteArrayToInt(data, 168);
-    
+
     byte[] replacementDataBytes = new byte[lengthDataReturned];
     System.arraycopy(data, 176, replacementDataBytes, 0, lengthDataReturned);
-    
+
     String messageData = conv2.byteArrayToString(data, 176+lengthDataReturned, lengthMessageReturned);
     String messageHelp = conv2.byteArrayToString(data, 176+lengthDataReturned+lengthMessageReturned, lengthHelpReturned); // Blank for an immediate message.
 
@@ -1197,14 +1144,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void remove()
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void remove()
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     removeMessages(ALL, blankKey_);
   }
 
@@ -1219,14 +1166,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void remove(byte[] messageKey)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void remove(byte[] messageKey)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageKey == null) throw new NullPointerException("messageKey");
     removeMessages(BYKEY, messageKey);
   }
@@ -1256,14 +1203,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void remove(String messageType)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void remove(String messageType)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageType == null) throw new NullPointerException("messageType");
     if (!messageType.equals(ALL) &&
         !messageType.equals(KEEP_UNANSWERED) &&
@@ -1275,15 +1222,15 @@ need replies.
     removeMessages(messageType, blankKey_);
   }
 
-  
+
   // Helper method.
   private void removeMessages(String type, byte[] key)
-    throws AS400Exception,
-    AS400SecurityException,
-    IOException,
-    ObjectDoesNotExistException,
-    ErrorCompletingRequestException,
-    InterruptedException
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
   {
     ProgramParameter[] parms = new ProgramParameter[4];
     String queue = null;
@@ -1320,8 +1267,8 @@ need replies.
    * Removes a PropertyChangeListener.
    * @param listener The listener.
 **/
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
+  public void removePropertyChangeListener(PropertyChangeListener listener)
+  {
     if (listener == null) throw new NullPointerException("listener");
     if (propertyChangeSupport_ != null) propertyChangeSupport_.removePropertyChangeListener(listener);
   }
@@ -1331,8 +1278,8 @@ need replies.
    * Removes a VetoableChangeListener.
    * @param listener The listener.
 **/
-    public void removeVetoableChangeListener(VetoableChangeListener listener)
-    {
+  public void removeVetoableChangeListener(VetoableChangeListener listener)
+  {
     if (listener == null) throw new NullPointerException("listener");
     if (vetoableChangeSupport_ != null) vetoableChangeSupport_.removeVetoableChangeListener(listener);
   }
@@ -1351,14 +1298,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void reply(byte[] messageKey, String replyText)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void reply(byte[] messageKey, String replyText)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     reply(messageKey, replyText, true);
   }
 
@@ -1379,14 +1326,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void reply(byte[] messageKey, String replyText, boolean remove)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void reply(byte[] messageKey, String replyText, boolean remove)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageKey == null) throw new NullPointerException("messageKey");
     if (replyText == null) throw new NullPointerException("replyText");
     ProgramParameter[] parms = new ProgramParameter[6];
@@ -1433,11 +1380,11 @@ need replies.
     if (handleToClose_ == null) handleToClose_ = handle_; // Close the old list on the next load
     handle_ = null;
   }
-  
+
 
   // 20 EBCDIC SBCS blanks
   private static final byte[] blanks20_ = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
-                                                       0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+    0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40};
 
 
   // Helper method
@@ -1529,14 +1476,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void sendInformational(String messageID, String messageFile)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void sendInformational(String messageID, String messageFile)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageID == null) throw new NullPointerException("messageID");
     if (messageFile == null) throw new NullPointerException("messageFile");
     send(messageID, messageFile, null, INFORMATIONAL, null);
@@ -1556,14 +1503,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void sendInformational(String messageID, String messageFile, byte[] substitutionData)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void sendInformational(String messageID, String messageFile, byte[] substitutionData)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageID == null) throw new NullPointerException("messageID");
     if (messageFile == null) throw new NullPointerException("messageFile");
     send(messageID, messageFile, substitutionData, INFORMATIONAL, null);
@@ -1581,14 +1528,14 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public void sendInformational(String messageText)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public void sendInformational(String messageText)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageText == null) throw new NullPointerException("messageText");
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
@@ -1611,16 +1558,16 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public byte[] sendInquiry(String messageID,
+  public byte[] sendInquiry(String messageID,
                             String messageFile,
                             String replyMessageQueue)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageID == null) throw new NullPointerException("messageID");
     if (messageFile == null) throw new NullPointerException("messageFile");
     if (replyMessageQueue == null) throw new NullPointerException("replyMessageQueue");
@@ -1643,17 +1590,17 @@ need replies.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public byte[] sendInquiry(String messageID,
-                              String messageFile,
-                              byte[] substitutionData,
-                              String replyMessageQueue)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public byte[] sendInquiry(String messageID,
+                            String messageFile,
+                            byte[] substitutionData,
+                            String replyMessageQueue)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageID == null) throw new NullPointerException("messageID");
     if (messageFile == null) throw new NullPointerException("messageFile");
     if (replyMessageQueue == null) throw new NullPointerException("replyMessageQueue");
@@ -1677,14 +1624,14 @@ Sends an inquiry message to the message queue.
 @exception IOException                     If an error occurs while communicating with the AS/400.
 @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 **/
-    public byte[] sendInquiry(String messageText, String replyMessageQueue)
-        throws AS400Exception,
-               AS400SecurityException,
-               IOException,
-               ObjectDoesNotExistException,
-               ErrorCompletingRequestException,
-               InterruptedException
-    {
+  public byte[] sendInquiry(String messageText, String replyMessageQueue)
+  throws AS400Exception,
+  AS400SecurityException,
+  IOException,
+  ObjectDoesNotExistException,
+  ErrorCompletingRequestException,
+  InterruptedException
+  {
     if (messageText == null) throw new NullPointerException("messageText");
     if (replyMessageQueue == null) throw new NullPointerException("replyMessageQueue");
     int ccsid = system_.getCcsid();
@@ -1696,30 +1643,30 @@ Sends an inquiry message to the message queue.
 
 
 // @E1A
-    /**
-      * Sets the help text formatting value.  Possible values are:
-      * <UL>
-      * <LI>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - the help text is returned as a string of characters.
-      * This is the default.
-      * <LI>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - the help text contains AS/400
-      * formatting characters.  The formatting characters are:
-      * <UL>
-      * &N -- Force a new line <BR>
-      * &P -- Force a new line and indent the new line six characters <BR>
-      * &B -- Force a new line and indent the new line four characters
-      * </UL>
-      * <LI>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - the MessageFile class replaces
-      * AS/400 formatting characters with new line and space characters.
-      * </UL>
-      * @param value The help text formatting value.
-      **/
-   public void setHelpTextFormatting(int helpTextFormatting)
-   {
+  /**
+    * Sets the help text formatting value.  Possible values are:
+    * <UL>
+    * <LI>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - the help text is returned as a string of characters.
+    * This is the default.
+    * <LI>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - the help text contains AS/400
+    * formatting characters.  The formatting characters are:
+    * <UL>
+    * &N -- Force a new line <BR>
+    * &P -- Force a new line and indent the new line six characters <BR>
+    * &B -- Force a new line and indent the new line four characters
+    * </UL>
+    * <LI>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - the MessageFile class replaces
+    * AS/400 formatting characters with new line and space characters.
+    * </UL>
+    * @param value The help text formatting value.
+    **/
+  public void setHelpTextFormatting(int helpTextFormatting)
+  {
     if (helpTextFormatting != MessageFile.NO_FORMATTING &&
         helpTextFormatting != MessageFile.RETURN_FORMATTING_CHARACTERS &&
         helpTextFormatting != MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS)
       throw new ExtendedIllegalArgumentException("helpTextFormatting", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-          helpTextFormatting_ = helpTextFormatting;
+    helpTextFormatting_ = helpTextFormatting;
     resetHandle();
   }
 
@@ -1734,9 +1681,9 @@ Sets the list direction.
                      to oldest.  The default is true.
 @see #getListDirection                     
 **/
-   public void setListDirection(boolean listDirection)
-   {
-          listDirection_ = listDirection;
+  public void setListDirection(boolean listDirection)
+  {
+    listDirection_ = listDirection;
     resetHandle();
   }
 
@@ -1766,9 +1713,9 @@ if the MessageQueue object has established a connection to the server.
 
 @exception PropertyVetoException If the change is vetoed.
 **/
-    public void setPath(String path)
-        throws PropertyVetoException
-    {
+  public void setPath(String path)
+  throws PropertyVetoException
+  {
     if (path == null) throw new NullPointerException("path");
     if (isConnected_)
     {
@@ -1799,9 +1746,9 @@ of queue messages is retrieved or refreshed.
 
 @see com.ibm.as400.resource.RMessageQueue#SELECTION_CRITERIA
 **/
-    public void setSelection(String selection)
-        throws PropertyVetoException
-    {
+  public void setSelection(String selection)
+  throws PropertyVetoException
+  {
     if (selection == null) throw new NullPointerException("selection");
     if (!selection.equals(ALL) &&
         !selection.equals(MESSAGES_NEED_REPLY) &&
@@ -1831,9 +1778,9 @@ of queued messages is retreived or refreshed.
 
 @see com.ibm.as400.resource.RMessageQueue#SEVERITY_CRITERIA
 **/
-    public void setSeverity(int severity)
-        throws PropertyVetoException
-    {
+  public void setSeverity(int severity)
+  throws PropertyVetoException
+  {
     if ((severity < 0) || (severity > 99)) throw new ExtendedIllegalArgumentException("severity", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     int old = severity_;
     if (vetoableChangeSupport_ != null) vetoableChangeSupport_.fireVetoableChange("severity", old, severity);
@@ -1853,9 +1800,9 @@ has established a connection to the server.
 
 @exception PropertyVetoException    If the property change is vetoed.
 **/
-    public void setSystem(AS400 system)
-    throws PropertyVetoException
-    {
+  public void setSystem(AS400 system)
+  throws PropertyVetoException
+  {
     if (system == null) throw new NullPointerException("system");
     if (isConnected_)
     {
@@ -1867,42 +1814,42 @@ has established a connection to the server.
     if (propertyChangeSupport_ != null) propertyChangeSupport_.firePropertyChange("system", old, system);
   }
 
-    /**
-     * Sets the starting message key used to begin searching for messages to list
-     * from the corresponding entry in the message queue. Any valid message key
-     * will work, including {@link #NEWEST NEWEST} and {@link #OLDEST OLDEST}.
-     * If the key of a reply message is specified, the message search begins
-     * with the inquiry or sender's copy message associated with that reply,
-     * not the reply message itself.
-     * <P>
-     * If the message queue is set to {@link #CURRENT CURRENT}, then the key
-     * represents the starting message key for the current user's user message queue.
-     * @param key The key. Specify null to set it back to the default, which will
-     * be OLDEST or NEWEST based on the list direction.
-    **/
-    public void setUserStartingMessageKey(byte[] key)
-    {
-      userStartingMessageKey_ = key;
-      resetHandle();
-    }
+  /**
+   * Sets the starting message key used to begin searching for messages to list
+   * from the corresponding entry in the message queue. Any valid message key
+   * will work, including {@link #NEWEST NEWEST} and {@link #OLDEST OLDEST}.
+   * If the key of a reply message is specified, the message search begins
+   * with the inquiry or sender's copy message associated with that reply,
+   * not the reply message itself.
+   * <P>
+   * If the message queue is set to {@link #CURRENT CURRENT}, then the key
+   * represents the starting message key for the current user's user message queue.
+   * @param key The key. Specify null to set it back to the default, which will
+   * be OLDEST or NEWEST based on the list direction.
+  **/
+  public void setUserStartingMessageKey(byte[] key)
+  {
+    userStartingMessageKey_ = key;
+    resetHandle();
+  }
 
-    /**
-     * Sets the starting message key used to begin searching for messages to list
-     * from the corresponding entry in the message queue. Any valid message key
-     * will work, including {@link #NEWEST NEWEST} and {@link #OLDEST OLDEST}.
-     * If the key of a reply message is specified, the message search begins
-     * with the inquiry or sender's copy message associated with that reply,
-     * not the reply message itself.
-     * <P>
-     * If the message queue is set to {@link #CURRENT CURRENT}, then the key
-     * represents the starting message key for the current user's workstation message queue.
-     * @param key The key. Specify null to set it back to the default.
-    **/
-    public void setWorkstationStartingMessageKey(byte[] key)
-    {
-      workstationStartingMessageKey_ = key;
-      resetHandle();
-    }
+  /**
+   * Sets the starting message key used to begin searching for messages to list
+   * from the corresponding entry in the message queue. Any valid message key
+   * will work, including {@link #NEWEST NEWEST} and {@link #OLDEST OLDEST}.
+   * If the key of a reply message is specified, the message search begins
+   * with the inquiry or sender's copy message associated with that reply,
+   * not the reply message itself.
+   * <P>
+   * If the message queue is set to {@link #CURRENT CURRENT}, then the key
+   * represents the starting message key for the current user's workstation message queue.
+   * @param key The key. Specify null to set it back to the default.
+  **/
+  public void setWorkstationStartingMessageKey(byte[] key)
+  {
+    workstationStartingMessageKey_ = key;
+    resetHandle();
+  }
 }
 
 

@@ -285,9 +285,7 @@ oldest to newest.
       load(); // Need to get the length_
     }
 
-    QueuedMessage[] messages = getMessages(-1, length_);
-
-    return new MessageQueue.QueuedMessageEnumeration(messages);
+    return new QueuedMessageEnumeration(this, length_);
   }
 
 
@@ -304,6 +302,8 @@ oldest to newest.
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
    * to the list length.
    * @return The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.
+   * The length of this array may not necessarily be equal to <i>number</i>, depending upon the size
+   * of the list on the server, and the specified <i>listOffset</i>.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -343,7 +343,7 @@ oldest to newest.
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
     ProgramParameter[] parms2 = new ProgramParameter[7];
-    int len = 32768;
+    int len = 400*num;
     parms2[0] = new ProgramParameter(len); // receiver variable
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
@@ -361,7 +361,7 @@ oldest to newest.
     byte[] listInfo = parms2[3].getOutputData();
     int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
-    while (totalRecords > recordsReturned)
+/*    while (totalRecords > recordsReturned)
     {
       len = len*(1+(totalRecords/(recordsReturned+1)));
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling JobLog QGYGTLE again with an updated length of "+len+".");
@@ -381,7 +381,7 @@ oldest to newest.
       totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
       recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
     }
-
+*/
     byte[] data = parms2[0].getOutputData();
 
     QueuedMessage[] messages = new QueuedMessage[number];
