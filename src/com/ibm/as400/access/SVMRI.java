@@ -231,6 +231,8 @@ public class SVMRI extends ListResourceBundle
         { "PCSACC_DES" , "Client Access" },
         { "RAR_DES" , "Addition resistance" },
         { "SYSNAME_DES" , "Current system name" },
+        { "QTHDRSCAFN_DES", "Thread resources affinity" },      //@K1A
+        { "QTHDRSCADJ_DES", "Thread resources adjustment" },    //@K1A
 
            // #TRANNOTE #####################################################
            // #TRANNOTE Text for system values group's name.
