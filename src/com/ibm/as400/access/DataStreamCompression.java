@@ -303,7 +303,7 @@ class DataStreamCompression
         int count = 1;                                                      // @A2C
         i += 2;
         // Calculate the number of times these two bytes are repeated.
-        while (((i+1) < sourceLength) && repeater == (((source[i] & 0xFF) << 8) + (source[i+1] & 0xFF))) //@P0C
+        while (((i+1) < sourceLength) && repeater == (((source[i] & 0xFF) << 8) + (source[i+1] & 0xFF)) && count < 65535) //@P0C @B1A
                //@P0D (BinaryConverter.byteArrayToUnsignedShort(source, i) == repeater))
         { // @A2C
           count++;
