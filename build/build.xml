@@ -588,7 +588,7 @@
         </not>
       </or>
     </condition>        
-    <fail message="Can't find cvs executable." unless="cvsExeExists"/>
+    <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
     <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400" password=""/>
     <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
