@@ -82,7 +82,7 @@ import java.util.Vector;
  **/
 
 public class IFSFile
-  implements java.io.Serializable
+  implements java.io.Serializable, Comparable            // @B9c
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -498,6 +498,33 @@ public class IFSFile
   public void clearCachedAttributes()
   {
       cachedAttributes_ = null;
+  }
+
+
+
+// @B9a
+/**
+ * Compares the path of this IFSFile with an <code>Object</code>'s path.
+ * If the other object is not an IFSFile or java.io.File,
+ * this method throws a <code>ClassCastException</code>, since
+ * IFSFile is comparable only to IFSFile and java.io.File.
+ *
+ * <p>Note:<br>The comparison is case sensitive.
+ *
+ * @param   obj The <code>Object</code> to be compared.
+ *
+ * @return  <code>0</code> if this IFSFile path equals the argument's path;
+ *          a value less than <code>0</code> if this IFSFile path is less than the argument's
+ *          path; and a value greater than <code>0</code> if this IFSFile path is greater
+ *          than the argument's path.
+ *
+**/
+  public int compareTo(Object obj)
+  {
+    if (obj instanceof IFSFile)
+      return getPath().compareTo(((IFSFile)obj).getPath());
+    else
+      return getPath().compareTo(((java.io.File)obj).getPath());
   }
 
 
