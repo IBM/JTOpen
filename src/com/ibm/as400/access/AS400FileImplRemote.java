@@ -704,7 +704,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         msg = new DDMAS400MessageReply(system_, ((DDMDataStream)v.elementAt(i)).data_); //@C0C
         AS400Message[] msgs = msg.getAS400MessageList();
         Trace.log(Trace.WARNING, "AS400FileImplRemote.logWarningMessages():");
-        for (int j = 0; i < msgs.length; ++j)
+        for (int j = 0; j < msgs.length; ++j)
         {
           Trace.log(Trace.WARNING, msgs[j].toString());
         }
