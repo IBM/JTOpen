@@ -145,6 +145,7 @@ public class AS400BidiTransform
     private int javaType_;  // String type of Java data.
     private BidiTransform bdxJ2A_ = new BidiTransform();  // From Java to server.
     private BidiTransform bdxA2J_ = new BidiTransform();  // From server to Java.
+    private BidiTransform lastTransform_ = bdxA2J_;  // Keeps track of which transform was used last.
 
     /**
      Constructs an AS400BidiTransform object assuming that the server Bidi text conforms to a given CCSID.  Typically this will be the CCSID of the system.
@@ -339,10 +340,8 @@ public class AS400BidiTransform
      **/
     public BidiConversionProperties getBidiConversionProperties()
     {
-        BidiConversionProperties properties = new BidiConversionProperties(getJavaStringType(),bdxA2J_);
-        properties.transformOptions_.dstToSrcMap = bdxA2J_.dstToSrcMap;
-        properties.transformOptions_.srcToDstMap = bdxJ2A_.srcToDstMap;
-        return properties;
+        boolean removeMarksOnJ2A = (bdxJ2A_.removeMarkers==true && bdxA2J_.removeMarkers==false);
+        return  new BidiConversionProperties(getJavaStringType(),lastTransform_, removeMarksOnJ2A);
     }
 
     /**
@@ -352,6 +351,7 @@ public class AS400BidiTransform
      **/
     public String toJavaLayout(String as400Text)
     {
+        lastTransform_ = bdxJ2A_;
         BidiText src = new BidiText(bdxJ2A_.flags, as400Text);
         return src.transform(bdxA2J_).toString();
     }
@@ -363,6 +363,7 @@ public class AS400BidiTransform
      **/
     public String toAS400Layout(String javaText)
     {
+        lastTransform_ = bdxA2J_;
         BidiText src = new BidiText(bdxA2J_.flags, javaText);
         return src.transform(bdxJ2A_).toString();
     }

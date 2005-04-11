@@ -42,10 +42,28 @@ public class BidiConversionProperties implements Serializable
         setBidiStringType(bidiStringType);
     }
 
-    BidiConversionProperties(int bidiStringType, BidiTransform transform)
+    BidiConversionProperties(int bidiStringType, BidiTransform transform, boolean removeMarkersOnImplicitToVisual)
     {
+        // String type.
         setBidiStringType(bidiStringType);
+
+        // Copy options.
         copyOptionsTo(transform, transformOptions_);
+
+        // Set remove markers special case option.
+        removeMarksOnImplicitToVisual_ = removeMarkersOnImplicitToVisual;
+        // The remove markers should not be true in general, only in J2A case.
+        if (removeMarkersOnImplicitToVisual)
+        {
+            transformOptions_.removeMarkers = false;
+        }
+
+        // Copy output results.
+        transformOptions_.dstToSrcMap = transform.dstToSrcMap;
+        transformOptions_.srcToDstMap = transform.srcToDstMap;
+        transformOptions_.propertyMap = transform.propertyMap;
+        transformOptions_.inpCount = transform.inpCount;
+        transformOptions_.outCount = transform.outCount;
     }
 
     /**
