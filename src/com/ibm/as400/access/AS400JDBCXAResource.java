@@ -777,7 +777,7 @@ specified.
                     <li>TMJOIN - Joins a transaction previously seen by
                         the resource manager. 
                     <li>TMRESUME - Resumes a suspended transaction.
-                        (This is not currently supported.)
+                        (This is not currently supported for V5R3 and earlier versions.)
                     <li>TMNOFLAGS - No flags are set.
                     </ul>
 
@@ -793,7 +793,7 @@ specified.
         throw new XAException(XAException.XAER_INVAL);
       if (started_ != null)
         throw new XAException(XAException.XAER_PROTO);
-      if (flags != TMNOFLAGS && flags != TMJOIN)                //@K1C  added TMJOIN check
+      if (flags != TMNOFLAGS && flags != TMJOIN && connection_.getVRM() < JDUtilities.vrm540)                //@K1C  added TMJOIN check //@540C the TMSuspend restriction can be removed when running to V5R4 and later servers
         throw new XAException(XAException.XAER_INVAL);
 
 
