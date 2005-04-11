@@ -686,27 +686,35 @@ public class AS400JDBCStatement implements Statement
                 int openAttributes = 0;
                 try
                 {
+                    //@541 When running to a V5R4 or higher server, we can request to get extended column descriptors
+                    // from a stored procedure result set.  In order to do that, we need to set the extended column
+                    // descriptor option on the execute of the statement.
+                    boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);       //@541A moved up from farther below in code
                     //@F5D Send this on the prepare, not the execute
-                    //@F5D int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;      //@F3M
+                    int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;      //@F3M   //@541C undeleted
                     //@F5D //@F3A If we are on a server that supports extended column descriptors and if the              //@F3A
                     //@F5D //@F3A user asked for them, send the extended column descriptors code point.                   //@F3A
-                    //@F5D boolean extendedMetaData = false;                                                              //@F3A
-                    //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                                //@F3A
-                    //@F5D {                                                                                              //@F3A
-                    //@F5D     extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); //@F3A
-                    //@F5D     if (extendedMetaData)                                                                      //@F3A
-                    //@F5D     {                                                                                          //@F3A
-                    //@F5D         requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;   //@F3A
-                    //@F5D     }                                                                                          //@F3A
-                    //@F5D }                                                                                              //@F3A
+                    boolean extendedMetaData = false;                                                              //@F3A   //@541C undeleted
+                    //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                                //@F3A   
+                    if(connection_.getVRM() >= JDUtilities.vrm540 && isCall)                                        //@541A
+                    {                                                                                              //@F3A   //@541C  undeleted
+                         extendedMetaData = connection_.getProperties().getBoolean(JDProperties.EXTENDED_METADATA); //@F3A  //@541C  undeleted
+                         if (extendedMetaData)                                                                      //@F3A  //@541C  undeleted
+                         {                                                                                          //@F3A  //@541C  undeleted
+                            requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    //@F3A  //@541C  undeleted
+                         }                                                                                          //@F3A  //@541C  undeleted
+                    }                                                                                              //@F3A   //@541C  undeleted
                     //@P0A
-                    request = DBDSPool.getDBSQLRequestDS(functionId, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA, 0);    //@P0C @F3C @F5C
+                    request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C 
 
                     openAttributes = cursor_.getOpenAttributes(sqlStatement, blockCriteria_);    //@F7M
                     if(openNeeded)
                     {
                         //@F7D openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);
                         request.setOpenAttributes(openAttributes);
+                    }
+                    else if(extendedMetaData){      //@541A Doing an execute.  If running to V5R4 and higher, and the extendedMetaData property is true, set the extended column descriptor option
+                        request.setExtendedColumnDescriptorOption((byte)0xF1);
                     }
 
                     if(nameOverride_.length() != 0)
@@ -917,11 +925,16 @@ public class AS400JDBCStatement implements Statement
                     }
 
                     // Compute the number of results.
-                    boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);
+                    //@541D boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);   
                     if(isCall)
                         numberOfResults_ = sqlca.getErrd (2);    //@F1C
                     else
                         numberOfResults_ = 0;
+
+                    if(extendedMetaData)    //@541A
+                    {
+                        extendedColumnDescriptors_ = reply.getExtendedColumnDescriptors ();    //@F5A
+                    }
 
                     // If this is a CALL and result sets came back, but
                     // no format was returned, then open the cursor. The
