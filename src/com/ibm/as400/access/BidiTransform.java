@@ -104,6 +104,7 @@ class BidiTransform {
     public boolean          dstToSrcMapRequired;
 /**
  *  Option: create a property map
+ *  <p>Note: the map created is of no practical value if impToImp is true.
  */
     public boolean          propertyMapRequired;
 /**
@@ -162,6 +163,8 @@ class BidiTransform {
  *  The highest bit is a new-cell indicator for composed character
  *  environments: a value of 0 indicates a zero-length composing character
  *  element, and a value of 1 indicates an element that begins a new cell.
+ *  <p>Note: the content of this map has no simple interpretation if impToImp
+ *  is true.
  */
     public byte[]   propertyMap;
 

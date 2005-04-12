@@ -237,21 +237,16 @@ class BidiOrder
   {
                      /*   B,    S,    L,    R,   EN,   AN,   W,   N,  IL, Cond */
 
-/* 0 RTL text     */  {   0,    0, 0x73,    0, 0x51, 0x51,   0,   0,   0,  0},
-/* 1 RTL+EN/AN    */  {0x40, 0x40, 0x33, 0x40,    1,    1,   2,   2,   1,  0},
-/* 2 RTL+EN/AN+N  */  {0x40, 0x40, 0x33, 0x40, 0x51, 0x51,   2,   2,   0,  0},
-/* 3 LTR text     */  {0x70, 0x70,    3, 0x70, 0x73, 0x73,   4,   4,   1,  0},
-/* 4 LTR+cont     */  {0x70, 0x70,    3, 0x70, 0x73, 0x75,   4,   4,   0,  1},
-/* 5 LTR+cont+AN  */  {0x70, 0x70, 0x73, 0x70,    3,    5,   6,   6,   1,  0},
-/* 6 LTR+AN+cont  */  {0x70, 0x70, 0x73, 0x70, 0x51, 0x75,   6,   6,   0,  0}
+/* 0 RTL text     */  {   0,    0,    3,    0,    1,    1,   0,   0,   0,  0},
+/* 1 RTL+EN/AN    */  {   0,    0, 0x73,    0,    1,    1,   2,   2,   1,  0},
+/* 2 RTL+EN/AN+N  */  {   0,    0, 0x73,    0,    1,    1,   2,   2,   0,  0},
+/* 3 LTR text     */  {   0,    0,    3,    0,    3, 0x86,   4,   4,   1,  0},
+/* 4 LTR+N        */  {0x90, 0x90, 0xA3, 0x90,    5, 0x86,   4,   4,   0,  1},
+/* 5 LTR+EN       */  {0x90, 0x90, 0xA3, 0x90,    5, 0x86,   4,   4,   1,  1},
+/* 6 LTR+AN       */  {0x90, 0x90, 0xA3, 0x90,    6,    6,   4,   4,   1,  1}
   };
 //  The cases handled in this table are (visually):  R EN L
-//                                                   R #L EN R
-//                                                   R L AN EN EN R
-//                                                   R L AN EN L R
-//  The last 2 cases are handled by adding LRM before the first EN following
-//  L AN.  This is unneeded if no other EN or L follows, and could be improved.
-//  Also check case R EN AN L (which produces R @EN @AN@ L)
+//                                                   R L AN L
 
 
 /***************************/
@@ -306,15 +301,16 @@ class BidiOrder
   int ics_size;                         /* length of source text to process */
   char[] ics_buffer_in;
   char[] ics_buffer_out;
+  boolean invertInput;
   boolean visToVis;
   short impTab[][];
   byte typeArray[][];
 
   boolean insertMarkers;
   int insertCnt;                        /* number of confirmed inserts */
+  int removeCnt;                        /* number of LRM/RLMs to remove */
   int startL2EN;                        /* start of level 2 run        */
   int lastStrongRTL;                    /* index of last found R or AL */
-  int lastENinLTR;                      /* index of last EN in LTR run */
   boolean reqImpToImp;                  /* impToImp request */
   int impToImpOrient;
   int impToImpPhase;
@@ -335,10 +331,25 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  void invertMap(int[] buffer, int lower_limit, int upper_limit)
-  /* invert a buffer of int, between lower_limit and upper_limit */
+  private static void invertMap(int[] buffer, int lower_limit, int upper_limit)
+  /* invert a buffer of ints, between lower_limit and upper_limit */
   {
     int temp;
+
+    for (; lower_limit < upper_limit; lower_limit++, upper_limit--)
+    {
+        temp = buffer[lower_limit];
+        buffer[lower_limit] = buffer[upper_limit];
+        buffer[upper_limit] = temp;
+    }
+  }
+
+/*------------------------------------------------------------------------*/
+
+  private static void invertMap(byte[] buffer, int lower_limit, int upper_limit)
+  /* invert a buffer of bytes, between lower_limit and upper_limit */
+  {
+    byte temp;
 
     for (; lower_limit < upper_limit; lower_limit++, upper_limit--)
     {
@@ -399,7 +410,7 @@ class BidiOrder
 /* one simplified after resolving numbers, NSMs and others           */
 /*                                                                   */
 /*********************************************************************/
-  void fillTypeArray()
+  private void fillTypeArray()
   {
     int             i, prev;
     byte            cType, wType;
@@ -409,7 +420,7 @@ class BidiOrder
     ta = typeArray;
     for (i = 0; i < ics_size; i++)
     {
-        cType = getChType( ics_buffer_in[i], myBdx.wordBreak );
+        cType = getChType(ics_buffer_in[i], myBdx.wordBreak);
         ta[i][ORIG] = cType;
         ta[i][FINAL] = UBAT_N;
         if (visToVis)
@@ -472,7 +483,7 @@ class BidiOrder
           case UBAT_NSM:
             /* This code does not support NSMs within RTL text in Visual type
                input data. We have seen no requirements for such combination. */
-            if (i <= 0 )  break;
+            if (i <= 0) break;
             ta[i][FINAL] = ta[i-1][FINAL];
             break;
         }
@@ -481,7 +492,7 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  void fillTypeArray2()
+  private void fillTypeArray2()
   {
     int             i, k, prev;
     byte            cType, wType;
@@ -580,10 +591,21 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  private  int afterEN(int i)
+  private  int afterENAN(int i)      /////////////// check if needed //////////////////////
   {
-    while ((i < ics_size) && (typeArray[i][FINAL] == UBAT_EN))
+    while ((i < ics_size) && ((typeArray[i][FINAL] == UBAT_EN) ||
+                              (typeArray[i][FINAL] == UBAT_AN)))
         i++;
+    return i;
+  }
+
+/*------------------------------------------------------------------------*/
+
+  private  int beforeENAN(int i)     /////////////// check if needed //////////////////////
+  {
+    while ((i >= 0) && ((typeArray[i][FINAL] == UBAT_EN) ||
+                        (typeArray[i][FINAL] == UBAT_AN)))
+        i--;
     return i;
   }
 
@@ -623,8 +645,6 @@ class BidiOrder
             break;
 
         case 3:                         /* L after R/AL + possible EN/AN */
-            if ((ucb_ix > 0) && (typeArray[ucb_ix-1][ORIG] == UBAT_ET))
-                lastENinLTR = 0;    /* mark candidate LTR run started */
             /* check if we had EN after R/AL */
             if (startL2EN >= 0)
                 addPoint(startL2EN);
@@ -638,10 +658,7 @@ class BidiOrder
                 break;
             }
             /* reset previous RTL cont to level for LTR text */
-            if (newIL == 1)             /* RTL table */
-                i = ((Float)myBdx.insertPoints.get(insertCnt)).intValue();
-            else  i =  lastStrongRTL + 1;
-            for ( ; i < ucb_ix; i++)
+            for (i =  lastStrongRTL + 1; i < ucb_ix; i++)
             {
                 myBdx.propertyMap[i] = newLevel;
                 /* disable possible symmetric swapping for character */
@@ -650,7 +667,6 @@ class BidiOrder
             /* mark insert points as confirmed */
             insertCnt = myBdx.insertPoints.size();
             lastStrongRTL = -1;
-            lastENinLTR = -1;
             break;
 
         case 4:                         /* R/AL after possible relevant EN/AN */
@@ -681,113 +697,49 @@ class BidiOrder
                 }
                 /* note AN */
                 addPoint(ucb_ix);
-                if (newIL != 1)         /* LTR table */
-                    break;
-                pos = ucb_ix + 1;
-                /* change run of AN/EN to L */
-                while ((pos < ics_size) &&
-                       ((typeArray[pos][FINAL] == UBAT_AN) ||
-                        (typeArray[pos][FINAL] == UBAT_EN)))
-                {
-                    typeArray[pos][FINAL] = UBAT_L;
-                    pos++;
-                }
-                /* insert LRM after run of AN/EN */
-                addPoint((float)(pos - 0.4));
                 break;
             }
             /* if first EN/AN after R/AL */
             if (startL2EN == -1)
                 startL2EN = ucb_ix;
-            if (newIL != 1)             /* LTR table */
-                break;
-            /* check if EN following by AN and maybe more EN/AN */
-            pos = afterEN(ucb_ix);
-            if ((pos < ics_size) && (typeArray[pos][FINAL] == UBAT_AN))
-            {
-                if (startL2EN >= 0)
-                {
-                    addPoint(startL2EN);
-                    startL2EN = -2;
-                }
-                addPoint(pos);
-                /* change run of AN/EN to L */
-                while ((pos < ics_size) &&
-                       ((typeArray[pos][FINAL] == UBAT_AN) ||
-                        (typeArray[pos][FINAL] == UBAT_EN)))
-                {
-                    typeArray[pos][FINAL] = UBAT_L;
-                    pos++;
-                }
-                /* insert LRM after run of AN/EN */
-                addPoint((float)(pos - 0.4));
-            }
             break;
 
         case 6:                         /* note location of latest R/AL */
             lastStrongRTL = ucb_ix;
             break;
 
-        case 7:                         /* ET ending RTL text before LTR text */
-            if (ucb_xType == UBAT_L)
-            {
-                if (ucb_ix > 0)
-                {
-                    pType = typeArray[ucb_ix-1][ORIG];
-                    if (pType == UBAT_ET)
-                        lastENinLTR = 0;    /* mark candidate LTR run started */
-                }
-                break;
-            }
-            if (ucb_xType == UBAT_EN)
-            {
-                if (lastENinLTR >= 0)
-                    lastENinLTR = ucb_ix;
-                break;
-            }
-            /* we must be at a definite B/S/R/AL/AN */
-            if (ucb_xType == UBAT_AN)
-            {
-                pType = typeArray[ucb_ix-1][FINAL];
-                pos = afterAN(ucb_ix);
-                if (pos < ics_size)
-                    nType = typeArray[pos][FINAL];
-                else  nType = UBAT_B;
-                /* check for AN adjacent to L or EN */
-                if ((pType == UBAT_L) || (pType == UBAT_EN) ||
-                    (nType == UBAT_L) || (nType == UBAT_EN))
-                {
-                    addPoint((float)ucb_ix);        /* add LRM before AN */
-                    addPoint((float)(pos - 0.4));   /* add LRM after AN */
-                    insertCnt = myBdx.insertPoints.size();
-                    /* reset previous cont run to L level */
-                    for (i = ucb_ix - 1; i >= 0; i--)
-                    {
-                        if (typeArray[i][FINAL] <= UBAT_AN)  break;
-                        myBdx.propertyMap[pos] = newLevel;
-                    }
-                    /* make current AN run to be L */
-                    for (i = ucb_ix; i < pos; i++)
-                        typeArray[i][FINAL] = UBAT_L;
-                    break;
-                }
-            }
-            if (lastENinLTR > 0)        /* do we have a candidate EN? */
-            {
-                pos = afterEN(lastENinLTR);
-                if ((pos == ucb_ix) || (pos == ucb_condPos))
-                {
-                    addPoint((float)(pos - 0.4));
-                    insertCnt = myBdx.insertPoints.size();
-                }
-            }
-            ucb_condPos = -1;           /* confirm possible cont run as RTL */
-            lastENinLTR = -1;           /* clean up */
-            lastStrongRTL = ucb_ix;
+        case 7:                         /* R followed by EN/AN followed by L */
+            i = beforeENAN(ucb_ix - 1);
+            addPoint((float)(ics_size - i - 0.7));        /* add RLM before */
+            insertCnt = myBdx.insertPoints.size();
             break;
 
+        case 8:                         /* L followed by N followed by AN */
+            pos = afterENAN(ucb_ix);
+            i = beforeENAN(ucb_ix);
+            if ( ((pos >= ics_size) || (typeArray[pos][FINAL] == UBAT_L) ||
+                                      (typeArray[pos][FINAL] == UBAT_R))
+                 &&
+                 ((i >= 0) && (typeArray[i][FINAL] == UBAT_L)) )
+                break;
+            addPoint((float)(pos - 0.4));                 /* add LRM after  */
+            addPoint((float)(i + 1));                     /* add LRM before */
+            break;
+
+        case 9:                         /* L followed by N followed by R */
+            if (myBdx.insertPoints != null)
+                myBdx.insertPoints.setSize(insertCnt);    /* infirm inserts */
+            ucb_condPos = -1;           /* confirm possible cont run as RTL */
+            break;
+
+        case 10:                        /* L followed by N followed by L */
+            if (myBdx.insertPoints != null)
+                insertCnt = myBdx.insertPoints.size();   /* confirm inserts */
+            break;
+
+
         default:
-            throw new IndexOutOfBoundsException( "invalid action number" );
+            throw new IndexOutOfBoundsException("invalid action number");
             /* break; */
 
         }
@@ -832,7 +784,7 @@ class BidiOrder
   {
     /* This routine gets the type of a certain character */
     if (wordBreak && (x == 0x0020))  return UBAT_S;
-    return getChType( x );
+    return getChType(x);
   }
 
 /*------------------------------------------------------------------------*/
@@ -1054,12 +1006,10 @@ class BidiOrder
         if (ucb_basLev == 1)
             impTab = impTab_RTL_m;
         else  impTab = impTab_LTR_m;
-        insertCnt = 0;                  /* number of confirmed inserts */
         startL2EN = -1;                 /* start of level 2 EN run     */
         lastStrongRTL = -1;             /* index of last found R or AL */
         if (myBdx.insertPoints != null)
             myBdx.insertPoints.setSize(0);
-        lastENinLTR = -1;
     }
     else
     {
@@ -1067,6 +1017,8 @@ class BidiOrder
             impTab = impTab_RTL;
         else  impTab = impTab_LTR;
     }
+    insertCnt = 0;                      /* number of confirmed inserts */
+    removeCnt = 0;                      /* number of LRM/RLMs to remove */
     ucb_impSta = 0;
     ucb_condPos = -1;
   }
@@ -1099,8 +1051,13 @@ class BidiOrder
     }
 
     if (reqImpToImp && (impToImpOrient == 0))  return;
-    if ((lowest_level % 2) == 0)  /* We must reverse until the lowest _odd_ level */
-        ++lowest_level;
+
+    if (ics_orient_out == BidiFlag.ORIENTATION_RTL)
+        /* if output orientation is RTL, invert until lowest even level */
+        lowest_level = (byte)((lowest_level + 1) & ~1);
+    else
+        /* if output orientation is LTR, invert until lowest odd level */
+        lowest_level |= 1;
 
     for (work_level = highest_level; work_level >= lowest_level; work_level--)
     {
@@ -1110,23 +1067,18 @@ class BidiOrder
             current_level = myBdx.propertyMap[i];
 
             if (current_level < work_level)
-                i++;
-            else
             {
-                flip_from = i;
-                while ((current_level = myBdx.propertyMap[i]) >= work_level)
-                {
-                    flip_to = i;
-                    i++;
-                    if (i >= ics_size)
-                        break;
-                }
-                invertMap( myBdx.dstToSrcMap, flip_from, flip_to );
+                i++;
+                continue;
             }
+            flip_from = i;
+            for (i = flip_from+1;
+                 (i < ics_size) && (myBdx.propertyMap[i] >= work_level);
+                 i++);
+            flip_to = i - 1;
+            invertMap(myBdx.dstToSrcMap, flip_from, flip_to);
         }
     }
-    if (ics_orient_out == BidiFlag.ORIENTATION_RTL)
-        invertMap( myBdx.dstToSrcMap, 0, ics_size - 1 );
   }
 
 /*------------------------------------------------------------------------*/
@@ -1136,10 +1088,11 @@ class BidiOrder
     int logPos;
     byte xtype;
     char xchar;
+    int i;
 
-    for (ucb_ix = 0; ucb_ix < ics_size; ucb_ix++)
+    for (i = 0; i < ics_size; i++)
     {
-        logPos = myBdx.dstToSrcMap[ucb_ix];
+        logPos = myBdx.dstToSrcMap[i];
         xchar = ics_buffer_in[logPos];
         xtype = typeArray[logPos][ORIG];
         if (xtype == UBAT_EN)
@@ -1156,7 +1109,7 @@ class BidiOrder
         }
         else if (xtype == UBAT_N_SWAP)
             xchar = UCQSYMM(xchar);
-        ics_buffer_out[ucb_ix] = xchar;
+        ics_buffer_out[i] = xchar;
     }
   }
 
@@ -1171,12 +1124,16 @@ class BidiOrder
   synchronized void order(BidiText src, BidiText dst, BidiTransform bdx)
   {
     BidiFlag orient_save;
-    int  i=0, j=0, x=0, RC=0;
+    int  i=0, j=0;
     int pos, ipos;
+    boolean dstToSrcMapRequired;
+
     if (src.count < 1)
     {
         if (dst.data == null)
             dst.data = new char[0];
+        bdx.inpCount = 0;
+        bdx.outCount = 0;
         return;
     }
 
@@ -1275,12 +1232,17 @@ class BidiOrder
         (ics_orient_in != ics_orient_out) &&
         !insertMarkers)
     {
+        invertInput = true;
         int ofs = src.offset + src.count - 1;
         for (int k = 0; k < src.count; k++)
             ics_buffer_in[k] = src.data[ofs - k];
         ics_orient_in = ics_orient_out;
     }
-    else  System.arraycopy(src.data, src.offset, ics_buffer_in, 0, src.count);
+    else
+    {
+        invertInput = false;
+        System.arraycopy(src.data, src.offset, ics_buffer_in, 0, src.count);
+    }
 
     ics_size = src.count;
     ics_num_flag = dst.flags.getNumerals();
@@ -1297,8 +1259,6 @@ class BidiOrder
     if ((myBdx.dstToSrcMap == null) || (myBdx.dstToSrcMap.length < src.count))
         myBdx.dstToSrcMap = new int[src.count];
 
-    ucb_ix=0;
-
     /*----------------------------------------*/
     /* Determination of the base level basLev */
     /*----------------------------------------*/
@@ -1311,16 +1271,15 @@ class BidiOrder
         ics_symmetric = (src.flags.getSwap() == BidiFlag.SWAP_YES);
         BaseLvl();
         fillTypeArray();
-        for (pos = 0; pos < ics_size; pos++)
+        for (ucb_ix = 0; ucb_ix < ics_size; ucb_ix++)
         {
-            ucb_xType = typeArray[pos][FINAL];
-            ucb_ix = pos;
+            ucb_xType = typeArray[ucb_ix][FINAL];
             implicitProcessing();
-            myBdx.propertyMap[pos] = ucb_wTarget;
-            if ( (typeArray[pos][ORIG] == UBAT_N) &&
+            myBdx.propertyMap[ucb_ix] = ucb_wTarget;
+            if ( (typeArray[ucb_ix][ORIG] == UBAT_N) &&
                  ics_symmetric &&
                  odd(ucb_wTarget) )
-                typeArray[pos][ORIG] = UBAT_N_SWAP;
+                typeArray[ucb_ix][ORIG] = UBAT_N_SWAP;
         }
         /* do Implicit process for UBAT_B to resolve possible conditional string */
         ucb_ix = ics_size;
@@ -1337,19 +1296,18 @@ class BidiOrder
         if (impToImpOrient == IMP_LTR)
         {
             ics_orient_in = BidiFlag.ORIENTATION_RTL;
-            invertMap( myBdx.dstToSrcMap, 0, ics_size - 1);
+            invertMap(myBdx.dstToSrcMap, 0, ics_size - 1);
         }
         else  ics_orient_in = BidiFlag.ORIENTATION_LTR;
         ics_symmetric = (dst.flags.getSwap() == BidiFlag.SWAP_YES);
         BaseLvl();
         fillTypeArray2();
-        for (pos = 0; pos < ics_size; pos++)
+        for (ucb_ix = 0; ucb_ix < ics_size; ucb_ix++)
         {
-            ipos = myBdx.dstToSrcMap[pos];
+            ipos = myBdx.dstToSrcMap[ucb_ix];
             ucb_xType = typeArray[ipos][FINAL];
-            ucb_ix = pos;
             implicitProcessing();
-            myBdx.propertyMap[pos] = ucb_wTarget;
+            myBdx.propertyMap[ucb_ix] = ucb_wTarget;
             if ( (Math.abs(typeArray[ipos][ORIG]) == UBAT_N) &&
                  ics_symmetric &&
                  odd(ucb_wTarget) )
@@ -1368,16 +1326,15 @@ class BidiOrder
     {
         BaseLvl();
         fillTypeArray();
-        for (pos = 0; pos < ics_size; pos++)
+        for (ucb_ix = 0; ucb_ix < ics_size; ucb_ix++)
         {
-            ucb_xType = typeArray[pos][FINAL];
-            ucb_ix = pos;
+            ucb_xType = typeArray[ucb_ix][FINAL];
             implicitProcessing();
-            myBdx.propertyMap[pos] = ucb_wTarget;
-            if ( (typeArray[pos][ORIG] == UBAT_N) &&
+            myBdx.propertyMap[ucb_ix] = ucb_wTarget;
+            if ( (typeArray[ucb_ix][ORIG] == UBAT_N) &&
                  ics_symmetric &&
                  odd(ucb_wTarget) )
-                typeArray[pos][ORIG] = UBAT_N_SWAP;
+                typeArray[ucb_ix][ORIG] = UBAT_N_SWAP;
         }
         /* do Implicit process for UBAT_B to resolve possible conditional string */
         ucb_ix = ics_size;
@@ -1394,47 +1351,38 @@ class BidiOrder
                replaced by the corresponding nominal letters; symbols which
                need swapping are replaced by their symmetric symbol.  */
     pass3();
-
-    if (myBdx.srcToDstMapRequired)
+    dstToSrcMapRequired = myBdx.dstToSrcMapRequired || myBdx.srcToDstMapRequired;
+    if (dstToSrcMapRequired)
     {
-        if ((myBdx.srcToDstMap == null) || (myBdx.srcToDstMap.length < src.count))
-            myBdx.srcToDstMap = new int[src.count];
-        for (i = 0; i< ics_size; i++)
-            myBdx.srcToDstMap[myBdx.dstToSrcMap[i]] = i;
-    }
-    if (myBdx.propertyMapRequired)
-    {
-        for (i = 0; i < src.count; i++)
-            if (typeArray[i][ORIG] != UBAT_NSM)
-                bdx.propertyMap[i] |= 0x80;
+        if (invertInput)
+            for (i = 0; i < src.count; i++)
+                myBdx.dstToSrcMap[i] = src.count - myBdx.dstToSrcMap[i] - 1;
     }
 
     if (myBdx.removeMarkers)
     {
         char c;
 
-        ipos = 0;
         for (pos = 0; pos < src.count; pos++)
         {
             c = ics_buffer_out[pos];
             if ((c == LRM) || (c == RLM))
             {
-                ipos++;
+                removeCnt++;
                 continue;
             }
-            if (ipos > 0)  ics_buffer_out[pos-ipos] = ics_buffer_out[pos];
+            if (removeCnt > 0)
+            {
+                ics_buffer_out[pos-removeCnt] = ics_buffer_out[pos];
+                myBdx.dstToSrcMap[pos-removeCnt] = myBdx.dstToSrcMap[pos];
+            }
         }
     }
-    else  ipos = 0;
 
-    if (insertMarkers && (myBdx.insertPoints != null))
-        j = myBdx.insertPoints.size();
-    else  j = 0;
-
-    dst.count = src.count - ipos + j;
+    dst.count = src.count - removeCnt + insertCnt;
     if (dst.data == null)
     {
-        if ((dst.offset == 0) && (j == 0))
+        if ((dst.offset == 0) && (insertCnt == 0))
             dst.data = ics_buffer_out;
         else  dst.data = new char[dst.offset + dst.count];
     }
@@ -1447,34 +1395,47 @@ class BidiOrder
         temp = null;
     }
 
-    if (j > 0)                          /* some LRMs to insert */
+    if (insertCnt > 0)                  /* some LRMs to insert */
     {
+        /* n + 0.0: add LRM before char n
+         * n + 0.3: add RLM before char n
+         * n + 0.6: add LRM after  char n
+         * n + 0.8: add RLM after  char n
+         */
         float f, g;
         char insert;
-        if (ucb_basLev == 1)            /* RTL table */
+        int[] tempMap = null;
+        for (i = 0; i < insertCnt; i++)
         {
-            for (i = 0; i < j; i++)
+            f = ((Float)myBdx.insertPoints.get(i)).floatValue();
+            ipos = (int)f;
+            g = f - ipos;
+            if ((g > 0.7) || ((g < 0.5) && (g > 0.2)))
+                insert = RLM;
+            else  insert = LRM;
+            if ( ((ucb_basLev == 1) && (insert == LRM))
+                 ||
+                 ((ucb_basLev != 1) && (insert == RLM)) )
             {
-                f = ((Float)myBdx.insertPoints.get(i)).floatValue();
-                ipos = (int)f;
-                g = f - ipos;
-                if (myBdx.srcToDstMapRequired)
-                    ipos = myBdx.srcToDstMap[ipos];
-                else
-                {
-                    for (pos = 0; pos < ics_size; pos++)
-                        if (ipos == myBdx.dstToSrcMap[pos])
-                        {
-                            ipos = pos;
-                            break;
-                        }
-                }
+                for (pos = 0; pos < src.count; pos++)
+                    if (ipos == myBdx.dstToSrcMap[pos])
+                    {
+                        ipos = pos;
+                        break;
+                    }
                 myBdx.insertPoints.setElementAt(new Float(ipos + g), i);
             }
-            java.util.Collections.sort(myBdx.insertPoints);
         }
+        /*  sorting is needed if the insert points are not in ascending order;
+            this happens for RTL destination and would happen for RLM in LTR
+            destination but there is no such use                            */
+        if (ucb_basLev == 1)
+            java.util.Collections.sort(myBdx.insertPoints);
+        if (dstToSrcMapRequired)
+            tempMap = new int[dst.count];
+
         pos = 0;
-        for (i = 0; i < j; i++)
+        for (i = 0; i < insertCnt; i++)
         {
             f = ((Float)myBdx.insertPoints.get(i)).floatValue();
             ipos = (int)f;
@@ -1489,17 +1450,54 @@ class BidiOrder
             else  insert = LRM;
             System.arraycopy(ics_buffer_out, pos, dst.data, dst.offset+pos+i,
                              ipos - pos);
-            dst.data[dst.offset+i+ipos] = insert;
+            dst.data[dst.offset+ipos+i] = insert;
+            if (dstToSrcMapRequired)
+            {
+                System.arraycopy(myBdx.dstToSrcMap, pos, tempMap, pos+i,
+                                 ipos - pos);
+                tempMap[ipos+i] = -1;
+            }
             pos = ipos;
         }
-        System.arraycopy(ics_buffer_out, pos, dst.data, dst.offset+pos+j,
-                         dst.count - pos - j);
+        System.arraycopy(ics_buffer_out, pos, dst.data, dst.offset+pos+insertCnt,
+                         dst.count - pos - insertCnt);
+        if (dstToSrcMapRequired)
+        {
+            System.arraycopy(myBdx.dstToSrcMap, pos, tempMap, pos+insertCnt,
+                             dst.count - pos - insertCnt);
+            myBdx.dstToSrcMap = tempMap;
+        }
     }
     else
     {
         if  (dst.data != ics_buffer_out)
             System.arraycopy(ics_buffer_out, 0, dst.data, dst.offset, dst.count);
     }
+
+    if (myBdx.srcToDstMapRequired)
+    {
+        if ((myBdx.srcToDstMap == null) || (myBdx.srcToDstMap.length < src.count))
+            myBdx.srcToDstMap = new int[src.count];
+        if (removeCnt > 0)
+            java.util.Arrays.fill(myBdx.srcToDstMap, 0, src.count, -1);
+        for (i = 0; i < dst.count; i++)
+        {
+            pos = myBdx.dstToSrcMap[i];
+            if (pos >= 0)
+                myBdx.srcToDstMap[pos] = i;
+        }
+    }
+    if (myBdx.propertyMapRequired)
+    {
+        for (i = 0; i < src.count; i++)
+            if (typeArray[i][ORIG] != UBAT_NSM)
+                bdx.propertyMap[i] |= 0x80;
+        if (invertInput)
+            invertMap(myBdx.propertyMap, 0, src.count - 1);
+
+    }
+    myBdx.inpCount = src.count;
+    myBdx.outCount = dst.count;
 
   }
 
