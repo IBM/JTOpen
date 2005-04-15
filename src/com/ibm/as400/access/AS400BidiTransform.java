@@ -351,7 +351,7 @@ public class AS400BidiTransform
      **/
     public String toJavaLayout(String as400Text)
     {
-        lastTransform_ = bdxJ2A_;
+        lastTransform_ = bdxA2J_;
         BidiText src = new BidiText(bdxJ2A_.flags, as400Text);
         return src.transform(bdxA2J_).toString();
     }
@@ -363,7 +363,7 @@ public class AS400BidiTransform
      **/
     public String toAS400Layout(String javaText)
     {
-        lastTransform_ = bdxA2J_;
+        lastTransform_ = bdxJ2A_;
         BidiText src = new BidiText(bdxA2J_.flags, javaText);
         return src.transform(bdxJ2A_).toString();
     }
