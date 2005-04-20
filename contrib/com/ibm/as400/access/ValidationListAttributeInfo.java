@@ -23,7 +23,7 @@ public ValidationListAttributeInfo() {
  * Constructs a ValidationListAttributeInfo with the given <i>attributes</i>.
  *
  * @param attributes
- *		com.kingland.as400.access.ValidationListAttribute[]
+ *		ValidationListAttribute[]
  */
 public ValidationListAttributeInfo(ValidationListAttribute[] attributes) {
 	super();
@@ -32,7 +32,7 @@ public ValidationListAttributeInfo(ValidationListAttribute[] attributes) {
 /**
  * Returns the attributes assigned to the receiver.
  *
- * @return com.kingland.as400.access.ValidationListAttribute[]
+ * @return ValidationListAttribute[]
  */
 public ValidationListAttribute[] getAttributes() {
 	if (attributes_ == null)
@@ -68,7 +68,7 @@ public int getByteLengthForNativeCall() {
  * Sets the attributes assigned to the receiver.
  *
  * @param attributes
- *		com.kingland.as400.access.ValidationListAttribute[]
+ *		ValidationListAttribute[]
  */
 public void setAttributes(ValidationListAttribute[] attributes) {
 	attributes_ = attributes;

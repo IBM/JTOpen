@@ -107,7 +107,7 @@ public int getByteLength() {
  * an existing entry. It should not be set when the attribute is used to identify
  * values to retrieve (eg. when finding an entry).
  *
- * @return com.kingland.as400.access.ValidationListAttributeData
+ * @return ValidationListAttributeData
  */
 public ValidationListAttributeData getData() {
 	return data_;
@@ -188,7 +188,7 @@ public void setAS400(AS400 as400) {
  * values to retrieve (eg. when finding an entry).
  *
  * @param data
- *		com.kingland.as400.access.ValidationListAttributeData
+ *		ValidationListAttributeData
  */
 public void setData(ValidationListAttributeData data) {
 	data_ = data;

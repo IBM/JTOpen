@@ -42,7 +42,7 @@ public ValidationListEntry(byte[] buffer, int offset) {
  * are set by the application prior to the find. The corresponding attribute values
  * are filled in as a result of the find operation.
  *
- * @return com.kingland.as400.access.ValidationListAttributeInfo
+ * @return ValidationListAttributeInfo
  */
 public ValidationListAttributeInfo getAttributeInfo() {
 	if (attrInfo_ == null)
@@ -78,7 +78,7 @@ public int getByteLength() {
  * then the data to be encrypted will be stored (in encrypted form) with the entry
  * and can be retrieved. 
  *
- * @return com.kingland.as400.access.ValidationListDataToEncrypt
+ * @return ValidationListDataToEncrypt
  */
 public ValidationListDataToEncrypt getDataToEncrypt() {
 	if (dataToEncrypt_ == null)
@@ -91,7 +91,7 @@ public ValidationListDataToEncrypt getDataToEncrypt() {
  * Note: The encrypted data may or may not be retrievable based on the value set
  * for the <i>QsyEncryptData</i> attribute when the entry was inserted.
  *
- * @return com.kingland.as400.access.ValidationListTranslatedData
+ * @return ValidationListTranslatedData
  * @see #getDataToEncrypt
  */
 public ValidationListTranslatedData getEncryptedData() {
@@ -102,7 +102,7 @@ public ValidationListTranslatedData getEncryptedData() {
 /**
  * Returns the translated data containing the entry identifier.
  *
- * @return com.kingland.as400.access.ValidationListTranslatedData
+ * @return ValidationListTranslatedData
  */
 public ValidationListTranslatedData getEntryID() {
 	if (entryID_ == null)
@@ -112,7 +112,7 @@ public ValidationListTranslatedData getEntryID() {
 /**
  * Returns the unencrypted data for the entry.
  *
- * @return com.kingland.as400.access.ValidationListTranslatedData
+ * @return ValidationListTranslatedData
  */
 public ValidationListTranslatedData getUnencryptedData() {
 	if (unencryptedData_ == null)
@@ -149,7 +149,7 @@ public void init(byte[] buffer, int offset) {
  * are filled in as a result of the find operation.
  *
  * @param info
- *		com.kingland.as400.access.ValidationListAttributeInfo
+ *		ValidationListAttributeInfo
  */
 public void setAttributeInfo(ValidationListAttributeInfo info) {
 	attrInfo_ = info;
@@ -173,7 +173,7 @@ public void setAttributeInfo(ValidationListAttributeInfo info) {
  * and can be retrieved. 
  *
  * @param dataToEncrypt
- *		com.kingland.as400.access.ValidationListDataToEncrypt
+ *		ValidationListDataToEncrypt
  */
 public void setDataToEncrypt(ValidationListDataToEncrypt dataToEncrypt) {
 	dataToEncrypt_ = dataToEncrypt;
@@ -185,7 +185,7 @@ public void setDataToEncrypt(ValidationListDataToEncrypt dataToEncrypt) {
  * for the <i>QsyEncryptData</i> attribute when the entry was inserted.
  *
  * @param encryptedData
- *		com.kingland.as400.access.ValidationListTranslatedData
+ *		ValidationListTranslatedData
  */
 public void setEncryptedData(ValidationListTranslatedData encryptedData) {
 	encryptedData_ = encryptedData;
@@ -194,7 +194,7 @@ public void setEncryptedData(ValidationListTranslatedData encryptedData) {
  * Sets the translated data containing the entry identifier.
  *
  * @param entryID
- *		com.kingland.as400.access.ValidationListTranslatedData
+ *		ValidationListTranslatedData
  */
 public void setEntryID(ValidationListTranslatedData entryID) {
 	entryID_ = entryID;
@@ -203,7 +203,7 @@ public void setEntryID(ValidationListTranslatedData entryID) {
  * Sets the unencrypted data for the entry.
  *
  * @param data
- *		com.kingland.as400.access.ValidationListTranslatedData
+ *		ValidationListTranslatedData
  */
 public void setUnencryptedData(ValidationListTranslatedData data) {
 	unencryptedData_ = data;

@@ -81,7 +81,7 @@ public ValidationList(AS400 as400, String obj, String lib) {
  * Adds the entry to the validation list.
  *
  * @param entry
- *		com.kingland.as400.access.ValidationListEntry
+ *		ValidationListEntry
  * @exception PersistenceException
  *		If an error occurs while calling the AS/400 APIs.
  */
@@ -106,7 +106,7 @@ public void addEntry(ValidationListEntry entry) throws PersistenceException {
  * Alters the entry in the validation list.
  *
  * @param entry
- *		com.kingland.as400.access.ValidationListEntry
+ *		ValidationListEntry
  * @exception PersistenceException
  *		If an error occurs while calling the AS/400 APIs.
  */
@@ -210,7 +210,7 @@ private void fillStringBuffer(StringBuffer buffer, int offset, String s) {
  * @param ccsid
  *		int
  * @return
- *		com.kingland.as400.access.ValidationListEntry
+ *		ValidationListEntry
  * @exception PersistenceException
  *		If an error occurs while calling the AS/400 APIs.
  */
@@ -232,9 +232,9 @@ public ValidationListEntry findEntry(String identifier, int ccsid) throws Persis
  * @param ccsid
  *		int
  * @param attributes
- *		com.kingland.as400.access.ValidationListAttribute[]
+ *		ValidationListAttribute[]
  * @return
- *		com.kingland.as400.access.ValidationListEntry
+ *		ValidationListEntry
  * @exception PersistenceException
  *		If an error occurs while calling the AS/400 APIs.
  */
@@ -394,7 +394,7 @@ private AS400Structure getListInfoStruct() {
  * @param listPosition
  *		int
  * @param list
- *		com.kingland.as400.access.ValidationListEntry[]
+ *		ValidationListEntry[]
  * @return
  *		The number of entries retrieved.
  * @exception PersistenceException
@@ -522,7 +522,7 @@ private AS400Structure getVlde0100Struct() {
  * Handles an unexpected exception that was caught as the result of invoking an AS/400
  * API or command. The exception is wrapped and surfaced as a PersistenceException.
  *
- * @exception com.kingland.base.PersistenceException
+ * @exception PersistenceException
  */
 private void handleUnexpectedAS400Exception(Throwable e) throws PersistenceException {
 	throw new PersistenceException(e);
@@ -531,7 +531,7 @@ private void handleUnexpectedAS400Exception(Throwable e) throws PersistenceExcep
  * Handles unexpected messages that was received as the result of invoking an AS/400
  * API or command. The messages are wrapped and surfaced as a PersistenceException.
  *
- * @exception com.kingland.base.PersistenceException
+ * @exception PersistenceException
  */
 private void handleUnexpectedAS400Messages(AS400Message[] messages) throws PersistenceException {
 	throw new PersistenceException(messages);
@@ -545,7 +545,7 @@ private void handleUnexpectedAS400Messages(AS400Message[] messages) throws Persi
  * to contain <i>numberInBuffer</i> entries.
  *
  * @param list
- *		com.kingland.as400.access.ValidationListEntry[]
+ *		ValidationListEntry[]
  * @param start
  *		int
  * @param buffer
@@ -610,7 +610,7 @@ private byte[] parseEntryData(byte[] buffer, int start, int length) {
  * this method.
  *
  * @param entry
- *		com.kingland.as400.access.ValidationListEntry
+ *		ValidationListEntry
  * @exception PersistenceException
  *		If an error occurs while calling the AS/400 validation list APIs.
  */
@@ -763,7 +763,7 @@ public void setPath(QSYSObjectPathName path) {
  * encrypted for the entry at that ID on the AS/400; otherwise returns false.
  *
  * @param entry
- *		com.kingland.as400.access.ValidationListEntry
+ *		ValidationListEntry
  * @return boolean
  * @exception PersistenceException
  *		If an error occurs while calling the AS/400 APIs.
