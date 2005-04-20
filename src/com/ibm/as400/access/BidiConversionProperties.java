@@ -357,9 +357,10 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Output value: source-to-destination map from the last transform with srcToDstMapRequired specified; may be null if no such request.
+     Output value: source-to-destination map from the last transform with srcToDstMapRequired specified; if this option was not specified, the content of srcToDstMap should be ignored.
      <p>If when starting a transformation this field refers to a large enough array of integers, this array will be re-used to put the new map.  Otherwise a new array will be created.
-     <p>This map has a number for each character in the "interesting" data of the source BidiText.  This number is the index of where this character is moved in the character array of the destination BidiText.
+     <p>This map has a number for each character processed in the source data by the last transform.  This number is the index of where this character is moved in the character array of the destination BidiText.  If the removeMarkers option was specified and LRM or RLM markers have been removed from the destination text, the corresponding elements of srcToDstMap will contain -1.
+     <p>Note that the allocated array may have more elements than the number of characters processed in the source BidiText.  In that case, the extra elements should be ignored.  The number of relevant elements can be found from getInputCount()..
      **/
     public int[] getSourceToDestinationMap()
     {
@@ -367,9 +368,10 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Output value: destination-to-source map from the last transform with dstToSrcMapRequired specified; may be null if no such request.
+     Output value: destination-to-source map from the last transform with dstToSrcMapRequired specified; if this option was not specified, the content of dstToSrcMap should be ignored.
      <p>If when starting a transformation this field refers to a large enough array of integers, this array will be re-used to put the new map.  Otherwise a new array will be created.
-     <p>This map has a number for each character in the "interesting" data of the destination BidiText.  This number is the index of the source character from which the destination character originates.  This index is relative to the beginning of the "interesting" data.  If the offset of the source BidiText is not zero, index 0 does not indicate the first character of the data array, but the character at position "offset".
+     <p>This map has a number for each character in the "interesting" data of the destination BidiText.  This number is the index of the source character from which the destination character originates.  This index is relative to the beginning of the "interesting" data.  If the offset of the source BidiText is not zero, index 0 does not indicate the first character of the data array, but the character at position "offset".  If the insertMarkers option was specified and LRM or RLM markers have been added, the corresponding elements of dstToSrcMap will contain -1.
+     <p>Note that the allocated array may have more elements than the number of characters in the "interesting" part of the destination BidiText.  In that case, the extra elements should be ignored.  The number of relevant elements can be found from getOutputCount().
      **/
     public int[] getDestinationToSourceMap()
     {
@@ -377,9 +379,11 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Output value: property map from the last transform with propertyMapRequired specified; may be null if no such request.
+     Output value: property map from the last transform with propertyMapRequired specified; if this option was not specified, the content of propertyMap should be ignored.
      <p>If when starting a transformation this field refers to a large enough array of bytes, this array will be re-used to put the new map.  Otherwise a new array will be created.
-     <p>This map has a byte for each character in the "interesting" data of the source BidiText.  The 6 lower bits of each property element is the Bidi level of the corresponding input character.  The highest bit is a new-cell indicator for composed character environments: a value of 0 indicates a zero-length composing character element, and a value of 1 indicates an element that begins a new cell.
+     <p>This map has a byte for each character processed in the source data by the last transform.  The 6 lower bits of each property element is the Bidi level of the corresponding input character.  The highest bit is a new-cell indicator for composed character environments: a value of 0 indicates a zero-length composing character element, and a value of 1 indicates an element that begins a new cell.
+     <p>Note: the content of this map has no simple interpretation if the bidi implicit reordering property is true.
+     <p>Note also that the allocated array may have more elements than the number of characters processed in the source BidiText.  In that case, the extra elements should be ignored.  The number of relevant elements can be found from getInputCount().
      **/
     public byte[] getPropertyMap()
     {

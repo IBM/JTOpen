@@ -57,6 +57,8 @@ class BidiOrder
   private static final byte FINAL = 1;
   private static final char LRM = 0x200E;
   private static final char RLM = 0x200F;
+  private static final int  BEFORE = 0;
+  private static final int  AFTER  = 1<<16;
 /*****************************************************************************/
 /* Not Spacing characters*/
 /*-----------------------*/
@@ -573,11 +575,15 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  private  void addPoint(float newPoint)
+  private  void addPoint(int pos, int after, char insert)
+  /* param pos:     position where to insert
+     param after:   must be BEFORE or AFTER
+     param insert:  char to insert (should be LRM or RLM, but can be any char)
+  */
   {
     if (myBdx.insertPoints == null)
         myBdx.insertPoints = new Vector(10, 50);
-    myBdx.insertPoints.addElement(new Float(newPoint));
+    myBdx.insertPoints.addElement(new Long((pos<<17) + after + insert));
   }
 
 /*------------------------------------------------------------------------*/
@@ -591,7 +597,7 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  private  int afterENAN(int i)      /////////////// check if needed //////////////////////
+  private  int afterENAN(int i)
   {
     while ((i < ics_size) && ((typeArray[i][FINAL] == UBAT_EN) ||
                               (typeArray[i][FINAL] == UBAT_AN)))
@@ -601,7 +607,7 @@ class BidiOrder
 
 /*------------------------------------------------------------------------*/
 
-  private  int beforeENAN(int i)     /////////////// check if needed //////////////////////
+  private  int beforeENAN(int i)
   {
     while ((i >= 0) && ((typeArray[i][FINAL] == UBAT_EN) ||
                         (typeArray[i][FINAL] == UBAT_AN)))
@@ -647,7 +653,7 @@ class BidiOrder
         case 3:                         /* L after R/AL + possible EN/AN */
             /* check if we had EN after R/AL */
             if (startL2EN >= 0)
-                addPoint(startL2EN);
+                addPoint(startL2EN, BEFORE, LRM);
             startL2EN = -1;     /* not within previous if since could also be -2 */
             /* check if we had any relevant EN/AN after R/AL */
             if ((myBdx.insertPoints == null) ||
@@ -687,16 +693,17 @@ class BidiOrder
                 /* real AN */
                 if (startL2EN == -1)    /* if no relevant EN already found */
                 {
+                    /* just note the righmost digit as a strong RTL */
                     lastStrongRTL = afterAN(ucb_ix) - 1;
                     break;
                 }
                 if (startL2EN >= 0)     /* after EN, no AN */
                 {
-                    addPoint(startL2EN);
+                    addPoint(startL2EN, BEFORE, LRM);
                     startL2EN = -2;
                 }
                 /* note AN */
-                addPoint(ucb_ix);
+                addPoint(ucb_ix, BEFORE, LRM);
                 break;
             }
             /* if first EN/AN after R/AL */
@@ -709,34 +716,42 @@ class BidiOrder
             break;
 
         case 7:                         /* R followed by EN/AN followed by L */
+            /* include possible adjacent number on the left */
             i = beforeENAN(ucb_ix - 1);
-            addPoint((float)(ics_size - i - 0.7));        /* add RLM before */
+            /* compute symmetric position in string due to RTL orientation */
+            addPoint(ics_size - i - 1, BEFORE, RLM);       /* add RLM before */
             insertCnt = myBdx.insertPoints.size();
             break;
 
-        case 8:                         /* L followed by N followed by AN */
+        case 8:                         /* L possibly followed by N then by AN */
+            /* AN numbers between L text on both sides may be trouble. */
+            /* First, extend the AN number with possible EN on both sides */
             pos = afterENAN(ucb_ix);
             i = beforeENAN(ucb_ix);
+            /* if immediately followed by a strong char or end-of-string */
             if ( ((pos >= ics_size) || (typeArray[pos][FINAL] == UBAT_L) ||
                                       (typeArray[pos][FINAL] == UBAT_R))
                  &&
+                 /* and immediately preceded by L */
                  ((i >= 0) && (typeArray[i][FINAL] == UBAT_L)) )
+                /* nothing bad can happen, leave it alone */
                 break;
-            addPoint((float)(pos - 0.4));                 /* add LRM after  */
-            addPoint((float)(i + 1));                     /* add LRM before */
+            /* tentatively bracket with LRMs; will be confirmed if followed by L */
+            addPoint(pos - 1, AFTER, LRM);                /* add LRM after  */
+            addPoint(i + 1, BEFORE, LRM);                 /* add LRM before */
             break;
 
         case 9:                         /* L followed by N followed by R */
+            /* false alert, infirm LRMs around previous AN */
             if (myBdx.insertPoints != null)
                 myBdx.insertPoints.setSize(insertCnt);    /* infirm inserts */
             ucb_condPos = -1;           /* confirm possible cont run as RTL */
             break;
 
-        case 10:                        /* L followed by N followed by L */
+        case 10:                        /* L followed by AN followed by L */
             if (myBdx.insertPoints != null)
                 insertCnt = myBdx.insertPoints.size();   /* confirm inserts */
             break;
-
 
         default:
             throw new IndexOutOfBoundsException("invalid action number");
@@ -1397,33 +1412,29 @@ class BidiOrder
 
     if (insertCnt > 0)                  /* some LRMs to insert */
     {
-        /* n + 0.0: add LRM before char n
-         * n + 0.3: add RLM before char n
-         * n + 0.6: add LRM after  char n
-         * n + 0.8: add RLM after  char n
-         */
-        float f, g;
+        /* insertPoint value = (position<<17) + (BEFORE or AFTER) + insert */
+        long iPoint;
         char insert;
+        int after;
         int[] tempMap = null;
         for (i = 0; i < insertCnt; i++)
         {
-            f = ((Float)myBdx.insertPoints.get(i)).floatValue();
-            ipos = (int)f;
-            g = f - ipos;
-            if ((g > 0.7) || ((g < 0.5) && (g > 0.2)))
-                insert = RLM;
-            else  insert = LRM;
+            iPoint = ((Long)myBdx.insertPoints.get(i)).longValue();
+            ipos = (int)(iPoint>>17);
+            after = (int)(iPoint & 0x0000000000010000);
+            insert = (char)iPoint;
             if ( ((ucb_basLev == 1) && (insert == LRM))
                  ||
                  ((ucb_basLev != 1) && (insert == RLM)) )
             {
+                /* look for dst position corresponding to ipos in src */
                 for (pos = 0; pos < src.count; pos++)
                     if (ipos == myBdx.dstToSrcMap[pos])
                     {
                         ipos = pos;
                         break;
                     }
-                myBdx.insertPoints.setElementAt(new Float(ipos + g), i);
+                myBdx.insertPoints.setElementAt(new Long((ipos<<17)+after+insert), i);
             }
         }
         /*  sorting is needed if the insert points are not in ascending order;
@@ -1437,17 +1448,11 @@ class BidiOrder
         pos = 0;
         for (i = 0; i < insertCnt; i++)
         {
-            f = ((Float)myBdx.insertPoints.get(i)).floatValue();
-            ipos = (int)f;
-            g = f - ipos;
-            if (g > 0.5)
-            {
-                ipos++;
-                g -= 0.5;
-            }
-            if (g > 0.2)
-                insert = RLM;
-            else  insert = LRM;
+            iPoint = ((Long)myBdx.insertPoints.get(i)).longValue();
+            ipos = (int)(iPoint>>17);
+            after = (int)(iPoint & 0x0000000000010000);
+            insert = (char)iPoint;
+            ipos += after>>16;          /* add 1 for after */
             System.arraycopy(ics_buffer_out, pos, dst.data, dst.offset+pos+i,
                              ipos - pos);
             dst.data[dst.offset+ipos+i] = insert;
