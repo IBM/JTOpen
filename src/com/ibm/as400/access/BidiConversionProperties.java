@@ -271,8 +271,8 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Indicates the value of the bidi consider white space to always follow base orientation property.
-     @return  true if the bidi consider white space to always follow base orientation property is enabled; false otherwise.
+     Indicates the value of the bidi destination required property.
+     @return  true if the bidi destination required property is enabled; false otherwise.
      **/
     public boolean isBidiDestinationRequired()
     {

@@ -238,6 +238,18 @@ public class AS400BidiTransform
     }
 
     /**
+     Indicates if a given CCSID has a visual string type.
+     @param  ccsid  The CCSID to check.
+     @return  true if the given CCSID has a visual string type, false otherwse.
+     **/
+    public static boolean isVisual(int ccsid)
+    {
+        int st = getStringType(ccsid);
+        if (st == ST4 || st == ST7 || st == ST8 || st == ST9) return true;
+        return false;
+    }
+
+    /**
      Sets the CCSID.
      <p>The given CCSID has a default string type which defines a set of Bidi flags.  The orientation implied by this string type is applied to both the server data layout and the Java data layout.
      @param  as400Ccsid  The CCSID of the server data.
