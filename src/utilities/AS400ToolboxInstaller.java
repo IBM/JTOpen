@@ -158,6 +158,7 @@ import java.net.MalformedURLException;
  * java AS400ToolboxInstaller -h
  * </UL>
  *
+ * @deprecated This class is no longer being enhanced, since it has no known users.
 **/
 public class AS400ToolboxInstaller {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
