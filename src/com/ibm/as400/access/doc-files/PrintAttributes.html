@@ -202,6 +202,7 @@
 <LI><a HREF="#HDRKEY96"     NAME="ToC_101">Printer Queue</A></LI>
 <LI><a HREF="#HDRKEY0x010F" NAME="ToC_0x010F">Program That Opened File Library Name</A></LI>
 <LI><a HREF="#HDRKEY0x0110" NAME="ToC_0x0110">Program That Opened File Name</A></LI>
+<LI><A HREF="#HDRKEY0x014F" NAME="ToC_0x014F">Published Printer</A></LI>
 <LI><A HREF="#HDRKEY96a"    NAME="ToC_101.1a">Publishing Info Color Supported</A></LI>
 <LI><A HREF="#HDRKEY96b"    NAME="ToC_101.1b">Publishing Info Pages per Minute (Color)</A></LI>
 <LI><A HREF="#HDRKEY96c"    NAME="ToC_101.1c">Publishing Info Pages per Minute (Monochrome)</A></LI>
@@ -2863,7 +2864,8 @@ and on separator pages. Valid special values include *BLANK and *JOB. </DD>
 <DD>String </DD>
 <DT><strong>Description</strong></DT>
 <DD>The name of the destination printer queue when sending spooled files
-via SNDTCPSPLF (LPR). </DD>
+    via SNDTCPSPLF (LPR).
+</DD>
 </DL>
 
 <P>
@@ -2876,7 +2878,8 @@ via SNDTCPSPLF (LPR). </DD>
 <DD>String </DD>
 <DT><strong>Description</strong></DT>
 <DD>The name of the library that contains the program that opened
-the spooled file.</DD>
+    the spooled file.
+</DD>
 </DL>
 
 <P>
@@ -2893,6 +2896,20 @@ the spooled file.</DD>
 
 <P>
 <HR><p></P>
+<H2><A HREF="#ToC_0x014F" NAME="HDRKEY0x014F">Published Printer</A></H2>
+<DL>
+<DT><STRONG>ID</STRONG></DT>
+<DD>ATTR_PUBINF</DD>
+<DT><STRONG>Type</STRONG></DT>
+<DD>String</DD>
+<DT><STRONG>Description</STRONG></DT>
+<DD>Indicates if the printer information has been published
+    in the LDAP directory.  Valid values are *YES or *NO.
+</DD>
+</DL>
+
+<P>
+<HR><p></P>
 <H2><A HREF="#ToC_101.1a" NAME="HDRKEY96a">Publishing Info Color Supported</A></H2>
 <DL>
 <DT><STRONG>ID</STRONG></DT>
@@ -2902,10 +2919,9 @@ the spooled file.</DD>
 <DT><STRONG>Description</STRONG></DT>
 <DD>Indicates color is supported for this publishing list entry.</DD>
 </DL>
+
 <P>
 <HR><p></P>
-
-
 <H2><A HREF="#ToC_101.1b" NAME="HDRKEY96b">Publishing Info Pages per Minute (Color)</A></H2>
 <DL>
 <DT><STRONG>ID</STRONG></DT>
@@ -2927,10 +2943,9 @@ the spooled file.</DD>
 <DT><STRONG>Description</STRONG></DT>
 <DD>The pages per minute supported in monochrome for this publishing list entry.</DD>
 </DL>
+
 <P>
 <HR><p></P>
-
-
 <H2><A HREF="#ToC_101.1d" NAME="HDRKEY96d">Publishing Info Duplex Support</A></H2>
 <DL>
 <DT><STRONG>ID</STRONG></DT>
@@ -3148,8 +3163,8 @@ spooled file was not saved.
 <DD>The type of device to which the spooled file was last saved.  The
     value is *SAVF if the last save operation was to a save file.  The 
     value is *TAP if the last save operation was to tape.  The value is
-    *OPT if the last save operation was to optical.  The value is blank 
-    if the spooled file was not saved.
+    *OPT if the last save operation was to optical.  The value is the 
+    empty string "", if the spooled file was not saved.
 </DD>
 </DL>
 
