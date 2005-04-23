@@ -467,6 +467,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_PRINTER_FILE =     -7;  // Printer file IFS name
            static final int ATTR_PRTFLIB      = 0x005B;  // Printer file library name
            static final int ATTR_PRTFILE      = 0x005C;  // Printer file name
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x014F">Published printer</A>. **/
+    public static final int ATTR_PUBINF = 0x014F; //Published Printer
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY207">Color supported</A>. **/
     public static final int ATTR_PUBINF_COLOR_SUP = 0x0101; //Color supported
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY208">Pages per minute (color)</A>. **/
@@ -671,7 +673,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x014E;  // last attribute ID
+    static final int                    MAX_ATTR_ID = 0x014F;  // last attribute ID
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";
@@ -1486,6 +1488,7 @@ abstract public class PrintObject implements java.io.Serializable
         case     -7: return "ATTR_PRINTER_FILE";  // "negative decimal"
         case 0x005B: return "ATTR_PRINTER_FILE";  // declared as private (ATTR_PRTFLIB)
         case 0x005C: return "ATTR_PRINTER_FILE";  // declared as private (ATTR_PRTFILE)
+        case 0x014F: return "ATTR_PUBINF";
         case 0x0101: return "ATTR_PUBINF_COLOR_SUP";
         case 0x0102: return "ATTR_PUBINF_PPM_COLOR";
         case 0x0106: return "ATTR_PUBINF_DS";

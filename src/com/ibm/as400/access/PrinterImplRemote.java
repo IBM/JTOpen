@@ -74,6 +74,7 @@ class PrinterImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_POINTSIZE);   // the default font's point size
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);     // printer
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);  // printer dev type 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF);      // Published Printer? 
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_COLOR_SUP);// Color supported indicator 
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DS); // Data Stream supported    
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM_COLOR);// Pages per minute (color printing) 
