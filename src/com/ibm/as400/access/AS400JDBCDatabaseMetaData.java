@@ -3918,7 +3918,7 @@ implements DatabaseMetaData
                            is specified, an empty result set is returned.
     @param  tableTypes     The list of table types to include, or null to
                            include all table types. Valid types are:
-                           TABLE, VIEW, and SYSTEM TABLE.
+                           TABLE, VIEW, SYSTEM TABLE, MATERIALIZED QUERY TABLE, and ALIAS.
     @return                The ResultSet containing the description of the
                            tables available in the catalog.
     
@@ -4031,14 +4031,14 @@ implements DatabaseMetaData
                 // Information (ROI) function based on the types array
                 // provided. ROI uses the following values:
                 //  '0001'x = all files
-                //  '0002'x = physical files
-                //  '0003'x = logical files
-                //  '0004'x = tables
-                //  '0005'x = views
+                //  '0002'x = physical files and alias files                    //@K3C  changed to match host server LIPI
+                //  '0003'x = logical files and alias files                     //@K3C
+                //  '0004'x = tables and alias files                            //@K3C
+                //  '0005'x = views and alias files                             //@K3C
                 //  '0006'x = system tables
-                //  '0007'x = tables and views
-                //  '0008'x = tables and system tables
-                //  '0009'x = views and system tables
+                //  '0007'x = tables and views and alias files                  //@K3C
+                //  '0008'x = tables and system tables and alias files          //@K3C
+                //  '0009'x = views and system tables and alias files           //@K3C
                 //  '000A'x = alias files                                       //@K1A
                 //  '000B'x = tables and materialized query tables              //@K1A
                 //  '000C'x = views and materialized query tables               //@K1A
@@ -4057,12 +4057,14 @@ implements DatabaseMetaData
                 // be created. No request is sent to the server.
                 //--------------------------------------------------------
                 int fileAttribute;
+                boolean needToRemoveAliases = true;         //@K3A
                 if (tableTypes != null)
                 {
                     boolean typeTable       = false;  // false = don't include table type
                     boolean typeView        = false;
                     boolean typeSystemTable = false;
                     boolean typeMQTable     = false;  //@K1A
+                    boolean typeAlias       = false;  //@K3A
 
                     // Walk thru table types to determine which ones we need to include
                     for (int i = 0; i < tableTypes.length; ++i)
@@ -4075,8 +4077,12 @@ implements DatabaseMetaData
                             typeSystemTable = true;  // Include system tables
                         else if (tableTypes[i].equalsIgnoreCase ("MATERIALIZED QUERY TABLE") && connection_.getVRM() >= JDUtilities.vrm530)   //@K1A
                             typeMQTable = true;                                                 //@K1A
+                        else if(tableTypes[i].equalsIgnoreCase("ALIAS"))    //@K3A
+                            typeAlias = true;                               //@K3A
                     }   // end of for loop
 
+                    if(typeAlias)                                           //@K3A
+                        needToRemoveAliases = false;                              //@K3A
 
                     if (typeTable)
                     {
@@ -4085,20 +4091,27 @@ implements DatabaseMetaData
                             if (typeSystemTable)
                                 fileAttribute = 1;  // All
                             else if(typeMQTable)                                    //@K1A
+                            {
                                 fileAttribute = 14; //tables, views, and MQT's      //@K1A
+                                needToRemoveAliases = false;      //@K3A no aliases are returned
+                            }
                             else
                                 fileAttribute = 7;  // Tables and views
                         }
                         else if(typeSystemTable)                                    //@K1A   Not Views
                         {                                                           //@K1A
                             if(typeMQTable)                                         //@K1A
+                            {
                                 fileAttribute = 15;                                 //@K1A
+                                needToRemoveAliases = false;                              //@K3A no aliases are returned
+                            }
                             else                                                    //@K1A  
                                 fileAttribute = 8;  // Tables and system tables
                         }                                                           //@K1A
                         else if(typeMQTable)                                        //@K1A  Not Views and not system tables
                         {                                                           //@K1A
                             fileAttribute = 11;                                     //@K1A
+                            needToRemoveAliases = false;                                  //@K3A no aliases are returned
                         }                                                           //@K1A
                         else
                             fileAttribute = 4;  // Tables
@@ -4116,6 +4129,7 @@ implements DatabaseMetaData
                             fileAttribute = 13;         //system tables and MQT's           //@K1A
                         else                                                                //@K1A
                             fileAttribute = 17;         //MQT's                             //@K1A
+                        needToRemoveAliases = false;                                              //@K3A no aliases are returned
                     }                                                                       //@K1A
                     else
                     {           // Not tables
@@ -4129,7 +4143,12 @@ implements DatabaseMetaData
                         else
                         {
                             if (typeSystemTable)
+                            {
                                 fileAttribute = 6;  // System tables
+                                needToRemoveAliases = false;      //@K3A no aliases are returned
+                            }
+                            else if(typeAlias && connection_.getVRM() >= JDUtilities.vrm430)    //@K3A  Aliases are only supported on V4R3 and higher 
+                                fileAttribute = 10;                                             //@K3A
                             else
                                 fileAttribute = -1; // Unknown type
                             // Will return empty results
@@ -4245,6 +4264,9 @@ implements DatabaseMetaData
                         DBData resultData = reply.getResultData ();
                         if (resultData != null)
                         {
+                            // If the user didn't request aliases
+                            if(needToRemoveAliases)                                       //@K3A
+                                parseResultData(resultData, dataFormat);            //@K3A
 
                             // Put the data format into a row format. Handles data types
                             JDServerRow row = new JDServerRow (connection_, id_, dataFormat, settings_);
@@ -4334,7 +4356,34 @@ implements DatabaseMetaData
                                        "Tables");
     }
 
+//@K3A                                                           
+// Parses the result data from the server to determine if any aliases were returned.
+    void parseResultData(DBData resultData, DBDataFormat dataFormat) {
+        try{
+            byte[] rawBytes = resultData.getRawBytes();
+            int rowCount = resultData.getRowCount();
+            int columnOffset = dataFormat.getFieldLength(0);         // schema
+            columnOffset += dataFormat.getFieldLength(1);            // table
+            int tableTypeLength = dataFormat.getFieldLength(2);      // table type
+            SQLChar tableType = new SQLChar(tableTypeLength, settings_);    // create an sql char ojbect to get the table type
+            int aliasCount = 0;
+            ConvTable ccsidConverter = connection_.getConverter(dataFormat.getFieldCCSID(2));
+            for(int i=0; i<rowCount; i++){
+                //loop through the rows until the table type is not an alias ('A'), aliases are returned at the beginning of the data
+                tableType.convertFromRawBytes(rawBytes, resultData.getRowDataOffset(i) + columnOffset, ccsidConverter);
+                if(tableType.getString().equals("A"))
+                    aliasCount++;
+                else      //There are no more aliases break out of loop
+                    break;
+            }
 
+            resultData.resetRowCount(rowCount-aliasCount);  // We want to ignore the rows that contain aliases since the user didn't request them
+            resultData.setAliasCount(aliasCount);           // Set the alias count so we know what row to actually start with
+        }catch(Exception e){
+            if (JDTrace.isTraceOn())                                             
+                JDTrace.logInformation (this, "Error parsing result data for aliases:  " + e.getMessage());
+        }
+    }
 
     /**
     Returns the table types available in this database.

@@ -59,6 +59,9 @@ extends DBOverlay
     public abstract void setRowCount (int rowCount)
         throws DBDataStreamException;
 
+    public abstract void resetRowCount(int rowCount);      //@K3A
+    public abstract void setAliasCount(int aliasCount);    //@K3A
+
     public abstract void setColumnCount (int columnCount)
         throws DBDataStreamException;
 

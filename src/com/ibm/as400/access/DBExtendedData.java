@@ -45,6 +45,7 @@ implements DBData
 
     private int     offsetToRowInformationHeader_ = -1;                 //@K54
     private int     offsetToRowInformationArray_  = -1;                 //@K54
+    private int     aliasCount_ = 0;                                    //@K3A
 
 
 /**
@@ -217,7 +218,7 @@ when it was not previously set by the constructor.
 		else
 			return BinaryConverter.byteArrayToShort (rawBytes_,
 			    indicatorOffset_ + indicatorSize_
-			    * (rowIndex * columnCount_ + columnIndex));
+			    * ((rowIndex + aliasCount_) * columnCount_ + columnIndex));     //@K3A  If aliasCount_ > 0, then DatabaseMetaData.getTables(...) was called and our result data contains aliases.  We want to skip the rows that are aliases.
 	}
 
 
@@ -234,7 +235,7 @@ when it was not previously set by the constructor.
             }
             else                                                    //@K54
             {
-                return dataOffset_ + (rowIndex * rowSize_);
+                return dataOffset_ + ((rowIndex + aliasCount_) * rowSize_);       //@K3C If aliasCount_ > 0, then DatabaseMetaData.getTables(...) was called and our result data contains aliases.  We want to skip the rows that are aliases.
             }
 	}
 
@@ -307,5 +308,16 @@ when it was not previously set by the constructor.
         return vlfCompressed_;
     }
 
+    // Resets the number of rows to the total number of rows minus the number of rows that contain aliases.
+    // This method is called by AS400JDBCDatabaseMetaData.parseResultData().
+    public void resetRowCount(int rowCount){           //@K3A
+        rowCount_ = rowCount;
+    }
+
+    // Sets the number of aliases the result data contains.
+    // This method is called by AS400JDBCDatabaseMetaData.parseResultData().
+    public void setAliasCount(int aliases){        //@K3A
+        aliasCount_ = aliases;
+    }
 }
 
