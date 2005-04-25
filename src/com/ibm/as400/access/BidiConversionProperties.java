@@ -103,7 +103,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Indicates the value of the bidi remove the directional marks only when transforming from logical to visual property.
-     @@return  true if the remove the directional marks only when transforming from logical to visual property is enabled; false otherwise.
+     @return  true if the remove the directional marks only when transforming from logical to visual property is enabled; false otherwise.
      **/
     public boolean isBidiRemoveMarksOnImplicitToVisual()
     {
