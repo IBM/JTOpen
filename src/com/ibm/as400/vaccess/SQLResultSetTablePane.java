@@ -144,6 +144,7 @@ frame.show();
 // Load the contents of the table.
 table.load();
 </pre>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class SQLResultSetTablePane
     extends JComponent

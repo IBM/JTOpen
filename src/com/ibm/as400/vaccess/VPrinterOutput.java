@@ -58,6 +58,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 @see com.ibm.as400.access.SpooledFileList
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 
 public class VPrinterOutput

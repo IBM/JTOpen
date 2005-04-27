@@ -30,6 +30,7 @@ The AS400ListModelBeanInfo class provides bean information
 for the AS400ListModel class.
 
 @see AS400ListModel
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400ListModelBeanInfo
 extends SimpleBeanInfo

@@ -61,6 +61,7 @@ import java.util.Enumeration;
 /**
  * The VSystemStatusPane class represents a visual pane which shows
  * the system status information. 
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
 {

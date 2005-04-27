@@ -124,6 +124,7 @@ import javax.swing.JScrollPane;
  *f.pack();
  *f.show();
 
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class  VJavaApplicationCall extends JComponent
                                    implements KeyListener

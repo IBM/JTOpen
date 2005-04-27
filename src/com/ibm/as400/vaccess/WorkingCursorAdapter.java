@@ -59,6 +59,7 @@ treeModel.setRoot (directory);
 JFrame frame = new JFrame ();
 frame.getContentPane ().add (directory);
 </pre>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 //
 // Implementation notes:

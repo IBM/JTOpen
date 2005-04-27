@@ -53,6 +53,7 @@ will be serialized.
   <li>PropertyChangeEvent
   <li>WorkingEvent
 </ul>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class SQLConnection
 implements Serializable

@@ -68,6 +68,7 @@ frame.getContentPane().add(new JScrollPane(list));
 </pre>
 
 @see AS400ListPane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400ListModel
 implements ListModel, Serializable

@@ -19,6 +19,7 @@ import com.ibm.as400.access.Trace;
 
 /**
    The ErrorEvent class represents an error event.
+   @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ErrorEvent extends java.util.EventObject
 {

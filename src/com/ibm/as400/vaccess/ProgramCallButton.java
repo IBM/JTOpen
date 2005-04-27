@@ -46,6 +46,7 @@ Results of the program are returned in a message list.
 
 @see com.ibm.as400.access.ProgramCall
 @see com.ibm.as400.access.AS400Message
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ProgramCallButton
 extends JButton

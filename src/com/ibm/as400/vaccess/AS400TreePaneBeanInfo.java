@@ -30,6 +30,7 @@ The AS400TreePaneBeanInfo class provides bean information
 for the AS400TreePane class.
 
 @see AS400TreePane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400TreePaneBeanInfo
 extends SimpleBeanInfo

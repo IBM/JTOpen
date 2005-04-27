@@ -47,6 +47,7 @@ import com.ibm.as400.access.*;
   *         String a = fd.getAbsolutePath();    // get fully qualified file
   *      }
   * </pre>
+  * @deprecated Use <tt>com.ibm.as400.access.IFSSystemView</tt> instead.
   **/
 public class IFSFileDialog extends Dialog
 {

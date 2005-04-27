@@ -15,6 +15,7 @@ package com.ibm.as400.vaccess;
 /**
     The ErrorListener interface provides a listener interface
     for receiving error events.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 
 public interface ErrorListener extends java.util.EventListener

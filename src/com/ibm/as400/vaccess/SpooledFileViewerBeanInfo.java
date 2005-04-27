@@ -29,6 +29,7 @@ The SpooledFileViewerBeanInfo class provides bean information
 for the SpooledFileViewer class.
 
 @see SpooledFileViewer
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 
 

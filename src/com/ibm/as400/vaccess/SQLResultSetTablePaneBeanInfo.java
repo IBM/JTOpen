@@ -24,6 +24,7 @@ import java.beans.SimpleBeanInfo;
 /**
 The SQLResultSetTablePaneBeanInfo class provides bean
 information for the SQLResultSetTablePane class.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class SQLResultSetTablePaneBeanInfo extends SimpleBeanInfo
 {

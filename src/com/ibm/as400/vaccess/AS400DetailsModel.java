@@ -73,6 +73,7 @@ frame.getContentPane().add(new JScrollPane(table));
 </pre>
 
 @see AS400DetailsPane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400DetailsModel
 implements TableModel, Serializable

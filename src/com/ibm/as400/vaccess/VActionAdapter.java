@@ -65,6 +65,7 @@ menuItem.addActionListener (adapter);
 </pre>
 
 @see VAction
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VActionAdapter
 implements Action, Serializable

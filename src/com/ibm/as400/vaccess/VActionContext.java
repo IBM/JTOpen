@@ -35,6 +35,7 @@ context.
 @see AS400ExplorerPane#getActionContext
 @see AS400ListPane#getActionContext
 @see AS400TreePane#getActionContext
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public interface VActionContext
 {

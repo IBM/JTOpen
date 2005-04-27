@@ -78,6 +78,7 @@ frame.getContentPane().add (explorerPane);
 
 @see AS400DetailsPane
 @see AS400TreePane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 //
 // Implementation notes:

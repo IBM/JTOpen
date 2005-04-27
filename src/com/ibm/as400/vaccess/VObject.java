@@ -45,6 +45,7 @@ in order to diagnose and recover from error conditions.
 <p>An implementation of this interface should pass on all
 events fired by its actions and properties pane to its
 listeners.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 // @A1C - javadoc
 public interface VObject

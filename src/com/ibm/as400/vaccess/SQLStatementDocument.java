@@ -56,6 +56,7 @@ in order to diagnose and recover from error conditions.
   <li>DocumentEvent
   <li>WorkingEvent
 </ul>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 // Because the information from SQLStatement Documents may be the result
 // of SQL that is no longer equal to the text of the document,

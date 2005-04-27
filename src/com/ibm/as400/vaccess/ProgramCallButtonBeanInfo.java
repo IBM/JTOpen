@@ -30,6 +30,7 @@ The ProgramCallButtonBeanInfo class provides bean information
 for the ProgramCallButton class.
 
 @see ProgramCallButton
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ProgramCallButtonBeanInfo
 extends SimpleBeanInfo

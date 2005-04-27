@@ -27,6 +27,7 @@ The ErrorDialogAdapterBeanInfo class provides bean information
 for the ErrorDialogAdapter class.
 
 @see ErrorDialogAdapter
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ErrorDialogAdapterBeanInfo
 extends SimpleBeanInfo

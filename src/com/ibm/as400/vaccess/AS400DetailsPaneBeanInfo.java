@@ -30,6 +30,7 @@ The AS400DetailsPaneBeanInfo class provides bean information
 for the AS400DetailsPane class.
 
 @see AS400DetailsPane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 
 

@@ -121,6 +121,7 @@ detailsPane.load();
 </pre></blockquote>
 
 @see ResourceListDetailsModel
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ResourceListDetailsPane
 extends JComponent

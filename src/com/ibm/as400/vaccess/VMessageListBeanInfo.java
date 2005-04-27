@@ -29,6 +29,7 @@ The VMessageListBeanInfo class provides bean information
 for the VMessageList class.
 
 @see VMessageList
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VMessageListBeanInfo
 extends SimpleBeanInfo

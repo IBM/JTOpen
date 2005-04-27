@@ -24,6 +24,7 @@ import java.beans.SimpleBeanInfo;
 /**
 The SQLStatementDocumentBeanInfo class provides bean
 information for the SQLStatementDocument class.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class SQLStatementDocumentBeanInfo extends SimpleBeanInfo
 {

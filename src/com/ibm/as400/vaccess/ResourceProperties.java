@@ -89,6 +89,7 @@ frame.show();
 // of jobs is retrieved from the server.
 detailsPane.load();
 </pre></code>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ResourceProperties
 implements Serializable

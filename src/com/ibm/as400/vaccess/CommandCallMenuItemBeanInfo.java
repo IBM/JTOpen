@@ -30,6 +30,7 @@ The CommandCallMenuItemBeanInfo class provides bean information
 for the CommandCallMenuItem class.
 
 @see CommandCallMenuItem
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class CommandCallMenuItemBeanInfo
 extends SimpleBeanInfo

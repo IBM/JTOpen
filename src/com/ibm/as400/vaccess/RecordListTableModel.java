@@ -91,6 +91,7 @@ frame.getContentPane().add(new JScrollPane(table));
  // Display the window
 frame.setVisible(true)
 </pre>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 // Note that this class throws error and working events from within
 // synchronized blocks,

@@ -32,6 +32,7 @@ import java.util.Enumeration;
 /**
  * The VUserAndGroup class represents the users and groups.
  *
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class  VUserAndGroup
     implements VNode, java.io.Serializable

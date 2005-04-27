@@ -14,6 +14,7 @@
 package com.ibm.as400.vaccess;
 /**
    The FileFilter class provides file filtering support.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 
 public class FileFilter

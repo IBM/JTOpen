@@ -30,6 +30,7 @@ The AS400ListPaneBeanInfo class provides bean information
 for the AS400ListPane class.
 
 @see AS400ListPane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400ListPaneBeanInfo
 extends SimpleBeanInfo

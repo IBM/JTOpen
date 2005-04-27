@@ -53,6 +53,7 @@ in order to diagnose and recover from error conditions.
   <li>PropertyChangeEvent
   <li>WorkingEvent
 </ul>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 // Note that the JDBC resources are not explicitly closed,
 // the user or garbage collection is relied upon to close them.

@@ -25,6 +25,7 @@ work is being done.
 
 @see WorkingEvent
 @see WorkingCursorAdapter
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public interface WorkingListener
 extends EventListener

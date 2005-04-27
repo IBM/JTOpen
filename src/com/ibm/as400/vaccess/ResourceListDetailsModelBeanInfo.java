@@ -30,6 +30,7 @@ The ResourceListDetailsModelBeanInfo class provides bean information
 for the ResourceListDetailsModel class.
 
 @see ResourceListDetailsModel
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ResourceListDetailsModelBeanInfo
 extends SimpleBeanInfo

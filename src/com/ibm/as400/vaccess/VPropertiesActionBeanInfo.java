@@ -28,6 +28,7 @@ The VPropertiesActionBeanInfo class provides bean information
 for the VPropertiesAction class.
 
 @see VPropertiesAction
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VPropertiesActionBeanInfo
 extends SimpleBeanInfo

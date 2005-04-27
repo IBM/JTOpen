@@ -25,6 +25,7 @@ feedback that work is being done.
 
 @see WorkingListener
 @see WorkingCursorAdapter
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class WorkingEvent
 extends EventObject

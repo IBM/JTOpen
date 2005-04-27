@@ -24,6 +24,7 @@ import java.beans.SimpleBeanInfo;
 /**
 The RecordListFormPaneBeanInfo class provides bean
 information for the RecordListFormPane class.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class RecordListFormPaneBeanInfo extends SimpleBeanInfo
 {

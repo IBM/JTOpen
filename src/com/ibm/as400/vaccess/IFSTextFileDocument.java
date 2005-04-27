@@ -91,6 +91,7 @@ frame.getContentPane().add(new JScrollPane(textArea));
 // Load the information from the server.
 document.load ();
 </pre>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 //
 // Implementation notes:

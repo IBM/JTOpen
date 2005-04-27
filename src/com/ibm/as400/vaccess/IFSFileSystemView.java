@@ -58,6 +58,7 @@ import javax.swing.Icon;
   *
   * @see com.ibm.as400.vaccess.IFSFileDialog
   * @see com.ibm.as400.access.IFSJavaFile
+  * @deprecated Use <tt>com.ibm.as400.access.IFSSystemView</tt> instead.
  **/
 
 public class IFSFileSystemView extends FileSystemView

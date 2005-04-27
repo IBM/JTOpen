@@ -24,6 +24,7 @@ import java.awt.Image;
 /**
 The AS400JDBCDataSourcePaneBeanInfo class provides the bean information
 for the AS400JDBCDataSourcePane class.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400JDBCDataSourcePaneBeanInfo extends SimpleBeanInfo
 {

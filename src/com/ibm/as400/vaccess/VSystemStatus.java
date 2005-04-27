@@ -61,6 +61,7 @@ import java.util.Enumeration;
  *      <li>VObjectEvent
  *      <li>WorkingEvent
  *  </ul>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VSystemStatus implements VNode, Serializable //@B0C
 {

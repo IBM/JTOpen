@@ -79,6 +79,7 @@ frame.getContentPane().add(new JScrollPane(textField));
 // Read the next entry from the data queue.
 document.read (aKey);
 </pre>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 //
 // Implementation notes:

@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 /**
  * The VSystemPoolBeanInfo class provides bean 
  * information for the VSystemPool class.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VSystemPoolBeanInfo extends SimpleBeanInfo
 {

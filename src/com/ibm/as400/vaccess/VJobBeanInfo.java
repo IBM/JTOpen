@@ -29,6 +29,7 @@ The VJobBeanInfo class provides bean information
 for the VJob class.
 
 @see VJob
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VJobBeanInfo
 extends SimpleBeanInfo

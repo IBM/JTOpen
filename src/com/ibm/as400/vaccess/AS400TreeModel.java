@@ -71,6 +71,7 @@ frame.getContentPane().add(new JScrollPane(tree));
 </pre>
 
 @see AS400TreePane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400TreeModel
 implements TreeModel, Serializable

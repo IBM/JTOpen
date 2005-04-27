@@ -27,6 +27,7 @@ The VPrintersBeanInfo class provides bean information
 for the VPrinters class.
 
 @see VPrinters
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VPrintersBeanInfo
 extends SimpleBeanInfo

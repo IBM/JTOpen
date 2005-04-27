@@ -29,6 +29,7 @@ The VMessageQueueBeanInfo class provides bean information
 for the VMessageQueue class.
 
 @see VMessageQueue
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VMessageQueueBeanInfo
 extends SimpleBeanInfo

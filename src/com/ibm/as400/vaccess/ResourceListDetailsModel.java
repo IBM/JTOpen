@@ -102,6 +102,7 @@ frame.show();
 // from the server.
 detailsModel.load();
 </pre></blockquote>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ResourceListDetailsModel
 implements TableModel, Serializable

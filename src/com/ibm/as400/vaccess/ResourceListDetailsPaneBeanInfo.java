@@ -30,6 +30,7 @@ The ResourceListDetailsPaneBeanInfo class provides bean information
 for the ResourceListDetailsPane class.
 
 @see ResourceListDetailsPane
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class ResourceListDetailsPaneBeanInfo
 extends SimpleBeanInfo

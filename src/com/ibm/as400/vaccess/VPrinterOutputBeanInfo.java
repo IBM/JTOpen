@@ -27,6 +27,7 @@ The VPrinterOutputBeanInfo class provides bean information
 for the VPrinterOutput class.
 
 @see VPrinterOutput
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VPrinterOutputBeanInfo
 extends SimpleBeanInfo

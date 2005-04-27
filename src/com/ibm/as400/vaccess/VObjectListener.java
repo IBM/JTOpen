@@ -22,6 +22,7 @@ The VObjectListener interface provides a listener interface for
 receiving VObjectEvents.
 
 @see VObjectEvent
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public interface VObjectListener
 extends EventListener

@@ -73,6 +73,7 @@ frame.getContentPane().add (treePane);
 </pre>
 
 @see AS400TreeModel
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400TreePane
 extends JComponent

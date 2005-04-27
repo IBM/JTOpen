@@ -28,6 +28,7 @@ The VActionAdapterBeanInfo class provides bean information
 for the VActionAdapter class.
 
 @see VActionAdapter
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VActionAdapterBeanInfo
 extends SimpleBeanInfo

@@ -30,6 +30,7 @@ The AS400TreeModelBeanInfo class provides bean information
 for the AS400TreeModel class.
 
 @see AS400TreeModel
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class AS400TreeModelBeanInfo
 extends SimpleBeanInfo

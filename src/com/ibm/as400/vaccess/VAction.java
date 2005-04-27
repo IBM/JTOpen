@@ -33,6 +33,7 @@ in order to diagnose and recover from error conditions.
 @see VObject#getActions
 @see VObject#getDefaultAction
 @see VActionAdapter
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 //
 // Implementation note:

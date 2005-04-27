@@ -21,6 +21,7 @@ for IFS components.
 
 @see VIFSDirectory
 @see VIFSFile
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public interface VIFSConstants
 {

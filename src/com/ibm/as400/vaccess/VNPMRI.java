@@ -17,6 +17,7 @@ import java.util.*;
 
 /**
 Locale-specific objects for the IBM Toolbox for Java.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VNPMRI extends ListResourceBundle
 {

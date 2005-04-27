@@ -39,6 +39,7 @@ in order to diagnose and recover from error conditions.
     <li>VObjectEvent
     <li>WorkingEvent
 </ul>
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class VQueuedMessage
 implements VObject, Serializable

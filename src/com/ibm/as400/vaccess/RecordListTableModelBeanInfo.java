@@ -24,6 +24,7 @@ import java.beans.SimpleBeanInfo;
 /**
 The RecordListTableModelBeanInfo class provides bean
 information for the RecordListTableModel class.
+@deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 public class RecordListTableModelBeanInfo extends SimpleBeanInfo
 {
