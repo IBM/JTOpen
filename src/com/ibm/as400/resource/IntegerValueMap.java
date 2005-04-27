@@ -21,6 +21,7 @@ import java.io.Serializable;
 /**
 The IntegerValueMap class maps between a logical Integer value
 and a physical String value.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class IntegerValueMap
 implements ValueMap, Serializable

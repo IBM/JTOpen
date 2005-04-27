@@ -34,6 +34,7 @@ Markup Language (PCML).
 object to define how attribute values are
 specified in the PCML definition.   This class is intended as a helper
 class for implementing subclasses of {@link com.ibm.as400.resource.Resource Resource}</a>.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ProgramAttributeSetter
 implements Serializable

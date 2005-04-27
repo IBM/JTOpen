@@ -29,6 +29,7 @@ of the {@link com.ibm.as400.resource.BufferedResourceList BufferedResourceList}
 class which retrieves list items using i5/OS "Open List"
 Application Programming Interfaces (APIs).  This class is intended
 to be extended and customized by subclasses.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class SystemResourceList
 extends BufferedResourceList

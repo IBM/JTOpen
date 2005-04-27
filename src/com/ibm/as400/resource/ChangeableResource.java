@@ -161,6 +161,7 @@ method of the same name and then perform extra processing:
         // ...
     }
 </pre></blockquote>
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 //
 // Implementation notes:

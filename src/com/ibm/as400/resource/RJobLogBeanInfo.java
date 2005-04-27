@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 /**
 The RJobLogBeanInfo class represents the bean information
 for the RJobLog class.
+@deprecated Use <tt>com.ibm.as400.access.JobLog</tt> instead.
 **/
 public class RJobLogBeanInfo 
 extends SimpleBeanInfo

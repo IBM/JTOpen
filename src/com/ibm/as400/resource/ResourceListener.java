@@ -19,6 +19,7 @@ import java.util.EventListener;
 
 /**
 The ResourceListener represents a listener for ResourceEvents.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public interface ResourceListener
 extends EventListener

@@ -23,6 +23,7 @@ The Presentation class represents presentation information that
 describes an object.  This may include description text, help
 text, and icons.  In addition, customized information can also
 be stored.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class Presentation
 implements Serializable

@@ -27,6 +27,7 @@ import java.util.Vector;
 The ResourceMetaData class represents information about a
 {@link com.ibm.as400.resource.Resource Resource}
 or {@link com.ibm.as400.resource.ResourceList ResourceList}.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 //
 // Design notes:

@@ -38,6 +38,7 @@ instance, setting the page size to match the number of rows presented
 in a GUI or servlet may improve overall response time.  Call
 the {@link #setPageSize(int) setPageSize()} method to set a specific
 page size.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class BufferedResourceList
 extends ResourceList

@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 /**
 The RPrinterBeanInfo class represents the bean information
 for the RPrinter class.
+@deprecated Use <tt>com.ibm.as400.access.Printer</tt> instead. 
 **/
 public class RPrinterBeanInfo 
 extends SimpleBeanInfo

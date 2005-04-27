@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 /**
 The RMessageQueueBeanInfo class represents the bean information
 for the RMessageQueue class.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class RMessageQueueBeanInfo 
 extends SimpleBeanInfo

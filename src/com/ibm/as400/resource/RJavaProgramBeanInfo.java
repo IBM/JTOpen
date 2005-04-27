@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 /**
 The RJavaProgramBeanInfo class represents the bean information
 for the RJavaProgram class.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class RJavaProgramBeanInfo 
 extends SimpleBeanInfo

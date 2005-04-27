@@ -21,6 +21,7 @@ import java.util.EventObject;
 
 /**
 The ActiveStatusEvent class represents an active status event.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ActiveStatusEvent
 extends EventObject

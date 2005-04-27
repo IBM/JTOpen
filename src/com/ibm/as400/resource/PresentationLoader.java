@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 The PresentationLoader class is a convenience class for creating
 {@link com.ibm.as400.resource.Presentation Presentation}
 objects using a resource bundle.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class PresentationLoader
 implements Serializable

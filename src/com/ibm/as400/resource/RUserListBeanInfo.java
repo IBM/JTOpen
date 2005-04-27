@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 /**
 The RUserListBeanInfo class represents the bean information
 for the RUserList class.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class RUserListBeanInfo 
 extends SimpleBeanInfo

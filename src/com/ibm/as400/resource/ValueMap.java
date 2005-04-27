@@ -28,6 +28,7 @@ or externalized in Java.
 of {@link com.ibm.as400.resource.Resource Resource}.
 
 @see AbstractValueMap
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public interface ValueMap
 {

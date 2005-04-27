@@ -146,6 +146,7 @@ is returned:
 </pre></blockquote>
 
 @see ResourceList
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public abstract class Resource
 implements Serializable

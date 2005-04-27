@@ -20,6 +20,7 @@ The ArrayResourceList class represents a subclass
 of the {@link com.ibm.as400.resource.ResourceList ResourceList}
 class which manages a list of resources predefined as an array
 of {@link com.ibm.as400.resource.Resource Resource} objects.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ArrayResourceList
 extends ResourceList

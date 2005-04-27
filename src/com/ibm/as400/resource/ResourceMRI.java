@@ -19,6 +19,7 @@ import java.util.ListResourceBundle;
 
 /**
 Locale-specific objects for the IBM Toolbox for Java.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ResourceMRI
 extends ListResourceBundle

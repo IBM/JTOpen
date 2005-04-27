@@ -25,6 +25,7 @@ import java.util.ResourceBundle;
 /**
 The ResourceBeanInfo class represents the bean information
 for Resource objects.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ResourceBeanInfo 
 extends SimpleBeanInfo

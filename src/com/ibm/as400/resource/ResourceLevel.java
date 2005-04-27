@@ -26,6 +26,7 @@ A level is a string which describes some level of support.
 <p>In most cases within the IBM Toolbox for Java, the level
 is the version, release, and modification level of the server
 to which you are connected, in the form <code>VxRxMx</code>.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 // 
 // Design notes:  

@@ -32,6 +32,7 @@ objects.  This is intended for use by subclasses of
 implementations.  This information is externalized as an array of
 ResourceMetaData objects, but this class makes it easier to build
 this array without knowing the number of elements ahead of time.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ResourceMetaDataTable
 implements Serializable

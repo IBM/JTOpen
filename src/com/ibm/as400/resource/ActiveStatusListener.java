@@ -19,6 +19,7 @@ import java.util.EventListener;
 
 /**
 The ActiveStatusListener represents a listener for ActiveStatusEvents.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public interface ActiveStatusListener
 extends EventListener

@@ -41,6 +41,7 @@ exception is available here.
 example, if the user explicitly canceled an operation,
 then the user expects the resulting exception.  The default
 is that the exception is not expected by the user.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 //
 // Design notes:

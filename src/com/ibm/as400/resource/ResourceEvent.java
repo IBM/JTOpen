@@ -20,6 +20,7 @@ import java.util.EventObject;
 
 /**
 The ResourceEvent class represents a resource event.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ResourceEvent
 extends EventObject

@@ -21,6 +21,7 @@ import java.io.Serializable;
 /**
 The BooleanValueMap class maps between a logical Boolean value 
 and specified physical values.
+@deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class BooleanValueMap
 extends AbstractValueMap

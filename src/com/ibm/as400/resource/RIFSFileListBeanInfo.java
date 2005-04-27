@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
 /**
 The RIFSFileListBeanInfo class represents the bean information
 for the RIFSFileList class.
+@deprecated Use <tt>com.ibm.as400.access.IFSFile</tt> instead. 
 **/
 public class RIFSFileListBeanInfo 
 extends SimpleBeanInfo
