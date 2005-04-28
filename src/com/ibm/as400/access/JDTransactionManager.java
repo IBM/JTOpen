@@ -731,7 +731,39 @@ can not be called directly on this object.
     if (localTransaction_)
     {
       autoCommit_ = localAutoCommit_;
-      // ??? setCommitMode(currentCommitMode_);
+      if(connection_.newAutoCommitSupport_ == 0)
+          setCommitMode(currentCommitMode_);              // turn back on auto-commit
+      else{
+          DBSQLAttributesDS request = null;                                               
+          DBReplyRequestedDS reply = null;                                                
+          try                                                                                 
+          {                                                                                   
+              request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                                                         id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                                                         + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    
+              request.setAutoCommit(0xE8);                               
+              if(connection_.newAutoCommitSupport_ == 1)
+              {
+                  request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);             
+                  serverCommitMode_ = COMMIT_MODE_NONE_;
+              }
+              reply = connection_.sendAndReceive(request);                 
+              int errorClass = reply.getErrorClass();                                         
+              int returnCode = reply.getReturnCode();                                         
+              if(errorClass != 0)                                                             
+                  JDError.throwSQLException(connection_, id_, errorClass, returnCode);        
+          }                                                                                   
+          catch(DBDataStreamException e)                                                      
+          {                                                                                   
+              JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             
+          }                                                                                   
+          finally                                                                             
+          {                                                                                   
+              if (request != null) request.inUse_ = false;                                    
+              if (reply != null) reply.inUse_ = false;                                        
+          }                                                                                     
+      }
+
     }
     else
     {
