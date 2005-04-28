@@ -18,6 +18,7 @@ package com.ibm.as400.access;
  **/
 public interface Copyright
 {
+    /** @deprecated This field is reserved for use within the Toolbox product. **/
     public static final String copyright = "Copyright (C) 1997-2005 International Business Machines Corporation and others.";
     public static final String version   = "Open Source Software, JTOpen 4.7, codebase 5722-JC1 V5R3M0.7";
 }
