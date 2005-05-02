@@ -124,6 +124,10 @@ implements SQLData
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
+            catch(StringIndexOutOfBoundsException e)        // jdk 1.3.x throws this instead of a NFE
+            {
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+            }
         }
 
         else if(object instanceof Number)
