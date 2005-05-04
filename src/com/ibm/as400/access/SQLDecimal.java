@@ -96,7 +96,7 @@ implements SQLData
             typeConverter_.toBytes(value_, rawBytes, offset);
         }
         catch(ExtendedIllegalArgumentException e){
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
         }
     }
 
