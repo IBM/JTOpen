@@ -4552,7 +4552,7 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLSmallint());                                 // @D0C
         typeSamples.addElement(new SQLTime(settings_));                            // @D0C
         typeSamples.addElement(new SQLTimestamp(settings_));                       // @D0C
-        typeSamples.addElement(new SQLLongVarchar(32739, settings_));
+        //typeSamples.addElement(new SQLLongVarchar(32739, settings_));        //Change to report LONG VARCHAR as VARCHAR to be consistent with other clients.
         typeSamples.addElement(new SQLLongVargraphic(16369, settings_));
         typeSamples.addElement(new SQLLongVarcharForBitData(32739, settings_));
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C

@@ -224,7 +224,7 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "LONG VARCHAR";
+        return "VARCHAR";      //@E1C  changed to return VARCHAR to match other clients
     }
 
     public int getMaximumPrecision()
@@ -264,12 +264,12 @@ implements SQLData
 
     public int getType()
     {
-        return java.sql.Types.LONGVARCHAR;
+        return java.sql.Types.VARCHAR;  //@E1C  changed to return VARCHAR to match other clients
     }
 
     public String getTypeName()
     {
-        return "LONG VARCHAR";
+        return "VARCHAR";       //@E1C changed to return VARCHAR to match other clients
     }
 
     public boolean isSigned()
