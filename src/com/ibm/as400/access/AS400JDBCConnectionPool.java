@@ -429,7 +429,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       if (availablePool_.isEmpty())                                    //@B2M
         fill(1);                         // Add a new connection.    //@B2M
 
-      pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
+      //@CRS pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
+      pooledConnection = (AS400JDBCPooledConnection)availablePool_.lastElement(); //@CRS -- Most recently used.
 
       // Remove the pooled connection from the available list.
       availablePool_.removeElement(pooledConnection);    
@@ -485,7 +486,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       if (availablePool_.isEmpty())                                    //@B2M
         fill(1);                         // Add a new connection.    //@B2M
 
-      pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
+      //@CRS pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
+      pooledConnection = (AS400JDBCPooledConnection)availablePool_.lastElement(); //@CRS -- Most recently used.
 
       // Remove the pooled connection from the available list.
       availablePool_.removeElement(pooledConnection);    
