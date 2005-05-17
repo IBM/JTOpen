@@ -657,6 +657,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       // Restart the thread.
       if (!maintenance_.isRunning()) maintenance_.setRunning(true);
     }
+    else if (!isThreadUsed() && isRunMaintenance() && 
+        ((System.currentTimeMillis() - lastRun_) > getCleanupInterval()))  // If running single-threaded and cleanup interval has elapsed, run cleanup 
+    {
+      cleanupConnections();
+    }
 
     //@CRS - Let's do a double-check here for performance, per JTOpen bug #3727.
     ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
@@ -969,6 +974,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     // will need to reset log_ after a serialization of the pool.
     as400ConnectionPool_ = new Hashtable();
     removedAS400ConnectionPool_ = new Hashtable();   //@A5A
+    lastRun_ = System.currentTimeMillis();
   }
 
 
