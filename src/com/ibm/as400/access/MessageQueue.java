@@ -508,7 +508,7 @@ public class MessageQueue implements Serializable
             number = length_ - listOffset;
         }
 
-        int lengthOfReceiverVariable = dataLength_ * number / length_;
+        int lengthOfReceiverVariable = dataLength_ / length_ * number;
 
         ProgramParameter[] parameters = new ProgramParameter[]
         {
