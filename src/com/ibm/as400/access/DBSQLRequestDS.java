@@ -308,7 +308,12 @@ extends DBBaseRequestDS
    	void setPackageName (String value, ConvTable converter) //@P0C
 		throws DBDataStreamException, SQLException                      // @E9c
 	{
-		addParameter (0x3804, converter, value);
+                if(value == null)
+                {
+                    addParameter(0x3804);   //send an empty code point
+                }
+                else
+                    addParameter (0x3804, converter, value);
 	}
 
 

@@ -1170,7 +1170,10 @@ public class AS400JDBCStatement implements Statement
                             request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
                         }
                         else
+                        {
                             request.setPrepareOption (0);
+                            request.setPackageName(null, connection_.converter_);         //send empty code point per 
+                        }
                     }
                     else
                         request.setPrepareOption (0);
@@ -1274,7 +1277,10 @@ public class AS400JDBCStatement implements Statement
                             request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
                         }
                         else
+                        {
                             request.setPrepareOption (0);
+                            request.setPackageName(null, connection_.converter_);          //send empty code point
+                        }
                     }
                     else
                         request.setPrepareOption (0);
@@ -1444,7 +1450,10 @@ public class AS400JDBCStatement implements Statement
                             request.setPackageName (packageManager_.getName (), connection_.converter_);    //@P0C
                         }
                         else
+                        {
                             request.setPrepareOption (0);
+                            request.setPackageName(null, connection_.converter_);              //send empty code point
+                        }
                     }
                     else
                         request.setPrepareOption (0);

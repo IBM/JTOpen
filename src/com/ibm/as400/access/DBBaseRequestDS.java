@@ -566,6 +566,15 @@ Adds a fixed length string parameter, but uses character conversion.
           addParameter(codePoint, converter, value);
   }
 
+/**
+Adds an empty code point
+**/
+  protected void addParameter(int codePoint)
+  throws DBDataStreamException
+  {
+    lock(0, codePoint);
+    unlock();
+  }
 
 
 /**
