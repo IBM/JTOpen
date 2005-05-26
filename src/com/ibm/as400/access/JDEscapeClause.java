@@ -94,7 +94,7 @@ class JDEscapeClause
         //
         scalarFunctionTable_.put("insert", "SUBSTR(%1, 1, %2 - 1) || %4 || SUBSTR(%1, %2 + %3)", JDUtilities.vrm530);
         scalarFunctionTable_.put("right", "SUBSTR(%1, LENGTH(%1) - %2 + 1)", JDUtilities.vrm530);
-        scalarFunctionTable_.put("length", "LENGTH(STRIP(%1,T,' '))", JDScalarTable.NOT_SUPPORTED);
+        scalarFunctionTable_.put("length", "LENGTH(STRIP(%1,T))", JDScalarTable.NOT_SUPPORTED);
 
         // System functions.
         //
