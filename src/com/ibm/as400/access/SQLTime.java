@@ -566,8 +566,20 @@ implements SQLData
         // now, since I don't think that any such conversion
         // really makes sense.
         //
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        //@54A JDBC 3.0 specification says this converstion is valid
+        //@54D JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        //@54D return null;
+
+        //@54A
+        truncated_  = 0;                                                                //@54A
+        if(calendar == null) calendar = Calendar.getInstance();                         //@54A
+        calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);               //@54A
+        calendar.set(calendar.MILLISECOND, 0);                                          //@54A
+        Timestamp ts = new Timestamp(calendar.getTime().getTime());                     //@54A
+        ts.setNanos(0);                                                                 //@54A
+        return ts;                                                                      //@54A
+
+
     }
 
     public InputStream  getUnicodeStream()
