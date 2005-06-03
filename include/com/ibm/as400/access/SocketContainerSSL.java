@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: SocketContainerSSL.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SocketContainerSSL.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2005 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -27,27 +27,10 @@ import com.ibm.sslight.SSLightKeyRing;
 // SocketContainerSSL contains a socket capable of SSL communications.
 class SocketContainerSSL extends SocketContainer
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    private SSLSocket sslSocket;
-    private SSLOptions options_;
+    private SSLSocket sslSocket_;
 
-    void setOptions(SSLOptions options)
+    void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
-        options_ = options;
-    }
-
-    // Store the socket.
-    void setSocket(Socket socket)
-    {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: setSocket");
-        this.socket = socket;
-    }
-
-    void setServiceName(String serviceName) throws IOException
-    {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: setServiceName");
-        super.setServiceName(serviceName);
-
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: create SSLContext");
         SSLContext context = new SSLContext();
 
@@ -56,12 +39,12 @@ class SocketContainerSSL extends SocketContainer
             context.debug = true;
         }
 
-        if (options_.keyRingData_ == null)
+        if (options.keyRingData_ == null)
         {
             try
             {
-                SSLightKeyRing ring = (SSLightKeyRing)Class.forName(options_.keyRingName_).newInstance();
-                options_.keyRingData_ = ring.getKeyRingData();
+                SSLightKeyRing ring = (SSLightKeyRing)Class.forName(options.keyRingName_).newInstance();
+                options.keyRingData_ = ring.getKeyRingData();
             }
             catch (Exception e)
             {
@@ -69,7 +52,7 @@ class SocketContainerSSL extends SocketContainer
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
             }
         }
-        context.importKeyRings(options_.keyRingData_, options_.keyRingPassword_);
+        context.importKeyRings(options.keyRingData_, options.keyRingPassword_);
 
         if (Trace.isTraceOn())
         {
@@ -82,14 +65,14 @@ class SocketContainerSSL extends SocketContainer
         }
 
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: create SSLSocket");
-        sslSocket = new SSLSocket(socket, false, context, SSLSocket.CLIENT, null);
+        sslSocket_ = new SSLSocket(socket, false, context, SSLSocket.CLIENT, null);
         if (Trace.isTraceOn())
         {
             Trace.log(Trace.DIAGNOSTIC, "SSL connection established");
-            Trace.log(Trace.DIAGNOSTIC, "   cipher suite:       " + sslSocket.getCipherSuite());
-            Trace.log(Trace.DIAGNOSTIC, "   compression method: " + sslSocket.getCompressionMethod());
+            Trace.log(Trace.DIAGNOSTIC, "   cipher suite:       " + sslSocket_.getCipherSuite());
+            Trace.log(Trace.DIAGNOSTIC, "   compression method: " + sslSocket_.getCompressionMethod());
 
-            SSLCert[] chain = sslSocket.getPeerCertificateChain();
+            SSLCert[] chain = sslSocket_.getPeerCertificateChain();
             if (chain != null)
             {
                 Trace.log(Trace.DIAGNOSTIC, "Peer Certificate:");
@@ -120,30 +103,18 @@ class SocketContainerSSL extends SocketContainer
     void close() throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: close");
-        sslSocket.close();
+        sslSocket_.close();
     }
 
     InputStream getInputStream() throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: getInputStream");
-        return sslSocket.getInputStream();
+        return sslSocket_.getInputStream();
     }
 
     OutputStream getOutputStream() throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: getOutputStream");
-        return sslSocket.getOutputStream();
-    }
-
-    byte[] getUser() throws IOException
-    {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: getUser");
-        return null;
-    }
-
-    byte[] getSubstPassword(byte[] clientSeed, byte[] serverSeed) throws IOException
-    {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerSSL: getSubstPassword");
-        return null;
+        return sslSocket_.getOutputStream();
     }
 }
