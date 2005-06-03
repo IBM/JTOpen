@@ -36,7 +36,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
  Represents the authentication information and a set of connections to a server.
- <p>If running under i5/OS or an older version of this operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
+ <p>If running under i5/OS or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
  <p>If running on another operating system to a server, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running from another operating system.
  <p>For example:
  <pre>
@@ -108,15 +108,15 @@ public class AS400 implements Serializable
     public static final int AUTHENTICATION_SCHEME_IDENTITY_TOKEN = 3;
 
     /**
-     Constant indicating that the JGSS framework must be used when no password or profile token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
+     Constant indicating that the JGSS framework must be used when no password or authentication token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
      **/
     public static final int GSS_OPTION_MANDATORY = 0;
     /**
-     Constant indicating that the JGSS framework will be attempted when no password or profile token is set.  An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present a sign-on dialog or use the current user profile information.  This option is the default.
+     Constant indicating that the JGSS framework will be attempted when no password or authentication token is set.  An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present a sign-on dialog or use the current user profile information.  This option is the default.
      **/
     public static final int GSS_OPTION_FALLBACK = 1;
     /**
-     Constant indicating that the JGSS framework will not be used when no password or profile token is set.  An object set to this option will only present a sign-on dialog or use the current user profile information.
+     Constant indicating that the JGSS framework will not be used when no password or authentication token is set.  An object set to this option will only present a sign-on dialog or use the current user profile information.
      **/
     public static final int GSS_OPTION_NONE = 2;
 
@@ -140,10 +140,19 @@ public class AS400 implements Serializable
                 if (version != null)
                 {
                     char[] versionChars = version.toCharArray();
-                    int vrm = ((versionChars[1] & 0x000F) << 16) +
-                              ((versionChars[3] & 0x000F) <<  8) +
-                               (versionChars[5] & 0x000F);
-                    AS400.nativeVRM = new ServerVersion(vrm);
+                    if (versionChars.length == 6)
+                    {
+                        int vrm = ((versionChars[1] & 0x000F) << 16) +
+                                  ((versionChars[3] & 0x000F) <<  8) +
+                                   (versionChars[5] & 0x000F);
+                        AS400.nativeVRM = new ServerVersion(vrm);
+                    }
+                    else if (versionChars.length == 3)
+                    {
+                        int vrm = ((versionChars[0] & 0x000F) << 16) +
+                                  ((versionChars[2] & 0x000F) <<  8);
+                        AS400.nativeVRM = new ServerVersion(vrm);
+                    }
                 }
                 AS400.onAS400 = true;
             }
@@ -153,30 +162,20 @@ public class AS400 implements Serializable
             Trace.log(Trace.WARNING, "Error retrieving os.name:", e);
         }
 
-      // Get the "default sign-on handler" property, if it is set.
-      try
-      {
+        // Get the "default sign-on handler" property, if it is set.
         String className = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
         if (className != null)
         {
-          try
-          {
-            defaultSignonHandlerClass_ = Class.forName(className);
-          }
-          catch (Exception exc)
-          {
-            Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", exc);
-            defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
-          }
+            try
+            {
+                defaultSignonHandlerClass_ = Class.forName(className);
+            }
+            catch (Exception e)
+            {
+                Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", e);
+                defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+            }
         }
-      }
-      catch (SecurityException e)
-      {
-        Trace.log(Trace.WARNING, "Error retrieving default sign-on handler name:", e);
-      }
-    }
-    static
-    {
     }
 
     // System list:  elements are 3 element Object[]: systemName, userId, bytes.
@@ -257,14 +256,14 @@ public class AS400 implements Serializable
     // The IASP name used for the RECORDACCESS service.
     private String ddmRDB_ = null;
 
-    // The sign-on handler for this AS400 instance.
+    // The sign-on handler for this object's instance.
     private transient SignonHandler signonHandler_ = null;
     private transient boolean handlerCanceled_ = false;
 
     /**
      Constructs an AS400 object.
      <p>If running on the server, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
-     <p>If running on another system to a server, a sign-on prompt is displayed.  The user is then able to specify the system name, user ID, and password.
+     <p>If running on another system to a server, a sign-on prompt may be displayed.  The user is then able to specify the system name, user ID, and password.
      **/
     public AS400()
     {
@@ -278,7 +277,7 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name.
      <p>If running under the i5/OS to another server or to itself, the user ID and password of the current job are used.
-     <p>If running on another operating system to a server, the user is prompted for the user ID and password if a default user has not been established for this server.
+     <p>If running on another operating system to a server, the user may be prompted for the user ID and password if a default user has not been established for this server.
      @param  systemName  The name of the server.  Use localhost to access data locally.
      **/
     public AS400(String systemName)
@@ -297,7 +296,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name and user ID.  When the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
+     Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
      @param  systemName  The name of the server.  Use localhost to access data locally.
      @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
      **/
@@ -1034,8 +1033,6 @@ public class AS400 implements Serializable
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
-        byte[] proxySeed = new byte[9];
-        AS400.rng.nextBytes(proxySeed);
         chooseImpl();
         synchronized (this)
         {
@@ -1138,21 +1135,21 @@ public class AS400 implements Serializable
 
     /**
      Returns the default sign-on handler.  If none has been specified, returns an instance of the Toolbox's internal sign-on handler.
-     @return The default sign-on handler.  Never returns null.
-     @see #setDefaultSignonHandler
+     @return  The default sign-on handler.  Never returns null.
+     @see  #setDefaultSignonHandler
      **/
     public static SignonHandler getDefaultSignonHandler()
     {
-      if (defaultSignonHandler_ != null) return defaultSignonHandler_;
-      try
-      {
-        return (SignonHandler)defaultSignonHandlerClass_.newInstance();
-      }
-      catch (Exception e)
-      {
-        Trace.log(Trace.ERROR, "Unable to cast specified default sign-on handler to a SignonHandler: " + defaultSignonHandlerClass_.getName(), e);
-        return new ToolboxSignonHandler();
-      }
+        if (defaultSignonHandler_ != null) return defaultSignonHandler_;
+        try
+        {
+            return (SignonHandler)defaultSignonHandlerClass_.newInstance();
+        }
+        catch (Exception e)
+        {
+            Trace.log(Trace.ERROR, "Unable to cast specified default sign-on handler to a SignonHandler: " + defaultSignonHandlerClass_.getName(), e);
+            return new ToolboxSignonHandler();
+        }
     }
 
     /**
@@ -1678,10 +1675,10 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the sign-on handler that is used by this AS400 object.  Never returns null.
-     @return The sign-on handler.
-     @see #setSignonHandler
-     @see #setDefaultSignonHandler
+     Returns the sign-on handler that is used by this object.  Never returns null.
+     @return  The sign-on handler.
+     @see  #setSignonHandler
+     @see  #setDefaultSignonHandler
      **/
     public SignonHandler getSignonHandler()
     {
@@ -2093,157 +2090,141 @@ public class AS400 implements Serializable
     // Run through the various prompts for signon.
     private void promptSignon() throws AS400SecurityException, IOException
     {
-      if (signingOn_)
-      {
-        Trace.log(Trace.ERROR, "AS400.promptSignon() called while already signing on.  SignonHandler may have called a prohibited method.");
-        throw new ExtendedIllegalStateException(ExtendedIllegalStateException.SIGNON_ALREADY_IN_PROGRESS);
-      }
-
-      try
-      {
-        signingOn_ = true;  // detect/prevent recursion
-        boolean reconnecting = (signonInfo_ != null);  // is this a reconnection
-
-        // Start in validate state.
-        int pwState = VALIDATE;
-        SignonHandler soHandler = getSignonHandler();
-
-        // If something isn't set, go to prompt state.
-        if (byteType_ == AUTHENTICATION_SCHEME_PASSWORD &&
-            (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null ||
-             !(soHandler instanceof ToolboxSignonHandler)))
+        if (signingOn_)
         {
-          pwState = PROMPT;
+            Trace.log(Trace.ERROR, "AS400.promptSignon() called while already signing on.  SignonHandler may have called a prohibited method.");
+            throw new ExtendedIllegalStateException(ExtendedIllegalStateException.SIGNON_ALREADY_IN_PROGRESS);
         }
 
-        int counter = 0;  // loop counter to detect infinite looping
-        boolean proceed = true;
-
-        do
+        try
         {
-          counter++;
-          try
-          {
-            switch (pwState)
+            signingOn_ = true;  // Detect/prevent recursion.
+            boolean reconnecting = (signonInfo_ != null);  // Is this a reconnection.
+
+            // Start in validate state.
+            int pwState = VALIDATE;
+            SignonHandler soHandler = getSignonHandler();
+
+            // If something isn't set, go to prompt state.
+            if (byteType_ == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null || !(soHandler instanceof ToolboxSignonHandler)))
             {
-
-              case VALIDATE:
-
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validate security...");
-                sendSignonRequest();
-                break;
-
-
-              case PROMPT:
-
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling SignonHandler...");
-                // If bytes_ has not been set, tell the handler something is missing.
-                SignonEvent soEvent = new SignonEvent(this, reconnecting);
-                proceed = soHandler.connectionInitiated(soEvent, (bytes_ == null));
-                if (!proceed)
-                {
-                  // User canceled.
-                  Trace.log(Trace.DIAGNOSTIC, "User canceled.");
-                  handlerCanceled_ = true;  // don't submit exception to handler
-                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
-                }
-
-                sendSignonRequest();
-
-                // See if we should cache the password.
-                if (isUsePasswordCache() &&
-                    byteType_ == AUTHENTICATION_SCHEME_PASSWORD)
-                {
-                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from SignonHandler...");
-                  setCacheEntry(systemName_, userId_, bytes_);
-                }
-                break;
-
-
-              default:  // this should never happen
-
-                Trace.log(Trace.ERROR, "Invalid password prompt state:", pwState);
-                throw new InternalErrorException(InternalErrorException.SECURITY_INVALID_STATE, pwState);
-
-            }  // switch
-
-
-            // Check for number of days to expiration, and warn if within threshold.
-            if (getDaysToExpiration() < AS400.expirationWarning)
-            {
-              SignonEvent soEvent = new SignonEvent(this, reconnecting);
-              proceed = soHandler.passwordAboutToExpire(soEvent, getDaysToExpiration());
-              if (!proceed)
-              {
-                handlerCanceled_ = true;  // don't submit exception to handler
-                throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
-              }
+                pwState = PROMPT;
             }
 
-            pwState = FINISHED;  // if we got this far, we're done
-          }
-          catch (AS400SecurityException e)
-          {
-            if (handlerCanceled_) throw e;  // handler already gave up on this event
-            Trace.log(Trace.ERROR, "Security exception in sign-on:", e);
-            SignonEvent soEvent = new SignonEvent(this, reconnecting, e);
-            switch (e.getReturnCode())
+            int counter = 0;  // Loop counter to detect infinite looping.
+            boolean proceed = true;
+
+            do
             {
-              case AS400SecurityException.PASSWORD_EXPIRED:
-                proceed = soHandler.passwordExpired(soEvent);
-                break;
-              case AS400SecurityException.PASSWORD_NOT_SET:
-                proceed = soHandler.passwordMissing(soEvent);
-                break;
-              case AS400SecurityException.PASSWORD_INCORRECT:
-              case AS400SecurityException.PASSWORD_OLD_NOT_VALID:
-                proceed = soHandler.passwordIncorrect(soEvent);
-                break;
-              case AS400SecurityException.PASSWORD_LENGTH_NOT_VALID:
-              case AS400SecurityException.PASSWORD_NEW_TOO_LONG:
-              case AS400SecurityException.PASSWORD_NEW_TOO_SHORT:
-                proceed = soHandler.passwordLengthIncorrect(soEvent);
-                break;
-              case AS400SecurityException.PASSWORD_INCORRECT_USERID_DISABLE:
-                proceed = soHandler.userIdAboutToBeDisabled(soEvent);
-                break;
-              case AS400SecurityException.USERID_UNKNOWN:
-                proceed = soHandler.userIdUnknown(soEvent);
-                break;
-              case AS400SecurityException.USERID_DISABLE:
-                proceed = soHandler.userIdDisabled(soEvent);
-                break;
-              default:
-                soHandler.exceptionOccurred(soEvent);  // handler rethrows if can't handle
+                counter++;
+                try
+                {
+                    switch (pwState)
+                    {
+                        case VALIDATE:
+                            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validate security...");
+                            sendSignonRequest();
+                            break;
+                        case PROMPT:
+                            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling SignonHandler...");
+                            // If bytes_ has not been set, tell the handler something is missing.
+                            SignonEvent soEvent = new SignonEvent(this, reconnecting);
+                            proceed = soHandler.connectionInitiated(soEvent, (bytes_ == null));
+                            if (!proceed)
+                            {
+                                // User canceled.
+                                Trace.log(Trace.DIAGNOSTIC, "User canceled.");
+                                handlerCanceled_ = true;  // Don't submit exception to handler.
+                                throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
+                            }
+
+                            sendSignonRequest();
+
+                            // See if we should cache the password.
+                            if (isUsePasswordCache() && byteType_ == AUTHENTICATION_SCHEME_PASSWORD)
+                            {
+                                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from SignonHandler...");
+                                setCacheEntry(systemName_, userId_, bytes_);
+                            }
+                            break;
+                        default:  // This should never happen.
+                            Trace.log(Trace.ERROR, "Invalid password prompt state:", pwState);
+                            throw new InternalErrorException(InternalErrorException.SECURITY_INVALID_STATE, pwState);
+                    }
+
+                    // Check for number of days to expiration, and warn if within threshold.
+                    if (getDaysToExpiration() < AS400.expirationWarning)
+                    {
+                        SignonEvent soEvent = new SignonEvent(this, reconnecting);
+                        proceed = soHandler.passwordAboutToExpire(soEvent, getDaysToExpiration());
+                        if (!proceed)
+                        {
+                            handlerCanceled_ = true;  // Don't submit exception to handler.
+                            throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
+                        }
+                    }
+                    pwState = FINISHED;  // If we got this far, we're done.
+                }
+                catch (AS400SecurityException e)
+                {
+                    if (handlerCanceled_) throw e;  // Handler already gave up on this event.
+                    Trace.log(Trace.ERROR, "Security exception in sign-on:", e);
+                    SignonEvent soEvent = new SignonEvent(this, reconnecting, e);
+                    switch (e.getReturnCode())
+                    {
+                        case AS400SecurityException.PASSWORD_EXPIRED:
+                            proceed = soHandler.passwordExpired(soEvent);
+                            break;
+                        case AS400SecurityException.PASSWORD_NOT_SET:
+                            proceed = soHandler.passwordMissing(soEvent);
+                            break;
+                        case AS400SecurityException.PASSWORD_INCORRECT:
+                        case AS400SecurityException.PASSWORD_OLD_NOT_VALID:
+                            proceed = soHandler.passwordIncorrect(soEvent);
+                            break;
+                        case AS400SecurityException.PASSWORD_LENGTH_NOT_VALID:
+                        case AS400SecurityException.PASSWORD_NEW_TOO_LONG:
+                        case AS400SecurityException.PASSWORD_NEW_TOO_SHORT:
+                            proceed = soHandler.passwordLengthIncorrect(soEvent);
+                            break;
+                        case AS400SecurityException.PASSWORD_INCORRECT_USERID_DISABLE:
+                            proceed = soHandler.userIdAboutToBeDisabled(soEvent);
+                            break;
+                        case AS400SecurityException.USERID_UNKNOWN:
+                            proceed = soHandler.userIdUnknown(soEvent);
+                            break;
+                        case AS400SecurityException.USERID_DISABLE:
+                            proceed = soHandler.userIdDisabled(soEvent);
+                            break;
+                        default:
+                            soHandler.exceptionOccurred(soEvent);  // Handler rethrows if can't handle.
+                    }
+                    if (!proceed) { throw e; }
+
+                    // Assume handler has corrected any incorrect values. Prepare to try again.
+                    pwState = VALIDATE;
+                }
+                catch (UnknownHostException e)
+                {
+                    SignonEvent soEvent = new SignonEvent(this, reconnecting);
+                    proceed = soHandler.systemNameUnknown(soEvent, e);
+                    if (!proceed) { throw e; }
+                    pwState = VALIDATE;
+                }
             }
-            if (!proceed) { throw e; }
+            while (pwState != FINISHED && counter < MAX_ITERATIONS);
 
-            // Assume handler has corrected any incorrect values. Prepare to try again.
-            pwState = VALIDATE;
-          }
-          catch (UnknownHostException e)
-          {
-            SignonEvent soEvent = new SignonEvent(this, reconnecting);
-            proceed = soHandler.systemNameUnknown(soEvent, e);
-            if (!proceed) { throw e; }
-            pwState = VALIDATE;
-          }
+            if (pwState != FINISHED)
+            {
+                Trace.log(Trace.ERROR, "Possible infinite loop while interacting with SignonHandler.");
+                throw new AS400SecurityException(AS400SecurityException.SIGNON_REQUEST_NOT_VALID);
+            }
         }
-        while (pwState != FINISHED && counter < MAX_ITERATIONS);
-
-        if (pwState != FINISHED)
+        finally
         {
-          Trace.log(Trace.ERROR, "Possible infinite loop while interacting with SignonHandler.");
-          throw new AS400SecurityException(AS400SecurityException.SIGNON_REQUEST_NOT_VALID);
+            signingOn_ = false;
         }
-
-      }
-      finally
-      {
-        signingOn_ = false;
-      }
     }
-
 
     // Help de-serialize the object.
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
@@ -2673,12 +2654,12 @@ public class AS400 implements Serializable
      **/
     public static void setDefaultSignonHandler(SignonHandler handler)
     {
-      if (Trace.traceOn_)
-      {
-        if (handler == null) Trace.log(Trace.DIAGNOSTIC, "Setting the default sign-on handler to null.");
-        else if (defaultSignonHandler_ != null) Trace.log(Trace.DIAGNOSTIC, "Replacing default sign-on handler, formerly an instance of " + defaultSignonHandler_.getClass().getName());
-      }
-      defaultSignonHandler_ = handler;
+        if (Trace.traceOn_)
+        {
+            if (handler == null) Trace.log(Trace.DIAGNOSTIC, "Setting the default sign-on handler to null.");
+            else if (defaultSignonHandler_ != null) Trace.log(Trace.DIAGNOSTIC, "Replacing default sign-on handler, formerly an instance of " + defaultSignonHandler_.getClass().getName());
+        }
+        defaultSignonHandler_ = handler;
     }
 
     /**
@@ -3080,12 +3061,12 @@ public class AS400 implements Serializable
      **/
     public void setSignonHandler(SignonHandler handler)
     {
-      if (Trace.traceOn_)
-      {
-        if (handler == null) Trace.log(Trace.DIAGNOSTIC, "Setting the sign-on handler to null.");
-        if (signonHandler_ != null) Trace.log(Trace.DIAGNOSTIC, "Sign-on handler was formerly an instance of " + signonHandler_.getClass().getName());
-      }
-      signonHandler_ = handler;
+        if (Trace.traceOn_)
+        {
+            if (handler == null) Trace.log(Trace.DIAGNOSTIC, "Setting the sign-on handler to null.");
+            if (signonHandler_ != null) Trace.log(Trace.DIAGNOSTIC, "Sign-on handler was formerly an instance of " + signonHandler_.getClass().getName());
+        }
+        signonHandler_ = handler;
     }
 
     /**
@@ -3122,8 +3103,7 @@ public class AS400 implements Serializable
             throw new NullPointerException("systemName");
         }
         if (systemName.equals(systemName_)) return;
-        if (propertiesFrozen_ &&
-            (systemNameLocal_ || systemName_.length() != 0))
+        if (propertiesFrozen_ && (systemNameLocal_ || systemName_.length() != 0))
         {
             Trace.log(Trace.ERROR, "Cannot set system name after connection has been made.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SocketContainerUnix.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2005 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -16,16 +16,15 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 class SocketContainerUnix extends SocketContainer
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    private UnixSocket usocket;
+    private UnixSocket usocket_;
 
-    void setServiceName(String serviceName) throws IOException
+
+    void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
-        super.setServiceName(serviceName);
-
         int serverNumber = 0;
         if (serviceName.equalsIgnoreCase("as-central"))
         {
@@ -52,33 +51,21 @@ class SocketContainerUnix extends SocketContainer
             serverNumber = 8;
         }
 
-        usocket = new UnixSocket(serverNumber);
+        usocket_ = new UnixSocket(serverNumber);
     }
 
     void close() throws IOException
     {
-        usocket.close();
+        usocket_.close();
     }
 
     InputStream getInputStream() throws IOException
     {
-        return usocket.getInputStream();
+        return usocket_.getInputStream();
     }
 
     OutputStream getOutputStream() throws IOException
     {
-        return usocket.getOutputStream();
-    }
-
-    byte[] getUser() throws IOException
-    {
-        UnixSocketUser user = new UnixSocketUser();
-        return user.getUserId();
-    }
-
-    byte[] getSubstPassword(byte[] clientSeed, byte[] serverSeed) throws IOException
-    {
-        UnixSocketUser user = new UnixSocketUser();
-        return user.getSubstitutePassword(clientSeed, serverSeed);
+        return usocket_.getOutputStream();
     }
 }

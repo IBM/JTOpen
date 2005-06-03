@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1998-2003 International Business Machines Corporation and
+// Copyright (C) 1998-2005 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,8 +22,6 @@ import java.util.Hashtable;
 
 class PortMapper
 {
-    private static final String copyright = "Copyright (C) 1998-2003 International Business Machines Corporation and others.";
-
     private PortMapper()
     {
     }
@@ -119,10 +117,10 @@ class PortMapper
             try
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a local socket to " + serviceName);
-                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix");
+                sc = AS400.nativeVRM.vrm_ < 0x00050400 ? (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix") : (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix2");
                 if (sc != null)
                 {
-                    sc.setServiceName(serviceName);
+                    sc.setProperties(null, serviceName, null, 0, null);
                     return sc;
                 }
             }
@@ -180,25 +178,20 @@ class PortMapper
             {
                 if (useSSL.useSslight_) throw new Exception();
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
-                ((SocketContainerJSSE)sc).setSystemNameAndPort(systemName, srvPort);
-                sc.setSocket(socket);
-                sc.setServiceName(serviceName);
+                sc.setProperties(socket, null, systemName, srvPort, null);
             }
             catch (Throwable e)
             {
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception using JSSE falling back to sslight:", e);
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerSSL");
-                ((SocketContainerSSL)sc).setOptions(useSSL);
-                sc.setSocket(socket);
-                sc.setServiceName(serviceName);
+                sc.setProperties(socket, null, null, 0, useSSL);
             }
         }
         else
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting an inet socket to " + serviceName);
             sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerInet");
-            sc.setSocket(socket);
-            sc.setServiceName(serviceName);
+            sc.setProperties(socket, null, null, 0, null);
         }
         return sc;
     }

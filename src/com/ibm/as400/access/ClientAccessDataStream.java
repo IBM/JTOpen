@@ -50,6 +50,13 @@ class ClientAccessDataStream extends DataStream
         throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
       }
 
+      if (baseDataStream.data_[6] != (byte)0xE0)
+      {
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Incorrect data stream header detected.");
+          baseDataStream.inUse_ = false;
+          throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+      }
+
       // First look for an instance data stream.
       // If we found it remove it since instance datastreams are only used once.
       // Print is the only thing that uses this.

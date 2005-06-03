@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: SocketContainerInet.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SocketContainerInet.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2005 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -16,33 +16,29 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 
 class SocketContainerInet extends SocketContainer
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    Socket socket_;
+
+    void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
+    {
+        socket_ = socket;
+    }
 
     void close() throws IOException
     {
-        socket.close();
+        socket_.close();
     }
 
     InputStream getInputStream() throws IOException
     {
-        return socket.getInputStream();
+        return socket_.getInputStream();
     }
 
     OutputStream getOutputStream() throws IOException
     {
-        return socket.getOutputStream();
-    }
-
-    byte[] getUser() throws IOException
-    {
-        return null;
-    }
-
-    byte[] getSubstPassword(byte[] clientSeed, byte[] serverSeed) throws IOException
-    {
-        return null;
+        return socket_.getOutputStream();
     }
 }

@@ -42,6 +42,7 @@ final class CADSPool
       }
       // Need more streams
       ClientAccessDataStream[] newStreams = new ClientAccessDataStream[max*2];
+      System.arraycopy(streams_, 0, newStreams, 0, max);
       newStreams[max] = new ClientAccessDataStream();
       newStreams[max].inUse_ = true;
       streams_ = newStreams;
