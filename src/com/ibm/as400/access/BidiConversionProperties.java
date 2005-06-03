@@ -242,7 +242,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Sets the bidi consider white space to always follow base orientation property.  This property is false by default.
-     @param  bidiRemoveDirectionalMarks  true to consider white space to always follow base orientation; false otherwise.
+     @param  wordBreak  true to consider white space to always follow base orientation; false otherwise.
      **/
     public void setBidiWordBreak(boolean wordBreak)
     {
@@ -262,7 +262,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Sets the bidi destination required property.  This property is true by default.
-     @param  bidiRemoveDirectionalMarks  true if the destination is required; false otherwise.
+     @param  destinationRequired  true if the destination is required; false otherwise.
      **/
     public void setBidiDestinationRequired(boolean destinationRequired)
     {
@@ -322,7 +322,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Sets the create a property map property.  This property is false by default.
-     @param  dstToSrcMapRequired  true to use the create a property map property; false otherwise.
+     @param  propertyMapRequired  true to use the create a property map property; false otherwise.
      **/
     public void setBidiCreatePropertyMap(boolean propertyMapRequired)
     {
