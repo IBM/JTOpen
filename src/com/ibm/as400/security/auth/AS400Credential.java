@@ -493,7 +493,22 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
       AS400CredentialImpl impl = null;
       try
       {
-         impl = (AS400CredentialImpl)Class.forName(implClassName()).newInstance();
+          try
+          {
+              impl = (AS400CredentialImpl)Class.forName(implClassName()).newInstance();
+          }
+          catch (Exception e)
+          {
+              if (implClassNameNative() != null && implClassName().equals(implClassNameNative()))
+              {
+                  Trace.log(Trace.DIAGNOSTIC, "Load of native implementation '" + implClassNameNative() + "' failed, attempting to load remote implementation.");
+                  impl = (AS400CredentialImpl)Class.forName(implClassNameRemote()).newInstance();
+              }
+              else
+              {
+                  throw e;
+              }
+          }
          // Check impl version
          if ( impl.getVersion() < typeMinImplVersion() )
          {
