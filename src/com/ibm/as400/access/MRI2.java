@@ -26,6 +26,10 @@ Locale-specific objects for the IBM Toolbox for Java.
 //
 public class MRI2 extends ListResourceBundle
 {
+   // NLS_MESSAGEFORMAT_NONE
+   // Each string is assumed NOT to be processed by the MessageFormat class.
+   // This means that a single quote must be coded as 1 single quote.
+
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
@@ -679,6 +683,7 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_NWID_ATM",                    "Asynchronous transfer mode" },
       { "TYPE_NWID_FR",                     "Frame relay" },
       { "TYPE_NWID_ISDN",                   "ISDN" },
+      { "TYPE_NWSCFG",                      "Network server configuration" }, //@K2A
       { "TYPE_NWSD",                        "Network server description" },
       { "TYPE_NWSD_WINDOWSNT",              "Windows" },
       { "TYPE_OUTQ",                        "Output queue" },
