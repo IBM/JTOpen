@@ -9,8 +9,8 @@ Copyright (C) 1997-2005 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: February 22, 2005
-<!-- cvs log -rJTOpen_4_6:JTOpen_4_7 -N -d >2004-10-26 -->
+Last updated: June 20, 2005
+<!-- cvs log -rJTOpen_4_7:JTOpen_4_8 -N -d >2005-02-22 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#48">Fixes and enhancements in JTOpen 4.8</A><BR>
 <A HREF="#47">Fixes and enhancements in JTOpen 4.7</A><BR>
 <A HREF="#46">Fixes and enhancements in JTOpen 4.6</A><BR>
 <A HREF="#45_1">Fixes and enhancements in JTOpen 4.5.1</A><BR>
@@ -38,6 +39,46 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="48">Fixes and enhancements in JTOpen 4.8</A></H3>
+<PRE>
+- <i>Various:</i> Call setThreadSafe() only if threadsafe property not set.
+- <i>Various:</i> Javadoc fixes and enhancements.
+- <i>Various:</i> Native method updates.
+- Data conversion: Additional bidi transform options.
+- IFS: Tolerate quotes within filenames.
+- JDBC: Added support for 2 MB SQL Statements, 128 byte column names, database host server trace, and added the query optimize goal property.
+- JDBC: Allow TMRESUME on a start() request if the server supports it.
+- JDBC: Allow a Timestamp to be retrieved from a TIME field.
+- JDBC: Allow extended column descriptors to be returned for a stored procedure result set.
+- JDBC: Allow retrieval of Aliases on a call to DatabaseMetaData.getTables().
+- JDBC: Catch ExtendedIllegalArgumentException from AS400PackedDecimal.toBytes() or AS400ZonedDecimal.toBytes(); convert to an SQLException.
+- JDBC: Catch StringIndexOutOfBoundsException when constructing a BigDecimal with a String.
+- JDBC: Changed the Internal Driver Error to a Data Type Mismatch error in convertToRawBytes().
+- JDBC: Fixed JTOpen Bug 1150395. Page backwards using relative() through a result set.
+- JDBC: Fixed JTOpen Bug 1155804. Improved collection pool cleanup logic.
+- JDBC: Pass the result set type to JDServerRowCache.
+- JDBC: Removed the literal space from the strip function.
+- JDBC: Reset data lengths and offsets based on the server format, if VLC compression was not used on a subsequent fetch.
+- JDBC: Retrieve the most recently used connection from the pool.
+- JDBC: Return VARCHAR for the Type Name and 12 for the type for a Long Varchar.
+- JDBC: Send a zero length package name when we ask for a normal prepare.
+- JDBC: Send empty Package name code point when doing a normal prepare and extended dynamic support is requested.
+- JDBC: Turn auto-commit back on and set the commitment control parser option when an XA transaction is ended.
+- Job: Added JOB_LOG_OUTPUT property.
+- JobList: Joblist.load() hangs with certain selection criteria.
+- Message queue: Fixed overflow in calculating receiver variable size.
+- Print: Added print attribute ATTR_PUBINF.
+- QSYS object types: Added new and missing object types.
+- RLA: Added Record.getFieldAsBytes() methods.
+- Resource: Deprecated package <tt>com.ibm.as400.resource</tt>
+- System status: Added getters for 4 additional properties.
+- System status: Added method getProcessorSharingAttribute().
+- System value: Corrected data type for QTHDRSCAFN.
+- Utilities: Deprecated class <tt>utilities.AS400ToolboxInstaller</tt>
+- Vaccess: Deprecated package <tt>com.ibm.as400.vaccess</tt>
+</PRE>
 
 <HR>
 <H3><A NAME="47">Fixes and enhancements in JTOpen 4.7</A></H3>
