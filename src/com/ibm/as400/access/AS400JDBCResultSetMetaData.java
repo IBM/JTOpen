@@ -300,7 +300,9 @@ implements ResultSetMetaData
         if(extendedColumnDescriptors_ != null)                                  //@G1A
         {
             //@G1A
-            return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableSchemaName(convTable_);   //@G1A
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
+            if(dataFormat != null) //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
+                return dataFormat.getBaseTableSchemaName(convTable_);   //@G1A
         }                                                                        //@G1A
 
         //else return ""
