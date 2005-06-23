@@ -145,7 +145,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   *  Fire the connection closed event.
   *  @param event The ConnectionEvent.
   **/
-  synchronized void fireConnectionCloseEvent(ConnectionEvent event)
+  void fireConnectionCloseEvent(ConnectionEvent event)
   {
     // This gets called by AS400JDBCConnectionHandle.close().
     returned();                                     // Reset the pooledConnection.
