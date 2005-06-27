@@ -1723,7 +1723,7 @@ class AS400ImplRemote implements AS400Impl
                 signonInfo_ = new SignonInfo();
                 signonInfo_.currentSignonDate = date;
                 signonInfo_.lastSignonDate = date;
-                signonInfo_.expirationDate = new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(data, 8)/*year*/, (int)(data[10] - 1)/*month convert to zero based*/, (int)(data[11])/*day*/, (int)(data[12])/*hour*/, (int)(data[13])/*minute*/, (int)(data[14])/*second*/);
+                signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null : new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(data, 8)/*year*/, (int)(data[10] - 1)/*month convert to zero based*/, (int)(data[11])/*day*/, (int)(data[12])/*hour*/, (int)(data[13])/*minute*/, (int)(data[14])/*second*/);
 
                 signonInfo_.version = AS400.nativeVRM;
                 try

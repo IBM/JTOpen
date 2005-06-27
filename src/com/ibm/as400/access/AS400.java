@@ -1323,9 +1323,9 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the password expiration date for the signed-on user.
+     Returns the password expiration date for the signed-on user.  If the profile's password expiration interval is set to *NOMAX, null is returned.
      <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
-     @return  The password expiration date.
+     @return  The password expiration date.  If the profile has no password expiration data (*NOMAX), null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
      **/
