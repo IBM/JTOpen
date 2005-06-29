@@ -299,6 +299,101 @@ public class JobList implements Serializable
     // Shared error code parameter.
     private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
 
+    // Holds the lengths for all of the valid sort keys.
+    static final IntegerHashtable sortableKeys_ = new IntegerHashtable();
+    static
+    {
+        sortableKeys_.put(Job.ACTIVE_JOB_STATUS, 4);
+        sortableKeys_.put(Job.ALLOW_MULTIPLE_THREADS, 1);
+        sortableKeys_.put(Job.ACTIVE_JOB_STATUS_FOR_JOBS_ENDING, 4);
+        sortableKeys_.put(Job.BREAK_MESSAGE_HANDLING, 10);
+        sortableKeys_.put(Job.CCSID, 4); // Binary
+        sortableKeys_.put(Job.COUNTRY_ID, 2);
+        sortableKeys_.put(Job.CPU_TIME_USED, 4); // Binary
+        sortableKeys_.put(Job.CURRENT_USER, 10);
+        sortableKeys_.put(Job.COMPLETION_STATUS, 1);
+        sortableKeys_.put(Job.CURRENT_SYSTEM_POOL_ID, 4); // Binary
+        sortableKeys_.put(Job.CHARACTER_ID_CONTROL, 10);
+        sortableKeys_.put(Job.CPU_TIME_USED_LARGE, 8); // Binary
+        sortableKeys_.put(Job.CPU_TIME_USED_FOR_DATABASE, 8); // Binary
+        sortableKeys_.put(Job.DATE_STARTED, 13);
+        sortableKeys_.put(Job.DATE_ENTERED_SYSTEM, 13);
+        sortableKeys_.put(Job.SCHEDULE_DATE_GETTER, 8);
+        sortableKeys_.put(Job.JOB_QUEUE_DATE, 8);
+        sortableKeys_.put(Job.DATE_FORMAT, 4);
+        sortableKeys_.put(Job.DATE_SEPARATOR, 1);
+        sortableKeys_.put(Job.DBCS_CAPABLE, 1);
+        sortableKeys_.put(Job.KEEP_DDM_CONNECTIONS_ACTIVE, 10);
+        sortableKeys_.put(Job.DEFAULT_WAIT_TIME, 4); // Binary
+        sortableKeys_.put(Job.DEVICE_RECOVERY_ACTION, 13);
+        sortableKeys_.put(Job.DEFAULT_CCSID, 4); // Binary
+        sortableKeys_.put(Job.DECIMAL_FORMAT, 1);
+        sortableKeys_.put(Job.DATE_ENDED, 13);
+        sortableKeys_.put(Job.END_SEVERITY, 4); // Binary
+        sortableKeys_.put(Job.CONTROLLED_END_REQUESTED, 1);
+        sortableKeys_.put(Job.FUNCTION_NAME, 10);
+        sortableKeys_.put(Job.FUNCTION_TYPE, 1);
+        sortableKeys_.put(Job.SIGNED_ON_JOB, 1);
+        sortableKeys_.put(Job.INQUIRY_MESSAGE_REPLY, 10);
+        sortableKeys_.put(Job.ACCOUNTING_CODE, 15);
+        sortableKeys_.put(Job.JOB_DATE, 7);
+        sortableKeys_.put(Job.JOB_DESCRIPTION, 20);
+        sortableKeys_.put(Job.JOB_QUEUE, 20);
+        sortableKeys_.put(Job.JOB_QUEUE_PRIORITY, 2);
+        sortableKeys_.put(Job.JOB_SWITCHES, 8);
+        sortableKeys_.put(Job.MESSAGE_QUEUE_ACTION, 10);
+        sortableKeys_.put(Job.MESSAGE_QUEUE_MAX_SIZE, 4); // Binary
+        sortableKeys_.put(Job.JOB_USER_IDENTITY, 10);
+        sortableKeys_.put(Job.JOB_USER_IDENTITY_SETTING, 1);
+        sortableKeys_.put(Job.JOB_END_REASON, 4); // Binary
+        sortableKeys_.put(Job.JOB_LOG_PENDING, 1);
+        sortableKeys_.put(Job.JOB_TYPE_ENHANCED, 4); // Binary
+        sortableKeys_.put(Job.JOB_LOG_OUTPUT, 10);
+        sortableKeys_.put(Job.LANGUAGE_ID, 3);
+        sortableKeys_.put(Job.LOGGING_LEVEL, 1);
+        sortableKeys_.put(Job.LOG_CL_PROGRAMS, 10);
+        sortableKeys_.put(Job.LOGGING_SEVERITY, 4); // Binary
+        sortableKeys_.put(Job.LOGGING_TEXT, 10);
+        sortableKeys_.put(Job.MODE, 8);
+        sortableKeys_.put(Job.MAX_CPU_TIME, 4); // Binary
+        sortableKeys_.put(Job.MAX_TEMP_STORAGE, 4); // Binary
+        sortableKeys_.put(Job.MAX_THREADS, 4); // Binary
+        sortableKeys_.put(Job.MAX_TEMP_STORAGE_LARGE, 4); // Binary
+        sortableKeys_.put(Job.MEMORY_POOL, 10);
+        sortableKeys_.put(Job.MESSAGE_REPLY, 1);
+        sortableKeys_.put(Job.AUXILIARY_IO_REQUESTS, 4); // Binary
+        sortableKeys_.put(Job.INTERACTIVE_TRANSACTIONS, 4); // Binary
+        sortableKeys_.put(Job.AUXILIARY_IO_REQUESTS_LARGE, 8); // Binary
+        sortableKeys_.put(Job.OUTPUT_QUEUE, 20);
+        sortableKeys_.put(Job.OUTPUT_QUEUE_PRIORITY, 2);
+        sortableKeys_.put(Job.PRINT_KEY_FORMAT, 10);
+        sortableKeys_.put(Job.PRINT_TEXT, 30);
+        sortableKeys_.put(Job.PRINTER_DEVICE_NAME, 10);
+        sortableKeys_.put(Job.ELIGIBLE_FOR_PURGE, 10);
+        sortableKeys_.put(Job.PRODUCT_RETURN_CODE, 4); // Binary
+        sortableKeys_.put(Job.PROGRAM_RETURN_CODE, 4); // Binary
+        sortableKeys_.put(Job.TOTAL_RESPONSE_TIME, 4); // Binary
+        sortableKeys_.put(Job.RUN_PRIORITY, 4); // Binary
+        sortableKeys_.put(Job.ROUTING_DATA, 80);
+        sortableKeys_.put(Job.SORT_SEQUENCE_TABLE, 20);
+        sortableKeys_.put(Job.STATUS_MESSAGE_HANDLING, 10);
+        sortableKeys_.put(Job.JOB_QUEUE_STATUS, 10);
+        sortableKeys_.put(Job.SUBMITTED_BY_JOB_NAME, 26);
+        sortableKeys_.put(Job.SUBSYSTEM, 20);
+        sortableKeys_.put(Job.SYSTEM_POOL_ID, 4); // Binary
+        sortableKeys_.put(Job.SPECIAL_ENVIRONMENT, 10);
+        sortableKeys_.put(Job.SERVER_TYPE, 30);
+        sortableKeys_.put(Job.SPOOLED_FILE_ACTION, 10);
+        sortableKeys_.put(Job.TIME_SEPARATOR, 1);
+        sortableKeys_.put(Job.TIME_SLICE, 4); // Binary
+        sortableKeys_.put(Job.TIME_SLICE_END_POOL, 10);
+        sortableKeys_.put(Job.TEMP_STORAGE_USED, 4); // Binary
+        sortableKeys_.put(Job.THREAD_COUNT, 4); // Binary
+        sortableKeys_.put(Job.TEMP_STORAGE_USED_LARGE, 4); // Binary
+        sortableKeys_.put(Job.UNIT_OF_WORK_ID, 24);
+        sortableKeys_.put(Job.USER_RETURN_CODE, 4); // Binary
+    }
+
     // The server where the jobs are located.
     private AS400 system_;
     // List of property change event bean listeners.
@@ -1110,7 +1205,7 @@ public class JobList implements Serializable
         BinaryConverter.intToByteArray(currentSortKey_, sortInformation, 0);
         for (int i = 0, offset = 4; i < currentSortKey_; ++i)
         {
-            int fieldLength = Job.setterKeys_.get(sortKeys_[i]);
+            int fieldLength = sortableKeys_.get(sortKeys_[i]);
             short dataType = (short)4;  // Data type 4 = character data, NLS-sort supported, DBCS treated as single-byte.
             // We'll use 0 (signed binary) for all of the int types:
             switch (sortKeys_[i])
@@ -1197,7 +1292,7 @@ public class JobList implements Serializable
                     fieldStartingPosition = 61;  //OLJB0200 format.
                     for (int j = 0; keys_[j] != sortKeys_[i]; ++j)
                     {
-                        fieldStartingPosition += Job.setterKeys_.get(keys_[j]);
+                        fieldStartingPosition += sortableKeys_.get(keys_[j]);
                     }
                     break;
             }
