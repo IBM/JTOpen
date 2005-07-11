@@ -368,10 +368,10 @@ public class SystemValueList implements Serializable
         SystemValueList.list.put("QLOGOUTPUT", new SystemValueInfo("QLOGOUTPUT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM540, ResourceBundleLoader.getSystemValueText("QLOGOUTPUT_DES")));
 
         // Populate the group vectors.
-        Enumeration enum = SystemValueList.list.elements();
-        while (enum.hasMoreElements())
+        Enumeration elements = SystemValueList.list.elements();
+        while (elements.hasMoreElements())
         {
-            SystemValueInfo obj = (SystemValueInfo)enum.nextElement();
+            SystemValueInfo obj = (SystemValueInfo)elements.nextElement();
             SystemValueList.groups[obj.group_].addElement(obj);
             SystemValueList.groups[GROUP_ALL].addElement(obj);
         }
@@ -734,10 +734,10 @@ public class SystemValueList implements Serializable
         Vector lessthan = new Vector(len / 2);
         Vector equalto = new Vector(len / 2);
         Vector greaterthan = new Vector(len / 2);
-        Enumeration enum = vec.elements();
-        while (enum.hasMoreElements())
+        Enumeration elements = vec.elements();
+        while (elements.hasMoreElements())
         {
-            SystemValue obj = (SystemValue)enum.nextElement();
+            SystemValue obj = (SystemValue)elements.nextElement();
             int comparison = obj.getName().compareTo(middle.getName());
             if (comparison < 0) lessthan.addElement(obj);
             else if (comparison > 0) greaterthan.addElement(obj);
@@ -749,20 +749,20 @@ public class SystemValueList implements Serializable
         Vector lefthalf = sort(lessthan);
         Vector righthalf = sort(greaterthan);
         Vector whole = new Vector(lefthalf.size() + righthalf.size() + equalto.size());
-        enum = lefthalf.elements();
-        while (enum.hasMoreElements())
+        elements = lefthalf.elements();
+        while (elements.hasMoreElements())
         {
-            whole.addElement(enum.nextElement());
+            whole.addElement(elements.nextElement());
         }
-        enum = equalto.elements();
-        while (enum.hasMoreElements())
+        elements = equalto.elements();
+        while (elements.hasMoreElements())
         {
-            whole.addElement(enum.nextElement());
+            whole.addElement(elements.nextElement());
         }
-        enum = righthalf.elements();
-        while (enum.hasMoreElements())
+        elements = righthalf.elements();
+        while (elements.hasMoreElements())
         {
-            whole.addElement(enum.nextElement());
+            whole.addElement(elements.nextElement());
         }
         return whole;
     }

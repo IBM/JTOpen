@@ -693,9 +693,9 @@ public class Subsystem
   {
     Vector sbsList = new Vector(20);
     ObjectList objList = new ObjectList(system, "*ALL", "*ALL", "*SBSD");
-    Enumeration enum = objList.getObjects();
-    while (enum.hasMoreElements()) {
-      ObjectDescription objDesc = (ObjectDescription)enum.nextElement();
+    Enumeration list = objList.getObjects();
+    while (list.hasMoreElements()) {
+      ObjectDescription objDesc = (ObjectDescription)list.nextElement();
       Subsystem sbs = new Subsystem(system, objDesc.getPath());
       sbsList.addElement(sbs);
     }

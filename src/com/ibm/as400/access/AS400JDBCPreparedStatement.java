@@ -936,13 +936,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 // Execute.
                 if(canBatch)
                 {
-                    Enumeration enum = batch_.elements();
+                    Enumeration list = batch_.elements();
                     int count = 0;                                //@K1A   Added support for allowing more than 32000 SQL Statements to be batched and run
-                    while (enum.hasMoreElements())                
+                    while (list.hasMoreElements())                
                     {
-                        batchParameterRows_.add(enum.nextElement());
+                        batchParameterRows_.add(list.nextElement());
                         count++;                                    //@K1A
-                        if(count == 32000 && enum.hasMoreElements())//@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
+                        if(count == 32000 && list.hasMoreElements())//@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
                         {                                           //@K1A
                             if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");  //@K1A
                             commonExecute(sqlStatement_, resultRow_);        //@K1A
@@ -977,11 +977,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 {
                     // We can't really batch because we are not an INSERT, we contain a locator, or
                     // there is some other reason.
-                    Enumeration enum = batch_.elements();
+                    Enumeration list = batch_.elements();
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via client-side multiple executes.");
-                    while(enum.hasMoreElements())
+                    while(list.hasMoreElements())
                     {
-                        batchParameterRows_.addElement(enum.nextElement());
+                        batchParameterRows_.addElement(list.nextElement());
                         commonExecute(sqlStatement_, resultRow_);
                         batchParameterRows_.removeAllElements();
                         if(resultSet_ != null)

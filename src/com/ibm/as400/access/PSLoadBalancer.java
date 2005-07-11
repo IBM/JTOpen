@@ -112,9 +112,9 @@ peer how busy it is.
         
         // Ask each peer about its current load.
         Vector peersClone = (Vector)peers_.clone();                                 // @A1A
-        Enumeration enum = peersClone.elements();                                   // @A1A
-        while(enum.hasMoreElements()) {                                             // @A1C
-            String peer = (String)enum.nextElement();                               // @A1A
+        Enumeration list = peersClone.elements();                                   // @A1A
+        while(list.hasMoreElements()) {                                             // @A1C
+            String peer = (String)list.nextElement();                               // @A1A
 
             // Get the load from the peer.
             PSLoad load;

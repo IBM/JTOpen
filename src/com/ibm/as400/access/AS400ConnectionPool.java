@@ -881,11 +881,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   **/  
   public String[] getSystemNames()
   {
-    Enumeration enum = as400ConnectionPool_.keys();
+    Enumeration keys = as400ConnectionPool_.keys();
     Vector hosts = new Vector();
-    while (enum.hasMoreElements())
+    while (keys.hasMoreElements())
     {
-      String key = (String)enum.nextElement();
+      String key = (String)keys.nextElement();
       String host = key.substring(0, key.indexOf("/"));
       if (!hosts.contains(host)) hosts.addElement(host);
     }
@@ -940,13 +940,13 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
   private String[] getUsers(String systemName, boolean listConnectedOnly)
   {
-    Enumeration enum = as400ConnectionPool_.keys();
+    Enumeration keys = as400ConnectionPool_.keys();
     Vector users = new Vector();
     systemName = systemName.toUpperCase().trim();
     String compareKey = systemName+"/";
-    while (enum.hasMoreElements())
+    while (keys.hasMoreElements())
     {
-      String key = (String)enum.nextElement();
+      String key = (String)keys.nextElement();
       if (key.startsWith(compareKey))
       {
         ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);

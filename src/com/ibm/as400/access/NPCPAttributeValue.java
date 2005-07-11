@@ -87,9 +87,9 @@ abstract class NPCPAttributeValue extends NPCodePoint
           NPAttribute attr;
           // if the data is out of date, then the list must be up to date
           // so we must copy the list over attribute by attribute
-          for (Enumeration enum = cp.attrTable_.elements(); enum.hasMoreElements();)
+          for (Enumeration list = cp.attrTable_.elements(); list.hasMoreElements();)
           {
-             attr = (NPAttribute)enum.nextElement();
+             attr = (NPAttribute)list.nextElement();
              if (attr != null)
              {
                 try

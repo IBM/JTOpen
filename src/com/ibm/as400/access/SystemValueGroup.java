@@ -444,11 +444,11 @@ public class SystemValueGroup implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Number of systems:", systemHash.size());
 
         // Loop through all of the different systems that we put in the hashtable.
-        Enumeration enum = systemHash.keys();
-        while (enum.hasMoreElements())
+        Enumeration list = systemHash.keys();
+        while (list.hasMoreElements())
         {
             // Get the Vector of system values for the current system out of the hashtable.
-            AS400 system = (AS400)enum.nextElement();
+            AS400 system = (AS400)list.nextElement();
             // The sysvals that have that system object for their system.
             Vector systemSystemValues = (Vector)systemHash.get(system);
 

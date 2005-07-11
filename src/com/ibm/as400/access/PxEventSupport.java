@@ -66,9 +66,9 @@ Adds a listener.
             // Look through the list to see if this is the first of
             // its kind.
             Class listenerClass = listener.getClass ();
-            Enumeration enum = listeners.elements ();
-            while (enum.hasMoreElements () && first) {
-                if (enum.nextElement ().getClass ().equals (listenerClass))
+            Enumeration list = listeners.elements ();
+            while (list.hasMoreElements () && first) {
+                if (list.nextElement ().getClass ().equals (listenerClass))
                     first = false;
             }
 
@@ -99,9 +99,9 @@ Adds a listener.
 
             // Enumerate the list of listeners.
             Vector listeners = (Vector) idToListeners_.get (key);
-            Enumeration enum = listeners.elements ();
-            while (enum.hasMoreElements ()) {
-                Object listener = enum.nextElement ();                
+            Enumeration list = listeners.elements ();
+            while (list.hasMoreElements ()) {
+                Object listener = list.nextElement ();                
 
                 // The list may contain several types of listeners.  If this
                 // is not the right kind, then an exception will be thrown.
@@ -172,9 +172,9 @@ Removes a listener.
             // Look through the list to see if this was the last of
             // its kind.
             Class listenerClass = listener.getClass ();
-            Enumeration enum = listeners.elements ();
-            while (enum.hasMoreElements () && last) {
-                if (enum.nextElement ().getClass ().equals (listenerClass))
+            Enumeration list = listeners.elements ();
+            while (list.hasMoreElements () && last) {
+                if (list.nextElement ().getClass ().equals (listenerClass))
                     last = false;
             }
 

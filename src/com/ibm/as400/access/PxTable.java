@@ -275,9 +275,9 @@ Removes all objects from the proxy table.
 
         // Find any AS400ImplRemote's and disconnect them.  Otherwise,
         // they may sit around and run forever!
-        Enumeration enum = objectToId_.keys();
-        while(enum.hasMoreElements()) {
-            Object object = enum.nextElement();
+        Enumeration list = objectToId_.keys();
+        while(list.hasMoreElements()) {
+            Object object = list.nextElement();
             if (object instanceof AS400ImplRemote)
                 ((AS400ImplRemote)object).disconnectAllServices();            
         }

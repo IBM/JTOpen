@@ -187,10 +187,10 @@ Applies a set of properties to the configuration.
         boolean verboseBefore = Verbose.isVerbose ();
 
         // Iterate through the changed configuration properties.
-        Enumeration enum = configurationProperties.propertyNames ();
-        while (enum.hasMoreElements ()) {        
+        Enumeration list = configurationProperties.propertyNames ();
+        while (list.hasMoreElements ()) {        
 
-            String optionName = (String) enum.nextElement ();
+            String optionName = (String) list.nextElement ();
             String optionValue = configurationProperties.getProperty (optionName);
             if (Trace.isTraceProxyOn ()) 
                 Trace.log (Trace.PROXY, "Changing option " + optionName + " to " + optionValue + ".");
@@ -242,9 +242,9 @@ Returns the list of registered JDBC drivers.
     public String getJDBCDrivers ()
     {
         StringBuffer buffer = new StringBuffer ();
-        Enumeration enum = DriverManager.getDrivers ();
-        while (enum.hasMoreElements ()) {
-            buffer.append (((String) enum.nextElement ()).getClass ().getName ());
+        Enumeration list = DriverManager.getDrivers ();
+        while (list.hasMoreElements ()) {
+            buffer.append (((String) list.nextElement ()).getClass ().getName ());
             buffer.append (';');
         }
         return buffer.toString ();
@@ -311,9 +311,9 @@ Registers the specified JDBC drivers.
                 Class driverClass = Class.forName (token);
                 Driver driver = (Driver) driverClass.newInstance ();
                 boolean found = false;
-                Enumeration enum = DriverManager.getDrivers ();
-                while ((enum.hasMoreElements ()) && (found == false)) {
-                    Driver enumDriver = (Driver) enum.nextElement ();
+                Enumeration list = DriverManager.getDrivers ();
+                while ((list.hasMoreElements ()) && (found == false)) {
+                    Driver enumDriver = (Driver) list.nextElement ();
                     if (enumDriver.getClass ().equals (driverClass))
                         found = true;
                 }

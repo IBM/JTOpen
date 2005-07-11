@@ -298,11 +298,11 @@ public class DirectoryEntryList
     
     // First, calculate the amount of selection bytes.
     int numValues = selectionValues_.size();
-    Enumeration enum = selectionValues_.keys();
+    Enumeration list = selectionValues_.keys();
     int totalSelectionLength = 0;
-    while (enum.hasMoreElements())
+    while (list.hasMoreElements())
     {
-      String selectionID = (String)enum.nextElement();
+      String selectionID = (String)list.nextElement();
       String val = (String)selectionValues_.get(selectionID);
       totalSelectionLength += val.length();
     }
@@ -355,10 +355,10 @@ public class DirectoryEntryList
     }
 
     // Do the rest of the selection criteria.
-    enum = selectionValues_.keys();
-    while (enum.hasMoreElements())
+    list = selectionValues_.keys();
+    while (list.hasMoreElements())
     {
-      String selectionID = (String)enum.nextElement();
+      String selectionID = (String)list.nextElement();
       String val = (String)selectionValues_.get(selectionID);
       int len = val.length();
       BinaryConverter.intToByteArray(28+len, request, offset); // SREQ0101 - length of entry

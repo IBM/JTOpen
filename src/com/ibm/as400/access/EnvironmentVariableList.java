@@ -35,10 +35,10 @@ import java.util.Vector;
  <pre>
  *    AS400 system = new AS400("mysystem");
  *    EnvironmentVariableList evList = new EnvironmentVariableList(system);
- *    Enumeration enum = evList.getEnvironmentVariables();
- *    while (enum.hasMoreElements())
+ *    Enumeration list = evList.getEnvironmentVariables();
+ *    while (list.hasMoreElements())
  *    {
- *        EnvironmentVariable ev = (EnvironmentVariable)enum.nextElement();
+ *        EnvironmentVariable ev = (EnvironmentVariable)list.nextElement();
  *        System.out.println(ev.getName() + "=" + ev.getValue());
  *    }
  </pre>
@@ -212,10 +212,10 @@ public class EnvironmentVariableList implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting environment variables as Properties.");
         Properties properties = new Properties();
-        Enumeration enum = getEnvironmentVariables();
-        while (enum.hasMoreElements())
+        Enumeration list = getEnvironmentVariables();
+        while (list.hasMoreElements())
         {
-            EnvironmentVariable environmentVariable = (EnvironmentVariable)enum.nextElement();
+            EnvironmentVariable environmentVariable = (EnvironmentVariable)list.nextElement();
             properties.put(environmentVariable.getName(), environmentVariable.getValue());
         }
         return properties;

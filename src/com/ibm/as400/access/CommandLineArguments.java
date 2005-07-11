@@ -99,9 +99,9 @@ Creates a CommandLineArguments object.
         // Lowercase all of the expected option names.
         if (expectedOptions != null) {
             Vector normalizedExpectedOptions = new Vector ();
-            Enumeration enum = expectedOptions.elements ();
-            while (enum.hasMoreElements ()) 
-                normalizedExpectedOptions.addElement (enum.nextElement ().toString ().toLowerCase ());        
+            Enumeration list = expectedOptions.elements ();
+            while (list.hasMoreElements ()) 
+                normalizedExpectedOptions.addElement (list.nextElement ().toString ().toLowerCase ());        
             expectedOptions = normalizedExpectedOptions;
         }
 
@@ -215,9 +215,9 @@ be commented out for production code.
         shortcuts.put ("-sc", "-shortcut");
 
         CommandLineArguments cla = new CommandLineArguments (args, null, shortcuts);
-        Enumeration enum = cla.getOptionNames ();
-        while (enum.hasMoreElements ()) {
-            String optionName = (String) enum.nextElement ();
+        Enumeration list = cla.getOptionNames ();
+        while (list.hasMoreElements ()) {
+            String optionName = (String) list.nextElement ();
             String optionValue = cla.getOptionValue (optionName);
             System.out.println ("Option:");
             System.out.println ("  name:  [" + optionName + "]");

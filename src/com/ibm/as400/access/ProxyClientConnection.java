@@ -509,10 +509,10 @@ class ProxyClientConnection extends PxClientConnectionAdapter
                         // Ignore.
                     }
 
-                    Enumeration enum = requests_.elements();
-                    while(enum.hasMoreElements())
+                    Enumeration list = requests_.elements();
+                    while(list.hasMoreElements())
                     {
-                        PxReqCV request = (PxReqCV)enum.nextElement();
+                        PxReqCV request = (PxReqCV)list.nextElement();
                         send(request);
                     }
                     requests_.removeAllElements();

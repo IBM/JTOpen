@@ -467,9 +467,9 @@ accordingly.
 
 
         // Extra options.
-        Enumeration enum = cla.getExtraOptions ();
-        while (enum.hasMoreElements ()) {
-            String extraOption = enum.nextElement ().toString ();
+        Enumeration list = cla.getExtraOptions ();
+        while (list.hasMoreElements ()) {
+            String extraOption = list.nextElement ().toString ();
             errors_.println (ResourceBundleLoader.getText ("PROXY_OPTION_NOT_VALID", extraOption));
         }
 
@@ -803,9 +803,9 @@ proxy server.
         load_.allConnectionsClosed ();
 
         // Stop all of the threads safely.
-        Enumeration enum = threadGroup_.elements ();
-        while (enum.hasMoreElements ())
-            ((StoppableThread) enum.nextElement ()).stopSafely ();
+        Enumeration list = threadGroup_.elements ();
+        while (list.hasMoreElements ())
+            ((StoppableThread) list.nextElement ()).stopSafely ();
 
         // Clear the thread group.
         threadGroup_ = null;

@@ -1324,10 +1324,10 @@ implements Connection
     boolean isCursorNameUsed (String cursorName)
     throws SQLException // @EGA
     {
-        Enumeration enum = statements_.elements();                                                          // @DAA
-        while (enum.hasMoreElements())
+        Enumeration list = statements_.elements();                                                          // @DAA
+        while (list.hasMoreElements())
         {                                                                     // @DAC
-            if (((AS400JDBCStatement)enum.nextElement()).getCursorName().equalsIgnoreCase(cursorName))      // @DAC
+            if (((AS400JDBCStatement)list.nextElement()).getCursorName().equalsIgnoreCase(cursorName))      // @DAC
                 return true;
         }
         return false;
@@ -1390,11 +1390,11 @@ implements Connection
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Testing to see if cursors should be held.");  //@F3C
 
-        Enumeration enum = statements_.elements();                              // @DAA
-        while (enum.hasMoreElements())                                           // @DAC
+        Enumeration list = statements_.elements();                              // @DAA
+        while (list.hasMoreElements())                                           // @DAC
         {                                                                       //@KBL
-            AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();  //@KBL
-            //@KBLD ((AS400JDBCStatement)enum.nextElement()).markCursorClosed(isRollback); // @DAC @F3C 
+            AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();  //@KBL
+            //@KBLD ((AS400JDBCStatement)list.nextElement()).markCursorClosed(isRollback); // @DAC @F3C 
             // If the statement is held open, all of the result sets have already been closed
             if(!statement.isHoldStatement())                                        //@KBL
                 statement.markCursorClosed(isRollback);                             //@KBL
@@ -1415,10 +1415,10 @@ implements Connection
                 // closes itself.                                                                
                 // @KBL Close any statements the user called close on that were associated with locators.
                 Vector statements = (Vector)statements_.clone();                                 
-                Enumeration enum = statements.elements();                                        
-                while (enum.hasMoreElements())                                                    
+                Enumeration list = statements.elements();                                        
+                while (list.hasMoreElements())                                                    
                 {                                                                                
-                    AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       
+                    AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();       
                     try                                                                          
                     {                                                                            
                         if(statement.isHoldStatement())                                          
@@ -1973,11 +1973,11 @@ implements Connection
         // Since the user called close we won't return until we tried to close all
         // statements.  
         Vector statements = (Vector)statements_.clone();                                 // @DAA
-        Enumeration enum = statements.elements();                                        // @DAA
-        while (enum.hasMoreElements())                                                    // @DAC
+        Enumeration list = statements.elements();                                        // @DAA
+        while (list.hasMoreElements())                                                    // @DAC
         {
             // @DAC
-            AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @DAA
+            AS400JDBCStatement statement = (AS400JDBCStatement)list.nextElement();       // @DAA
             try
             {                                                                          // @J4a
                 if(statement.isHoldStatement())                                           //@KBL user already called close, now completely close it

@@ -1825,8 +1825,8 @@ public class AS400JDBCStatement implements Statement
             int i = 0;
             try
             {
-                Enumeration enum = batch_.elements ();
-                while(enum.hasMoreElements ())
+                Enumeration list = batch_.elements ();
+                while(list.hasMoreElements ())
                 {
 
                     // Prepare and execute.  Check for a result set in
@@ -1834,7 +1834,7 @@ public class AS400JDBCStatement implements Statement
                     // prepare (so we don't open a cursor), but with
                     // some stored procedures, we can't catch it until
                     // the execute.
-                    JDSQLStatement sqlStatement = (JDSQLStatement) enum.nextElement ();
+                    JDSQLStatement sqlStatement = (JDSQLStatement) list.nextElement ();
 
                     if(JDTrace.isTraceOn())    // @D0A
                         JDTrace.logInformation (this, "Executing from batch SQL Statement -->[" + sqlStatement + "]");    // @D0A
