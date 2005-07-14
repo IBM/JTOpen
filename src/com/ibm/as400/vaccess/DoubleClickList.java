@@ -119,9 +119,9 @@ implements ItemSelectable
                                                          ItemEvent.ITEM_STATE_CHANGED, 
                                                          value, 
                                                          ItemEvent.SELECTED);
-                        Enumeration enum = itemListeners_.elements();
-                        while(enum.hasMoreElements()) {
-                            ((ItemListener)enum.nextElement()).itemStateChanged(event2);
+                        Enumeration list = itemListeners_.elements();
+                        while(list.hasMoreElements()) {
+                            ((ItemListener)list.nextElement()).itemStateChanged(event2);
                         }
                     }
                 }

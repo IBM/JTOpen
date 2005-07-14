@@ -1002,9 +1002,9 @@ Loads the children from the server.
                 }
 
                 // Stop listening to children that are no more, if any.
-                Enumeration enum = cache.elements ();
-                while (enum.hasMoreElements ()) {
-                    VObject child = (VObject) enum.nextElement ();
+                Enumeration list = cache.elements ();
+                while (list.hasMoreElements ()) {
+                    VObject child = (VObject) list.nextElement ();
                     child.removeErrorListener (errorEventSupport_);
                     child.removeVObjectListener (objectEventSupport_);
                     child.removeVObjectListener (objectListener_);
