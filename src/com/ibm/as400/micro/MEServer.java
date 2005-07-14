@@ -944,10 +944,10 @@ public class MEServer implements Runnable
             port_ = MEConstants.ME_SERVER_PORT;
 
         // Extra options.
-        Enumeration enum = cla.getExtraOptions ();
-        while (enum.hasMoreElements ())
+        Enumeration options = cla.getExtraOptions ();
+        while (options.hasMoreElements ())
         {
-            String extraOption = enum.nextElement().toString();
+            String extraOption = options.nextElement().toString();
             verbose_.println (ResourceBundleLoader_m.getText ("ME_OPTION_NOT_VALID", extraOption));
         }
 
