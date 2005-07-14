@@ -38,10 +38,10 @@ RUserList userList = new RUserList(system);
 <br>
 // Create a ResourceListEnumeration to iterate through
 // the users in the list.
-ResourceListEnumeration enum = new ResourceListEnumeration(userList);
-while(enum.hasMoreElements())
+ResourceListEnumeration list = new ResourceListEnumeration(userList);
+while(list.hasMoreElements())
 {
-    RUser user = (RUser)enum.nextElement();
+    RUser user = (RUser)list.nextElement();
     System.out.println(user.getAttributeValue(RUser.USER_PROFILE_NAME);
     System.out.println(user.getAttributeValue(RUser.TEXT_DESCRIPTION);
     System.out.println();

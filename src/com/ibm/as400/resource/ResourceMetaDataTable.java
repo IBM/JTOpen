@@ -287,9 +287,9 @@ externalized data structure.
         synchronized(this) {
             Vector asVector = new Vector(metaDataByID_.size());
             int i = 0;
-            Enumeration enum = metaDataByID_.elements();
-            while(enum.hasMoreElements()) {
-                ResourceMetaData rmd = (ResourceMetaData)enum.nextElement();
+            Enumeration list = metaDataByID_.elements();
+            while(list.hasMoreElements()) {
+                ResourceMetaData rmd = (ResourceMetaData)list.nextElement();
                     asVector.addElement(rmd);
             }
             ResourceMetaData[] metaData = new ResourceMetaData[asVector.size()];
@@ -315,9 +315,9 @@ externalized data structure.
         synchronized(this) {
             Vector asVector = new Vector(metaDataByID_.size());
             int i = 0;
-            Enumeration enum = metaDataByID_.elements();
-            while(enum.hasMoreElements()) {
-                ResourceMetaData rmd = (ResourceMetaData)enum.nextElement();
+            Enumeration list = metaDataByID_.elements();
+            while(list.hasMoreElements()) {
+                ResourceMetaData rmd = (ResourceMetaData)list.nextElement();
                 if (rmd.getLevel().checkLevel(level)) {
                     asVector.addElement(rmd);
                 }

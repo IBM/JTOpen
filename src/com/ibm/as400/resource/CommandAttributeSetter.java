@@ -240,9 +240,9 @@ Sets the attribute values.  The system must be set before this is called.
                         append(commandString, commandName + ' ');                                   // @A2A
                         if (invariants_.containsKey(commandName)) {
                             Hashtable parameters = (Hashtable)invariants_.get(commandName);
-                            Enumeration enum = parameters.keys();
-                            while(enum.hasMoreElements()) {
-                                String parameterName = (String)enum.nextElement();
+                            Enumeration keys = parameters.keys();
+                            while(keys.hasMoreElements()) {
+                                String parameterName = (String)keys.nextElement();
                                 String parameterValue = (String)parameters.get(parameterName);
                                 append(commandString, parameterName, parameterValue);               // @A2C
                             }
@@ -258,9 +258,9 @@ Sets the attribute values.  The system must be set before this is called.
                 }
     
                 // Execute the command strings.
-                Enumeration enum = commandStrings.elements();
-                while(enum.hasMoreElements()) {
-                    ByteArrayOutputStream commandString = (ByteArrayOutputStream)enum.nextElement();        // @A2C
+                Enumeration strings = commandStrings.elements();
+                while(strings.hasMoreElements()) {
+                    ByteArrayOutputStream commandString = (ByteArrayOutputStream)strings.nextElement();        // @A2C
                     byte[] asBytes = commandString.toByteArray();                                           // @A2C
                     if (Trace.isTraceOn()) {                                                                // @A2C
                         String asString = converter_.byteArrayToString(asBytes);                            // @A2A

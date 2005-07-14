@@ -231,9 +231,9 @@ Sets the attribute values.  The system must be set before this is called.
             }
             
             // Call all of the necessary programs.
-            Enumeration enum = programsToCall.elements();
-            while(enum.hasMoreElements()) {
-                String programName = (String)enum.nextElement();
+            Enumeration programs = programsToCall.elements();
+            while(programs.hasMoreElements()) {
+                String programName = (String)programs.nextElement();
                 boolean success = false;
                 try {
                     success = document_.callProgram(programName);

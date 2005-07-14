@@ -1050,12 +1050,12 @@ public class AS400ToolboxJarMaker extends JarMaker
           }
 
           // Determine the dependencies for the ConvTableXXX's.
-          Enumeration enum = entriesToAdd.elements();
+          Enumeration e1 = entriesToAdd.elements();
           Vector unanalyzedEntries = jarMap.getEntryNames();
           Vector referencedJarEntries = new Vector();
-          while (enum.hasMoreElements())
+          while (e1.hasMoreElements())
           {
-            String entryName = (String)enum.nextElement();
+            String entryName = (String)e1.nextElement();
             if (unanalyzedEntries.contains(entryName))
             {
               unanalyzedEntries.removeElement(entryName);
@@ -1264,9 +1264,9 @@ public class AS400ToolboxJarMaker extends JarMaker
 
   private static boolean containsPattern(Vector list, String pattern)
   {
-    Enumeration enum = list.elements();
-    while (enum.hasMoreElements()) {
-      String elem = (String)enum.nextElement();
+    Enumeration e = list.elements();
+    while (e.hasMoreElements()) {
+      String elem = (String)e.nextElement();
       if (elem.startsWith(pattern)) {
         return true;
       }

@@ -340,9 +340,9 @@ the appropriate logical values.
 
             // Loop for each entry associated with the id...
             Vector entriesV = (Vector)table_.get(ids[i]);
-            Enumeration enum = entriesV.elements();
-            while(enum.hasMoreElements()) {
-                ProgramMapEntry entry = (ProgramMapEntry)enum.nextElement();
+            Enumeration entries = entriesV.elements();
+            while(entries.hasMoreElements()) {
+                ProgramMapEntry entry = (ProgramMapEntry)entries.nextElement();
                 String entryProgramName = entry.getProgramName();
 
                 // If no program name was specified here or in the entry,
@@ -416,9 +416,9 @@ the appropriate logical values.
 
                 // Loop for each entry associated with the id...
                 Vector entriesV = (Vector)table_.get(ids[i]);
-                Enumeration enum = entriesV.elements();
-                while(enum.hasMoreElements()) {
-                    ProgramMapEntry entry = (ProgramMapEntry)enum.nextElement();
+                Enumeration entries = entriesV.elements();
+                while(entries.hasMoreElements()) {
+                    ProgramMapEntry entry = (ProgramMapEntry)entries.nextElement();
                     String entryProgramName = entry.getProgramName();
 
                     // If no program name was specified here or in the entry,

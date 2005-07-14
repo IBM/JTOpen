@@ -245,9 +245,9 @@ Constructs a Resource object.
         
         // Validate the attribute values.
         synchronized(values) {
-            Enumeration enum = values.keys();
-            while(enum.hasMoreElements()) {
-                Object attributeID = enum.nextElement();
+            Enumeration keys = values.keys();
+            while(keys.hasMoreElements()) {
+                Object attributeID = keys.nextElement();
                 Object value = values.get(attributeID);
 
                 if (Trace.isTraceOn())
@@ -427,9 +427,9 @@ Fires an attributeValuesRefreshed() ResourceEvent.
     {
         ResourceEvent event = new ResourceEvent(this, ResourceEvent.ATTRIBUTE_VALUES_REFRESHED);
         Vector temp = (Vector)resourceListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListener)enum.nextElement()).attributeValuesRefreshed(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListener)list.nextElement()).attributeValuesRefreshed(event);
     }
 
 
@@ -442,9 +442,9 @@ long-running operation has started.
     {        
         ActiveStatusEvent event = new ActiveStatusEvent(this, ActiveStatusEvent.BUSY);
         Vector temp = (Vector)activeStatusListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ActiveStatusListener)enum.nextElement()).busy(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ActiveStatusListener)list.nextElement()).busy(event);
     }
 
 
@@ -456,9 +456,9 @@ long-running operation has ended.
     {        
         ActiveStatusEvent event = new ActiveStatusEvent(this, ActiveStatusEvent.IDLE);
         Vector temp = (Vector)activeStatusListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ActiveStatusListener)enum.nextElement()).idle(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ActiveStatusListener)list.nextElement()).idle(event);
     }
 
 

@@ -494,9 +494,9 @@ long-running operation has started.
     {
         ActiveStatusEvent event = new ActiveStatusEvent(this, ActiveStatusEvent.BUSY);
         Vector temp = (Vector)activeStatusListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ActiveStatusListener)enum.nextElement()).busy(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ActiveStatusListener)list.nextElement()).busy(event);
     }
 
 
@@ -508,9 +508,9 @@ long-running operation has ended.
     {
         ActiveStatusEvent event = new ActiveStatusEvent(this, ActiveStatusEvent.IDLE);
         Vector temp = (Vector)activeStatusListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ActiveStatusListener)enum.nextElement()).idle(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ActiveStatusListener)list.nextElement()).idle(event);
     }
 
 
@@ -527,9 +527,9 @@ Fires a lengthChanged() resource list event.
         // Fire the event.
         ResourceListEvent event = new ResourceListEvent(this, ResourceListEvent.LENGTH_CHANGED, length);
         Vector temp = (Vector)resourceListListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListListener)enum.nextElement()).lengthChanged(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListListener)list.nextElement()).lengthChanged(event);
     }
 
 
@@ -541,9 +541,9 @@ Fires a listClosed() ResourceListEvent.
     {
         ResourceListEvent event = new ResourceListEvent(this, ResourceListEvent.LIST_CLOSED);
         Vector temp = (Vector)resourceListListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListListener)enum.nextElement()).listClosed(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListListener)list.nextElement()).listClosed(event);
     }
 
 
@@ -559,9 +559,9 @@ Fires a listCompleted() ResourceListEvent.
         // Fire the event.
         ResourceListEvent event = new ResourceListEvent(this, ResourceListEvent.LIST_COMPLETED);
         Vector temp = (Vector)resourceListListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListListener)enum.nextElement()).listCompleted(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListListener)list.nextElement()).listCompleted(event);
     }
 
 
@@ -577,9 +577,9 @@ Fires a listInError() ResourceListEvent.
         // Fire the event.
         ResourceListEvent event = new ResourceListEvent(this, ResourceListEvent.LIST_IN_ERROR);
         Vector temp = (Vector)resourceListListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListListener)enum.nextElement()).listInError(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListListener)list.nextElement()).listInError(event);
     }
 
 
@@ -591,9 +591,9 @@ Fires a listOpened() ResourceListEvent.
     {
         ResourceListEvent event = new ResourceListEvent(this, ResourceListEvent.LIST_OPENED);
         Vector temp = (Vector)resourceListListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListListener)enum.nextElement()).listOpened(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListListener)list.nextElement()).listOpened(event);
     }
 
 
@@ -630,9 +630,9 @@ Fires a resourceAdded() ResourceListEvent.
         // Fire the event.
         ResourceListEvent event = new ResourceListEvent(this, ResourceListEvent.RESOURCE_ADDED, resource, index);
         Vector temp = (Vector)resourceListListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListListener)enum.nextElement()).resourceAdded(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListListener)list.nextElement()).resourceAdded(event);
     }
 
 

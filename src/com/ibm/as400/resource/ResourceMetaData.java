@@ -243,10 +243,10 @@ one of these values.
     public Object[] getPossibleValues()
     {
         Object[] possibleValues = new Object[possibleValues_.size()];
-        Enumeration enum = possibleValues_.keys();
+        Enumeration values = possibleValues_.keys();
         int i = 0;
-        while(enum.hasMoreElements())
-            possibleValues[i++] = enum.nextElement();
+        while(values.hasMoreElements())
+            possibleValues[i++] = values.nextElement();
         return possibleValues;
     }
 
@@ -267,9 +267,9 @@ then the value will always be one of these values.
             throw new NullPointerException("level");
 
         Vector possibleValuesV = new Vector(possibleValues_.size());
-        Enumeration enum = possibleValues_.keys();
-        while(enum.hasMoreElements()) {
-            Object possibleValue = enum.nextElement();
+        Enumeration values = possibleValues_.keys();
+        while(values.hasMoreElements()) {
+            Object possibleValue = values.nextElement();
             ResourceLevel possibleValueLevel = (ResourceLevel)possibleValues_.get(possibleValue);
             if (possibleValueLevel.checkLevel(level))
                 possibleValuesV.addElement(possibleValue);

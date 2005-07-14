@@ -313,10 +313,10 @@ changes are physically committed.
             Object[] values = new Object[uncommittedChangesCount];
             int[] bidiStringTypes = new int[uncommittedChangesCount];                   // @A2A
             boolean bidiEnabled = isBidiEnabled();                                      // @A2A
-            Enumeration enum = uncommittedChanges_.keys();
+            Enumeration list = uncommittedChanges_.keys();
             int i = 0;
-            while(enum.hasMoreElements()) {
-                attributeIDs[i] = enum.nextElement();
+            while(list.hasMoreElements()) {
+                attributeIDs[i] = list.nextElement();
                 values[i] = uncommittedChanges_.get(attributeIDs[i]);
                 if (bidiEnabled) {                                                                  // @A2A
                     bidiStringTypes[i] = ((Integer)uncommittedChangeBidiStringTypes_.get(attributeIDs[i])).intValue();    // @A2A
@@ -416,9 +416,9 @@ Fires an attributeChangesCanceled() ResourceEvent.
     {
         ResourceEvent event = new ResourceEvent(this, ResourceEvent.ATTRIBUTE_CHANGES_CANCELED);
         Vector temp = (Vector)resourceListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListener)enum.nextElement()).attributeChangesCanceled(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListener)list.nextElement()).attributeChangesCanceled(event);
     }
 
 
@@ -430,9 +430,9 @@ Fires an attributeChangesCommitted() ResourceEvent.
     {
         ResourceEvent event = new ResourceEvent(this, ResourceEvent.ATTRIBUTE_CHANGES_COMMITTED);
         Vector temp = (Vector)resourceListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListener)enum.nextElement()).attributeChangesCommitted(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListener)list.nextElement()).attributeChangesCommitted(event);
     }
 
 
@@ -447,9 +447,9 @@ Fires an attributeValueChanged() ResourceEvent.
     {
         ResourceEvent event = new ResourceEvent(this, ResourceEvent.ATTRIBUTE_VALUE_CHANGED, attributeID, value);
         Vector temp = (Vector)resourceListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListener)enum.nextElement()).attributeValueChanged(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListener)list.nextElement()).attributeValueChanged(event);
     }
 
 
@@ -462,9 +462,9 @@ Fires an attributeValueChanged() ResourceEvent.
 //     {
 //         ResourceEvent event = new ResourceEvent(this, ResourceEvent.ATTRIBUTE_VALUES_REFRESHED);
 //         Vector temp = (Vector)resourceListeners_.clone();
-//         Enumeration enum = temp.elements();
-//         while(enum.hasMoreElements())
-//             ((ResourceListener)enum.nextElement()).attributeValuesRefreshed(event);
+//         Enumeration list = temp.elements();
+//         while(list.hasMoreElements())
+//             ((ResourceListener)list.nextElement()).attributeValuesRefreshed(event);
 //     }
 
 
@@ -476,9 +476,9 @@ Fires an resourceCreated() ResourceEvent.
     {
         ResourceEvent event = new ResourceEvent(this, ResourceEvent.RESOURCE_CREATED);
         Vector temp = (Vector)resourceListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListener)enum.nextElement()).resourceCreated(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListener)list.nextElement()).resourceCreated(event);
     }
 
 
@@ -490,9 +490,9 @@ Fires an resourceDeleted() ResourceEvent.
     {
         ResourceEvent event = new ResourceEvent(this, ResourceEvent.RESOURCE_DELETED);
         Vector temp = (Vector)resourceListeners_.clone();
-        Enumeration enum = temp.elements();
-        while(enum.hasMoreElements())
-            ((ResourceListener)enum.nextElement()).resourceDeleted(event);
+        Enumeration list = temp.elements();
+        while(list.hasMoreElements())
+            ((ResourceListener)list.nextElement()).resourceDeleted(event);
     }
 
 
