@@ -113,6 +113,9 @@ implements SQLData
         if(object instanceof String)
             value = (String)object;                                                 // @C2C
 
+        else if(object instanceof Character)
+            value = object.toString();
+
         else if(object instanceof Number)
             value = object.toString();                                              // @C2C
 
