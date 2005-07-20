@@ -507,10 +507,10 @@ Get a list of supported string functions.
             return "concat,difference,insert,left,length,locate,ltrim,right,rtrim,soundex,space,substring,ucase";
         } else if (vrm < JDUtilities.vrm530) {
             // we are running to a V5R2 host
-            return "concat,difference,insert,lcase,left,length,locate,ltrim,right,rtrim,soundex,space,substring,ucase";
+            return "char,concat,difference,insert,lcase,left,length,locate,ltrim,right,rtrim,soundex,space,substring,ucase";
         } else {
             // we are running to a V5R3 or newer host
-            return "concat,difference,insert,lcase,left,length,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase";
+            return "char,concat,difference,insert,lcase,left,length,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase";
         }
     }
 
