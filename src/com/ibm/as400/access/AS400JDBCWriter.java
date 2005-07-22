@@ -52,6 +52,57 @@ class AS400JDBCWriter extends Writer
   }
 
 
+  // Method required by interface 'Appendable', new in J2SE 5.0.
+  /**
+   Appends the specified character to this writer.
+   @param c - The 16-bit character to append. 
+   @return This Writer 
+   @exception IOException  If an I/O error occurs
+   **/
+  public Writer append(char c)
+    throws IOException
+  {
+    write(c);
+    return this;
+  }
+
+
+  // Method required by interface 'Appendable', new in J2SE 5.0.
+  /**
+   Appends the specified character sequence to this writer.
+   @param csq  The character sequence to append. If csq is null, then the four characters "null" are appended to this writer. 
+   @return This Writer 
+   @exception IOException  If an I/O error occurs
+   **/
+  public Writer append(CharSequence csq)
+    throws IOException
+  {
+    write(csq == null ? "null" : csq.toString());
+    return this;
+  }
+
+
+  // Method required by interface 'Appendable', new in J2SE 5.0.
+  /**
+   Appends a subsequence of the specified character sequence to this writer.
+   @param csq  The character sequence from which a subsequence will be appended. If csq is null, then characters will be appended as if csq contained the four characters "null".
+   @param start  The index of the first character in the subsequence
+   @param end The index of the character following the last character in the subsequence 
+   @return This Writer 
+   @exception IndexOutOfBoundsException If start or end are negative, start is greater than end, or end is greater than csq.length()
+   @exception IOException  If an I/O error occurs
+   **/
+  public Writer append(CharSequence csq,
+                       int start,
+                       int end)
+    throws IOException
+  {
+    write(csq == null ? new String("null").substring(start,Math.min(end,4))
+          : csq.subSequence(start, end).toString());
+    return this;
+  }
+
+
   /*
   Close the writer.
   */
