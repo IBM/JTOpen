@@ -4699,9 +4699,12 @@ implements DatabaseMetaData
     //    predefined type and we would have to follow the chain until
     //    we found a system predefined type.
     //
-    //    It turns out that this is not an issue.  Tony Poirer assured
-    //    me that (at least in V4R4), the database will not support this.
-    //    So we can make the assumption for now that the source type
+    //    It turns out that this is not an issue.  In the "JDBC Tutorial and
+    //    Reference", section 3.5.5 "Creating a DISTINCT type", it says:
+    //    "A DISTINCT type is always based on another data type, which must
+    //    be a predefined type.  ... a DISTINCT type cannot be based
+    //    on a UDT."  ("UDT" means user-defined type.)
+    //    So we can make the assumption that the source type
     //    always identifies a system predefined type.
     //
     public ResultSet getUDTs (String catalog,
