@@ -24,6 +24,7 @@ class IFSFileDescriptorImplRemote
 implements IFSFileDescriptorImpl
 {
   private static final int UNINITIALIZED = -1;  // @B8a
+  private static final int MAX_BYTES_PER_READ = 16000000;  // limit of file server
 
   // Note: We allow direct access to some of these fields, for performance.  @B2C
           ConverterImplRemote converter_;
@@ -844,99 +845,118 @@ implements IFSFileDescriptorImpl
       return 0;
     }
 
-    // Issue the read data request.
-    int bytesRead = 0;
-    IFSReadReq req = new IFSReadReq(fileHandle_, fileOffset_,
-                                    length);
-    ClientAccessDataStream ds = null;
-    try
+    int totalBytesRead = 0;
+    int bytesRemainingToRead = length;
+    boolean endOfFile = false;
+    while (totalBytesRead < length && !endOfFile)
     {
-      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost");
-      connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
+      // If the number of bytes being requested is greater than 16 million, then submit multiple requests for smaller chunks.  The File Server has a limit that is somewhat below 16 megabytes (allowing for headers, etc), so 16 _million_ bytes is a safe limit.
 
-    // Receive replys until the end of chain.
-    boolean done;
-    do
-    {
-      if (ds instanceof IFSReadRep)
+      // Issue the read data request.
+      int bytesToReadThisTime = Math.min(bytesRemainingToRead, MAX_BYTES_PER_READ);
+      IFSReadReq req = new IFSReadReq(fileHandle_, fileOffset_,
+                                      bytesToReadThisTime);
+      ClientAccessDataStream ds = null;
+      try
       {
-        // Copy the data from the reply to the data parameter.
-        byte[] buffer = ((IFSReadRep) ds).getData();
-        if (buffer.length > 0)
-        {
-          System.arraycopy(buffer, 0, data, dataOffset, buffer.length);
-          bytesRead += buffer.length;
-          dataOffset += buffer.length;
-        }
-        else
-        {
-          bytesRead = -1;
-        }
+        ds = (ClientAccessDataStream) server_.sendAndReceive(req);
       }
-      else if (ds instanceof IFSReturnCodeRep)
+      catch(ConnectionDroppedException e)
       {
-        // Check for failure.
-        int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc == IFSReturnCodeRep.NO_MORE_DATA)
-        {
-          // End of file.
-          bytesRead = -1;
-        }
-        else if (rc != IFSReturnCodeRep.SUCCESS)
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
-          throw new ExtendedIOException(rc);
-        }
+        Trace.log(Trace.ERROR, "Byte stream server connection lost");
+        connectionDropped(e);
       }
-      else
+      catch(InterruptedException e)
       {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
+        Trace.log(Trace.ERROR, "Interrupted", e);
+        throw new InterruptedIOException(e.getMessage());
       }
 
-      // Get the next reply if not end of chain.
-      done = ((IFSDataStream) ds).isEndOfChain();
-      if (!done)
+      // Receive replies until the end of chain.
+      boolean endOfChain = false;
+      int bytesReadByThisRequest = 0;
+      do
       {
-        try
+        if (ds instanceof IFSReadRep)
         {
-          ds = (ClientAccessDataStream)
-            server_.receive(req.getCorrelation());
+          // Copy the data from the reply to the data parameter.
+          byte[] buffer = ((IFSReadRep) ds).getData();
+          if (buffer.length > 0)
+          {
+            System.arraycopy(buffer, 0, data, dataOffset, buffer.length);
+            bytesReadByThisRequest += buffer.length;
+            dataOffset += buffer.length;
+          }
+          else // no data returned. This implies end-of-file (e.g. if file is empty).
+          {
+            bytesReadByThisRequest = -1;
+            endOfFile = true;
+          }
         }
-        catch(ConnectionDroppedException e)
+        else if (ds instanceof IFSReturnCodeRep)
         {
-          Trace.log(Trace.ERROR, "Byte stream server connection lost");
-          connectionDropped(e);
+          // Check for failure.
+          int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+
+          if (rc == IFSReturnCodeRep.SUCCESS)
+          {  // It worked, so nothing special to do here.
+          }
+          else if (rc == IFSReturnCodeRep.NO_MORE_DATA)
+          {
+            // End of file.
+            bytesReadByThisRequest = -1;
+            endOfFile = true;
+          }
+          else  // none of the above
+          {
+            Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+            throw new ExtendedIOException(rc);
+          }
         }
-        catch(InterruptedException e)
+        else  // neither IFSReadRep nor IFSReturnCodeRep
         {
-          Trace.log(Trace.ERROR, "Interrupted", e);
-          throw new InterruptedIOException(e.getMessage());
+          // Unknown data stream.
+          Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+          throw new
+            InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                   InternalErrorException.DATA_STREAM_UNKNOWN);
+        }
+
+        // Get the next reply if not end of chain.
+        endOfChain = ((IFSDataStream) ds).isEndOfChain();
+        if (!endOfChain)
+        {
+          try
+          {
+            ds = (ClientAccessDataStream)
+              server_.receive(req.getCorrelation());
+          }
+          catch(ConnectionDroppedException e)
+          {
+            Trace.log(Trace.ERROR, "Byte stream server connection lost");
+            connectionDropped(e);
+          }
+          catch(InterruptedException e)
+          {
+            Trace.log(Trace.ERROR, "Interrupted", e);
+            throw new InterruptedIOException(e.getMessage());
+          }
         }
       }
-    }
-    while (!done);
+      while (!endOfChain);
 
-    // Advance the file pointer.
-    if (bytesRead > 0)
-    {
-      incrementFileOffset(bytesRead);
+      // Advance the file pointer.
+      if (bytesReadByThisRequest > 0) {
+        incrementFileOffset(bytesReadByThisRequest);
+        totalBytesRead += bytesReadByThisRequest;
+        bytesRemainingToRead -= bytesReadByThisRequest;
+      }
+
     }
 
-    return bytesRead;
+    // If we have read zero bytes and hit end-of-file, indicate that by returning -1.
+    // Otherwise return total number of bytes read.
+    return (endOfFile && totalBytesRead == 0 ? -1 : totalBytesRead);
   }
 
   void setConverter(ConverterImplRemote converter)
