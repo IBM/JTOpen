@@ -533,49 +533,83 @@ implements java.io.Serializable
         }
     }
 
-   // the next three attributes are added to provide the decoupled spooled file 
-   // identity
-     /**
-     * Returns the name of the system where the spooled file was created.
-     * @return The name of the system where the spooled file was created.
-     **/
+    // The next three attributes are added to provide the
+    // decoupled spooled file identity.
+   
+    /**
+    * Returns the name of the system where the spooled file was created.
+    * @return The name of the system where the spooled file was created.
+    **/
     public String getJobSysName()
     {
+        String jobSysName = EMPTY_STRING;
         NPCPID IDCodePoint = getIDCodePoint();
-        if ( IDCodePoint == null ){
-            return EMPTY_STRING;
+        if (IDCodePoint == null) {
+            return(jobSysName);
         } else {
-            return IDCodePoint.getStringValue(ATTR_JOBSYSTEM);
+            jobSysName = IDCodePoint.getStringValue(ATTR_JOBSYSTEM);
+            if (jobSysName == null) {
+                try {
+                    jobSysName = this.getStringAttribute(ATTR_JOBSYSTEM);
+                }
+                catch (Exception e) {
+                    // ignore exceptions, splf may not have this attr.
+                    jobSysName = EMPTY_STRING;
+                }
+            }
+            return(jobSysName);
         }
     }
     
-     /**
-     * Returns the date of the spooled file creation. 
-     * The date is encoded in the CYYMMDD format.
-     * @return The date (CYYMMDD) of the spooled file creation.
-     **/
+    /**
+    * Returns the date of the spooled file creation. 
+    * The date is encoded in the CYYMMDD format.
+    * @return The date (CYYMMDD) of the spooled file creation.
+    **/
     public String getCreateDate()
     {
+        String createDate = EMPTY_STRING;
         NPCPID IDCodePoint = getIDCodePoint();
-        if ( IDCodePoint == null ){
-            return EMPTY_STRING;
+        if (IDCodePoint == null) {
+            return(createDate);
         } else {
-            return IDCodePoint.getStringValue(ATTR_DATE);
+            createDate = IDCodePoint.getStringValue(ATTR_DATE);
+            if (createDate == null) {
+                try {
+                    createDate = this.getStringAttribute(ATTR_DATE);
+                }
+                catch (Exception e) {
+                    // ignore exceptions, splf may not have this attr.
+                    createDate = EMPTY_STRING;
+                }
+            }   
+            return(createDate);
         }
     }
     
-     /**
-     * Returns the time of spooled file creation.
-     * The time is encoded in the HHMMSS format.
-     * @return The time (HHMMSS) of the spooled file creation.
-     **/
+    /**
+    * Returns the time of spooled file creation.
+    * The time is encoded in the HHMMSS format.
+    * @return The time (HHMMSS) of the spooled file creation.
+    **/
     public String getCreateTime()
     {
+        String createTime = EMPTY_STRING;
         NPCPID IDCodePoint = getIDCodePoint();
-        if ( IDCodePoint == null ){
-            return EMPTY_STRING;
+        if (IDCodePoint == null) {
+            return(createTime);
         } else {
-            return IDCodePoint.getStringValue(ATTR_TIME);
+            createTime = IDCodePoint.getStringValue(ATTR_TIME);
+            if (createTime == null) {
+                try {
+                    createTime = this.getStringAttribute(ATTR_TIME);
+                }
+                catch (Exception e) {
+                    // ignore exceptions, splf may not have this attr.
+                    createTime = EMPTY_STRING;
+                }
+            }   
+            return(createTime);
         }
     }
     
