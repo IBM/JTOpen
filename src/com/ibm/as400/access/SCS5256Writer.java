@@ -28,14 +28,6 @@ import java.io.UnsupportedEncodingException;
   * @see OutputStreamWriter
   * @version  1.1
 **/
-
- /* @A2C 
-  * Moved AHPP and AVPP from 5224 class.
-  * Added SVF, RHPP, and RVPP methods.
-  * Added SVF and SHF to initPage()
-  * Updated method descriptions.
-  */
-
 public class SCS5256Writer extends OutputStreamWriter
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -46,12 +38,12 @@ public class SCS5256Writer extends OutputStreamWriter
     private static final byte [] NL = {0x15};
     private static final byte [] FF = {0x0C};
     private static final byte [] SGEA = {0x2B, (byte)0xC8, 0x01};
-    private static final byte [] SHF = {0x2B, (byte)0xC1, 0x02, 0x00}; //@A2A
-    private static final byte [] SVF = {0x2B, (byte)0xC2, 0x02, 0x00};  //@A2A
-    private static final byte [] AHPP = {0x34, (byte)0xC0, 0x00};     //@A2A
-    private static final byte [] AVPP = {0x34, (byte)0xC4, 0x00};     //@A2A
-    private static final byte [] RHPP = {0x34, (byte)0xC8, 0x00};     //@A2A
-    private static final byte [] RVPP = {0x34, (byte)0x4C, 0x00};     //@A2A
+    private static final byte [] SHF = {0x2B, (byte)0xC1, 0x02, 0x00};
+    private static final byte [] SVF = {0x2B, (byte)0xC2, 0x02, 0x00};
+    private static final byte [] AHPP = {0x34, (byte)0xC0, 0x00};
+    private static final byte [] AVPP = {0x34, (byte)0xC4, 0x00};
+    private static final byte [] RHPP = {0x34, (byte)0xC8, 0x00};
+    private static final byte [] RVPP = {0x34, (byte)0x4C, 0x00};
 
     private OutputStream outPut;
     private Converter    cvt;
@@ -62,7 +54,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * initial and default value is 66 which assumes 6 LPI on an 11 inch
       * page.  Users can change this value via the setVertical Format() method.
       */
-    private int          verticalFormat_ = 66;          //@A3A
+    private int          verticalFormat_ = 66;
 
      /* PageStarted is a flag to indicate data has been written to the
       * page.  Some print commands can only appear at the start of a
@@ -84,8 +76,8 @@ public class SCS5256Writer extends OutputStreamWriter
     {
         super(out);
         outPut = out;
-      //  cvt = Converter.getConverter(); //@A1C
-        cvt = new Converter();  // @A4A
+      //  cvt = Converter.getConverter();
+        cvt = new Converter();
     }
 
 
@@ -107,12 +99,11 @@ public class SCS5256Writer extends OutputStreamWriter
     {
        super(out);
        outPut = out;
-     //  cvt = Converter.getConverter(ccsid);  //@A1C
-       cvt = new Converter(ccsid);  // @A4A
+     //  cvt = Converter.getConverter(ccsid);
+       cvt = new Converter(ccsid);
     }
 
 
-    // @B1A
     /**
      * Constructs a SCS5256Writer.
      *
@@ -265,7 +256,8 @@ public class SCS5256Writer extends OutputStreamWriter
     }
 
 
-    /** Ends current page.
+    /** Ends current page.  The application MUST use this method
+      * to end the current page after the page data has been written.
       *
       * @exception IOException If an error occurs while communicating
       *   with the server.
