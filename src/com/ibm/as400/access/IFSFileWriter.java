@@ -82,8 +82,9 @@ public class IFSFileWriter extends Writer
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
+    int ccsid = file.getCCSID();  // do this before opening stream
     outputStream_ = new IFSFileOutputStream(file);
-    writer_ = new ConvTableWriter(outputStream_, file.getCCSID());
+    writer_ = new ConvTableWriter(outputStream_, ccsid);
   }
 
 
@@ -123,8 +124,9 @@ public class IFSFileWriter extends Writer
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
+    int ccsid = file.getCCSID();  // do this before opening stream
     outputStream_ = new IFSFileOutputStream(file, IFSFileOutputStream.SHARE_ALL, append);
-    writer_ = new ConvTableWriter(outputStream_, file.getCCSID());
+    writer_ = new ConvTableWriter(outputStream_, ccsid);
   }
 
   /**
@@ -142,8 +144,9 @@ public class IFSFileWriter extends Writer
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
+    int ccsid = file.getCCSID();  // do this before opening stream
     outputStream_ = new IFSFileOutputStream(file, shareOption, append);
-    writer_ = new ConvTableWriter(outputStream_, file.getCCSID());
+    writer_ = new ConvTableWriter(outputStream_, ccsid);
   }
 
 
@@ -175,8 +178,9 @@ public class IFSFileWriter extends Writer
   public IFSFileWriter(IFSFileDescriptor fd)
     throws AS400SecurityException, IOException
   {
+    int ccsid = fd.getCCSID();  // do this before opening stream
     outputStream_ = new IFSFileOutputStream(fd);
-    writer_ = new ConvTableWriter(outputStream_, fd.getCCSID());
+    writer_ = new ConvTableWriter(outputStream_, ccsid);
     // Note: IFSFileDescriptor has a shareOption data member.
   }
 
@@ -254,7 +258,7 @@ public class IFSFileWriter extends Writer
 
 
   /**
-   Returns the CCSID used by this ConvTableWriter.
+   Returns the CCSID used by this IFSFileWriter.
    @return  The CCSID, or -1 if the CCSID is not known.
    **/
   public int getCCSID()
@@ -263,7 +267,7 @@ public class IFSFileWriter extends Writer
   }
 
   /**
-   Returns the encoding used by this ConvTableWriter. If the CCSID is not known, the superclass encoding is returned.  Otherwise, the corresponding encoding for the CCSID is returned, which may be null if no such mapping exists.
+   Returns the encoding used by this IFSFileWriter.
    @return  The encoding, or null if the encoding is not known.
    **/
   public String getEncoding()

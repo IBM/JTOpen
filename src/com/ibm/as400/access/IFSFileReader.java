@@ -64,7 +64,6 @@ public class IFSFileReader extends Reader
   transient private ConvTableReader reader_;
 
   private IFSFileInputStream inputStream_;
-  private int ccsid_;
 
 
   /**
@@ -82,9 +81,9 @@ public class IFSFileReader extends Reader
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
+    int ccsid = file.getCCSID();  // do this before opening the stream, to avoid "File In Use"
     inputStream_ = new IFSFileInputStream(file);
-    ccsid_ = file.getCCSID();
-    reader_ = new ConvTableReader(inputStream_, ccsid_);
+    reader_ = new ConvTableReader(inputStream_, ccsid);
   }
 
 
@@ -103,8 +102,7 @@ public class IFSFileReader extends Reader
   {
     if (file == null) throw new NullPointerException("file");
     inputStream_ = new IFSFileInputStream(file);
-    ccsid_ = ccsid;
-    reader_ = new ConvTableReader(inputStream_, ccsid_);
+    reader_ = new ConvTableReader(inputStream_, ccsid);
   }
 
 
@@ -123,8 +121,7 @@ public class IFSFileReader extends Reader
   {
     if (file == null) throw new NullPointerException("file");
     inputStream_ = new IFSFileInputStream(file, shareOption);
-    ccsid_ = ccsid;
-    reader_ = new ConvTableReader(inputStream_, ccsid_);
+    reader_ = new ConvTableReader(inputStream_, ccsid);
   }
 
   /**
@@ -135,9 +132,9 @@ public class IFSFileReader extends Reader
   public IFSFileReader(IFSFileDescriptor fd)
     throws AS400SecurityException, IOException
   {
+    int ccsid = fd.getCCSID();  // do this before opening the stream, to avoid "File In Use"
     inputStream_ = new IFSFileInputStream(fd);
-    ccsid_ = fd.getCCSID();
-    reader_ = new ConvTableReader(inputStream_, ccsid_);
+    reader_ = new ConvTableReader(inputStream_, ccsid);
     // Note: IFSFileDescriptor has a shareOption data member.
   }
 
@@ -153,16 +150,16 @@ public class IFSFileReader extends Reader
   }
 
   /**
-   Returns the CCSID used by this ConvTableReader.
+   Returns the CCSID used by this IFSFileReader.
    @return  The CCSID, or -1 if the CCSID is not known.
    **/
   public int getCCSID()
   {
-    return ccsid_;
+    return reader_.getCcsid();
   }
 
   /**
-   Returns the encoding used by this ConvTableReader. If the CCSID is not known, the superclass encoding is returned.  Otherwise, the corresponding encoding for the CCSID is returned, which may be null if no such mapping exists.
+   Returns the encoding used by this IFSFileReader.
    @return  The encoding, or null if the encoding is not known.
    **/
   public String getEncoding()
@@ -245,7 +242,7 @@ public class IFSFileReader extends Reader
     synchronized(inputStream_)
     {
       inputStream_.reset();
-      reader_ = new ConvTableReader(inputStream_, ccsid_);
+      reader_ = new ConvTableReader(inputStream_, reader_.getCcsid());
     }
   }
 
