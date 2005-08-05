@@ -16,9 +16,9 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
-import com.ibm.as400.access.BidiStringType;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.Trace;                          // @C4A
 import com.ibm.as400.access.ProgramCall;
 
@@ -39,22 +39,11 @@ import java.io.LineNumberReader;                            //@E1A
 
 
 
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
 import java.util.MissingResourceException;
 
 import java.util.zip.GZIPInputStream;
 
-// NEW XPCML imports for transform method
-//@CRS - Moved to new XPCMLHelper class.
-//@CRS import javax.xml.transform.TransformerFactory;                      //@E1A
-//@CRS import javax.xml.transform.Transformer;                             //@E1A
-//@CRS import javax.xml.transform.Source;                                  //@E1A
-//@CRS import javax.xml.transform.stream.StreamSource;                     //@E1A
-//@CRS import javax.xml.transform.stream.StreamResult;                     //@E1A
 import javax.xml.transform.TransformerException;                    //@E1A
-import javax.xml.transform.TransformerConfigurationException;       //@E1A
 import org.xml.sax.SAXException;                                    //@E1A
 
 
@@ -95,8 +84,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     static final long serialVersionUID = -1836686444079106483L;	    // @C1A
 
-//@CRS    private static TransformerFactory tFactory = TransformerFactory.newInstance();
-
     /**
      * Constant indicating a serialized PCML or XPCML document is being streamed.
      * @see #ProgramCallDocument(AS400,String,InputStream,ClassLoader,InputStream,int)
@@ -136,6 +123,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
     public ProgramCallDocument(AS400 sys, String docName)
     	throws PcmlException
    	{
+        if (sys == null) {
+          throw new NullPointerException("sys");
+        }
+        if (docName == null) {
+          throw new NullPointerException("docName");
+        }
+
         m_as400 = sys;
 
         m_pcmlDoc = loadPcmlDocument(docName, null,null);        // @C8C @E1C
@@ -159,6 +153,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
     public ProgramCallDocument(AS400 sys, String docName, InputStream xsdStream)
     	throws PcmlException
    	{
+        if (sys == null) {
+          throw new NullPointerException("sys");
+        }
+        if (docName == null) {
+          throw new NullPointerException("docName");
+        }
+
         m_as400 = sys;
 
         m_pcmlDoc = loadPcmlDocument(docName, null,xsdStream);        // @C8C
@@ -185,6 +186,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
     public ProgramCallDocument(AS400 sys, String docName, ClassLoader loader)       // @C8A
     	throws PcmlException
    	{
+        if (sys == null) {
+          throw new NullPointerException("sys");
+        }
+        if (docName == null) {
+          throw new NullPointerException("docName");
+        }
+
         m_as400 = sys;                                      // @C8A
 
         m_pcmlDoc = loadPcmlDocument(docName, loader,null);      // @C8A
@@ -208,6 +216,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
      public ProgramCallDocument(AS400 sys, String docName, ClassLoader loader, InputStream xsdStream)       // @C8A
     	throws PcmlException
    	{
+        if (sys == null) {
+          throw new NullPointerException("sys");
+        }
+        if (docName == null) {
+          throw new NullPointerException("docName");
+        }
+
         m_as400 = sys;                                      // @C8A
 
         m_pcmlDoc = loadPcmlDocument(docName, loader,xsdStream);      // @C8A
@@ -236,7 +251,12 @@ public class ProgramCallDocument implements Serializable, Cloneable
      public ProgramCallDocument(AS400 sys, String docName, InputStream docStream, ClassLoader loader, InputStream xsdStream, int type)
     	throws PcmlException
    	{
-        m_as400 = sys;
+        if (sys == null) {
+          throw new NullPointerException("sys");
+        }
+        if (docName == null) {
+          throw new NullPointerException("docName");
+        }
 
         if (type == ProgramCallDocument.SERIALIZED)
         {
@@ -250,11 +270,11 @@ public class ProgramCallDocument implements Serializable, Cloneable
         {
           m_pcmlDoc = loadSourcePcmlDocumentFromStream(docName, docStream, loader, xsdStream, true);
         }
-        else
-        {
-          throw new IllegalArgumentException("type");
+        else {
+          throw new ExtendedIllegalArgumentException("type (" + type + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
+        m_as400 = sys;
         m_pcmlDoc.setAs400(m_as400);
     }
 
