@@ -192,9 +192,9 @@ public class QSYSObjectPathName implements Serializable
         checkObjectType(objectType);
 
           // If quoted, store as mixed case, else store as uppercase.
-          libraryName_ = libraryName.charAt(0) == '\"' ? libraryName : libraryName.toUpperCase();
+          libraryName_ = toQSYSName(libraryName);
         // If quoted, store as mixed case, else store as uppercase.
-        objectName_ = objectName.charAt(0) == '\"' ? objectName : objectName.toUpperCase();
+        objectName_ = toQSYSName(objectName);
         objectType_ = objectType.toUpperCase();
 
         path_ = buildPathName(libraryName_, objectName_, "", objectType_);
@@ -225,10 +225,10 @@ public class QSYSObjectPathName implements Serializable
         checkObjectTypeIsMember(objectType);
 
         // If quoted, store as mixed case, else store as uppercase.
-        libraryName_ = libraryName.charAt(0) == '\"' ? libraryName : libraryName.toUpperCase();
+        libraryName_ = toQSYSName(libraryName);
         // If quoted, store as mixed case, else store as uppercase.
-        objectName_ = objectName.charAt(0) == '\"' ? objectName : objectName.toUpperCase();
-        memberName_ = memberName.charAt(0) == '\"' ? memberName : memberName.toUpperCase();
+        objectName_ = toQSYSName(objectName);
+        memberName_ = toQSYSName(memberName);
         objectType_ = "MBR";
 
         path_ = buildPathName(libraryName_, objectName_, memberName_, objectType_);
@@ -494,7 +494,7 @@ public class QSYSObjectPathName implements Serializable
         if (nextOffset > currentOffset)
         {
             // If quoted, store as mixed case, else store as uppercase.
-            libraryName_ = upperCasePath.charAt(currentOffset) == '\"' ? path.substring(currentOffset, nextOffset) : upperCasePath.substring(currentOffset, nextOffset);
+            libraryName_ = toQSYSName(path.substring(currentOffset, nextOffset));
             // Disallow /QSYS.LIB/QSYS.LIB.
             if (libraryName_.equals("QSYS"))
             {
@@ -571,7 +571,7 @@ public class QSYSObjectPathName implements Serializable
             }
             // The member name is syntactically correct.
             // If quoted, store as mixed case, else store as uppercase.
-            memberName_ = upperCasePath.charAt(memberOffset) == '\"' ? path.substring(memberOffset, nextOffset) : upperCasePath.substring(memberOffset, nextOffset);
+            memberName_ = toQSYSName(path.substring(memberOffset, nextOffset));
             if (memberName_.charAt(0) == '%')
             {
                 // Check for special member values.
@@ -603,7 +603,7 @@ public class QSYSObjectPathName implements Serializable
         }
         // The object name is syntactically correct.
         // If quoted, store as mixed case, else store as uppercase.
-        objectName_ = upperCasePath.charAt(currentOffset) == '\"' ? path.substring(currentOffset, nextOffset) : upperCasePath.substring(currentOffset, nextOffset);
+        objectName_ = toQSYSName(path.substring(currentOffset, nextOffset));
         // Check for special object values.
         if (objectName_.equals("%ALL%")) objectName_ = "*ALL";
 
@@ -652,7 +652,7 @@ public class QSYSObjectPathName implements Serializable
         checkLibraryName(libraryName);
 
         // Process the library name, if quoted, store as mixed case, else store as uppercase.
-        String newLibraryName = libraryName.charAt(0) == '\"' ? libraryName : libraryName.toUpperCase();
+        String newLibraryName = toQSYSName(libraryName);
         // Build new path.
         String newPath = buildPathName(newLibraryName, objectName_, memberName_, objectType_);
 
@@ -704,8 +704,8 @@ public class QSYSObjectPathName implements Serializable
             throw new ExtendedIllegalArgumentException("memberName (" + memberName + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        // If not empty and quoted, store as mixed case, else store as uppercase.
-        String newMemberName = memberName.length() != 0 && memberName.charAt(0) == '\"' ? memberName : memberName.toUpperCase();
+        // If quoted, store as mixed case, else store as uppercase.
+        String newMemberName = toQSYSName(memberName);
         // The type of an object with a member is always MBR.
         String newObjectType = memberName.length() != 0 ? "MBR" : objectType_;
         // Build new path name.
@@ -756,7 +756,7 @@ public class QSYSObjectPathName implements Serializable
         checkObjectName(objectName);
 
         // Process object name. if quoted, store as mixed case else store as uppercase.
-        String newObjectName = objectName.charAt(0) == '\"' ? objectName : objectName.toUpperCase();
+        String newObjectName = toQSYSName(objectName);
         // Build new path name.
         String newPath = buildPathName(libraryName_, newObjectName, memberName_, objectType_);
 
@@ -915,8 +915,8 @@ public class QSYSObjectPathName implements Serializable
         checkObjectName(objectName);
         checkObjectType(objectType);
 
-        libraryName = libraryName.charAt(0) == '\"' ? libraryName : libraryName.toUpperCase();
-        objectName = objectName.charAt(0) == '\"' ? objectName : objectName.toUpperCase();
+        libraryName = toQSYSName(libraryName);
+        objectName = toQSYSName(objectName);
         objectType = objectType.toUpperCase();
 
         return buildPathName(libraryName, objectName, "", objectType);
@@ -940,11 +940,43 @@ public class QSYSObjectPathName implements Serializable
         checkMemberName(memberName);
         checkObjectTypeIsMember(objectType);
 
-        libraryName = libraryName.charAt(0) == '\"' ? libraryName : libraryName.toUpperCase();
-        objectName = objectName.charAt(0) == '\"' ? objectName : objectName.toUpperCase();
-        memberName = memberName.charAt(0) == '\"' ? memberName : memberName.toUpperCase();
+        libraryName = toQSYSName(libraryName);
+        objectName = toQSYSName(objectName);
+        memberName = toQSYSName(memberName);
         objectType = objectType.toUpperCase();
 
         return buildPathName(libraryName, objectName, memberName, objectType);
     }
+
+    /**
+     Utility method for selectively uppercasing the characters in a string, for use as an i5/OS *NAME value.  This method is used, for example, when uppercasing object names, library names, and member names.  Characters within double-quotes are left as-is.
+     @param  name  The name to be uppercased.
+     @return  The *NAME value, selectively uppercased.
+     **/
+    public static final String toQSYSName(String name)
+    {
+      // Uppercase all unquoted characters _except_ the "Latin small letter 'a' with grave" (\u00E0), which for CCSID 297 (French) gets converted to EBCDIC x7C, an invariant character that is allowed in *NAME strings.
+
+      if (name.indexOf('\u00E0') == -1 &&  // no special characters
+          name.indexOf('\"') == -1) {      // and no quotes
+        return name.toUpperCase();
+      }
+      else {  // selectively uppercase unquoted characters
+        StringBuffer result = new StringBuffer();
+        int length = name.length();
+        boolean inQuotes = false;
+        for (int i=0; i<length; i++) {
+          char character = name.charAt(i);
+          if (character=='\"')
+            inQuotes=!inQuotes;
+          if (!inQuotes && character != '\u00E0')
+            result.append(Character.toUpperCase(character));
+          else
+            result.append(name.charAt(i));
+        }
+        return result.toString();
+      }
+
+    }
+
 }
