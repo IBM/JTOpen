@@ -72,7 +72,7 @@ import org.xml.sax.SAXException;                                    //@E1A
  * <dt><kbd>-serialize</kbd>
  * <dd>Parses the PCML document and creates a serialized version of the document.
  * The name of the serialized file will match the document name, and the file extension will be
- * <code><strong>.pcml.ser</code></strong>.
+ * <code><strong>.pcml.ser</code></strong> (lowercase).
  * <p><dt><kbd><i>pcml document name</i></kbd>
  * <dd>The fully-qualified resource name of the PCML document
  * which defines the program interface.
@@ -115,6 +115,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
+     If the file extension is not specified, it is assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
 	@exception PcmlException when the specified PCML document cannot be found
@@ -143,6 +144,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
+     If the file extension is not specified, it is assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
@@ -177,6 +179,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
      @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
+     If the file extension is not specified, it is assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
 
@@ -206,6 +209,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     the XML schema definitions provided in the input XSD stream.
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
+     If the file extension is not specified, it is assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
     @param loader The ClassLoader that will be used when loading the specified document resource.
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
@@ -235,6 +239,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     the XML schema definitions provided in the input XSD stream.
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
+     If the file extension is not specified, it is assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
     @param docStream The InputStream from which to read the contents of the document.
     @param loader The ClassLoader that will be used when loading the DTD for PCML. This parameter can be null.
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML
@@ -856,7 +861,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
      <pre>
      <kbd><i>docName</i>.pcml.ser</kbd>
      </pre>
-     where <kbd><i>docName</i>.pcml.ser</kbd> is the name of the document used to
+     where <kbd><i>docName</i>.pcml.ser</kbd> (lowercase) is the name of the document used to
 	 construct this object.
 
      @exception PcmlException If an error occurs.
