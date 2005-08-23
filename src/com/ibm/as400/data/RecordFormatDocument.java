@@ -51,7 +51,7 @@ import java.util.MissingResourceException;
  * <dt><kbd>-serialize</kbd>
  * <dd>Parses the RFML document and creates a serialized version of the document.
  * The name of the serialized file will match the document name, and the file extension will be
- * <code><strong>.rfml.ser</code></strong>.
+ * <code><strong>.rfml.ser</code></strong> (lowercase).
  * <p><dt><kbd><i>rfml document name</i></kbd>
  * <dd>The fully-qualified resource name of the RFML document
  * which defines the record format(s).
@@ -101,6 +101,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     searched for an RFML source file.
 
     @param documentName The document resource name of the RFML document for the record formats to be referenced.
+     All RFML-related file extensions are assumed to be lowercase (for example, <tt>.rfml</tt> or <tt>.rfml.ser</tt>).
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myRfml"
 
 	@exception XmlException when the specified RFML document cannot be found.
@@ -120,6 +121,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     searched for an RFML source file.
 
     @param documentName The document resource name of the RFML document for the record formats to be referenced.
+     All RFML-related file extensions are assumed to be lowercase (for example, <tt>.rfml</tt> or <tt>.rfml.ser</tt>).
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myRfml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
 
@@ -1064,6 +1066,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     searched for an RFML source file.
 
     @param documentName The document resource name of the RFML document for the record formats to be referenced.
+     All RFML-related file extensions are assumed to be lowercase (for example, <tt>.rfml</tt> or <tt>.rfml.ser</tt>).
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myRfml"
 
 	@exception XmlException when the specified RFML document cannot be found.
@@ -1086,6 +1089,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     searched for an RFML source file.
 
     @param documentName The document resource name of the RFML document for the record formats to be referenced.
+     All RFML-related file extensions are assumed to be lowercase (for example, <tt>.rfml</tt> or <tt>.rfml.ser</tt>).
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myRfml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
 
