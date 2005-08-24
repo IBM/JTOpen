@@ -1055,7 +1055,7 @@ public class MessageQueue implements Serializable
         else if (messageType.equals(REPLY))
         {
             // EBCDIC '*RPY'.
-            messageTypeBytes = new byte[] { 0x5C, (byte)0xD9, (byte)0xD7, (byte)0x8E, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+            messageTypeBytes = new byte[] { 0x5C, (byte)0xD9, (byte)0xD7, (byte)0xE8, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
         }
         else
         {
