@@ -147,18 +147,19 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
         try
         {
-//            if (saveSenderInformation)
-//            {
+            DQQueryRecord qr = retrieveAttributes(key != null);
+            if (qr.saveSenderInformation_)
+            {
                 // Call native methods with sender info.
                 byte[] senderBytes = new byte[36];
                 byte[] data = (key == null) ? peek ? peekSenderNative(libraryBytes_, queueNameBytes_, wait, senderBytes) : readSenderNative(libraryBytes_, queueNameBytes_, wait, senderBytes) : peek ? peekKeyedSenderNative(libraryBytes_, queueNameBytes_, wait, searchBytes, newKey, senderBytes) : readKeyedSenderNative(libraryBytes_, queueNameBytes_, wait, searchBytes, newKey, senderBytes);
                 if (data.length == 0) return null;
                 return new DQReceiveRecord(converter_.byteArrayToString(senderBytes), data, newKey);
-//            }
+            }
             // Call native methods with out sender info.
-//            byte[] data = (key == null) ? peek ? peekNative(libraryBytes_, queueNameBytes_, wait) : readNative(libraryBytes_, queueNameBytes_, wait) : peek ? peekKeyedNative(libraryBytes_, queueNameBytes_, wait, searchBytes, newKey) : readKeyedNative(libraryBytes_, queueNameBytes_, wait, searchBytes, newKey);
-//            if (data.length == 0) return null;
-//            return new DQReceiveRecord(null, data, newKey);
+            byte[] data = (key == null) ? peek ? peekNative(libraryBytes_, queueNameBytes_, wait) : readNative(libraryBytes_, queueNameBytes_, wait) : peek ? peekKeyedNative(libraryBytes_, queueNameBytes_, wait, searchBytes, newKey) : readKeyedNative(libraryBytes_, queueNameBytes_, wait, searchBytes, newKey);
+            if (data.length == 0) return null;
+            return new DQReceiveRecord(null, data, newKey);
         }
         catch (NativeException e) // Exception found by C code.
         {
