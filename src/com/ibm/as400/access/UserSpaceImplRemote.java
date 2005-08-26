@@ -415,6 +415,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
                     Trace.log(Trace.ERROR, "User is not authorized to object: " + path_, e);
                     throw new AS400SecurityException(path_, AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
                 }
+                if (e.getReturnCode() == ExtendedIOException.REQUEST_NOT_SUPPORTED && library_.equals("QTEMP"))
+                {
+                    // File server cannot access QTEMP library.
+                    Trace.log(Trace.WARNING, "File server cannot access QTEMP, use mustUseProgramCall option.");
+                }
                 Trace.log(Trace.ERROR, "Error opening file: " + path_, e);
                 throw e;
             }
