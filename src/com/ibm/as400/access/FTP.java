@@ -997,8 +997,14 @@ public class FTP implements java.io.Serializable
       if (Trace.isTraceOn())
         Trace.log(Trace.DIAGNOSTIC,"leaving get(file)");
 
-      // 150 appears to be success
-      if (lastMessage_.startsWith("550"))
+      // 150 appears to be success.
+      // Some possible error messages:
+      // 426-MEMBER <member> IN FILE <file> IN LIBRARY <library> NOT FOUND.
+      // 501 UNKNOWN EXTENSION IN DATABASE FILE NAME.
+      // 550 FILE <file> IN LIBRARY <library> NOT FOUND.
+      if (lastMessage_.startsWith("426") ||
+          lastMessage_.startsWith("501") ||   // member not found
+          lastMessage_.startsWith("550"))     // unknown extension
       {
         if (dataSocket != null) { // passive_mode
           dataSocket.close();
