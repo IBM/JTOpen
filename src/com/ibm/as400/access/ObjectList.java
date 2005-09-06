@@ -230,7 +230,7 @@ public class ObjectList implements Serializable
    * libraries is returned.
    * </UL>
    * @param objectType The type of objects that are searched. Valid values include
-   * a specific object type or {@link #ALL ALL}.
+   * a specific object type (*LIB, *FILE, *OUTQ, etc) or {@link #ALL ALL}.
   **/
   public ObjectList(AS400 system, String objectLibrary, String objectName, String objectType)
   {
@@ -1055,7 +1055,7 @@ public class ObjectList implements Serializable
 
 
   /**
-   * Returns the object type used to filter this list.
+   * Returns the object type used to filter this list.  (For example: *LIB, *FILE, *OUTQ, etc)
    * @return The object type.
   **/
   public String getType()
