@@ -463,7 +463,7 @@ public class JobList implements Serializable
 
     /**
      Constructs a JobList object.
-     @param  system  The system object representing the server on which the jobs exists.
+     @param  system  The system object representing the server on which the jobs exist.
      **/
     public JobList(AS400 system)
     {
