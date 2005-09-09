@@ -647,7 +647,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         // Make sure we are not trying to access more bytes than available.
         if (offset + skipBytes + nbrBytes > bytes.length)
         {
-            throw new PcmlException(DAMRI.NOT_ENOUGH_DATA, new Object[] {"<data>", getNameForException()} );
+            throw new PcmlException(DAMRI.INSUFFICIENT_INPUT_DATA, new Object[] {Integer.toString(offset + skipBytes + nbrBytes), Integer.toString(bytes.length), "<data>", getNameForException()} );
         }
 
         // Finally, make a new byte array, copy the bytes, and save them
