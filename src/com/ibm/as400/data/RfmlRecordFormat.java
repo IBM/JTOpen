@@ -243,12 +243,7 @@ class RfmlRecordFormat extends PcmlDocNode
             if (initValue != null) {
               Object convertedValue = PcmlDataValues.convertValue(initValue, PcmlData.BYTE, fieldLength, 0, dNode.getNameForException()); // @A1a
               ((HexFieldDescription)fieldDesc).setDFT((byte[])convertedValue); // @A1a
-/// @A1d
-///           // Build a byte array of proper length, and populate it with the init character.
-///           byte[] dftBytes = new byte[fieldLength];
-///           java.util.Arrays.fill(dftBytes, Byte.valueOf(initValue).byteValue());
-///           ((HexFieldDescription)fieldDesc).setDFT(dftBytes);
-///           // Note: java.util.Arrays is new in Java2.
+              // Note: We could alternatively use Arrays.fill().  However, java.util.Arrays is new in Java2.
             }
             break;
 
@@ -416,69 +411,11 @@ class RfmlRecordFormat extends PcmlDocNode
 
 
     /**
-     Determines the minimum buffer size (number of bytes) that is required to hold all of the data for this node and its children.
-     Note: This method simply does a static analysis of the RFML document.
-     For example, if there are nested structures/arrays, only the counts that are
-     specified statically in the document source are referenced; any dynamically-
-     specified values are not noticed.
-     **/
-    private static int getRequiredLength(PcmlDocNode node, PcmlDocRoot root)
-      throws XmlException
-    {
-      // If the node is a <recordformat>, return the sums of the lengths of the children, taking into account the "count" attributes.
-      // If the node is a <data type="struct">, return the sums of the lengths of the children, taking into account the "count" attributes.
-      // If the node is a <data> (non-struct), return the product of the "length" and the "count".
-      int totalLength = 0;
-      switch (node.getNodeType())
-      {
-        case (PcmlNodeType.RECORDFORMAT) :
-        case (PcmlNodeType.STRUCT) :
-          Enumeration children = node.getChildren();
-          while (children.hasMoreElements())
-          {
-            PcmlDocNode child = (PcmlDocNode) children.nextElement();
-            totalLength += getRequiredLength(child, root);
-          }
-          break;
-        // Note: The RFML DTD does not allow <struct> elements within a <recordformat> element.  However, if a <data> element has type="struct", we need to go to the <struct> and get its lengths.
-        case (PcmlNodeType.DATA) :
-          PcmlDimensions noDimensions = new PcmlDimensions();
-          int count = ((RfmlData)node).getCount(noDimensions);
-          if (count == 0) count=1;
-          // If type="struct", then go to the struct and get its lengths.
-          String type = node.getType();
-          if (type.equals("struct")) {
-            // Get the struct node (a child of the root node).
-            String structName = node.getStructName();
-            PcmlDocNode structNode = (PcmlDocNode)(root.getElement(structName));
-            // Note: No need to check for null, since we've already validated the document.
-            totalLength = count * getRequiredLength(structNode, root);
-          }
-          else {  // not a struct reference
-            totalLength = count * ((RfmlData)node).getLength(noDimensions);
-          }
-          break;
-        default:
-          Trace.log(Trace.ERROR, "Document node is neither recordformat, data, nor struct.");
-          throw new InternalErrorException(InternalErrorException.UNKNOWN);
-      }
-
-      return totalLength;
-    }
-
-    /**
      Assigns the value of the current node and its children, by parsing the input bytes.
      **/
     int parseBytes(byte[] bytes)
            throws XmlException
     {
-      // Check that the input buffer has sufficient length.
-      int requiredBufferSize = getRequiredLength(this, getRootNode());
-      if (bytes.length < requiredBufferSize)
-      {
-        throw new XmlException(DAMRI.INSUFFICIENT_INPUT_DATA, new Object[] {Integer.toString(requiredBufferSize), Integer.toString(bytes.length), "<recordformat>", this.getNameForException()} );
-      }
-
       PcmlDimensions noDimensions = new PcmlDimensions();
 
       // Stack of offsets used by RfmlData.parseBytes() and RfmlStruct.parseBytes()
@@ -486,22 +423,28 @@ class RfmlRecordFormat extends PcmlDocNode
 
       int offsetIntoBuffer = 0;
 
-      // Convert all fields from Java objects to i5/OS data.
-      Enumeration children = getChildren();  // children of this node.
-      while (children.hasMoreElements())
-      {
-        PcmlDocNode child = (PcmlDocNode) children.nextElement();
+        // Convert all fields from Java objects to i5/OS data.
+        Enumeration children = getChildren();  // children of this node.
+        while (children.hasMoreElements())
+        {
+          PcmlDocNode child = (PcmlDocNode) children.nextElement();
 
-        // Create a FieldDescription for the node and convert the Java objects to i5/OS data.
-        if (child.getNodeType() == PcmlNodeType.DATA) {
-          int bytesConsumed = ((RfmlData) child).parseBytes(bytes, offsetIntoBuffer, offsetStack, noDimensions);
-          offsetIntoBuffer += bytesConsumed;
+          // Create a FieldDescription for the node and convert the Java objects to i5/OS data.
+          if (child.getNodeType() == PcmlNodeType.DATA) {
+            try {
+              int bytesConsumed = ((RfmlData) child).parseBytes(bytes, offsetIntoBuffer, offsetStack, noDimensions);
+              offsetIntoBuffer += bytesConsumed;
+            }
+            catch (ArrayIndexOutOfBoundsException e) {
+              Trace.log(Trace.ERROR, e);
+              throw new XmlException(DAMRI.INSUFFICIENT_INPUT_DATA, new Object[] {"(unknown)", Integer.toString(bytes.length), "<recordformat>", this.getNameForException()} );
+            }
+          }
+          else {
+            throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
+          }
         }
-        else {
-          throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
-        }
-      }
-      return offsetIntoBuffer;  // total number of bytes consumed
+        return offsetIntoBuffer;  // total number of bytes consumed
     }
 
     /**
