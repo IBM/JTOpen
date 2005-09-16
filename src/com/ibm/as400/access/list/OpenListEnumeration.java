@@ -1,110 +1,98 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: OpenListEnumeration.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  OpenListEnumeration.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2005 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access.list;
 
-import com.ibm.as400.access.*;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
 
-/**
- * Helper class. Used to wrap the OpenList objects with an Enumeration.
-**/
+import com.ibm.as400.access.Trace;
+
+// Helper class.  Used to wrap the OpenList objects with an Enumeration.
 final class OpenListEnumeration implements Enumeration
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    // Reference back to list object.
+    private OpenList list_;
+    // Indication if list is closed.
+    private boolean closed_ = false;
+    // Total number of objects in the server list.
+    private int length_;
+    // Position in the server list.
+    private int counter_;
+    // Offset in the server list.
+    private int listOffset_ = 0;
+    // Cached objects from list.
+    private Object[] objectCache_;
+    // Current position within the cache.
+    private int cachePosition_ = 0;
 
-  private Object[] objectCache_;
-  private OpenList list_;
-  private int counter_;
-  private int numObjects_;
-  private int listOffset_ = 0;
-  private int cachePos_ = 0;
-  private boolean closed_ = false;
-
-  OpenListEnumeration(OpenList list, int length)
-  {
-    list_ = list;
-    numObjects_ = length;
-  }
-
-  // Called by OpenList when someone closes it.
-  // This invalidates us.
-  synchronized void close()
-  {
-    if (Trace.isTraceOn())
+    OpenListEnumeration(OpenList list, int length)
     {
-      Trace.log(Trace.DIAGNOSTIC, "OpenList closed enumeration: "+this);
-    }
-    closed_ = true;
-  }
-
-  public boolean hasMoreElements()
-  {
-    return (closed_ && counter_ < listOffset_) || (!closed_ && counter_ < numObjects_);
-  }
-
-  public synchronized Object nextElement()
-  {
-    // If we are closed, but we still have objects in the cache, then
-    // we might as well return them.
-    if ((closed_ && counter_ >= listOffset_) ||
-        (!closed_ && counter_ >= numObjects_))
-    {
-      throw new NoSuchElementException();
+        list_ = list;
+        length_ = length;
     }
 
-    if (objectCache_ == null || cachePos_ >= objectCache_.length)
+    // Called by OpenList when someone closes it.  This invalidates us.
+    synchronized void close()
     {
-      try
-      {
-        int blockSize = list_.getEnumerationBlockSize();
-        objectCache_ = list_.getItems(listOffset_, blockSize);
-        if (Trace.isTraceOn())
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "OpenList closed enumeration: " + this);
+        closed_ = true;
+    }
+
+    public boolean hasMoreElements()
+    {
+        return closed_ && counter_ < listOffset_ || !closed_ && counter_ < length_;
+    }
+
+    public synchronized Object nextElement()
+    {
+        // If we are closed, but we still have objects in the cache, then we might as well return them.
+        if (closed_ && counter_ >= listOffset_ || !closed_ && counter_ >= length_)
         {
-          Trace.log(Trace.DIAGNOSTIC, "Loaded next block in OpenListEnumeration: "+objectCache_.length+" messages at offset "+listOffset_+" out of "+numObjects_+" total, using block size "+blockSize+".");
+            throw new NoSuchElementException();
         }
-      }
-      catch (Exception e)
-      {
-        if (Trace.isTraceOn())
+
+        if (objectCache_ == null || cachePosition_ >= objectCache_.length)
         {
-          Trace.log(Trace.ERROR, "Exception while loading nextElement() in OpenListEnumeration:", e);
+            try
+            {
+                int blockSize = list_.getEnumerationBlockSize();
+                objectCache_ = list_.getItems(listOffset_, blockSize);
+                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loaded next block in OpenListEnumeration: " + objectCache_.length + " messages at offset " + listOffset_ + " out of " + length_ + " total, using block size " + blockSize + ".");
+            }
+            catch (Exception e)
+            {
+                if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Exception while loading nextElement() in OpenListEnumeration:", e);
+                throw new NoSuchElementException();
+            }
+            cachePosition_ = 0;
+            listOffset_ += objectCache_.length;
         }
-        throw new NoSuchElementException();
-      }
-      cachePos_ = 0;
-      listOffset_ += objectCache_.length;
-    }
-    ++counter_;
-    Object obj = objectCache_[cachePos_];
-    objectCache_[cachePos_++] = null; // Set to null to reduce memory usage as nextElement() is called.
+        ++counter_;
+        Object obj = objectCache_[cachePosition_];
+        // Set to null to reduce memory usage as nextElement() is called.
+        objectCache_[cachePosition_++] = null;
 
-    // When we reach the end, our Enumeration is now useless.
-    // We "close" ourselves and notify our Open List that we're used up.
-    // This aids in garbage collection.
-    if (counter_ >= numObjects_)
-    {
-      closed_ = true;
-      list_.remove(this);
-      if (Trace.isTraceOn())
-      {
-        Trace.log(Trace.DIAGNOSTIC, "OpenListEnumeration reached last element: "+this);
-      }
-    }
+        // When we reach the end, our Enumeration is now useless.
+        // We "close" ourselves and notify our Open List that we're used up.
+        // This aids in garbage collection.
+        if (counter_ >= length_)
+        {
+            closed_ = true;
+            list_.remove(this);
+            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "OpenListEnumeration reached last element: " + this);
+        }
 
-    return obj;
-  }
+        return obj;
+    }
 }
-
-
-
