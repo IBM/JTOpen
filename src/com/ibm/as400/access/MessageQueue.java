@@ -464,7 +464,7 @@ public class MessageQueue implements Serializable
 
     /**
      Returns a subset of the list of messages in the message queue.  This method allows the user to retrieve the message list from the server in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
-     @param  listOffset  The offset into the list of messages.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the messages.
+     @param  listOffset  The offset into the list of messages.  This value must be greater than or equal to 0 and less than the list length, or specify -1 to retrieve all of the messages.
      @param  number  The number of messages to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
      @return  The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the server, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -491,14 +491,12 @@ public class MessageQueue implements Serializable
 
         if (handle_ == null || closeHandle_) load();
 
-        if (number == 0 && listOffset != -1) return new QueuedMessage[0];
-
         if (listOffset == -1)
         {
             number = length_;
             listOffset = 0;
         }
-        else if (listOffset > length_)
+        else if (listOffset >= length_)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'listOffset' is not valid:", listOffset);
             throw new ExtendedIllegalArgumentException("listOffset (" + listOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -507,6 +505,8 @@ public class MessageQueue implements Serializable
         {
             number = length_ - listOffset;
         }
+
+        if (number == 0) return new QueuedMessage[0];
 
         int lengthOfReceiverVariable = dataLength_ / length_ * number;
 
