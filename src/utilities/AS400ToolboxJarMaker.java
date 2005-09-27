@@ -1409,8 +1409,10 @@ public class AS400ToolboxJarMaker extends JarMaker
     {
       deps.addElement   (CAIA+"IFSFile.class");
       deps.addElement   (CAIA+"IFSRandomAccessFile.class");
-      deps.addElement   (CAIA+"IFSTextFileInputStream.class");
-      deps.addElement   (CAIA+"IFSTextFileOutputStream.class");
+      deps.addElement   (CAIA+"IFSTextFileInputStream.class");  // deprecated
+      deps.addElement   (CAIA+"IFSTextFileOutputStream.class"); // deprecated
+      deps.addElement   (CAIA+"IFSFileReader.class");
+      deps.addElement   (CAIA+"IFSFileWriter.class");
       if (includeBeans)
       {
         deps.addElement (CAIA+"IFSFileBeanInfo.class");
