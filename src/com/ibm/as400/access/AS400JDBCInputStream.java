@@ -44,6 +44,8 @@ class AS400JDBCInputStream extends InputStream
   private JDLobLocator    locator_;
   private long             offset_;
 
+  private long mark_ = 0;
+
 /**
 Constructs an AS400JDBCInputStream object.  The data for the
 binary stream will be retrieved as requested, directly from the
@@ -108,13 +110,14 @@ Closes the stream and releases any associated system resources.
 
 
 /**
-Marks the current position in the stream.  This is not supported.
+Marks the current position in the stream.
 
 @param readLimit    The read limit.
+@see #reset()
 **/
   public void mark(int readLimit)
   {
-    // Not supported.
+    mark_ = offset_;
   }
 
 
@@ -122,11 +125,11 @@ Marks the current position in the stream.  This is not supported.
 /**
 Indicates if mark() and reset() are supported.
 
-@return     Always false.  mark() and reset() are not supported.
+@return true
 **/
   public boolean markSupported()
   {
-    return false;
+    return true;
   }
 
 
@@ -252,13 +255,15 @@ exception is thrown.
 
 
 /**
-Repositions to the marked position.  This is not supported.
+Repositions to the marked position.
+If mark() has not been called, repositions to the beginning of the stream.
 
 @exception IOException      If an input/output error occurs.
+@see #mark(int)
 **/
   public void reset() throws IOException
   {
-    // Not supported.
+    offset_ = mark_;
   }
 
 
