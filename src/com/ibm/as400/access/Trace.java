@@ -17,11 +17,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.PrintStream;                                         // @D5A
 import java.util.Date;
 import java.util.StringTokenizer;                                   // $D0A
 import java.util.Hashtable;                                         // $W1A
-//@P0D import com.ibm.sslight.SSLException;                                //$B1A
 
 /**
   The Trace class logs trace points and diagnostic messages.  Each trace
@@ -197,22 +195,29 @@ public class Trace
 
 
   static boolean traceOn_; //@P0C
-  private static boolean traceInfo_;
-  private static boolean traceWarning_;
-  private static boolean traceError_;
-  private static boolean traceDiagnostic_;
-  private static boolean traceDatastream_;
-  private static boolean traceConversion_;
-  private static boolean traceProxy_;                           // @D0A
-  private static boolean traceThread_;                          // @D3A
+  static boolean traceInfo_;
+  static boolean traceWarning_;
+  static boolean traceError_;
+  static boolean traceDiagnostic_;
+  static boolean traceDatastream_;
+  static boolean traceConversion_;
+  static boolean traceProxy_;                           // @D0A
+  static boolean traceThread_;                          // @D3A
   static boolean traceJDBC_;                            // @D5A
-  private static boolean tracePCML_;
+  static boolean tracePCML_;
+
+  private static int lastTraceAction_;  // either 0 (no action), TURNED_TRACE_OFF, or TURNED_TRACE_ON
+  private static final int TURNED_TRACE_ON = 1;
+  private static final int TURNED_TRACE_OFF = 2;
+  private static boolean calledSetTraceCategory_ = false;  // goes to 'true' when any setTrace...() method has been called
 
   private static String fileName_ = null;
-  private static PrintWriter destination_ = new PrintWriter(System.out, true);
+  private static PrintWriter destination_ = new PrintWriter(System.out, true);  // never null
+  private static boolean userSpecifiedDestination_ = false;  // true if setFileName() or setPrintWriter() was called with a non-null argument
 
   private static Hashtable printWriterHash = new Hashtable();      // @W1A
   private static Hashtable fileNameHash    = new Hashtable();      // @W1A
+
 
   /**
     Data stream trace category.  This category is used by Toolbox classes
@@ -220,7 +225,7 @@ public class Trace
     not intended for use by application classes.
    **/
   public  static final int DATASTREAM = 0;
-  private static final int FIRST_ONE  = 0; // @W1A
+  //private static final int FIRST_ONE  = 0; // @W1A
 
   /**
     Diagnostic message trace category.  This category is used to log object
@@ -271,27 +276,43 @@ public class Trace
 
 
   // This is used so we don't have to change our bounds checking every time we add a new trace category.
-  private static final int LAST_ONE = 9; // @D3A @D8C
+  //private static final int LAST_ONE = 9; // @D3A @D8C
 
   // The following are trace categories which cannot be log()-ed to directly.
-  /**
+  /*
     Thread trace category.  This category is used to enable or disable tracing of thread
     information. This is useful when debugging multi-threaded applications. Trace
     information cannot be directly logged to this category.
-   **/
+   */
   // @E1D private static final int THREAD = 99; // @D3A
 
-  /**
+  /*
     All trace category. This category is
     used to enable or disable tracing for all of the other categories at
     once. Trace information cannot be directly logged to this category.
-  **/
+  */
   // @E1D private static final int ALL = 100; //@D2A
 
 
+  /**
+   Name of the instance of <tt>java.util.logging.Logger</tt> that the Toolbox looks for and uses.
+   If no Logger by this name is activated, then traditional Toolbox tracing is done.
+   To activate a Toolbox logger, the calling application simply needs to invoke Logger.getLogger(Trace.LOGGER_NAME).
+   **/
+  public static final String LOGGER_NAME = "com.ibm.as400.access";
+
+  // Design note: We needed to segregate the Logger logic into a separate class.  The Java logging package doesn't exist prior to JDK 1.4, so if we're executing in an older JVM, we get SecurityException's if the JVM sees _any_ runtime reference to a java.util.logging class.
+  private static ToolboxLogger logger_ = null;
+  private static boolean JDK14_OR_LATER = false;
   // @D0A
   static
   {
+    try {
+      Class.forName("java.util.logging.LogManager");
+      JDK14_OR_LATER = true;  // if we got this far, we're on JDK 1.4 or higher
+    }
+    catch (Throwable e) {}  // package java.util.logging was added in JDK 1.4
+
     loadTraceProperties ();
   }
 
@@ -475,6 +496,7 @@ public class Trace
 
 
 
+  // Note: If the properties file specifies the "com.ibm.as400.access.Trace.file" property, then we will disregard any existing Toolbox Logger.
   // @D0A
   static void loadTraceProperties ()
   {
@@ -515,7 +537,7 @@ public class Trace
             Trace.log (Trace.WARNING, "Trace category not valid: " + category + ".");
         }
       }
-    }
+    }  // categories != null
 
     // Load and apply the trace file system property.
     String file = SystemProperties.getProperty (SystemProperties.TRACE_FILE);
@@ -532,6 +554,15 @@ public class Trace
           Trace.log (Trace.WARNING, "Trace file not valid: " + file + ".", e);
       }
     }
+
+    // Load and apply the trace enabled system property.
+    String enabled = SystemProperties.getProperty (SystemProperties.TRACE_ENABLED);
+    if (enabled != null)
+    {
+      boolean value = Boolean.valueOf(enabled).booleanValue();
+      traceOn_ = value;
+    }
+
   }
 
   // Log time stamp information in the trace.
@@ -552,6 +583,23 @@ public class Trace
     pw.print("  ");                                          // @W1C
   }
 
+  // Log time stamp information in the trace.
+  private static void logTimeStamp(Object component, StringBuffer buf)
+  {
+    if (component != null)
+      if (component.toString() != null)
+        buf.append("[" + component.toString() + "]  ");
+
+    if (traceThread_)
+    {
+      buf.append(Thread.currentThread().toString());
+      buf.append("  ");
+    }
+
+    buf.append((new Date()).toString());
+    buf.append("  ");
+  }
+
 
   // This is the routine that actually writes to the log.
   private static final void logData(Object    component,
@@ -559,68 +607,96 @@ public class Trace
                                     String    message,
                                     Throwable e)
   {
-    if (traceOn_ && traceCategory(category))
+    // See if tracing is activated for specified category.
+    if ((traceOn_ && traceCategory(category)) ||
+        (findLogger() && logger_.isLoggable(category)))
     {
-      // Validate parameters.
-      //@D2 - note: It doesn't make sense to log something to Trace.ALL,
-      // so we count it as an illegal argument.
-      // if (category < FIRST_ONE || category > LAST_ONE) // @D0C @D3C
-      // {
-      //    throw new ExtendedIllegalArgumentException("category ("
-      //          + Integer.toString(category)
-      //          + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      // }
+      // Two different cases: Either traditional Toolbox trace, or Java Logging.
 
-      // First, write to the default log
-      synchronized(destination_)
+      if (logger_ == null || userSpecifiedDestination_)  // traditional trace
       {
-        // If component tracing is being used, log the component name to
-        // the default log as well as the specific component log.
-        if (component != null && getFileName(component) != null)        //$W2A
+        // Validate parameters.
+        //@D2 - note: It doesn't make sense to log something to Trace.ALL,
+        // so we count it as an illegal argument.
+        // if (category < FIRST_ONE || category > LAST_ONE) // @D0C @D3C
+        // {
+        //    throw new ExtendedIllegalArgumentException("category ("
+        //          + Integer.toString(category)
+        //          + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        // }
+
+        // First, write to the default log
+        synchronized(destination_)
         {
-          //$W2A
-          logTimeStamp(component, destination_);                         //$W2A
-          destination_.println(message);                                 //$W2A
-        }                                                                 //$W2A
-        else                                                              //$W2A
-        {
-          //$W2A
-          // Only trace to the default log if we are not doing component
-          // tracing.  This will avoid duplicate messages in the default
-          // log.
-          if (component == null)                                       //$W2A
+          // If component tracing is being used, log the component name to
+          // the default log as well as the specific component log.
+          if (component != null && getFileName(component) != null)        //$W2A
           {
             //$W2A
-            logTimeStamp(null, destination_);                           //$W2A
-            destination_.println(message);                              //$W2A
-          }                                                              //$W2A
-        }                                                                 //$W2A
+            logTimeStamp(component, destination_);                         //$W2A
+            destination_.println(message);                                 //$W2A
+          }                                                                 //$W2A
+          else                                                              //$W2A
+          {
+            //$W2A
+            // Only trace to the default log if we are not doing component
+            // tracing.  This will avoid duplicate messages in the default
+            // log.
+            if (component == null)                                       //$W2A
+            {
+              //$W2A
+              logTimeStamp(null, destination_);                           //$W2A
+              destination_.println(message);                              //$W2A
+            }                                                              //$W2A
+          }                                                                 //$W2A
 
-        if (e != null)
-          e.printStackTrace(destination_);
-        else if (category == ERROR)
-          new Throwable().printStackTrace(destination_);
-      }
-
-      if (component != null)
-      {
-        PrintWriter pw = (PrintWriter) printWriterHash.get(component);
-        if (pw == null)
-        {
-          pw = new PrintWriter(System.out, true);
-          printWriterHash.put(component, pw);
-        }
-        synchronized(pw)
-        {
-          logTimeStamp(component, pw);
-          pw.println(message);
           if (e != null)
-            e.printStackTrace(pw);
+            e.printStackTrace(destination_);
           else if (category == ERROR)
-            new Throwable().printStackTrace(pw);
+            new Throwable().printStackTrace(destination_);
         }
-      }
+
+        if (component != null)
+        {
+          PrintWriter pw = (PrintWriter) printWriterHash.get(component);
+          if (pw == null)
+          {
+            pw = new PrintWriter(System.out, true);
+            printWriterHash.put(component, pw);
+          }
+          synchronized(pw)
+          {
+            logTimeStamp(component, pw);
+            pw.println(message);
+            if (e != null)
+              e.printStackTrace(pw);
+            else if (category == ERROR)
+              new Throwable().printStackTrace(pw);
+          }
+        }
+      }  // traditional Toolbox tracing
+
+      else  // We are logging to a Java Logger.
+      {
+        // Log to the Logger instead of to destination_.
+        // Don't bother splitting up into separate component-specific trace files.
+        StringBuffer buf = new StringBuffer();
+        logTimeStamp(component, buf);
+        buf.append(message);
+
+        if (e != null) {
+          logger_.log(category, buf.toString(), e);
+        }
+        else if (category == ERROR) {
+          logger_.log(category, buf.toString(), new Throwable());
+        }
+        else {
+          logger_.log(category, buf.toString());
+        }
+
+      }  // using a Java Logger
     }
+    else {}  // tracing is not activated for the specified category, so do nothing
   }
 
   /**
@@ -934,16 +1010,32 @@ public class Trace
       throw new NullPointerException("data");
     }
 
-    if (traceOn_ && traceCategory(category))
+    if ((traceOn_ && traceCategory(category)) ||
+        (findLogger() && logger_.isLoggable(category)))
     {
-      synchronized(destination_)
-      {
-        logTimeStamp(null, destination_);
-        destination_.println(message);
-        printByteArray(destination_, data, offset, length);
-        if (category == ERROR)
+      if (logger_ == null || userSpecifiedDestination_)  // traditional trace
+      {  // log to destination_
+        synchronized(destination_)
         {
-          new Throwable().printStackTrace(destination_);
+          logTimeStamp(null, destination_);
+          destination_.println(message);
+          printByteArray(destination_, data, offset, length);
+          if (category == ERROR)
+          {
+            new Throwable().printStackTrace(destination_);
+          }
+        }
+      }
+      else  // log to logger_
+      {
+        StringBuffer buf = new StringBuffer();
+        logTimeStamp(null, buf);
+        printByteArray(buf, data, offset, length);
+        if (category == ERROR) {
+          logger_.log(category, buf.toString(), new Throwable());
+        }
+        else {
+          logger_.log(category, buf.toString());
         }
       }
     }
@@ -988,23 +1080,27 @@ public class Trace
       throw new NullPointerException("category");
     }
 
-    if (traceOn_ && traceCategory(category))
+    if ((traceOn_ && traceCategory(category)) ||
+        (findLogger() && logger_.isLoggable(category)))
     {
-      PrintWriter pw = (PrintWriter) printWriterHash.get(component);
-      if (pw == null)
-      {
-        pw = new PrintWriter(System.out, true);
-        printWriterHash.put(component, pw);
-      }
-
-      synchronized(pw)
-      {
-        logTimeStamp(component, pw);
-        pw.println(message);
-        printByteArray(pw, data, offset, length);
-        if (category == ERROR)
+      if (logger_ == null || userSpecifiedDestination_)  // traditional trace
+      {  // log to component-specific trace file
+        PrintWriter pw = (PrintWriter) printWriterHash.get(component);
+        if (pw == null)
         {
-          new Throwable().printStackTrace(pw);
+          pw = new PrintWriter(System.out, true);
+          printWriterHash.put(component, pw);
+        }
+
+        synchronized(pw)
+        {
+          logTimeStamp(component, pw);
+          pw.println(message);
+          printByteArray(pw, data, offset, length);
+          if (category == ERROR)
+          {
+            new Throwable().printStackTrace(pw);
+          }
         }
       }
       log(category, message, data, offset, length);
@@ -1015,7 +1111,7 @@ public class Trace
   // Logs data from a byte array starting at offset for the length specified.
   // Output sixteen bytes per line, two hexidecimal digits per byte, one
   // space between bytes.
-  private static void printByteArray(PrintWriter pw_, byte[] data, int offset, int length)
+  private static void printByteArray(PrintWriter pw, byte[] data, int offset, int length)
   {
     for (int i = 0; i < length; i++, offset++)
     {
@@ -1024,19 +1120,48 @@ public class Trace
       // 0x30 = '0', 0x41 = 'A'
       char leftDigit = leftDigitValue < 0x0A ? (char)(0x30 + leftDigitValue) : (char)(leftDigitValue - 0x0A + 0x41);
       char rightDigit = rightDigitValue < 0x0A ? (char)(0x30 + rightDigitValue) : (char)(rightDigitValue - 0x0A + 0x41);
-      pw_.print(leftDigit);
-      pw_.print(rightDigit);
-      pw_.print(" ");
+      pw.print(leftDigit);
+      pw.print(rightDigit);
+      pw.print(" ");
 
       if ((i & 0x0F ) == 0x0F)
       {
-        pw_.println();
+        pw.println();
       }
     }
     if (((length - 1) & 0x0F) != 0x0F)
     {
       // Finish the line of data.
-      pw_.println();
+      pw.println();
+    }
+  }
+
+
+  // Logs data from a byte array starting at offset for the length specified.
+  // Output sixteen bytes per line, two hexidecimal digits per byte, one
+  // space between bytes.
+  private static void printByteArray(StringBuffer buf, byte[] data, int offset, int length)
+  {
+    for (int i = 0; i < length; i++, offset++)
+    {
+      int leftDigitValue = (data[offset] >>> 4) & 0x0F;
+      int rightDigitValue = data[offset] & 0x0F;
+      // 0x30 = '0', 0x41 = 'A'
+      char leftDigit = leftDigitValue < 0x0A ? (char)(0x30 + leftDigitValue) : (char)(leftDigitValue - 0x0A + 0x41);
+      char rightDigit = rightDigitValue < 0x0A ? (char)(0x30 + rightDigitValue) : (char)(rightDigitValue - 0x0A + 0x41);
+      buf.append(leftDigit);
+      buf.append(rightDigit);
+      buf.append(" ");
+
+      if ((i & 0x0F ) == 0x0F)
+      {
+        buf.append("\n");
+      }
+    }
+    if (((length - 1) & 0x0F) != 0x0F)
+    {
+      // Finish the line of data.
+      buf.append("\n");
     }
   }
 
@@ -1061,6 +1186,8 @@ public class Trace
     traceProxy_      = traceAll;
     traceThread_     = traceAll; //@D3A
     traceWarning_    = traceAll;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
 
@@ -1074,6 +1201,8 @@ public class Trace
   public static void setTraceConversionOn(boolean traceConversion)
   {
     traceConversion_ = traceConversion;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
   /**
@@ -1086,6 +1215,8 @@ public class Trace
   public static void setTraceDatastreamOn(boolean traceDatastream)
   {
     traceDatastream_ = traceDatastream;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
   /**
@@ -1098,6 +1229,8 @@ public class Trace
   public static void setTraceDiagnosticOn(boolean traceDiagnostic)
   {
     traceDiagnostic_ = traceDiagnostic;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
   /**
@@ -1110,8 +1243,11 @@ public class Trace
   public static void setTraceErrorOn(boolean traceError)
   {
     traceError_ = traceError;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
+  // Note: If this method is called with a non-null argument, we will disregard any existing Logger.
   /**
     Sets the trace file name.  If the file exists, output is appended to
     it.  If the file does not exist, it is created.
@@ -1129,12 +1265,13 @@ public class Trace
       File file = new File(fileName);
       FileOutputStream os = new FileOutputStream(fileName, file.exists());
       destination_ = new PrintWriter(os, true);
+      userSpecifiedDestination_ = true;
 
       // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
 
       fileName_ = fileName;
     }
-    else
+    else  // The specified fileName is null - Use default destination.
     {
       destination_.close();
 
@@ -1142,6 +1279,7 @@ public class Trace
 
       fileName_ = null;
       destination_ = new PrintWriter(System.out, true);
+      userSpecifiedDestination_ = false;
     }
   }
 
@@ -1186,6 +1324,7 @@ public class Trace
 
 
 
+  // Note: If this method is called with a non-null argument, we will disregard any existing Logger.
   /**
     Sets the PrintWriter object.  All further trace output is sent to it.
     @param  obj  The PrintWriter object.  If this is null, output goes to System.out.
@@ -1202,10 +1341,14 @@ public class Trace
       fileName_ = null;
     }
 
-    if (obj != null)
+    if (obj != null) {
       destination_ = obj;
-    else
+      userSpecifiedDestination_ = true;
+    }
+    else {
       destination_ = new PrintWriter(System.out, true);
+      userSpecifiedDestination_ = false;
+    }
   }
 
   /**
@@ -1248,6 +1391,8 @@ public class Trace
   public static void setTraceInformationOn(boolean traceInformation)
   {
     traceInfo_ = traceInformation;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
 
@@ -1268,8 +1413,27 @@ public class Trace
   public static void setTraceJDBCOn(boolean traceJDBC)           // @D5A
   {
     traceJDBC_ = traceJDBC;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
+  // Obtains the (static) Toolbox logger from the JVM, if one exists.
+  // To activate a Toolbox logger, the calling application can call Logger.getLogger(Trace.LOGGER_NAME).
+  private static boolean findLogger()
+  {
+    if (logger_ == null && JDK14_OR_LATER)
+    {
+      logger_ = ToolboxLogger.getLogger(); // returns null if no Logger activated
+      if (logger_ != null) {
+        logger_.info("Toolbox for Java - " + Copyright.version);
+        if (!logger_.isLoggingOff() &&
+            lastTraceAction_ != TURNED_TRACE_OFF) {
+          traceOn_ = true;
+        }
+      }
+    }
+    return (logger_ != null);
+  }
 
   /**
     Sets tracing on or off.  When this is off nothing is logged in any
@@ -1280,8 +1444,18 @@ public class Trace
   public static void setTraceOn(boolean traceOn)
   {
     traceOn_ = traceOn;
-    if (traceOn_)                                    //$D1A
+    lastTraceAction_ = (traceOn ? TURNED_TRACE_ON : TURNED_TRACE_OFF);
+    findLogger();
+    if (traceOn_ &&                                    //$D1A
+        (logger_ == null || userSpecifiedDestination_))
       destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
+
+    // If logger exists, set its attributes accordingly.
+    if (logger_ != null && calledSetTraceCategory_) {
+      logger_.setLevel();
+      logger_.config("Toolbox for Java - " + Copyright.version);
+    }
+    // Design issue: How does the Trace class reliably become aware that a Logger exists (and therefore that traceOn_ should be set to true), if the calling app prefaces each Trace method call with "if (traceOn_)"?  (Most Toolbox classes check that condition before Trace.log() calls.)  We can't rely on everything to get set up correctly at static initialization time.
   }
 
 
@@ -1294,6 +1468,8 @@ public class Trace
   public static void setTracePCMLOn(boolean tracePCML)           // @D5A
   {
     tracePCML_ = tracePCML;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
 
     // try                                                                                                   // @D7A @D8D
     // {                                                                                                     // @D7A @D8D
@@ -1317,6 +1493,8 @@ public class Trace
   public static void setTraceProxyOn(boolean traceProxy)
   {
     traceProxy_ = traceProxy;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
   // @D3A
@@ -1330,6 +1508,8 @@ public class Trace
   public static void setTraceThreadOn(boolean traceThread)
   {
     traceThread_ = traceThread;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
 
@@ -1343,6 +1523,8 @@ public class Trace
   public static void setTraceWarningOn(boolean traceWarning)
   {
     traceWarning_ = traceWarning;
+    calledSetTraceCategory_ = true;
+    if (findLogger()) logger_.setLevel();
   }
 
   // Indicates if this category is being traced or not.

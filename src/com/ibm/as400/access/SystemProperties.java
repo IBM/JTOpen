@@ -34,6 +34,7 @@ class SystemProperties
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
     public static final String TRACE_FILE = ACCESS_PREFIX + "Trace.file";
     public static final String TRACE_JDBC_SERVER = ACCESS_PREFIX + "ServerTrace.JDBC";     // @j1a
+    public static final String TRACE_ENABLED = ACCESS_PREFIX + "Trace.enabled";
     public static final String COMMANDCALL_THREADSAFE = ACCESS_PREFIX + "CommandCall.threadSafe";
     public static final String PROGRAMCALL_THREADSAFE = ACCESS_PREFIX + "ProgramCall.threadSafe";
     public static final String TUNNELPROXYSERVER_CLIENTCLEANUPINTERVAL = ACCESS_PREFIX + "TunnelProxyServer.clientCleanupInterval"; //@A2A
