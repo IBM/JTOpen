@@ -119,22 +119,17 @@ public class ProgramCallDocument implements Serializable, Cloneable
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.access.AS400
     */
     public ProgramCallDocument(AS400 sys, String docName)
     	throws PcmlException
    	{
-        if (sys == null) {
-          throw new NullPointerException("sys");
-        }
-        if (docName == null) {
-          throw new NullPointerException("docName");
-        }
+        if (sys == null)     warnNull("sys");
+        if (docName == null) warnNull("docName");
 
         m_as400 = sys;
 
         m_pcmlDoc = loadPcmlDocument(docName, null,null);        // @C8C @E1C
-        m_pcmlDoc.setAs400(m_as400);
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);
     }
 
   /**
@@ -149,23 +144,18 @@ public class ProgramCallDocument implements Serializable, Cloneable
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.access.AS400
     */
 
     public ProgramCallDocument(AS400 sys, String docName, InputStream xsdStream)
     	throws PcmlException
    	{
-        if (sys == null) {
-          throw new NullPointerException("sys");
-        }
-        if (docName == null) {
-          throw new NullPointerException("docName");
-        }
+        if (sys == null)     warnNull("sys");
+        if (docName == null) warnNull("docName");
 
         m_as400 = sys;
 
         m_pcmlDoc = loadPcmlDocument(docName, null,xsdStream);        // @C8C
-        m_pcmlDoc.setAs400(m_as400);
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);
 
     }
 
@@ -184,22 +174,17 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @param loader The ClassLoader that will be used when loading the specified document resource.
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.access.AS400
     */
     public ProgramCallDocument(AS400 sys, String docName, ClassLoader loader)       // @C8A
     	throws PcmlException
    	{
-        if (sys == null) {
-          throw new NullPointerException("sys");
-        }
-        if (docName == null) {
-          throw new NullPointerException("docName");
-        }
+        if (sys == null)     warnNull("sys");
+        if (docName == null) warnNull("docName");
 
         m_as400 = sys;                                      // @C8A
 
         m_pcmlDoc = loadPcmlDocument(docName, loader,null);      // @C8A
-        m_pcmlDoc.setAs400(m_as400);                        // @C8A
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);                        // @C8A
     }
 
 
@@ -215,22 +200,17 @@ public class ProgramCallDocument implements Serializable, Cloneable
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
     @exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.access.AS400
     */
      public ProgramCallDocument(AS400 sys, String docName, ClassLoader loader, InputStream xsdStream)       // @C8A
     	throws PcmlException
    	{
-        if (sys == null) {
-          throw new NullPointerException("sys");
-        }
-        if (docName == null) {
-          throw new NullPointerException("docName");
-        }
+        if (sys == null)     warnNull("sys");
+        if (docName == null) warnNull("docName");
 
         m_as400 = sys;                                      // @C8A
 
         m_pcmlDoc = loadPcmlDocument(docName, loader,xsdStream);      // @C8A
-        m_pcmlDoc.setAs400(m_as400);                        // @C8A
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);                        // @C8A
     }
 
   /**
@@ -251,17 +231,12 @@ public class ProgramCallDocument implements Serializable, Cloneable
     <LI>ProgramCallDocument.SOURCE_XPCML - The docStream contains an XPCML document.
     </UL>
     @exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.access.AS400
     */
      public ProgramCallDocument(AS400 sys, String docName, InputStream docStream, ClassLoader loader, InputStream xsdStream, int type)
     	throws PcmlException
    	{
-        if (sys == null) {
-          throw new NullPointerException("sys");
-        }
-        if (docName == null) {
-          throw new NullPointerException("docName");
-        }
+        if (sys == null)     warnNull("sys");
+        if (docName == null) warnNull("docName");
 
         if (type == ProgramCallDocument.SERIALIZED)
         {
@@ -280,20 +255,14 @@ public class ProgramCallDocument implements Serializable, Cloneable
         }
 
         m_as400 = sys;
-        m_pcmlDoc.setAs400(m_as400);
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);
     }
 
      /**
-    Constructs a <code>ProgramCallDocument</code>
-	<p>
-	The setSystem and setDocument methods must be called prior to using
-	the object.
+    Constructs a <code>ProgramCallDocument</code>.
+    {@link #setSystem setSystem()} and {@link #setDocument setDocument()} must be called prior to using the object.
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see #setSystem
-    @see #setDocument
-    @see com.ibm.as400.access.AS400
-    @deprecated Use one of the other constructors instead.
     */
     public ProgramCallDocument()
     	throws PcmlException                                        // @C1A
@@ -303,14 +272,33 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }                                                               // @C1A
 
     /**
-    Clones the <code>ProgramCallDocument</code> and the objects contained in it
-	<p>
-	The setSystem and setDocument methods must be called prior to using
-	the object.
+     Constructs a <code>ProgramCallDocument</code>.
+     {@link #setSystem setSystem()} must be called prior to using the object.
+     The PCML or XPCML document resource will be loaded from the classpath.
+     If the document is a PCML document, the classpath will first be searched for a serialized resource.
+     XPCML documents cannot be serialized.
+     If a serialized resource is not found, the classpath will be
+     searched for a PCML or XPCML source file.
 
-    @see #setSystem
-    @see #setDocument
-    @see com.ibm.as400.access.AS400
+     @param docName The document resource name of the PCML document for the programs to be called.
+     All PCML-related file extensions are assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
+     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+
+     @exception PcmlException when the specified PCML document cannot be found
+     */
+    public ProgramCallDocument(String docName)
+      throws PcmlException
+    {
+      if (docName == null) {
+        throw new NullPointerException("docName");
+      }
+
+      m_pcmlDoc = loadPcmlDocument(docName, null,null);
+    }
+
+    /**
+    Clones the <code>ProgramCallDocument</code> and the objects contained in it.
+    {@link #setSystem setSystem()} and {@link #setDocument setDocument()} must be called prior to using the object.
     */
     public Object clone()
    	{                                                               // @C3A
@@ -481,7 +469,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @return The Descriptor for the pcml element of the named pcml file.
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.data.Descriptor
     */
     public static Descriptor getDescriptor(String docName)
         throws PcmlException                                        // @C5A
@@ -504,7 +491,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @return The Descriptor for the pcml element of the named pcml file.
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.data.Descriptor
     */
     public static Descriptor getDescriptor(String docName, InputStream xsdStream)
         throws PcmlException                                        // @C5A
@@ -529,7 +515,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @return The Descriptor for the pcml element of the named pcml file.
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.data.Descriptor
     */
     public static Descriptor getDescriptor(String docName, ClassLoader loader)
         throws PcmlException                                        // @C8A
@@ -553,7 +538,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @return The Descriptor for the pcml element of the named pcml file.
 
 	@exception PcmlException when the specified PCML document cannot be found
-    @see com.ibm.as400.data.Descriptor
     */
     public static Descriptor getDescriptor(String docName, ClassLoader loader, InputStream xsdStream)
         throws PcmlException                                        // @C8A
@@ -571,8 +555,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     @return The Descriptor for the pcml element of the current pcml file or
             null if the pcml document has not be set.
-
-    @see com.ibm.as400.data.Descriptor
     */
     public Descriptor getDescriptor()                               // @C5A
     {
@@ -845,7 +827,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @return The current system for this ProgramCallDocument.
 
     @see #setSystem
-    @see com.ibm.as400.access.AS400
     **/
     public AS400 getSystem()                                        // @C4A
     {                                                               // @C4A
@@ -1002,8 +983,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (docName == null)                                        // @C1A
             throw new NullPointerException("docName");              // @C1A
 
-        m_pcmlDoc = loadPcmlDocument(docName, null,null);                // @C1A @C8C
-        m_pcmlDoc.setAs400(m_as400);                                // @C1A
+        m_pcmlDoc = loadPcmlDocument(docName, null,null);           // @C1A @C8C
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);                                // @C1A
     }                                                               // @C1A
 
 
@@ -1026,8 +1007,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (docName == null)                                        // @C1A
             throw new NullPointerException("docName");              // @C1A
 
-        m_pcmlDoc = loadPcmlDocument(docName, null,xsdStream);                // @C1A @C8C
-        m_pcmlDoc.setAs400(m_as400);                                // @C1A
+        m_pcmlDoc = loadPcmlDocument(docName, null,xsdStream);      // @C1A @C8C
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);                                // @C1A
     }                                                               // @C1A
 
 
@@ -1053,8 +1034,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (docName == null)                                        // @C8A
             throw new NullPointerException("docName");              // @C8A
 
-        m_pcmlDoc = loadPcmlDocument(docName, loader,null);              // @C8A
-        m_pcmlDoc.setAs400(m_as400);                                // @C8A
+        m_pcmlDoc = loadPcmlDocument(docName, loader,null);         // @C8A
+        if (m_as400 != null) m_pcmlDoc.setAs400(m_as400);                                // @C8A
     }                                                               // @C8A
 
     /**
@@ -1077,7 +1058,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (docName == null)                                        // @C8A
             throw new NullPointerException("docName");              // @C8A
 
-        m_pcmlDoc = loadPcmlDocument(docName, loader, xsdStream);              // @C8A
+        m_pcmlDoc = loadPcmlDocument(docName, loader, xsdStream);   // @C8A
         m_pcmlDoc.setAs400(m_as400);                                // @C8A
     }                                                               // @C8A
 
@@ -1730,6 +1711,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
            XPCMLHelper.doCondenseTransform("xpcml_basic.xsl",inStream2, condensedStream, xsdStreamName); //@CRS
 
       }
+
+
+    // Traces a warning message about a null-valued parameter.
+    private static final void warnNull(String parmName)
+    {
+      if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Null value specified for '" + parmName + "' parameter on ProgramCallDocument constructor.");
+    }
 
 
 }
