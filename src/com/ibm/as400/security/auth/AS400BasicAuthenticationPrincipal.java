@@ -1,5 +1,3 @@
-package com.ibm.as400.security.auth;
-
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
@@ -8,17 +6,22 @@ package com.ibm.as400.security.auth;
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2005 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+
+package com.ibm.as400.security.auth;
+
+import java.security.Principal;
+
 /**
  * The AS400BasicAuthenticationPrincipal interface defines iSeries
  * principals that can be exploited by authentication services
  * that rely on basic user and password authentication.
  *
  */
-public interface AS400BasicAuthenticationPrincipal {
+public interface AS400BasicAuthenticationPrincipal extends Principal {
 
 /**
  * Returns the user profile name.
