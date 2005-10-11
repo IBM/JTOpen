@@ -27,6 +27,8 @@ import com.ibm.sslight.SSLightKeyRing;
 // SocketContainerSSL contains a socket capable of SSL communications.
 class SocketContainerSSL extends SocketContainer
 {
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+
     private SSLSocket sslSocket_;
 
     void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
