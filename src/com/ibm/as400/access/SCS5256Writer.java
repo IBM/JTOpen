@@ -50,11 +50,15 @@ public class SCS5256Writer extends OutputStreamWriter
     private byte []      buffer = new byte [300];
     private int          dataLength = 0;
 
-     /* verticalFormat retains the current # of lines per page.  The
-      * initial and default value is 66 which assumes 6 LPI on an 11 inch
-      * page.  Users can change this value via the setVertical Format() method.
+     /* horizontalFormat retains the current # of characters per line.
+      * (-1) indicates not set.
       */
-    private int          verticalFormat_ = 66;
+    private int          horizontalFormat_ = -1;
+
+     /* verticalFormat retains the current # of lines per page.
+      * (-1) indicates not set.
+      */
+    private int          verticalFormat_ = -1;
 
      /* PageStarted is a flag to indicate data has been written to the
       * page.  Some print commands can only appear at the start of a
@@ -324,11 +328,17 @@ public class SCS5256Writer extends OutputStreamWriter
     void initPage()
            throws IOException
     {
-       pageStarted_ = true;
-
-       sendSGEA();
-       addToBuffer(SHF);  //@A2A - sets Max Chars per line.  For 5256 = 132
-       setVerticalFormat(verticalFormat_);  //@A2A @A3C - sets Max lines per page
+        pageStarted_ = true;
+        
+        sendSGEA();
+        
+        if (horizontalFormat_ != (-1)) {
+            setHorizontalFormat(horizontalFormat_);
+        }
+        
+        if (verticalFormat_ != (-1)) {
+            setVerticalFormat(verticalFormat_);
+        }
     }
 
 
@@ -420,6 +430,35 @@ public class SCS5256Writer extends OutputStreamWriter
         addToBuffer(SGEA);
     }
 
+    /** Sets the Horizontal Format.  This specifies the maximum number of
+      * characters on the line.
+      *
+      * @param NumOfChars The maximum number of characters.  Valid values are
+      * 0 to 255.  A value of 0 causes horizontal format to be set to the
+      * printer default.
+      *
+      * @exception IOException If an error occurs while communicating
+      *   with the server.
+      **/
+    public void setHorizontalFormat(int NumOfChars)
+            throws IOException
+    {
+        byte [] cmd = {0,0,0,0};
+
+        if ((NumOfChars < 0) || (NumOfChars > 255)) {
+            String arg = "NumOfChars (" + String.valueOf(NumOfChars) + ")";
+            throw new ExtendedIllegalArgumentException(arg, 2);
+        }
+        horizontalFormat_ = NumOfChars;
+
+        for(int i=0; i< (cmd.length-1); i++)
+        {
+            cmd[i] = SHF[i];
+        }
+        cmd[cmd.length-1] = (byte)NumOfChars;
+        addToBuffer(cmd);
+    }
+
     /** Sets the Vertical Format.  This specifies the maximum number of
       * lines on the page. Note that when the printer executes this command
       * the current line number on the printer is set to 1.  Also, the
@@ -444,8 +483,6 @@ public class SCS5256Writer extends OutputStreamWriter
             throw new ExtendedIllegalArgumentException(arg, 2);
         }
         verticalFormat_ = NumOfLines;
-
-        if (pageStarted_ == false) initPage();
 
         for(int i=0; i< (cmd.length-1); i++)
         {
