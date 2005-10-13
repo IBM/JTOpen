@@ -35,11 +35,13 @@
 //    current directory. Override this by using the -file flag.
 //
 // 3. In order to download the source, you need a CVS client installed and in
-//    your path. If you don't, Ant will not be able to automatically
+//    your path.  If you don't, Ant will not be able to automatically
 //    download the JTOpen source repository... you will have to do it by hand.
-//    Most distributions of Linux ship a 'cvs' client. See http://www.wincvs.org
-//    for a Windows version. (Make sure that the cvs.exe file is in your PATH
-//    when you run Ant.)
+//    Most distributions of Linux ship a 'cvs' client.  See http://www.wincvs.org
+//    for a Windows version.
+//    (Make sure that cvs.exe is in your PATH when you run Ant.
+//    If you get an "access method is not installed on this system" error,
+//    try moving cvs.exe to a different directory than where build.xml is located.)
 //
 // 4. Run the "source" target for this build. This will download the
 //    additional Ant tasks that are required, and set up the initial
@@ -102,9 +104,10 @@
 // Filename: cvs or cvs.exe
 // Location: http://www.wincvs.org
 // Description: Required to access the JTOpen CVS repository using the "source" target.
-//              This file must be in the PATH when this Ant script is run. Most versions of Linux
-//              already include a cvs executable. The location link is for Windows users to obtain
-//              a CVS client.
+//              This file must be in the PATH when this Ant script is run.
+//              It may need to be in a different directory than the build.xml file.
+//              Most versions of Linux already include a cvs executable.
+//              The location link is for Windows users to obtain a CVS client.
 //
 ///////////////////////////////////////////////////////////////////////////////
 // 
@@ -577,18 +580,20 @@
     // Target: source
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="source" depends="init">
+<!-- For some reason, this condition doesn't work with newer cvs.exe files.  So we'll just proceed on the assumption that cvs.exe exists along the PATH.
     <condition property="cvsExeExists">
       <or>
         <and>
           <os family="windows"/>
-          <available resource="cvs.exe"/> <!-- Windows. -->
+          <available resource="cvs.exe"/>     // Windows.
         </and>
         <not>
-          <os family="windows"/> <!-- Assume CVS is available. -->
+          <os family="windows"/>      // Assume CVS is available.
         </not>
       </or>
     </condition>        
     <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
+-->
     <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400" password=""/>
     <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
