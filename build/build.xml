@@ -198,6 +198,10 @@
     <exclude name="com/ibm/as400/access/UnixSocketInputStream.class"/>
     <exclude name="com/ibm/as400/access/UnixSocketOutputStream.class"/>
     <exclude name="com/ibm/as400/access/UnixSocketUser.class"/>
+    <exclude name="com/ibm/as400/access/SocketContainerUnix2.class"/>
+    <exclude name="com/ibm/as400/access/SocketContainerUnix2$1.class"/>
+    <exclude name="com/ibm/as400/access/SocketContainerUnix2$SCUInputStream.class"/>
+    <exclude name="com/ibm/as400/access/SocketContainerUnix2$SCUOutputStream.class"/>
   </patternset>
     
   <!-- These optimizations are for executing certain Toolbox functions on-thread and
