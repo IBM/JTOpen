@@ -151,6 +151,9 @@ public class MRI extends ListResourceBundle
         { "EXC_AS400_ERROR", "An error occurred on the server." },
         { "EXC_ATTRIBUTE_NOT_VALID", "Attribute name not valid." },
 
+        { "EXC_HIGH_NIBBLE_NOT_VALID", "High-order nibble of the byte at array offset &0 is not valid.  Byte value: &1" },
+        { "EXC_LOW_NIBBLE_NOT_VALID", "Low-order nibble of the byte at array offset &0 is not valid.  Byte value: &1." },
+
         { "EXC_COMMUNICATIONS_ERROR", "Error occurred in communications." },
         { "EXC_CONNECT_FAILED", "Failed to connect." },
         { "EXC_CONNECTION_DROPPED", "Connection was dropped unexpectedly." },

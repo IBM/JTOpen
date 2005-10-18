@@ -32,6 +32,8 @@ public class AS400PackedDecimal implements AS400DataType
     private int digits;
     private int scale;
     private static final long defaultValue = 0;
+    static final boolean HIGH_NIBBLE = true;
+    static final boolean LOW_NIBBLE  = false;
 
     private boolean useDouble_ = false;
 
@@ -456,8 +458,9 @@ public class AS400PackedDecimal implements AS400DataType
             case 0x000F:
                 // Positive.
                 break;
-            default: 
-                throw new NumberFormatException("as400Value");
+            default:
+              throwNumberFormatException(LOW_NIBBLE, rightMostOffset,
+                                         as400Value[rightMostOffset] & 0x00FF);
         }
 
         return doubleValue;
@@ -495,7 +498,7 @@ public class AS400PackedDecimal implements AS400DataType
      // even number of digits will have a leading zero
      if (numDigits%2 == 0) ++numDigits;
 
-     char[] outputData;
+     char[] outputData = null;
      int outputPosition = 0; // position in char[]
 
      // read the sign nibble, allow ArrayIndexException to be thrown
@@ -514,27 +517,58 @@ public class AS400PackedDecimal implements AS400DataType
           outputData = new char[numDigits];
           break;
          default: // others invalid
-          throw new NumberFormatException(String.valueOf(offset+inputSize-1));
+          throwNumberFormatException(LOW_NIBBLE, offset+inputSize-1,
+                                     as400Value[offset+inputSize-1] & 0xFF);
      }
 
      // read all the digits except last one
      while (outputPosition < outputData.length-1)
      {
          nibble = (as400Value[offset] & 0xFF) >>> 4;
-         if (nibble > 0x09) throw new NumberFormatException(String.valueOf(offset));
+         if (nibble > 0x09)
+           throwNumberFormatException(HIGH_NIBBLE, offset,
+                                      as400Value[offset] & 0xFF);
          outputData[outputPosition++] = (char)(nibble | 0x0030);
 
          nibble = (as400Value[offset++] & 0x0F);
-         if (nibble > 0x09) throw new NumberFormatException(String.valueOf(offset-1));
+         if (nibble > 0x09)
+           throwNumberFormatException(LOW_NIBBLE, offset-1,
+                                      as400Value[offset-1] & 0xFF);
          outputData[outputPosition++] = (char)(nibble | 0x0030);
      }
 
      // read last digit
      nibble = (as400Value[offset] & 0xFF) >>> 4;
-     if (nibble > 0x09) throw new NumberFormatException(String.valueOf(offset));
+     if (nibble > 0x09)
+       throwNumberFormatException(HIGH_NIBBLE, offset,
+                                  as400Value[offset] & 0xFF);
      outputData[outputPosition++] = (char)(nibble | 0x0030);
 
      // construct New BigDecimal object
      return new BigDecimal(new BigInteger(new String(outputData)), this.scale);
     }
+
+    static final void throwNumberFormatException(boolean highNibble, int byteOffset, int byteValue) throws NumberFormatException
+    {
+      String text;
+      if (highNibble) {
+        text = ResourceBundleLoader.getText("EXC_HIGH_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
+      }
+      else {
+        text = ResourceBundleLoader.getText("EXC_LOW_NIBBLE_NOT_VALID", Integer.toString(byteOffset), byteToString(byteValue));
+      }
+      throw new NumberFormatException(text);
+    }
+
+    private static final String byteToString(int byteVal)
+    {
+      int leftDigitValue = (byteVal >>> 4) & 0x0F;
+      int rightDigitValue = byteVal & 0x0F;
+      char[] digitChars = new char[2];
+      // 0x30 = '0', 0x41 = 'A'
+      digitChars[0] = leftDigitValue < 0x0A ? (char)(0x30 + leftDigitValue) : (char)(leftDigitValue - 0x0A + 0x41);
+      digitChars[1] = rightDigitValue < 0x0A ? (char)(0x30 + rightDigitValue) : (char)(rightDigitValue - 0x0A + 0x41);
+      return new String(digitChars);
+    }
+
 }
