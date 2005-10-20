@@ -256,8 +256,9 @@ Applies the changes made by the user.
             String newPrinter = (String)(printer_.getText().trim());
 
             // compare the values to see if a change is needed, and set as necessary
-            if (!oldPrinter.equals(newPrinter)) pList_.setParameter(PrintObject.ATTR_PRINTER,newPrinter);
-
+            if ((!newPrinter.equals(notAssignedText_)) && (!oldPrinter.equals(newPrinter))) {
+                pList_.setParameter(PrintObject.ATTR_PRINTER,newPrinter);
+            }
 
             ///////////////////
             // output queue ///
