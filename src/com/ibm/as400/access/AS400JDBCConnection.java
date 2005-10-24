@@ -234,7 +234,7 @@ implements Connection
     /**
     Cancels a statement within this connection.
     
-    @param id   The id.
+    @param id   The ID of the statement.
     
     @exception              SQLException    If the statement cannot be executed.
     **/
@@ -902,6 +902,20 @@ implements Connection
     }
 
 
+    //@DELIMa
+    /**
+    Returns the default schema.
+
+    @param returnRawValue Indicates what to return if default schema has not been set.  If true, return raw value; if false, then return QGPL rather than null.
+    @return     The default schema.  If returnRawValue==false and no default schema was specified, then return QGPL rather than null.
+    **/
+    String getDefaultSchema (boolean returnRawValue)
+    throws SQLException
+    {
+      return((returnRawValue || defaultSchema_ != null) ? defaultSchema_ : "QGPL");
+    }
+
+
     //@G4A JDBC 3.0
     /**
     Returns the holdability of ResultSets created from this connection.
@@ -952,6 +966,18 @@ implements Connection
             }
         }
     }
+
+
+    //@DELIMa
+    /**
+     Returns the ID of the connection.
+     @return The connection ID.
+     **/
+    int getID()
+    {
+      return id_;
+    }
+
 
     //@G4A JDBC 3.0
     /**

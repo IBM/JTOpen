@@ -340,9 +340,9 @@ implements JDRow
     public int findField (String name)
     throws SQLException
     {       
-        if(name.indexOf("\"") >= 0)    //@D6a
+        if(name.startsWith("\"") && name.endsWith("\""))    //@D6a @DELIMc
         {
-            name = name.replace('"', ' ').trim();    //@D6a
+            name = JDUtilities.stripOuterDoubleQuotes(name);  //@DELIMa
             for(int i=1; i<=sqlData_.length; ++i)
                 if(name.equals(getFieldName(i)))    //@D6c (used to be equalsIgnoreCase)
                     return i;
@@ -354,7 +354,6 @@ implements JDRow
                 if(name.equalsIgnoreCase(getFieldName(i)))
                     return i;
         }
-
         JDError.throwSQLException (JDError.EXC_COLUMN_NOT_FOUND);
         return -1;
     }
@@ -694,22 +693,6 @@ implements JDRow
 
       return parameterTypes_[i] == 0xF1 || parameterTypes_[i] == 0xF2;
     }
-
-
-
-    /* @C1D
-    // @A1
-    // Added setLength().
-    public void setLength(int index, int length)
-    {
-        dataLength_[index-1] = length;
-        if (index < sqlData_.length) {
-            for (int i=index; i<sqlData_.length; i++) {
-                dataOffset_[i] = dataOffset_[i-1] + dataLength_[i-1];
-            }
-        }
-    }
-    */
 
 
 }

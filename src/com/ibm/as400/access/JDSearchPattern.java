@@ -140,7 +140,7 @@ final class JDSearchPattern
             if (containsSearchPattern ())
             {
                 clause.append ("LIKE  '");
-                clause.append (patternString_);
+                clause.append (unquote(patternString_));  //@DELIMc
                 clause.append ("' ");                
                 if (containsEscape ()) 
 	            {
@@ -152,7 +152,7 @@ final class JDSearchPattern
             else  // Does not contain a search pattern, don't use LIKE
             {
                 clause.append ("=  '");
-                clause.append (patternString_);
+                clause.append (unquote(patternString_));  //@DELIMc
                 clause.append ("' ");
             }
 
@@ -173,6 +173,17 @@ final class JDSearchPattern
         return (patternString_ != null);
     }
 
+
+//@DELIMa
+/**
+   Prepares a name to be single-quoted.
+
+   @return The quote-ready name.
+**/
+    private static final String unquote(String name)
+    {
+      return JDUtilities.prepareForSingleQuotes(name, false);
+    }
 
 
 }

@@ -34,6 +34,7 @@ import java.sql.Types;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Hashtable;             //@G4A
+import java.util.Vector;
 
 /**
 <p>The AS400JDBCCallableStatement class runs a stored procedure.
@@ -167,9 +168,11 @@ implements CallableStatement
         int returnParm = 0;
 
         // determine if our search should be case insensitive or not
-        if(parameterName.indexOf("\"") >= 0)
+        if(parameterName.startsWith("\"") && parameterName.endsWith("\"")) // assume no leading or trailing blanks
+
         {
-            parameterName = parameterName.replace('"', ' ').trim();
+            parameterName = JDUtilities.stripOuterDoubleQuotes(parameterName);
+
             caseSensitive = true;
         }
 
@@ -179,18 +182,17 @@ implements CallableStatement
             // Look up the mapping in our cache.
             while(count < parameterNames_.length)
             {
-                if(caseSensitive && parameterNames_[count] != null && parameterNames_[count].equals(parameterName))
+              if (parameterNames_[count] != null)
+              {
+                if((caseSensitive && parameterNames_[count].equals(parameterName))
+                   || (!caseSensitive && parameterNames_[count].equalsIgnoreCase(parameterName)))
                 {
                     returnParm = count+1;
                     break;
                 }
-                else if(!caseSensitive && parameterNames_[count] != null && parameterNames_[count].equalsIgnoreCase(parameterName))
-                {
-                    returnParm = count+1;
-                    break;
-                }
+              }
 
-                ++count;
+              ++count;
             }
         }
         else
@@ -207,8 +209,61 @@ implements CallableStatement
             else                                                                                    //@74A
                 catalogSeparator = "/";                                                             //@74A
 
-            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME from QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + sqlStatement_.getSchema() + //@74C
-                                          "' AND ROUTINE_NAME = '" + sqlStatement_.getProcedure() + 
+            String schema = sqlStatement_.getSchema();
+            if(schema == null || schema.equals(""))  // no schema in statement
+            { // Derive the schema.
+              schema = connection_.getDefaultSchema(true); // get raw value
+
+              if(schema == null)	// No default schema was set on the connection url, or by the libraries connection property.
+              {
+                if(catalogSeparator.equals(".")) // using sql naming
+                {
+                  schema = connection_.getUserName(); // set to user profile
+                }
+                else // using system naming
+                {
+                  // Retrieve the library list from server - Use ROI Retrieve Library List.
+                  ResultSet rs1 = JDUtilities.getLibraries(this, connection_, null, true);
+                  Vector libListV = new Vector();
+                  while(rs1.next()) {
+                    libListV.addElement(rs1.getString(1));
+                  }
+                  String[] libList = new String[libListV.size()];
+                  libListV.toArray(libList);
+
+                  // Get a result set that we can scroll forward/backward through.
+                  Statement s1 = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+                  ResultSet rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                                  + catalogSeparator
+                                  + "SYSPROCS WHERE ROUTINE_NAME='"
+                                  + unquote(sqlStatement_.getProcedure())
+                                  + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
+                                  + parameterCount_);
+                  if(!rs.next())
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL);	// didn't find the procedure in any schema
+
+                  // If we get this far, at least one schema contains a procedure similar to ours.
+                  boolean found = false;
+                  for(int i=0; i<libList.length && !found; i++)
+                  {
+                    if (libList[i].length() != 0) {
+                      rs.beforeFirst();	// re-position to before the first row
+                      while(rs.next() && !found){
+                        if(rs.getString(1).equals(libList[i])) {
+                          schema = rs.getString(1);
+                          found = true; // we found a procedure that matches our criteria
+                        }
+                      }
+                    }
+                  }
+                  if(!found)	// none of the libraries in our library list contain a stored procedure that we are looking for
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+                }
+              }
+            }
+
+            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME FROM QSYS2" + catalogSeparator + "SYSPROCS WHERE ROUTINE_SCHEMA = '" + unquote(schema) + //@74C @DELIMc
+                                          "' AND ROUTINE_NAME = '" + unquote(sqlStatement_.getProcedure()) + //@DELIMc
                                           "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
 
             // If there are no rows, throw an internal driver exception
@@ -218,7 +273,7 @@ implements CallableStatement
             String specificName = rs.getString(1);
 
             rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
-                                " SPECIFIC_NAME = '" + specificName + "' AND SPECIFIC_SCHEMA = '" + sqlStatement_.getSchema() + "'");
+                                " SPECIFIC_NAME = '" + unquoteNoUppercase(specificName) + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); //@DELIMc
 
             while(rs.next())
             {
@@ -236,8 +291,9 @@ implements CallableStatement
     
             // If the number of parm names didn't equal the number of parameters, throw
             // an exception (INTERNAL).
-            if(count != parameterCount_)
+            if(count != parameterCount_) {
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+            }
     
         }
 
@@ -3077,6 +3133,16 @@ implements CallableStatement
                 postWarning(new DataTruncation(parameterIndex, true, true, actualSize, actualSize - truncated));
             }
         }
+    }
+
+    private static final String unquote(String name)
+    {
+      return JDUtilities.prepareForSingleQuotes(name, true);
+    }
+
+    private static final String unquoteNoUppercase(String name)
+    {
+      return JDUtilities.prepareForSingleQuotes(name, false);
     }
 
     /**

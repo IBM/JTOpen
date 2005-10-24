@@ -564,12 +564,12 @@ class JDSQLStatement
             {
                 firstWord = tokenizer_.nextToken ().toUpperCase ();
             }
-            csSchema_ = tokenizer_.nextToken();
+            String token = tokenizer_.nextToken();
 
-            int index = csSchema_.indexOf('(');
+            int index = token.indexOf('(');
             // Strip off the beginning of the parameters.                                                       
             if(index != -1)
-                csSchema_ = csSchema_.substring(0, index);
+                token = token.substring(0, index);
 
             String namingSeparator;
             if(((AS400JDBCConnection)connection).getProperties().
@@ -577,20 +577,66 @@ class JDSQLStatement
             {
                 namingSeparator = ".";
             }
-            else
+            else {
                 namingSeparator = "/";
-            index = csSchema_.indexOf(namingSeparator);
-            if(index == -1)
+            }
+
+            //@DELIMa Added the following block to handle case sensitive procedure names and collection names
+            String qualifiedProcedure = null;  // <schema + namingSeparator> + procedure
+            StringBuffer buf = null;  // for appending additional tokens
+
+            // If no quotes, and there's a separator in the middle, no need to peekToken().
+            int separatorPos = token.indexOf(namingSeparator);
+            if(token.indexOf('\"') == -1 && separatorPos > 0 && separatorPos < token.length()-1)
             {
-                csProcedure_ = csSchema_.toUpperCase();
-                // Currently don't handle correctly if more than one library in list.
-                csSchema_ = ((AS400JDBCConnection)connection).getProperties().
-                            getString(JDProperties.LIBRARIES).toUpperCase();
+              qualifiedProcedure = token;
+            }
+            else if(token.endsWith(namingSeparator)) // schema not quoted, procedure is quoted
+            {
+              if(tokenizer_.hasMoreTokens()) {
+                buf = new StringBuffer(token);
+                buf.append(tokenizer_.nextToken());
+              }
+            }
+            else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().equals(namingSeparator)) // both schema and procedure are quoted
+            {
+              buf = new StringBuffer(token);
+              buf.append(tokenizer_.nextToken());
+              if(tokenizer_.hasMoreTokens()) {
+                buf.append(tokenizer_.nextToken());
+              }
+            }
+            else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().startsWith(namingSeparator))  // schema is quoted (and maybe procedure too)
+            {
+              buf = new StringBuffer(token);
+              buf.append(tokenizer_.nextToken());
             }
             else
             {
-                csProcedure_ = csSchema_.substring(index+1).toUpperCase();
-                csSchema_ = csSchema_.substring(0,index).toUpperCase();
+              qualifiedProcedure = token;  // neither schema nor procedure is quoted
+            }
+
+            if(buf != null)
+            {
+              qualifiedProcedure = buf.toString();
+              int parenPos = qualifiedProcedure.indexOf('(');
+              // Strip off the beginning of the parameters.
+              if(parenPos != -1)
+                qualifiedProcedure = qualifiedProcedure.substring(0, parenPos);
+            }
+            buf = null;  // we're done with the buffer
+
+            index = qualifiedProcedure.indexOf(namingSeparator);
+            if(index == -1)
+            {
+                csProcedure_ = JDUtilities.upperCaseIfNotQuoted(qualifiedProcedure);
+                // Currently don't handle correctly if more than one library in list.
+                csSchema_ = "";
+            }
+            else
+            {
+                csProcedure_ = JDUtilities.upperCaseIfNotQuoted(qualifiedProcedure.substring(index+1));
+                csSchema_ = JDUtilities.upperCaseIfNotQuoted(qualifiedProcedure.substring(0,index));
             }
         }
         //@G4A New code ends
@@ -648,7 +694,7 @@ class JDSQLStatement
                         //      UPDATE collection."table SET column = value WHERE CURRENT OF cursor
                         // Note the fix is not to just slam tokens together, separating them by a space,
                         // until we find a token that ends with a quote.  That won't fix the case
-                        // where mulitple spaces are between characters such as collection."a   b".
+                        // where multiple spaces are between characters such as collection."a   b".
                         // "a b" and "a    b" are different tables.  The fix is to go back to the
                         // original SQL statement, find the beginning of the collection/table name,
                         // then copy characters until finding the ending quote. 
