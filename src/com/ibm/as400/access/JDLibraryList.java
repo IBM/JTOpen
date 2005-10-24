@@ -165,9 +165,9 @@ Constructor.
       //     file is in lib3.  If we take the first one off the list and set it to be the default
       //     (remember the others will be ignored when a default is set) the apps that
       //     used to find a file in lib3 no longer work.  The behavior as now coded
-      //     consistent through v5r1.  In v5r2 we *may* change to make the first
-      //     item the default.  The user would override this behavior by starting the
-      //     list with a comma.  Check the v5r2 code to see if the change was made.
+      //     consistent through v5r1.  In v5r2 we changed to make the first
+      //     item the default.  The user can override this behavior by starting the
+      //     list with a comma.
       if ((defaultSchema_ == null)
           && (! startsWithComma)                         // @E2a don't set default schema if first char is a comma
           && (naming.equals (JDProperties.NAMING_SQL)))  // @E1c @C1C
