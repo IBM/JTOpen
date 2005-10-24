@@ -159,29 +159,36 @@ Returns the message text for the last operation on the server.
       errorDescription.append (reply.getMessageId());
       errorDescription.append ("] ");
 
+      // If pre-V5R4:
       // If the return code is +-438 (from an SQL stored procedure) or                                   @E4A
       // +-443 (from an external stored procedure) AND errd[3] is 0, then                                @E4A @E6C
       // an error was signalled by the stored procedure itself.                                          @E4A
       boolean textAppended = false;                                                                   // @E6A
       int absReturnCode = Math.abs(returnCode);                                                       // @E4A
 
-      if ((absReturnCode == 438) || (absReturnCode == 443))                                           // @E2A @E4C @E5C @E6C
+      if ((absReturnCode == 438) || (absReturnCode == 443) &&                                       // @E2A @E4C @E5C @E6C
+          (connection.getVRM() < JDUtilities.vrm540))    //@25955a
       {
-        if (sqlca.getErrd (4) == 0)     //@F1C                                                              // @E6A
+        try  //@25955a
         {
-          if (absReturnCode == 438)                                                               // @E2A @E4C @E5C
+          if (sqlca.getErrd (4) == 0)     //@F1C                                                              // @E6A
           {
-            errorDescription.append(sqlca.getErrmc(connection.converter_));                 // @E2A @P0C
-            textAppended = true;                          // @E8A
-          }
-          else if (absReturnCode == 443)                                                          // @E5A
-          {
-            errorDescription.append(sqlca.getErrmc(6, connection.converter_));              // @E5A @P0C
-            textAppended = true;                          // @E8A
-          }
-          //@E8D textAppended = true;                                                             // @E6A
-        }                                                                                           // @E6A
-      }                                                                                            // @E6A
+            if (absReturnCode == 438)                                                               // @E2A @E4C @E5C
+            {
+              errorDescription.append(sqlca.getErrmc(connection.converter_));                 // @E2A @P0C
+              textAppended = true;                          // @E8A
+            }
+            else if (absReturnCode == 443)                                                          // @E5A
+            {
+              errorDescription.append(sqlca.getErrmc(6, connection.converter_));              // @E5A @P0C
+              textAppended = true;                          // @E8A
+            }
+          }                                                                                           // @E6A
+        }
+        catch(Exception e) {  // In some circumstances the getErrmc() can throw a NegativeArraySizeException or ArrayIndexOutOfBoundsException.    @25955a
+          JDTrace.logException(null, e.getMessage(), e);  // just trace it
+        }
+      }
 
       // Otherwise, get the text directly from the reply.                                             // @E6A
       if (textAppended == false)                                                                      // @E2A @E6C
