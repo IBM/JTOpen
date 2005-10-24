@@ -2718,7 +2718,7 @@ public class AS400JDBCResultSet implements ResultSet
                 testDataTruncation (columnIndex, data);
                 return value;
             }
-         *///@P0M
+         */ //@P0M
     }
 
 
@@ -3348,7 +3348,7 @@ public class AS400JDBCResultSet implements ResultSet
               testDataTruncation (columnIndex, data);
               return value;
           }
-        *///@P0M
+        */ //@P0M
     }
 
 
@@ -3469,7 +3469,7 @@ public class AS400JDBCResultSet implements ResultSet
               testDataTruncation (columnIndex, data);
               return value;
           }
-        *///@P0M
+        */ //@P0M
     }
 
 
@@ -3824,13 +3824,13 @@ public class AS400JDBCResultSet implements ResultSet
                         values.append (",");
                     }
                     buffer.append ("\"");                       // @D6a
-                    buffer.append (row_.getFieldName (i+1));
+                    buffer.append (prepareQuotes(row_.getFieldName (i+1))); //@DELIMc
                     buffer.append ("\"");                       // @D6a
                     values.append ("?");
                 }
             }
             if(columnsSet == 0)
-                buffer.append (row_.getFieldName (1));
+                buffer.append (prepareQuotes(row_.getFieldName (1))); //@DELIMc
             buffer.append (") VALUES (");
             if(columnsSet == 0)
                 buffer.append ("NULL");
@@ -3868,6 +3868,13 @@ public class AS400JDBCResultSet implements ResultSet
         }
     }
 
+
+    //@DELIMa
+    // Prepares a name to be double-quoted.
+    private final static String prepareQuotes(String name)
+    {
+      return JDUtilities.prepareForDoubleQuotes(name);
+    }
 
 
     // JDBC 2.0
@@ -5204,18 +5211,27 @@ public class AS400JDBCResultSet implements ResultSet
                         // @K1A
                         convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
                         String columnName = extendedDescriptors.getColumnDescriptors(i+1).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel
-                        if(columnName != null)
-                            buffer.append(columnName);  
-                        else
-                            buffer.append(row_.getFieldName(i+1));
+                        if(columnName != null) {
+                            if (((AS400JDBCConnection)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
+                              buffer.append(JDUtilities.stripOuterDoubleQuotes(columnName));  // if pre-V5R4, just strip outer quotes (no double-up necessary)
+                            }
+                            else {
+                              buffer.append(prepareQuotes(columnName));  // if V5R4+, also need to double-up any embedded quotes @DELIMc
+                            }
+                        } 
+                        else {  // Column name is null, so get it from the row.
+                          // We're using extended descriptors,
+                          // so we'll need to double-up embedded quotes.
+                          buffer.append(prepareQuotes(row_.getFieldName(i+1))); //@DELIMa
+                        }
                     }                                                                                      // @K1A
                     else                                                                                   // @K1A
-                        buffer.append (row_.getFieldName (i+1));                                           // @K1A
+                        buffer.append (prepareQuotes(row_.getFieldName (i+1)));                                           // @K1A @DELIMc
                                                                                                            // @K1A
                 }
                 else
-                    buffer.append(row_.getFieldName(i+1));
-                buffer.append ("\"=?");                     // @D6c
+                    buffer.append(prepareQuotes(row_.getFieldName(i+1)));
+                buffer.append ("\"=?");                     // @D6c @DELIMc
             }
         }
         buffer.append (" WHERE CURRENT OF \"");                                 // @D3C

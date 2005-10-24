@@ -3384,121 +3384,7 @@ implements DatabaseMetaData
     public ResultSet getSchemas ()
     throws SQLException
     {
-        // Schema = library
-        connection_.checkOpen ();
-
-        JDRowCache rowCache = null;  // Creates a set of rows that
-        // are readable one at a time
-
-        try
-        {
-            // Create a request
-            //@P0C
-            DBReturnObjectInformationRequestDS request = null;
-            DBReplyRequestedDS reply = null;
-            try
-            {
-                request = DBDSPool.getDBReturnObjectInformationRequestDS (
-                                                                         DBReturnObjectInformationRequestDS.FUNCTIONID_RETRIEVE_LIBRARY_INFO,
-                                                                         id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA +
-                                                                         DBBaseRequestDS.ORS_BITMAP_DATA_FORMAT +
-                                                                         DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
-
-
-                // Return list of all libraries on the server
-                request.setLibraryName("%", connection_.converter_);
-                request.setLibraryNameSearchPatternIndicator(0xF1);
-
-
-                // Set the Library Information to Return Bitmap
-                // Return only the library name
-                request.setLibraryReturnInfoBitmap(0x80000000);
-
-                // Send the request and cache all results from the server
-                reply = connection_.sendAndReceive(request);
-
-
-                // Check for errors - throw exception if errors were
-                // returned
-                int errorClass = reply.getErrorClass();
-                if (errorClass !=0)
-                {
-                    int returnCode = reply.getReturnCode();
-                    JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
-                }
-
-                // Get the data format and result data
-                DBDataFormat dataFormat = reply.getDataFormat();
-                DBData resultData = reply.getResultData();
-
-                // Put the result data into a row cache
-                JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-
-                // Put the data format into a row format object
-                JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
-                boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
-
-                JDFieldMap[] maps = null;    //@F2C
-                String[] fieldNames = null;  //@F2C
-                SQLData[] sqlData = null;    //@F2C
-                int[] fieldNullables = null; //@F2C
-                // Set up the result set in the format required by JDBC
-                if (!isJDBC3)
-                {
-                    fieldNames = new String[] {"TABLE_SCHEM"};
-
-                    sqlData = new SQLData[] {new SQLVarchar (128, settings_)};   //schema name
-
-                    fieldNullables = new int[] {columnNoNulls};
-                    maps = new JDFieldMap[1];   
-                }
-                else
-                {
-                    fieldNames = new String[] {"TABLE_SCHEM",
-                        "TABLE_CATALOG"};  //@G4A
-
-                    sqlData = new SQLData[] {new SQLVarchar (128, settings_),   //schema name
-                        new SQLVarchar (128, settings_)};  //table catalog  //@G4A
-
-                    fieldNullables = new int[] {columnNoNulls, 
-                        columnNullable}; //@G4A
-                    maps = new JDFieldMap[2];   //@G4C
-                }
-
-                // Create the mapped row format that is returned in the
-                // result set.
-                // This does not actual move the data, it just sets up
-                // the mapping
-                maps[0] = new JDSimpleFieldMap (1); // table schema  // @A3C @E4C
-                if (isJDBC3)  //@F2A
-                {
-                    maps[1] = new JDHardcodedFieldMap (connection_.getCatalog ()); // table catalog //@G4A
-                }
-
-                // Create the mapped row cache that is returned in the
-                // result set
-                JDMappedRow mappedRow = new JDMappedRow (fieldNames, sqlData,
-                                                         fieldNullables, maps);
-                rowCache = new JDMappedRowCache (mappedRow,
-                                                 serverRowCache);
-            }
-            finally
-            {
-                if (request != null) request.inUse_ = false;
-                if (reply != null) reply.inUse_ = false;
-            }
-
-        } // End of try block
-
-        catch (DBDataStreamException e)
-        {
-            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
-        }
-
-        // Return the results
-        return new AS400JDBCResultSet (rowCache,
-                                       connection_.getCatalog(), "Schemas");
-
+        return JDUtilities.getLibraries(this, connection_, settings_, false);  //@DELIMa
     }
 
 
@@ -4401,32 +4287,37 @@ implements DatabaseMetaData
         String[] fieldNames      = {"TABLE_TYPE"};
         SQLData[] sqlData = { new SQLVarchar (128, settings_)};
         int[] fieldNullables = {columnNoNulls}; // table types can not be null
-
-        if(connection_.getVRM() < JDUtilities.vrm530)
+        Object[][] data = null;
+        if(connection_.getVRM() < JDUtilities.vrm520)
         {
-            Object[][] data = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
+            Object[][] data0 = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
                 { JDTableTypeFieldMap.TABLE_TYPE_VIEW},
-                { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE}};        
-
-            JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
-            JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
-
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                           "Table Types");
+                { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE}};
+             data = data0;
+        }
+        else if(connection_.getVRM() < JDUtilities.vrm530)
+        {
+            Object[][] data0 = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
+                { JDTableTypeFieldMap.TABLE_TYPE_VIEW},
+                { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE},
+                { JDTableTypeFieldMap.TABLE_TYPE_ALIAS}};
+             data = data0;
         }
         else
         {
-            Object[][] data = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
+            Object[][] data0 = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
                 { JDTableTypeFieldMap.TABLE_TYPE_VIEW},
                 { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE},
+                { JDTableTypeFieldMap.TABLE_TYPE_ALIAS},
                 { JDTableTypeFieldMap.TABLE_TYPE_MATERIALIZED_QUERY_TABLE}};        //@K1A
-
-            JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
-            JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
-
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                           "Table Types");
+            data = data0;
         }
+
+        JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
+        JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
+
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
+                                       "Table Types");
         
     }
 
