@@ -348,6 +348,10 @@ implements java.io.Serializable
       *              Only spooled files created on the current system are to be returned.
       *  <job-system-name>
       *              Only spooled files created on the system specified are to be returned.</ul>
+      * <br>
+      * The server referenced by <I>system</I> must be at V5R2 or later to 
+      * support this filter.
+      *
       * @exception PropertyVetoException If the change is vetoed.
       *
       **/
@@ -394,6 +398,10 @@ implements java.io.Serializable
       * <li> *LAST - All spooled files with a create date and time equal to or 
       * later than the starting spooled file create date are to be returned.
       * </ul>
+      * <br>
+      * The server referenced by <I>system</I> must be at V5R2 or later to 
+      * support this filter.
+      *
       * @exception PropertyVetoException If the change is vetoed.
       *
       **/
@@ -445,6 +453,10 @@ implements java.io.Serializable
       *   <I>time</I> All spooled files with a create date and time equal to or 
       * later than the starting spooled file create date are to be returned.
       * 
+      * <br>
+      * The server referenced by <I>system</I> must be at V5R2 or later to 
+      * support this filter.
+      *
       * @exception PropertyVetoException If the change is vetoed.
       *
       **/
@@ -494,7 +506,10 @@ implements java.io.Serializable
       *               create date and spooled file create time.
       *   <I>*FIRST</I> All spooled files starting with the earliest create date and time and less than or equal to the ending
       *               spooled file create date and time are to be returned.
-      * 
+      * <br>
+      * The server referenced by <I>system</I> must be at V5R2 or later to 
+      * support this filter.
+      *
       * @exception PropertyVetoException If the change is vetoed.
       *
       **/
@@ -543,6 +558,10 @@ implements java.io.Serializable
       * @param startTimeFilter
       * <br>
       *   <I>time</I> All spooled files with a create date and time equal to or 
+      * <br>
+      * The server referenced by <I>system</I> must be at V5R2 or later to 
+      * support this filter.
+      *
       * @exception PropertyVetoException If the change is vetoed.
       *
       **/
