@@ -9,8 +9,8 @@ Copyright (C) 1997-2005 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: June 20, 2005
-<!-- cvs log -rJTOpen_4_7:JTOpen_4_8 -N -d >2005-02-22 -->
+Last updated: October 27, 2005
+<!-- cvs log -rJTOpen_4_8:JTOpen_4_8 -N -d >2005-06-08 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#49">Fixes and enhancements in JTOpen 4.9</A><BR>
 <A HREF="#48">Fixes and enhancements in JTOpen 4.8</A><BR>
 <A HREF="#47">Fixes and enhancements in JTOpen 4.7</A><BR>
 <A HREF="#46">Fixes and enhancements in JTOpen 4.6</A><BR>
@@ -41,7 +42,43 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <P>
 
 <HR>
-<H3><A NAME="48">Fixes and enhancements in JTOpen 4.8</A></H3>
+<H3><A NAME="48">Fixes and enhancements in JTOpen 4.9</A> <i>(released 2005-10-28)</i></H3>
+<PRE>
+- <i>Various:</i> J2SE 5.0 compatibility: Added append() method, required by Appendable; renamed variables named 'enum'.
+- <i>Various:</i> Updated javadoc and code comments.
+- Build: Removed Unix domain sockets from jt400.jar
+- Build: Removed flawed check in build.xml for existence of 'cvs.exe'.
+- Connection: Fixed JTOpen bug 1224014: PasswordExpirationDate inexact when NOMAX.
+- Data conversion: Add Euro and Circled R.
+- Data queue: Fixed garbage in sender information.
+- FTP: Eliminated hang in get() if file member not found.
+- IFS: Fixed 'File In Use' error from IFSFileReader and IFSFileWriter.
+- IFS: Handle reading more that 16 megabytes of data.
+- JDBC: Accept 'Character' instance as argument to PreparedStatement.setObject() when setting CHAR column.
+- JDBC: Added 'char' to list returned by DatabaseMetaData.getStringFunctions().
+- JDBC: Added support in AS400JDBCInputStream for mark/reset.
+- JDBC: Avoid possible deadlock in AS400JDBCConnectionHandle.finalizer(). 
+- JDBC: Check for null column descriptors in ResultSetMetaData.
+- JDBC: Improved handling of delimited names.
+- JDBC: Improved handling of return codes 438 and 443 from stored procedures.
+- JDBC: Added 'ALIAS' to reported list of supported table type.
+- JarMaker: Updated dependency list for 'IFS' component.
+- JobList: Fixed JobList sort list field lengths.
+- Message queue: Fixed divide by zero when list empty.
+- Message queue: Fixed reply type in receive method.
+- PCML: Corrected error message in case of insufficient input data.
+- Print: Allow SpooledFile constucted with 5 attribute to behave like 8 attribute constructed if server version/release supports additional attributes.
+- Print: Do not output SVF or SHF at start of each page unless application specifically sets by using method setHorizontalFormat() and setVerticalFormat().
+- Print: Fixes to ISeriesPrinter and SpooledFileOpenList.
+- QSYSObjectPathName: Selectively uppercase characters when composing *NAME values.
+- RFML: Eliminated inaccurate precalculation of required byte array length.
+- RLA: Improved description text in NumberFormatExceptions from AS400PackedDecimal and AS400ZonedDecimal.
+- Trace: Added support for Java logging (JSR 47).
+- User space: Added trace for file server QTEMP.
+</PRE>
+
+<HR>
+<H3><A NAME="48">Fixes and enhancements in JTOpen 4.8</A> <i>(released 2005-06-20)</i></H3>
 <PRE>
 - <i>Various:</i> Call setThreadSafe() only if threadsafe property not set.
 - <i>Various:</i> Javadoc fixes and enhancements.
@@ -81,7 +118,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="47">Fixes and enhancements in JTOpen 4.7</A></H3>
+<H3><A NAME="47">Fixes and enhancements in JTOpen 4.7</A> <i>(released 2005-02-25)</i></H3>
 <PRE>
 - <i>Various:</i> Deleted unnecessary static "Copyright" string.
 - <i>Various:</i> Javadoc updates, including those reported by Jack Woehr.
@@ -120,7 +157,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="46">Fixes and enhancements in JTOpen 4.6</A></H3>
+<H3><A NAME="46">Fixes and enhancements in JTOpen 4.6</A> <i>(released 2004-10-25)</i></H3>
 <PRE>
 - <i>Various:</i> Updated OS/400 and AS/400 references in comments, text.
 - <i>Various:</i> Minor documentation updates.
@@ -172,7 +209,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="45">Fixes and enhancements in JTOpen 4.5</A></H3>
+<H3><A NAME="45">Fixes and enhancements in JTOpen 4.5</A> <i>(released 2004-08-06)</i></H3>
 <PRE>
 - Data conversion: Tolerate multiple versions of Toolbox in classpath (ConvTable1200).
 - FTP: Added support for active mode.
@@ -186,7 +223,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="44">Fixes and enhancements in JTOpen 4.4</A></H3>
+<H3><A NAME="44">Fixes and enhancements in JTOpen 4.4</A> <i>(released 2004-06-30)</i></H3>
 <PRE>
 - CommandHelpRetriever: Use relative column widths on syntax summary table.
 - Connection: Decoupled JDBC and DDM from AS400 object, to improve effectiveness of AS400ToolboxJarMaker.
@@ -218,7 +255,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="43_1">Fixes and enhancements in JTOpen 4.3.1</A></H3>
+<H3><A NAME="43_1">Fixes and enhancements in JTOpen 4.3.1</A> <i>(released 2004-04-27)</i></H3>
 <PRE>
 - Build: Removed unnecessary -R option on checkout commands in build.xml.
 - Connection: Added ability to pass GSS Credential to system object.
@@ -228,7 +265,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="43">Fixes and enhancements in JTOpen 4.3</A></H3>
+<H3><A NAME="43">Fixes and enhancements in JTOpen 4.3</A> <i>(released 2004-04-02)</i></H3>
 <PRE>
 - Build: Added BidiConversionProperties to proxy jar.
 - Build: Added SystemProperties.class to jt400Servlet.jar.
@@ -272,7 +309,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="42">Fixes and enhancements in JTOpen 4.2</A></H3>
+<H3><A NAME="42">Fixes and enhancements in JTOpen 4.2</A> <i>(released 2003-12-23)</i></H3>
 <PRE>
 - Build: Created task to insert copyright strings into JTOpen-built class files.
 - Build: Added copyright strings to binary class files in CVS.
@@ -331,7 +368,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="41">Fixes and enhancements in JTOpen 4.1</A></H3>
+<H3><A NAME="41">Fixes and enhancements in JTOpen 4.1</A> <i>(released 2003-08-13)</i></H3>
 <PRE>
 - Build: Include build directory in src.zip.
 - Build: Added xpcml.xsd to jt400.jar and jt400Native.jar
@@ -409,7 +446,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="40">Fixes and enhancements in JTOpen 4.0</A></H3>
+<H3><A NAME="40">Fixes and enhancements in JTOpen 4.0</A> <i>(released 2003-04-30)</i></H3>
 <PRE>
 - Build: Compile with JDK 1.4 to eliminate dependencies, target JDK 1.1.
 - Build: Updated manifest files with new JTOpen version number.
