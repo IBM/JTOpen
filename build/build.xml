@@ -414,7 +414,12 @@
     <jar jarfile="${dist}/jt400Native.jar" manifest="${build}/build/jt400Native_manifest.txt">
       <fileset dir="${output}">
         <patternset>
-            <exclude name="utilities/**"/>
+            <!-- Exclude everything in the 'utilities' package except the AboutToolbox class. -->
+            <exclude name="utilities/*Installer*"/>
+            <exclude name="utilities/*JarMaker*"/>
+            <exclude name="utilities/*JPing*"/>
+            <exclude name="utilities/*RunJava*"/>
+            <exclude name="utilities/*.properties"/>
             <exclude name="com/ibm/as400/vaccess/**"/>
         </patternset>
       </fileset>

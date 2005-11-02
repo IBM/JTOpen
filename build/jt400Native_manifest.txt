@@ -88,6 +88,14 @@ Implementation-Title: com.ibm.as400.util.servlet
 Implementation-Version: JTOpen 4.9
 Implementation-Vendor: IBM Corporation and others
 
+Name: utilities/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.4.0.1
+Specification-Vendor: IBM Corporation
+Implementation-Title: utilities
+Implementation-Version: JTOpen 4.9
+Implementation-Vendor: IBM Corporation and others
+
 Name: com/ibm/as400/access/AFPResource.class
 Java-Bean: True
 
