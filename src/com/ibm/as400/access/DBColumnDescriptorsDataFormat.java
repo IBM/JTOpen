@@ -137,7 +137,7 @@ class DBColumnDescriptorsDataFormat
     String getBaseTableName(ConvTable convTable)
     {
         //We don't have to be returned a baseTableName by the server, depending on the query
-        if (baseColumnName_ != null)
+        if (baseTableName_ != null)
         {
             return convTable.byteArrayToString (baseTableName_, 0, baseTableName_.length);
         }
