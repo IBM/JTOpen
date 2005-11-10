@@ -559,6 +559,20 @@ attributes. The tables organize the properties into the following categories:</P
 	&quot;2&quot; = Optimize query for entire result set (*ALLIO)<BR></TD>
     <TD HEADERS="t5">&quot;0&quot;</TD>
   </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
+    <TD HEADERS="t2">Specifies the buffer size used to receive data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;1&quot; - max size</TD>
+    <TD HEADERS="t5">(platform dependent)</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
+    <TD HEADERS="t2">Specifies the buffer size used to send data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;1&quot; - max size</TD>
+    <TD HEADERS="t5">(platform dependent)</TD>
+  </TR>
 </TABLE>
 
 <A NAME="sort"></A>
@@ -780,6 +794,14 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t4">&quot;true&quot;<BR>
       &quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;false&quot; </TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;keep alive&quot;</TD>
+    <TD HEADERS="t2">Specifies whether socket connection is to be periodically checked for operational status.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">(platform dependent)</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;key ring name&quot;</TD>

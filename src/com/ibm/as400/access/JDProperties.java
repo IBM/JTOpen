@@ -137,9 +137,12 @@ class JDProperties implements Serializable
     static final int              ROLLBACK_CURSOR_HOLD = 64;    //@K94
     static final int              VARIABLE_FIELD_COMPRESSION = 65;  //@K54
     static final int              QUERY_OPTIMIZE_GOAL = 66; //@540
+    static final int              KEEP_ALIVE              = 67;
+    static final int              RECEIVE_BUFFER_SIZE     = 68;
+    static final int              SEND_BUFFER_SIZE        = 69;
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 67;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 70;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540
 
@@ -215,7 +218,9 @@ class JDProperties implements Serializable
     private static final String ROLLBACK_CURSOR_HOLD_ = "rollback cursor hold";  //@K94
     private static final String VARIABLE_FIELD_COMPRESSION_ = "variable field compression";  //@K54
     private static final String QUERY_OPTIMIZE_GOAL_ = "query optimize goal";       //@540
-
+    private static final String KEEP_ALIVE_             = "keep alive";
+    private static final String RECEIVE_BUFFER_SIZE_    = "receive buffer size";
+    private static final String SEND_BUFFER_SIZE_       = "send buffer size";
 
 
 
@@ -1152,6 +1157,34 @@ class JDProperties implements Serializable
         dpi_[i].choices[1]  = QUERY_OPTIMIZE_GOAL_FIRSTIO;
         dpi_[i].choices[2]  = QUERY_OPTIMIZE_GOAL_ALLIO;
         defaults_[i]        = QUERY_OPTIMIZE_GOAL_DEFAULT;
+        
+        // Keep alive.  
+        i = KEEP_ALIVE;
+        dpi_[i] = new DriverPropertyInfo (KEEP_ALIVE_, "");
+        dpi_[i].description = "KEEP_ALIVE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = FALSE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = EMPTY_; //default set by platform
+        
+        // Receive buffer size.  
+        i = RECEIVE_BUFFER_SIZE;
+        dpi_[i] = new DriverPropertyInfo (RECEIVE_BUFFER_SIZE_, "");
+        dpi_[i].description = "RECEIVE_BUFFER_SIZE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = EMPTY_;  //default set by platform
+        
+        // Send buffer size.
+        i = SEND_BUFFER_SIZE;
+        dpi_[i] = new DriverPropertyInfo (SEND_BUFFER_SIZE_, "");
+        dpi_[i].description = "SEND_BUFFER_SIZE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = EMPTY_;  //default set by platform
+        
+
     }
 
 

@@ -1179,6 +1179,34 @@ implements java.sql.Driver
 										 Properties info, JDProperties jdProperties)
 	throws SQLException
 	{
+
+        // set socket properties
+        SocketProperties sockProps = null;
+
+        //if == "", then take platform defaults...do not set 
+        //only get/set properties is one is updated
+        if( jdProperties.getString(JDProperties.KEEP_ALIVE).equals("") == false)
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            sockProps.setKeepAlive(jdProperties.getBoolean(JDProperties.KEEP_ALIVE));
+        }
+        if( jdProperties.getString(JDProperties.RECEIVE_BUFFER_SIZE).equals("") == false)
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            sockProps.setReceiveBufferSize( jdProperties.getInt(JDProperties.RECEIVE_BUFFER_SIZE));
+        }
+        if( jdProperties.getString(JDProperties.SEND_BUFFER_SIZE).equals("") == false)
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            sockProps.setSendBufferSize(jdProperties.getInt(JDProperties.SEND_BUFFER_SIZE));
+        }
+        
+        if(sockProps != null)
+            as400.setSocketProperties(sockProps);
+        
 		// Create the appropriate kind of Connection object.
 		Connection connection = (Connection) as400.loadImpl2 (
 														 "com.ibm.as400.access.AS400JDBCConnection",                 
