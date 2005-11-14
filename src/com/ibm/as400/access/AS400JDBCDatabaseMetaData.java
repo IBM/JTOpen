@@ -1457,6 +1457,8 @@ implements DatabaseMetaData
                     // Set the Foreign key Information to Return Bitmap
                     request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
+                    //Get the long file name
+                    request.setFileShortOrLongNameIndicator (0xF0); // @PDA Long table names.  
 
                     //--------------------------------------------------------
                     //  Send the request and cache all results from the server
