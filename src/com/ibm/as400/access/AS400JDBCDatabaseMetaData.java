@@ -2744,7 +2744,7 @@ implements DatabaseMetaData
     public int getMaxTablesInSelect ()
     throws SQLException
     {
-        return 32;
+        return 1000;  //@pdc
     }
 
 
