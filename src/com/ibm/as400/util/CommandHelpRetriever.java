@@ -1002,7 +1002,7 @@ public class CommandHelpRetriever
     d = arguments.getOptionValue("-debug");
     if (d != null)
     {
-      if (d.length() == 0 || pv.equalsIgnoreCase("true"))
+      if (d.length() == 0 || d.equalsIgnoreCase("true"))
         utility.setDebug(true);
     }
 
