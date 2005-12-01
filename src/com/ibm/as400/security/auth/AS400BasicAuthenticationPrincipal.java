@@ -13,13 +13,15 @@
 
 package com.ibm.as400.security.auth;
 
+import java.security.Principal;
+
 /**
  * The AS400BasicAuthenticationPrincipal interface defines iSeries
  * principals that can be exploited by authentication services
  * that rely on basic user and password authentication.
  *
  */
-public interface AS400BasicAuthenticationPrincipal {
+public interface AS400BasicAuthenticationPrincipal extends Principal {
 
 /**
  * Returns the user profile name.
