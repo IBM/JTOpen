@@ -1120,7 +1120,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       String rfName = recordFormat_.getName(); // What if the record format name is too long?
       if (rfName.length() > 10) rfName = rfName.substring(0, 10);
       converter_.stringToByteArray(rfName, ufcb, offset + 6);
-      for (int i = rfName.length(); i < 10; i++)
+      for (int i = rfName.length(); i < 10 && i+offset+6 < ufcb.length; i++)
       {
         ufcb[i + offset + 6] = 0x40;
       }
