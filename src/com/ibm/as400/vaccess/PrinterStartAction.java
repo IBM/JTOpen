@@ -604,10 +604,14 @@ Performs the action.
             // Forms alignment
             selectedItem = (String)formAlignBox_.getModel().getSelectedItem();
 
-            if((selectedItem != null) || (selectedItem.equals(fileDefText_)))
+            if(selectedItem != null)
+            {
+              if(selectedItem.equals(fileDefText_))
                 cmdString_.append(" ALIGN(*FILE)");
-            else if(!selectedItem.equals(onlyFirstFileText_))
+              else if(!selectedItem.equals(onlyFirstFileText_))
                 cmdString_.append(" ALIGN(*FIRST)");
+            }
+            else cmdString_.append(" ALIGN(*FIRST)");
 
             // First file to print boxes
             selectedItem = (String)firstFileBox_.getModel().getSelectedItem();

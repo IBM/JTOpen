@@ -1756,14 +1756,14 @@ class PcmlSAXParser extends DefaultHandler
     PcmlNode child=null;
 
     items = m_currentNode.getChildren();
-    if (items == null)
-      found=false;
-
-    while (items.hasMoreElements() && !found)
+    if (items != null)
     {
-      child = (PcmlNode) items.nextElement();
-      if (child.getName().equals(pName) && pName != "")
-        found=true;
+      while (items.hasMoreElements() && !found)
+      {
+        child = (PcmlNode) items.nextElement();
+        if (child.getName().equals(pName) && pName != "")
+          found=true;
+      }
     }
     return found;
   }
