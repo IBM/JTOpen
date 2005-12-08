@@ -1112,7 +1112,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     //@540
     /**                                                               
     *  Returns the goal the server should use with optimization of queries.  
-    *  @return the goal the server should use with optimization of queryies.
+    *  @return the goal the server should use with optimization of queries.
     *  <p>Valid values include:
     *  <ul>
     *  <li>0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used</li>
@@ -1124,6 +1124,22 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     public int getQueryOptimizeGoal()
     {
         return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
+    }
+
+    //@540
+    /**                                                               
+    *  Indicates whether lock sharing is allowed for loosely coupled transaction branches.
+    *  @return the lock sharing setting.
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>0 = Locks cannot be shared</li>
+    *  <li>1 = Locks can be shared</li>
+    *  </ul>
+    *  The default value is 0.
+    **/
+    public int getXALooselyCoupledSupport()
+    {
+        return properties_.getInt(JDProperties.XA_LOOSELY_COUPLED_SUPPORT);
     }
 
     /**
@@ -3682,6 +3698,33 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + goal);
+    }
+
+    //@540
+    /**                                                               
+    *  Sets whether lock sharing is allowed for loosely coupled transaction branches.
+    *  Note, this setting is ignored when running to V5R3 i5/OS or earlier.  
+    *  @param lcs - the "loosely coupled support" setting 
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>0 = Locks cannot be shared</li>
+    *  <li>1 = Locks can be shared</li>
+    *  </ul>
+    *  The default value is 0.
+    **/
+    public void setXALooselyCoupledSupport(int lcs)
+    {
+        String property = "xaLooselyCoupledSupport";
+
+        Integer oldValue = new Integer(getXALooselyCoupledSupport());
+        Integer newValue = new Integer(lcs);
+
+        properties_.setString(JDProperties.XA_LOOSELY_COUPLED_SUPPORT, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + lcs);
     }
 
     //K2A

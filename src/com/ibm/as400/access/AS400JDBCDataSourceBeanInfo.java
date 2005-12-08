@@ -522,12 +522,19 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             queryOptimizeGoal.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_OPTIMIZE_GOAL"));                         // @540
             queryOptimizeGoal.setShortDescription(AS400JDBCDriver.getResource("QUERY_OPTIMIZE_GOAL_DESC"));                         // @540
 
+            //@540 - added support for XA loosely coupled support
+            PropertyDescriptor xaLooselyCoupledSupport = new PropertyDescriptor("xaLooselyCoupledSupport", beanClass, "getXALooselyCoupledSupport", "setXALooselyCoupledSupport"); // @540
+            xaLooselyCoupledSupport.setBound(true);                                                                                     // @540
+            xaLooselyCoupledSupport.setConstrained(false);                                                                              // @540
+            xaLooselyCoupledSupport.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_XA_LOOSELY_COUPLED_SUPPORT"));                    // @540
+            xaLooselyCoupledSupport.setShortDescription(AS400JDBCDriver.getResource("XA_LOOSELY_COUPLED_SUPPORT_DESC"));                    // @540
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal}; //@540
+                queryOptimizeGoal, xaLooselyCoupledSupport}; //@540
         }
         catch(Exception e)
         {
