@@ -114,9 +114,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_ROLLBACK_CURSOR_HOLD", "rollbackCursorHold"},    //@K94
       { "PROP_NAME_VARIABLE_FIELD_COMPRESSION", "variableFieldCompression"}, //@K54
       { "PROP_NAME_QUERY_OPTIMIZE_GOAL", "queryOptimizeGoal"}, //@540
-      { "PROP_NAME_KEEP_ALIVE", "keepAlive"}, 
-      { "PROP_NAME_RECEIVE_BUFFER_SIZE", "receiveBufferSize"}, 
-      { "PROP_NAME_SEND_BUFFER_SIZE", "sendBufferSize"}, 
+      { "PROP_NAME_XA_LOOSELY_COUPLED_SUPPORT", "xaLooselyCoupledSupport"}, //@540
       
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -197,9 +195,7 @@ public class JDMRI extends ListResourceBundle
       { "ROLLBACK_CURSOR_HOLD_DESC", "Specifies whether to hold cursors across a rollback."}, //@K94
       { "VARIABLE_FIELD_COMPRESSION_DESC", "Specifies whether variable-length fields should be compressed."}, //@K54
       { "QUERY_OPTIMIZE_GOAL_DESC", "Specifies the goal the server should use with optimization of queries."}, //@540
-      { "KEEP_ALIVE", "Specifies whether socket connection is to be periodically checked for operational status."}, 
-      { "RECEIVE_BUFFER_SIZE", "Specifies the buffer size used to receive data through the socket connection between the front-end driver and the i5/OS system."}, 
-      { "SEND_BUFFER_SIZE", "Specifies the buffer size used to send data through the socket connection between the front-end driver and the i5/OS system."}, 
+      { "XA_LOOSELY_COUPLED_SUPPORT_DESC", "Specifies whether lock sharing is allowed for loosely coupled transaction branches."}, //@540
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

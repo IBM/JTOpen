@@ -140,9 +140,10 @@ class JDProperties implements Serializable
     static final int              KEEP_ALIVE              = 67;
     static final int              RECEIVE_BUFFER_SIZE     = 68;
     static final int              SEND_BUFFER_SIZE        = 69;
+    static final int              XA_LOOSELY_COUPLED_SUPPORT = 70; //@540
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 70;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 71;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540
 
@@ -218,9 +219,11 @@ class JDProperties implements Serializable
     private static final String ROLLBACK_CURSOR_HOLD_ = "rollback cursor hold";  //@K94
     private static final String VARIABLE_FIELD_COMPRESSION_ = "variable field compression";  //@K54
     private static final String QUERY_OPTIMIZE_GOAL_ = "query optimize goal";       //@540
-    private static final String KEEP_ALIVE_             = "keep alive";
-    private static final String RECEIVE_BUFFER_SIZE_    = "receive buffer size";
-    private static final String SEND_BUFFER_SIZE_       = "send buffer size";
+    private static final String KEEP_ALIVE_ = "keep alive";  //@540
+    private static final String RECEIVE_BUFFER_SIZE_ = "receive buffer size"; //@540
+    private static final String SEND_BUFFER_SIZE_ = "send buffer size"; //@540
+    private static final String XA_LOOSELY_COUPLED_SUPPORT_ = "XA loosely coupled support";       //@540
+
 
 
 
@@ -402,6 +405,9 @@ class JDProperties implements Serializable
     static final String         QUERY_OPTIMIZE_GOAL_DEFAULT             = "0";  //@540
     static final String         QUERY_OPTIMIZE_GOAL_FIRSTIO             = "1";  //@540
     static final String         QUERY_OPTIMIZE_GOAL_ALLIO               = "2";  //@540
+
+    static final String         XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED = "0";  //@540
+    static final String         XA_LOOSELY_COUPLED_SUPPORT_SHARED = "1";  //@540
 
     // Static data.
     private static DriverPropertyInfo[] dpi_;
@@ -1183,10 +1189,17 @@ class JDProperties implements Serializable
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;  //default set by platform
-        
 
+        // XA Loosely Coupled Support  //@540
+        i = XA_LOOSELY_COUPLED_SUPPORT;
+        dpi_[i] = new DriverPropertyInfo (XA_LOOSELY_COUPLED_SUPPORT_, "");
+        dpi_[i].description = "XA_LOOSELY_COUPLED_SUPPORT_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[3];
+        dpi_[i].choices[0]  = XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED;
+        dpi_[i].choices[1]  = XA_LOOSELY_COUPLED_SUPPORT_SHARED;
+        defaults_[i]        = XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED;
     }
-
 
 
     /**
@@ -1543,7 +1556,6 @@ class JDProperties implements Serializable
     }
 
 
-    // @W2 new method
     //
     // Fix up the properties array when the object is re-inflated.  Choices:
     //   1) Objects match (the number of properties in the array is the same) --

@@ -175,6 +175,21 @@ Sets the Lock wait time.
             addParameter(0x38A9, value);
         }
 
+//@540
+/**
+Sets whether lock sharing is allowed for loosely coupled transaction branches.
+
+@param value The 'lock sharing' setting: 0=="not shared", 1=="shared".
+@exception DBDataStreamException if there is not enough space left in the data byte array.
+**/
+        void setXALooselyCoupledSupport(int value)
+                throws DBDataStreamException
+        {
+          if (value != 0) {  // 0 is the default, don't bother sending it down
+            addParameter(0x38AA, 0xE2);  // "locks can be shared"
+          }
+        }
+
 }
 
 

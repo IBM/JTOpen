@@ -819,6 +819,15 @@ specified.
                 request.setLockWait(lockWait_);
         }
 
+        if (connection_.getVRM() >= JDUtilities.vrm540)  // @540
+        {
+          int lcs = connection_.getProperties().getInt(JDProperties.XA_LOOSELY_COUPLED_SUPPORT);
+          ///if (lcs != JDProperties.XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED)
+          ///{
+            request.setXALooselyCoupledSupport(lcs);
+          ///}
+        }
+
         reply = connection_.sendAndReceive (request);
         processXAReturnCode(reply);
       }
