@@ -480,7 +480,7 @@ presentation full names.
                 if (presentation != null)
                     fullName = presentation.getFullName();
             }
-            editorComponent_.setText(fullName.toString());
+            editorComponent_.setText((fullName == null ? "" : fullName.toString()));
         }
     }
         
