@@ -165,33 +165,36 @@ public void complete()
     if (changes_)
     {
         // Parse the text area for the table names.
-        StringTokenizer clause = new StringTokenizer(clause_.getText(), ",");
-        Vector tables = new Vector();
-        while (clause.hasMoreTokens())
+        if (clause_ != null)
         {
+          StringTokenizer clause = new StringTokenizer(clause_.getText(), ",");
+          Vector tables = new Vector();
+          while (clause.hasMoreTokens())
+          {
             tables.addElement(clause.nextToken().trim());
-        }
-        String[] newTables = new String[tables.size()];
-        tables.copyInto(newTables);
+          }
+          String[] newTables = new String[tables.size()];
+          tables.copyInto(newTables);
 
-        // Determine if the tables have changed.
-        boolean different = false;
-        if (tables_.length == newTables.length)
-        {
+          // Determine if the tables have changed.
+          boolean different = false;
+          if (tables_.length == newTables.length)
+          {
             for (int i=0; i < tables_.length; ++i)
             {
-                // note even order changes are considered changes
-                if (!tables_[i].equals(newTables[i]))
-                {
-                    different = true;
-                    break;
-                }
+              // note even order changes are considered changes
+              if (!tables_[i].equals(newTables[i]))
+              {
+                different = true;
+                break;
+              }
             }
-        }
-        else
+          }
+          else
             different = true;
-        if (different)
+          if (different)
             tables_ = newTables;
+        }
         // Listen for more changes to the tables.
         changes_ = false;
     }
@@ -216,18 +219,21 @@ Fills the clause with the tables.
 private void fillClause()
 {
     // Add tables to the edit area.
-    if (tables_.length > 0 && clause_ != null)
+    if (clause_ != null)
     {
+      if (tables_.length > 0)
+      {
         StringBuffer temp = new StringBuffer(tables_[0]);
         for (int i = 1; i<tables_.length; ++i)
         {
-            temp.append(", ");
-            temp.append(tables_[i]);
+          temp.append(", ");
+          temp.append(tables_[i]);
         }
         clause_.setText(temp.toString());
-    }
-    else
+      }
+      else
         clause_.setText("");
+    }
 }
 
 
@@ -419,7 +425,7 @@ protected void rowPicked(int index)
 {
     String text = tablesTable_.getValueAt(index, 0) + "." +
         tablesTable_.getValueAt(index, 1);
-    clause_.appendTextWithComma(text);
+    if (clause_ != null) clause_.appendTextWithComma(text);
 }
 
 
@@ -442,7 +448,7 @@ Enables or disables this pane
 public void setEnabled(boolean enabled)
 {
     enabled_ = enabled;
-    clause_.setEditable(enabled);
+    if (clause_ != null) clause_.setEditable(enabled);
     tablesTable_.setEnabled(enabled);
     if (buttonEnabled_)
         tableButton_.setEnabled(enabled);
