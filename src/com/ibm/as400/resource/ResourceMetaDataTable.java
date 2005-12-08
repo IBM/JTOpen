@@ -352,7 +352,7 @@ Validates an ID.
     ResourceMetaData validateID(Object id)
     {
         if (id == null)
-            throw new NullPointerException("id(" + id.toString() + ")");
+            throw new NullPointerException("id");
         if (! metaDataByID_.containsKey(id))
             throw new ExtendedIllegalArgumentException("id(" + id.toString() + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         return (ResourceMetaData)metaDataByID_.get(id);
@@ -368,7 +368,7 @@ Validates multiple IDs.
     void validateIDs(Object[] id)
     {
         if (id == null)
-            throw new NullPointerException("id(" + id.toString() + ")");
+            throw new NullPointerException("id");
         for(int i = 0; i < id.length; ++i) {
             if (! metaDataByID_.containsKey(id[i]))
                 throw new ExtendedIllegalArgumentException("id[" + i + "](" + id.toString() + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
