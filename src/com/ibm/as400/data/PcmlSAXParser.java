@@ -1381,7 +1381,7 @@ class PcmlSAXParser extends DefaultHandler
           }
           else
           {
-            m_currentNode.addChild(newNode);
+            if (m_currentNode != null) m_currentNode.addChild(newNode);
             m_currentNode = newNode;
           }
         }
