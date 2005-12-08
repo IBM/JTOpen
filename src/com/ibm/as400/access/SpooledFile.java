@@ -633,7 +633,7 @@ implements java.io.Serializable
              IOException,
              InterruptedException
     {
-        if (impl_ == null);
+        if (impl_ == null)
             chooseImpl();
         AS400Message msg = ((SpooledFileImpl) impl_).getMessage();
         fMsgRetrieved_   = ((SpooledFileImpl) impl_).getFMsgRetrieved();
