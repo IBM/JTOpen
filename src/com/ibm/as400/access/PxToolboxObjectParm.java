@@ -228,7 +228,7 @@ Returns a new copy of this datastream.
                 // Get the value of that field.                
                 try {
                     if (tokenizer.hasMoreTokens())
-                        fieldValue = field.get(fieldValue);
+                        if (field != null) fieldValue = field.get(fieldValue);
                 }
                 catch(IllegalAccessException e) {                    
                     // This should never happen!
@@ -239,7 +239,7 @@ Returns a new copy of this datastream.
 
             // At this point, field is set to the field that we need to set.
             try {
-                field.set(fieldValue, impl);
+                if (field != null) field.set(fieldValue, impl);
             }
             catch(IllegalAccessException e) {                    
                 // This should never happen!
