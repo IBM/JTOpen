@@ -1033,6 +1033,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             case 'B' :
                 switch (subtype)
                 {
@@ -1053,6 +1054,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             case 'I' :
                 switch (subtype)
                 {
@@ -1061,6 +1063,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             case 'W' :
                 switch (subtype)
                 {
@@ -1071,6 +1074,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             case 'R' :
                 switch (subtype)
                 {
@@ -1079,6 +1083,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             case 'M' :
                 switch (subtype)
                 {
@@ -1087,6 +1092,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             case 'S' :
             case 'X' :
                 switch (subtype)
@@ -1096,6 +1102,7 @@ Returns the job.
                     default :
                         break;
                 }
+                break;
             default :
                 break;
         }
