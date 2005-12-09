@@ -50,6 +50,7 @@ import javax.swing.JScrollPane;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.CommandLineArguments;
+import com.ibm.as400.access.InternalErrorException;
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.vaccess.FileFilter;
 import com.ibm.as400.vaccess.IFSFileDialog;
@@ -503,6 +504,10 @@ public class CommTrace extends WindowAdapter {
 			} else {
 				format = new FormatDisplay("","",sys_,FormatDisplay.OPENRMT);
 			}
+		}
+		else { // Neither 'local' nor 'remote' is selected - this should never happen.
+            Trace.log(Trace.ERROR,CLASS + ".open() " + "Neither 'local' nor 'remote' is selected.");
+		   throw new InternalErrorException(InternalErrorException.UNKNOWN);
 		}
 		Thread fmtTr = new Thread(format,"Format");
 		format.setThread(fmtTr); 
