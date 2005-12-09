@@ -264,15 +264,6 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Set the 'length' attribute.
       // Note: At this point we know we don't have an AS400Structure.  All RFML datatypes except "struct" require the 'length' attribute.
-/*      if (!(dataType instanceof AS400Bin2 ||
-            dataType instanceof AS400UnsignedBin2 ||
-            dataType instanceof AS400Bin4 ||
-            dataType instanceof AS400UnsignedBin4 ||
-            dataType instanceof AS400Bin8  ||
-            dataType instanceof AS400Float4 ||
-            dataType instanceof AS400Float8 || 
-            dataType instanceof AS400PackedDecimal) )
-*/
       if (dtType == AS400DataType.TYPE_BIN2 ||
           dtType == AS400DataType.TYPE_UBIN2 ||
           dtType == AS400DataType.TYPE_BIN4 ||
@@ -285,7 +276,9 @@ public class RecordFormatDocument implements Serializable, Cloneable
         // The numeric field types have architected lengths.  We will set the length in the switch() statement below.
       }
       else {
-        int fieldLength = fieldDesc.getLength() / count;
+        int fieldLength;
+        if (count == 0) fieldLength = fieldDesc.getLength();
+        else fieldLength = fieldDesc.getLength() / count;
         addAttribute(attrList, "length", Integer.toString(fieldLength));
       }
 
