@@ -734,8 +734,8 @@ Parses the datastream.
           {                                                                   // @G4A
             extendedColumnDescriptors_ = new DBExtendedColumnDescriptors(     // @G4A
                data_, offset + 6);                                            // @G4A
-            break;                                                            // @G4A
           }                                                                   // @G4A
+          break;                                                           
 
         // Super Extended data format.       //@540 
           case 0x3812:
