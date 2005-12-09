@@ -230,7 +230,7 @@ Creates and adds a ResourceMetaData object to the list.
         // Load the presentations for the possible values, if any.
         // Form the key suffix by removing *, adding _.
         Presentation[] possibleValuePresentations = null;
-        if (possibleValues != null) {
+        if (possibleValues != null && presentationLoader_ != null) {
             possibleValuePresentations = new Presentation[possibleValues.length];
             for(int i = 0; i < possibleValues.length; ++i) {
                 StringBuffer buffer = new StringBuffer();
