@@ -398,7 +398,7 @@ public abstract class OpenList implements Serializable
                 parameters[0] = new ProgramParameter(lengthOfReceiverVariable);
                 parameters[1] = new ProgramParameter(BinaryConverter.intToByteArray(lengthOfReceiverVariable));
             }
-        } while (recordsReturned < number);
+        } while (recordsReturned < number || listInformation == null);
 
         int totalRecords = BinaryConverter.byteArrayToInt(listInformation, 0);
         int recordLength = BinaryConverter.byteArrayToInt(listInformation, 12);
