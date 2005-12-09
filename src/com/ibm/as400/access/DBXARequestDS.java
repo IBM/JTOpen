@@ -186,7 +186,7 @@ Sets whether lock sharing is allowed for loosely coupled transaction branches.
                 throws DBDataStreamException
         {
           if (value != 0) {  // 0 is the default, don't bother sending it down
-            addParameter(0x38AA, 0xE2);  // "locks can be shared"
+            addParameter(0x38AA, (byte)0xE2);  // "locks can be shared" @PDC value needs to be byte
           }
         }
 
