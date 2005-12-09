@@ -128,18 +128,20 @@ Shows the popup menu.
         JMenuItem menuItem;
 
         // Put up any actions for the subject object.
-        VAction[] actions = subjectObject.getActions ();
-        if (actions != null) {
+        if (subjectObject != null) {
+          VAction[] actions = subjectObject.getActions ();
+          if (actions != null) {
             for (int i = 0; i < actions.length; ++i) {
-                menuItem = new JMenuItem (actions[i].getText ());
-                menuItem.addActionListener (new VActionAdapter (actions[i], actionContext_));
-                menuItem.setEnabled (actions[i].isEnabled ());
-                menu.add (menuItem);
-                ++itemCount;
+              menuItem = new JMenuItem (actions[i].getText ());
+              menuItem.addActionListener (new VActionAdapter (actions[i], actionContext_));
+              menuItem.setEnabled (actions[i].isEnabled ());
+              menu.add (menuItem);
+              ++itemCount;
             }
 
             if (actions.length > 0)
-                menu.addSeparator ();
+              menu.addSeparator ();
+          }
         }
 
         // Drag and drop is currently not supported.  If and when

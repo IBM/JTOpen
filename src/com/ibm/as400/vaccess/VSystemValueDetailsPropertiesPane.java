@@ -20,6 +20,7 @@ import java.lang.Boolean;
 
 import com.ibm.as400.access.SystemValue;
 import com.ibm.as400.access.SystemValueList;
+import com.ibm.as400.access.Trace;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -258,6 +259,10 @@ class  VSystemValueDetailsPropertiesPane
             formatter = dateFormat_;
         else if (systemValue_.getName().equals("QTIME"))
             formatter = timeFormat_;
+        else {  // This should never happen, but if it does, trace it.
+            Trace.log(Trace.ERROR, "Unexpected system value name: " + systemValue_.getName());
+            formatter = timeFormat_;  // Take our chances that this will work.
+        }
 
         // Icon and name.
         int row = 0;
