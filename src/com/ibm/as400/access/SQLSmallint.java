@@ -119,7 +119,11 @@ implements SQLData
 
                 if(( intValue > Short.MAX_VALUE ) || ( intValue < Short.MIN_VALUE ))
                 {
-                    truncated_ = 6;
+                    //truncated_ = 6;
+                    // @PDC - Due to issue 29258, we are changing this back to throw exception.
+                    //        Even though code has been issuing truncation warnings for several years,
+                    //        the final decision was that we need to match native and odbc drivers behavior.
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
                 value_ = (short) intValue;                                                // @D9c
             }
@@ -140,7 +144,11 @@ implements SQLData
                     if(( doubleValue > Short.MAX_VALUE ) || ( doubleValue < Short.MIN_VALUE )) // @P1a
                     {
                         // @P1a
-                        truncated_ = 6;                                                    // @P1a
+                        //truncated_ = 6;                                                    // @P1a
+                        // @PDC - Due to issue 29258, we are changing this back to throw exception.
+                        //        Even though code has been issuing truncation warnings for several years,
+                        //        the final decision was that we need to match native and odbc drivers behavior.
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }                                                                      // @P1a
                     value_ = (short) doubleValue;                                          // @P1a  
                 }                                                                         // @P1a

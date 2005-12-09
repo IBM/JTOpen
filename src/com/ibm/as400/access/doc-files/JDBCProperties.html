@@ -568,7 +568,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
-    <TD HEADERS="t2">Specifies the buffer size used to send data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="t2">Specifies the buffer size used to send data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="t5">(platform dependent)</TD>
@@ -705,8 +705,8 @@ attributes. The tables organize the properties into the following categories:</P
         or using such data in a query generates no exception or warning.</p>
       <p> The default value is &quot;true&quot;.</p>
       <p>This property does not affect <strong>numeric data</strong>. Writing 
-        truncated numeric data to the database always throws an error and using 
-        truncated numeric data in a query always posts a warning. 
+        truncated numeric data to the database always throws an exception and using 
+        truncated numeric data in a query always throws an exception. 
       </p>
     </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
