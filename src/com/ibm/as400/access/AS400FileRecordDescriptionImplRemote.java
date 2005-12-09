@@ -738,6 +738,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // it was.
         }
         break;
+      default:
+        Trace.log(Trace.ERROR, "Unrecognized field type: " + fieldType);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
     // Set if null values are allowed
     if(((String)record.getField("WHNULL")).equals("Y"))
