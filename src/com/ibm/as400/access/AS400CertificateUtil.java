@@ -661,17 +661,19 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
     }
 
       //nothing returned but more left
-    if (impl_.certificates_ == null &&
-     nextCertificateToReturn_ < numberCertificatesFound_)
+    if (nextCertificateToReturn_ < numberCertificatesFound_)
     {
-     throw new ExtendedIOException("userSpaceName_ (" + usrSpaceName_ + ")", ExtendedIOException.CERTIFICATE_NOT_FOUND);
-    }
+      if (impl_.certificates_ == null)
+      {
+        throw new ExtendedIOException("userSpaceName_ (" + usrSpaceName_ + ")", ExtendedIOException.CERTIFICATE_NOT_FOUND);
+      }
 
       //update next certificate to return
-    nextCertificateToReturn_ = nextCertificateToReturn_ + impl_.certificates_.length;
+      nextCertificateToReturn_ = nextCertificateToReturn_ + impl_.certificates_.length;
 
       //update next certificate offset to return
-    nextCertificateOffset_ = impl_.nextCertificateOffsetOut_;
+      nextCertificateOffset_ = impl_.nextCertificateOffsetOut_;
+    }
 
     if (nextCertificateToReturn_ >= numberCertificatesFound_)
     {

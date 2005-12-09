@@ -299,7 +299,7 @@ implements Connection
             finally
             {
                 // always need to close the connection
-                cancelConnection.close();
+                if (cancelConnection != null) cancelConnection.close();
 
                 // Let others back in.
                 cancelling_ = false;
