@@ -147,6 +147,7 @@ implements XAResource
   // @A1D private boolean                 closed_                         = false;
   private int                     resourceManagerID_              = -1;
   private Xid                     started_                        = null;
+  private Vector                  allXids                         = new Vector();  //@PDA keep track of >1 xid. (issue 29395)
   private JDTransactionManager    transactionManager_;
   private int                     transactionTimeout_             = 0;      //@K1A
   private int                     lockWait_                       = -1;      //@K1A
@@ -303,10 +304,11 @@ specified and lets the transaction be completed.
       // Parameter validation.
       if (xid == null)
         throw new XAException(XAException.XAER_INVAL);
-      if (started_ == null)
-        throw new XAException(XAException.XAER_PROTO);
-      if (!started_.equals(xid))
+      // @PDC This allows for a TMSUSPENDed branch to be ended with 
+      // TMSUCCESS (and implicit TMRESUME) per XA spec. 
+      if (allXids.contains(xid) == false)
         throw new XAException(XAException.XAER_NOTA);
+
       if(connection_.getServerFunctionalLevel() < 11)
       {
           if ((flags != TMSUCCESS) && (flags != TMFAIL))
@@ -340,6 +342,7 @@ specified and lets the transaction be completed.
       // Mark the transaction state.
       transactionManager_.setLocalTransaction(true);
       started_ = null;
+      insertRemoveXidByFlag(xid, flags);
     }
     catch (XAException e)
     {
@@ -443,8 +446,36 @@ Returns the current transaction timeout value.
       return transactionTimeout_;
   }
 
+/** @PDA
+Adds or Removes xid from Vector based on flag.
+Called from start() and end().
+Keeps list of all xids that have been start() with TMNOFLAGS OR TMJOIN.
+When end() is called with TMSUCCESS or TMFAIL, the xid is removed.
+When start() with flag TMSUSPEND or TMRESUME is called, neither added or removed.
 
-
+**/
+  private void insertRemoveXidByFlag(Xid xid, int flags)
+  {  
+      switch (flags)
+      {
+          case TMNOFLAGS:
+              if(allXids.contains(xid) == false)
+                  allXids.add(xid);
+              break;
+          case TMJOIN:
+              if(allXids.contains(xid) == false)
+                  allXids.add(xid);
+              break;
+          case TMSUCCESS:
+              allXids.remove(xid);
+              break;
+          case TMFAIL:
+              allXids.remove(xid);
+              break;
+      
+      }
+  }
+  
 /**
 Indicates if the resource manager represented by this XA resource
 is the same resource manager represented by the specified XA resource.
@@ -840,6 +871,7 @@ specified.
       // Mark the transaction state.
       transactionManager_.setLocalTransaction(false);
       started_ = xid;
+      insertRemoveXidByFlag(xid, flags);
     }
     catch (XAException e)
     {
