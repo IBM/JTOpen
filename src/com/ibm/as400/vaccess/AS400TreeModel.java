@@ -514,20 +514,20 @@ Listens for explorer events and adjusts the model accordingly.
             if (object != null) {                                   // @A1C
                 if (! event.isDuringLoad ())                        // @A1A
                     object.load ();                                 
-            }                                                       // @A1A
 
-            if (object instanceof VNode) {
-                treeModelEventSupport_.fireTreeStructureChanged (getPath (object));
-
-                VNode parent = (VNode) ((VNode) object).getParent ();
-                if (parent != null) {
-                    TreePath path = getPath (parent);
-                    int index = parent.getIndex ((VNode) object);
-                    if (index >= 0)
-                        treeModelEventSupport_.fireTreeNodesChanged (path,
-                            index, object);
+                if (object instanceof VNode) {
+                    treeModelEventSupport_.fireTreeStructureChanged (getPath (object));
+    
+                    VNode parent = (VNode) ((VNode) object).getParent ();
+                    if (parent != null) {
+                        TreePath path = getPath (parent);
+                        int index = parent.getIndex ((VNode) object);
+                        if (index >= 0)
+                            treeModelEventSupport_.fireTreeNodesChanged (path,
+                                index, object);
+                    }
                 }
-            }
+            }                                                       // @A1A
         }
 
 
