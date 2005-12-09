@@ -299,7 +299,10 @@ implements Connection
             finally
             {
                 // always need to close the connection
-                if (cancelConnection != null) cancelConnection.close();
+                if (cancelConnection != null) {
+                  try { cancelConnection.close(); }
+                  catch (Throwable e) {}  // ignore any exceptions
+                }
 
                 // Let others back in.
                 cancelling_ = false;
