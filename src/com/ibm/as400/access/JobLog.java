@@ -347,6 +347,11 @@ public class JobLog implements Serializable
             if (recordsReturned < number)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieved messages, records returned: " + recordsReturned + ", number:", number);
+                if (recordsReturned < 0)  // satisfy the static code analyzer
+                {
+                  Trace.log(Trace.ERROR, "Retrieved messages, records returned is negative: " + recordsReturned);
+                  recordsReturned = 0;
+                }
                 lengthOfReceiverVariable *= 1 + number / (recordsReturned + 1);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Updated length: ", lengthOfReceiverVariable);
                 parameters[0] = new ProgramParameter(lengthOfReceiverVariable);
