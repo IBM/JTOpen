@@ -148,7 +148,7 @@ Constructor.
         {
           if (includesLibl)                                                 //IF *LIBL was in the libraries connection property
             indicators_[i] = (liblPosition == -1) ? 'F' : 'L';
-          else if(incomingList.equals("") && !defaultSchema.equals(""))     //if libraries connection property was not specified and a default collection was put on the URL        //@K1A
+          else if(incomingList.equals("") && defaultSchema != null && !defaultSchema.equals(""))     //if libraries connection property was not specified and a default collection was put on the URL        //@K1A
             indicators_[i] = (i == 0) ? 'F' : 'L';                                                                                                                                  //@K1A
           else
             indicators_[i] = (i == 0) ? 'C' : 'L';
