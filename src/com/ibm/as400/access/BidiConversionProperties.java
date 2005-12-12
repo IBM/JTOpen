@@ -69,7 +69,7 @@ public class BidiConversionProperties implements Serializable
         winCompatible_ = transform.winCompatible;
         insertMarkers_ = transform.insertMarkers;
         removeMarkers_ = transform.removeMarkers;
-        options_ = transform.options.value;
+        if (transform.options != null) options_ = transform.options.value;
         wordBreak_ = transform.wordBreak;
         destinationRequired_ = transform.destinationRequired;
         srcToDstMapRequired_ = transform.srcToDstMapRequired;
@@ -146,7 +146,14 @@ public class BidiConversionProperties implements Serializable
         destination.winCompatible = winCompatible_;
         destination.insertMarkers = insertMarkers_;
         destination.removeMarkers = removeMarkers_;
-        destination.options.value = options_;
+        if (options_ == 0)
+        {
+            destination.options = null;
+        }
+        else
+        {
+            destination.options.value = options_;
+        }
         destination.wordBreak = wordBreak_;
         destination.destinationRequired = destinationRequired_;
         destination.srcToDstMapRequired = srcToDstMapRequired_;
