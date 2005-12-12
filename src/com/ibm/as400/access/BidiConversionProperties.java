@@ -25,9 +25,25 @@ public class BidiConversionProperties implements Serializable
     // String type.
     private int bidiStringType_ = BidiStringType.DEFAULT;
     // Only remove marks on the J2A transform.
-    boolean removeMarksOnImplicitToVisual_ = false;
+    private boolean removeMarksOnImplicitToVisual_ = false;
     // All of the options to affect BIDI transforms.
-    BidiTransform transformOptions_ = new BidiTransform();
+    private boolean impToImp_ = true;
+    private boolean roundTrip_;
+    private boolean winCompatible_;
+    private boolean insertMarkers_;
+    private boolean removeMarkers_;
+    private int options_;
+    private boolean wordBreak_;
+    private boolean destinationRequired_ = true;
+    private boolean srcToDstMapRequired_;
+    private boolean dstToSrcMapRequired_;
+    private boolean propertyMapRequired_;
+    private boolean continuation_;
+    private int inpCount_;
+    private int outCount_;
+    private int[] srcToDstMap_;
+    private int[] dstToSrcMap_;
+    private byte[] propertyMap_;
 
     /**
      Constructs a BidiConversionProperties object.
@@ -48,22 +64,33 @@ public class BidiConversionProperties implements Serializable
         setBidiStringType(bidiStringType);
 
         // Copy options.
-        copyOptionsTo(transform, transformOptions_);
+        impToImp_ = transform.impToImp;
+        roundTrip_ = transform.roundTrip;
+        winCompatible_ = transform.winCompatible;
+        insertMarkers_ = transform.insertMarkers;
+        removeMarkers_ = transform.removeMarkers;
+        options_ = transform.options.value;
+        wordBreak_ = transform.wordBreak;
+        destinationRequired_ = transform.destinationRequired;
+        srcToDstMapRequired_ = transform.srcToDstMapRequired;
+        dstToSrcMapRequired_ = transform.dstToSrcMapRequired;
+        propertyMapRequired_ = transform.propertyMapRequired;
+        continuation_ = transform.continuation;
 
         // Set remove markers special case option.
         removeMarksOnImplicitToVisual_ = removeMarkersOnImplicitToVisual;
         // The remove markers should not be true in general, only in J2A case.
         if (removeMarkersOnImplicitToVisual)
         {
-            transformOptions_.removeMarkers = false;
+            removeMarkers_ = false;
         }
 
         // Copy output results.
-        transformOptions_.dstToSrcMap = transform.dstToSrcMap;
-        transformOptions_.srcToDstMap = transform.srcToDstMap;
-        transformOptions_.propertyMap = transform.propertyMap;
-        transformOptions_.inpCount = transform.inpCount;
-        transformOptions_.outCount = transform.outCount;
+        dstToSrcMap_ = transform.dstToSrcMap;
+        srcToDstMap_ = transform.srcToDstMap;
+        propertyMap_ = transform.propertyMap;
+        inpCount_ = transform.inpCount;
+        outCount_ = transform.outCount;
     }
 
     /**
@@ -111,32 +138,21 @@ public class BidiConversionProperties implements Serializable
         return removeMarksOnImplicitToVisual_;
     }
 
-    BidiTransform getTransformOptions()
-    {
-        return transformOptions_;
-    }
-
     // Internal method to copy all the options from one object to another.
     void copyOptionsTo(BidiTransform destination)
     {
-        copyOptionsTo(transformOptions_, destination);
-    }
-
-    // Internal method to copy all the options from one object to another.
-    static void copyOptionsTo(BidiTransform sourceTransform, BidiTransform destTransform)
-    {
-        destTransform.impToImp = sourceTransform.impToImp;
-        destTransform.roundTrip = sourceTransform.roundTrip;
-        destTransform.winCompatible = sourceTransform.winCompatible;
-        destTransform.insertMarkers = sourceTransform.insertMarkers;
-        destTransform.removeMarkers = sourceTransform.removeMarkers;
-        destTransform.options = sourceTransform.options;
-        destTransform.wordBreak = sourceTransform.wordBreak;
-        destTransform.destinationRequired = sourceTransform.destinationRequired;
-        destTransform.srcToDstMapRequired = sourceTransform.srcToDstMapRequired;
-        destTransform.dstToSrcMapRequired = sourceTransform.dstToSrcMapRequired;
-        destTransform.propertyMapRequired = sourceTransform.propertyMapRequired;
-        destTransform.continuation = sourceTransform.continuation;
+        destination.impToImp = impToImp_;
+        destination.roundTrip = roundTrip_;
+        destination.winCompatible = winCompatible_;
+        destination.insertMarkers = insertMarkers_;
+        destination.removeMarkers = removeMarkers_;
+        destination.options.value = options_;
+        destination.wordBreak = wordBreak_;
+        destination.destinationRequired = destinationRequired_;
+        destination.srcToDstMapRequired = srcToDstMapRequired_;
+        destination.dstToSrcMapRequired = dstToSrcMapRequired_;
+        destination.propertyMapRequired = propertyMapRequired_;
+        destination.continuation = continuation_;
     }
 
     /**
@@ -146,7 +162,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiImplicitReordering(boolean bidiImplicitReordering)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi implicit LTR-RTL reordering:", bidiImplicitReordering);
-        transformOptions_.impToImp = bidiImplicitReordering;
+        impToImp_ = bidiImplicitReordering;
     }
 
     /**
@@ -155,8 +171,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiImplicitReordering()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi implicit LTR-RTL reordering:", transformOptions_.impToImp);
-        return transformOptions_.impToImp;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi implicit LTR-RTL reordering:", impToImp_);
+        return impToImp_;
     }
 
     /**
@@ -166,7 +182,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiNumericOrderingRoundTrip(boolean bidiNumericOrderingRoundTrip)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi numeric ordering round trip:", bidiNumericOrderingRoundTrip);
-        transformOptions_.roundTrip = bidiNumericOrderingRoundTrip;
+        roundTrip_ = bidiNumericOrderingRoundTrip;
     }
 
     /**
@@ -175,8 +191,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiNumericOrderingRoundTrip()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi numeric ordering round trip:", transformOptions_.roundTrip);
-        return transformOptions_.roundTrip;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi numeric ordering round trip:", roundTrip_);
+        return roundTrip_;
     }
 
     /**
@@ -187,7 +203,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiWindowCompatibility(boolean bidiWindowCompatibility)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi window compatibility:", bidiWindowCompatibility);
-        transformOptions_.winCompatible = bidiWindowCompatibility;
+        winCompatible_ = bidiWindowCompatibility;
     }
 
     /**
@@ -196,8 +212,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiWindowCompatibility()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility:", transformOptions_.winCompatible);
-        return transformOptions_.winCompatible;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility:", winCompatible_);
+        return winCompatible_;
     }
 
     /**
@@ -207,7 +223,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiInsertDirectionalMarks(boolean bidiInsertDirectionalMarks)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi insert directional marks:", bidiInsertDirectionalMarks);
-        transformOptions_.insertMarkers = bidiInsertDirectionalMarks;
+        insertMarkers_ = bidiInsertDirectionalMarks;
     }
 
     /**
@@ -216,8 +232,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiInsertDirectionalMarks()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi insert directional marks:", transformOptions_.insertMarkers);
-        return transformOptions_.insertMarkers;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi insert directional marks:", insertMarkers_);
+        return insertMarkers_;
     }
 
     /**
@@ -227,7 +243,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiRemoveDirectionalMarks(boolean bidiRemoveDirectionalMarks)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi remove directional marks:", bidiRemoveDirectionalMarks);
-        transformOptions_.removeMarkers = bidiRemoveDirectionalMarks;
+        removeMarkers_ = bidiRemoveDirectionalMarks;
     }
 
     /**
@@ -236,8 +252,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiRemoveDirectionalMarks()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi remove directional marks:", transformOptions_.removeMarkers);
-        return transformOptions_.removeMarkers;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi remove directional marks:", removeMarkers_);
+        return removeMarkers_;
     }
 
     /**
@@ -247,7 +263,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiWordBreak(boolean wordBreak)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi word break:", wordBreak);
-        transformOptions_.wordBreak = wordBreak;
+        wordBreak_ = wordBreak;
     }
 
     /**
@@ -256,8 +272,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiWordBreak()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi consider white space to always follow base orientation:", transformOptions_.wordBreak);
-        return transformOptions_.wordBreak;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi consider white space to always follow base orientation:", wordBreak_);
+        return wordBreak_;
     }
 
     /**
@@ -267,7 +283,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiDestinationRequired(boolean destinationRequired)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi destination required:", destinationRequired);
-        transformOptions_.destinationRequired = destinationRequired;
+        destinationRequired_ = destinationRequired;
     }
 
     /**
@@ -276,8 +292,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiDestinationRequired()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi destination required:", transformOptions_.destinationRequired);
-        return transformOptions_.destinationRequired;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi destination required:", destinationRequired_);
+        return destinationRequired_;
     }
 
     /**
@@ -287,7 +303,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiCreateSourceToDestinationMapping(boolean srcToDstMapRequired)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi create a source to destination mapping property:", srcToDstMapRequired);
-        transformOptions_.srcToDstMapRequired = srcToDstMapRequired;
+        srcToDstMapRequired_ = srcToDstMapRequired;
     }
 
     /**
@@ -296,8 +312,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreateSourceToDestinationMapping()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if create a source to destination mapping property is set:", transformOptions_.srcToDstMapRequired);
-        return transformOptions_.srcToDstMapRequired;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if create a source to destination mapping property is set:", srcToDstMapRequired_);
+        return srcToDstMapRequired_;
     }
 
     /**
@@ -307,7 +323,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiCreateDestinationToSourceMapping(boolean dstToSrcMapRequired)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi create a destination to source mapping property:", dstToSrcMapRequired);
-        transformOptions_.dstToSrcMapRequired = dstToSrcMapRequired;
+        dstToSrcMapRequired_ = dstToSrcMapRequired;
     }
 
     /**
@@ -316,8 +332,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreateDestinationToSourceMapping()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if create a destination to source mapping property is set:", transformOptions_.dstToSrcMapRequired);
-        return transformOptions_.dstToSrcMapRequired;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if create a destination to source mapping property is set:", dstToSrcMapRequired_);
+        return dstToSrcMapRequired_;
     }
 
     /**
@@ -327,7 +343,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiCreatePropertyMap(boolean propertyMapRequired)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi create property map property:", propertyMapRequired);
-        transformOptions_.propertyMapRequired = propertyMapRequired;
+        propertyMapRequired_ = propertyMapRequired;
     }
 
     /**
@@ -336,8 +352,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreatePropertyMap()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi create property map property is set:", transformOptions_.propertyMapRequired);
-        return transformOptions_.propertyMapRequired;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi create property map property is set:", propertyMapRequired_);
+        return propertyMapRequired_;
     }
 
     /**
@@ -345,7 +361,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public int getInputCount()
     {
-        return transformOptions_.inpCount;
+        return inpCount_;
     }
 
     /**
@@ -353,7 +369,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public int getOutputCount()
     {
-        return transformOptions_.outCount;
+        return outCount_;
     }
 
     /**
@@ -364,7 +380,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public int[] getSourceToDestinationMap()
     {
-        return transformOptions_.srcToDstMap;
+        return srcToDstMap_;
     }
 
     /**
@@ -375,7 +391,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public int[] getDestinationToSourceMap()
     {
-        return transformOptions_.dstToSrcMap;
+        return dstToSrcMap_;
     }
 
     /**
@@ -387,6 +403,6 @@ public class BidiConversionProperties implements Serializable
      **/
     public byte[] getPropertyMap()
     {
-        return transformOptions_.propertyMap;
+        return propertyMap_;
     }
 }
