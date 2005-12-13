@@ -86,6 +86,7 @@ com/ibm/as400/access/ExtendedIllegalStateException.class
 com/ibm/as400/access/PasswordDialog.class
 com/ibm/as400/access/ResourceBundleLoader.class
 com/ibm/as400/access/Trace.class
+com/ibm/as400/access/ToolboxLogger.class
 com/ibm/as400/access/SignonEvent.class
 com/ibm/as400/access/*SignonHandler*.class
 
@@ -135,6 +136,7 @@ com/ibm/as400/access/BidiFlag.class
 com/ibm/as400/access/BidiFlagSet.class
 com/ibm/as400/access/BidiStringType.class
 com/ibm/as400/access/BidiConversionProperties.class
+com/ibm/as400/access/BidiTransform.class
 com/ibm/as400/access/Converter.class
 com/ibm/as400/access/ConverterImpl.class
 com/ibm/as400/access/ConverterImplProxy.class
