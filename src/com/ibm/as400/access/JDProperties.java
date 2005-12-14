@@ -137,9 +137,9 @@ class JDProperties implements Serializable
     static final int              ROLLBACK_CURSOR_HOLD = 64;    //@K94
     static final int              VARIABLE_FIELD_COMPRESSION = 65;  //@K54
     static final int              QUERY_OPTIMIZE_GOAL = 66; //@540
-    static final int              KEEP_ALIVE              = 67;
-    static final int              RECEIVE_BUFFER_SIZE     = 68;
-    static final int              SEND_BUFFER_SIZE        = 69;
+    static final int              KEEP_ALIVE              = 67;   // @PDA - keep_alive, receive_buffer_size, send_buffer_size
+    static final int              RECEIVE_BUFFER_SIZE     = 68;   //        also exist in SocketProperties and their values 
+    static final int              SEND_BUFFER_SIZE        = 69;   //        get propagated to SocketProperties
     static final int              XA_LOOSELY_COUPLED_SUPPORT = 70; //@540
     // @W2 always add to the end of the array!
 
