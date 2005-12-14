@@ -148,36 +148,19 @@ implements SQLData
         // need to report it.  If we truncate on the left side, then we report the    @E2A
         // number of truncated digits on both ends...this will make the dataSize      @E2A
         // and transferSize make sense on the resulting DataTruncation.               @E2A
-        // Changed to throw exception if left side is truncated                       @PDC
         truncated_ = 0;
         int otherScale = bigDecimal.scale();
         if(otherScale > scale_)
             truncated_ += otherScale - scale_;
         value_ = bigDecimal.setScale(scale_, BigDecimal.ROUND_DOWN);       // @E2C
 
-        /* @PDC throw exception instead of warning if truncate left of decimal
         int otherPrecision = SQLDataFactory.getPrecision(value_);
         if(otherPrecision > precision_)
         {
             int digits = otherPrecision - precision_;
             truncated_ += digits;
             value_ = SQLDataFactory.truncatePrecision(value_, digits);
-        }*/
-        // @PDC - Due to issue 29258, we are changing this back to throw exception.
-        //        Even though code has been issuing truncation warnings for several years,
-        //        the final decision was that we need to match native and odbc drivers behavior.
-        
-        // Also fix: if col is defined as DECIMAL(3,2) bigDecimal=xx.x0x, 
-        //    then precision should be 5, not 3 (due to round_down), 
-        //    and need to throw exception now instead of later in sql execute.
-        //    (bigDecimal.setScale(scale_, BigDecimal.ROUND_DOWN) above cuts off last x and so number ends in 0.
-        //    Then SQLDataFactory.getPrecision() gets rid of trailing 0s before calculating precision.)
-        int otherPrecision = SQLDataFactory.getPrecision(bigDecimal);     //@PDC use before rounding down
-        // This will catch a number left of decimalpt that is greater than the legal value during set()
-        if((otherPrecision - otherScale) > (precision_ - scale_))
-        { 
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);   
-        }                                                                   
+        }
         else                                                               // @E2A
             truncated_ = 0;  // No left side truncation, report nothing       @E2A
                              // (even if there was right side truncation).    @E2A

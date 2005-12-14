@@ -93,11 +93,7 @@ implements SQLData
                     BigInteger bigInteger = new BigDecimal((String)object).toBigInteger();
                     if((bigInteger.compareTo(LONG_MAX_VALUE) > 0) || (bigInteger.compareTo(LONG_MIN_VALUE) < 0))
                     {
-                        //truncated_ = bigInteger.toByteArray().length - 8;
-                        // @PDC - Due to issue 29258, we are changing this back to throw exception.
-                        //        Even though code has been issuing truncation warnings for several years,
-                        //        the final decision was that we need to match native and odbc drivers behavior.
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                        truncated_ = bigInteger.toByteArray().length - 8;
                     }
                     value_ = bigInteger.longValue();
                 }
