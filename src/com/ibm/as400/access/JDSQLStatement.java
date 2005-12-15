@@ -584,6 +584,7 @@ class JDSQLStatement
             //@DELIMa Added the following block to handle case sensitive procedure names and collection names
             String qualifiedProcedure = null;  // <schema + namingSeparator> + procedure
             StringBuffer buf = null;  // for appending additional tokens
+            int schemaDelimEndIndex = -1;  //@PDA  flag used to preserve index inside qualifiedProcedure if schema is delim
 
             // If no quotes, and there's a separator in the middle, no need to peekToken().
             int separatorPos = token.indexOf(namingSeparator);
@@ -600,6 +601,7 @@ class JDSQLStatement
             }
             else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().equals(namingSeparator)) // both schema and procedure are quoted
             {
+              schemaDelimEndIndex = token.length(); 
               buf = new StringBuffer(token);
               buf.append(tokenizer_.nextToken());
               if(tokenizer_.hasMoreTokens()) {
@@ -608,6 +610,7 @@ class JDSQLStatement
             }
             else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().startsWith(namingSeparator))  // schema is quoted (and maybe procedure too)
             {
+              schemaDelimEndIndex = token.length(); 
               buf = new StringBuffer(token);
               buf.append(tokenizer_.nextToken());
             }
@@ -626,7 +629,15 @@ class JDSQLStatement
             }
             buf = null;  // we're done with the buffer
 
-            index = qualifiedProcedure.indexOf(namingSeparator);
+            // @PDC  preserve index if schema is quoted, since it may contain a namingSeparator (ie.  "De.lim"."My.Proc" )
+            if(schemaDelimEndIndex == -1)
+            {
+                index = qualifiedProcedure.indexOf(namingSeparator);
+            } else
+            {
+                index = schemaDelimEndIndex;
+            }
+            
             if(index == -1)
             {
                 csProcedure_ = JDUtilities.upperCaseIfNotQuoted(qualifiedProcedure);
