@@ -307,7 +307,7 @@ specified and lets the transaction be completed.
       // @PDC This allows for a TMSUSPENDed branch to be ended with 
       // TMSUCCESS (and implicit TMRESUME) per XA spec. 
       if (allXids.contains(xid) == false)
-        throw new XAException(XAException.XAER_NOTA);
+        throw new XAException(XAException.XAER_PROTO);
 
       if(connection_.getServerFunctionalLevel() < 11)
       {
