@@ -493,7 +493,14 @@ is the same resource manager represented by the specified XA resource.
       return false;
     if (! (xaResource instanceof AS400JDBCXAResource))
       return false;
-    return(((AS400JDBCXAResource)xaResource).resourceManagerID_ == resourceManagerID_);
+    //@PDC per spec at java.sun.com/products/jta isSameRM it connected to same RM
+    //for now, we will do same as native driver, and compare server names
+    try{ 
+       return ( connection_.getCatalog().equalsIgnoreCase( ((AS400JDBCXAResource)xaResource).connection_.getCatalog()));
+    }catch (SQLException e){
+       return false;
+    }
+   // return(((AS400JDBCXAResource)xaResource).resourceManagerID_ == resourceManagerID_);
   }
 
 
