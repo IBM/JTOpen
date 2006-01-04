@@ -354,6 +354,45 @@ for use in implementing various pieces of the JDBC driver.
     }
 
 
+    /**
+     Strips out beginning/ending matching double-quotes, and internal double
+     embedded double-quotes get collapsed to one double-quote.
+     1. Strip outer double-quotes (if present).
+     2. Collapse any doubled embedded double-quotes, to single double-quotes.
+     **/
+    static final String stripOutDoubleEmbededQuotes(String name)
+    {
+      if(name.startsWith("\"") && name.endsWith("\""))
+      {
+        // 1. Strip outer double-quotes.
+        name = name.substring(1, name.length()-1);
+      }
+  
+      // 2. Collapse any doubled embedded double-quotes, to single double-quotes.
+      if(name.indexOf('\"') == -1 )
+      {
+        return name;  // name has no embedded double-quotes, so nothing more to do
+      }
+      else
+      {
+        StringBuffer buf = new StringBuffer(name);
+        for (int i=name.length()-1; i >= 0; i--)  // examine char-by-char, from end
+        {
+          char thisChar = buf.charAt(i);
+          if(thisChar == '\"')
+          {
+            if(i>0 && buf.charAt(i-1) == '\"')
+            {
+              buf.deleteCharAt(i);
+              i--;  // don't re-examine the prior double-quote
+            }
+          }
+        }
+        return buf.toString();
+      }
+    }
+
+
 
 /**
 Reads a reader and returns its data as a String.

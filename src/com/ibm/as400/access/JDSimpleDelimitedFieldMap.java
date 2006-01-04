@@ -42,7 +42,7 @@ class JDSimpleDelimitedFieldMap implements JDFieldMap {
     public Object getValue(JDRow row) throws SQLException {
         SQLChar charData = (SQLChar)row.getSQLData(fromIndex_); 
         String value = charData.getString().trim();
-        value = JDUtilities.prepareForSingleQuotes(value, false);
+        value = JDUtilities.stripOutDoubleEmbededQuotes(value);
         return value;
     }
 
