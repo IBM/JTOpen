@@ -1881,11 +1881,11 @@ implements DatabaseMetaData
 
                         JDFieldMap[] maps = new JDFieldMap[14];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
-                        maps[1] = new JDSimpleFieldMap (1); // pk schema
+                        maps[1] = new JDSimpleDelimitedFieldMap (1); // pk schema //@PDC code to remove quotes
                         maps[2] = new JDSimpleFieldMap (2); // pk table
                         maps[3] = new JDSimpleFieldMap (3); // pk column
                         maps[4] = new JDHardcodedFieldMap (connection_.getCatalog ());
-                        maps[5] = new JDSimpleFieldMap (4); // fk schema
+                        maps[5] = new JDSimpleDelimitedFieldMap (4); // fk schema //@PDC code to remove quotes
                         maps[6] = new JDSimpleFieldMap (5); // fk table
                         maps[7] = new JDSimpleFieldMap (6); // fk column
                         maps[8] = new JDSimpleFieldMap (7); // key seq
@@ -1893,8 +1893,8 @@ implements DatabaseMetaData
                         maps[10] = new JDSimpleFieldMap (9);    // delete rule
                         if (connection_.getVRM() >= JDUtilities.vrm440)  //@F4A
                         {
-                            maps[11] = new JDSimpleFieldMap (10);    //@F4A
-                            maps[12] = new JDSimpleFieldMap (11);    //@F4A
+                            maps[11] = new JDSimpleDelimitedFieldMap (10);    //@F4A //@PDC code to remove quotes
+                            maps[12] = new JDSimpleDelimitedFieldMap (11);    //@F4A //@PDC code to remove quotes
                         }
                         else
                         {                                         //@F4A
@@ -2132,11 +2132,11 @@ implements DatabaseMetaData
                         JDRowCache serverRowCache =  new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                         JDFieldMap[] maps = new JDFieldMap[14];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
-                        maps[1] = new JDSimpleFieldMap (1); // pk schema
+                        maps[1] = new JDSimpleDelimitedFieldMap (1); // pk schema //@PDC code to remove quotes
                         maps[2] = new JDSimpleFieldMap (2); // pk table
                         maps[3] = new JDSimpleFieldMap (3); // pk column
                         maps[4] = new JDHardcodedFieldMap (connection_.getCatalog ());
-                        maps[5] = new JDSimpleFieldMap (4); // fk schema
+                        maps[5] = new JDSimpleDelimitedFieldMap (4); // fk schema //@PDC code to remove quotes
                         maps[6] = new JDSimpleFieldMap (5); // fk table
                         maps[7] = new JDSimpleFieldMap (6); // fk column
                         maps[8] = new JDSimpleFieldMap (7); // key seq
@@ -2144,8 +2144,8 @@ implements DatabaseMetaData
                         maps[10] = new JDSimpleFieldMap (9);    // delete rule
                         if (connection_.getVRM() >= JDUtilities.vrm440)  //@F4A
                         {
-                            maps[11] = new JDSimpleFieldMap (10); //@F4A 
-                            maps[12] = new JDSimpleFieldMap (11); //@F4A 
+                            maps[11] = new JDSimpleDelimitedFieldMap (10); //@F4A  //@PDC code to remove quotes
+                            maps[12] = new JDSimpleDelimitedFieldMap (11); //@F4A  //@PDC code to remove quotes
                         }
                         else
                         {                                      //@F4A
@@ -2923,7 +2923,7 @@ implements DatabaseMetaData
                         boolean nullValue = true; // used when hardcoding null
                         JDFieldMap[] maps = new JDFieldMap[6];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
-                        maps[1] = new JDSimpleFieldMap (1); // pk schema
+                        maps[1] = new JDSimpleDelimitedFieldMap (1); // pk schema //@PDC code to remove quotes
                         maps[2] = new JDSimpleFieldMap (2); // pk table
                         maps[3] = new JDSimpleFieldMap (3); // pk column
                         maps[4] = new JDCharToShortFieldMap (4);    // key seq
