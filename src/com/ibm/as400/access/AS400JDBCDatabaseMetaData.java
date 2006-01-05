@@ -2744,7 +2744,10 @@ implements DatabaseMetaData
     public int getMaxTablesInSelect ()
     throws SQLException
     {
-        return 1000;  //@pdc
+        if (connection_.getVRM() >= JDUtilities.vrm540)  // New in V5R4M0 @PDC
+            return 1000;  //@pdc
+        else
+            return 32;
     }
 
 
@@ -5166,7 +5169,7 @@ implements DatabaseMetaData
         if (mixedCaseName.length() > 2)
         {
             if (mixedCaseName.charAt(0) == '"')
-                return mixedCaseName.substring(1, mixedCaseName.length() - 1);
+                return JDUtilities.stripOutDoubleEmbededQuotes(mixedCaseName); //@PDC mixedCaseName.substring(1, mixedCaseName.length() - 1);
         }
         return mixedCaseName.toUpperCase();
     }
