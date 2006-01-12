@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#50">Fixes and enhancements in JTOpen 5.0</A><BR>
 <A HREF="#49">Fixes and enhancements in JTOpen 4.9</A><BR>
 <A HREF="#48">Fixes and enhancements in JTOpen 4.8</A><BR>
 <A HREF="#47">Fixes and enhancements in JTOpen 4.7</A><BR>
@@ -42,7 +43,22 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <P>
 
 <HR>
-<H3><A NAME="48">Fixes and enhancements in JTOpen 4.9</A> <i>(released 2005-10-28)</i></H3>
+<H3><A NAME="50">Fixes and enhancements in JTOpen 5.0</A> <i>(released 2006-01-16)</i></H3>
+<PRE>
+- <i>Various:</i> Eliminated potential NullPointerExceptions.
+- Build: Include the AboutToolbox class in the native JAR.
+- Data conversioon:  Updated mappings for certain characters.
+- JDBC:  Added delimited name support. 
+- JDBC:  Added 'XA loosely coupled support', 'keepAlive', 'sendBufferSize', and 'receiveBufferSize' connection properties.
+- JDBC:  Eliminated possible hang in AS400JDBCConnection.cancel().
+- JDBC:  Updated DatabaseMetaData.getMaxTablesInSelect() to return correct value by release.
+- JDBC:  Added support for ALIAS table types.
+- Job:  Eliminated possible division-by-zero error.
+- RFML:  Eliminated possible division-by-zero error.
+</PRE>  
+  
+<HR>
+<H3><A NAME="49">Fixes and enhancements in JTOpen 4.9</A> <i>(released 2005-10-28)</i></H3>
 <PRE>
 - <i>Various:</i> J2SE 5.0 compatibility: Added append() method, required by Appendable; renamed variables named 'enum'.
 - <i>Various:</i> Updated javadoc and code comments.
