@@ -1309,7 +1309,9 @@ public class IFSFile
   /**
    Returns the subtype of the integrated file system object represented by this object.  Some possible values that might be returned include:<br>
    CMNF, DKTF, DSPF, ICFF, LF, PF, PRTF, SAVF, TAPF.<br>
-   Returns a zero-length string if the object has no subtype,.
+   Note that many file system objects do not have a subtype: for example,
+   <tt>.MBR</tt> objects, and any Root, QOpenSys or UDFS object.
+   <br>Returns a zero-length string if the object has no subtype.
    @return The subtype of the object.
 
    @exception ExtendedIOException If an error occurs while communicating with the server.
