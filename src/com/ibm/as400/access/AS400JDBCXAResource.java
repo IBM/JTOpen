@@ -238,6 +238,7 @@ Commits a global transaction.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_COMMIT, 0,
@@ -247,7 +248,7 @@ Commits a global transaction.
         request.setFlags(onePhase ? TMONEPHASE : TMNOFLAGS);
 
         reply = connection_.sendAndReceive (request);
-        processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
       }
       finally
       {
@@ -260,6 +261,10 @@ Commits a global transaction.
 
       //@KKB resend the transaction isolation since server gets reset somehow
       transactionManager_.resetXAServer();
+      
+      //@pda throw XAException for return codes not thrown in processXAReturnCode()
+      if(returnCode != 0)
+          throw new XAException(returnCode);
     }
     catch (XAException e)
     {
@@ -322,6 +327,7 @@ specified and lets the transaction be completed.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_END, 0,
@@ -331,7 +337,7 @@ specified and lets the transaction be completed.
         request.setFlags(flags);
 
         reply = connection_.sendAndReceive (request);
-        processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
       }
       finally
       {
@@ -343,6 +349,11 @@ specified and lets the transaction be completed.
       transactionManager_.setLocalTransaction(true);
       started_ = null;
       insertRemoveXidByFlag(xid, flags);
+      
+      //@pda throw XAException for return codes not thrown in processXAReturnCode()
+      //note behavior change: when doing end(TMFAIL), it will throw XAException(XA_RB*) per spec as Native driver does already
+      if(returnCode != 0)
+          throw new XAException(returnCode);
     }
     catch (XAException e)
     {
@@ -403,6 +414,7 @@ transaction branch.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_FORGET, 0,
@@ -412,13 +424,18 @@ transaction branch.
         request.setFlags(TMNOFLAGS);
 
         reply = connection_.sendAndReceive (request);
-        processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
       }
       finally
       {
         if (request != null) request.inUse_ = false;
         if (reply != null) reply.inUse_ = false;
       }
+      
+      //@pda throw XAException for return codes not thrown in processXAReturnCode()
+      //if this gets > 0 return codes, we want to ignore since method only throws XAER_* codes
+      if(returnCode < 0)
+          throw new XAException(returnCode);
     }
     catch (XAException e)
     {
@@ -573,6 +590,7 @@ Prepares for a transaction commit.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_PREPARE, 0,
@@ -582,13 +600,19 @@ Prepares for a transaction commit.
         request.setFlags(TMNOFLAGS);
 
         reply = connection_.sendAndReceive (request);
-        return processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
       }
       finally
       {
         if (request != null) request.inUse_ = false;
         if (reply != null) reply.inUse_ = false;
       }
+      //@pda throw XAException for return codes not thrown in processXAReturnCode()
+      //per spec: return if XA_RDONLY or XA_OK, throw XAExecption for anything else
+      if(returnCode == 0 || returnCode == XAException.XA_RDONLY)
+          return returnCode;
+      else
+          throw new XAException(returnCode);
     }
     catch (XAException e)
     {
@@ -673,6 +697,7 @@ resource manager.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_RECOVER, 0,
@@ -682,9 +707,16 @@ resource manager.
         request.setFlags(flags);
 
         reply = connection_.sendAndReceive (request);
-        processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
 
         DBReplyXids xids = reply.getXids();
+        
+        //@pda throw XAException for return codes not thrown in processXAReturnCode()
+        //if this gets > 0 return codes, we want to ignore since method only throws XAER_* codes
+        //note: server returns xid count via return code.
+        if(returnCode < 0)
+            throw new XAException(returnCode);
+        
         return xids.getXidArray();
       }
       finally
@@ -729,6 +761,7 @@ Rolls back a transaction branch.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_ROLLBACK, 0,
@@ -738,7 +771,7 @@ Rolls back a transaction branch.
         request.setFlags(TMNOFLAGS);
 
         reply = connection_.sendAndReceive (request);
-        processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
       }
       finally
       {
@@ -751,6 +784,12 @@ Rolls back a transaction branch.
 
       //@KKB resend the transaction isolation since server gets reset somehow
       transactionManager_.resetXAServer();
+      
+      //@pda throw XAException for return codes not thrown in processXAReturnCode()
+      //Spec does not specify exactly which return codes are valid to throw in XAException, 
+      //other when "an error occurred".  So just throw back for < 0 return codes until future spec specifies otherwise.
+      if(returnCode < 0)
+          throw new XAException(returnCode);
 
     }
     catch (XAException e)
@@ -842,6 +881,7 @@ specified.
       //@P0C
       DBXARequestDS request = null;
       DBReplyRequestedDS reply = null;
+      int returnCode = 0;  //@pda
       try
       {
         request = DBDSPool.getDBXARequestDS(DBXARequestDS.REQUESTID_XA_START, 0,
@@ -867,7 +907,7 @@ specified.
         }
 
         reply = connection_.sendAndReceive (request);
-        processXAReturnCode(reply);
+        returnCode = processXAReturnCode(reply);  //@pdc
       }
       finally
       {
@@ -879,6 +919,11 @@ specified.
       transactionManager_.setLocalTransaction(false);
       started_ = xid;
       insertRemoveXidByFlag(xid, flags);
+      
+      //@pda throw XAException for return codes not thrown in processXAReturnCode()
+      if(returnCode != 0)
+          throw new XAException(returnCode);
+      
     }
     catch (XAException e)
     {
