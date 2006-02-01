@@ -730,7 +730,7 @@ can not be called directly on this object.
     // Auto commit is disabled while in a distributed transaction.
     if (localTransaction_)
     {
-      autoCommit_ = localAutoCommit_;
+      autoCommit_ = localAutoCommit_;  //prior to XA_START autocommit setting
       if(connection_.newAutoCommitSupport_ == 0)
           setCommitMode(currentCommitMode_);              // turn back on auto-commit
       else{
@@ -740,13 +740,16 @@ can not be called directly on this object.
           {                                                                                   
               request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
-                                                         + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    
-              request.setAutoCommit(0xE8);                               
-              if(connection_.newAutoCommitSupport_ == 1)
-              {
+                                                         + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);  
+              
+              request.setAutoCommit( autoCommit_ ? 0xE8 : 0xD5);  //@PDC change autocommit setting to prior setting before XA_START  
+             
+              if(connection_.newAutoCommitSupport_ == 1 && autoCommit_ == true)  //@PDC
+              {           
                   request.setCommitmentControlLevelParserOption(COMMIT_MODE_NONE_);             
                   serverCommitMode_ = COMMIT_MODE_NONE_;
               }
+
               reply = connection_.sendAndReceive(request);                 
               int errorClass = reply.getErrorClass();                                         
               int returnCode = reply.getReturnCode();                                         
