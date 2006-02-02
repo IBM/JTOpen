@@ -78,6 +78,14 @@ public class AS400JDBCPooledConnection implements PooledConnection
   private PoolItemProperties properties_;                  // The usage properties.
   private AS400JDBCConnectionEventSupport eventManager_;
 
+  private int hashCode_;    //@CPMa
+
+  // The following fields are reserved for use by JDConnectionPoolManager.         //@CPMa
+  JDConnectionPoolKey poolKey_;          // connection-pool key for this connection
+  long timeWhenCreated_;                 // time when this connection was created.
+  long timeWhenPoolStatusLastModified_;  // time when this connection's pooling status last changed.
+  boolean fatalConnectionErrorOccurred_; // this clues the pool manager not to reuse connection
+
 
   /**
   *  Constructs an AS400JDBCPooledConnection object.
@@ -91,6 +99,8 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
     properties_ = new PoolItemProperties();
     eventManager_ = new AS400JDBCConnectionEventSupport();
+    hashCode_ = connection_.hashCode();
+    timeWhenCreated_ = System.currentTimeMillis();
 
     if (JDTrace.isTraceOn())                                                    //@G2A
     {
@@ -116,8 +126,9 @@ public class AS400JDBCPooledConnection implements PooledConnection
   public synchronized void close() throws SQLException
   {
     if (connection_.isClosed()) return;
+    // Note: AS400JDBCConnectionHandle.close() calls fireConnectionCloseEvent().
 
-    connection_.close();
+    connection_.close();  // close the physical connection
 
     // Reset the usage timers.
     properties_.clear();
@@ -141,17 +152,48 @@ public class AS400JDBCPooledConnection implements PooledConnection
   }
 
 
+  // JDConnectionPoolManager needs this when identifying returned connections.
+  public boolean equals(Object obj)
+  {
+    try
+    {
+      AS400JDBCPooledConnection pc = (AS400JDBCPooledConnection)obj;
+      return (connection_.equals(pc.connection_));
+    }
+    catch (Throwable e) {
+      return false;
+    }
+  }
+
+  // Needed for good hashing.
+  public int hashCode()
+  {
+    return hashCode_;
+  }
+
+
+  // Note: The following method is called by AS400JDBCConnectionHandle.close().
   /**
   *  Fire the connection closed event.
   *  @param event The ConnectionEvent.
   **/
   void fireConnectionCloseEvent(ConnectionEvent event)
   {
-    // This gets called by AS400JDBCConnectionHandle.close().
     returned();                                     // Reset the pooledConnection.
     eventManager_.fireCloseEvent(event);            // Notify the pool.
   }
 
+
+  // Note: The following method is called by AS400JDBCConnectionHandle.close().
+  /**
+  *  Fire the connection error event.
+  *  @param event The ConnectionEvent.
+  **/
+  void fireConnectionErrorEvent(ConnectionEvent event)
+  {
+    // Don't bother cleaning up the connection, it won't get re-used.
+    eventManager_.fireErrorEvent(event);            // Notify the pool.
+  }
 
   /**
   *  Returns the connection handle to the database. Only one connection handle can be open
@@ -165,7 +207,19 @@ public class AS400JDBCPooledConnection implements PooledConnection
     {
       JDTrace.logInformation(this, "AS400JDBCPooledConnection.getConnection() was called");  //@G2C
     }
+    return getConnectionHandle();
+  }
 
+
+  // Used by JDConnectionPoolManager.         //@CPMa
+  /**
+  *  Returns the connection handle to the database. Only one connection handle can be open
+  * at a time for any given AS400JDBCPooledConnection object.
+  *  @return The connection handle.
+  *  @exception SQLException If a database error occurs or if this PooledConnection is already in use.
+  **/
+  synchronized final AS400JDBCConnectionHandle getConnectionHandle() throws SQLException
+  {
     if (connection_.isClosed())
     {
       if (JDTrace.isTraceOn())                                             // @G2A
@@ -175,6 +229,8 @@ public class AS400JDBCPooledConnection implements PooledConnection
       JDError.throwSQLException(this, JDError.EXC_CONNECTION_NONE);  //@G2A
     }
 
+    // Note: The JDBC Tutorial says that if PooledConnection.getConnection() is called while already in use, this should close the existing connection.  "The purpose of allowing the server to invoke the method getConnection a 2nd time is to give the application server a way to take a connection away from an application and give it to someone else.  This will probably rarely happen, but the capability is there."
+    // However, we haven't had a request for this behavior, so we just throw an exception instead.
     if (isInUse())
     {
       if (JDTrace.isTraceOn())
@@ -191,6 +247,13 @@ public class AS400JDBCPooledConnection implements PooledConnection
   }
 
 
+  // For exclusive use by JDConnectionPoolManager.    //@CPMa
+  final JDConnectionPoolKey getPoolKey()
+  {
+    return poolKey_;
+  }
+
+
   AS400JDBCConnection getInternalConnection()        //@G1A
   {                                                  //@G1A
     return connection_;        //@G1A
@@ -199,7 +262,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
   /**
   *  Returns the elapsed time the connection has been idle waiting in the pool.
-  *  @return The idle time.
+  *  @return The idle time (milliseconds).
   **/
   public long getInactivityTime()
   {
@@ -209,7 +272,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
   /**
   *  Returns the elapsed time the connection has been in use.
-  *  @return The elapsed time.
+  *  @return The elapsed time (milliseconds).
   **/
   public long getInUseTime()
   {
@@ -219,7 +282,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
   /**
   *  Returns the elapsed time the pooled connection has been alive.
-  *  @return The elapsed time.
+  *  @return The elapsed time (milliseconds).
   **/
   public long getLifeSpan()
   {
@@ -268,7 +331,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
 
   /**
-  *  Returns the connection after usage. 
+  *  Returns the connection after usage.
   *  Update the connection timers and invalidate connection handle.
   **/
   synchronized void returned()
@@ -280,6 +343,19 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
     // Reset the timers.
     setInUse(false);
+
+    try {                                                                      //@CPMa
+      connection_.clearWarnings();  // This seems safe and reasonable enough.
+      connection_.setHoldability(AS400JDBCResultSet.HOLDABILITY_NOT_SPECIFIED);  // This is the default for all new instances of AS400JDBCConnection.
+      boolean readOnly = connection_.isReadOnlyAccordingToProperties();  // Get default from props.
+      connection_.setReadOnly(readOnly);  // In case the user forgot to reset.
+      connection_.setAutoCommit(true);    // Ditto.
+    }
+    catch (SQLException e) {
+      JDTrace.logException(this, "Exception while resetting properties of returned connection.", e);
+    }
+
+    // Note: We can assume that if the connection has been used and then returned to the pool, it has been sufficiently cleaned-up/reset by AS400JDBCConnectionHandle.close(), which calls AS400JDBCConnection.pseudoClose(), which does any needed rollbacks and/or statement closing.              //@CPMa
   }
 
 
@@ -291,4 +367,12 @@ public class AS400JDBCPooledConnection implements PooledConnection
   {
     properties_.setInUse(inUse);
   }
+
+
+  // For exclusive use by JDConnectionPoolManager.    //@CPMa
+  final void setPoolKey(JDConnectionPoolKey key)
+  {
+    poolKey_ = key;
+  }
+
 }

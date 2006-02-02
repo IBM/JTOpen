@@ -1204,6 +1204,14 @@ class JDProperties implements Serializable
 
     /**
     Constructor.
+    **/
+    JDProperties ()
+    {
+      this(null, null);
+    }
+
+    /**
+    Constructor.
     
     @param  urlProperties   The URL properties.
     @param  info            The info properties.

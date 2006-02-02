@@ -454,6 +454,38 @@ public class Trace
     return traceOn_;
   }
 
+  /**
+    Indicates if tracing is enabled for the specified category.
+    @param  category  The message category [DATASTREAM, DIAGNOSTIC,
+    ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+    @return  true if tracing for the category is enabled; false otherwise.
+   **/
+  public static final boolean isTraceOn(int category)
+  {
+    switch (category) {
+      case DATASTREAM:
+        return traceDatastream_;
+      case DIAGNOSTIC:
+        return traceDiagnostic_;
+      case ERROR:
+        return traceError_;
+      case INFORMATION:
+        return traceInfo_;
+      case WARNING:
+        return traceWarning_;
+      case CONVERSION:
+        return traceConversion_;
+      case PROXY:
+        return traceProxy_;
+      case PCML:
+        return tracePCML_;
+      case JDBC:
+        return traceJDBC_;
+      default:
+        return false;
+    }
+  }
+
 
   /**
    *  Indicates if PCML tracing is enabled.
@@ -703,7 +735,7 @@ public class Trace
     Logs a message in the specified category.  If the category is disabled,
     nothing is logged.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC,
-    ERROR, INFORMATION, WARNING, CONVERSION, PROXY].
+    ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
    **/
   public static final void log(int category, String message)
@@ -725,7 +757,7 @@ public class Trace
     or file name has been set for the component, nothing is logged.
     @param  component The component to trace.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC,
-    ERROR, INFORMATION, WARNING, CONVERSION, PROXY].
+    ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
    **/
   public static final void log(Object component, int category, String message)
@@ -748,7 +780,7 @@ public class Trace
   /**
     Logs a message in the specified category.  If the category is disabled, nothing is logged.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION,
-    WARNING, CONVERSION, PROXY].
+    WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  e  The Throwable object that contains the stack trace to log.
    **/
@@ -774,7 +806,7 @@ public class Trace
     If the category is disabled, nothing is logged.
     @param  component The component to trace.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-    INFORMATION, WARNING, CONVERSION, PROXY].
+    INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  e  The Throwable object that contains the stack trace to log.
    **/
@@ -800,7 +832,7 @@ public class Trace
   /**
     Logs a message in the specified category.  If the category is disabled, nothing is logged.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-            INFORMATION, WARNING, CONVERSION, PROXY].
+            INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  e  The Throwable object that contains the stack trace to log.
    **/
   public static final void log(int category, Throwable e)
@@ -817,7 +849,7 @@ public class Trace
     If the category is disabled, nothing is logged.
     @param  component The component to trace.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-            INFORMATION, WARNING, CONVERSION, PROXY].
+            INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  e  The Throwable object that contains the stack trace to log.
    **/
   public static final void log(Object component, int category, Throwable e)
@@ -835,7 +867,7 @@ public class Trace
     category is disabled, nothing is logged.  The integer value is appended
     to the end of the message, preceded by two blanks.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                      INFORMATION, WARNING, CONVERSION, PROXY].
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  value  The integer value to log.
    **/
@@ -856,7 +888,7 @@ public class Trace
     to the end of the message, preceded by two blanks.
     @param  component The component to trace.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                      INFORMATION, WARNING, CONVERSION, PROXY].
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  value  The integer value to log.
    **/
@@ -872,7 +904,7 @@ public class Trace
   /**
     Logs a SSL message based on the SSLException integer values to the specified category.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                      INFORMATION, WARNING, CONVERSION, PROXY].
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  sslCategory The SSLException category.
     @param  sslError    The SSLException error.
     @param  sslInt1     The SSLException Int1.
@@ -892,7 +924,7 @@ public class Trace
     value is appended to the end of the message, preceded by two blanks.
     true is logged for true, and false is logged for false.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                      INFORMATION, WARNING, CONVERSION, PROXY].
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  value  The boolean data to log.
    **/
@@ -912,7 +944,7 @@ public class Trace
     true is logged for true, and false is logged for false.
     @param  component The component to trace.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                      INFORMATION, WARNING, CONVERSION, PROXY].
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  value  The boolean data to log.
    **/
@@ -929,7 +961,7 @@ public class Trace
 
   /**
     Logs a message and byte data in the specified category.  If the category is disabled, nothing is logged.  The byte data is appended to the end of the message, sixteen bytes per line.
-    @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY].
+    @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR, INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  data  The bytes to log.
    **/
@@ -957,7 +989,7 @@ public class Trace
     The byte data is appended to the end of the message, sixteen bytes per line.
     @param  component The component to trace.
     @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                      INFORMATION, WARNING, CONVERSION, PROXY].
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  data  The bytes to log.
    **/
@@ -983,7 +1015,7 @@ public class Trace
     category is disabled, nothing is logged.  The byte data is
     appended to the end of the message, sixteen bytes per line.
     @param category The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                    INFORMATION, WARNING, CONVERSION, PROXY].
+                    INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  data  The bytes to log.
     @param  offset  The start offset in the data.
@@ -1049,7 +1081,7 @@ public class Trace
     appended to the end of the message, sixteen bytes per line.
     @param  component The component to trace.
     @param category The message category [DATASTREAM, DIAGNOSTIC, ERROR,
-                    INFORMATION, WARNING, CONVERSION, PROXY].
+                    INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
     @param  message  The message to log.
     @param  data  The bytes to log.
     @param  offset  The start offset in the data.

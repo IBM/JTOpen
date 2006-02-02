@@ -19,7 +19,7 @@ class PoolItemProperties
 
    private long creationTime_;                  // Creation time.
    private long lastUseTime_ = 0;               // Active connection time. 
-   private long timeIdleInPool_;                // Idle time waiting in the pool.
+   private long timeIdleInPool_;                // Time at which connection became idle.
    private int timesUsedCount_ = 0;             // Number of times connection has been used.
 
    /**
@@ -46,7 +46,7 @@ class PoolItemProperties
    /**
    *  Returns the time elapsed.
    *  @param startTime The starting time.
-   *  @return The time elapsed.
+   *  @return The time elapsed (milliseconds).
    **/
    private long getElapsedTime(long startTime)
 	{
@@ -58,7 +58,7 @@ class PoolItemProperties
 
    /**
    *  Returns the elapsed time the connection has been idle waiting in the pool.
-   *  @return The idle time.
+   *  @return The idle time (milliseconds).
    **/
    public long getInactivityTime()
    {
@@ -67,7 +67,7 @@ class PoolItemProperties
    
    /**
    *  Returns the elapsed time the connection has been in use.
-   *  @return The elapsed time.
+   *  @return The elapsed time (milliseconds).
    **/
 	public long getInUseTime()
 	{            
@@ -80,7 +80,7 @@ class PoolItemProperties
 	
    /**
    *  Returns the elapsed time the pooled connection has been alive.
-   *  @return The elapsed time.
+   *  @return The elapsed time (milliseconds).
    **/
 	public long getLifeSpan()
 	{

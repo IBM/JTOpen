@@ -78,7 +78,6 @@ implements Connection //@A5A
     connection_ = connection;
   }
 
-
   /**
   *  Checks that the specified SQL statement can be executed.
   *  This decision is based on the access specified by the caller
@@ -90,7 +89,13 @@ implements Connection //@A5A
   void checkAccess (JDSQLStatement sqlStatement) throws SQLException
   {
     validateConnection();
-    connection_.checkAccess(sqlStatement);
+    try {
+      connection_.checkAccess(sqlStatement);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
 
@@ -104,7 +109,13 @@ implements Connection //@A5A
   void checkOpen() throws SQLException
   {
     validateConnection();
-    connection_.checkOpen();
+    try {
+      connection_.checkOpen();
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
 
@@ -135,13 +146,21 @@ implements Connection //@A5A
   {
     if (connection_ == null) return;
 
-    // Rollback and close the open statements.
-    connection_.pseudoClose();
+    try {
+      // Rollback and close the open statements.
+      connection_.pseudoClose();
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
+    finally {
+      // notify the pooled connection.
+      pooledConnection_.fireConnectionCloseEvent(new ConnectionEvent(pooledConnection_));
 
-    // notify the pooled connection.
-    pooledConnection_.fireConnectionCloseEvent(new ConnectionEvent(pooledConnection_));
-
-    connection_ = null;
+      connection_ = null;
+      pooledConnection_ = null;
+    }
   }
 
   /**
@@ -156,7 +175,13 @@ implements Connection //@A5A
   public void commit() throws SQLException
   {
     validateConnection();
-    connection_.commit();
+    try {
+      connection_.commit();
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -277,6 +302,30 @@ implements Connection //@A5A
                JDTrace.logInformation (this, "Finalize on a connection handle threw exception: " + e.getMessage()); //@A5A
         }                                   //@A5A
     }
+
+
+  //@CPMa
+  /**
+  * If the exception is a fatal connection error, fires a connectionErrorOccurred event.
+  * We're looking for any kind of error that would indicate that the connection
+  * should not be re-used after it's returned to the connection pool.
+  **/
+  private final void fireEventIfErrorFatal(SQLException e)
+  {
+    String sqlState = e.getSQLState();
+    if (sqlState.equals(JDError.EXC_ACCESS_MISMATCH) ||
+        sqlState.equals(JDError.EXC_CONNECTION_NONE) ||
+        sqlState.equals(JDError.EXC_CONNECTION_REJECTED) ||
+        sqlState.equals(JDError.EXC_CONNECTION_UNABLE) ||
+        sqlState.equals(JDError.EXC_COMMUNICATION_LINK_FAILURE) ||
+        sqlState.equals(JDError.EXC_INTERNAL) ||
+        sqlState.equals(JDError.EXC_SERVER_ERROR) ||
+        sqlState.equals(JDError.EXC_RDB_DOES_NOT_EXIST))
+    {
+      pooledConnection_.fatalConnectionErrorOccurred_ = true;
+      pooledConnection_.fireConnectionErrorEvent(new ConnectionEvent(pooledConnection_, e));
+    }
+  }
 
   /**
   *  Returns the AS400 object for this connection.
@@ -543,14 +592,6 @@ implements Connection //@A5A
   {
     validateConnection();
     return connection_.getWarnings();
-  }
-
-  /**
-  *  Invalidates the connection.
-  **/
-  public void invalidate()
-  {
-    connection_ = null;
   }
 
   /**
@@ -941,8 +982,14 @@ ResultSet.CONCUR_READ_ONLY.
     public void releaseSavepoint(Savepoint savepoint)
     throws SQLException
     {
-        validateConnection();
+      validateConnection();
+      try {
         connection_.releaseSavepoint(savepoint);
+      }
+      catch (SQLException e) {
+        fireEventIfErrorFatal(e);
+        throw e;
+      }
     }
 
 
@@ -958,7 +1005,13 @@ ResultSet.CONCUR_READ_ONLY.
   public void rollback () throws SQLException
   {
     validateConnection();
-    connection_.rollback();
+    try {
+      connection_.rollback();
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
 
@@ -977,7 +1030,13 @@ ResultSet.CONCUR_READ_ONLY.
     throws SQLException
     {
         validateConnection();
-        connection_.rollback(savepoint);
+        try {
+          connection_.rollback(savepoint);
+        }
+        catch (SQLException e) {
+          fireEventIfErrorFatal(e);
+          throw e;
+        }
     }
 
 
@@ -992,7 +1051,13 @@ ResultSet.CONCUR_READ_ONLY.
   void send (DBBaseRequestDS request) throws SQLException
   {
     validateConnection();
-    connection_.send (request);
+    try {
+      connection_.send (request);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -1007,7 +1072,13 @@ ResultSet.CONCUR_READ_ONLY.
   void send (DBBaseRequestDS request, int id) throws SQLException
   {
     validateConnection();
-    connection_.send(request, id);
+    try {
+      connection_.send(request, id);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -1026,7 +1097,13 @@ ResultSet.CONCUR_READ_ONLY.
   void send (DBBaseRequestDS request, int id, boolean leavePending) throws SQLException
   {
     validateConnection();
-    connection_.send(request, id, leavePending);
+    try {
+      connection_.send(request, id, leavePending);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   // @A2D   /**
@@ -1060,7 +1137,13 @@ ResultSet.CONCUR_READ_ONLY.
   DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request) throws SQLException
   {
     validateConnection();
-    return connection_.sendAndReceive(request);
+    try {
+      return connection_.sendAndReceive(request);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -1076,7 +1159,13 @@ ResultSet.CONCUR_READ_ONLY.
   DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request, int id) throws SQLException
   {
     validateConnection();
-    return connection_.sendAndReceive(request, id);
+    try {
+      return connection_.sendAndReceive(request, id);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -1105,7 +1194,13 @@ ResultSet.CONCUR_READ_ONLY.
   public void setAutoCommit (boolean autoCommit) throws SQLException
   {
     validateConnection();
-    connection_.setAutoCommit(autoCommit);
+    try {
+      connection_.setAutoCommit(autoCommit);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -1177,7 +1272,13 @@ ResultSet.CONCUR_READ_ONLY.
   throws SQLException
   {
     validateConnection();
-    connection_.setProperties(dataSourceUrl, properties, as400);
+    try {
+      connection_.setProperties(dataSourceUrl, properties, as400);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
 
@@ -1188,7 +1289,13 @@ ResultSet.CONCUR_READ_ONLY.
   throws SQLException
   {
     validateConnection();
-    connection_.setProperties(dataSourceUrl, properties, as400);
+    try {
+      connection_.setProperties(dataSourceUrl, properties, as400);
+    }
+    catch (SQLException e) {
+      fireEventIfErrorFatal(e);
+      throw e;
+    }
   }
 
   /**
@@ -1362,7 +1469,9 @@ ResultSet.CONCUR_READ_ONLY.
   {
     if (connection_ == null)
     {
-            JDTrace.logInformation (this, "The connection is closed.");  // @A7C
+      // This would indicate that close() has been called on this handle.
+      // Note: It does _not_ indicate that the actual physical connection has experienced a fatal connection error.  Therefore, we don't call fireConnectionErrorEvent() in this case.
+      JDTrace.logInformation (this, "The connection is closed.");  // @A7C
       JDError.throwSQLException (JDError.EXC_CONNECTION_NONE); // @A3C
     }
   }

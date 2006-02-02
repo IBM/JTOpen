@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.sql.Savepoint;                        // @E10a                
-//@P0Dimport java.util.BitSet;                    // @DAA
 import java.util.Enumeration;               // @DAA
 import java.util.Map;
 import java.util.Properties;
@@ -85,7 +84,9 @@ implements Connection
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-
+    // Turn this flag on to prevent this Connection object from establishing an actual connection to the server.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
+    // For production, this flag _must_ be set to 'false'.
+    private static final boolean TESTING_THREAD_SAFETY = false;             //@CPMa
 
     // This is a compile time flag for doing simple
     // communications traces.
@@ -157,7 +158,7 @@ implements Connection
     private String                      catalog_;
     private boolean                     checkStatementHoldability_ = false;     // @F3A
     private boolean                     closing_;            // @D4A
-    ConvTable                   converter_; //@P0C
+            ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
     private JDDataSourceURL             dataSourceUrl_;
     private boolean                     drda_;                          // @B1A
@@ -244,6 +245,7 @@ implements Connection
         // Lock out all other operations for this connection.
         synchronized(cancelLock_)
         {
+            if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
             cancelling_ = true;
             AS400JDBCConnection cancelConnection = null;
             try
@@ -393,6 +395,7 @@ implements Connection
     void checkOpen ()
     throws SQLException
     {
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
         if (server_ == null)
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
@@ -1313,6 +1316,15 @@ implements Connection
     String getUserName ()
     throws SQLException // @EGA
     {
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact server
+        {
+          String userName = as400_.getUserId ();
+          if (userName == null || userName.length() == 0) {
+            userName = as400PublicClassObj_.getUserId();
+          }
+          return userName;
+        }
+
         return as400_.getUserId ();
     }
 
@@ -1375,6 +1387,8 @@ implements Connection
     public boolean isClosed ()
     throws SQLException
     {
+        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact server
+
         if (server_ == null)                        // @EFC
             return true;                            // @EFA
         if (!server_.isConnected())
@@ -1400,11 +1414,17 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        return((readOnly_)
-               || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
-               || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_CALL)));
+        return((readOnly_) || isReadOnlyAccordingToProperties());    // @CPMc
     }
 
+    // Called by AS400JDBCPooledConnection.
+    boolean isReadOnlyAccordingToProperties()
+      throws SQLException
+    {
+        checkOpen ();
+        return((properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
+            || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_CALL)));
+    }
 
 
     // @B4A
@@ -2688,6 +2708,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
 
         transactionManager_.setAutoCommit (autoCommit);
 
@@ -2791,6 +2812,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
 
         if (!checkHoldabilityConstants(holdability))                            //@F3A
             JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
@@ -2813,17 +2835,24 @@ implements Connection
                         AS400 as400)
     throws SQLException
     {
-        try
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact server
         {
+          as400PublicClassObj_ = as400;
+        }
+        else
+        {
+          try
+          {
             as400.connectService (AS400.DATABASE);
-        }
-        catch (AS400SecurityException e)
-        {                            //@D5C
+          }
+          catch (AS400SecurityException e)
+          {                            //@D5C
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_REJECTED, e);
-        }
-        catch (IOException e)
-        {                                       //@D5C
+          }
+          catch (IOException e)
+          {                                       //@D5C
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_UNABLE, e);
+          }
         }
 
         setProperties (dataSourceUrl, properties, as400.getImpl());
@@ -2848,7 +2877,7 @@ implements Connection
         properties_             = properties;
         //@P0D requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
-        if(as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
+        if(!TESTING_THREAD_SAFETY && as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
             newAutoCommitSupport_ = 0;                                               //@KBA
         else if(!properties_.getBoolean(JDProperties.AUTO_COMMIT))                   //@KBA         //run autocommit with *NONE isolation level
             newAutoCommitSupport_ = 1;                                               //@KBA
@@ -2913,17 +2942,20 @@ implements Connection
             JDTrace.logInformation("JDBC Level: " + JDUtilities.JDBCLevel_);          // @F6a
         }                                                                             // @F6a
 
-        try
+        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact server
         {
+          try
+          {
             server_ = as400_.getConnection (AS400.DATABASE, newServer);
-        }
-        catch (AS400SecurityException e)
-        {
+          }
+          catch (AS400SecurityException e)
+          {
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_REJECTED, e);
-        }
-        catch (IOException e)
-        {
+          }
+          catch (IOException e)
+          {
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_UNABLE, e);
+          }
         }
 
         // Initialize the catalog name at this point to be the system
@@ -3239,6 +3271,7 @@ implements Connection
     private void setServerAttributes ()
     throws SQLException
     {
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
         try
         {
             vrm_ = as400_.getVRM();                                     // @D0A @ECM

@@ -133,6 +133,21 @@ public class SocketProperties implements Serializable
     }
 
     /**
+     Indicates if the value of any of the socket options will be set.
+     This method provides a quick way to see if this SocketProperties object has been altered (via a setter) such that it would cause at least one socket option to be set.
+     @return  true if any option will be set; false otherwise.
+     **/
+    boolean isAnyOptionSet()
+    {
+        boolean result =
+            keepAliveSet_ || receiveBufferSizeSet_ || sendBufferSizeSet_ ||
+            soLingerSet_ || soTimeoutSet_ || tcpNoDelaySet_;
+          
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if any option is set:", result);
+        return result;
+    }
+
+    /**
      Indicates if the value of the SO_KEEPALIVE socket option will be set.
      @return  true if SO_KEEPALIVE will be set; false otherwise.
      **/
