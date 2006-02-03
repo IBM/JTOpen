@@ -197,7 +197,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    Users are discouraged from calling this method.
    @param logStatistics If true, additional information is logged.
    @return true if connection pool exists and appears healthy; false otherwise.
-   @deprecated Use {@link AS400JDBCManagedDataSource#checkPoolHealth() checkPoolHealth()} instead.
+   @deprecated Use {@link AS400JDBCManagedDataSource#checkPoolHealth(boolean) checkPoolHealth()} instead.
    **/
   public boolean checkPoolHealth(boolean logStatistics)
   {
