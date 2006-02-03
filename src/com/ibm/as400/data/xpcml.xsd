@@ -924,15 +924,17 @@
 
 
 <!-- Attributes that are common to all data field types. -->
+<!-- Note: The built-in Toolbox XPCML parser ignores all of the following attributes except "name" and "isEmptyString".  Most of these attributes are provided as a convenience for users writing XSL-T transformers. -->
 <xs:attributeGroup name="commonFieldAttrs">
-   <xs:attribute name="name" type="string50"/>
-   <xs:attribute name="columnHeading1" type="string20"/>
-   <xs:attribute name="columnHeading2" type="string20"/>
-   <xs:attribute name="columnHeading3" type="string20"/>
-   <xs:attribute name="description" type="string50"/>
-   <xs:attribute name="defaultValue" type="xs:string"/>  <!-- Max length of string is 65535 characters. -->
-   <xs:attribute name="nullable" type="xs:boolean"/>
-   <xs:attribute name="isEmptyString" type="xs:boolean"/>   <!-- Indicate this is an empty string. -->
+   <xs:attribute name="name" type="string50"/>           <!-- field name -->
+   <xs:attribute name="columnHeading1" type="string20"/> <!-- column heading 1 -->
+   <xs:attribute name="columnHeading2" type="string20"/> <!-- column heading 2 -->
+   <xs:attribute name="columnHeading3" type="string20"/> <!-- column heading 3 -->
+   <xs:attribute name="description" type="string50"/>    <!-- field description -->
+   <xs:attribute name="defaultValue" type="xs:string"/>  <!-- field default value -->
+                                  <!-- max length of string is 65535 characters. -->
+   <xs:attribute name="nullable" type="xs:boolean"/>     <!-- field is 'nullable' -->
+   <xs:attribute name="isEmptyString" type="xs:boolean"/> <!-- value is an empty string -->
 </xs:attributeGroup>
 
 <!-- Utility types.  -->
