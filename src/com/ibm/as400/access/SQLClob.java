@@ -84,7 +84,8 @@ final class SQLClob implements SQLData
     {
         if(savedObject_ != null) doConversion();
 
-        BinaryConverter.intToByteArray(length_, rawBytes, offset);
+        //@PDC change to do same as SQLVarchar to get true length of byte array instead of number of chars
+        //BinaryConverter.intToByteArray(length_, rawBytes, offset);
         try
         {
             int bidiStringType = settings_.getBidiStringType();
@@ -94,7 +95,16 @@ final class SQLClob implements SQLData
             bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());          //@KBA
             bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());       //@KBA
 
-            ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
+            //@PDC  ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
+            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);  
+            // The length in the first 4 bytes is actually the length in characters.
+            BinaryConverter.intToByteArray(temp.length, rawBytes, offset);
+            if(temp.length > maxLength_)
+            {
+                maxLength_ = temp.length;
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
+            }
+            System.arraycopy(temp, 0, rawBytes, offset+4, temp.length);
         }
         catch(Exception e)
         {
