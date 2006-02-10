@@ -152,7 +152,14 @@ implements SQLData
             value = object.toString();
 
         else if(object instanceof Boolean)
-            value = object.toString();
+        { 
+            // @PDC
+            // if "translate boolean" == false, then use "0" and "1" values to match native driver
+            if(settings_.getTranslateBoolean() == true)
+                value = object.toString();  //"true" or "false"     
+            else
+                value = ((Boolean)object).booleanValue() == true ? "1" : "0";
+        }
 
         else if(object instanceof Time)
             value = SQLTime.timeToString((Time)object, settings_, calendar);

@@ -1535,6 +1535,22 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.TRANSLATE_BINARY);
     }
 
+    //@PDA
+    /**
+    *  Indicates how Boolean objects are interpreted when setting the value 
+    *  for a character field/parameter using the PreparedStatement.setObject(), 
+    *  CallableStatement.setObject() or ResultSet.updateObject() methods.  Setting the 
+    *  property to "true", would store the Boolean object in the character field as either 
+    *  "true" or "false".  Setting the property to "false", would store the Boolean object 
+    *  in the character field as either "1" or "0".
+    *  @return true if boolean data is translated; false otherwise.
+    *  The default value is true.
+    **/
+    public boolean isTranslateBoolean()
+    {
+        return properties_.getBoolean(JDProperties.TRANSLATE_BOOLEAN);
+    }
+     
     /**
     *  Logs a message to the event log.
     *  @param message The message to log.
@@ -3288,6 +3304,36 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + translate);  //@A8C
     }
+    
+    //@PDA
+    /**
+    *  Sets how Boolean objects are interpreted when setting the value 
+    *  for a character field/parameter using the PreparedStatement.setObject(), 
+    *  CallableStatement.setObject() or ResultSet.updateObject() methods.  Setting the 
+    *  property to "true", would store the Boolean object in the character field as either 
+    *  "true" or "false".  Setting the property to "false", would store the Boolean object 
+    *  in the character field as either "1" or "0".
+    *  @param true if boolean data is translated; false otherwise.
+    *  The default value is true.
+    **/
+    public void setTranslateBoolean(boolean translate)
+    {
+        String property = "translateBoolean";
+
+        Boolean oldValue = new Boolean(isTranslateBoolean());
+        Boolean newValue = new Boolean(translate);
+
+        if (translate)
+            properties_.setString(JDProperties.TRANSLATE_BOOLEAN, TRUE_);
+        else
+            properties_.setString(JDProperties.TRANSLATE_BOOLEAN, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + translate);
+    }
+    
 
     /**
     *  Sets the database user.

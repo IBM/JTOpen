@@ -63,6 +63,7 @@ class SQLConversionSettings
     private int                 bidiStringType_;                    // @E1A
     private boolean             bidiImplicitReordering_;            // @KBA
     private boolean             bidiNumericOrdering_;               // @KBA
+    private boolean             translateBoolean_;                  // @PDA
 
 
 
@@ -92,6 +93,7 @@ Constructs a SQLConversionSettings object.
 
         maxFieldSize_       = 0;
         useBigDecimal_      = properties.getBoolean(JDProperties.BIG_DECIMAL);          // @E0A
+        translateBoolean_   = properties.getBoolean(JDProperties.TRANSLATE_BOOLEAN);    // @PDA
     }
 
 
@@ -134,6 +136,12 @@ Constructs a SQLConversionSettings object.
     boolean getBidiNumericOrdering()
     {
         return bidiNumericOrdering_;
+    }
+    
+    //@PDA
+    boolean getTranslateBoolean()
+    {
+        return translateBoolean_;
     }
 
 
