@@ -3313,7 +3313,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  property to "true", would store the Boolean object in the character field as either 
     *  "true" or "false".  Setting the property to "false", would store the Boolean object 
     *  in the character field as either "1" or "0".
-    *  @param true if boolean data is translated; false otherwise.
+    *  @param translate true if boolean data is translated; false otherwise.
     *  The default value is true.
     **/
     public void setTranslateBoolean(boolean translate)
