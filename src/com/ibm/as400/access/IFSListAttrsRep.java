@@ -13,9 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 
 /**
 List file attributes reply.
@@ -58,9 +55,11 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int NAME_CCSID_OFFSET = 73;  // CCSID of the file/path name
   private static final int CHECKOUT_CCSID_OFFSET = 75;
   private static final int RESTART_ID_OFFSET = 77;
-  // Note: Offets of fields beyond this point depend on the server datastream level (DSL).
-  private static final int LARGE_FILE_SIZE_OFFSET = 81;      // if DSL >= 8
-  private static final int SYMBOLIC_LINK_OFFSET = 91;        // if DSL >= 8
+
+  // Additional fields if datastreamLevel >= 8:
+  private static final int LARGE_FILE_SIZE_OFFSET = 81;
+  private static final int SYMBOLIC_LINK_OFFSET = 91;
+
 
   // The following offset is valid only if the reply contains an OA2 structure.
   private static final int CODE_PAGE_OFFSET_INTO_OA2  = LLCP_LENGTH + 126;
@@ -129,7 +128,7 @@ Get offset of the the 2-byte CCSID (or codepage) field in the OA2x structure.
     /* @B6a @B9c
 
      Note: To figure out the format of the returned information, we need to
-     consider both the requested and reported Datastream Levels:
+     consider both the requested and reported Datastream Levels (DSLs):
 
      DSL requested     DSL reported    OA format sent
      by client         by server       by server
@@ -155,7 +154,21 @@ Get offset of the the 2-byte CCSID (or codepage) field in the OA2x structure.
 
      8                 8               OA2c
 
-     Note: Since we only ever request level 0, 2, or 8,
+     16                0               OA2
+
+     16                F4F4            OA2a
+
+     16                2               OA2b
+
+     16                3               OA2b
+
+     16                8               OA2c
+
+     16                12              OA2c
+
+     16                16              OA2c
+
+     Note: Since the Toolbox will only request levels 0, 2, 8, or 16,
            the server will never report level 1.
      */
     int offset_into_OA;  // offset into OA* structure for CCSID or codepage field

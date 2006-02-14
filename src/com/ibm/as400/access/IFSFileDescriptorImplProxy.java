@@ -54,41 +54,41 @@ implements IFSFileDescriptorImpl
     }
   }
 
-  public int getFileOffset()
+  public long getFileOffset()
   {
     try {
       return connection_.callMethod (pxId_, "getFileOffset")
-                        .getReturnValueInt();
+                        .getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
     }
   }
 
-  public void incrementFileOffset(int fileOffsetIncrement)
+  public void incrementFileOffset(long fileOffsetIncrement)
   {
     try {
       connection_.callMethod (pxId_, "incrementFileOffset",
-                              new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(fileOffsetIncrement) });
+                              new Class[] { Long.TYPE },
+                              new Object[] { new Long(fileOffsetIncrement) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
     }
   }
 
-  public void initialize(int fileOffset, Object parentImpl, String path, int shareOption,
+  public void initialize(long fileOffset, Object parentImpl, String path, int shareOption,
                          AS400Impl system)
   {
     try {
       connection_.callMethod (pxId_, "initialize",
-                              new Class[] { Integer.TYPE,
+                              new Class[] { Long.TYPE,
                                             Object.class,
                                             String.class,
                                             Integer.TYPE,
                                             AS400Impl.class
                                           },
-                              new Object[] { new Integer(fileOffset),
+                              new Object[] { new Long(fileOffset),
                                             parentImpl,
                                              path,
                                              new Integer(shareOption),
@@ -111,12 +111,12 @@ implements IFSFileDescriptorImpl
     }
   }
 
-  public void setFileOffset(int fileOffset)
+  public void setFileOffset(long fileOffset)
   {
     try {
       connection_.callMethod (pxId_, "setFileOffset",
-                              new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(fileOffset) });
+                              new Class[] { Long.TYPE },
+                              new Object[] { new Long(fileOffset) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);

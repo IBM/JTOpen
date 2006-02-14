@@ -26,17 +26,17 @@ interface IFSFileDescriptorImpl
 
   int getCCSID() throws IOException;
 
-  int getFileOffset();
+  long getFileOffset();
 
-  void incrementFileOffset(int fileOffsetIncrement); // used by IFSRandomAccessFile.skipBytes()
+  void incrementFileOffset(long fileOffsetIncrement); // used by IFSRandomAccessFile.skipBytes()
 
   // Note: This should be the first method called on a newly-constructed object.
-  void initialize(int fileOffset, Object parentImpl, String path, int shareOption,
+  void initialize(long fileOffset, Object parentImpl, String path, int shareOption,
                   AS400Impl system);
 
   boolean isOpen();
 
-  void setFileOffset(int fileOffset);
+  void setFileOffset(long fileOffset);
 
   void sync() throws IOException;
 

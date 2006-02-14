@@ -16,8 +16,6 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 
 /**
@@ -44,7 +42,7 @@ public final class IFSFileDescriptor
 
 
 
-  private transient int         fileOffset_;
+  private transient long        fileOffset_;
   private transient Object      parent_;  // The object that instantiated
                                           // this IFSDescriptor.
   private String                path_ = "";
@@ -217,7 +215,7 @@ Constructs an IFSFileDescriptor object.
     return impl_.getCCSID();
   }
 
-  int getFileOffset()
+  long getFileOffset()
   {
     if (impl_ == null)
     {

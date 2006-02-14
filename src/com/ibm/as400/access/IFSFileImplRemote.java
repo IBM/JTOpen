@@ -1176,7 +1176,8 @@ implements IFSFileImpl
                                     fd_.preferredServerCCSID_,
                                     IFSOpenReq.READ_ACCESS,
                                     IFSOpenReq.DENY_NONE,
-                                    IFSOpenReq.NO_CONVERSION, 8);
+                                    IFSOpenReq.NO_CONVERSION, 8,
+                                    fd_.serverDatastreamLevel_);
     ClientAccessDataStream ds = null;
     try
     {
@@ -1629,7 +1630,8 @@ implements IFSFileImpl
 
       IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
                                                     fd_.preferredServerCCSID_,
-                                                    oaStruct);
+                                                    oaStruct,
+                                                    fd_.serverDatastreamLevel_);
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -1708,7 +1710,8 @@ implements IFSFileImpl
       IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
                                                     fd_.preferredServerCCSID_,
                                                     attributes,
-                                                    true);
+                                                    true,
+                                                    fd_.serverDatastreamLevel_);
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -1829,7 +1832,8 @@ implements IFSFileImpl
               IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
                                                             fd_.preferredServerCCSID_,
                                                             newAttributes,
-                                                            true);
+                                                            true,
+                                                            fd_.serverDatastreamLevel_);
               ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
           }
           catch(ConnectionDroppedException e)
@@ -1930,7 +1934,8 @@ implements IFSFileImpl
 
         IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
                                                       fd_.preferredServerCCSID_,
-                                                      0, time, 0);
+                                                      0, time, 0,
+                                                      fd_.serverDatastreamLevel_);
         ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
       }
       catch(ConnectionDroppedException e)
@@ -2152,7 +2157,8 @@ implements IFSFileImpl
               IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
                                                             fd_.preferredServerCCSID_,
                                                             newAttributes,
-                                                            true);
+                                                            true,
+                                                            fd_.serverDatastreamLevel_);
               ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
           }
           catch(ConnectionDroppedException e)

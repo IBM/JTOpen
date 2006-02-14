@@ -13,10 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-
 
 /**
 Lock bytes reply.
@@ -26,8 +22,6 @@ class IFSLockBytesRep extends IFSDataStream
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private static final int RETURN_CODE_OFFSET = 22;
-  private static final int FILE_SIZE_OFFSET = 24;
-  private static final int TEMPLATE_LENGTH = 8;
 
 /**
 Construct a lock bytes reply.

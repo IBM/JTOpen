@@ -19,10 +19,7 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 import java.io.EOFException;
-import java.io.InterruptedIOException;
 import java.io.IOException;
-import java.io.UTFDataFormatException;
-import java.util.Enumeration;
 import java.util.Vector;
 
 /**

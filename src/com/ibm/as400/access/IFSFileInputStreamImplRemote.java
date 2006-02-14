@@ -15,10 +15,8 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -280,7 +278,8 @@ implements IFSFileInputStreamImpl
                                     fd_.preferredServerCCSID_,
                                     IFSOpenReq.READ_ACCESS,
                                     ~fd_.getShareOption(),
-                                    IFSOpenReq.NO_CONVERSION, 8);
+                                    IFSOpenReq.NO_CONVERSION, 8,
+                                    fd_.serverDatastreamLevel_);
     ClientAccessDataStream ds = null;
     try
     {

@@ -21,6 +21,8 @@ class IFSChangeAttrsReq extends IFSDataStreamReq
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+  private static final int HEADER_LENGTH = 20;
+
   private static final int FILE_HANDLE_OFFSET = 22;
   private static final int CCSID_OFFSET = 26;  // CCSID of the filename
   private static final int WORKING_DIR_HANDLE_OFFSET = 28;
@@ -31,23 +33,24 @@ class IFSChangeAttrsReq extends IFSDataStreamReq
   private static final int SET_FLAGS_OFFSET = 58;
   private static final int FIXED_ATTRS_OFFSET = 60;
   private static final int FILE_SIZE_OFFSET = 64;
-  private static final int FILE_NAME_LL_OFFSET = 68;
-  private static final int FILE_NAME_CP_OFFSET = 72;
-  private static final int FILE_NAME_OFFSET = 74;
-  private static final int TEMPLATE_LENGTH = 48;
+
+  // Additional field if datastreamLevel >= 16:
+  private static final int LARGE_FILE_SIZE_OFFSET = 68;
 
 /**
 Construct a change attributes request.  Use this request to change
 the size of the file by file handle (the file is open)
 @param fileHandle handle of file to change
 @param fileSize the desired file size in bytes
+@param datastreamLevel the datastream level of the server
 **/
   IFSChangeAttrsReq(int  fileHandle,
-                    int  fileSize)
+                    long fileSize,
+                    int  datastreamLevel)
   {
-    super(20 + TEMPLATE_LENGTH);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel));  // No optional/variable fields are used here.
     setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
+    setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
     set32bit(fileHandle, FILE_HANDLE_OFFSET);
     set32bit(1, WORKING_DIR_HANDLE_OFFSET);
@@ -56,7 +59,8 @@ the size of the file by file handle (the file is open)
     setData(0L, MODIFY_DATE_OFFSET);
     setData(0L, ACCESS_DATE_OFFSET);
     set16bit(1, SET_FLAGS_OFFSET);
-    set32bit(fileSize, FILE_SIZE_OFFSET);
+
+    setFileSizeFields(fileSize, datastreamLevel);
   }
 
 /**
@@ -73,11 +77,12 @@ January 1, 1970 00:00:00 GMT)
   IFSChangeAttrsReq(int  fileHandle,
                     long createDate,
                     long modifyDate,
-                    long accessDate)
+                    long accessDate,
+                    int  datastreamLevel)
   {
-    super(20 + TEMPLATE_LENGTH);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel));  // No optional/variable fields are used here.
     setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
+    setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
     set32bit(fileHandle, FILE_HANDLE_OFFSET);
     set32bit(1, WORKING_DIR_HANDLE_OFFSET);
@@ -97,11 +102,12 @@ the size of the file by file name.
 **/
   IFSChangeAttrsReq(byte[] fileName,
                     int    fileNameCCSID,
-                    int    fileSize)
+                    long   fileSize,
+                    int    datastreamLevel)
   {
-    super(20 + TEMPLATE_LENGTH + 6 + fileName.length);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length);
     setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
+    setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
     set32bit(0, FILE_HANDLE_OFFSET);
     set16bit(fileNameCCSID, CCSID_OFFSET);
@@ -111,16 +117,17 @@ the size of the file by file name.
     setData(0L, MODIFY_DATE_OFFSET);
     setData(0L, ACCESS_DATE_OFFSET);
     set16bit(1, SET_FLAGS_OFFSET);
-    set32bit(fileSize, FILE_SIZE_OFFSET);
+
+    setFileSizeFields(fileSize, datastreamLevel);
 
     // Set the LL.
-    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel));
 
     // Set the code point.
-    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+    set16bit(0x0002, getFilenameCPOffset(datastreamLevel));
 
     // Set the file name characters.
-    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+    System.arraycopy(fileName, 0, data_, getFilenameOffset(datastreamLevel), fileName.length);
   }
 
 /**
@@ -135,11 +142,12 @@ of the file.
   IFSChangeAttrsReq(byte[]  fileName,                                      //@D1a
                     int     fileNameCCSID,                                 //@D1a
                     int     fixedAttributes,                               //@D1a
-                    boolean extraneousDataToMakeSignatureUnique)           //@D1a
+                    boolean extraneousDataToMakeSignatureUnique,           //@D1a
+                    int     datastreamLevel)
   {                                                                        //@D1a
-    super(20 + TEMPLATE_LENGTH + 6 + fileName.length);                     //@D1a
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length);          //@D1a
     setLength(data_.length);                                               //@D1a
-    setTemplateLen(TEMPLATE_LENGTH);                                       //@D1a
+    setTemplateLen(getTemplateLength(datastreamLevel));                                       //@D1a
     setReqRepID(0x000b);                                                   //@D1a
     set32bit(0, FILE_HANDLE_OFFSET);                                       //@D1a
     set16bit(fileNameCCSID, CCSID_OFFSET);                                 //@D1a
@@ -150,16 +158,17 @@ of the file.
     setData(0L, ACCESS_DATE_OFFSET);                                       //@D1a
     set16bit(2, SET_FLAGS_OFFSET);                                         //@D1a
     set32bit(fixedAttributes, FIXED_ATTRS_OFFSET);                         //@D1a
-    set32bit(0, FILE_SIZE_OFFSET);                                         //@D1a
+
+    setFileSizeFields(0L, datastreamLevel);
                                                                            //@D1a
     // Set the LL.                                                         //@D1a
-    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);                    //@D1a
+    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel));   //@D1a
                                                                            //@D1a
     // Set the code point.                                                 //@D1a
-    set16bit(0x0002, FILE_NAME_CP_OFFSET);                                 //@D1a
+    set16bit(0x0002, getFilenameCPOffset(datastreamLevel));                //@D1a
                                                                            //@D1a
     // Set the file name characters.                                       //@D1a
-    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);  //@D1a
+    System.arraycopy(fileName, 0, data_, getFilenameOffset(datastreamLevel), fileName.length); //@D1a
   }                                                                        //@D1a
                                                                            //@D1a
                                                                            //@D1a
@@ -180,11 +189,12 @@ January 1, 1970 00:00:00 GMT)
                     int    fileNameCCSID,
                     long   createDate,
                     long   modifyDate,
-                    long   accessDate)
+                    long   accessDate,
+                    int    datastreamLevel)
   {
-    super(20 + TEMPLATE_LENGTH + 6 + fileName.length);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length);
     setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
+    setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
     set32bit(0, FILE_HANDLE_OFFSET);
     set16bit(fileNameCCSID, CCSID_OFFSET);
@@ -196,13 +206,13 @@ January 1, 1970 00:00:00 GMT)
     set16bit(0, SET_FLAGS_OFFSET);
 
     // Set the LL.
-    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel));
 
     // Set the code point.
-    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+    set16bit(0x0002, getFilenameCPOffset(datastreamLevel));
 
     // Set the file name characters.
-    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+    System.arraycopy(fileName, 0, data_, getFilenameOffset(datastreamLevel), fileName.length);
   }
 
 
@@ -214,11 +224,12 @@ Construct a change attributes request.  Use this form to change the file data CC
 **/
   IFSChangeAttrsReq(byte[] fileName,
                     int    fileNameCCSID,
-                    byte[] oa2Structure)
+                    byte[] oa2Structure,
+                    int    datastreamLevel)
   {
-    super(20 + TEMPLATE_LENGTH + 6 + fileName.length + oa2Structure.length);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length + oa2Structure.length);
     setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
+    setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
     set32bit(0, FILE_HANDLE_OFFSET);
     set16bit(fileNameCCSID, CCSID_OFFSET);
@@ -227,17 +238,58 @@ Construct a change attributes request.  Use this form to change the file data CC
     set16bit(0, SET_FLAGS_OFFSET);
 
     // Set the filename LL.
-    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel));
 
     // Set the filename code point.
-    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+    set16bit(0x0002, getFilenameCPOffset(datastreamLevel));
 
     // Set the filename characters.
-    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+    System.arraycopy(fileName, 0, data_, getFilenameOffset(datastreamLevel), fileName.length);
 
     // Set the OA2 structure (includes the LLCP).
-    int offset = FILE_NAME_OFFSET + fileName.length;
+    int offset = getFilenameOffset(datastreamLevel) + fileName.length;
     System.arraycopy(oa2Structure, 0, data_, offset, oa2Structure.length);
+  }
+
+  private final static int getTemplateLength(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 48 : 56);
+  }
+
+
+  // Determine offset (from beginning of request) to the 4-byte File Name "LL" field.
+  private final static int getFilenameLLOffset(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 68 : 76);
+  }
+
+  // Determine offset (from beginning of request) to the 2-byte File Name "CP" field.
+  private final static int getFilenameCPOffset(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 72 : 80);
+  }
+
+  // Determine offset (from beginning of request) to the File Name value field (follows LL/CP).
+  private final static int getFilenameOffset(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 74 : 82);
+  }
+
+  // Sets the values of the fields relating to file size.
+  private final void setFileSizeFields(long fileSize, int datastreamLevel)
+  {
+    if (datastreamLevel < 16)
+    { // Just set the old field.
+      set32bit((int)fileSize, FILE_SIZE_OFFSET);
+    }
+    else
+    {
+      // The old field must be zero.
+      set32bit(0, FILE_SIZE_OFFSET);
+
+      // Also set the new "large" field.
+      set64bit(fileSize, LARGE_FILE_SIZE_OFFSET);
+    }
   }
 
 }

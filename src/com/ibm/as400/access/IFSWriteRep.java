@@ -13,9 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 
 /**
 Write data reply.

@@ -33,8 +33,8 @@ public class IFSKey
   
 
   int fileHandle_;      // the file
-  int offset_;          // the start offset in the file
-  int length_;          // the number of bytes locked
+  long offset_;         // the start offset in the file
+  long length_;         // the number of bytes locked
   boolean isMandatory_; // true if mandatory, otherwise advisory
 
 /**
@@ -44,8 +44,8 @@ Constructs as IFSKey object.
 @param length The number of bytes that are locked.
 **/
   IFSKey(int fileHandle,
-         int offset,
-         int length,
+         long offset,
+         long length,
          boolean isMandatory)
   {
     fileHandle_ = fileHandle;

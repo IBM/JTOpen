@@ -33,7 +33,7 @@ implements IFSFileDescriptorImpl
   private int         fileDataCCSID_ = UNINITIALIZED;
           int         serverDatastreamLevel_; // @B3A
           int         requestedDatastreamLevel_; // @B6a
-  private int         fileOffset_;
+  private long        fileOffset_;
           boolean     isOpen_;
           boolean     isOpenAllowed_ = true;
   private Object      parent_;  // The object that instantiated this IFSDescriptor.
@@ -108,7 +108,7 @@ implements IFSFileDescriptorImpl
       IFSOpenReq req = new IFSOpenReq(pathname, preferredServerCCSID_,
                                       0, access, IFSOpenReq.DENY_NONE,
                                       IFSOpenReq.NO_CONVERSION,
-                                      openOption);                    // @D1C
+                                      openOption, serverDatastreamLevel_);            // @D1C
       ClientAccessDataStream ds = (ClientAccessDataStream) server_.sendAndReceive(req);
       if (ds instanceof IFSOpenRep)
       {
@@ -334,10 +334,13 @@ implements IFSFileDescriptorImpl
             }
           }
 
-          // Note: For releases after V5R2, we ask for Datastream Level 8;
-          // for V4R5 or later, we ask for Datastream Level 2;
+          // Note: For releases after V5R4, we ask for Datastream Level 16;
+          // for V5R3 thru V5R4, we ask for Datastream Level 8;
+          // for V4R5 thru V5R2, we ask for Datastream Level 2;
           // for earlier systems, we ask for Datastream Level 0.    // @B6c
-          if (getSystemVRM() >= 0x00050300)
+          if (getSystemVRM() >= 0x00050500)
+            requestedDatastreamLevel_ = 16;
+          else if (getSystemVRM() >= 0x00050300)
             requestedDatastreamLevel_ = 8;
           else if (getSystemVRM() >= 0x00040500)                 // @B3A @B4C
             requestedDatastreamLevel_ = 2;
@@ -349,7 +352,7 @@ implements IFSFileDescriptorImpl
               try
               {
                 int[] preferredCcsids;        // @A2A
-                // Datastream level 8 was introduced in the release after V5R2.
+                // Datastream level 8 was introduced in release V5R3.
                 if (getSystemVRM() >= 0x00050300)
                 { // System is post-V5R2.
                   preferredCcsids = new int[] {0x04b0,0x34b0,0xf200}; // UTF-16, new or old Unicode.
@@ -650,7 +653,7 @@ implements IFSFileDescriptorImpl
     return fileHandle_;
   }
 
-  public int getFileOffset()
+  public long getFileOffset()
   {
     return fileOffset_;
   }
@@ -702,7 +705,7 @@ implements IFSFileDescriptorImpl
   }
 
 
-  public void incrementFileOffset(int fileOffsetIncrement)
+  public void incrementFileOffset(long fileOffsetIncrement)
   {
     synchronized(fileOffsetLock_)
     {
@@ -710,7 +713,7 @@ implements IFSFileDescriptorImpl
     }
   }
 
-  public void initialize(int fileOffset, Object parentImpl, String path, int shareOption,
+  public void initialize(long fileOffset, Object parentImpl, String path, int shareOption,
                          AS400Impl system)
   {
     fileOffset_           = fileOffset;
@@ -746,13 +749,13 @@ implements IFSFileDescriptorImpl
    @see IFSKey
    @see #unlock
    **/
-  IFSKey lock(int length)   // @B2A
+  IFSKey lock(long length)   // @B2A
     throws IOException
   {
     return lock(fileOffset_, length);
   }
-  IFSKey lock(int offset,   // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
-              int length)
+  IFSKey lock(long offset,   // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
+              long length)
     throws IOException
   {
     // Assume the arguments have been validated by the caller.
@@ -768,7 +771,7 @@ implements IFSFileDescriptorImpl
       // locked area.
       IFSLockBytesReq req =
         new IFSLockBytesReq(fileHandle_, true, false, offset,
-                            length);
+                            length, serverDatastreamLevel_);
       ds = (ClientAccessDataStream) server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -855,7 +858,7 @@ implements IFSFileDescriptorImpl
       // Issue the read data request.
       int bytesToReadThisTime = Math.min(bytesRemainingToRead, MAX_BYTES_PER_READ);
       IFSReadReq req = new IFSReadReq(fileHandle_, fileOffset_,
-                                      bytesToReadThisTime);
+                                      bytesToReadThisTime, serverDatastreamLevel_);
       ClientAccessDataStream ds = null;
       try
       {
@@ -974,7 +977,7 @@ implements IFSFileDescriptorImpl
     }
   }
 
-  public void setFileOffset(int fileOffset)
+  public void setFileOffset(long fileOffset)
   {
     synchronized(fileOffsetLock_)
     {
@@ -984,7 +987,7 @@ implements IFSFileDescriptorImpl
 
 
   // @B8a
-  boolean setLength(int length)
+  boolean setLength(long length)
     throws IOException
   {
     // Assume that we are connected to the server.
@@ -1011,7 +1014,7 @@ implements IFSFileDescriptorImpl
         }
         closeWhenFinished = true;
       }
-      IFSChangeAttrsReq req = new IFSChangeAttrsReq(fileHandle_, length);
+      IFSChangeAttrsReq req = new IFSChangeAttrsReq(fileHandle_, length, serverDatastreamLevel_);
       ds = (ClientAccessDataStream) server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -1131,7 +1134,7 @@ implements IFSFileDescriptorImpl
     // Issue an unlock bytes request.
     IFSUnlockBytesReq req =
       new IFSUnlockBytesReq(key.fileHandle_, key.offset_,
-                            key.length_, key.isMandatory_);
+                            key.length_, key.isMandatory_, serverDatastreamLevel_);
     try
     {
       ds = (ClientAccessDataStream) server_.sendAndReceive(req);
@@ -1209,7 +1212,7 @@ implements IFSFileDescriptorImpl
       // more data to write.
       IFSWriteReq req = new IFSWriteReq(fileHandle_, fileOffset_,
                                         data, dataOffset, writeLength,
-                                        0xffff, forceToStorage);
+                                        0xffff, forceToStorage, serverDatastreamLevel_);
       if (length - writeLength > 0)
       {
         // Indicate that there is more to write.

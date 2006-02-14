@@ -18,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.UTFDataFormatException;
-import java.net.UnknownHostException;
 
 /**
  Provides a full remote implementation for the IFSRandomAccessFile class.
@@ -324,7 +323,8 @@ implements IFSRandomAccessFileImpl
                                     preferredCCSID,
                                     accessIntent, ~fd_.getShareOption(),
                                     IFSOpenReq.NO_CONVERSION,
-                                    twoToThe[existenceOption_]);
+                                    twoToThe[existenceOption_],
+                                    fd_.serverDatastreamLevel_);
     ClientAccessDataStream ds = null;
     try
     {

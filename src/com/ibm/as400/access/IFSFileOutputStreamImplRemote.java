@@ -17,8 +17,6 @@ package com.ibm.as400.access;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 
 
 /**
@@ -274,7 +272,8 @@ implements IFSFileOutputStreamImpl
                                     IFSOpenReq.WRITE_ACCESS,
                                     ~fd_.getShareOption(),
                                     IFSOpenReq.NO_CONVERSION,
-                                    (append_ ? 1 : 2));
+                                    (append_ ? 1 : 2),
+                                    fd_.serverDatastreamLevel_);
     ClientAccessDataStream ds = null;
     try
     {
@@ -301,7 +300,7 @@ implements IFSFileOutputStreamImpl
       if (append_)
       {
         // We must append to the file.
-        fd_.setFileOffset((int)rep.getFileSize());                // @B7c
+        fd_.setFileOffset(rep.getFileSize(fd_.serverDatastreamLevel_));        // @B7c
       }
     }
     else if (ds instanceof IFSReturnCodeRep)

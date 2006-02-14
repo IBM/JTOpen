@@ -13,9 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 
 /**
 Open file request.
@@ -43,6 +40,8 @@ class IFSOpenReq extends IFSDataStreamReq
   static final int OPEN_OPTION_FAIL_OPEN      =  8; // fail if file does not exist   |  open if file exists
   static final int OPEN_OPTION_FAIL_REPLACE   = 16; // fail if file does not exist   |  replace if file exists
 
+  private static final int HEADER_LENGTH = 20;
+
   private static final int FILE_NAME_CCSID_OFFSET = 22;
   private static final int WORKING_DIR_HANDLE_OFFSET = 24;
   private static final int FILE_DATA_CCSID_OFFSET = 28;
@@ -50,15 +49,15 @@ class IFSOpenReq extends IFSDataStreamReq
   private static final int FILE_SHARING_OFFSET = 32;
   private static final int DATA_CONVERSION_OFFSET = 34;
   private static final int DUPLICATE_FILE_OPT_OFFSET = 36;
-  private static final int CREATE_SIZE_OFFSET = 38;
+  private static final int CREATE_SIZE_OFFSET = 38;  // field must be 0 if DSL >= 16
   private static final int FIXED_ATTRS_OFFSET = 42;
   private static final int ATTRS_LIST_LEVEL_OFFSET = 46;
   private static final int PRE_READ_OFFSET_OFFSET = 48;
   private static final int PRE_READ_LENGTH_OFFSET = 52;
-  private static final int FILE_NAME_LL_OFFSET = 56;
-  private static final int FILE_NAME_CP_OFFSET = 60;
-  private static final int FILE_NAME_OFFSET = 62;
-  private static final int TEMPLATE_LENGTH = 36;
+
+  // Additional field if datastreamLevel >= 16:
+  private static final int LARGE_CREATE_SIZE_OFFSET = 56;
+
 
 /**
 Construct an open file request.
@@ -67,7 +66,13 @@ Construct an open file request.
 @param accessIntent the intended access
 @param fileSharing how the file can be shared with other users
 @param dataConversionOption indicates the type of conversion the server performs
-@param duplicateFileOption bit 4: on = fail the open if the file doesn't exist, replace the file if it does, bit 3: on = fail the open if the file doesn't exist, open the file if it does, bit 2: on = create then open the file if it doesn't exist, fail the open if it does, bit 1: on = create then open the file if it doesn't exist, replace the file if it does, bit 0: on = create then open the file if it doesn't exist, open the file if it does
+@param duplicateFileOption
+ bit 4: on = fail the open if the file doesn't exist, replace the file if it does;
+ bit 3: on = fail the open if the file doesn't exist, open the file if it does;
+ bit 2: on = create then open the file if it doesn't exist, fail the open if it does;
+ bit 1: on = create then open the file if it doesn't exist, replace the file if it does;
+ bit 0: on = create then open the file if it doesn't exist, open the file if it does
+@param datastreamLevel the datastream level of the server
 **/
   IFSOpenReq(byte[] fileName,
              int    fileNameCCSID,
@@ -75,11 +80,12 @@ Construct an open file request.
              int    accessIntent,
              int    fileSharing,
              int    dataConversionOption,
-             int    duplicateFileOption)
+             int    duplicateFileOption,
+             int    datastreamLevel)
   {
-    super(20 + TEMPLATE_LENGTH + 6 + fileName.length);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length);
     setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
+    setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x0002);
     set16bit(fileNameCCSID, FILE_NAME_CCSID_OFFSET);
     set32bit(1, WORKING_DIR_HANDLE_OFFSET);
@@ -88,20 +94,56 @@ Construct an open file request.
     set16bit(fileSharing, FILE_SHARING_OFFSET);
     set16bit(dataConversionOption, DATA_CONVERSION_OFFSET);
     set16bit(duplicateFileOption, DUPLICATE_FILE_OPT_OFFSET);
-    set32bit(0, CREATE_SIZE_OFFSET);
     set32bit(0, FIXED_ATTRS_OFFSET);
     set16bit(1, ATTRS_LIST_LEVEL_OFFSET);
     set32bit(0, PRE_READ_OFFSET_OFFSET);
     set32bit(0, PRE_READ_LENGTH_OFFSET);
 
+    if (datastreamLevel < 16)
+    { // Just set the old fields (4-byte length).
+      set32bit(0, CREATE_SIZE_OFFSET);
+    }
+    else
+    {
+      // Set old field to zero.
+      set32bit(0, CREATE_SIZE_OFFSET);
+
+      // Set new field (8-byte length).
+      set64bit(0L, LARGE_CREATE_SIZE_OFFSET);
+    }
+
     // Set the LL.
-    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel));
 
     // Set the code point.
-    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+    set16bit(0x0002, getFilenameCPOffset(datastreamLevel));
 
     // Set the file name characters.
-    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+    System.arraycopy(fileName, 0, data_, getFilenameOffset(datastreamLevel), fileName.length);
+  }
+
+
+  // Determine offset (from beginning of request) to the 4-byte File Name "LL" field.
+  private final static int getFilenameLLOffset(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 56 : 64);
+  }
+
+  // Determine offset (from beginning of request) to the 2-byte File Name "CP" field.
+  private final static int getFilenameCPOffset(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 60 : 68);
+  }
+
+  // Determine offset (from beginning of request) to the File Name value field (follows LL/CP).
+  private final static int getFilenameOffset(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 62 : 70);
+  }
+
+  private final static int getTemplateLength(int datastreamLevel)
+  {
+    return (datastreamLevel < 16 ? 36 : 44);
   }
 
 }

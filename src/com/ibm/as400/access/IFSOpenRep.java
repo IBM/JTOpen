@@ -13,10 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-
 
 /**
 Open file reply.
@@ -32,7 +28,7 @@ class IFSOpenRep extends IFSDataStream
   private static final int CREATE_DATE_OFFSET = 38;
   private static final int MODIFY_DATE_OFFSET = 46;
   private static final int ACCESS_DATE_OFFSET = 54;
-  private static final int FILE_SIZE_OFFSET = 62;
+  private static final int FILE_SIZE_OFFSET = 62;  // field is zero if DSL >= 16
   private static final int FIXED_ATTRS_OFFSET = 66;
   private static final int NEED_EXT_ATTRS_OFFSET = 70;
   private static final int NUM_EXT_ATTRS_OFFSET = 72;
@@ -41,6 +37,9 @@ class IFSOpenRep extends IFSDataStream
   private static final int VERSION_OFFSET = 82;
   private static final int AMOUNT_ACCESSED_OFFSET = 86;
   private static final int ACCESS_HISTORY_OFFSET = 88;
+
+  // Additional field if datastreamLevel >= 16:
+  private static final int LARGE_FILE_SIZE_OFFSET = 89;
 
 /**
 Get the date/time that the file was last accessed.
@@ -73,11 +72,18 @@ Get the file handle.
 Get the file size.
 @return the number of bytes in the file
 **/
-  long getFileSize()                        // @A1c
+  long getFileSize(int datastreamLevel)             // @A1c
   {
-    // We need to suppress sign-extension if the leftmost bit is on.
-    int size = get32bit( FILE_SIZE_OFFSET);     // @A1c
-    return ((long)size) & 0xffffffffL;          // @A1c
+    if (datastreamLevel < 16)
+    {
+      // We need to suppress sign-extension if the leftmost bit is on.
+      int size = get32bit( FILE_SIZE_OFFSET);     // @A1c
+      return ((long)size) & 0xffffffffL;          // @A1c
+    }
+    else
+    {
+      return get64bit(LARGE_FILE_SIZE_OFFSET);
+    }
   }
 
 /**

@@ -207,6 +207,14 @@ abstract class DataStream
       data_[offset+3] = (byte) i;         //@P0A
     }
 
+    // Set the 8 bytes at the specified offset to the specified value.
+    // @param  longVal  Value to be set.
+    // @param  offset  Offset in the data stream at which to place the value.
+    protected final void set64bit(long longVal, int offset) //@LFS
+    {
+      BinaryConverter.longToByteArray(longVal, data_, offset);
+    }
+
     // Write the data in this data stream out to the specified OutputStream.
     // @param  out  OutputStream to which to write the data.
     // @exception  IOException  Unable to write to the output stream.
