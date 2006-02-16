@@ -37,6 +37,7 @@ import java.math.BigDecimal;
  *    record format for the file.
  *</ul>
  *<li>Access the records in a file sequentially or by key.
+ *    Note: The <tt>read...()</tt> methods of this class return records in key order.
  *<li>Write records to a file sequentially or by key.
  *<li>Update records in a file sequentially or by key.
  *<li>Lock a file for different types of access.

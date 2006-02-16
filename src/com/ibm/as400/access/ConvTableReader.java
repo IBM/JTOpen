@@ -656,6 +656,7 @@ public class ConvTableReader extends InputStreamReader
         long total = 0;
         synchronized (lock)
         {
+            // Note: We can't just call is_.skip(length), since that would just skip 'length' bytes, but we need to skip 'length' characters.
             checkOpen();
             char[] buf = new char[length < cache_.length ? (int)length : cache_.length];
             int r = read(buf);

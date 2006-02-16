@@ -30,6 +30,8 @@ import java.io.Serializable;
  *    record format for the file.
  *</ul>
  *<li>Access the records in a file sequentially or by record number.
+ * Note: To read a keyed physical or logical file sequentially and have the records
+ * returned in key order, use the <tt>read...()</tt> methods of {@link KeyedFile KeyedFile}.
  *<li>Write records to a file sequentially.
  *<li>Update records in a file sequentially or by record number.
  *<li>Lock a file for different types of access.

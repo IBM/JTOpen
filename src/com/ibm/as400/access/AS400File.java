@@ -41,6 +41,8 @@ import java.beans.PropertyVetoException;
  *</ul>
  *<li>Access the records in a server file sequentially, by record number, or by
  *key.
+ * Note: To read a keyed physical or logical file sequentially and have the records
+ * returned in key order, use the <tt>read...()</tt> methods of {@link KeyedFile KeyedFile}.
  *<li>Write records to a server file sequentially or by key.
  *<li>Update records in a server file sequentially, by record number or by key.
  *<li>Lock a server file for different types of access.
