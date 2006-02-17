@@ -46,26 +46,35 @@ implements IFSFileInputStreamImpl
   }
 
 
+  // Note: This method is required by java.io.InputStream
+  /**
+   Returns the number of bytes that can be read from this file input stream.
+   If the actual number of available bytes exceeds <tt>Integer.MAX_VALUE</tt>, then <tt>Integer.MAX_VALUE</tt> is returned.
+   @return The number of bytes that can be read from this file input stream, or <tt>Integer.MAX_VALUE</tt>, whichever is less.
+
+   @exception IOException If an error occurs while communicating with the server.
+  **/
+  public int available()
+    throws IOException
+  {
+    return (int)Math.min(availableLong(), (long)Integer.MAX_VALUE);
+  }
+
+
   /**
    Returns the number of bytes that can be read from this file input stream.
    @return The number of bytes that can be read from this file input stream.
 
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception FileNotFoundException If the file does not exist.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
-
+   @exception IOException If an error occurs while communicating with the server.
   **/
-  public int available()
+  private long availableLong()
     throws IOException
   {
     // Ensure that the file is open.
     open();
 
     // Bytes available = (file size) minus (current cursor position).
-    return ((int)(getFileSize() - fd_.getFileOffset()));  // @B8c
+    return (getFileSize() - fd_.getFileOffset());  // @B8c
   }
 
   /**
@@ -478,17 +487,17 @@ implements IFSFileInputStreamImpl
     open();
 
     long bytesSkipped;
-    int available = available();
-    if (bytesToSkip > available)
+    long bytesAvail = availableLong();
+    if (bytesToSkip > bytesAvail)
     {
       // Skip to the end of file.
-      bytesSkipped = (long) available;
-      fd_.incrementFileOffset(available);
+      fd_.incrementFileOffset(bytesAvail);
+      bytesSkipped = bytesAvail;
     }
     else
     {
       // Skip ahead the specified number of bytes.
-      fd_.incrementFileOffset((int) bytesToSkip);
+      fd_.incrementFileOffset(bytesToSkip);
       bytesSkipped = bytesToSkip;
     }
 

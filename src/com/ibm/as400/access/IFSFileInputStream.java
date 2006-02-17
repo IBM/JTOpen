@@ -340,7 +340,8 @@ public class IFSFileInputStream extends InputStream
 
   /**
    Returns the number of bytes that can be read from this file input stream.
-   @return The number of bytes that can be read from this file input stream.
+   If the actual number of available bytes exceeds <tt>Integer.MAX_VALUE</tt>, then <tt>Integer.MAX_VALUE</tt> is returned.
+   @return The number of bytes that can be read from this file input stream, or <tt>Integer.MAX_VALUE</tt>, whichever is less.
 
    @exception IOException If an error occurs while communicating with the server.
   **/
