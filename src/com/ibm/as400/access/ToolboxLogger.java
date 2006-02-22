@@ -91,6 +91,8 @@ class ToolboxLogger
    **/
   private static final Level mapTracingLevel()
   {
+    // Note: Trace.traceThread_ is merely a modifier for other trace categories.
+    // Therefore we can ignore it.
     Level level = Level.OFF;
     if (Trace.traceOn_)
     {
@@ -98,7 +100,7 @@ class ToolboxLogger
       if (Trace.traceWarning_) level = Level.WARNING;
       if (Trace.traceInfo_) level = Level.INFO;
       if (Trace.traceDiagnostic_) level = Level.FINE;
-      if (Trace.traceJDBC_ || Trace.tracePCML_ || Trace.traceProxy_ || Trace.traceThread_) level = Level.FINER;
+      if (Trace.traceJDBC_ || Trace.tracePCML_ || Trace.traceProxy_) level = Level.FINER;
       if (Trace.traceConversion_ || Trace.traceDatastream_) level = Level.FINEST;
     }
     else level = Level.OFF;
@@ -112,13 +114,14 @@ class ToolboxLogger
    **/
   private static final Level mapTracingLevel(int category)
   {
+    // Note: Even though the Trace class has a setTraceThreadOn() method, there is no THREAD category.  Turning on "thread" tracing merely causes other trace categories to include thread-related data in their messages.
     switch (category)
     {
       case Trace.INFORMATION: return Level.INFO;
       case Trace.WARNING: return Level.WARNING;
       case Trace.ERROR: return Level.SEVERE;
       case Trace.DIAGNOSTIC: return Level.FINE;
-      case Trace.JDBC: case Trace.PCML: case Trace.PROXY: /*case THREAD:*/ return Level.FINER;
+      case Trace.JDBC: case Trace.PCML: case Trace.PROXY: return Level.FINER;
       case Trace.CONVERSION: case Trace.DATASTREAM: return Level.FINEST;
       default:
         throw new ExtendedIllegalArgumentException("category ("

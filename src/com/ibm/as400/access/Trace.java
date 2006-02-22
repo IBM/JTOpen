@@ -185,6 +185,10 @@ import java.util.Hashtable;                                         // $W1A
   <p>
   In addition, tracing can be set using the "com.ibm.as400.access.Trace.category"
   and "com.ibm.as400.access.Trace.file" <a href="doc-files/SystemProperties.html">system properties</a>.
+
+  <p>
+  Note: This class can exploit a standard Java Logger if one is defined in the JVM (per JSR 47, package <tt>java.util.logging</tt>, added in J2SE 1.4).
+  See {@link #LOGGER_NAME LOGGER_NAME}.
  **/
 
 
@@ -220,7 +224,7 @@ public class Trace
 
 
   /**
-    Data stream trace category.  This category is used by Toolbox classes
+    'Data stream' trace category.  This category is used by Toolbox classes
     to log data flow between the local host and the remote system.  It is
     not intended for use by application classes.
    **/
@@ -228,47 +232,47 @@ public class Trace
   //private static final int FIRST_ONE  = 0; // @W1A
 
   /**
-    Diagnostic message trace category.  This category is used to log object
+    'Diagnostic message' trace category.  This category is used to log object
     state information.
    **/
   public static final int DIAGNOSTIC = 1;
   /**
-    Error message trace category.  This category is used to log errors that
+    'Error message' trace category.  This category is used to log errors that
     cause an exception.
    **/
   public static final int ERROR = 2;
   /**
-    Information message trace category.  This category is used to track
+    'Information message' trace category.  This category is used to track
     the flow of control through the code.
    **/
   public static final int INFORMATION = 3;
   /**
-    Warning message trace category.  This category is used to log errors
+    'Warning message' trace category.  This category is used to log errors
     that are recoverable.
    **/
   public static final int WARNING = 4;
   /**
-    Character set conversion trace category.  This category is used by Toolbox
+    'Character set conversion' trace category.  This category is used by Toolbox
     classes to log conversions between Unicode and native code pages.  It is
     not intended for use by application classes.
    **/
   public static final int CONVERSION = 5;
 
   /**
-    Proxy trace category.  This category is used by Toolbox classes to log data
+    'Proxy' trace category.  This category is used by Toolbox classes to log data
     flow between the client and the proxy server.  It is not intended for
     use by application classes.
    **/
   public static final int PROXY = 6;                           // @D0A
 
   /**
-    PCML trace category.  This category is used to determine how PCML interprets
+    'PCML' trace category.  This category is used to determine how PCML interprets
     the data that is sent to and from the server.  
    **/
   public static final int PCML = 7;                            // @D8A
 
   /**
-    JDBC trace category.  This category is used by the Toolbox JDBC driver to 
+    'JDBC' trace category.  This category is used by the Toolbox JDBC driver to 
     determine whether or not JDBC data should be included in the standard Toolbox trace.
     This setting is independent of what is set using the {@link java.sql.DriverManager DriverManager} class.
   **/
@@ -295,9 +299,10 @@ public class Trace
 
 
   /**
-   Name of the instance of <tt>java.util.logging.Logger</tt> that the Toolbox looks for and uses.
-   If no Logger by this name is activated, then traditional Toolbox tracing is done.
-   To activate a Toolbox logger, the calling application simply needs to invoke Logger.getLogger(Trace.LOGGER_NAME).
+   Name of the instance of <tt>java.util.logging.Logger</tt> that the Toolbox uses.
+   If no Logger by this name exists in the JVM, then traditional Toolbox tracing is done.
+   To activate a Toolbox logger, the application can simply call Logger.getLogger(Trace.LOGGER_NAME).
+   <br>Note: This constant resolves to the value <tt>com.ibm.as400.access</tt>.
    **/
   public static final String LOGGER_NAME = "com.ibm.as400.access";
 
@@ -1450,7 +1455,7 @@ public class Trace
   }
 
   // Obtains the (static) Toolbox logger from the JVM, if one exists.
-  // To activate a Toolbox logger, the calling application can call Logger.getLogger(Trace.LOGGER_NAME).
+  // To activate a Toolbox logger, the application can simply call Logger.getLogger(Trace.LOGGER_NAME).
   private static boolean findLogger()
   {
     if (logger_ == null && JDK14_OR_LATER)
@@ -1533,6 +1538,8 @@ public class Trace
   /**
     Sets thread tracing on or off.  The actual tracing does not happen
     unless tracing is on.
+    <br>Note: "thread" is not a separate trace category.  That is, simply calling <tt>setTraceThreadOn(true)</tt> by itself will not cause any trace messages to be generated.
+    Rather, it will cause additional thread-related information to be included in trace messages generated for other trace categories, such as "diagnostic" and "information".
     @param  traceThread  If true, thread tracing is on;
                         otherwise, thread tracing is off.
     @see  Trace#setTraceOn
