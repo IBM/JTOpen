@@ -71,8 +71,8 @@ class PcmlData extends PcmlDocNode
         "bidistringtype",               // PCML Ver. 3.0               @C9A
         "trim",                         // PCML Ver. 4.0               @D1A
         "chartype"                      // PCML Ver. 4.0               @D2A
+        // Note: "keyfield" is unique to RFML, so is not listed here.
     };
-
     private static final int VERSION_1_ATTRIBUTE_COUNT = 14;
     private static final int VERSION_2_ATTRIBUTE_COUNT = 15;
     private static final int VERSION_3_ATTRIBUTE_COUNT = 16;        // @C9A
@@ -126,6 +126,10 @@ class PcmlData extends PcmlDocNode
     // The following attributes added for PCML v4.0
     private String m_TrimStr;        // trim=, string literal          @D1A
     private String m_CharType;       // chartype=, string literal      @D2A
+
+    // The following attributes added for RFML v5.0 (not relevant to PCML)
+    private String  m_KeyFieldStr;   // keyfield=, string literal
+    private boolean m_KeyField;      // keyfield=, boolean representing value
 
     /***********************************************************
      Semi-Transient Members --
@@ -212,8 +216,11 @@ class PcmlData extends PcmlDocNode
         // Set trim= attribute value
         setTrim(getAttributeValue("trim"));                         // @D1A
 
-        // Set trim= attribute value
+        // Set chartype= attribute value
         setCharType(getAttributeValue("chartype"));                 // @D2A
+
+        // Set keyfield= attribute value  (relevant only to RFML)
+        setKeyField(getAttributeValue("keyfield"));
 
         m_scalarValue = null; // Transient data created as needed
         m_vectorValue = null; // Transient data created as needed
@@ -1356,6 +1363,12 @@ class PcmlData extends PcmlDocNode
         return m_StructId;
     }
 
+    // Get the keyfield= value, if any
+    public boolean isKeyField()
+    {
+        return m_KeyField;
+    }
+
     // Set the count= attribute
     private void setCount(String count)
     {
@@ -1719,6 +1732,21 @@ class PcmlData extends PcmlDocNode
 
         // Save the attribute value
         m_CharType = charType;                                      // @D2A
+    }
+
+    private void setKeyField(String keyField)
+    {
+        // Handle null or empty string
+        if (keyField == null || keyField.equals(""))
+        {
+            m_KeyField = false;
+            return;
+        }
+
+        // Save the attribute value
+        m_KeyFieldStr = keyField;
+        if (keyField.equalsIgnoreCase("true")) m_KeyField = true;
+        else m_KeyField = false;
     }
 
     protected void checkAttributes()
@@ -2158,6 +2186,20 @@ class PcmlData extends PcmlDocNode
                 {
                   getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("chartype",  getAttributeValue("chartype")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
                 }
+            }
+        }
+
+        // Verify the keyfield= attribute  (applies only to RFML)
+        if (m_KeyFieldStr != null)
+        {
+            // Only allow this attribute when the rfml version is 5.0 or higher (e.g. <rfml version="5.0">)
+            if (!m_IsRfml)  // if not rfml, then assume it's pcml
+            {
+              getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("keyfield",  getAttributeValue("keyfield")), makeQuotedAttr("pcml", getDataTypeString()), getBracketedTagName(), getNameForException()} );
+            }
+            if ( getDoc().getVersion().compareTo("5.0") < 0 )
+            {
+                getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("keyfield", m_KeyFieldStr), "5.0", getBracketedTagName(), getNameForException()} );
             }
         }
 

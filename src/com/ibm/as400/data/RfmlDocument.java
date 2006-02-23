@@ -231,7 +231,7 @@ class RfmlDocument extends PcmlDocument {
         if (xmlFile.checkError())  // Note: This flushes the stream.
         {
           Trace.log(Trace.ERROR, "Error when writing RFML to OutputStream.");
-          // TBD: Throw an exception indicating IO error when writing RFML?
+          // Possible future enhancement: Throw an exception indicating IO error when writing RFML.
         }
       }
       finally {

@@ -84,7 +84,7 @@ class RfmlRecordFormat extends PcmlDocNode
     /**
      Composes a list of FieldDescription objects representing the specified node and its children.
      **/
-    private static void addFieldDescriptions(PcmlDocNode node, Vector fieldDescriptions, Vector namesAlreadyUsed, String preferredFieldName) throws XmlException    // @A1c added arg
+    private static void addFieldDescriptions(PcmlDocNode node, Vector fieldDescriptions, Vector keyFields, Vector namesAlreadyUsed, String preferredFieldName) throws XmlException    // @A1c added arg
     {
       boolean typeIsStruct = false;  // We set this to true if current node is <struct> or <data type="struct">.    // @A1a
       String fieldName = null;                // @A1c
@@ -95,6 +95,7 @@ class RfmlRecordFormat extends PcmlDocNode
         if (preferredFieldName != null) fieldName = preferredFieldName;
         else fieldName = node.getName();
       }
+
       // If this is a DATA node, then set up the appropriate field description object and add it to the descriptions list.
       else if (node.getNodeType() == PcmlNodeType.DATA)  // It's a <data> node.  @A1c
       {
@@ -114,138 +115,152 @@ class RfmlRecordFormat extends PcmlDocNode
         {
             // Node is <data type="struct">.
           case (PcmlData.STRUCT):
-            // Do nothing, a <struct> doesn't convert directly to a FieldDescription.  Skip it and go on to resolve any child nodes.
-            typeIsStruct = true;  // @A1a
-            break;
+            {
+              // Do nothing, a <struct> doesn't convert directly to a FieldDescription.  Skip it and go on to resolve any child nodes.
+              typeIsStruct = true;  // @A1a
+              break;
+            }
 
             // Node is <data type="char">.
           case (PcmlData.CHAR) :
-            // See if the ccsid attribute is set.
-            int ccsid = dNode.getCcsid();
-            AS400Text convAS400Text;
-            if (ccsid == 0) {  // ccsid was not specified
-              convAS400Text = new AS400Text(fieldLength);
+            {
+              // See if the ccsid attribute is set.
+              int ccsid = dNode.getCcsid();
+              AS400Text convAS400Text;
+              if (ccsid == 0) {  // ccsid was not specified
+                convAS400Text = new AS400Text(fieldLength);
+              }
+              else {
+                convAS400Text = new AS400Text(fieldLength, ccsid);
+              }
+              fieldDesc = new CharacterFieldDescription(convAS400Text, fieldName);
+              // Note: Unless we do the explicit setCCSID(), the FieldDescription doesn't report the correct CCSID.   @A1a - This entire 'if' block.
+              if (ccsid != 0) {
+                ((CharacterFieldDescription)fieldDesc).setCCSID(Integer.toString(ccsid));
+              }
+              if (initValue != null) {
+                ((CharacterFieldDescription)fieldDesc).setDFT(initValue);
+              }
+              break;
             }
-            else {
-              convAS400Text = new AS400Text(fieldLength, ccsid);
-            }
-            fieldDesc = new CharacterFieldDescription(convAS400Text, fieldName);
-            // Note: Unless we do the explicit setCCSID(), the FieldDescription doesn't report the correct CCSID.   @A1a - This entire 'if' block.
-            if (ccsid != 0) {
-              ((CharacterFieldDescription)fieldDesc).setCCSID(Integer.toString(ccsid));
-            }
-            if (initValue != null) {
-              ((CharacterFieldDescription)fieldDesc).setDFT(initValue);
-            }
-            break;
 
             // Node is <data type="int">.
           case (PcmlData.INT) :
-            switch (fieldLength)
             {
-              case 2:
-                if (precision == 16) { // Unsigned.     @A1c - Swapped the if/else.
-                  fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin2(), fieldName);
-                  if (initValue != null) {
-                    ((BinaryFieldDescription)fieldDesc).setDFT(Integer.valueOf(initValue));
+              switch (fieldLength)
+              {
+                case 2:
+                  if (precision == 16) { // Unsigned.     @A1c - Swapped the if/else.
+                    fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin2(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Integer.valueOf(initValue));
+                    }
                   }
-                }
-                else { // Signed.         @A1c
-                  fieldDesc = new BinaryFieldDescription(new AS400Bin2(), fieldName);
-                  if (initValue != null) {
-                    ((BinaryFieldDescription)fieldDesc).setDFT(Short.valueOf(initValue));
+                  else { // Signed.         @A1c
+                    fieldDesc = new BinaryFieldDescription(new AS400Bin2(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Short.valueOf(initValue));
+                    }
                   }
-                }
-                break;
-              case 4:
-                if (precision == 32) { // Unsigned.      @A1c - Swapped the if/else.
-                  fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin4(), fieldName);
+                  break;
+                case 4:
+                  if (precision == 32) { // Unsigned.      @A1c - Swapped the if/else.
+                    fieldDesc = new BinaryFieldDescription(new AS400UnsignedBin4(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Long.valueOf(initValue));
+                    }
+                  }
+                  else { // Signed.         @A1c
+                    fieldDesc = new BinaryFieldDescription(new AS400Bin4(), fieldName);
+                    if (initValue != null) {
+                      ((BinaryFieldDescription)fieldDesc).setDFT(Integer.valueOf(initValue));
+                    }
+                  }
+                  break;
+                case 8:
+                  fieldDesc = new BinaryFieldDescription(new AS400Bin8(), fieldName);
                   if (initValue != null) {
                     ((BinaryFieldDescription)fieldDesc).setDFT(Long.valueOf(initValue));
                   }
-                }
-                else { // Signed.         @A1c
-                  fieldDesc = new BinaryFieldDescription(new AS400Bin4(), fieldName);
-                  if (initValue != null) {
-                    ((BinaryFieldDescription)fieldDesc).setDFT(Integer.valueOf(initValue));
-                  }
-                }
-                break;
-              case 8:
-                fieldDesc = new BinaryFieldDescription(new AS400Bin8(), fieldName);
-                if (initValue != null) {
-                  ((BinaryFieldDescription)fieldDesc).setDFT(Long.valueOf(initValue));
-                }
-                break;
-              default:
-                Trace.log(Trace.ERROR, "Invalid field length for type=int: " + fieldLength);
-                throw new InternalErrorException(InternalErrorException.UNKNOWN);
+                  break;
+                default:
+                  Trace.log(Trace.ERROR, "Invalid field length for type=int: " + fieldLength);
+                  throw new InternalErrorException(InternalErrorException.UNKNOWN);
+              }
+              break;
             }
-            break;
 
             // Node is <data type="zoned">.
           case (PcmlData.ZONED) :
-            AS400ZonedDecimal convZoned = new AS400ZonedDecimal(fieldLength, precision);
-            fieldDesc = new ZonedDecimalFieldDescription(convZoned, fieldName);
-            if (initValue != null) {
-              BigDecimal bigDec = new BigDecimal(initValue);
-              if (bigDec.scale() != precision) {
-                bigDec = bigDec.setScale(precision,BigDecimal.ROUND_HALF_EVEN);
+            {
+              AS400ZonedDecimal convZoned = new AS400ZonedDecimal(fieldLength, precision);
+              fieldDesc = new ZonedDecimalFieldDescription(convZoned, fieldName);
+              if (initValue != null) {
+                BigDecimal bigDec = new BigDecimal(initValue);
+                if (bigDec.scale() != precision) {
+                  bigDec = bigDec.setScale(precision,BigDecimal.ROUND_HALF_EVEN);
+                }
+                ((ZonedDecimalFieldDescription)fieldDesc).setDFT(bigDec);
               }
-              ((ZonedDecimalFieldDescription)fieldDesc).setDFT(bigDec);
+              break;
             }
-            break;
 
             // Node is <data type="packed">.
           case (PcmlData.PACKED) :
-            AS400PackedDecimal convPacked = new AS400PackedDecimal(fieldLength, precision);
-            fieldDesc = new PackedDecimalFieldDescription(convPacked, fieldName);
-            if (initValue != null) {
-              BigDecimal bigDec = new BigDecimal(initValue);
-              if (bigDec.scale() != precision) {
-                bigDec = bigDec.setScale(precision,BigDecimal.ROUND_HALF_EVEN);
+            {
+              AS400PackedDecimal convPacked = new AS400PackedDecimal(fieldLength, precision);
+              fieldDesc = new PackedDecimalFieldDescription(convPacked, fieldName);
+              if (initValue != null) {
+                BigDecimal bigDec = new BigDecimal(initValue);
+                if (bigDec.scale() != precision) {
+                  bigDec = bigDec.setScale(precision,BigDecimal.ROUND_HALF_EVEN);
+                }
+                ((PackedDecimalFieldDescription)fieldDesc).setDFT(new BigDecimal(initValue));
               }
-              ((PackedDecimalFieldDescription)fieldDesc).setDFT(new BigDecimal(initValue));
+              break;
             }
-            break;
 
             // Node is <data type="float">.
           case (PcmlData.FLOAT) :
-            switch (fieldLength)
             {
-              case 4:
-                fieldDesc = new FloatFieldDescription(new AS400Float4(), fieldName);
-                break;
-              case 8:
-                fieldDesc = new FloatFieldDescription(new AS400Float8(), fieldName);
-                break;
-              default:
-                Trace.log(Trace.ERROR, "Invalid field length for type=float: " + fieldLength);
-                throw new InternalErrorException(InternalErrorException.UNKNOWN);
-            }
-            if (initValue != null)
-            {
-              if (fieldLength == 4) {
-                ((FloatFieldDescription)fieldDesc).setDFT(new Float(initValue));
+              switch (fieldLength)
+              {
+                case 4:
+                  fieldDesc = new FloatFieldDescription(new AS400Float4(), fieldName);
+                  break;
+                case 8:
+                  fieldDesc = new FloatFieldDescription(new AS400Float8(), fieldName);
+                  break;
+                default:
+                  Trace.log(Trace.ERROR, "Invalid field length for type=float: " + fieldLength);
+                  throw new InternalErrorException(InternalErrorException.UNKNOWN);
               }
-              else { // length==8
-                ((FloatFieldDescription)fieldDesc).setDFT(new Double(initValue));
+              if (initValue != null)
+              {
+                if (fieldLength == 4) {
+                  ((FloatFieldDescription)fieldDesc).setDFT(new Float(initValue));
+                }
+                else { // length==8
+                  ((FloatFieldDescription)fieldDesc).setDFT(new Double(initValue));
+                }
               }
+              ((FloatFieldDescription)fieldDesc).setLength(fieldLength);
+              // Note: The "precision" attribute is not allowed for type=float.
+              break;
             }
-            ((FloatFieldDescription)fieldDesc).setLength(fieldLength);
-            // Note: The "precision" attribute is not allowed for type=float.
-            break;
 
             // Node is <data type="byte">.
           case (PcmlData.BYTE) :
-            AS400ByteArray convByte = new AS400ByteArray(fieldLength);
-            fieldDesc = new HexFieldDescription(convByte, fieldName);
-            if (initValue != null) {
-              Object convertedValue = PcmlDataValues.convertValue(initValue, PcmlData.BYTE, fieldLength, 0, dNode.getNameForException()); // @A1a
-              ((HexFieldDescription)fieldDesc).setDFT((byte[])convertedValue); // @A1a
-              // Note: We could alternatively use Arrays.fill().  However, java.util.Arrays is new in Java2.
+            {
+              AS400ByteArray convByte = new AS400ByteArray(fieldLength);
+              fieldDesc = new HexFieldDescription(convByte, fieldName);
+              if (initValue != null) {
+                Object convertedValue = PcmlDataValues.convertValue(initValue, PcmlData.BYTE, fieldLength, 0, dNode.getNameForException()); // @A1a
+                ((HexFieldDescription)fieldDesc).setDFT((byte[])convertedValue); // @A1a
+                // Note: We could alternatively use Arrays.fill().  However, java.util.Arrays is new in Java2.
+              }
+              break;
             }
-            break;
 
           default:
             Trace.log(Trace.ERROR, "Invalid data field type: " + dNode.getDataType());
@@ -266,10 +281,10 @@ class RfmlRecordFormat extends PcmlDocNode
             fieldDesc.setTEXT(truncatedName);
           }
 
-          // Derive a reasonable unique "DDS name" (limit is 10 characters).
-          String ddsName = generateUniqueName(fieldName.toUpperCase(), namesAlreadyUsed);
-          fieldDesc.setDDSName(ddsName);
-          namesAlreadyUsed.addElement(ddsName);  // Avoid re-using the same name for another field within this RecordFormat.
+          // Derive a reasonably unique "DDS name" (limit is 10 characters).
+          String ddsName = generateUniqueName(fieldName, namesAlreadyUsed);
+          fieldDesc.setDDSName(ddsName);  // Note: setDDSName() uppercases its argument.
+          namesAlreadyUsed.addElement(ddsName.toUpperCase());  // Avoid re-using the same name for another field within this RecordFormat (case-insensitive).
 
           // Print a warning if a count was specified.
           try {
@@ -282,8 +297,17 @@ class RfmlRecordFormat extends PcmlDocNode
 
           // Add this field description to the list.
           fieldDescriptions.addElement(fieldDesc);
+
+          // If this field is a "key field", add its relative field index to keyFields list.
+          if (dNode.isKeyField()) {
+            int fieldIndex = fieldDescriptions.size() - 1; // most-recently-added field
+            keyFields.addElement(new Integer(fieldIndex));
+          }
+
         }
-      }  // ... else <data> node.
+
+      }  // ... getNodeType() == DATA
+
       else {  // Neither <data> nor <struct>.          @A1c
         // Only <data> nodes get converted directly to FieldDescriptions.
         // Do nothing with this node, and proceed to its child nodes.
@@ -306,7 +330,7 @@ class RfmlRecordFormat extends PcmlDocNode
         while (children.hasMoreElements())
         {
           PcmlDocNode child = (PcmlDocNode) children.nextElement();
-          addFieldDescriptions(child, fieldDescriptions, namesAlreadyUsed, nameForChild);       // @A1c
+          addFieldDescriptions(child, fieldDescriptions, keyFields, namesAlreadyUsed, nameForChild);       // @A1c
         }
       }
     }
@@ -532,17 +556,23 @@ class RfmlRecordFormat extends PcmlDocNode
     public RecordFormat toRecordFormat() throws XmlException
     {
       Vector fieldDescriptions = new Vector();  // This is where we will accumulate the generated FieldDescription objects.
-      Vector namesAlreadyUsed = new Vector(); // Field "DDS names" must be unique within the RecordFormat.  This Vector will accumulate the DDS names assigned so far, so we can generate a new unique name for each field.
+      Vector namesAlreadyUsed = new Vector(); // "DDS names" for fields must be unique within the RecordFormat.  This Vector will accumulate the (uppercased) DDS names assigned so far, so we can generate a new unique name for each field.
+      Vector keyFields = new Vector(); // Indexes of key fields (within fieldDescriptions).
 
       // Note: We ignore the "count" attribute.  Regardless of what value is specified in <data count=xxx>, we will generate a single FieldDescription for the node.
 
       // Recursively compose FieldDescription objects representing this node and its child nodes.
-      addFieldDescriptions(this, fieldDescriptions, namesAlreadyUsed, null);   // @A1c
+      addFieldDescriptions(this, fieldDescriptions, keyFields, namesAlreadyUsed, null);   // @A1c
 
       RecordFormat recordFormat = new RecordFormat(getName());
       for (int i=0; i < fieldDescriptions.size(); ++i)
       {
         recordFormat.addFieldDescription((FieldDescription)fieldDescriptions.elementAt(i));
+      }
+
+      for (int i=0; i < keyFields.size(); ++i)
+      {
+        recordFormat.addKeyFieldDescription(((Integer)keyFields.elementAt(i)).intValue());
       }
 
       return recordFormat;

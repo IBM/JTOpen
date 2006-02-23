@@ -27,10 +27,11 @@ class RfmlData extends PcmlData {
         "ccsid",
         "init",
         "struct",
-        "bidistringtype"
+        "bidistringtype",
+        "keyfield"
     };
     // Note: The following PcmlData attributes are irrelevant to this class:
-    // usage, minvrm, maxvrm, offset, offsetfrom, outputsize, passby.
+    // usage, minvrm, maxvrm, offset, offsetfrom, outputsize, passby, trim, chartype.
 
     /** Constructor with description. **/
     RfmlData(PcmlAttributeList attrs)

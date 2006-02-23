@@ -33,7 +33,7 @@ RFML is an XML language.  Typical usage:
 <!-- The document root element -->
 <!ELEMENT rfml (struct | recordformat)+>
 <!ATTLIST rfml
-          version       %string;    #FIXED "4.0"
+          version       (4.0 | 5.0) #REQUIRED
           ccsid         %binary2;   #IMPLIED
 >
 <!-- Note: The ccsid is the default value that will be used for any contained <data type="char"> elements that do not specify a ccsid. -->
@@ -68,13 +68,15 @@ RFML is an XML language.  Typical usage:
           struct        IDREF                 #IMPLIED
 
           bidistringtype %biditype;           #IMPLIED
+          keyfield      %boolean;             #IMPLIED
 >
 <!-- Note: The 'name' attribute must be unique within a given recordformat. -->
 <!-- Note: On the server, the length of Record field names is limited to 10 bytes. -->
 <!-- Note: The 'length' attribute is required, except when type="struct". -->
 <!-- Note: If type="struct", then the 'struct' attribute is required. -->
-<!-- Note: The 'ccsid' and 'bidistringtype' attributes are valid only when type="char". -->
+<!-- Note: The 'ccsid' and 'bidistringtype' attributes are valid only with type="char". -->
 <!-- Note: The 'precision' attribute is valid only for types "int", "packed", and "zoned". -->
+<!-- Note: The default value for 'keyfield' is false. (Added in version 5.0) -->
 
 
 <!-- The standard predefined character entities -->

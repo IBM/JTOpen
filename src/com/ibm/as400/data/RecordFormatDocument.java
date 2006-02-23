@@ -210,7 +210,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
      Returns an attribute list containing values derived from the FieldDescription.
      If the DataType of the FieldDescription is AS400Structure or a multidimensional AS400Array, throws an XmlException.
      **/
-    private static PcmlAttributeList generateAttributeList(FieldDescription fieldDesc, Vector priorFieldNames, String recordFormatName)
+    private static PcmlAttributeList generateAttributeList(FieldDescription fieldDesc, boolean isKeyField, Vector priorFieldNames, String recordFormatName)
       throws XmlException
     {
       // Determine what kind of field description it is, and map it to the appropriate RFML element.
@@ -396,6 +396,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
          // None of the above.
           Trace.log(Trace.ERROR, "Unrecognized data type: dtType=="+dtType);
           throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      }
+
+      // If the field is a "key field", set the keyfield attribute.
+      if (isKeyField) {
+        addAttribute(attrList, "keyfield", "true");
       }
 
       return attrList;
@@ -987,16 +992,29 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Examine the field descriptions in the RecordFormat.
       FieldDescription[] descriptions = recordFormat.getFieldDescriptions();
+      FieldDescription[] keyFieldDescriptions = recordFormat.getKeyFieldDescriptions();
       Vector priorFieldNames = new Vector();  // Detect any duplicate names.  // @A1a
       for (int i=0; i<descriptions.length; i++)
       {
         FieldDescription fieldDesc = descriptions[i];
-        attrList = generateAttributeList(fieldDesc, priorFieldNames, recordFormat.getName());
+        boolean isKeyField = contains(keyFieldDescriptions, fieldDesc);
+        attrList = generateAttributeList(fieldDesc, isKeyField, priorFieldNames, recordFormat.getName());
         if (attrList != null) {
           RfmlData dataNode = new RfmlData(attrList);
           recFormatNode.addChild(dataNode);
         }
       }
+    }
+
+
+    // Utility method for determining if an array contains a specified element.
+    private static final boolean contains(Object[] array, Object element)
+    {
+      boolean contains = false;
+      for (int i=0; i<array.length && !contains; i++) {
+        if (array[i].equals(element)) contains = true;
+      }
+      return contains;
     }
 
     /**
