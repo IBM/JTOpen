@@ -1961,11 +1961,11 @@ public class AS400 implements Serializable
                     String loadPath = loadUrl.getPath();
                     Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class: " + thisPath);
                     Trace.log(Trace.DIAGNOSTIC, "Path of loaded impl class: " + loadPath);
-                    String thisDirPath = thisPath.substring(0, thisPath.length() - thisFileName.length() - 2);
-                    String loadDirPath = loadPath.substring(0, loadPath.length() - loadFileName.length() - 2);
+                    String thisDirPath = thisPath.substring(0, thisPath.length() - thisFileName.length() - 1);
+                    String loadDirPath = loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
                     if (!thisDirPath.equals(loadDirPath))
                     {
-                        Trace.log(Trace.WARNING, "Found Toolbox classes in different locations: " + thisDirPath + ", " + loadDirPath);
+                        Trace.log(Trace.WARNING, "Toolbox classes found at " + thisDirPath + " and " + loadDirPath);
                     }
                 }
             }
