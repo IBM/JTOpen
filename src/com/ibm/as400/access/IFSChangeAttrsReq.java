@@ -224,10 +224,10 @@ Construct a change attributes request.  Use this form to change the file data CC
 **/
   IFSChangeAttrsReq(byte[] fileName,
                     int    fileNameCCSID,
-                    byte[] oa2Structure,
+                    IFSObjAttrs2 oa2Structure,
                     int    datastreamLevel)
   {
-    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length + oa2Structure.length);
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length + oa2Structure.length());
     setLength(data_.length);
     setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
@@ -248,7 +248,7 @@ Construct a change attributes request.  Use this form to change the file data CC
 
     // Set the OA2 structure (includes the LLCP).
     int offset = getFilenameOffset(datastreamLevel) + fileName.length;
-    System.arraycopy(oa2Structure, 0, data_, offset, oa2Structure.length);
+    System.arraycopy(oa2Structure.getData(), 0, data_, offset, oa2Structure.length());
   }
 
   private final static int getTemplateLength(int datastreamLevel)

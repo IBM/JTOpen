@@ -31,9 +31,7 @@ implements IFSFileOutputStreamImpl
   private IFSFileDescriptorImplRemote fd_; // file info
 
   // Variables needed by subclass IFSTextFileOutputStream:
-  //transient private OutputStreamWriter writer_;    // @B4d
   transient private ConverterImplRemote converter_;   // @B3a
-  //private boolean recursing_ = false;  // @B4d
 
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.
@@ -517,9 +515,8 @@ implements IFSFileOutputStreamImpl
           byte[] pathname = fd_.getConverter().stringToByteArray(fd_.getPath());
 
           IFSListAttrsReq req =
-            new IFSListAttrsReq(fd_.getFileHandle(), (short)0x44);
-          // Note: 0x44 indicates "Use the open instance of the file handle,
-          //       and return an OA2 structure in the reply".
+            new IFSListAttrsReq(fd_.getFileHandle(), IFSListAttrsReq.OA2, 0, 0);
+          // We need to get an OA2 structure in the reply, since it contains the CCSID field.
 
           ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
 
