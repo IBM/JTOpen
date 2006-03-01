@@ -144,6 +144,7 @@ public class IFSFile
   private boolean isFile_; //@A7A
   private boolean isSymbolicLink_;
   private int patternMatching_;  // type of pattern matching to use when listing files
+  private boolean sortLists_;    // whether file-lists are returned from the File Server in sorted order
 
   /**
    Constructs an IFSFile object.
@@ -1022,8 +1023,10 @@ public class IFSFile
     int result = -1;
     try
     {
-      if (exists())
-        result = impl_.getCCSID();
+      if (impl_ == null)
+        chooseImpl();
+
+      result = impl_.getCCSID();
     }
     catch (AS400SecurityException e)
     {
@@ -1138,6 +1141,32 @@ public class IFSFile
   }
 
 
+  /**
+   Returns the name of the user profile that is the owner of the file.
+   @return The name of the user profile that owns the file, or "" if owner cannot be determined (for example, if the file is a directory).
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+   @exception InterruptedException If this thread is interrupted.
+   @exception IOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If the file does not exist.
+   **/
+  public String getOwnerName()
+    throws AS400SecurityException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           IOException
+  {
+    // Design note: The File Server doesn't support changing the owner name.
+    // It only supports retrieving it.  Hence we do not provide a setOwnerName() method.
+
+    if (impl_ == null)
+      chooseImpl();
+
+    return impl_.getOwnerName();
+  }
+
+
   // @C0a
   /**
    Returns the "user ID number" of the owner of the integrated file system file.
@@ -1152,8 +1181,10 @@ public class IFSFile
     long result = -1L;
     try
     {
-      if (exists())
-        result = impl_.getOwnerUID();
+      if (impl_ == null)
+        chooseImpl();
+
+      result = impl_.getOwnerUID();
     }
     catch (AS400SecurityException e)
     {
@@ -1179,8 +1210,10 @@ public class IFSFile
     int result = -1;
     try
     {
-      if (exists())
-        result = (int)impl_.getOwnerUID();   // @C0c
+      if (impl_ == null)
+        chooseImpl();
+
+      result = (int)impl_.getOwnerUID();   // @C0c
     }
     catch (AS400SecurityException e)
     {
@@ -1597,24 +1630,16 @@ public class IFSFile
   }
 
 
+  /**
+   Returns the sorting behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.
+   @return <tt>true</tt> if lists of files are returned in sorted order; <tt>false</tt> otherwise.
+   **/
+  public boolean isSorted()
+    throws IOException
+  {
+    return sortLists_;
+  }
 
-//internal  lastAccessed method.  It throws a security exception.
-  long lastAccessed0()                                          //@D3a
-    throws IOException, AS400SecurityException                  //@D3a
-  {                                                             //@D3a
-    //@A7A Added check for cached attributes.                   //@D3a
-    if (cachedAttributes_ != null)                              //@D3a
-    {                                                           //@D3a
-       return cachedAttributes_.getAccessDate();                //@D3a
-    }                                                           //@D3a
-    else                                                        //@D3a
-    {                                                           //@D3a
-       if (impl_ == null)                                       //@D3a
-         chooseImpl();                                          //@D3a
-                                                                //@D3a
-       return impl_.lastAccessed();                            //@D3a
-    }                                                           //@D3a
-  }                                                             //@D3a
 
   /**
    Determines the time that the integrated file system object represented by this
@@ -1637,7 +1662,18 @@ public class IFSFile
   {                                                             //D3a
     try                                                         //D3a
     {                                                           //D3a
-      return lastAccessed0();                                   //D3a
+      //@A7A Added check for cached attributes.                 //@D3a
+      if (cachedAttributes_ != null)                            //@D3a
+      {                                                         //@D3a
+        return cachedAttributes_.getAccessDate();               //@D3a
+      }                                                         //@D3a
+      else                                                      //@D3a
+      {                                                         //@D3a
+        if (impl_ == null)                                      //@D3a
+          chooseImpl();                                         //@D3a
+        //@D3a
+        return impl_.lastAccessed();                            //@D3a
+      }                                                         //@D3a
     }                                                           //D3a
     catch (AS400SecurityException e)                            //D3a
     {                                                           //D3a
@@ -1847,7 +1883,7 @@ public class IFSFile
         boolean addThisOne = false;
         if (!(name.equals(".") || name.equals("..")))
         {
-          addThisOne = false;  // Broke up this "double if" check to avoid construction of
+          addThisOne = false;  // Broke up this "double if" check to avoid constructing
           if (filter == null)  // the IFSFile object when there is no filter specified.
           {
             addThisOne = true;
@@ -2881,6 +2917,33 @@ public class IFSFile
 
     }
     return success;
+  }
+
+
+  /**
+   Sets the sorting behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is <tt>false</tt> (unsorted).
+   @param sort If <tt>true</tt>: Lists of files are returned in sorted order.
+   If <tt>false</tt>: Lists of files are returned in whatever order the file system provides.
+
+   @exception IOException If an error occurs while communicating with the server.
+   @exception AS400SecurityException If a security or authority error occurs.
+   **/
+  public void setSorted(boolean sort)
+    throws IOException, AS400SecurityException
+  {
+    if (impl_ == null)
+    try
+    {
+      chooseImpl();
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+
+    impl_.setSorted(sort);
+    sortLists_ = sort;
   }
 
 

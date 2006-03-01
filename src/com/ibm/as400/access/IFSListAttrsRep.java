@@ -13,12 +13,18 @@
 
 package com.ibm.as400.access;
 
+import java.io.UnsupportedEncodingException;
+
 
 /**
 List file attributes reply.
 **/
 class IFSListAttrsRep extends IFSDataStream
 {
+  // Used for debugging only.  This should always be false for production.
+  // When this is false, all debug code will theoretically compile out.     @A3a
+  private static final boolean DEBUG = false;
+
   static final int FILE = 1;
   static final int DIRECTORY = 2;
   static final int SYMBOLIC_LINK = 3;
@@ -33,6 +39,10 @@ class IFSListAttrsRep extends IFSDataStream
   static final int FA_SYSTEM    = 0x04;                               //@D1a
   static final int FA_DIRECTORY = 0x10;
   static final int FA_ARCHIVE   = 0x20;                               //@D1a
+
+  static final int OA_NONE = IFSListAttrsReq.OA_NONE;
+  static final int OA1     = IFSListAttrsReq.OA1;
+  static final int OA2     = IFSListAttrsReq.OA2;
 
   private static final int TEMPLATE_LENGTH_OFFSET = 16;
 
@@ -61,24 +71,6 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int SYMBOLIC_LINK_OFFSET = 91;
 
 
-  // The following offset is valid only if the reply contains an OA2 structure.
-  private static final int CODE_PAGE_OFFSET_INTO_OA2  = LLCP_LENGTH + 126;
-
-  // The following offset is valid only if the reply contains an OA2a structure.   @A2a
-  private static final int CODE_PAGE_OFFSET_INTO_OA2a = LLCP_LENGTH + 142;
-
-  // Note: Beginning with OA2b, we no longer care about the codepage field.  Instead, we get the "CCSID of the object" field.
-
-  // The following offset is valid only if the reply contains an OA2b or OA2c structure.
-  private static final int CCSID_OFFSET_INTO_OA2x = LLCP_LENGTH + 134;
-
-  // Offset of the "owner user ID" field in the OA2* structures.    @B7a
-  private static final int OWNER_OFFSET_INTO_OA2  = LLCP_LENGTH + 64;
-
-  // Used for debugging only.  This should always be false for production.
-  // When this is false, all debug code will theoretically compile out.     @A3a
-  private static final boolean DEBUG = false;
-
 /**
 Construct a list file attributes reply.
 **/
@@ -104,87 +96,15 @@ Get the date/time that the file was last accessed.
     return getDate(ACCESS_DATE_OFFSET);
   }
 
-/**
-Get the CCSID value for the IFS file on the server.
-@return the CCSID value for the IFS file on the server
-**/
+
+  /**
+   Get the CCSID value for the IFS file on the server.
+   @return the CCSID value for the IFS file on the server
+   **/
   int getCCSID(int datastreamLevel)  // @A1A
   {
-    // Determine the offset into the OA* structure of the CCSID or codepage field.
-    int offset_into_OA = getCCSIDOffset(datastreamLevel);
-    return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) + offset_into_OA);
-  }
-
-
-/**
-Get offset of the the 2-byte CCSID (or codepage) field in the OA2x structure.
-@return the CCSID offset
-**/
-  final static int getCCSIDOffset(int datastreamLevel)
-  {
-    // Note: Only if the server is reporting Datastream Level 2 (or later) will the reply have a CCSID field.
-    // If prior to Level 2, we must make do with the codepage value.
-
-    /* @B6a @B9c
-
-     Note: To figure out the format of the returned information, we need to
-     consider both the requested and reported Datastream Levels (DSLs):
-
-     DSL requested     DSL reported    OA format sent
-     by client         by server       by server
-     _____________     ____________    _______________
-
-     0                 any             OA2
-
-     2                 0               OA2
-
-     2                 F4F4            OA2a
-
-     2                 2               OA2b
-
-     2                 3               OA2b
-
-     8                 0               OA2
-
-     8                 F4F4            OA2a
-
-     8                 2               OA2b
-
-     8                 3               OA2b
-
-     8                 8               OA2c
-
-     16                0               OA2
-
-     16                F4F4            OA2a
-
-     16                2               OA2b
-
-     16                3               OA2b
-
-     16                8               OA2c
-
-     16                12              OA2c
-
-     16                16              OA2c
-
-     Note: Since the Toolbox will only request levels 0, 2, 8, or 16,
-           the server will never report level 1.
-     */
-    int offset_into_OA;  // offset into OA* structure for CCSID or codepage field
-    switch (datastreamLevel)
-    {
-      case 0:
-        offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2;
-        break;
-      case 0xF4F4:
-        offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
-        break;
-      default:
-        offset_into_OA = CCSID_OFFSET_INTO_OA2x;
-        break;
-    }
-    return offset_into_OA;
+    // Get the 'CCSID of the object' field from the OA2 structure in the reply.
+    return getObjAttrs2().getCCSID(datastreamLevel);
   }
 
 /**
@@ -202,7 +122,7 @@ Get the extended attribute value.
 Returns null if the reply contains no extended attribute.
 @return extended attribute value
 **/
-  byte[] getExtendedAttributeValue(/*int datastreamLevel*/)
+  byte[] getExtendedAttributeValue()
   {
     // The offset to the start of the "optional/variable section" depends on the datastream level.
 
@@ -276,7 +196,7 @@ Get the date/time that the file was last modified.
 Get the file name.
 @return the file name
 **/
-  byte[] getName(/*int datastreamLevel*/)
+  byte[] getName()
   {
     // Assume that the "File Name" field is at the beginning of the Optional Section.
     int file_name_LL_offset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
@@ -296,15 +216,60 @@ Get the file name.
 
 
   /**
-   Get the OA* structure (including the leading LLCP) returned in the reply.
+   Returns the first OA1* structure (minus the LLCP) returned in the reply.
+   @parm type Type of attributes (OA1 or OA2).
+   @exception InternalErrorException If the reply contains no OA1* structure.
    **/
-  byte[] getOA()
+  IFSObjAttrs1 getObjAttrs1()
   {
-    // Assume that the OA structure is at the beginning of the Optional Section.
-    int offset_to_OA = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
-    int OA_length = get32bit(offset_to_OA); // total length includes the LLCP bytes
-    byte[] buf = new byte[OA_length];
-    System.arraycopy(data_, offset_to_OA, buf, 0, OA_length);
+    return new IFSObjAttrs1(getObjAttrBytes(OA1));
+  }
+
+
+  /**
+   Returns the first OA2* structure (minus the LLCP) returned in the reply.
+   @parm type Type of attributes (OA1 or OA2).
+   @exception InternalErrorException If the reply contains no OA2* structure.
+   **/
+  IFSObjAttrs2 getObjAttrs2()
+  {
+    return new IFSObjAttrs2(getObjAttrBytes(OA2));
+  }
+
+
+  /**
+   Returns the first OA* structure of the specified type (minus the LLCP) returned in the reply.
+   @parm type Type of attributes (OA1 or OA2).
+   @exception InternalErrorException If the reply contains no OA* structure of the specified type.
+   **/
+  private final byte[] getObjAttrBytes(int type)
+  {
+    if (type == OA_NONE) return null;
+
+    // Find the first OA structure in the reply's "Optional/Variable Section".
+    int offset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
+    int oaCodePoint = (type == OA1 ? 0x0010 : 0x000F); // OA1: CP == 0x0010; OA2: CP == 0x000F
+    byte[] buf = null;
+    while (buf == null && offset < data_.length)
+    {
+      // Look for an LLCP with a CP value that specifies an OA* structure.
+      int length = get32bit(offset);           // Get the LL value.
+      short codePoint = (short)get16bit(offset + 4);  // Get the CP value.
+      if (codePoint == oaCodePoint) {  // We found an OA* of the desired type.
+        int OAlength = length - LLCP_LENGTH;  // Exclude the LLCP.
+        buf = new byte[OAlength];
+        System.arraycopy(data_, offset + LLCP_LENGTH, buf, 0, OAlength);
+      }
+      else {  // not what we're looking for, so keep looking
+        offset += length;  // skip to next LLCP
+      }
+    }
+
+    if (buf == null) {
+      Trace.log(Trace.ERROR, "The reply does not contain an OA"+type+ " structure.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
+
     return buf;
   }
 
@@ -315,8 +280,19 @@ Determine the object type (file, directory, etc.)
 **/
   int getObjectType()
   {
-    return get16bit( OBJECT_TYPE_OFFSET);
+    return get16bit(OBJECT_TYPE_OFFSET);
   }
+
+
+  /**
+   Get the value of the file's "Owner Name" attribute.
+   **/
+  String getOwnerName(int systemCcsid) throws UnsupportedEncodingException
+  {
+    // Assume that this reply has an "Optional/Variable" section, and that it contains an "Object Attribute 1" structure.
+    return getObjAttrs1().getOwnerName(systemCcsid);
+  }
+
 
 // @B7a
 /**
@@ -325,9 +301,8 @@ Get the owner's "user ID" number for the IFS file on the server.
 **/
   long getOwnerUID()  // @C0c
   {
-    int fieldOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
-                      OWNER_OFFSET_INTO_OA2;
-    return (long)get32bit(fieldOffset) & 0x0FFFFFFFFL;  // @C0c
+    // Get the 'Owner user ID' field from the OA2 structure in the reply.
+    return getObjAttrs2().getOwnerUID();
   }
 
 // @C3a
@@ -434,6 +409,7 @@ Generates a hash code for this data stream.
   {
     return 0x8005;
   }
+
 }
 
 

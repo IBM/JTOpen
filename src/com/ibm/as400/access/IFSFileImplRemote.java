@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.util.Vector;
+import java.beans.PropertyVetoException;
 
 /**
  Provides a full remote implementation for the IFSFile class.
@@ -23,20 +24,15 @@ import java.util.Vector;
 class IFSFileImplRemote
 implements IFSFileImpl
 {
-  transient private IFSListAttrsRep attributesReply_; // "list attributes" reply
-  transient private IFSCachedAttributes cachedAttributes_; // cached attributes
-  transient private int errorRC_;  // error return code, in cases where listAttributes returns null
-
-  private IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote(); // @B2A
-
-  private boolean isSymbolicLink_;
-  private boolean determinedIsSymbolicLink_;
-  private int patternMatching_ = IFSFile.PATTERN_DEFAULT;  // pattern-matching semantics
-
-
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.
   private static final boolean DEBUG = false;  // @B2A
+
+  private static final boolean IS_RESTART_NAME = true;  // mnemonic for use in argument lists
+  private static final boolean NO_RESTART_NAME = IS_RESTART_NAME; // mnemonic
+  private static final boolean SORT_LIST = true;  // mnemonic
+  private static final int     NO_MAX_GET_COUNT = -1;  // mnemonic
+  private static final int     UNINITIALIZED = -1;
 
   // Static initialization code.
   static
@@ -49,6 +45,16 @@ implements IFSFileImpl
     AS400Server.addReplyStream(new IFSQuerySpaceRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
   }
+
+  transient private IFSListAttrsRep attributesReply_; // "list attributes" reply
+
+  private IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote(); // @B2A
+
+  private boolean isSymbolicLink_;
+  private boolean determinedIsSymbolicLink_;
+  private boolean sortLists_;  // whether file-lists are returned from the File Server in sorted order
+
+
 
   /**
    Determines if the applet or application can read from the integrated file system object represented by this object.
@@ -346,13 +352,13 @@ implements IFSFileImpl
   **/
   // @D1 - new method because of changes to java.io.file in Java 2.
 
-  private IFSListAttrsRep getAttributeSetFromServer(String file)
+  private IFSListAttrsRep getAttributeSetFromServer(String filePath)
     throws IOException, AS400SecurityException
   {
     IFSListAttrsRep reply = null;
 
     // Attempt to list the attributes of the specified file.
-    Vector replys = listAttributes(file, -1, null, true);
+    Vector replys = listAttributes(filePath, NO_MAX_GET_COUNT, null, NO_RESTART_NAME, !SORT_LIST);
     // Note: This does setFD() on each returned IFSListAttrsRep.
 
     // If this is a directory then there must be exactly one reply.
@@ -372,14 +378,8 @@ implements IFSFileImpl
   public int getCCSID()
     throws IOException, AS400SecurityException
   {
-    IFSListAttrsRep reply = listAttributes();
-    if (reply != null)
-    {
-      //reply.setServerDatastreamLevel(fd_.serverDataStreamLevel_);  // @B6d
-      //reply.setFD(fd_);                  // @B6a
-      return reply.getCCSID(fd_.serverDatastreamLevel_);
-    }
-    else return -1;
+    fd_.connect();
+    return fd_.getCCSID();
   }
 
 
@@ -404,7 +404,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     // The File Server team advises us to make two queries:
@@ -448,7 +448,7 @@ implements IFSFileImpl
       {
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
       }
-      throw new ExtendedIOException(rc);
+      throw new ExtendedIOException(fd_.path_, rc);
     }
     else
     {
@@ -510,7 +510,7 @@ implements IFSFileImpl
       {
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
       }
-      throw new ExtendedIOException(rc);
+      throw new ExtendedIOException(fd_.path_, rc);
     }
     else
     {
@@ -555,7 +555,7 @@ implements IFSFileImpl
       {
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
       }
-      throw new ExtendedIOException(rc);
+      throw new ExtendedIOException(fd_.path_, rc);
     }
     else
     {
@@ -571,6 +571,145 @@ implements IFSFileImpl
   }
 
 
+  /**
+   Returns the name of the user profile that is the owner of the file.
+   Returns "" if called against a directory.
+   @exception ExtendedIOException if file does not exist.
+   **/
+  public String getOwnerName()
+    throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
+  {
+    // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
+    String ownerName = null;
+
+    fd_.connect();
+    // The 'owner name' field is in the OA1 structure; the flag is in the first Flags() field.
+    try
+    {
+      IFSListAttrsRep reply = fd_.listObjAttrs1(IFSObjAttrs1.OWNER_NAME_FLAG, 0);
+      if (reply != null) {
+        ownerName = reply.getOwnerName(fd_.system_.getCcsid());
+      }
+      else {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Return code from getOwnerName: " + fd_.errorRC_);
+        if (fd_.errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND ||
+            fd_.errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
+        {
+          throw new ExtendedIOException(fd_.path_, ExtendedIOException.PATH_NOT_FOUND);
+        }
+      }
+    }
+    catch (ExtendedIOException e) {
+      if (e.getReturnCode() == ExtendedIOException.DIR_ENTRY_EXISTS) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to determine owner of directory.", e);
+      }
+      else throw e;
+    }
+
+    return (ownerName == null ? "" : ownerName);
+  }
+
+
+  // Design note: The following is an alternative implementation of getOwnerName(), using the Qp0lGetAttr API.
+
+//  /**
+//   Returns the name of the user profile that is the owner of the file.
+//   Returns null if *NOUSRPRF or if error.
+//   **/
+//  private String getOwnerName(AS400 system)
+//    throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+//  {
+//    String ownerName = null;
+//    int pathnameCCSID = fd_.converter_.getCcsid();
+//    ProgramParameter[] parms = new ProgramParameter[7];
+//
+//    //
+//    // Parameter 0 (input, reference): The "path name" structure.
+//
+//    ByteArrayOutputStream baos = new ByteArrayOutputStream(600);
+//    byte[] zeros = { (byte)0, (byte)0, (byte)0, (byte)0, (byte)0,
+//                     (byte)0, (byte)0, (byte)0, (byte)0, (byte)0 };
+//    // BINARY(4): CCSID of pathname and path delimiter
+//    baos.write(BinaryConverter.intToByteArray(pathnameCCSID),0,4);
+//    // CHAR(2): Country or region ID.  X'0000' == Use the current job country or region ID.
+//    baos.write(zeros,0,2);
+//    // CHAR(3): Language ID.  X'000000' == Use the current job language ID.
+//    baos.write(zeros,0,3);
+//    // CHAR(3): Reserved.  Must be set to hexadecimal zeros.
+//    baos.write(zeros,0,3);
+//    // BINARY(4): Path type indicator.  0 == The path name is a character string, and the path name delimiter character is 1 character long.
+//    baos.write(zeros,0,4);
+//    // BINARY(4): Length of path name (in bytes).
+//    byte[] pathnameBytes = fd_.getPathnameAsBytes();
+//    baos.write(BinaryConverter.intToByteArray(pathnameBytes.length),0,4);
+//    // CHAR(2): Path name delimiter character.
+//    baos.write(fd_.converter_.stringToByteArray("/"),0,2);
+//    // CHAR(10): Reserved.  Must be set to hexadecimal zeros.
+//    baos.write(zeros,0,10);
+//    // CHAR(*): Path name.
+//    baos.write(pathnameBytes, 0, pathnameBytes.length);
+//
+//    parms[0] = new ProgramParameter(baos.toByteArray());
+//    setPassByReference(parms[0]);
+//
+//    //
+//    // Parameter 1 (input, reference): The attribute identifiers array.
+//
+//    baos.reset();
+//    // BINARY(4): Number of requested attributes.
+//    baos.write(BinaryConverter.intToByteArray(1),0,4);
+//    // BINARY(4): Attribute identifier.  11 == QP0L_ATTR_AUTH, public/private authorities
+//    baos.write(BinaryConverter.intToByteArray(11),0,4);
+//    parms[1] = new ProgramParameter(baos.toByteArray());
+//    setPassByReference(parms[1]);
+//
+//    //
+//    // Parameter 2 (input, reference): Buffer for the returned attribute values.
+//    parms[2] = new ProgramParameter(64);
+//    setPassByReference(parms[2]);
+//
+//    //
+//    // Parameter 3 (input): Buffer size provided.
+//    parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(64));
+//
+//    //
+//    // Parameter 4 (output, reference): Buffer size needed.
+//    parms[4] = new ProgramParameter(4);
+//    setPassByReference(parms[4]);
+//
+//    //
+//    // Parameter 5 (output, reference): Number of bytes returned.
+//    parms[5] = new ProgramParameter(4);
+//    setPassByReference(parms[5]);
+//
+//    // Parameter 6 (input): Follow symlink.  0 == Do not follow symlink; 1 == follow symlink
+//    boolean followSymlink = false;  // this should probably be a parameter on the method
+//    int follow = (followSymlink ? 1 : 0);
+//    parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(follow));
+//
+//    ServiceProgramCall spc = new ServiceProgramCall(system, "/QSYS.LIB/QP0LLIB2.SRVPGM", "Qp0lGetAttr", ServiceProgramCall.RETURN_INTEGER, parms);
+//    pc.setThreadsafe(true);  // should check that the 'threadsafe' property isn't set
+//
+//    if (!spc.run()) {
+//      throw new AS400Exception(spc.getMessageList());
+//    }
+//
+//    // Check the returned byte counts.
+//    int bufSizeNeeded = BinaryConverter.byteArrayToInt(parms[4].getOutputData(), 0);
+//    int numBytesReturned = BinaryConverter.byteArrayToInt(parms[5].getOutputData(), 0);
+//
+//    // The 'Object Owner' field is the CHAR(10) at offset 16 in the output data.
+//    byte[] outputData = parms[2].getOutputData();
+//
+//    int ccsid = fd_.system_.getCcsid();  // system CCSID (usually EBCDIC)
+//    ConvTable conv = ConvTable.getTable(ccsid, null);
+//    ownerName = conv.byteArrayToString(outputData, 16, 10).trim();
+//    if (ownerName.equals("*NOUSRPRF")) ownerName = null;
+//
+//    return ownerName;
+//  }
+
+
   // @B7a
   /**
    Returns the file's owner's "user ID" number.
@@ -579,10 +718,10 @@ implements IFSFileImpl
   public long getOwnerUID()
     throws IOException, AS400SecurityException        // @C0c
   {
-    IFSListAttrsRep reply = listAttributes();
+    fd_.connect();
+    IFSListAttrsRep reply = fd_.listObjAttrs2(); // the "owner UID" field is in the OA2 structure
     if (reply != null)
     {
-      // Note: No need to do a setFD(fd_) on the reply, since offset of "owner" field is consistent across the various OA2* structures.
       return reply.getOwnerUID();
     }
     else return -1L;        // @C0c
@@ -605,10 +744,9 @@ implements IFSFileImpl
     // Send the List Attributes request.
     byte[] extendedAttrName = fd_.converter_.stringToByteArray(".TYPE");
     IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
-                              IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
-                              null, false, extendedAttrName, false);  // @C3c
-    if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
-    Vector replys = listAttributes(req);
+                              IFSListAttrsReq.NO_AUTHORITY_REQUIRED, NO_MAX_GET_COUNT,
+                              null, false, extendedAttrName, false, fd_.patternMatching_);  // @C3c
+    Vector replys = fd_.listAttributes(req);
 
     // Verify that we got at least one reply.
     if (replys == null) {
@@ -842,7 +980,7 @@ implements IFSFileImpl
      */
     if (!determinedIsSymbolicLink_)
     {
-      // Note: For now (V5R2 and the follow-on release), we can't get accurate symbolic link info by querying the attrs of a specific file.
+      // Note: As of V5R3, we can't get accurate symbolic link info by querying the attrs of a specific file.
       // Instead, we must query the contents of the parent directory.
       int pathLen = fd_.path_.length();
       if (pathLen <= 1) {
@@ -859,7 +997,7 @@ implements IFSFileImpl
         String dirPath = wildCardPattern.substring(0,1+wildCardPattern.lastIndexOf('/'));
 
         byte[] pathBytes = fd_.converter_.stringToByteArray(wildCardPattern);
-        IFSCachedAttributes[] attrList = listDirectoryDetails(wildCardPattern, dirPath, -1, pathBytes, true);
+        IFSCachedAttributes[] attrList = listDirectoryDetails(wildCardPattern, dirPath, NO_MAX_GET_COUNT, pathBytes, IS_RESTART_NAME, !SORT_LIST);
 
         IFSCachedAttributes attrs = null;
         String filename = fd_.path_.substring(1+(fd_.path_.lastIndexOf('/')));
@@ -964,21 +1102,20 @@ implements IFSFileImpl
         size = attrs.getSize(fd_.serverDatastreamLevel_);
       }
     }
-    else  // the system is V5R2                         @C1a - added this entire 'else' block
+    else  // the system is V5R2 (and therefore, datastream level is 3)
     {
       // Convert the path name to the server CCSID.
       byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
       // Send the List Attributes request.  Indicate that we want the "8-byte file size".
       IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
-                                                IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
-                                                null, true, null, true);  // @C3c
-      if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
-      Vector replys = listAttributes(req);
+                                                IFSListAttrsReq.NO_AUTHORITY_REQUIRED, NO_MAX_GET_COUNT,
+                                                null, true, null, true, fd_.patternMatching_);  // @C3c
+      Vector replys = fd_.listAttributes(req);
 
       if (replys == null) {
-        if (errorRC_ != 0) {
-          throw new ExtendedIOException(errorRC_);
+        if (fd_.errorRC_ != 0) {
+          throw new ExtendedIOException(fd_.path_, fd_.errorRC_);
         }
         else throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
@@ -1004,251 +1141,24 @@ implements IFSFileImpl
   }
 
 
-  //@B4a
-  // Fetch list attributes reply(s) for the specified file handle.
-  private Vector listAttributes(int fileHandle)
-      throws IOException, AS400SecurityException
-  {
-    // Assume connect() has already been done.
-
-    // Process attribute replies.
-    IFSListAttrsReq req = new IFSListAttrsReq(fileHandle, (short)0x44);  // Object Attribute 2
-    if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
-
-    return listAttributes(req);
-  }
-
 
   // Fetch list attributes reply(s) for the specified path.
-  private Vector listAttributes(String path, int maxGetCount, byte[] restartNameOrID, boolean isRestartName)           // @D4C @C3c
+  private Vector listAttributes(String path, int maxGetCount, byte[] restartNameOrID, boolean isRestartName, boolean sortList)           // @D4C @C3c
     throws IOException, AS400SecurityException
   {
     // Assume connect() has already been done.
 
-    // Convert the path name to the server CCSID.
+    // Convert the pathname to the server CCSID.
     byte[] pathname = fd_.converter_.stringToByteArray(path);
 
-    // Process attribute replies.
-    IFSListAttrsReq req;                                                                            // @D4C
-    if (maxGetCount < 0) {   // a Get Count of -1 means "return all entries"              // @D4A
-      req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_);                             // @D4C
-      if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
-    }
-    else {                                                                                          // @D4A
-//@C3d  byte[] restartNameAsBytes = null;                                                           // @D4A
-//@C3d  if (restartName != null)                                                                    // @D4A
-//@C3d      restartNameAsBytes = fd_.converter_.stringToByteArray(restartName);                     // @D4A
-
-        req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,                              // @D4A
-                                  IFSListAttrsReq.NO_AUTHORITY_REQUIRED, maxGetCount,               // @D4A
-                                  restartNameOrID,                                       // @D4A @C3c
-                                  isRestartName, // @C3a
-                                  null, false);  // @B5a @C3c
-        if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
-    }
-    return listAttributes(req);  // Note: This does setFD() on each returned IFSListAttrsRep..
-  }
-
-
-  //@B4c
-  // Submit the specified request, and fetch list attributes reply(s).
-  // The returned Vector contains IFSListAttrsRep objects.
-  private Vector listAttributes(IFSListAttrsReq req)
-    throws IOException, AS400SecurityException
-  {
-    Vector replys = new Vector(256);
-    ClientAccessDataStream ds = null;
-    try
-    {
-      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // @A1A
-    int rc = -1;        // @A1A
-
-    boolean done = false;
-    do
-    {
-      if (ds instanceof IFSListAttrsRep)
-      {
-        replys.addElement(ds);
-      }
-      else if (ds instanceof IFSReturnCodeRep)
-      {
-        // If the return code is NO_MORE_FILES then all files
-        // that match the specification have been returned.
-        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-
-        if (rc == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
-        ||  rc == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
-        {
-          Trace.log(Trace.ERROR, "Error getting file attributes for file " + fd_.path_ + ": " +
-                    "IFSReturnCodeRep return code = ", rc);
-          throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
-        }
-
-        if (rc != IFSReturnCodeRep.SUCCESS &&                               // @D4A
-            rc != IFSReturnCodeRep.NO_MORE_FILES &&
-            rc != IFSReturnCodeRep.FILE_NOT_FOUND &&
-            rc != IFSReturnCodeRep.PATH_NOT_FOUND)
-        {
-          Trace.log(Trace.ERROR, "Error getting file attributes for file " + fd_.path_ + ": " +
-                    "IFSReturnCodeRep return code = ", rc);  // @A9C
-          throw new ExtendedIOException(rc);
-        }
-
-      }
-      else
-      {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream: ", ds.data_);  // @A9C
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-
-      // Fetch the next reply if not already done.
-      done = ((IFSDataStream) ds).isEndOfChain();
-      if (!done)
-      {
-        try
-        {
-          ds = (ClientAccessDataStream) fd_.server_.receive(req.getCorrelation());
-        }
-        catch(ConnectionDroppedException e)
-        {
-          Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-          fd_.connectionDropped(e);
-        }
-        catch(InterruptedException e)
-        {
-          Trace.log(Trace.ERROR, "Interrupted");
-          throw new InterruptedIOException(e.getMessage());
-        }
-      }
-    }
-    while (!done);
-
-    // @A1A
-    errorRC_ = 0;
-    if (rc == IFSReturnCodeRep.PATH_NOT_FOUND) {        // @A1A
-        // If the directory or file does not exist, then return NULL.
-        errorRC_ = rc;
-        replys = null;                                  // @A1A
-    }                                                   // @A1A
-    else {                                              // @A1A
-        // Set the vector capacity to the current size.
-        replys.trimToSize();
-    }                                                   // @A1A
-
-    return replys;
-  }
-
-  // @B7a - This code was formerly located in getCcsid().
-  // Open the file, list the file attributes, and close the file.
-  // May return null, for example if the file is a directory.
-  private IFSListAttrsRep listAttributes()
-    throws IOException, AS400SecurityException
-  {
-    // Ensure that we are connected to the server.
-    fd_.connect();
-
-    // Do an open, and get a file handle.
-    // Note: In order to get an OA2 structure back from the
-    // "List File Attributes" request, we must specify the file
-    // by handle rather than by name.
-
-    // Convert the path name to the server CCSID.
-    byte[] pathname = fd_.getConverter().stringToByteArray(fd_.path_);
-
-    // Request that the file can be opened.
-    IFSOpenReq req = new IFSOpenReq(pathname, fd_.preferredServerCCSID_,
-                                    fd_.preferredServerCCSID_,
-                                    IFSOpenReq.READ_ACCESS,
-                                    IFSOpenReq.DENY_NONE,
-                                    IFSOpenReq.NO_CONVERSION, 8,
-                                    fd_.serverDatastreamLevel_);
-    ClientAccessDataStream ds = null;
-    try
-    {
-      ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify that the open request was successful.
-    int fileHandle = -1;
-    errorRC_ = 0;
-    if (ds instanceof IFSOpenRep)
-    {
-      fileHandle = ((IFSOpenRep)ds).getFileHandle();
-      fd_.setOpen(true, fileHandle);                    // @B8c
-    }
-    else if (ds instanceof IFSReturnCodeRep)
-    {
-      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
-      if (rc == IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME) {
-        // We get that RC if it's a directory.
-        errorRC_ = rc;
-        return null;       // @B7c
-      }
-      else {
-        throw new ExtendedIOException(rc);
-      }
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ",
-                ds.getReqRepID());
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
-
-    // Do a list attributes, specifying the handle, and indicating that we
-    // want an OA2 structure in the reply.
-
-    IFSListAttrsRep reply = null;
-    Vector replys = listAttributes(fileHandle);
-
-    // Verify that we got exactly one reply.
-    if (replys == null) {
-      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(fileHandle).");
-    }
-    else if (replys.size() == 0) {
-      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(fileHandle).");
-    }
-    else if (replys.size() > 1) {
-      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(fileHandle) (" +
-                replys.size() + ")");
-    }
-    else
-    {
-      reply = (IFSListAttrsRep) replys.elementAt(0);
-    }
-
-    fd_.close0();  // B8c
-
-    return reply;
+    // Prepare the 'list attributes' request.
+    IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,                              // @D4A
+                                              IFSListAttrsReq.NO_AUTHORITY_REQUIRED, maxGetCount,               // @D4A
+                                              restartNameOrID,                                       // @D4A @C3c
+                                              isRestartName, // @C3a
+                                              null, false, fd_.patternMatching_);
+    if (sortList) req.setSorted(true);
+    return fd_.listAttributes(req);  // Note: This does setFD() on each returned IFSListAttrsRep..
   }
 
 
@@ -1261,7 +1171,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    Vector replys = listAttributes(directoryPath, -1, null, true);
+    Vector replys = listAttributes(directoryPath, NO_MAX_GET_COUNT, null, NO_RESTART_NAME, sortLists_);
     String[] names = null;
 
     // Add the name for each file or directory in the specified directory,
@@ -1317,16 +1227,21 @@ implements IFSFileImpl
                                                      String directoryPath,
                                                     int maxGetCount,            // @D4A
                                                     byte[] restartNameOrID,     // @C3C
-                                                    boolean isRestartName)      // @C3A
+                                                    boolean isRestartName,      // @C3A
+                                                    boolean sortList)
      throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
     fd_.connect();
+
     IFSCachedAttributes[] fileAttributes = null;
 
     try
     {
-      Vector replys = listAttributes(pathPattern, maxGetCount, restartNameOrID, isRestartName);
+      // Design note: Due to a limitation in the File Server, if we specify a "filename pattern", we cannot get OA1 or OA2 structures in the reply.
+      // Only "handle-based" requests can get OA* structures in the reply; and a handls is specific to a single file.
+      // This prevents us, for example, from obtaining the "name of file owner" values for an entire list of files at once; rather, we must obtain that attribute one file at a time.
+      Vector replys = listAttributes(pathPattern, maxGetCount, restartNameOrID, isRestartName, sortList);
 
       // Add each file or directory in the specified directory,
       // to the array of files.
@@ -1343,8 +1258,8 @@ implements IFSFileImpl
           if (!(name.equals(".") || name.equals("..")))
           {
              // isDirectory and isFile should be different unless the
-             // file is a invalid symbolic link (circular or points
-             // to a non-existant object).  This kind of link cannot
+             // file is an invalid symbolic link (circular or points
+             // to a non-existent object).  Such a link cannot
              // be resolved and both determineIsDirectory and
              // determineIsFile will return false.  Regular symbolic links
              // will resolve.  For example, a symbolic link to a file will return
@@ -1390,7 +1305,7 @@ implements IFSFileImpl
      throws IOException, AS400SecurityException
   {
     byte[] restartNameBytes = fd_.converter_.stringToByteArray(restartName);                     // @C3M
-    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartNameBytes, true);
+    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartNameBytes, IS_RESTART_NAME, sortLists_);
   }
 
   // @C3a
@@ -1402,7 +1317,7 @@ implements IFSFileImpl
                                                     byte[] restartID)
      throws IOException, AS400SecurityException
   {
-    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartID, false);
+    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartID, !IS_RESTART_NAME, sortLists_);
   }
 
 
@@ -1596,30 +1511,30 @@ implements IFSFileImpl
 
 
   /**
-   Sets the file's data CCSID.
+   Sets the file's "data CCSID" tag.
    **/
   public boolean setCCSID(int ccsid)
     throws IOException, AS400SecurityException
   {
-    // To change the file data CCSID, we need to get the file's current attributes (in an OA2* structure), reset the CCSID field, and then send back the modified OA2* struct in a Change Attributes request.
+    // To change the file data CCSID, we need to get the file's current attributes (in an OA2 structure), reset the 'CCSID' field, and then send back the modified OA2 struct in a Change Attributes request.
 
-    IFSListAttrsRep reply = listAttributes();  // get current attributes
+    fd_.connect();
+    IFSListAttrsRep reply = fd_.listObjAttrs2();  // get current attributes (OA2 structure)
     if (reply == null) {
-      if (errorRC_ != 0) {
-        throw new ExtendedIOException(errorRC_);
+      if (fd_.errorRC_ != 0) {
+        throw new ExtendedIOException(fd_.path_, fd_.errorRC_);
       }
       else throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
+
     boolean success = false;
-    byte[] oaStruct = reply.getOA(); // get the OA2* structure
+    IFSObjAttrs2 objAttrs = reply.getObjAttrs2(); // get the OA2* structure
 
     // Sanity-check the length: If it's an OA2a or OA2b, the length will be 150 bytes (144 plus a 6-byte LLCP).  If it's an OA2c, the length will be 166 bytes (160 plus LLCP).
-    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Length of returned OA2* structure (should be 150 or 166): " + oaStruct.length);
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Length of returned OA2* structure (should be 150 or 166): " + objAttrs.length());
 
-    // Reset the 2-byte "CCSID" field in the OA structure.
-    byte[] ccsidBytes = BinaryConverter.shortToByteArray((short)ccsid);
-    int ccsidOffsetInStruct = reply.getCCSIDOffset(fd_.serverDatastreamLevel_);
-    System.arraycopy(ccsidBytes, 0, oaStruct, ccsidOffsetInStruct, 2);
+    // Reset the "CCSID of the object" field in the OA2* structure.
+    objAttrs.setCCSID(ccsid, fd_.serverDatastreamLevel_);
 
     // Issue a change attributes request.
     ClientAccessDataStream ds = null;
@@ -1630,7 +1545,7 @@ implements IFSFileImpl
 
       IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
                                                     fd_.preferredServerCCSID_,
-                                                    oaStruct,
+                                                    objAttrs,
                                                     fd_.serverDatastreamLevel_);
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
@@ -1648,11 +1563,14 @@ implements IFSFileImpl
     if (ds instanceof IFSReturnCodeRep)
     {
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (rc == IFSReturnCodeRep.SUCCESS)
+      if (rc == IFSReturnCodeRep.SUCCESS) {
         success = true;
-      else
+        fd_.setCCSID(ccsid); // update the cached CCSID value in the fd_
+      }
+      else {
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting file data CCSID: " +
                                       "IFSReturnCodeRep return code = ", rc);
+      }
     }
     else
     {
@@ -1698,7 +1616,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
     // Issue a change attributes request.
     ClientAccessDataStream ds = null;
@@ -1783,7 +1701,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     boolean success = false;
@@ -1799,7 +1717,7 @@ implements IFSFileImpl
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, "Failed to get attribute set", e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     if (attributes != null)
@@ -1876,16 +1794,6 @@ implements IFSFileImpl
   }
 
 
-  /**
-   Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
-   @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
-   **/
-  public void setPatternMatching(int patternMatching)
-  {
-    patternMatching_ = patternMatching;
-  }
-
-
   // @B8c
   /**
    Changes the last modified time of the integrated file system object represented by this object to <i>time</i>.
@@ -1906,111 +1814,110 @@ implements IFSFileImpl
   {
     // Assume the argument has been validated by the public class.
 
-    boolean fileIsEmpty = false;  // @B8a
+    int fileHandle = UNINITIALIZED;
+    boolean success = false;
 
     // Ensure that we are connected to the server.
     try
     {
       fd_.connect();
-      // If we're setting timestamp to "current system time", we'll need to know how big the file is.
-      if (time == -1) fileIsEmpty = (length()==0 ? true : false);  // @B8a
 
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
-    }
+      if (time == -1)  // @B8a
+      {
+        // We are setting modification time to "current system time".
+        // To do that, we will simply read and write-back the first byte in the file.
 
-    boolean success = false;
+        // Open the file for read/write.
+        fileHandle = fd_.createFileHandle(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN);
+        if (fileHandle == UNINITIALIZED) return false;
+        else fd_.setOpen(true, fileHandle);  // inform the descriptor of the file handle
 
-    if (time != -1)  // @B8a
-    {
-      // Issue a change attributes request.
-      ClientAccessDataStream ds = null;
-      try
-      {
-        // Convert the path name to the server CCSID.
-        byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
+        byte[] buffer = new byte[1];  // buffer for reading/writing a single byte
 
-        IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
-                                                      fd_.preferredServerCCSID_,
-                                                      0, time, 0,
-                                                      fd_.serverDatastreamLevel_);
-        ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
-      }
-      catch(ConnectionDroppedException e)
-      {
-        Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-        fd_.connectionDropped(e);
-      }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted");
-        throw new InterruptedIOException(e.getMessage());
-      }
+        // If we're setting timestamp to "current system time", we'll need to know how big the file is.
+        boolean fileIsEmpty = false;  // @B8a
+        if (time == -1) fileIsEmpty = (length()==0 ? true : false);  // @B8a
 
-      // Verify the reply.
-      if (ds instanceof IFSReturnCodeRep)
-      {
-        int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc == IFSReturnCodeRep.SUCCESS)
-          success = true;
-        else
-          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting last-modified date: " +
-                    "IFSReturnCodeRep return code = ", rc);
-      }
-      else
-      {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-    }
-    else  // we are setting modification time to "current system time"
-    {
-      // Open the file for read/write, setting the file handle in fd_.
-      int rc = fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN, true);  // leave the file open
-      if (rc != IFSReturnCodeRep.SUCCESS)
-      {
-        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to open file: " +
-                  "IFSReturnCodeRep return code = ", rc);
-        return false;
-      }
-
-      byte[] buffer = new byte[1];  // buffer for reading/writing a single byte
-
-      if (fileIsEmpty)
-      {
-        // Update last-modification date by writing one byte (the value doesn't matter).
-        fd_.writeBytes(buffer, 0, 1, true);
-
-        // Reset the file size to zero.
-        success = fd_.setLength(0);
-      }
-      else // the file is not empty
-      {
-        // Read the first byte.
-        if (1 == fd_.read(buffer, 0, 1))
+        if (fileIsEmpty)
         {
-          // Write back the first byte.
-          fd_.setFileOffset(0);
+          // Update last-modification date by writing one byte (the value doesn't matter).
           fd_.writeBytes(buffer, 0, 1, true);
-          success = true;
+
+          // Reset the file size to zero.
+          success = fd_.setLength(0);
+        }
+        else // the file is not empty
+        {
+          // Read the first byte.
+          if (1 == fd_.read(buffer, 0, 1))
+          {
+            // Write back the first byte.
+            fd_.setFileOffset(0);
+            fd_.writeBytes(buffer, 0, 1, true);
+            success = true;
+          }
+          else
+          {
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read first byte of file.");
+            success = false;
+          }
+        }
+      }
+      else  // the caller specified a last-modified time
+      {
+        // Issue a change attributes request.
+        ClientAccessDataStream ds = null;
+        try
+        {
+          // Convert the path name to the server CCSID.
+          byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
+
+          IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
+                                                        fd_.preferredServerCCSID_,
+                                                        0, time, 0,
+                                                        fd_.serverDatastreamLevel_);
+          ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+        }
+        catch(ConnectionDroppedException e)
+        {
+          Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+          fd_.connectionDropped(e);
+        }
+        catch(InterruptedException e)
+        {
+          Trace.log(Trace.ERROR, "Interrupted");
+          throw new InterruptedIOException(e.getMessage());
+        }
+
+        // Verify the reply.
+        if (ds instanceof IFSReturnCodeRep)
+        {
+          int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+          if (rc == IFSReturnCodeRep.SUCCESS)
+            success = true;
+          else
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting last-modified date: " +
+                                          "IFSReturnCodeRep return code = ", rc);
         }
         else
         {
-          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read first byte of file.");
-          success = false;
+          // Unknown data stream.
+          Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+          throw new
+            InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                   InternalErrorException.DATA_STREAM_UNKNOWN);
         }
       }
 
-      fd_.close0();
+      // Clear any cached attributes.
+      attributesReply_ = null;
     }
-
-    // Clear any cached attributes.
-    attributesReply_ = null;
+    catch (AS400SecurityException e) {
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
+    }
+    finally {
+      if (fileHandle != UNINITIALIZED) fd_.close(fileHandle);
+    }
 
     return success;
   }
@@ -2040,7 +1947,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     // Clear any cached attributes.
@@ -2082,6 +1989,24 @@ implements IFSFileImpl
   }
 
 
+  // Sets a ProgramParameter to "pass by reference".
+  private static final void setPassByReference(ProgramParameter parm)
+  {
+    try { parm.setParameterType(ProgramParameter.PASS_BY_REFERENCE); }
+    catch (PropertyVetoException pve) {}  // should never happen
+  }
+
+
+  /**
+   Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
+   @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
+   **/
+  public void setPatternMatching(int patternMatching)
+  {
+    fd_.patternMatching_ = patternMatching;
+  }
+
+
   /**
    Alters the read only attribute of the object.  If <i>attribute</i>
    is true, the bit is turned on.  If <i>attribute</i> is turned off,
@@ -2111,7 +2036,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     boolean success = false;
@@ -2124,7 +2049,7 @@ implements IFSFileImpl
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, "Failed to get attribute set", e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     // Same as setHidden -- setting fixed attributes is a total replacement
@@ -2192,7 +2117,6 @@ implements IFSFileImpl
 
           // Clear any cached attributes.
           attributesReply_ = null;
-
        }
        else
           success = true;
@@ -2201,6 +2125,18 @@ implements IFSFileImpl
   }
 
 
+  /**
+   Sets the sorting behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is <tt>false</tt> (unsorted).
+   @param sort If <tt>true</tt>: Return lists of files in sorted order.
+   If <tt>false</tt>: Return lists of files in whatever order the file system provides.
+
+   @exception IOException If an error occurs while communicating with the server.
+   @exception AS400SecurityException If a security or authority error occurs.
+   **/
+  public void setSorted(boolean sort)
+  {
+    sortLists_ = sort;
+  }
 
 
   /**

@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 
 /**
-List file attributes request.
+'List file attributes' request.
 **/
 class IFSListAttrsReq extends IFSDataStreamReq
 {
@@ -32,6 +32,13 @@ Construct a list attributes request.
   static final int READ_AUTHORITY_REQUIRED = 1;
   static final int WRITE_AUTHORITY_REQUIRED = 2;
   static final int EXEC_AUTHORITY_REQUIRED = 4;
+
+  static final short DEFAULT_ATTR_LIST_LEVEL = 1;  // default value for File Attribute List Level
+
+  static final int OA_NONE = 0;
+  static final int OA1     = 1;
+  static final int OA2     = 2;
+
   private static final int FILE_HANDLE_OFFSET = 22;
   private static final int CCSID_OFFSET = 26;
   private static final int WORKING_DIR_HANDLE_OFFSET = 28;
@@ -39,9 +46,18 @@ Construct a list attributes request.
   private static final int MAX_GET_COUNT_OFFSET = 34;
   private static final int FILE_ATTR_LIST_LEVEL_OFFSET = 36;
   private static final int PATTERN_MATCHING_OFFSET = 38;
-  private static final int FILE_NAME_LL_OFFSET = 40;
-  private static final int FILE_NAME_CP_OFFSET = 44;
-  private static final int FILE_NAME_OFFSET = 46;
+
+  private static final int OPTIONAL_SECTION_OFFSET = 40;
+
+  private static final int FILE_NAME_LL_OFFSET = OPTIONAL_SECTION_OFFSET;
+  private static final int FILE_NAME_CP_OFFSET = OPTIONAL_SECTION_OFFSET + 4;
+  private static final int FILE_NAME_OFFSET    = OPTIONAL_SECTION_OFFSET + 6;
+
+  private static final int OA1_FLAGS_LL_OFFSET = OPTIONAL_SECTION_OFFSET;
+  private static final int OA1_FLAGS_CP_OFFSET = OPTIONAL_SECTION_OFFSET + 4;
+  private static final int OA1_FLAGS_OFFSET1   = OPTIONAL_SECTION_OFFSET + 6;
+  private static final int OA1_FLAGS_OFFSET2   = OPTIONAL_SECTION_OFFSET + 10;
+  // Note: We never specify a 'file name' when we specify 'OA1 flags'.
 
   private static final int HEADER_LENGTH = 20;
   private static final int TEMPLATE_LENGTH = 20;
@@ -49,7 +65,7 @@ Construct a list attributes request.
 
   // @C1a - Added longFileSize parameter.
 /**
-Construct a list file attributes request.
+Construct a 'list file attributes' request.
 @param name the file name
 @param fileNameCCSID file name CCSID
 @param authority bit 0: on = client must have read authority,
@@ -71,7 +87,8 @@ Construct a list file attributes request.
                   byte[] restartNameOrID,                                      // @D2A @C3C
                   boolean isRestartName,                                       // @C3a
                   byte[] extendedAttrName,                                     // @A1a
-                  boolean longFileSize)                                        // @C1a
+                  boolean longFileSize,                                        // @C1a
+                  int patternMatching)
   {
     super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + name.length
          + ((restartNameOrID != null) ? (LLCP_LENGTH + restartNameOrID.length) : 0)    // @D2A @C3C
@@ -85,24 +102,27 @@ Construct a list file attributes request.
     set32bit(1, WORKING_DIR_HANDLE_OFFSET);
     set16bit(authority, CHECK_AUTHORITY_OFFSET);
     if (maximumGetCount <= 0)                                                           // @D2A
-        set16bit(0xffff, MAX_GET_COUNT_OFFSET);
+        set16bit(0xffff, MAX_GET_COUNT_OFFSET);  // set to -1, "no maximum"
     else                                                                                // @D2A
         set16bit(maximumGetCount, MAX_GET_COUNT_OFFSET);                                // @D2A
+
+    // Set the file attribute list level.
     if (longFileSize == true) {                                                         // @C1a
-      set16bit(0x0101, FILE_ATTR_LIST_LEVEL_OFFSET);
+      set16bit(0x0101, FILE_ATTR_LIST_LEVEL_OFFSET);  // set the "return 8-byte file size" flag
     }
     else {
-      set16bit(0x0001, FILE_ATTR_LIST_LEVEL_OFFSET);                                    // @C1c
+      set16bit(0x0001, FILE_ATTR_LIST_LEVEL_OFFSET);  // just set the "reserved" flag
     }
+
     set16bit(0, PATTERN_MATCHING_OFFSET);  // default is POSIX
 
-    // Set the LL.
+    // Set the 'filename' LL.
     set32bit(name.length + LLCP_LENGTH, FILE_NAME_LL_OFFSET);
 
-    // Set the filename code point.
+    // Set the 'filename' code point.
     set16bit(0x0002, FILE_NAME_CP_OFFSET);
 
-    // Set the filename characters.
+    // Set the 'filename' value.
     System.arraycopy(name, 0, data_, FILE_NAME_OFFSET, name.length);
 
     int offset = FILE_NAME_OFFSET + name.length; // Offset for next field.        @A1a
@@ -143,52 +163,31 @@ Construct a list file attributes request.
                          extendedAttrName.length);         // @D2A
     }
 
+    setPatternMatching(patternMatching);
   }
 
 
-/**
-Construct a list file attributes request.
-@param name the file name
-@param fileNameCCSID file name CCSID
-@param authority bit 0: on = client must have read authority,
-                 bit 1: on = client must have write authority,
-                 bit 2: on = client must have execute authority
-**/
-  IFSListAttrsReq(byte[] name,
-                  int    fileNameCCSID,
-                  int    authority)
-  {
-      this(name, fileNameCCSID, authority, -1, null, true, null, false);    // @D2C @A1c @C3c
-  }
 
 /**
-Construct a list file attributes request.
-@param name the file name
-@param fileNameCCSID file name CCSID
-**/
-  IFSListAttrsReq(byte[] name,
-                  int    fileNameCCSID)
-  {
-    this(name, fileNameCCSID, NO_AUTHORITY_REQUIRED);
-  }
-
-/**
-Construct a list file attributes request.
+Construct a 'list file attributes' request.
 @param handle the file handle
 **/
   IFSListAttrsReq(int handle)
   {
-    this(handle, (short) 1);
+    this(handle, OA_NONE, 0, 0);  // we don't need an OA* structure back in the reply
   }
 
-/**
-Construct a list file attributes request.
-@param handle the file handle
-@param attributeListLevel the file attribute list level
-**/
-  IFSListAttrsReq(int handle, short attributeListLevel)
+
+  /**
+   Construct a 'list file attributes' request.
+   @param handle the file handle
+   @param attrsType The type of attributes (OA1 or OA2)
+   @param flags1 Bitmap for the Flags(1) field.  Ignored if attrsType != OA1.
+   @param flags2 Bitmap for the Flags(2) field.  Ignored if attrsType != OA1.
+   **/
+  IFSListAttrsReq(int handle, int attrsType, int flags1, int flags2)
   {
-    super(HEADER_LENGTH + TEMPLATE_LENGTH);
+    super(HEADER_LENGTH + TEMPLATE_LENGTH + (attrsType == OA1 ? 14 : 0));
     setLength(data_.length);
     setTemplateLen(TEMPLATE_LENGTH);
     setReqRepID(0x000A);
@@ -196,8 +195,28 @@ Construct a list file attributes request.
     set32bit(1, WORKING_DIR_HANDLE_OFFSET);
     set16bit(NO_AUTHORITY_REQUIRED, CHECK_AUTHORITY_OFFSET);
     set16bit(0xffff, MAX_GET_COUNT_OFFSET);
-    set16bit(attributeListLevel, FILE_ATTR_LIST_LEVEL_OFFSET);
     set16bit(0, PATTERN_MATCHING_OFFSET);  // default is POSIX
+
+    // Specify appropriate "Object attribute" flag value (OA1, OA2, or neither).
+    switch (attrsType)
+    {
+      case OA1:  // return an OA1* structure
+        set16bit((short)0x42, FILE_ATTR_LIST_LEVEL_OFFSET); // get OA1, and use open instance of file handle
+        // Set the 'Flags' LL.
+        set32bit(LLCP_LENGTH + 4 + 4,  OA1_FLAGS_LL_OFFSET);  // LL/CP length, plus two 4-byte fields
+        // Set the 'Flags' CP.
+        set16bit(0x0010, OA1_FLAGS_CP_OFFSET);
+        // Set the 'Flags' values.
+        set32bit(flags1, OA1_FLAGS_OFFSET1);  // Flags(1)
+        set32bit(flags2, OA1_FLAGS_OFFSET2);  // Flags(2)
+        break;
+      case OA2:  // return an OA2* structure
+        set16bit((short)0x44, FILE_ATTR_LIST_LEVEL_OFFSET); // get OA2, and use open instance of file handle
+        break;
+      default:  // do not use a file handle, and do not return an OA* structure
+        set16bit((short)0x01, FILE_ATTR_LIST_LEVEL_OFFSET); // just set the required 'reserved' bit
+    }
+
   }
 
 
@@ -205,7 +224,7 @@ Construct a list file attributes request.
    Sets the value of the "pattern matching" field.
    Valid values are "POSIX" (0), "POSIX-all" (1), and "OS/2" (2).
    **/
-  void setPatternMatching(int patternMatching)
+  final void setPatternMatching(int patternMatching)
   {
     // "POSIX" pattern matching: Using POSIX semantics, return all files that match the pattern and do not begin with a period unless the pattern begins with a period.  In that case, names beginning with a period will be returned.
 
@@ -214,6 +233,26 @@ Construct a list file attributes request.
     // "OS/2" pattern matching: Using "DOS" semantics, return all files that match the pattern.
 
     set16bit(patternMatching, PATTERN_MATCHING_OFFSET);
+  }
+
+
+  /**
+   Sets whether directory information is to be returned in sorted order.
+   @param sort If true: Return the directory information in sorted order.
+   If false: Return the directory information in the order the file system provides.
+   **/
+  final void setSorted(boolean sort)
+  {
+    int attributeListLevel = get16bit(FILE_ATTR_LIST_LEVEL_OFFSET);
+    // Bit 7 of the "File Attribute List Level" field is the "Directory Sort" flag.
+    // (The right-most bit is bit 0.)
+    if (sort) {  // Turn on bit 7.
+      attributeListLevel = attributeListLevel | 0x0080;
+    }
+    else {  // Turn off bit 7.
+      attributeListLevel = attributeListLevel & 0xFF7F;
+    }
+    set16bit(attributeListLevel, FILE_ATTR_LIST_LEVEL_OFFSET);
   }
 
 }

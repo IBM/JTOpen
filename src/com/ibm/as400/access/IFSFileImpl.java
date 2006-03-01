@@ -31,6 +31,7 @@ interface IFSFileImpl
 
   long getFreeSpace() throws IOException, AS400SecurityException;
   int getCCSID() throws IOException, AS400SecurityException;            //@A2a
+  String getOwnerName() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException;
   long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
   String getSubtype() throws IOException, AS400SecurityException;      //@B5a
   int isDirectory() throws IOException, AS400SecurityException;
@@ -70,6 +71,7 @@ interface IFSFileImpl
   void setPatternMatching(int patternMatching);
   boolean setReadOnly(boolean attribute) throws IOException;             //@D1a
   void setPath(String path);
+  void setSorted(boolean sort);
   void setSystem(AS400Impl system);
 
 }

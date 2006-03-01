@@ -138,6 +138,18 @@ implements IFSFileImpl
   }
 
 
+  public String getOwnerName()
+    throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
+  {
+    try {
+      return (String)connection_.callMethod (pxId_, "getOwnerName").getReturnValue();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+
   // @B7a
   public long getOwnerUID()
     throws IOException, AS400SecurityException      // @C0c
@@ -468,6 +480,26 @@ implements IFSFileImpl
       connection_.callMethod (pxId_, "setPath",
                               new Class[] { String.class },
                               new Object[] { path });
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow (e);
+    }
+  }
+
+  /**
+   Sets the sorting behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is <tt>false</tt> (unsorted).
+   @param sort If <tt>true</tt>: Return lists of files in sorted order.
+   If <tt>false</tt>: Return lists of files in whatever order the file system provides.
+
+   @exception IOException If an error occurs while communicating with the server.
+   @exception AS400SecurityException If a security or authority error occurs.
+   **/
+  public void setSorted(boolean sort)
+  {
+    try {
+      connection_.callMethod (pxId_, "setSorted",
+                              new Class[] { Boolean.class },
+                              new Object[] { new Boolean(sort) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
