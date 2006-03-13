@@ -610,7 +610,7 @@ public class SQLResultSetTableModel
       // in the data source.
       //@KKB return resultSet_.getString(columnIndex);
       String s = resultSet_.getString(columnIndex);     //@KKB
-      if(checkDataMappingWarning(resultSet_))           //@KKB
+      if(checkDataMappingWarning(resultSet_, columnIndex))           //@KKB
           s="++++++++++++++";                           //@KKB
       return s;                                         //@KKB
     }
@@ -1205,12 +1205,12 @@ public class SQLResultSetTableModel
   }
 
   //@KKB - Checks if a Data Mapping Warning was issued
-  private boolean checkDataMappingWarning(ResultSet rs) throws SQLException{
+  private boolean checkDataMappingWarning(ResultSet rs, int columnIndex) throws SQLException{
       boolean dataMapping = false;
       SQLWarning w = rs.getWarnings();
       if(w!=null){
           do{
-              if(w.getSQLState().equals("01004") && ((java.sql.DataTruncation)w).getDataSize() == -1 && ((java.sql.DataTruncation)w).getTransferSize() == -1)
+              if(w.getSQLState().equals("01004") && ((java.sql.DataTruncation)w).getDataSize() == -1 && ((java.sql.DataTruncation)w).getTransferSize() == -1 && ((java.sql.DataTruncation)w).getIndex() == columnIndex)
                   dataMapping = true;
 
               w=w.getNextWarning();
