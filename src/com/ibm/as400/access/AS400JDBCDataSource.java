@@ -2790,7 +2790,215 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     //        }
     //    }
     //}
+    
+    //@PDA
+    /**
+     * Sets the properties based on ";" delimited string of properties, in same
+     * fashion as URL properties specified with
+     * DriverManager.getConnection(urlProperties). This method simply parses
+     * property string and then calls setPropertes(Properties). This method is
+     * intended as an enhancement so that the user does not have to write new
+     * code to call the setters for new/deleted properties.
+     * 
+     * @param propertiesString list of ";" delimited properties
+     */
+    public void setProperties(String propertiesString)
+    {
+        //use existing JDDatasourceURL to parse properties string like Connection does
+        //but first have to add dummy protocol so we can re-use parsing code
+        propertiesString = "jdbc:as400://dummyhost;" + propertiesString;
+        JDDataSourceURL dsURL = new JDDataSourceURL(propertiesString);
+        //returns only properties specified in propertyString.. (none of
+        // JDProperties defaults)
+        Properties properties = dsURL.getProperties();
+        setProperties(properties);
+    }
 
+    //@PDA
+    /**
+     * Sets the properties for this datasource. This method is intended as an
+     * enhancement so that the user does not have to write new code to call the
+     * setters for new/deleted properties.
+     * 
+     * @param newProperties object containing updated property values
+     */
+    public void setProperties(Properties newProperties)
+    {
+        //1. turn on/off tracing per new props
+        //2. set needed AS400JDBCDataSource instance variables
+        //3. set socket props
+        //4. propagate newProperties to existing properties_ object
+
+        // Check first thing to see if the trace property is
+        // turned on. This way we can trace everything, including
+        // the important stuff like loading the properties.
+
+        // If trace property was set to true, turn on tracing. If trace property
+        // was set to false,
+        // turn off tracing. If trace property was not set, do not change.
+        if (JDProperties.isTraceSet(newProperties, null) == JDProperties.TRACE_SET_ON)
+        {
+            if (!JDTrace.isTraceOn())
+                JDTrace.setTraceOn(true);
+        } else if (JDProperties.isTraceSet(newProperties, null) == JDProperties.TRACE_SET_OFF)
+        {
+            if (JDTrace.isTraceOn())
+                JDTrace.setTraceOn(false);
+        }
+
+        // If toolbox trace is set to datastream. Turn on datastream tracing.
+        if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceDatastreamOn(true);
+        }
+        // If toolbox trace is set to diagnostic. Turn on diagnostic tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceDiagnosticOn(true);
+        }
+        // If toolbox trace is set to error. Turn on error tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_ERROR)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceErrorOn(true);
+        }
+        // If toolbox trace is set to information. Turn on information tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_INFORMATION)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceInformationOn(true);
+        }
+        // If toolbox trace is set to warning. Turn on warning tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_WARNING)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceWarningOn(true);
+        }
+        // If toolbox trace is set to conversion. Turn on conversion tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_CONVERSION)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceConversionOn(true);
+        }
+        // If toolbox trace is set to proxy. Turn on proxy tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_PROXY)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceProxyOn(true);
+        }
+        // If toolbox trace is set to pcml. Turn on pcml tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_PCML)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTracePCMLOn(true);
+        }
+        // If toolbox trace is set to jdbc. Turn on jdbc tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_JDBC)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceJDBCOn(true);
+        }
+        // If toolbox trace is set to all. Turn on tracing for all categories.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_ALL)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceAllOn(true);
+        }
+        // If toolbox trace is set to thread. Turn on thread tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_THREAD)
+        {
+            if (!Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            Trace.setTraceThreadOn(true);
+        }
+        // If toolbox trace is set to none. Turn off tracing.
+        else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_NONE)
+        {
+            if (Trace.isTraceOn())
+            {
+                Trace.setTraceOn(false);
+            }
+        }
+
+        //next we need to set instance vars (via setX() methods)
+        //or setup socket properties or set in properties_
+        //Note: this is similar to AS400JDBCDataSource(Reference reference)logic
+
+        Enumeration e = newProperties.keys();
+        while (e.hasMoreElements())
+        {
+            String propertyName = (String) e.nextElement();
+            String propertyValue = (String) newProperties.getProperty(propertyName);
+
+            int propIndex = JDProperties.getPropertyIndex(propertyName);
+
+            //some of the setter methods also set the properties_ below
+            if (propIndex == JDProperties.DATABASE_NAME)
+                setDatabaseName(propertyValue);
+            else if (propIndex == JDProperties.USER)
+                setUser(propertyValue);
+            else if (propIndex == JDProperties.PASSWORD)
+                setPassword(properties_.getString(JDProperties.PASSWORD));
+            else if (propIndex == JDProperties.SECURE)
+                setSecure(propertyValue.equals(TRUE_) ? true : false);
+            else if (propIndex == JDProperties.KEEP_ALIVE)
+                setKeepAlive(propertyValue.equals(TRUE_) ? true : false);
+            else if (propIndex == JDProperties.RECEIVE_BUFFER_SIZE)
+                setReceiveBufferSize(Integer.parseInt(propertyValue));
+            else if (propIndex == JDProperties.SEND_BUFFER_SIZE)
+                setSendBufferSize(Integer.parseInt(propertyValue));
+            else if (propIndex == JDProperties.PROMPT)
+                setPrompt(propertyValue.equals(TRUE_) ? true : false);
+            else if (propIndex == JDProperties.KEY_RING_NAME){
+                //at this time, decided to not allow this due to security and fact that there is no setKeyRingName() method
+                if (JDTrace.isTraceOn())
+                    JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCDataSource constructor");  
+            } else if (propIndex == JDProperties.KEY_RING_PASSWORD){
+                //at this time, decided to not allow this due to security and fact that there is no setKeyRingPassword() method
+                if (JDTrace.isTraceOn())
+                    JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCDataSource constructor");  
+            } else if (propIndex != -1)
+            {
+                properties_.setString(propIndex, propertyValue);
+            }
+        } 
+
+    }
+    
     /**
     *  Sets the name of the proxy server.
     *  @param proxyServer The proxy server.

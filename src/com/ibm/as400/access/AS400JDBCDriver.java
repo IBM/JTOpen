@@ -464,7 +464,8 @@ implements java.sql.Driver
 		if (info == null)
 			throw new NullPointerException("properties");
 
-                Properties urlProperties = new Properties();
+        //@PDD not needed, just pass in null to isXTraceSet(null, info) below
+        //Properties urlProperties = new Properties();
 
 		// Check first thing to see if the trace property is
 		// turned on.  This way we can trace everything, including
@@ -472,19 +473,19 @@ implements java.sql.Driver
 
 		// If trace property was set to true, turn on tracing.  If trace property was set to false,
 		// turn off tracing.  If trace property was not set, do not change.
-		if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_ON)
+		if (JDProperties.isTraceSet (null, info) == JDProperties.TRACE_SET_ON)
 		{
 			if (! JDTrace.isTraceOn ())
 				JDTrace.setTraceOn (true);
 		}
-		else if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_OFF)
+		else if (JDProperties.isTraceSet (null, info) == JDProperties.TRACE_SET_OFF)
 		{
 			if (JDTrace.isTraceOn ())
 				JDTrace.setTraceOn (false);
 		}
 
                 // If toolbox trace is set to datastream.  Turn on datastream tracing.
-                if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
+                if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -493,7 +494,7 @@ implements java.sql.Driver
                     Trace.setTraceDatastreamOn(true);
                 }
                 // If toolbox trace is set to diagnostic.  Turn on diagnostic tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -502,7 +503,7 @@ implements java.sql.Driver
                     Trace.setTraceDiagnosticOn(true);
                 }
                 // If toolbox trace is set to error.  Turn on error tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_ERROR)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_ERROR)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -511,7 +512,7 @@ implements java.sql.Driver
                     Trace.setTraceErrorOn(true);
                 }
                 // If toolbox trace is set to information.  Turn on information tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_INFORMATION)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_INFORMATION)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -520,7 +521,7 @@ implements java.sql.Driver
                     Trace.setTraceInformationOn(true);
                 }
                 // If toolbox trace is set to warning.  Turn on warning tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_WARNING)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_WARNING)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -529,7 +530,7 @@ implements java.sql.Driver
                     Trace.setTraceWarningOn(true);
                 }
                 // If toolbox trace is set to conversion.  Turn on conversion tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_CONVERSION)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_CONVERSION)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -538,7 +539,7 @@ implements java.sql.Driver
                     Trace.setTraceConversionOn(true);
                 }
                 // If toolbox trace is set to proxy.  Turn on proxy tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PROXY)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_PROXY)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -547,7 +548,7 @@ implements java.sql.Driver
                     Trace.setTraceProxyOn(true);
                 }
                 // If toolbox trace is set to pcml.  Turn on pcml tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PCML)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_PCML)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -556,7 +557,7 @@ implements java.sql.Driver
                     Trace.setTracePCMLOn(true);
                 }
                 // If toolbox trace is set to jdbc.  Turn on jdbc tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_JDBC)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_JDBC)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -565,7 +566,7 @@ implements java.sql.Driver
                     Trace.setTraceJDBCOn(true);
                 }
                 // If toolbox trace is set to all.  Turn on tracing for all categories.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_ALL)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_ALL)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -574,7 +575,7 @@ implements java.sql.Driver
                     Trace.setTraceAllOn(true);
                 }
                 // If toolbox trace is set to thread.  Turn on thread tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_THREAD)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_THREAD)
                 {
                     if (! Trace.isTraceOn())
                     {
@@ -583,7 +584,7 @@ implements java.sql.Driver
                     Trace.setTraceThreadOn(true);
                 }
                 // If toolbox trace is set to none.  Turn off tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_NONE)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_NONE)
                 {
                     if (Trace.isTraceOn())
                     {
@@ -642,7 +643,8 @@ implements java.sql.Driver
 			throw new NullPointerException("properties");
 
 		//@B7D AS400 o = new AS400(system);
-		Properties urlProperties = new Properties();
+        //@PDD not needed, just pass in null to isXTraceSet(null, info) below
+		//Properties urlProperties = new Properties();
 
 		// Check first thing to see if the trace property is
 		// turned on.  This way we can trace everything, including
@@ -650,19 +652,19 @@ implements java.sql.Driver
 
 		// If trace property was set to true, turn on tracing.  If trace property was set to false,
 		// turn off tracing.  If trace property was not set, do not change.
-		if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_ON)
+		if (JDProperties.isTraceSet (null, info) == JDProperties.TRACE_SET_ON)
 		{
 			if (! JDTrace.isTraceOn ())
 				JDTrace.setTraceOn (true);
 		}
-		else if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_OFF)
+		else if (JDProperties.isTraceSet (null, info) == JDProperties.TRACE_SET_OFF)
 		{
 			if (JDTrace.isTraceOn ())
 				JDTrace.setTraceOn (false);
 		}
 
                 // If toolbox trace is set to datastream.  Turn on datastream tracing.
-                if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
+                if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -672,7 +674,7 @@ implements java.sql.Driver
                     Trace.setTraceDatastreamOn(true);
                 }
                 // If toolbox trace is set to diagnostic.  Turn on diagnostic tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -682,7 +684,7 @@ implements java.sql.Driver
                     Trace.setTraceDiagnosticOn(true);
                 }
                 // If toolbox trace is set to error.  Turn on error tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_ERROR)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_ERROR)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -692,7 +694,7 @@ implements java.sql.Driver
                     Trace.setTraceErrorOn(true);
                 }
                 // If toolbox trace is set to information.  Turn on information tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_INFORMATION)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_INFORMATION)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -702,7 +704,7 @@ implements java.sql.Driver
                     Trace.setTraceInformationOn(true);
                 }
                 // If toolbox trace is set to warning.  Turn on warning tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_WARNING)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_WARNING)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -712,7 +714,7 @@ implements java.sql.Driver
                     Trace.setTraceWarningOn(true);
                 }
                 // If toolbox trace is set to conversion.  Turn on conversion tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_CONVERSION)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_CONVERSION)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -722,7 +724,7 @@ implements java.sql.Driver
                     Trace.setTraceConversionOn(true);
                 }
                 // If toolbox trace is set to proxy.  Turn on proxy tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PROXY)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_PROXY)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -732,7 +734,7 @@ implements java.sql.Driver
                     Trace.setTraceProxyOn(true);
                 }
                 // If toolbox trace is set to pcml.  Turn on pcml tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PCML)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_PCML)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -742,7 +744,7 @@ implements java.sql.Driver
                     Trace.setTracePCMLOn(true);
                 }
                 // If toolbox trace is set to jdbc.  Turn on jdbc tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_JDBC)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_JDBC)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -752,7 +754,7 @@ implements java.sql.Driver
                     Trace.setTraceJDBCOn(true);
                 }
                 // If toolbox trace is set to all.  Turn on tracing for all categories.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_ALL)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_ALL)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -762,7 +764,7 @@ implements java.sql.Driver
                     Trace.setTraceAllOn(true);
                 }
                 // If toolbox trace is set to thread.  Turn on thread tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_THREAD)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_THREAD)
                 {
                     //@K1A
                     if (! Trace.isTraceOn())
@@ -772,7 +774,7 @@ implements java.sql.Driver
                     Trace.setTraceThreadOn(true);
                 }
                 // If toolbox trace is set to none.  Turn off tracing.
-                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_NONE)
+                else if (JDProperties.isToolboxTraceSet (null, info) == JDProperties.TRACE_TOOLBOX_NONE)
                 {
                     //@K1A
                     if (Trace.isTraceOn())
@@ -781,7 +783,7 @@ implements java.sql.Driver
                     }
                 }
 
-		JDProperties jdProperties = new JDProperties (urlProperties, info);
+		//@PDD not used JDProperties jdProperties = new JDProperties (null, info);
 
 		if (system instanceof SecureAS400)
 			return initializeConnection(schema, info, new SecureAS400(system));

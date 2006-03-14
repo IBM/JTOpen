@@ -1456,7 +1456,27 @@ class JDProperties implements Serializable
     }
 
 
-
+    //@PDA 
+    /**
+    Gets index of the property name as indexed in array.
+    This method is used by AS400JDBCDataSource so that it can
+    update properties based on property name string. 
+    @param propertyName
+    @return index of property in array.  returns -1 if not found.
+    **/
+    static int getPropertyIndex (String propertyName)
+    {
+        for(int i = 0; i < NUMBER_OF_ATTRIBUTES_; i++)
+        {
+            if(propertyName.equals(dpi_[i].name))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    
     /**
     Returns the value of the specified property.  The
     URL properties are searched first, then the info
