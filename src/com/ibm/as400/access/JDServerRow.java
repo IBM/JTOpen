@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Hashtable;
 
 
 
@@ -48,7 +49,7 @@ implements JDRow
     private int[]                   sqlTypes_;
     private boolean[]               translated_;
     private boolean                 wasCompressed = false;   // set to true if variable length field compression is used
-
+    private Hashtable               insensitiveColumnNames_; // @PDA maps strings to column indexes
 
 
     /**
@@ -172,6 +173,7 @@ implements JDRow
             sqlData_    = new SQLData[count];
             sqlTypes_   = new int[count];
             translated_ = new boolean[count];
+            insensitiveColumnNames_ = null;  //@PDA
 
             // Compute the offsets, lengths, and SQL data for
             // each field.
@@ -347,12 +349,43 @@ implements JDRow
                 if(name.equals(getFieldName(i)))    //@D6c (used to be equalsIgnoreCase)
                     return i;
         }
-        else    //@D6a
-        {
-            // name = name.toUpperCase();                          //@D6a
-            for(int i = 1; i <= sqlData_.length; ++i)
-                if(name.equalsIgnoreCase(getFieldName(i)))
-                    return i;
+        else  
+        { 
+            //@PDA  use hashtable to reduce number of toUpper calls
+            //X.equalsIgnoreCase(Y) converts both X and Y to uppercase.
+            if(insensitiveColumnNames_ == null)
+            {
+                // Create a new hash table to hold all the column name/number mappings.
+                insensitiveColumnNames_ = new Hashtable(sqlData_.length);
+                
+                // cache all the column names and numbers.
+                for (int i = 1; i <= sqlData_.length; i++)
+                {
+                    String cName = getFieldName(i);
+
+                    // Never uppercase the name from the database. If the name is
+                    // supposed to be uppercase, it will already be. If it isn't, it will be
+                    // lowercase and its double quotes will be missing.
+                    insensitiveColumnNames_.put(cName, new Integer(i));
+                }
+            }
+            
+            // Look up the mapping in our cache. First look up using the user's casing
+            Integer x = (Integer) insensitiveColumnNames_.get(name);
+            if (x != null)
+                return (x.intValue());
+            else
+            {
+                String upperCaseName = name.toUpperCase(); 
+                x = (Integer) insensitiveColumnNames_.get(upperCaseName);
+
+                if (x != null)
+                {
+                    // Add the user's casing
+                    insensitiveColumnNames_.put(name, x);
+                    return (x.intValue());
+                }  
+            }
         }
         JDError.throwSQLException (JDError.EXC_COLUMN_NOT_FOUND);
         return -1;

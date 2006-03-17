@@ -147,13 +147,25 @@ implements JDRow
 
 
 
-    public int findField (String name)
-    throws SQLException
-    {
-        for(int i = 0; i < fieldNames_.length; ++i)
-            if(name.equalsIgnoreCase (fieldNames_[i]))
-                return i+1;
-        JDError.throwSQLException (JDError.EXC_COLUMN_NOT_FOUND);
+    public int findField(String name) throws SQLException {
+        if (name.startsWith("\"") && name.endsWith("\""))  
+        {  
+            name = JDUtilities.stripOuterDoubleQuotes(name);  
+            for (int i = 1; i <= sqlData_.length; ++i)
+                if (name.equals(getFieldName(i)))
+                    return i;
+        } else  
+        { 
+            name = name.toUpperCase(); //@PDA
+            //X.equalsIgnoreCase(Y) converts both X and Y to uppercase.
+            //column names that are non-delim are returned uppercase,
+            //so just one call to name.UpperCase() is sufficient for
+            // comparisons.
+            for (int i = 0; i < fieldNames_.length; ++i)
+                if (name.equals(fieldNames_[i])) //@PDC
+                    return i + 1;
+        }
+        JDError.throwSQLException(JDError.EXC_COLUMN_NOT_FOUND);
         return -1;
     }
 
