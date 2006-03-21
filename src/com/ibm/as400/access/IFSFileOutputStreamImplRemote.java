@@ -55,52 +55,10 @@ implements IFSFileOutputStreamImpl
   public void close()
     throws IOException
   {
-/* @B4d
-    // An IFSTextFileOutputStream can have a "writer" associated with it.
-    // If a writer was instantiated, close it.
-    if (writer_ != null)
-    {
-      // The OutputStreamWriter must be closed but the close method 
-      // will attempt to close the underlying OutputStream, which is
-      // this object.  This will cause recursion.  To avoid infinite
-      // recursion we use a boolean flag to identify when we are
-      // recursing.
-      synchronized(this)
-      {
-        if (!recursing_)
-        {
-          // We aren't recursing yet so set the recursion flag and
-          // close the OutputStreamWriter.  Then clear the flag.
-          recursing_ = true;
-          writer_.close();
-          writer_ = null;
-          recursing_ = false;
-        }
-        else
-        {
-          // Close the OutputStream.
-          close0();
-        }
-      }
-    }
-    else
-    {
-*/
       // Close the OutputStream.
-      //close0();    // @B4d
       fd_.close0();  // @B4a
-/* @B4d
-    }
-*/
   }
 
-/* B4d
-  private void close0()
-    throws IOException
-  {
-    fd_.close0();  // @B2C
-  }
-*/
 
   public void connectAndOpen(int ccsid)
     throws AS400SecurityException, IOException
@@ -142,55 +100,10 @@ implements IFSFileOutputStreamImpl
   public void flush()
     throws IOException
   {
-/* @B4d
-    // An IFSTextFileOutputStream can have a "writer" associated with it.
-    // If a writer was instantiated, flush it.
-    if (writer_ != null)
-    {
-      // The OutputStreamWriter must be flushed but the flush method 
-      // will attempt to flush the underlying OutputStream, which is
-      // this object.  This will cause recursion.  To avoid infinite
-      // recursion we use a boolean flag to identify when we are
-      // recursing.
-      synchronized(this)
-      {
-        if (!recursing_)
-        {
-          // We aren't recursing yet so set the recursion flag and
-          // flush the OutputStreamWriter.  Then clear the flag.
-          recursing_ = true;
-          writer_.flush();
-          recursing_ = false;
-        }
-        else
-        {
-          // Flush the OutputStream.
-          flush0();
-        }
-      }
-    }
-    else
-    {
-*/
       // Flush the OutputStream.
-      //flush0();  // @B4d
       open(fd_.getPreferredCCSID());  // @B4a
       fd_.flush();  // @B4a
-/* @B4d
-    }
-*/
   }
-
-/* @B4d
-  private void flush0()
-    throws IOException
-  {
-    // Ensure that the file is open.
-    open(fd_.getPreferredCCSID());
-
-    fd_.flush();  // @B2C
-  }
-*/
 
 
   /**
@@ -476,7 +389,7 @@ implements IFSFileOutputStreamImpl
   }
 
 
-  // Used by IFSTextFileOutputStream only:
+  // Used by IFSTextFileOutputStream.write(String) only:
   /**
    Writes characters to this text file output stream.
    The characters that are written to the file are converted to the
@@ -485,7 +398,6 @@ implements IFSFileOutputStreamImpl
    @param ccsid The CCSID for the data.
 
    @exception IOException If an error occurs while communicating with the server.
-   @deprecated Used only by IFSTextFileOutputStream, which is deprecated.
    **/
   public void writeText(String data, int ccsid)
     throws IOException
@@ -496,7 +408,6 @@ implements IFSFileOutputStreamImpl
     open(ccsid);
 
     // Create the OutputStreamWriter if we don't already have one.
-    //if (writer_ == null && converter_ == null)   // @B3c @B4d
     if (converter_ == null)   // @B4c
     {
       int fileCCSID = 0;  // @B2C - formerly codePage
@@ -526,10 +437,9 @@ implements IFSFileOutputStreamImpl
           {
             if (ds instanceof IFSListAttrsRep)
             {
-              if (gotCCSID)
+              if (Trace.traceOn_ && gotCCSID)
                 Trace.log(Trace.DIAGNOSTIC, "Received multiple replies " +
                           "from ListAttributes request.");
-              //((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDatastreamLevel_); // @B2A @B6d
               fileCCSID = ((IFSListAttrsRep) ds).getCCSID(fd_.serverDatastreamLevel_);
               if (DEBUG)
                 System.out.println("DEBUG: IFSFileOutputStreamImplRemote.writeText(): " +
@@ -600,62 +510,11 @@ implements IFSFileOutputStreamImpl
         ccsid = fileCCSID;
       }
 
-/*  @B4d
-
-      // Convert the CCSID to the encoding string.  
-//    String encoding = ConversionMaps.ccsidToEncoding(ccsid == 0xf200 ? //@D0C
-//                                                       0x34b0 : ccsid);//@B3d
-      String encoding = ConversionMaps.ccsidToEncoding(ccsid); // @B3c
-
-      // If there is no encoding for this CCSID, throw an
-      // UnsupportedEncodingException.
-      if (encoding == null)
-      {
-        throw new UnsupportedEncodingException(Integer.toString(ccsid));
-      }
-
-      // @A1A
-      // Added code to check for 13488 because of a change made
-      // in the ccsid to encoding mapping (in v3r2m0, 13488 is
-      // mapped to "Unicode". Now, 13488 is mapped to 13488.)
-//    if (encoding.equals("13488")) {  // @A1A @B3d
-//      encoding = "Unicode";          // @A1A @B3d
-//    }                                // @A1A @B3d
-      if (ccsid == 13488 ||            // @A1A @B3c
-          ccsid == 61952)              // @B3a
-      {
-        // Note: This is to avoid the problem of the writer getting confused about
-        // a "missing byte-order mark" when dealing with Unicode streams.    @B3a
-*/
-        converter_ = ConverterImplRemote.getConverter(ccsid, fd_.getSystem()); //@B3a
-/* @B4d
-      }
-      else
-      {
-        // Instantiate the OutputStreamWriter.
-        writer_ = new OutputStreamWriter(this, encoding);
-      }
-*/
+      converter_ = ConverterImplRemote.getConverter(ccsid, fd_.getSystem()); //@B3a
     }
 
     // Write the characters of the String.
-
-/* @B4d
-    if (writer_ != null)
-    {
-      writer_.write(data, 0, data.length());
-    }
-    else if (converter_ != null)  //@B3a
-    {
-*/
-      this.write(converter_.stringToByteArray(data));  //@B3a
-/* @B4d
-    }
-    else
-    {
-      Trace.log(Trace.DIAGNOSTIC, "Neither the writer nor the converter got set.");
-    }
-*/
+    this.write(converter_.stringToByteArray(data));  //@B3a
   }
 
 }

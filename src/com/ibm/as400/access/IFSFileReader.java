@@ -19,9 +19,11 @@ import java.io.Reader;
 /**
 Convenience class for reading character files in the integrated file system.
 The behavior of this class is comparable to <tt>java.io.FileReader</tt>.
-IFSFileReader is meant for reading streams of characters.
-For reading streams of raw bytes, consider using a {@link IFSFileInputStream IFSFileInputStream}.
 <br>
+IFSFileReader is meant for reading streams of characters.
+For reading streams of raw bytes, use {@link IFSFileInputStream IFSFileInputStream}.
+If an <tt>InputStream</tt> is required, use {@link IFSTextFileInputStream IFSTextFileInputStream}.
+<p>
 The following example illustrates the use of IFSFileReader:
 <pre>
 import java.io.BufferedReader;

@@ -23,7 +23,8 @@ The IFSTextFileOutputStream class represents an integrated file system output st
 IFSTextFileOutputStream object is capable of generating file events which call the following FileListener methods: fileClosed, fileModified, and fileOpened.
 <br>
  <i>Note: By default, Unicode data is written to the file.  To use another CCSID when writing to the file, use one of the constructors that has a ccsid parameter.</i>
-<br>
+<br>Note: This class is provided for situations where an <tt>OutputStream</tt> is required.  The preferred method of writing to a text file is via {@link IFSFileWriter IFSFileWriter}.
+<p>
 The following example illustrates the use of IFSTextFileOutputStream:
 <pre>
 // Work with /File on the system eniac.
@@ -37,7 +38,6 @@ file.close();
 @see com.ibm.as400.access.FileEvent
 @see com.ibm.as400.access.IFSFileOutputStream#addFileListener
 @see com.ibm.as400.access.IFSFileOutputStream#removeFileListener
-@deprecated Use {@link IFSFileWriter IFSFileWriter} instead.
  **/
 
 public class IFSTextFileOutputStream extends IFSFileOutputStream

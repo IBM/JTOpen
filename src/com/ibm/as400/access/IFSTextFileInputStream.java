@@ -23,7 +23,8 @@ input stream for character data.
 <br>
 IFSTextFileInputStream objects are capable of generating file events 
 which call the following FileListener methods: fileClosed and fileOpened.
-<br>
+<br>Note: This class is provided for situations where an <tt>InputStream</tt> is required.  The preferred method of reading a text file is via {@link IFSFileReader IFSFileReader}.
+<p>
 The following example illustrates the use of IFSTextFileInputStream:
 <pre>
 // Work with /File on the system eniac.
@@ -39,7 +40,6 @@ file.close();
 @see com.ibm.as400.access.FileEvent
 @see com.ibm.as400.access.IFSFileInputStream#addFileListener
 @see com.ibm.as400.access.IFSFileInputStream#removeFileListener
-@deprecated Use {@link IFSFileReader IFSFileReader} instead.
  **/
 public class IFSTextFileInputStream extends IFSFileInputStream
   implements java.io.Serializable

@@ -19,9 +19,11 @@ import java.io.Writer;
 /**
 Convenience class for writing character files in the integrated file system.
 The behavior of this class is comparable to <tt>java.io.FileWriter</tt>.
-IFSFileWriter is meant for writing streams of characters.
-For writing streams of raw bytes, consider using a {@link IFSFileOutputStream IFSFileOutputStream}.
 <br>
+IFSFileWriter is meant for writing streams of characters.
+For writing streams of raw bytes, use {@link IFSFileOutputStream IFSFileOutputStream}.
+If an <tt>OutputStream</tt> is required, use {@link IFSTextFileOutputStream IFSTextFileOutputStream}.
+<p>
 The following example illustrates the use of IFSFileWriter:
 <pre>
 import java.io.PrintWriter;

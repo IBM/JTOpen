@@ -411,6 +411,7 @@ implements IFSFileInputStreamImpl
     return bytesRead;
   }
 
+  // Used by IFSTextFileInputStream.read(int) only:
   /**
    Reads up to <i>length</i> characters from this text file input stream.
    The file contents are converted from the file data CCSID to Unicode if
@@ -425,7 +426,6 @@ implements IFSFileInputStreamImpl
    @exception ServerStartupException If the server cannot be started.
    @exception UnknownHostException If the server cannot be located.
    @exception UnsupportedEncodingException If the file's character encoding is not supported.
-   @deprecated Used only by IFSTextFileInputStream, which is deprecated.
    **/
   public String readText(int length)
     throws IOException
