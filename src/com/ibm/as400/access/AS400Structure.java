@@ -27,7 +27,7 @@ public class AS400Structure implements AS400DataType
 
 
     private AS400DataType[] elements = null;
-    private static final int defaultValue = 0;
+    private static Object[] defaultValue = null;
     private boolean allowChanges = true;  // For beans: allow changes after null constructor until conversion method called
 
     /**
@@ -109,12 +109,22 @@ public class AS400Structure implements AS400DataType
 
     /**
      * Returns a Java object representing the default value of the data type.
-     * @return The zero length Object array.
+     * @return An Object array (<tt>Object[]</tt>) containing the default values for the members of the structure.  The returned array contains one element for each member, in correct sequence.
      **/
     public Object getDefaultValue()
     {
-     return new Object[defaultValue];
+      if (defaultValue == null)
+      {
+        int numElements = elements.length;
+        defaultValue = new Object[numElements];
+        for (int i = 0; i < numElements; i++) {
+          defaultValue[i] = elements[i].getDefaultValue();
+        }
+      }
+
+      return defaultValue;
     }
+
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_STRUCTURE TYPE_STRUCTURE}.
