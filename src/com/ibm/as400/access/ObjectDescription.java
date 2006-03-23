@@ -1148,6 +1148,7 @@ public class ObjectDescription
       case RESET_DATE:
       case SAVE_ACTIVE_DATE:
       case JOURNAL_START_DATE:
+      case LAST_USED_DATE:
         return getDate(o);
       case JOURNAL:
         String name = (String)o;
@@ -1375,7 +1376,8 @@ public class ObjectDescription
     parms[4] = new ProgramParameter(text10.toBytes("*"+type_)); // object type
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSROBJD.PGM", parms); // retrieve object description
-    // pc.setThreadSafe(true);
+    // QUSROBJD is thread safe.
+    if (!ProgramCall.isThreadSafetyPropertySet()) pc.setThreadSafe(true);
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
