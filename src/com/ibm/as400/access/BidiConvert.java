@@ -6,17 +6,20 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2005 International Business Machines Corporation and
+// Copyright (C) 2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import java.util.StringTokenizer;
+import java.nio.CharBuffer;
+
 /**
  *  BidiConvert is a convenience class to facilitate invocation of the
- *  Bidi layout transformations by converter code in the JVM.  It contains
- *  2 public methods:  toUnicode() and toSbcs().
+ *  Bidi layout transformations by converter code in the JVM. <p>
+ *  It contains 2 public methods:  toUnicode() and toSbcs().
  *  <p>
  *  Method toUnicode() must be called  by the ByteToChar converters
  *  after converting the SBCS byte data into Unicode.
@@ -24,13 +27,7 @@ package com.ibm.as400.access;
  *  Method toSbcs() must be called by the CharToByte converters before
  *  converting the Unicode string data into byte data.
  *
- *  <p><b>Multi-threading considerations:</b>
- *  ?????
- *
  */
-
-import java.util.StringTokenizer;
-import java.nio.CharBuffer;
 
 class BidiConvert
 {
@@ -190,10 +187,10 @@ class BidiConvert
     }
 
 /**
- *  This method checks if the environment enables Bidi transformations for the current encoding.
+ *  This method checks if the environment allows Bidi transformations for the current encoding.
  *  @param  bidiParms   The environment variable containing the specifications of the Bidi attributes.
  *  @param  encoding    The encoding of the data outside the JVM.
- *  @return             true if the environment enables Bidi transformations for the current encoding.
+ *  @return             true if the environment allows Bidi transformations for the current encoding.
  */
     public boolean isBidiEnv(String bidiParms, String encoding)
     {

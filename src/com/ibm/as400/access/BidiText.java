@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,8 @@ package com.ibm.as400.access;
 
 /**
  *  Bidi text is a combination of a sequence of characters and a set of
- *  Bidi flags which represent Bidi attributes.
+ *  Bidi flags which represent Bidi attributes used during Bidi Layout
+ *  transformations.
  *  <p>
  *  Layout transformations allow to convert a given instance of Bidi text
  *  into another instance with possibly different Bidi flags while
@@ -129,7 +130,7 @@ class BidiText
   }
 
 /**
- *  Compare two BidiText objects.
+ *  Compares two BidiText objects.
  *  Two BidiText objects are considered equal if they have the same Bidi flags
  *  and the same "interesting" character data,
  *  @param  other       The BidiText to compare to this.
@@ -149,7 +150,7 @@ class BidiText
   }
 
 /**
- *  Replace the character data <em>reference</em> in the BidiText object.
+ *  Replaces the character data <em>reference</em> in the BidiText object.
  *  Note that the data is not duplicated, only its
  *  reference is written in the BidiText object.
  *  <p>This method avoids the overhead of creating a character array
@@ -171,7 +172,7 @@ class BidiText
   }
 
 /**
- *  Extract the character data from a BidiText in character array format
+ *  Extracts the character data from a BidiText in character array format
  *  @return A char array containing a copy of the "interesting" data.
  */
   public char[] toCharArray()
@@ -182,7 +183,7 @@ class BidiText
   }
 
 /**
- *  Extract the character data from a BidiText in string format
+ *  Extracts the character data from a BidiText in string format
  *  @return A string containing a copy of the "interesting" data.
  */
   public String toString()
@@ -191,7 +192,7 @@ class BidiText
   }
 
 /**
- *  Transform the data in the "this" BidiText object and return the resulting
+ *  Transforms the data in the "this" BidiText object and return the resulting
  *  BidiText object.
  *  The transformation is done according to the Bidi flags of the source
  *  BidiText and the Bidi flags specified in the argument.
@@ -219,7 +220,7 @@ class BidiText
   }
 
 /**
- *  Transform the data in the "this" BidiText object and return the resulting
+ *  Transforms the data in the "this" BidiText object and return the resulting
  *  BidiText object.
  *  The transformation is done according to the Bidi flags of the source
  *  BidiText and the Bidi flags specified in the BidiTransform argument.

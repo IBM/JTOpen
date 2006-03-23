@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,9 @@
 package com.ibm.as400.access;
 
 /**
+ *  This class represents BidiFlag objects and provides initial values for
+ *  all flag options.
+ *  <p>
  *  Bidi text can be stored in different formats, which are characterized
  *  by 5 Bidi attributes, whose values may be stored in 5 Bidi flags.
  *  These 5 flags constitute a BidiFlagSet.
@@ -72,38 +75,37 @@ class BidiFlag
             = new BidiFlag(BidiFlagSet.IORIENTATION_CONTEXT_RTL, BidiFlagSet.ORIENTATION_MASK);
 
 /**
- *  Value identifying that Symmetric Swapping has been applied
+ *  Value identifying that symmetric swapping has been applied
  */
     public static final BidiFlag    SWAP_YES
             = new BidiFlag(BidiFlagSet.ISWAP_YES, BidiFlagSet.SWAP_MASK);
 /**
- *  Value identifying that Symmetric Swapping has not been applied
+ *  Value identifying that symmetric swapping has not been applied
  */
     public static final BidiFlag    SWAP_NO
             = new BidiFlag(BidiFlagSet.ISWAP_NO, BidiFlagSet.SWAP_MASK);
 
 /**
- *  Value identifying that Numeral Shapes are Nominal
+ *  Value identifying that numeral shapes are Nominal
  */
     public static final BidiFlag    NUMERALS_NOMINAL
             = new BidiFlag(BidiFlagSet.INUMERALS_NOMINAL, BidiFlagSet.NUMERALS_MASK);
 /**
- *  Value identifying that Numeral Shapes are National
+ *  Value identifying that numeral shapes are National
  */
     public static final BidiFlag    NUMERALS_NATIONAL
             = new BidiFlag(BidiFlagSet.INUMERALS_NATIONAL, BidiFlagSet.NUMERALS_MASK);
 /**
- *  Value identifying that Numeral Shapes are Contextual (Nominal or National
+ *  Value identifying that numeral shapes are Contextual (Nominal or National
  *  depending on context)
  */
     public static final BidiFlag    NUMERALS_CONTEXTUAL
             = new BidiFlag(BidiFlagSet.INUMERALS_CONTEXTUAL, BidiFlagSet.NUMERALS_MASK);
 /**
- *  Value identifying that Numeral Shapes may be Nominal or National
+ *  Value identifying that numeral shapes may be Nominal or National
  */
     public static final BidiFlag    NUMERALS_ANY
             = new BidiFlag(BidiFlagSet.INUMERALS_ANY, BidiFlagSet.NUMERALS_MASK);
-
 /**
  *  Value identifying that the text is stored in Nominal characters
  */

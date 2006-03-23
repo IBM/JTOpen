@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,10 @@
 package com.ibm.as400.access;
 
  /**
+ *  This class represents an ArabicOptionSet object defining the shaping
+ *  attributes to be used during Bidi Layout Transformation process.
+ *  It also defines the available values for each option.
+ *  <p>
  *  Arabic text has some special characters that can be converted to different formats, which are characterized
  *  by four Bidi options, these options are stored in four Arabic objects.
  *  These four options constitute an ArabicOptionSet.
@@ -21,14 +25,16 @@ package com.ibm.as400.access;
  *  An ArabicOptionSet object contains a value for each of the four Arabic objects
  *  which represent the Arabic options.  The four options are:
  *  <ul>
- *  <li> Lam-Alef handling (Resize buffer, Near, At Begin, At End or Auto)
- *  <li> Seen handling (Near, At Begin, At End or Auto)
- *  <li> Yeh Hamza handling (One cell, Near, At Begin, At End or Auto)
- *  <li> Tashkeel handling (Keep, Customized with Zero Width, Customized With Width, Customized At Begin,
- *  Customized At end, or Auto)
+ *  <li> Lam-Alef handling (Near, At Begin, At End or Auto)
+ *  <li> Seen handling (Near or Auto)
+ *  <li> Yeh Hamza handling (Near or Auto)
+ *  <li> Tashkeel handling (Keep, Customized At Begin, Customized At End, or Auto)
  *  </ul>
  *  The Arabic options values are pre-defined in this class. Each one represents one
  *  possible value of one Arabic option.
+ *  <p>
+ *  For more information on Arabic Shaping options, see:
+ *  <a href="http://www-128.ibm.com/developerworks/java/jdk/bidirectional/JAVABIDI.html">Bidirectional support in IBM SDK: A user guide</a>
  *
  *  <p><b>Multi-threading considerations:</b> There are no multi-threading
  *  concerns for this class, since it only defines static
@@ -42,25 +48,25 @@ class ArabicOptionSet
  *  Mask to apply on an ArabicOptionSet value to isolate the
  *  Lam-Alef option
  */
-    static final int    LAMALEF_MASK                    = 0x0F000000;
+    static final int    LAMALEF_MASK                = 0x0F000000;
 
 /**
  *  Value identifying LAMALEF_AUTO
  */
-    static final int    ILAMALEF_AUTO                   = 0x01000000;
+    static final int    ILAMALEF_AUTO               = 0x01000000;
 /**
  *  Value identifying LAMALEF_NEAR
  */
-    static final int    ILAMALEF_NEAR                   = 0x03000000;
+    static final int    ILAMALEF_NEAR               = 0x03000000;
 /**
  *  Value identifying LAMALEF_ATBEGIN
  */
-    static final int    ILAMALEF_ATBEGIN                = 0x05000000;
+    static final int    ILAMALEF_ATBEGIN            = 0x05000000;
 /**
  *  Value identifying LAMALEF_ATEND
  */
-    static final int    ILAMALEF_ATEND                  = 0x07000000;
-/**
+    static final int    ILAMALEF_ATEND              = 0x07000000;
+/* *
  *  Value identifying LAMALEF_RESIZE_BUFEER
  */
     static final int    ILAMALEF_RESIZE_BUFFER    = 0x09000000;
@@ -71,24 +77,24 @@ class ArabicOptionSet
  *  Mask to apply on an ArabicOptionSet value to isolate the
  *  Seen option
  */
-    static final int    SEEN_MASK                       = 0x00700000;
+    static final int    SEEN_MASK                   = 0x00700000;
 
 /**
  *  Value identifying SEEN_AUTO
  */
-    static final int    ISEEN_AUTO                      = 0x00100000;
-/**
+    static final int    ISEEN_AUTO                  = 0x00100000;
+/* *
  *  Value identifying SEEN_ATBEGIN
  */
-    static final int    ISEEN_ATBEGIN                   = 0x00300000;
-/**
+    static final int    ISEEN_ATBEGIN               = 0x00300000;
+/* *
  *  Value identifying SEEN_ATEND
  */
-    static final int    ISEEN_ATEND                     = 0x00500000;
+    static final int    ISEEN_ATEND                 = 0x00500000;
 /**
  *  Value identifying SEEN_NEAR
  */
-    static final int    ISEEN_NEAR                      = 0x00700000;
+    static final int    ISEEN_NEAR              = 0x00700000;
 
 //--------
 
@@ -102,11 +108,11 @@ class ArabicOptionSet
  *  Value identifying YEHHAMZA_AUTO
  */
     static final int    IYEHHAMZA_AUTO             = 0x00010000;
-/**
+/* *
  *  Value identifying YEHHAMZA_TWO_CELL_ATBEGIN
  */
     static final int    IYEHHAMZA_TWO_CELL_ATBEGIN = 0x00030000;
-/**
+/* *
  *  Value identifying YEHHAMZA_TWO_CELL_ATEND
  */
     static final int    IYEHHAMZA_TWO_CELL_ATEND   = 0x00050000;
@@ -114,7 +120,7 @@ class ArabicOptionSet
  *  Value identifying YEHHAMZA_TWO_CELL_NEAR
  */
     static final int    IYEHHAMZA_TWO_CELL_NEAR    = 0x00070000;
-/**
+/* *
  *  Value identifying YEHHAMZA_ONE_CELL
  */
     static final int    IYEHHAMZA_ONE_CELL         = 0x00090000;
@@ -124,32 +130,32 @@ class ArabicOptionSet
  *  Mask to apply on an ArabicOptionSet value to isolate the
  *  Tashkeel option
  */
-    static final int    TASHKEEL_MASK                           = 0x00000F00;
+    static final int    TASHKEEL_MASK                       = 0x00000F00;
 
 /**
  *  Value identifying TASHKEEL_AUTO
  */
-    static final int    ITASHKEEL_AUTO                          = 0x00000100;
-/**
+    static final int    ITASHKEEL_AUTO                      = 0x00000100;
+/* *
  *  Value identifying TASHKEEL_CUSTOMIZED_WITHZEROWIDTH
  */
-    static final int    ITASHKEEL_CUSTOMIZED_WITHZEROWIDTH      = 0x00000300;
-/**
+    static final int    ITASHKEEL_CUSTOMIZED_WITHZEROWIDTH  = 0x00000300;
+/* *
  *  Value identifying TASHKEEL_CUSTOMIZED_WITHWIDTH
  */
-    static final int    ITASHKEEL_CUSTOMIZED_WITHWIDTH          = 0x00000500;
+    static final int    ITASHKEEL_CUSTOMIZED_WITHWIDTH      = 0x00000500;
 /**
  *  Value identifying TASHKEEL_CUSTOMIZED_ATBEGIN
  */
-    static final int    ITASHKEEL_CUSTOMIZED_ATBEGIN            = 0x00000700;
+    static final int    ITASHKEEL_CUSTOMIZED_ATBEGIN        = 0x00000700;
 /**
  *  Value identifying TASHKEEL_CUSTOMIZED_ATEND
  */
-    static final int    ITASHKEEL_CUSTOMIZED_ATEND              = 0x00000900;
+    static final int    ITASHKEEL_CUSTOMIZED_ATEND          = 0x00000900;
 /**
  *  Value identifying TASHKEEL_KEEP
  */
-    static final int    ITASHKEEL_KEEP                          = 0x00000B00;
+    static final int    ITASHKEEL_KEEP                      = 0x00000B00;
 
 
 //  This is the default value for uninitialized ArabicOptionSet.
@@ -268,17 +274,18 @@ class ArabicOptionSet
  *  <li>character 1: type of text = I (Implicit) or V (Visual)
  *  <li>character 2: orientation = L (LTR), R (RTL), C (Contextual LTR) or D (Contextual RTL)
  *  <li>character 3: swapping = Y (Swapping ON) or N (Swapping OFF)
- *  <li>character 4: text shaping = N (Nominal), S (Shaped), I (Initial), M (Middle), F (Final), B (Isolated)
- *  <li>character 5: numeral shaping = N (Nominal), H (National), C (Contextual)
- *  <li>character 6: bidi algorithm = U (Unicode), R (Roundtrip)
- *  <li>character 7: Lamalef mode = R (Resize Buffer), N (Near), B (At Begin), E (At End), A (Auto)
- *  <li>character 8: SeenTail mode = N (Near), B (At Begin), E (At End), A (Auto)
- *  <li>character 9: Yeh Hamza mode = O (One cell), N (Near), B (At Begin), E (At End), A (Auto)
- *  <li>character 10:Tashkeel mode = K (Keep), Z (Customized with Zero width), W (Customized with Width), B (Customized at Begin), E (Customized at  End), A (Auto)
+ *  <li>character 4: text shaping = N (Nominal), S (Shaped), I (Initial), M (Middle), F (Final) or B (Isolated)
+ *  <li>character 5: numeral shaping = N (Nominal), H (National) or C (Contextual)
+ *  <li>character 6: bidi algorithm = U (Unicode) or R (Roundtrip)
+ *  <li>character 7: Lamalef mode = N (Near), B (At Begin), E (At End) or A (Auto)
+ *  <li>character 8: SeenTail mode = N (Near) or A (Auto)
+ *  <li>character 9: Yeh Hamza mode = N (Near) or A (Auto)
+ *  <li>character 10:Tashkeel mode = K (Keep), B (Customized at Begin), E (Customized at  End) or A (Auto)
  *  </ul>
  *  <p>Only characters 7 to 10 are used to build the ArabicOptionSet.
  *  <p>
- *  @param  chars  character array in Convert parms format. It contains the output options specified in the Bidi environment variable
+ *  @param  chars  character array in Convert parms format. It contains the output options specified in the Bidi
+ *  environment variable
  */
     public ArabicOptionSet(char chars[])
     {
@@ -347,7 +354,7 @@ class ArabicOptionSet
     }
 
 /**
- *  Compare two ArabicOptionSets.
+ *  Compares two ArabicOptionSets.
  *  Two ArabicOptionSets are considered equal if they represent the same values
  *  for the four Arabic options.
  *  @param  other       The ArabicOptionSet to compare to this.
@@ -362,8 +369,7 @@ class ArabicOptionSet
 /**
  *  Returns the Lam Alef option from an ArabicOptionSet.
  *  @return The value of the Lam Alef option.
- *  <p> The expected value is one of LAMALEF_RESIZE_BUFFER,
- *  LAMALEF_NEAR, LAMALEF_ATBEGIN, LAMALEF_ATEND or LAMALEF_AUTO
+ *  <p> The expected value is one of LAMALEF_NEAR, LAMALEF_ATBEGIN, LAMALEF_ATEND or LAMALEF_AUTO
  */
     public ArabicOption getLamAlefMode()
     {
@@ -381,8 +387,7 @@ class ArabicOptionSet
 /**
  *  Returns the Seen option from an ArabicOptionSet.
  *  @return The value of the Seen option.
- *  <p> The expected value is one of SEEN_NEAR, SEEN_ATBEGIN,
- *  SEEN_ATEND or SEEN_AUTO.
+ *  <p> The expected value is one of SEEN_NEAR or SEEN_AUTO.
  */
     public ArabicOption getSeenMode()
     {
@@ -399,8 +404,7 @@ class ArabicOptionSet
 /**
  *  Returns the Yeh Hamza option from an ArabicOptionSet.
  *  @return The value of the Yeh Hamza option.
- *  <p> The expected value is one of YEHHAMZA_TWO_CELL_NEAR, YEHHAMZA_TWO_CELL_ATBEGIN,
- *  YEHHAMZA_TWO_CELL_ATEND, YEHHAMZA_ONE_CELL or YEHHAMZA_AUTO.
+ *  <p> The expected value is one of YEHHAMZA_TWO_CELL_NEAR or YEHHAMZA_AUTO.
  */
     public ArabicOption getYehHamzaMode()
     {
@@ -416,10 +420,10 @@ class ArabicOptionSet
     }
 
 /**
- *  Returns the Tashkeel option from a ArabicOptionSet.
+ *  Returns the Tashkeel option from an ArabicOptionSet.
  *  @return The value of the Tashkeel option.
- *  <p> The expected value is one of TASHKEEL_KEEP, TASHKEEL_CUSTOMIZED_WITHZEROWIDTH, TASHKEEL_CUSTOMIZED_WITHWIDTH,
- *  TASHKEEL_CUSTOMIZED_ATBEGIN, TASHKEEL_CUSTOMIZED_ATEND, TASHKEEL_AUTO.
+ *  <p> The expected value is one of TASHKEEL_KEEP, TASHKEEL_CUSTOMIZED_ATBEGIN,
+ *  TASHKEEL_CUSTOMIZED_ATEND or TASHKEEL_AUTO.
  */
     public ArabicOption getTashkeelMode()
     {
@@ -436,10 +440,10 @@ class ArabicOptionSet
     }
 
 /**
- *  hashcode for an ArabicOptionSet.
+ *  Returns a hashcode for an ArabicOptionSet.
  *  The hashcode of a ArabicOptionSet is the same as the hashcode of its
  *  value.
- *  @return             A hashcode value.
+ *  @return  A hashcode value.
  */
     public int hashCode()
     {
@@ -447,7 +451,7 @@ class ArabicOptionSet
     }
 
 /**
- *  Set all Arabic options based on another ArabicOptionSet.
+ *  Sets all Arabic options based on another ArabicOptionSet.
  *  @param  set       The ArabicOptionSet which is copied.
  */
     public void setAllOptions(ArabicOptionSet set)
@@ -460,7 +464,7 @@ class ArabicOptionSet
  *  the other Arabic Options.
  *  <p>The new value must be one of the pre-defined values for ArabicOption.
  *
- *  @param  newoptions    The new value requested for one of the options.
+ *  @param  newoption    The new value requested for one of the options.
  */
     public void setOneOption(ArabicOption newoption)
     {

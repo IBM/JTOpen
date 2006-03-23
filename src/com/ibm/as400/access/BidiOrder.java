@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ class BidiOrder
   private static final char RLM = 0x200F;
   private static final int  BEFORE = 0;
   private static final int  AFTER  = 1<<16;
+  private static final char NODELIM = 0xFFFF;
 /*****************************************************************************/
 /* Not Spacing characters*/
 /*-----------------------*/
@@ -210,13 +211,11 @@ class BidiOrder
   {
                      /*   B,    S,    L,    R,   EN,   AN,   W,   N,  IL, Cond */
 
-/* 0 LTR text     */  {   0,    0,    0,    2,    5,    1,   0,   0,   0,  0},
-/* 1 LTR+AN       */  {   0,    0,    0,    2,    5,    1,   0,   0,   2,  0},
-/* 2 RTL text     */  {   0,    0,    0,    2,    4,    6,   3,   3,   1,  0},
-/* 3 RTL cont     */  {   0,    0,    0,    2, 0x14, 0x16,   3,   3,   1,  1},
-/* 4 RTL+EN       */  {   0,    0,    0,    2,    4,    6,   3,   3,   2,  0},
-/* 5 LTR+EN       */  {   0,    0,    0,    2,    5,    1,   0,   0,   2,  0},
-/* 6 RTL+AN       */  {   0,    0,    0,    2,    5,    6,   3,   3,   2,  0},
+/* 0 LTR text     */  {   0,    0,    0,    2,    1,    1,   0,   0,   0,  0},
+/* 1 LTR+EN/AN    */  {   0,    0,    0,    2,    1,    1,   0,   0,   2,  0},
+/* 2 RTL text     */  {   0,    0,    0,    2,    4,    4,   3,   3,   1,  0},
+/* 3 RTL cont     */  {   0,    0,    0,    2, 0x14, 0x14,   3,   3,   0,  1},
+/* 4 RTL+EN/AN    */  {   0,    0,    0,    2,    4,    4,   3,   3,   2,  0}
   };
 
 /**************************************************************************/
@@ -249,6 +248,19 @@ class BidiOrder
   };
 //  The cases handled in this table are (visually):  R EN L
 //                                                   R L AN L
+
+/**************************************************************************/
+  private static final short impTab_LTR_wm[][] =        /* markers & windows */
+  {
+                     /*   B,    S,    L,    R,   EN,   AN,   W,   N,  IL, Cond */
+
+/* 0 LTR          */  {   0,    0,    0, 0x62,    1,    1,   0,   0,   0,  0},
+/* 1 LTR+EN/AN    */  {   0,    0,    0, 0x62,    1,    1,   0,   0,   2,  0},
+/* 2 RTL text     */  {   0,    0,    0, 0x62, 0x54, 0x54,   3,   3,   1,  0},
+/* 3 RTL cont     */  {0x30, 0x30, 0x30, 0x42, 0x54, 0x54,   3,   3,   1,  1},
+/* 4 RTL+EN/AN    */  {0x30, 0x30, 0x30, 0x42,    4,    4,   3,   3,   2,  0}
+  };
+//  The case handled in this table is (visually):  R EN L
 
 
 /***************************/
@@ -316,6 +328,8 @@ class BidiOrder
   boolean reqImpToImp;                  /* impToImp request */
   int impToImpOrient;
   int impToImpPhase;
+  char delim1;                          /* starting delimiter */
+  char delim2;                          /* ending   delimiter */
 
 /*------------------------------------------------------------------------*/
 
@@ -418,13 +432,42 @@ class BidiOrder
     byte            cType, wType;
     boolean         isArabic = false;
     byte[][]        ta;
-
+    char            c;
+    int             delimState;     /* 0 = before delim1
+                                       1 = after  delim1
+                                       2 = got pair of delim2 after delim1  */
     ta = typeArray;
+    delimState = 0;
     for (i = 0; i < ics_size; i++)
     {
-        cType = getChType(ics_buffer_in[i], myBdx.wordBreak);
+        c = ics_buffer_in[i];
+        cType = getChType(c, myBdx.wordBreak);
         ta[i][ORIG] = cType;
         ta[i][FINAL] = UBAT_N;
+        if (delim1 != NODELIM)
+        {
+            if (delimState == 0)
+            {
+                if (c == delim1)
+                    delimState = 1;
+                cType = UBAT_B;
+            }
+            else if (delimState == 1)
+            {
+                if (c == delim2)
+                {
+                    if (((i+1) < ics_size) && (ics_buffer_in[i+1] == delim2))
+                        delimState = 2;
+                    else
+                    {
+                        delimState = 0;
+                        cType = UBAT_B;
+                    }
+                }
+            }
+            else                        /* must be delimState == 2 */
+                delimState = 1;
+        }
         if (visToVis)
             continue;
         switch (cType)
@@ -506,7 +549,9 @@ class BidiOrder
     {
         k = myBdx.dstToSrcMap[i];
         cType = ta[k][ORIG];            /* ok even for UBAT_N_SWAP */
-        ta[k][FINAL] = UBAT_N;
+        if ((delim1 != NODELIM) && (ta[k][FINAL] == UBAT_B))
+            cType = UBAT_B;
+        else  ta[k][FINAL] = UBAT_N;
         switch (cType)
         {
           case UBAT_B:
@@ -627,7 +672,7 @@ class BidiOrder
   {
     int i, pos;
     short sCond, newIL, newIS ,Special;
-    byte oldLevel, newLevel, pType, nType;
+    byte oldLevel, newLevel, pType, nType, level;
 
     newIS   = impTab[ ucb_impSta ][ ucb_xType ];
 
@@ -641,8 +686,23 @@ class BidiOrder
         switch (Special)
         {
         case 1:                         /* set conditional run to level 1 */
+            level = (byte)(ucb_curLev + 1);
             for (i = ucb_condPos; i < ucb_ix; i++)
-                myBdx.propertyMap[i] = (byte)(ucb_curLev + 1);
+            {
+                oldLevel = myBdx.propertyMap[i];
+                myBdx.propertyMap[i] = level;
+                if (ics_symmetric && odd(oldLevel ^ level))   /* change parity? */
+                {
+                    if (impToImpPhase == 2)
+                        pos = myBdx.dstToSrcMap[i];
+                    else  pos = i;
+                    /* inverse swap status */
+                    if (typeArray[pos][ORIG] == UBAT_N)
+                        typeArray[pos][ORIG] = UBAT_N_SWAP;
+                    else if (typeArray[pos][ORIG] == UBAT_N_SWAP)
+                        typeArray[pos][ORIG] = UBAT_N;
+                }
+            }
             ucb_condPos = -1;
             break;
 
@@ -688,7 +748,8 @@ class BidiOrder
             /* confirm possible conditional run */
             ucb_condPos = -1;
             /* check for real AN */
-            if ((ucb_xType == UBAT_AN) && (typeArray[ucb_ix][ORIG] == UBAT_AN))
+            if ((ucb_xType == UBAT_AN) && (typeArray[ucb_ix][ORIG] == UBAT_AN) &&
+                !myBdx.winCompatible)
             {
                 /* real AN */
                 if (startL2EN == -1)    /* if no relevant EN already found */
@@ -790,7 +851,9 @@ class BidiOrder
 
     ucb_impSta = newIS;
 
-    ucb_wTarget = newLevel;
+    if (ucb_xType == UBAT_B)
+        ucb_wTarget = 0;
+    else  ucb_wTarget = newLevel;
   }
 
 /*------------------------------------------------------------------------*/
@@ -1012,9 +1075,22 @@ class BidiOrder
     }
     else if (myBdx.winCompatible)
     {
-        if (ucb_basLev == 1)
-            impTab = impTab_RTL;
-        else  impTab = impTab_LTR_w;
+        if (insertMarkers)
+        {
+            if (ucb_basLev == 1)
+                impTab = impTab_RTL_m;
+            else  impTab = impTab_LTR_wm;
+            startL2EN = -1;             /* start of level 2 EN run     */
+            lastStrongRTL = -1;         /* index of last found R or AL */
+            if (myBdx.insertPoints != null)
+                myBdx.insertPoints.setSize(0);
+        }
+        else
+        {
+            if (ucb_basLev == 1)
+                impTab = impTab_RTL;
+            else  impTab = impTab_LTR_w;
+        }
     }
     else if (insertMarkers)
     {
@@ -1223,13 +1299,43 @@ class BidiOrder
     {
         impToImpOrient = 0;
     }
-    /* check that insertMarkers is only used for Visual LTR to Implicit LTR/RTL */
+
+    /* check if delimiters were specified */
+    delim1 = NODELIM;                   /* initialize for no delimiters */
+    if ((myBdx.delimiters != null) && (myBdx.delimiters.length() > 0))
+    {
+        delim1 = myBdx.delimiters.charAt(0);
+        if (myBdx.delimiters.length() > 1)
+            delim2 = myBdx.delimiters.charAt(1);
+        else  delim2 = delim1;
+    }
+
+    /* check if need to invert the input data */
     insertMarkers = myBdx.insertMarkers;
+    ics_buffer_in = new char[src.count];
+    if ((ics_type_in == BidiFlag.TYPE_VISUAL) &&
+        (ics_type_out == BidiFlag.TYPE_IMPLICIT) &&
+        ((insertMarkers && (ics_orient_in == BidiFlag.ORIENTATION_RTL)) ||
+         (!insertMarkers && (ics_orient_in != ics_orient_out))))
+    {
+        invertInput = true;
+        int ofs = src.offset + src.count - 1;
+        for (int k = 0; k < src.count; k++)
+            ics_buffer_in[k] = src.data[ofs - k];
+        ics_orient_in = insertMarkers ? BidiFlag.ORIENTATION_LTR :
+                                        ics_orient_out;
+    }
+    else
+    {
+        invertInput = false;
+        System.arraycopy(src.data, src.offset, ics_buffer_in, 0, src.count);
+    }
+
+    /* check that insertMarkers is only used for Visual to Implicit */
     if (insertMarkers)
     {
         if ((ics_type_in != BidiFlag.TYPE_VISUAL) ||
-            (ics_type_out != BidiFlag.TYPE_IMPLICIT) ||
-            (ics_orient_in != BidiFlag.ORIENTATION_LTR) ||
+            (ics_type_out != BidiFlag.TYPE_IMPLICIT)||
             myBdx.removeMarkers)
         {
             insertMarkers = false;
@@ -1239,24 +1345,6 @@ class BidiOrder
             ics_orient_in  = BidiFlag.ORIENTATION_RTL;
             ics_orient_out = BidiFlag.ORIENTATION_LTR;
         }
-    }
-
-    ics_buffer_in = new char[src.count];
-    if ((ics_type_in == BidiFlag.TYPE_VISUAL) &&
-        (ics_type_out == BidiFlag.TYPE_IMPLICIT) &&
-        (ics_orient_in != ics_orient_out) &&
-        !insertMarkers)
-    {
-        invertInput = true;
-        int ofs = src.offset + src.count - 1;
-        for (int k = 0; k < src.count; k++)
-            ics_buffer_in[k] = src.data[ofs - k];
-        ics_orient_in = ics_orient_out;
-    }
-    else
-    {
-        invertInput = false;
-        System.arraycopy(src.data, src.offset, ics_buffer_in, 0, src.count);
     }
 
     ics_size = src.count;

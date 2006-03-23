@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,21 +16,22 @@ package com.ibm.as400.access;
 import java.util.Vector;
 
 /**
- *  Bidi text is a combination of a sequence of characters and a set of
- *  Bidi flags.  Bidi text is implemented by the BidiText class.
+ *  The BidiTransform class defines Text Layout transformations.
  *  <p>
- *  Layout transformations allow to convert a given instance of BidiText
+ *  Layout transformations allow converting a given instance of BidiText
  *  (the source) into another instance (the destination) with possibly
  *  different Bidi flags while conserving the semantics of the text.
  *  <p>
- *  The BidiTransform class defines such a transformation.
- *  A BidiTransform instance contains fields which define what auxilliary
+ *  Bidi text is a combination of a sequence of characters and a set of
+ *  Bidi flags. Bidi text is implemented by the BidiText class.
+ *  <p>
+ *  A BidiTransform instance contains fields which define what auxiliary
  *  outputs are required from the transformation, and fields to refer
  *  to these outputs.
  *  The work itself is done by the transform method of the BidiText class.
  *  <p>
  *  Boolean fields are used to specify options of the transform operation.
- *  Other fields are used to store auxilliary outputs of the transformation.
+ *  Other fields are used to store auxiliary outputs of the transformation.
  *  <p>
  *  There are no specific constructors for this class.  The default
  *  constructor creates a default BidiFlagSet and puts its reference in the
@@ -57,7 +58,7 @@ class BidiTransform {
  */
     public boolean          roundTrip;
 /**
- *  Option: use "Windows compatible" algorithm for reordering
+ *  Option: use "Windows compatible" algorithm for reordering.
  *  <p>If this option is true, the reordering algorithm is modified to
  *  perform more closely like Windows.  In particular, logical string
  *  "12ABC" in LTR orientation (where ABC represent Arabic or Hebrew letters)
@@ -67,21 +68,34 @@ class BidiTransform {
  */
     public boolean          winCompatible;
 /**
- *  Option: add Markers to destination text when needed for round trip
+ *  Option: add Markers to destination text when needed for round trip.
  *  <p>If this option is true, LRM and RLM markers may be inserted when
- *  transforming from visual LTR to logical (LTR or RTL) where needed to
- *  insure round trip.
+ *  transforming from visual to logical where needed to insure round trip.
  *  <p>This option is ignored if the removeMarkers option is true.
  */
     public boolean          insertMarkers;
 /**
  *  Option: remove Markers from destination text after performing a Bidi
- *  transformation
+ *  transformation.
  *  <p>If this option is true, LRM and RLM markers in the source text
  *  participate in the reordering, but they are removed from the destination
  *  text after performing the Bidi transformation.
  */
     public boolean          removeMarkers;
+/**
+ *  Option: delimiters for performing the Bidi transformation.
+    <p>This option is enabled if the string "delimiters" is not null and has
+    a length of at least one character. This string specifies starting and
+    ending delimiters such that the Bidi transformation is only performed
+    on the data between starting and ending delimiters.
+    <p>If the length of the string is only one character, the ending delimiter
+    is assumed equal to the starting delimiter.
+    <p>An even number of successive ending delimiters in the data to transform
+    is considered part of the data and do not function as delimiters.
+    In an odd number of successive ending delimiters, the last one is
+    considered as a delimiter.
+ */
+    public String           delimiters;
 /**
  *  Option: shaping options for this transformation
  */

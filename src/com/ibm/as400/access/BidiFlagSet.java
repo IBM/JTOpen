@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,10 @@ package com.ibm.as400.access;
 import java.util.StringTokenizer;
 
 /**
+ *  This class represents a BidiFlagSet object defining the text attributes
+ *  to be used during a Bidi layout transformation process and the
+ *  available values for each flag.
+ *  <p>
  *  Bidi text can be stored in different formats, which are characterized
  *  by 5 Bidi attributes, whose values may be stored in 5 Bidi flags.
  *  These 5 flags constitute a BidiFlagSet.
@@ -76,44 +80,43 @@ class BidiFlagSet
 
 /**
  *  Mask to apply on a BidiFlagSet value to isolate the
- *  Symmetric Swapping flag
+ *  symmetric swapping flag
  */
     static final int    SWAP_MASK               = 0x00030000;
 /**
- *  Value identifying that Symmetric Swapping has been applied
+ *  Value identifying that symmetric swapping has been applied
  */
     static final int    ISWAP_YES               = 0x00010000;
 /**
- *  Value identifying that Symmetric Swapping has not been applied
+ *  Value identifying that symmetric swapping has not been applied
  */
     static final int    ISWAP_NO                = 0x00030000;
 
 /**
  *  Mask to apply on a BidiFlagSet value to isolate the
- *  Numeral Shapes flag
+ *  numeral shapes flag
  */
     static final int    NUMERALS_MASK           = 0x00000700;
 /**
- *  Value identifying that Numeral Shapes are Nominal
+ *  Value identifying that numeral shapes are Nominal
  */
     static final int    INUMERALS_NOMINAL       = 0x00000100;
 /**
- *  Value identifying that Numeral Shapes are National
+ *  Value identifying that numeral shapes are National
  */
     static final int    INUMERALS_NATIONAL      = 0x00000300;
 /**
- *  Value identifying that Numeral Shapes are Contextual (Nominal or National
+ *  Value identifying that numeral shapes are Contextual (Nominal or National
  *  depending on context)
  */
     static final int    INUMERALS_CONTEXTUAL    = 0x00000500;
 /**
- *  Value identifying that Numeral Shapes can be Nominal or National
+ *  Value identifying that numeral shapes can be Nominal or National
  */
     static final int    INUMERALS_ANY           = 0x00000700;
-
 /**
  *  Mask to apply on a BidiFlagSet value to isolate the
- *  Text Shapes flag
+ *  text shapes flag
  */
     static final int    TEXT_MASK               = 0x0000000F;
 /**
@@ -289,12 +292,12 @@ class BidiFlagSet
 /**
  *  Constructs a BidiFlagSet from a char array.
  *  The content of the array must follow the specification for the "S" and
- *  "U parts of the BIDI environment variable, as follows:
+ *  "U" parts of the BIDI environment variable, as follows:
  *  <ul>
  *  <li>character 1: type of text = I (Implicit) or V (Visual)
  *  <li>character 2: orientation = L (LTR), R (RTL), C (Contextual LTR) or D (Contextual RTL)
  *  <li>character 3: swapping = Y (Swapping ON) or N (Swapping OFF)
- *  <li>character 4:  text shaping = N (Nominal), S (Shaped), I (Initial), M (Middle), F (Final), B (Isolated)
+ *  <li>character 4: text shaping = N (Nominal), S (Shaped), I (Initial), M (Middle), F (Final), B (Isolated)
  *  <li>character 5: numeral shaping = N (Nominal), H (National), C (Contextual), A (Any)
  *  <li>character 6: bidi algorithm = U (Unicode), R (Roundtrip)
  *  <li>character 7: Lamalef mode = G (Grow), S(Shrink), N (Near), B (Begin), E (End), W (groW with space), A (Auto)
@@ -395,7 +398,7 @@ class BidiFlagSet
     }
 
 /**
- *  Compare two BidiFlagSets.
+ *  Compares two BidiFlagSets.
  *  Two BidiFlagSets are considered equal if they represent the same values
  *  for the 5 Bidi flags.
  *  @param  other       The BidiFlagSet to compare to this.
@@ -408,7 +411,7 @@ class BidiFlagSet
     }
 
 /**
- *  Returns the Numeral Shapes flag from a BidiFlagSet.
+ *  Returns the numeral shapes flag from a BidiFlagSet.
  *  @return The value of the numeral shapes flag.
  *  <p> The expected value is one of NUMERALS_NOMINAL, NUMERALS_NATIONAL,
  *  NUMERALS_CONTEXTUAL, NUMERALS_ANY.
@@ -430,7 +433,7 @@ class BidiFlagSet
     }
 
 /**
- *  Returns the Orientation flag from a BidiFlagSet.
+ *  Returns the orientation flag from a BidiFlagSet.
  *  @return The value of the orientation flag.
  *  <p> The expected value is one of ORIENTATION_LTR, ORIENTATION_RTL,
  *  ORIENTATION_CONTEXT_LTR, ORIENTATION_CONTEXT_RTL.
@@ -452,7 +455,7 @@ class BidiFlagSet
     }
 
 /**
- *  Returns the Symmetric Swapping flag from a BidiFlagSet.
+ *  Returns the symmetric swapping flag from a BidiFlagSet.
  *  @return The value of the symmetric swapping flag.
  *  <p> The expected value is one of SWAP_YES, SWAP_NO.
  *  <br>It can be tested as in the following example:
@@ -471,7 +474,7 @@ class BidiFlagSet
     }
 
 /**
- *  Returns the Text Shapes flag from a BidiFlagSet.
+ *  Returns the text shapes flag from a BidiFlagSet.
  *  @return The value of the text shapes flag.
  *  <p> The expected value is one of TEXT_NOMINAL, TEXT_SHAPED,
  *  TEXT_INITIAL, TEXT_MIDDLE, TEXT_FINAL, TEXT_ISOLATED.
@@ -495,7 +498,7 @@ class BidiFlagSet
     }
 
 /**
- *  Returns the Type-of-Text flag from a BidiFlagSet.
+ *  Returns the type-of-text flag from a BidiFlagSet.
  *  @return The value of the type-of-text flag.
  *  <p> The expected value is one of TYPE_IMPLICIT, TYPE_VISUAL.
  *  <br>It can be tested as in the following example:
@@ -514,7 +517,7 @@ class BidiFlagSet
     }
 
 /**
- *  hashcode for a BidiFlagSet.
+ *  Returns a hashcode for a BidiFlagSet.
  *  The hashcode of a BidiFlagSet is the same as the hashcode of its
  *  value.
  *  @return             A hashcode value.
@@ -525,7 +528,7 @@ class BidiFlagSet
     }
 
 /**
- *  Compute the value of a BidiFlagSet specified as text.
+ *  Computes the value of a BidiFlagSet specified as text.
  *  The text must follow the syntax of modifiers detailed in X/Open
  *  "Portable Layout Services".
  *  This format is compatible with the result of the toString method.
@@ -692,7 +695,7 @@ class BidiFlagSet
     }
 
 /**
- *  Set all bidi flags based on another BidiFlagSet.
+ *  Sets all bidi flags based on another BidiFlagSet.
  *  @param  model       The BidiFlagSet which is copied.
  */
     public void setAllFlags(BidiFlagSet model)
@@ -701,7 +704,7 @@ class BidiFlagSet
     }
 
 /**
- *  Set all bidi flags from a string.
+ *  Sets all bidi flags from a string.
  *  The content of the string must follow the syntax of modifiers
  *  specified in X/Open standard "Portable Layout Services".
  *  <p>The string contains sequences of the form "keyword=value"
@@ -732,7 +735,7 @@ class BidiFlagSet
     }
 
 /**
- *  Set all the Bidi flags in 2 BidiFlagSets based on a string.
+ *  Sets all the Bidi flags in 2 BidiFlagSets based on a string.
  *  The content of the string must follow the syntax of modifiers
  *  specified in X/Open standard "Portable Layout Services".
  *  This may be used to specify in one operation the Bidi flags of the source
@@ -807,7 +810,7 @@ class BidiFlagSet
  *  the other Bidi flags.
  *  <p>The new value must be one of the pre-defined values for BidiFlag.
  *
- *  @param  newFlags    The new value requested for one of the flags.
+ *  @param  newFlag    The new value requested for one of the flags.
  */
     public void setOneFlag(BidiFlag newFlag)
     {
@@ -815,7 +818,7 @@ class BidiFlagSet
     }
 
 /**
- *  Create a string that represents the various Bidi flags grouped in
+ *  Creates a string that represents the various Bidi flags grouped in
  *  a BidiFlagSet.  This may be useful for instance for debugging.
  *  <p>
  *  The format is compatible with the syntax of modifiers in X/Open standard

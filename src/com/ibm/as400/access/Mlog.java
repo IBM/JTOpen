@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2005 International Business Machines Corporation and
+// Copyright (C) 2005-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,10 @@ import sun.misc.MessageUtils;
 
 import java.nio.CharBuffer;
 
+/* *
+ * This class is used for tracing purposes
+ *
+ */
 public class Mlog
 {
     final static char[] hexa = new char[] {'0','1','2','3','4','5','6','7',
