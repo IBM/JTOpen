@@ -1334,7 +1334,8 @@ public class FTP implements java.io.Serializable
         if (! inConnect_)
           connect();
 
-        ps_.println(cmd);
+        ps_.print(cmd + "\r\n");
+        ps_.flush();
         readReply();
 
         //if (echo)
