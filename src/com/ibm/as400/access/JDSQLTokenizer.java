@@ -265,6 +265,16 @@ class JDSQLTokenizer implements Enumeration
         while (offset < bufferLen && buffer[offset++] != '\"');
         token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_LITERAL);
       }
+      else if (buffer[offset] == '(')
+      { //@PDA
+        // Need to check for case like "insert into x (select ...)" where there is no space after (
+        // Since no select token was found, the "extended dynamic" package was not being generated. 
+        // So force a token if '(' is matched.  Should be ok in all cases that are not delimited since 
+        // they can have a space after '(' anyway.
+        int start = offset;
+        ++offset;
+        token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_SQL);
+      }
       else if (isDelimiter(buffer[offset], delimiters))
       {
         // character at pos is a delimiter
