@@ -255,7 +255,7 @@ public class ProgramParameter implements Serializable
      **/
     public byte[] getOutputData()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting output data:", outputData_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting output data.");
         return outputData_;
     }
 
