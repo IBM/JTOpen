@@ -80,7 +80,7 @@ import com.ibm.as400.resource.RJob;
  *    system.disconnectAllServices();
  </pre>
  <p>NOTE:  When getting the AS400Message list from programs, users no longer have to create a MessageFile to obtain the program help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the AS400Message object returned from getMessageList().  Here is an example:
- <PRE>
+ <pre>
  *    if (program.run("myPgm", myParmList) != true)
  *    {
  *        // Show messages.
@@ -95,7 +95,8 @@ import com.ibm.as400.resource.RJob;
  *            System.out.println(messageList[i].getHelp());
  *        }
  *    }
- </PRE>
+ </pre>
+ <p>NOTE:  When the program runs within the host server job, the library list will be the initial library list specified in the job description in the user profile.
  @see  ProgramParameter
  @see  AS400Message
  @see  ServiceProgramCall
