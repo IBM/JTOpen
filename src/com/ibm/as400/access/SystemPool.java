@@ -6,8 +6,8 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 1997-2006 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
- * Represents a system pool on a server. It provides
+ * Represents a system pool on a server.  It provides
  * facilities for retrieving and changing system pool information.
  *
  * Here is a example:
@@ -157,6 +157,11 @@ public class SystemPool
          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
        }
        cacheChanges_ = false;
+     }
+
+     SystemPool(AS400 system, byte[] poolInformation) throws AS400SecurityException, IOException
+     {
+         this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 40, 10));
      }
 
      /**
@@ -297,6 +302,8 @@ public class SystemPool
 
         if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
         CommandCall cmd = new CommandCall(system_, cmdBuf.toString());
+        // CHGSHRPOOL is not thread safe.
+        if (!CommandCall.isThreadSafetyPropertySet()) cmd.setThreadSafe(false);
         if (!cmd.run()) {
           throw new AS400Exception(cmd.getMessageList());
         }
@@ -365,7 +372,7 @@ public class SystemPool
 
         ProgramCall pgm = new ProgramCall(system_);
         // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
-        //pgm.setThreadSafe(false);  // QUSCHGPA isn't threadsafe.   @B2A @B3C
+        //pgm.setThreadSafe(false);  // QUSCHGPA isn't threadsafe.
 
         try
         {
@@ -469,7 +476,7 @@ public class SystemPool
 
     /**
      * Gets the value for the specified field out of the
-     * appropriate record in the format cache. If the particular
+     * appropriate record in the format cache.  If the particular
      * format has not been loaded yet, it is loaded from the 400.
     **/
     private Object get(String field)
@@ -557,9 +564,9 @@ public class SystemPool
      /**
       * Returns the rate, shown in page faults per second, of
       * database page faults against pages containing either database data
-      * or access paths. A page fault is a program notification that occurs
+      * or access paths.  A page fault is a program notification that occurs
       * when a page that is marked as not in main storage is referred to be
-      * an active program. An access path is the means by which the system
+      * an active program.  An access path is the means by which the system
       * provides a logical organization to the data in a database file.
       *
       * @return The rate.
@@ -745,7 +752,7 @@ public class SystemPool
      /**
       * Returns the value indicating whether the system will dynamically
       * adjust the paging characteristics of the storage pool for optimum
-      * performance. The following special values may be returned.
+      * performance.  The following special values may be returned.
       *
       *   *FIXED:   The system does not dynamically adjust the paging
       *             characteristics.
@@ -843,7 +850,7 @@ public class SystemPool
      }
 
      /**
-      * Returns the name of this storage pool. The name may be a number, in
+      * Returns the name of this storage pool.  The name may be a number, in
       * which case it is a private pool associated with a subsystem.
       * The following special values may be returned:
       *<p>
@@ -856,7 +863,7 @@ public class SystemPool
       *<li> *SPOOL    The specified pool definition is defined to be the
       *   shared pool used for spooled writers.
       *<li> *SHRPOOL1 - *SHRPOOL10  The specified pool definition is defined
-      *   to be a shared pool. For v4r3, this is *SHRPOOL60.
+      *   to be a shared pool.  For v4r3, this is *SHRPOOL60.
       *</p>
       *
       * @return The pool name.
@@ -869,7 +876,7 @@ public class SystemPool
      }
 
      /**
-      * Returns the name of this storage pool. The name may be a number, in
+      * Returns the name of this storage pool.  The name may be a number, in
       * which case it is a private pool associated with a subsystem.
       * The following special values may be returned:
       *<p>
@@ -882,7 +889,7 @@ public class SystemPool
       *<li> *SPOOL    The specified pool definition is defined to be the
       *   shared pool used for spooled writers.
       *<li> *SHRPOOL1 - *SHRPOOL10  The specified pool definition is defined
-      *   to be a shared pool. For v4r3, this is *SHRPOOL60.
+      *   to be a shared pool.  For v4r3, this is *SHRPOOL60.
       *</p>
       *
       * @return The pool name.
@@ -1090,7 +1097,7 @@ public class SystemPool
 
 
      /**
-      * Loads the system pool information. The system and the system pool
+      * Loads the system pool information.  The system and the system pool
       * name should be set before this method is invoked.
       *
       * Note: This method is equivalent to the refreshCache() method.
@@ -1118,9 +1125,9 @@ public class SystemPool
      }
 
     /*
-     * Refreshes the current system pool information. The
+     * Refreshes the current system pool information.  The
      * currently cached data is cleared and new data will
-     * be retrieved from the system when needed. That is,
+     * be retrieved from the system when needed.  That is,
      * after a call to refreshCache(), a call to one of the get() or set()
      * methods will go to the system to retrieve or set the value.
      *
@@ -1210,7 +1217,7 @@ public class SystemPool
 
     ProgramCall pgm = new ProgramCall(system_);
     // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
-    //pgm.setThreadSafe(false);  // QWCRSSTS isn't threadsafe.     @B2A @B3C
+    //pgm.setThreadSafe(false);  // QWCRSSTS isn't threadsafe.
     try
     {
       pgm.setProgram(prgName.getPath(), parmList);
@@ -1400,7 +1407,7 @@ public class SystemPool
      * @param cache true if caching should be used when getting
      *              and setting information to and from the server; false
      *              if every get or set should communicate with the server
-     *              immediately. Any cached changes that are not committed
+     *              immediately.  Any cached changes that are not committed
      *              when caching is turned off will be lost.
      *              The default behavior is no caching.
      * @see #commitCache
@@ -1417,9 +1424,9 @@ public class SystemPool
       * Sets the minimum faults-per-second guideline, the faults per second for each active thread,
       * and the maximum faults-per-second guideline for this storage pool.
       * The sum of minimum faults and per-thread faults must be less than the
-      * value of the maximum faults parameter. Each value is used by the
+      * value of the maximum faults parameter.  Each value is used by the
       * system if the performance adjustment (QPFRADJ) system value is set to
-      * 2 or 3. If you want the system to calculate the priority, you must
+      * 2 or 3.  If you want the system to calculate the priority, you must
       * specify SystemPool.CALCULATE for each parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
       *
@@ -1477,10 +1484,10 @@ public class SystemPool
 
      /**
       * Sets the maximum faults-per-second guideline to use for this storage
-      * pool. The sum of minimum faults and per-thread faults must be less than the
-      * value of the maximum faults parameter. This value is used by the
+      * pool.  The sum of minimum faults and per-thread faults must be less than the
+      * value of the maximum faults parameter.  This value is used by the
       * system if the performance adjustment (QPFRADJ) system value is set to
-      * 2 or 3. If you want the system to calculate the priority, you must
+      * 2 or 3.  If you want the system to calculate the priority, you must
       * specify SystemPool.CALCULATE for this parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
       *
@@ -1523,10 +1530,10 @@ public class SystemPool
 
      /**
       * Sets the maximum amount of storage to allocate to this storage pool
-      * (as a percentage of total main storage). This value cannot be
-      * less than the minimum pool size % parameter value. This value is used
+      * (as a percentage of total main storage).  This value cannot be
+      * less than the minimum pool size % parameter value.  This value is used
       * by the system if the performance adjustment (QPFRADJ) system value
-      * is set to 2 or 3. If you want the system to calculate the priority,
+      * is set to 2 or 3.  If you want the system to calculate the priority,
       * you must specify SystemPool.CALCULATE for this parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
       *
@@ -1570,8 +1577,8 @@ public class SystemPool
      /**
       * Sets the value indicating whether messages reporting that a change was
       * made are written to the current job's job log and to the QHST message
-      * log. This affects the logging of change-related messages only; it does
-      * not affect the logging of error messages. Valid values are:
+      * log.  This affects the logging of change-related messages only; it does
+      * not affect the logging of error messages.  Valid values are:
       *<p>
       *<li> true - Log change messages.
       *<li> false - Do not log change messages.
@@ -1613,9 +1620,9 @@ public class SystemPool
 
      /**
       * Sets the minimum faults-per-second guideline to use for this storage
-      * pool. This value is used by the system if the performance adjustment
-      * (QPFRADJ) system value is set to 2 or 3. If you want the system to
-      * calculate the priority, you must specify -2 for this parameter. If
+      * pool.  This value is used by the system if the performance adjustment
+      * (QPFRADJ) system value is set to 2 or 3.  If you want the system to
+      * calculate the priority, you must specify -2 for this parameter.  If
       * you do not want this value to change, you may specify -1 for this
       * parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
@@ -1660,10 +1667,10 @@ public class SystemPool
 
      /**
       * Sets the minimum and maximum amount of storage to allocate to this storage pool
-      * (as a percentage of total main storage). Maximum value cannot be
-      * less than the minimum pool size % parameter value. Each value is used
+      * (as a percentage of total main storage).  Maximum value cannot be
+      * less than the minimum pool size % parameter value.  Each value is used
       * by the system if the performance adjustment (QPFRADJ) system value
-      * is set to 2 or 3. If you want the system to calculate the priority,
+      * is set to 2 or 3.  If you want the system to calculate the priority,
       * you must specify SystemPool.CALCULATE for each parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
       *
@@ -1720,9 +1727,9 @@ public class SystemPool
      /**
       * Sets the minimum amount of storage to allocate to this storage pool
       * (as a percentage of total main storage).  This value cannot be
-      * greater than the maximum pool size % parameter value. This value is
+      * greater than the maximum pool size % parameter value.  This value is
       * used by the system if the performance adjustment (QPFRADJ) system
-      * value is set to 2 or 3. If you want the system to calculate the
+      * value is set to 2 or 3.  If you want the system to calculate the
       * priority, you must specify SystemPool.CALCULATE for this parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
       *
@@ -1810,12 +1817,12 @@ public class SystemPool
 
      /**
       * Sets the faults per second for each active thread in this storage
-      * pool. Each job is comprised of one or more threads. The system multiples
+      * pool.  Each job is comprised of one or more threads.  The system multiples
       * this number by the number of active threads that it finds in the
-      * pool. This result is added to the minimum faults parameter to
-      * calculate the faults-per-second guideline to use for this pool. This
+      * pool.  This result is added to the minimum faults parameter to
+      * calculate the faults-per-second guideline to use for this pool.  This
       * value is used by the system if the performance adjustment (QPFRADJ)
-      * system value is set to 2 or 3. If you want the system to calculate
+      * system value is set to 2 or 3.  If you want the system to calculate
       * the priority, you must specify SystemPool.CALCULATE for this parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
       *
@@ -1857,7 +1864,7 @@ public class SystemPool
      }
 
      /**
-      * Sets the activity level for the pool. The activity level of a
+      * Sets the activity level for the pool.  The activity level of a
       * "machine" pool (*MACHINE) cannot be changed.
       *
       * @param value The new activity level for the pool.
@@ -1893,7 +1900,7 @@ public class SystemPool
      }
 
      /**
-      * Sets the activity level for the pool. The activity level of a
+      * Sets the activity level for the pool.  The activity level of a
       * "machine" pool (*MACHINE) cannot be changed.
       *
       * Recommended coding pattern:
@@ -1971,7 +1978,7 @@ public class SystemPool
 
      /**
       * Sets the size of the system pool in kilobytes, where one kilobyte is
-      * 1024 bytes. The minimum value is 32 kilobytes. For V4R3 and later, the
+      * 1024 bytes.  The minimum value is 32 kilobytes.  For V4R3 and later, the
       * minimum is 256.  To indicate that no storage or activity level is defined
       * for the pool, specify 0.
       *
@@ -2009,7 +2016,7 @@ public class SystemPool
 
      /**
       * Sets the size of the system pool in kilobytes, where one kilobyte is
-      * 1024 bytes. The minimum value is 32 kilobytes. For V4R3 and later, the
+      * 1024 bytes.  The minimum value is 32 kilobytes.  For V4R3 and later, the
       * minimum is 256.  To indicate that no storage or activity level is defined
       * for the pool, specify 0.
       *
@@ -2052,9 +2059,9 @@ public class SystemPool
 
      /**
       * Sets the priority of this pool relative the priority of the other
-      * storage pools. Valid values are 1 through 14. The priority for the
-      * *MACHINE pool must be 1. This value is used by the system if the
-      * performance adjustment (QPFRADJ) system value is set to 2 or 3. If
+      * storage pools.  Valid values are 1 through 14.  The priority for the
+      * *MACHINE pool must be 1.  This value is used by the system if the
+      * performance adjustment (QPFRADJ) system value is set to 2 or 3.  If
       * you want the system to calculate the priority, you must specify
       * SystemPool.CALCULATE_INT for this parameter.
       * <br>Note: This method is not supported for private (subsystem) pools.
