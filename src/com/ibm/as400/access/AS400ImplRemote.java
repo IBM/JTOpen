@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1999-2004 International Business Machines Corporation and
+// Copyright (C) 1999-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,11 +33,9 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 // AS400ImplRemote is the functional implementation of the AS400Impl interface.
 class AS400ImplRemote implements AS400Impl
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     private static final boolean PASSWORD_TRACE = false;
 
-    // The pool of servers.  Tne servers are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
+    // The pool of systems.  Tne systems are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
     private Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector() };
 
     // System name.
@@ -68,13 +66,13 @@ class AS400ImplRemote implements AS400Impl
     // Flag that indicates if we use threads in communication with the host servers.
     private boolean threadUsed_ = true;
 
-    // CCSID to use in conversations with the server.
+    // CCSID to use in conversations with the system.
     private int ccsid_ = 0;
     // If the user has told us to override common sense and use the CCSID they want.
     private boolean userOverrideCcsid_ = false;
     // The NLV.
     private String nlv_;
-    // Set of socket options to use when creating our connections to the server.
+    // Set of socket options to use when creating our connections to the system.
     private SocketProperties socketProperties_ = null;
 
     // IASP name used for DDM, if specified.
@@ -82,7 +80,7 @@ class AS400ImplRemote implements AS400Impl
 
     // VRM information from the sign-on server.  Retrieved from sign-on connect and stored until placed in sign-on information.
     private ServerVersion version_;
-    // Server level of the sign-on server.  Retrieved from sign-on connect and stored until placed in sign-on information.
+    // System level of the sign-on server.  Retrieved from sign-on connect and stored until placed in sign-on information.
     private int serverLevel_;
     // Type of password encryption.
     private boolean passwordType_ = false;  // false == DES, true == SHA-1.
@@ -446,7 +444,7 @@ class AS400ImplRemote implements AS400Impl
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "All services disconnected implementation.");
     }
 
-    // Disconnects the server and removes it from the server list.
+    // Disconnects the system and removes it from the system list.
     // param  server  The AS400Server to disconnect and remove.
     void disconnectServer(AS400Server server)
     {
@@ -459,7 +457,7 @@ class AS400ImplRemote implements AS400Impl
             {
                 serverList.removeElement(server);
 
-                // Only fire the event if all servers have been disconnected.
+                // Only fire the event if all systems have been disconnected.
                 if (serverList.isEmpty())
                 {
                     fireConnectEvent(false, service);
@@ -644,7 +642,7 @@ class AS400ImplRemote implements AS400Impl
                     proxySeed_ = null;
                     remoteSeed_ = null;
 
-                    // Generate the correct password based on the password encryption level of the server.
+                    // Generate the correct password based on the password encryption level of the system.
                     if (passwordType_ == false)
                     {
                         // Prepend Q to numeric password.
@@ -838,7 +836,7 @@ class AS400ImplRemote implements AS400Impl
 
     synchronized Socket getConnection(int dhcp, int port) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to server at port:", port);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:", port);
         Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
         try
         {
@@ -949,7 +947,7 @@ class AS400ImplRemote implements AS400Impl
     // Get AS400Server object connected to indicated service.  You can get either an existing connection or ask for a new connection.
     synchronized AS400Server getConnection(int service, boolean forceNewConnection) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to server: " + AS400.getServerName(service));
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system: " + AS400.getServerName(service));
 
         // Necessary for case where we are connecting after native sign-on.
         if (!isPasswordTypeSet_)
@@ -959,22 +957,22 @@ class AS400ImplRemote implements AS400Impl
         }
 
         AS400Server server = null;
-        // Get the list of servers associated with this service.
+        // Get the list of systems associated with this service.
         Vector serverList = serverPool_[service];
         synchronized (serverList)
         {
             if (!forceNewConnection && !serverList.isEmpty())
             {
-                // Server exists, get the first available server to reuse.
+                // System exists, get the first available system to reuse.
                 server = (AS400Server)serverList.firstElement();
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
 
-                // Return the connected server.
+                // Return the connected system.
                 return server;
             }
         }
 
-        SocketContainer sc = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service, useSSLConnection_, socketProperties_);
+        SocketContainer sc = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service, useSSLConnection_, socketProperties_, mustUseNetSockets_);
         String jobString = "";
         try
         {
@@ -988,7 +986,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] serverSeed = (byte[])seeds[1];
 
                 byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-                
+
                 // Get the substitute password.
                 byte[] ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
 
@@ -1052,7 +1050,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] jobBytes = reply.getJobNameBytes();
                 ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
                 jobString = converter.byteArrayToString(jobBytes);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server job: " + jobString);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System job: " + jobString);
 
                 if (reply.getRC() != 0)
                 {
@@ -1104,7 +1102,7 @@ class AS400ImplRemote implements AS400Impl
             server = new AS400NoThreadServer(this, service, sc, jobString);
         }
 
-        // Add the server to our list so we can return it on a subsequent connect()...
+        // Add the system to our list so we can return it on a subsequent connect()...
         serverList.addElement(server);
 
         fireConnectEvent(true, service);
@@ -1112,7 +1110,7 @@ class AS400ImplRemote implements AS400Impl
         return server;
     }
 
-    // The NLV to send to server.
+    // The NLV to send to the system.
     String getNLV()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation: " + nlv_);
@@ -1145,7 +1143,7 @@ class AS400ImplRemote implements AS400Impl
 
         if (bytes_ == null)
         {
-            if (AS400.onAS400 && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
+            if (AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
             {
                 encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed);
             }
@@ -1433,7 +1431,7 @@ class AS400ImplRemote implements AS400Impl
                 // User ID errors: user ID valid, but revoked.
                 return new AS400SecurityException(AS400SecurityException.USERID_DISABLE);
             case 0x00020003:
-                // User profile mismatch.                      
+                // User profile mismatch.
                 return new AS400SecurityException(AS400SecurityException.USERID_MISMATCH);
             case 0x00030001:
                 // Password errors: new password or passphase longer than maximum accepted length.
@@ -1654,8 +1652,12 @@ class AS400ImplRemote implements AS400Impl
         PortMapper.setServicePortsToDefault(systemName);
     }
 
+    // Flag that indicates if we must use network sockets and not unix domain sockets.
+    private boolean mustUseNetSockets_ = false;
+    // Flag that indicates if we must not use the current profile.
+    private boolean mustUseSuppliedProfile_ = false;
     // Set the state variables for this implementation object.
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile)
     {
         if (Trace.traceOn_)
         {
@@ -1666,7 +1668,9 @@ class AS400ImplRemote implements AS400Impl
             Trace.log(Trace.DIAGNOSTIC, "  User specified CCSID:", ccsid);
             Trace.log(Trace.DIAGNOSTIC, "  NLV: " + nlv);
             Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
-            Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: "+ ddmRDB);
+            Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: " + ddmRDB);
+            Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets: " + mustUseNetSockets);
+            Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile: " + mustUseSuppliedProfile);
         }
         useSSLConnection_ = useSSLConnection;
         canUseNativeOptimization_ = canUseNativeOptimization;
@@ -1679,6 +1683,8 @@ class AS400ImplRemote implements AS400Impl
         nlv_ = nlv;
         socketProperties_ = socketProperties;
         ddmRDB_ = ddmRDB;
+        mustUseNetSockets_ = mustUseNetSockets;
+        mustUseSuppliedProfile_ = mustUseSuppliedProfile;
     }
 
     // Exchange sign-on flows with sign-on server.
@@ -1846,7 +1852,7 @@ class AS400ImplRemote implements AS400Impl
     {
         if (signonConnection_ == null)
         {
-            signonConnection_ = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_);
+            signonConnection_ = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
             try
             {
                 InputStream inStream = signonConnection_.getInputStream();
@@ -1933,7 +1939,7 @@ class AS400ImplRemote implements AS400Impl
 
     boolean swapTo(byte[] swapToPH, byte[] swapFromPH) throws AS400SecurityException, IOException
     {
-        if (AS400.onAS400 && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification()))) return false;
+        if (AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification()))) return false;
         if (bytes_ == null)
         {
             Trace.log(Trace.ERROR, "Password is null.");
@@ -2143,7 +2149,7 @@ class AS400ImplRemote implements AS400Impl
     //    RDrSEQ  The arithmetic sum of RDr and the current value of PWSEQs.
     //    DES  Data Encryption Standard algorithm
     //
-    //  Note: The MAC(DES) function was implemented according to the description given in the iSeries server MI functional reference for the CIPHER function. Under the section "Cipher Block Chaining".  Basicaly what it says is that the MAC des use the DES algorithm to encrypt the first data block (8 bytes) the result is then exclusive ORed with the next data block and it become the data input for the DES algorithm. For subsequents blocks of data the same operation is repeated.
+    //  Note: The MAC(DES) function was implemented according to the description given in the MI functional reference for the CIPHER function. Under the section "Cipher Block Chaining".  Basically what it says is that the MAC des use the DES algorithm to encrypt the first data block (8 bytes) the result is then exclusive ORed with the next data block and it become the data input for the DES algorithm. For subsequents blocks of data the same operation is repeated.
     private static byte[] generatePasswordSubstitute(byte[] userID, byte[] token, byte[] password_verifier, byte[] sequenceNumber, byte[] clientSeed, byte[] serverSeed)
     {
         byte[] RDrSEQ = new byte[8];

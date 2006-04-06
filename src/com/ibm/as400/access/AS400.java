@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@ import java.util.Vector;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
- Represents the authentication information and a set of connections to a server.
- <p>If running under i5/OS or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
- <p>If running on another operating system to a server, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running from another operating system.
+ Represents the authentication information and a set of connections to the i5/OS host servers.
+ <p>If running on i5/OS or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
+ <p>If running on another operating system, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running on another operating system.
  <p>For example:
  <pre>
  *    AS400 system = new AS400();
@@ -83,7 +83,7 @@ public class AS400 implements Serializable
      Constant indicating the Sign-on service.
      **/
     public static final int SIGNON = 7;
-    // Constants 8-15 reserved for SSL versions of the above servers.
+    // Constants 8-15 reserved for SSL versions of the above services.
 
     /**
      Special value indicating the service port should be retrieved from the port mapper server.
@@ -120,7 +120,7 @@ public class AS400 implements Serializable
      **/
     public static final int GSS_OPTION_NONE = 2;
 
-    // Determine if we are running on the server.
+    // Determine if we are running on i5/OS.
     static boolean onAS400 = false;
     // VRM from system property, if we are native.
     static ServerVersion nativeVRM = null;
@@ -145,12 +145,6 @@ public class AS400 implements Serializable
                         int vrm = ((versionChars[1] & 0x000F) << 16) +
                                   ((versionChars[3] & 0x000F) <<  8) +
                                    (versionChars[5] & 0x000F);
-                        AS400.nativeVRM = new ServerVersion(vrm);
-                    }
-                    else if (versionChars.length == 3)
-                    {
-                        int vrm = ((versionChars[0] & 0x000F) << 16) +
-                                  ((versionChars[2] & 0x000F) <<  8);
                         AS400.nativeVRM = new ServerVersion(vrm);
                     }
                 }
@@ -224,13 +218,17 @@ public class AS400 implements Serializable
     SSLOptions useSSLConnection_ = null;
     // Flag that indicates if we must use the host servers and no native optimizations.
     private boolean mustUseSockets_ = false;
+    // Flag that indicates if we must use network sockets and not unix domain sockets.
+    private boolean mustUseNetSockets_ = false;
+    // Flag that indicates if we must not use the current profile.
+    private boolean mustUseSuppliedProfile_ = false;
     // Flag that indicates if we use threads in communication with the host servers.
     private boolean threadUsed_ = true;
     // Locale object to use for determining NLV.
     private Locale locale_ = Locale.getDefault();
     // The NLV set or determined from the locale.
     private String nlv_ = ExecutionEnvironment.getNlv(Locale.getDefault());
-    // Set of socket options to use when creating our connections to the server.
+    // Set of socket options to use when creating connections.
     private SocketProperties socketProperties_ = new SocketProperties();
 
     // No CCSID to start.
@@ -262,8 +260,8 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.
-     <p>If running on the server, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
-     <p>If running on another system to a server, a sign-on prompt may be displayed.  The user is then able to specify the system name, user ID, and password.
+     <p>If running on i5/OS, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     <p>If running on another operating system, a sign-on prompt may be displayed.  The user is then able to specify the system name, user ID, and password.
      **/
     public AS400()
     {
@@ -276,9 +274,9 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name.
-     <p>If running under the i5/OS to another server or to itself, the user ID and password of the current job are used.
-     <p>If running on another operating system to a server, the user may be prompted for the user ID and password if a default user has not been established for this server.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
+     <p>If running on i5/OS to another system or to itself, the user ID and password of the current job are used.
+     <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
      **/
     public AS400(String systemName)
     {
@@ -297,8 +295,8 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
     {
@@ -328,8 +326,8 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and profile token.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  profileToken  The profile token to use to authenticate to the server.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  profileToken  The profile token to use to authenticate to the system.
      **/
     public AS400(String systemName, ProfileTokenCredential profileToken)
     {
@@ -356,9 +354,9 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId, String password)
     {
@@ -431,9 +429,9 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      **/
     public AS400(String systemName, String userId, String password, String proxyServer)
@@ -509,6 +507,8 @@ public class AS400 implements Serializable
 
         // useSSLConnection_ is handled by SecureAS400 subclass.
         mustUseSockets_ = system.mustUseSockets_;
+        mustUseNetSockets_ = system.mustUseNetSockets_;
+        mustUseSuppliedProfile_ = system.mustUseSuppliedProfile_;
         threadUsed_ = system.threadUsed_;
         locale_ = system.locale_;
         nlv_ = system.nlv_;
@@ -568,12 +568,12 @@ public class AS400 implements Serializable
     }
 
     /**
-     Validates the user ID and password on the server, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the server.
+     Validates the user ID and password, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
@@ -582,13 +582,13 @@ public class AS400 implements Serializable
     }
 
     /**
-     Validates the user ID and password on the server, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the server.
+     Validates the user ID and password, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
@@ -650,7 +650,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Indicates if properties are frozen.  If this is true, property changes should not be made.  Properties are not the same thing as attributes.  Properties are basic pieces of information which must be set to make the object usable, such as the system name, user ID or other properties that identify the resource on the server.
+     Indicates if properties are frozen.  If this is true, property changes should not be made.  Properties are not the same thing as attributes.  Properties are basic pieces of information which must be set to make the object usable, such as the system name, user ID or other properties that identify the resource.
      @return  true if properties are frozen, false otherwise.
      **/
     public boolean arePropertiesFrozen()
@@ -660,8 +660,8 @@ public class AS400 implements Serializable
     }
 
     /**
-     Authenticates the user profile name and user profile password on the server.
-     <p>This method is functionally equivalent to the <i>validateSignon()</i> method.  It does not alter the user profile assigned to this object, impact the status of existing connections, or otherwise impact the user and authorities under which the application is running.
+     Authenticates the user profile name and user profile password.
+     <p>This method is functionally equivalent to the <i>validateSignon()</i> method.  It does not alter the user profile assigned to this object, impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
      <p>The system name needs to be set prior to calling this method.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
@@ -669,7 +669,7 @@ public class AS400 implements Serializable
      @param  password  The user profile password.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean authenticate(String userId, String password) throws AS400SecurityException, IOException
     {
@@ -677,7 +677,7 @@ public class AS400 implements Serializable
     }
 
     // Indicates if the native optimizations code can be used.
-    // return true if you are running on this system, the user has not told us specifically to use the servers, we are not using proxy, and the version of the native code matches the version we expect; false otherwise.
+    // return true if you are running on this system, the user has not told us specifically to use the host servers, we are not using proxy, and the version of the native code matches the version we expect; false otherwise.
     boolean canUseNativeOptimizations()
     {
         try
@@ -700,7 +700,7 @@ public class AS400 implements Serializable
      @param  oldPassword  The old user profile password.
      @param  newPassword  The new user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public void changePassword(String oldPassword, String newPassword) throws AS400SecurityException, IOException
     {
@@ -782,13 +782,13 @@ public class AS400 implements Serializable
         }
         if (!propertiesFrozen_)
         {
-            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_);
+            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_);
             propertiesFrozen_ = true;
         }
     }
 
     /**
-     Clears the password cache for all servers within this Java virtual machine.
+     Clears the password cache for all systems within this Java virtual machine.
      **/
     public static void clearPasswordCache()
     {
@@ -798,7 +798,7 @@ public class AS400 implements Serializable
 
     /**
      Clears all the passwords that are cached for the given system name within this Java virtual machine.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      **/
     public static void clearPasswordCache(String systemName)
     {
@@ -823,7 +823,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Connects to a service on the server.  Security is validated and a connection is established to the server.
+     Connects to a service.  Security is validated and a connection is established.
      <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
      @param  service  The name of the service.  Valid services are:
      <ul>
@@ -837,7 +837,7 @@ public class AS400 implements Serializable
      <li>SIGNON - sign-on classes.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public void connectService(int service) throws AS400SecurityException, IOException
     {
@@ -858,12 +858,12 @@ public class AS400 implements Serializable
     // Common code for all the constuctors and readObject.
     private void construct()
     {
-        // See if we are running on the server.
+        // See if we are running on i5/OS.
         if (AS400.onAS400)
         {
-            // OK, we are running on the server.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on the server.");
-            // Running on the server, don't prompt.
+            // OK, we are running on i5/OS.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on i5/OS.");
+            // Running on i5/OS, don't prompt.
             guiAvailable_ = false;
         }
     }
@@ -896,7 +896,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnects from the server.  All socket connections associated with this object will be closed.
+     Disconnects all services.  All socket connections associated with this object will be closed.
      **/
     public void disconnectAllServices()
     {
@@ -917,7 +917,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Disconnects the service from the server.  All socket connections associated with this service and this object will be closed.
+     Disconnects the service.  All socket connections associated with this service and this object will be closed.
      @param  service  The name of the service.  Valid services are:
      <ul>
      <li>FILE - IFS file classes.
@@ -997,7 +997,7 @@ public class AS400 implements Serializable
     /**
      Generates a profile token on behalf of the provided user identity.  This user identity must be associated with a user profile via EIM.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.  The profile associated with this system object must have enough authority to generate an authentication token for another user.
-     <p>This function is only supported if the server is at operating system release V5R3M0 or greater.
+     <p>This function is only supported on i5/OS V5R3M0 or greater.
      @param  userIdentity  The LDAP distinguished name.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
@@ -1008,7 +1008,7 @@ public class AS400 implements Serializable
      @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
      @return  A ProfileTokenCredential representing the provided user identity.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public ProfileTokenCredential generateProfileToken(String userIdentity, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException
     {
@@ -1070,7 +1070,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the server has been made.  Valid authentication schemes are:
+     Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the system has been made.  Valid authentication schemes are:
      <ul>
      <li>AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
      <li>AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
@@ -1086,7 +1086,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the CCSID for this object.  The CCSID returned either is the one retrieved from the server based on the user profile or is set by the setCcsid() method.
+     Returns the CCSID for this object.  The CCSID returned either is the one retrieved based on the user profile or is set by the setCcsid() method.
      @return  The CCSID in use for this object.
      **/
     public int getCcsid()
@@ -1096,7 +1096,7 @@ public class AS400 implements Serializable
         {
             try
             {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving CCSID from server...");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving CCSID from system...");
                 chooseImpl();
                 signon(false);
                 ccsid_ = signonInfo_.serverCCSID;
@@ -1153,8 +1153,8 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
-     @return  The name of the IASP or RDB that is in use by this AS400 object's RECORDACCESS service, or null if the IASP used will be the default system pool (*SYSBAS).
+     Returns the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that is being used.
+     @return  The name of the IASP or RDB that is in use by this object's RECORDACCESS service, or null if the IASP used will be the default system pool (*SYSBAS).
      @see  #setDDMRDB
      **/
     public String getDDMRDB()
@@ -1163,8 +1163,8 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the default user ID for this system name.  This user ID is used to connect to the server if a user ID was not used to construct the object.
-     @param  systemName  The name of the server.
+     Returns the default user ID for this system name.  This user ID is used to connect if a user ID was not used to construct the object.
+     @param  systemName  The name of the system.
      @return  The default user ID for this system.  A null is returned if there is not a default user.
      **/
     public static String getDefaultUser(String systemName)
@@ -1223,10 +1223,10 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the encoding that corresponds to the job CCSID of the server.
+     Returns the encoding that corresponds to the job CCSID.
      @return  The encoding.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public String getJobCCSIDEncoding() throws AS400SecurityException, IOException, InterruptedException
@@ -1241,7 +1241,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns an array of Job objects representing the server jobs to which this object is connected.  This information is only available when connecting to servers at operating system release V5R2M0 and later.  The array will be of length zero if no connections are currently active.
+     Returns an array of Job objects representing the jobs to which this object is connected.  This information is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
      @param  service  The name of the service.  Valid services are:
      <ul>
      <li>FILE - IFS file classes.
@@ -1283,7 +1283,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the Locale associated with this system object.  The Locale may have been set with the setLocale() method, or it may be the default Locale for the client environment.  Unless specifically overridden, this Locale is used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Returns the Locale associated with this system object.  The Locale may have been set with the setLocale() method, or it may be the default Locale for the client environment.  Unless specifically overridden, this Locale is used to set the National Language Version (NLV) on the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
      @return  The Locale object.
      **/
     public Locale getLocale()
@@ -1293,11 +1293,11 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the modification level of the server.
-     <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
-     @return  The modification level of the server.  For example, version 5, release 1, modification level 0 returns 0.
+     Returns the modification level of the system.
+     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
+     @return  The modification level.  For example, version 5, release 1, modification level 0 returns 0.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public int getModification() throws AS400SecurityException, IOException
     {
@@ -1313,7 +1313,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the National Language Version (NLV) that will be sent to the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Returns the National Language Version (NLV) that will be sent to the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
      @return  The NLV.
      **/
     public String getNLV()
@@ -1324,10 +1324,10 @@ public class AS400 implements Serializable
 
     /**
      Returns the password expiration date for the signed-on user.  If the profile's password expiration interval is set to *NOMAX, null is returned.
-     <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
+     <p>A connection is required to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
      @return  The password expiration date.  If the profile has no password expiration data (*NOMAX), null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public GregorianCalendar getPasswordExpirationDate() throws AS400SecurityException, IOException
     {
@@ -1354,10 +1354,10 @@ public class AS400 implements Serializable
 
     /**
      Returns the date of the last successful sign-on.
-     <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
+     <p>A connection is required to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
      @return  The date of the last successful sign-on.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public GregorianCalendar getPreviousSignonDate() throws AS400SecurityException, IOException
     {
@@ -1376,10 +1376,10 @@ public class AS400 implements Serializable
      Returns a profile token representing the signed-on user profile.
      <p>The returned token will be created single-use with a one hour time to expiration. Subsequent method calls will return the same token, regardless of the token status.
      <p>This function is not supported if the assigned password is *CURRENT.
-     <p>This function is only supported if the server is at operating system release V4R5M0 or greater.
+     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
      @return  A ProfileTokenCredential representing the currently signed on user.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @deprecated  Use getProfileToken(int, int) instead.
      **/
@@ -1423,7 +1423,7 @@ public class AS400 implements Serializable
 
     /**
      Authenticates the assigned user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable token.  This function is only supported if the server is at operating system release V4R5M0 or greater.
+     <p>This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable token.  This function is only supported if the system is at i5/OS V4R5M0 or greater.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
      <li>TYPE_SINGLE_USE
@@ -1432,7 +1432,7 @@ public class AS400 implements Serializable
      @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
      @return  A ProfileTokenCredential representing the signed-on user.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public ProfileTokenCredential getProfileToken(int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
@@ -1477,13 +1477,13 @@ public class AS400 implements Serializable
      Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
      <p>This method generates a single use token with a timeout of one hour.
-     <p>This function is only supported if the server is at operating system release V4R5M0 or greater.
+     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @return  A ProfileTokenCredential representing the authenticated profile and password.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password) throws AS400SecurityException, IOException, InterruptedException
@@ -1494,7 +1494,7 @@ public class AS400 implements Serializable
     /**
      Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
-     <p>This function is only supported if the server is at release V4R5M0 or greater.
+     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
      @param  userId  The user profile name.
      @param  password  The user profile password.
@@ -1507,7 +1507,7 @@ public class AS400 implements Serializable
      @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
      @return  A ProfileTokenCredential representing the authenticated profile and password.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
@@ -1571,11 +1571,11 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the release of the server.
-     <p>A connection is required to the server in order to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
-     @return  The release of the server.  For example, version 5, release 1, modification level 0, returns 1.
+     Returns the release of the system.
+     <p>A connection is required to the system in order to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
+     @return  The release of the system.  For example, version 5, release 1, modification level 0, returns 1.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public int getRelease() throws AS400SecurityException, IOException
     {
@@ -1589,7 +1589,7 @@ public class AS400 implements Serializable
         return release;
     }
 
-    // Converts a service constant to a server name.
+    // Converts a service constant to a service name.
     static String getServerName(int service)
     {
         switch (service)
@@ -1656,10 +1656,10 @@ public class AS400 implements Serializable
 
     /**
      Returns the date for the current sign-on.
-     <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
+     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
      @return  The date for the current sign-on.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public GregorianCalendar getSignonDate() throws AS400SecurityException, IOException
     {
@@ -1715,16 +1715,16 @@ public class AS400 implements Serializable
     public String getUserId()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID: " + userId_);
-        userId_ = resolveUserId(userId_, byteType_);
+        userId_ = resolveUserId(userId_, byteType_, mustUseSuppliedProfile_);
         return userId_;
     }
 
     /**
-     Returns the version of the server.
-     <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
-     @return  The version of the server.  For example, version 5, release 1, modification level 0, returns 5.
+     Returns the version of the system.
+     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
+     @return  The version of the system.  For example, version 5, release 1, modification level 0, returns 5.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public int getVersion() throws AS400SecurityException, IOException
     {
@@ -1739,11 +1739,11 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the version, release, and modification level for the server.
-     <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
+     Returns the version, release, and modification level for the system.
+     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
      @return  The high 16-bit is the version, the next 8 bits is the release, and the low 8 bits is the modification level.  Thus version 5, release 1, modification level 0, returns 0x00050100.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public int getVRM() throws AS400SecurityException, IOException
     {
@@ -1856,7 +1856,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     When your Java program runs on the server, some Toolbox classes access data via a call to an API instead of making a socket call to a server.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
+     When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
      @return  true if you have indicated that the services must use sockets; false otherwise.
      **/
     public boolean isMustUseSockets()
@@ -2279,7 +2279,7 @@ public class AS400 implements Serializable
 
     /**
      Removes the default user for the given system name.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      **/
     public static void removeDefaultUser(String systemName)
     {
@@ -2294,7 +2294,7 @@ public class AS400 implements Serializable
 
     /**
      Removes the password cache entry associated with this system name and user ID.  Only applies within this Java virtual machine.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      @param  userId  The user profile name.
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
@@ -2418,7 +2418,7 @@ public class AS400 implements Serializable
     // If connecting to local system, make systemName "localhost".
     static String resolveSystem(String systemName)
     {
-        // First, see if we are running on an iSeries server.
+        // First, see if we are running on i5/OS.
         if (AS400.onAS400)
         {
             // If system name is null, then make it a localhost.
@@ -2436,7 +2436,7 @@ public class AS400 implements Serializable
         return systemName;
     }
 
-    // Convenience method to determine if systemName is local server.
+    // Convenience method to determine if systemName is local system.
     static boolean resolveSystemNameLocal(String systemName)
     {
         if (AS400.onAS400)
@@ -2446,18 +2446,39 @@ public class AS400 implements Serializable
         return false;
     }
 
-    // If on the server, resolve user ID to current user ID.
+    // If on the system, resolve user ID to current user ID.
     static String resolveUserId(String userId)
     {
         // Resolve user ID, for someone using user ID/password.
-        return resolveUserId(userId, 0);
+        return resolveUserId(userId, 0, false);
     }
 
-    // If on the server, resolve user ID to current user ID.
-    static String resolveUserId(String userId, int byteType)
+    private static boolean currentUserAvailable = true;
+    private static boolean currentUserTried = false;
+    static boolean currentUserAvailable()
     {
-        // First, see if we are running on the server.
-        if (AS400.onAS400)
+        if (!currentUserTried)
+        {
+            Class currentUserClass = null;
+            try
+            {
+                currentUserClass = Class.forName("com.ibm.as400.access.CurrentUser");
+            }
+            catch (Throwable t)
+            {
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CurrentUser class is not available:", t);
+                currentUserAvailable = false;
+            }
+            currentUserTried = true;
+        }
+        return currentUserAvailable;
+    }
+
+    // If on the system, resolve user ID to current user ID.
+    static String resolveUserId(String userId, int byteType, boolean mustUseSuppliedProfile)
+    {
+        // First, see if we are running on the system.
+        if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
         {
             boolean tryToGetCurrentUserID = false;
             // If user ID is not set and we're using user ID/password, then we get it and set it up.
@@ -2466,7 +2487,7 @@ public class AS400 implements Serializable
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID.");
                 tryToGetCurrentUserID = true;
             }
-            // If we are running on the server, then *CURRENT for user ID means we want to connect using current user ID.
+            // If we are running on the system, then *CURRENT for user ID means we want to connect using current user ID.
             if (userId.equals("*CURRENT"))
             {
                 // Get current user ID and use it.
@@ -2507,7 +2528,7 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signing-on without prompting...");
         // No prompting.
-        if (bytes_ == null && !userIdMatchesLocal(userId_))
+        if (bytes_ == null && !userIdMatchesLocal(userId_, mustUseSuppliedProfile_))
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
@@ -2539,7 +2560,7 @@ public class AS400 implements Serializable
 
     /**
      Sets or resets the identity token for this object.  Using this method will clear any set password.
-     <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for operating system releases V5R2M0 and V5R1M0.</i>
+     <p>Note: Authentication via IdentityToken is supported in operating system release V5R3M0 and by PTF in operating system releases V5R2M0 and V5R1M0.
      @param  identityToken  The identity token.
      **/
     public void setIdentityToken(byte[] identityToken)
@@ -2585,7 +2606,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the CCSID to be used for this object.  The CCSID property cannot be changed once a connection to the server has been established.
+     Sets the CCSID to be used for this object.  The CCSID property cannot be changed once a connection to the system has been established.
      @param  ccsid  The CCSID to use for this object.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -2620,7 +2641,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.  The RDB name cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
+     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the system.  The RDB name cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
      @param  ddmRDB  The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
      @see  #isConnected(int)
      @see  #getDDMRDB
@@ -2664,7 +2685,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the default user for a given system name.  The default user is the user ID that is used to connect if a user ID is not provided for that system name.  There can be only one default user per system name.  Once the default user is set, it cannot be overridden.  To change the default user, the caller should remove the default user and then set it.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      @param  userId  The user profile name.
      @return  true if default user has been set; false otherwise.
      **/
@@ -2704,7 +2725,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
+     Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the system has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
      @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
      **/
     public void setGSSCredential(Object gssCredential)
@@ -2733,7 +2754,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the server.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on the server, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
+     Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the system.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on the system, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
      @param  gssOption  A constant indicating how GSS will be used.  Valid values are:
      <ul>
      <li>AS400.GSS_OPTION_MANDATORY
@@ -2753,7 +2774,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
+     Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the system has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
      @param  gssName  The GSS name string.
      **/
     public void setGSSName(String gssName)
@@ -2812,7 +2833,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the Locale used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.  This method will set the NLV based on a mapping from the Locale object to the NLV.
+     Sets the Locale used to set the National Language Version (NLV) on the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.  This method will set the NLV based on a mapping from the Locale object to the NLV.
      @param  locale  The Locale object.
      **/
     public void setLocale(Locale locale)
@@ -2846,7 +2867,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the Locale and a specific National Language Version (NLV) to send to the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Sets the Locale and a specific National Language Version (NLV) to send to the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
      @param  locale  The Locale object.
      @param  nlv  The NLV.
      **/
@@ -2873,7 +2894,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets this object to using sockets.  When your Java program runs on the server, some Toolbox classes access data via a call to an API instead of making a socket call to a server.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. The must use sockets property cannot be changed once a connection to the server has been established.
+     Sets this object to using sockets.  When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. The must use sockets property cannot be changed once a connection to the system has been established.
      @param  mustUseSockets  true to use sockets; false otherwise.
      **/
     public void setMustUseSockets(boolean mustUseSockets)
@@ -2885,6 +2906,56 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("mustUseSockets", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
         mustUseSockets_ = mustUseSockets;
+    }
+
+    /**
+     Indicates if Internet domain sockets only will be used.
+     @return  true if must use Internet domain sockets only; false otherwise.
+     **/
+    public boolean isMustUseNetSockets()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if must use net sockets:", mustUseNetSockets_);
+        return mustUseNetSockets_;
+    }
+
+    /**
+     Sets this object to using Internet domain sockets only.  When your Java program runs on the system, some Toolbox classes create UNIX domain socket connections.  Using this method forces the Toolbox to only use Internet domain sockets.  The default is false. The must use net sockets property cannot be changed once a connection to the system has been established.
+     @param  mustUseNetSockets  true to use Internet domain sockets only; false otherwise.
+     **/
+    public void setMustUseNetSockets(boolean mustUseNetSockets)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting must use net sockets:", mustUseNetSockets);
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set must use net sockets after connection has been made.");
+            throw new ExtendedIllegalStateException("mustUseNetSockets", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+        mustUseNetSockets_ = mustUseNetSockets;
+    }
+
+    /**
+     Indicates if only a supplied profile will be used.
+     @return  true if must use a supplied profile only; false otherwise.
+     **/
+    public boolean isMustUseSuppliedProfile()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if must use supplied profile:", mustUseSuppliedProfile_);
+        return mustUseSuppliedProfile_;
+    }
+
+    /**
+     Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the current user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The must use supplied profile property cannot be changed once a connection to the system has been established.
+     @param  mustUseSuppliedProfile  true to use a supplied profile only; false otherwise.
+     **/
+    public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting must use supplied profile:", mustUseSuppliedProfile);
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set must use supplied profile after connection has been made.");
+            throw new ExtendedIllegalStateException("mustUseSuppliedProfile", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+        mustUseSuppliedProfile_ = mustUseSuppliedProfile;
     }
 
     /**
@@ -3070,7 +3141,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the server has been established.
+     Sets the socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the system has been established.
      @param  socketProperties  The set of socket options to set.  The options are copied from this object, not shared.
      **/
     public void setSocketProperties(SocketProperties socketProperties)
@@ -3090,8 +3161,8 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the system name for this object.  The system name cannot be changed once a connection to the server has been established.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
+     Sets the system name for this object.  The system name cannot be changed once a connection to the system has been established.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystemName(String systemName) throws PropertyVetoException
@@ -3133,7 +3204,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets whether the IBM Toolbox for Java uses threads in communication with the host servers.  The default is true. Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be necessary if your application needs to be compliant with the Enterprise Java Beans specification. The thread used property cannot be changed once a connection to the server has been established.
+     Sets whether the IBM Toolbox for Java uses threads in communication with the host servers.  The default is true. Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be necessary if your application needs to be compliant with the Enterprise Java Beans specification. The thread used property cannot be changed once a connection to the system has been established.
      @param  useThreads  true to use threads; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -3230,7 +3301,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the user ID for this object.  The user ID cannot be changed once a connection to the server has been established.  If this method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with the authentication token must match this user ID.
+     Sets the user ID for this object.  The user ID cannot be changed once a connection to the system has been established.  If this method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with the authentication token must match this user ID.
      @param  userId  The user profile name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -3276,14 +3347,14 @@ public class AS400 implements Serializable
         }
     }
 
-    // Initiate sign-on to the server.  This method is synchronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
+    // Initiate sign-on to the system.  This method is synchronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
     synchronized void signon(boolean keepConnection) throws AS400SecurityException, IOException
     {
         // If we haven't already signed on.
         if (signonInfo_ == null)
         {
             chooseImpl();
-            userId_ = resolveUserId(userId_, byteType_);
+            userId_ = resolveUserId(userId_, byteType_, mustUseSuppliedProfile_);
             // If system name is set.
             if (systemName_.length() != 0)
             {
@@ -3400,10 +3471,10 @@ public class AS400 implements Serializable
     }
 
     // Determine if user ID matches current user ID.
-    private static boolean userIdMatchesLocal(String userId)
+    private static boolean userIdMatchesLocal(String userId, boolean mustUseSuppliedProfile)
     {
         // First, see if we are running on an iSeries.
-        if (AS400.onAS400)
+        if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
         {
             String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
             if (currentUserID == null)
@@ -3418,11 +3489,11 @@ public class AS400 implements Serializable
     }
 
     /**
-     Validates the user ID and password on the server but does not add to the signed-on list.  The system name, user ID, and password need to be set prior to calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  The system name, user ID, and password need to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean validateSignon() throws AS400SecurityException, IOException
     {
@@ -3444,12 +3515,12 @@ public class AS400 implements Serializable
     }
 
     /**
-     Validates the user ID and password on the server but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @param  password  The user profile password to validate.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(String password) throws AS400SecurityException, IOException
     {
@@ -3482,13 +3553,13 @@ public class AS400 implements Serializable
     }
 
     /**
-     Validates the user ID and password on the server but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @param  userId  The user profile name to validate.
      @param  password  The user profile password to validate.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(String userId, String password) throws AS400SecurityException, IOException
     {
@@ -3536,6 +3607,8 @@ public class AS400 implements Serializable
         // showCheckboxes_ is not needed.
         validationSystem.useSSLConnection_ = useSSLConnection_;
         validationSystem.mustUseSockets_ = true;
+        validationSystem.mustUseNetSockets_ = mustUseNetSockets_;
+        validationSystem.mustUseSuppliedProfile_ = mustUseSuppliedProfile_;
         // threadUsed_ is not needed.
         // locale_ in not needed.
         // nlv_ in not needed.

@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1998-2005 International Business Machines Corporation and
+// Copyright (C) 1998-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,12 +107,12 @@ class PortMapper
 
     static boolean unixSocketAvailable = true;
 
-    static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL, SocketProperties socketProperties) throws IOException
+    static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL, SocketProperties socketProperties, boolean mustUseNetSockets) throws IOException
     {
         SocketContainer sc = null;
         String serviceName = AS400.getServerName(service);
         // If we're running on a native vm, we're requesting a service that supports a unix domain socket connection, and the unix domain socket code is accessable.
-        if (AS400.onAS400 && systemName.equalsIgnoreCase("localhost") && service != AS400.DATABASE && service != AS400.FILE && unixSocketAvailable)
+        if (AS400.onAS400 && systemName.equalsIgnoreCase("localhost") && service != AS400.DATABASE && service != AS400.FILE && unixSocketAvailable && !mustUseNetSockets)
         {
             try
             {
@@ -166,7 +166,7 @@ class PortMapper
             PortMapper.setServicePort(systemName, service, srvPort, useSSL);
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to server...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to system...");
         Socket socket = new Socket(systemName, srvPort);
         PortMapper.setSocketProperties(socket, socketProperties);
 
