@@ -27,7 +27,7 @@ import javax.sql.ConnectionEvent;                     // JDBC std-ext
 import javax.sql.ConnectionEventListener;             // JDBC std-ext
 
 /**
-*  The AS400JDBCConnectionPool class represents a pool of AS/400 or iSeries JDBC connections
+*  The AS400JDBCConnectionPool class represents a pool of JDBC connections
 *  that are available for use by a Java program.
 *  <p>
 *  Note: AS400JDBCConnectionPool objects are threadsafe.
@@ -184,7 +184,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       // Check if maintenance should keep running.
       if (activePool_.isEmpty() && availablePool_.isEmpty())
       {
-        maintenance_.setRunning(false);
+        if (maintenance_ != null) maintenance_.setRunning(false);
         setInUse(false);          // data source CAN be changed.
       }
     }
@@ -230,9 +230,10 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       }
     }
 
-    // Stop the maintenance thread.
-    if (isRunMaintenance() && maintenance_ != null)
-      maintenance_.setRunning(false);
+    // Terminate the maintenance thread, if it's still alive.
+    if (maintenance_ != null && maintenance_.isAlive()) {
+      maintenance_.shutdown();  // tell the thread to terminate
+    }
 
     if (isInUse())
       setInUse(false);                     // data source CAN be changed.

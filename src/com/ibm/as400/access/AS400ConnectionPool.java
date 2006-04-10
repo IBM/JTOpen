@@ -26,7 +26,7 @@ import java.beans.PropertyChangeEvent;
 
 /**
  *  The AS400ConnectionPool class manages a pool of AS400 objects.  A connection pool is used to 
- *  share connections and manage the number of connections a user can have to the AS/400 or iSeries.
+ *  share connections and manage the number of connections a user can have to the system.
  *  <p>
  *  A connection is defined by a systemName, userID, and an optional password and/or service.
  *  Services should be referred to using constants from the AS400 class 
@@ -164,9 +164,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       }
       as400ConnectionPool_.clear();
     }
-    //if maintenance thread is running, stop it
-    if (maintenance_ != null && maintenance_.isRunning())
-      maintenance_.setRunning(false);
+
+    // Terminate the maintenance thread, if it's still alive.
+    if (maintenance_ != null && maintenance_.isAlive()) {
+      maintenance_.shutdown();  // tell the thread to terminate
+    }
 
     if (poolListeners_ != null)
     {

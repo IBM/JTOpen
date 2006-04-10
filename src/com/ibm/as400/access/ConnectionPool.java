@@ -113,6 +113,20 @@ public abstract class ConnectionPool implements Serializable
   *  @return     Number of milliseconds.
   **/
 
+
+  /**
+  *  Closes the connection pool if not explicitly closed by the caller.
+  *  @exception Throwable If an error occurs.
+  **/
+  protected void finalize() throws Throwable
+  {
+    // Terminate the maintenance thread, if it's still alive.
+    if (maintenance_ != null && maintenance_.isAlive()) {
+      maintenance_.shutdown();
+    }
+    super.finalize();
+  }
+
   public long getCleanupInterval()
   {
     return properties_.getCleanupInterval();

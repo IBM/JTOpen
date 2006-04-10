@@ -21,7 +21,8 @@ class PoolMaintenance extends Thread
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
   
-  private boolean run_ = false;                   // Whether the maintenance is running.
+  private boolean run_ = false;        // Whether the maintenance is running.
+  private boolean stayAlive_ = true;   // Whether thread should stay alive.
   private transient long lastRun_;     // Last time maintenance was run.
   private transient ConnectionPool pool_;
 
@@ -65,7 +66,7 @@ class PoolMaintenance extends Thread
       Trace.log(Trace.INFORMATION, "Connection pool maintenance daemon is started...");
     }
     run_ = true;
-    while (true)
+    while (stayAlive_)
     {
       if (run_)
       {
@@ -86,7 +87,7 @@ class PoolMaintenance extends Thread
       {
         try
         {
-          wait();
+          wait();  // wait for someone to notify() me to continue
         }
         catch (InterruptedException e)
         {
@@ -98,6 +99,8 @@ class PoolMaintenance extends Thread
 
   /**
   *  Sets whether the maintenance thread is running.
+  *  Note: Calling this method with 'false' does not terminate the maintenance thread.
+  *  To terminate the thread, call shutdown().
   *  @param running true if running; false otherwise.
   **/
   public synchronized void setRunning(boolean running)
@@ -108,5 +111,16 @@ class PoolMaintenance extends Thread
       notify();
     }
   }
+
+  /**
+  *  Informs the maintenance thread that it should terminate.
+  **/
+  public void shutdown()
+  {
+    run_ = false;
+    stayAlive_ = false;
+    notify();
+  }
+
 }
   
