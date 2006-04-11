@@ -5,12 +5,12 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2005 International Business Machines Corporation and
+Copyright (C) 1997-2006 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: October 27, 2005
-<!-- cvs log -rJTOpen_4_8:JTOpen_4_8 -N -d >2005-06-08 -->
+Last updated: April 11, 2006
+<!-- cvs log -rJTOpen_5_0:JTOpen_5_1 -N -d >2006-01-12 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#51">Fixes and enhancements in JTOpen 5.1</A><BR>
 <A HREF="#50">Fixes and enhancements in JTOpen 5.0</A><BR>
 <A HREF="#49">Fixes and enhancements in JTOpen 4.9</A><BR>
 <A HREF="#48">Fixes and enhancements in JTOpen 4.8</A><BR>
@@ -42,6 +43,35 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
 
+<HR>
+<H3><A NAME="51">Fixes and enhancements in JTOpen 5.1</A> <i>(released 2006-04-19)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated javadoc and code comments.
+- Connection:  Avoided potential StringIndexOutOfBoundsException in trace.  
+- Connection:  Added new properties to prevent use of current user and Unix domain sockets.
+- Connection:  Improved warning messages.
+- Connection Pool:  Fixed JTOpen Bug 1459369:  Added support to terminate maintenance thread when pool is closed.
+- Data conversion:  Enhanced bidi support.
+- FTP:  Added support so FTP datastreams use CRLF.
+- IFS:  Added new IFSFile methods:  setSorted() and getOwnerName().
+- IFS:  Un-deprecated classes IFSTextFileInputStream and IFSTextFileOutputStream.
+- IFS:  Added support for files larger than 4 gigabytes.  This support is only available when running to the i5/OS release after V5R4.
+- JarMaker:  Deprecated class AS400ToolboxJarMaker; replaced by ToolboxJarMaker.
+- JDBC:  Added new classes AS400JDBCManagedConnectionPoolDataSource and AS400JDBCManagedDataSource. 
+- JDBC:  Added self-managed pooling JDBC datasource.
+- JDBC:  Added new AS400JDBCDataSource method:  setProperties().
+- JDBC:  Added new 'translate boolean' connection property.
+- JDBC:  Various performance updates when searching for a field by field name.
+- JDBC:  Reset auto commit and the isolation level to the auto commit and isolation level being used before xa_start after xa_end is called.
+- JDBC:  Fix to calculate length correctly for a double-byte clob locator.
+- Object description:  Return LAST_USED_DATE as a Date type.
+- Program call:  Fix for JTOpen bug 1426019:  Document library list behavior.
+- RFML:  Added 'keyfield' attribute to RFML data element.
+- System pool:  Added additional properties.
+- System status:  Added additional properties.
+- Trace:  Do not map THREAD category to a Java logging level.
+</PRE>              
+              
 <HR>
 <H3><A NAME="50">Fixes and enhancements in JTOpen 5.0</A> <i>(released 2006-01-16)</i></H3>
 <PRE>
