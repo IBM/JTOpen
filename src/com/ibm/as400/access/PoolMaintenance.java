@@ -25,6 +25,7 @@ class PoolMaintenance extends Thread
   private boolean stayAlive_ = true;   // Whether thread should stay alive.
   private transient long lastRun_;     // Last time maintenance was run.
   private transient ConnectionPool pool_;
+  private final Object waitLock_ = new Object();
 
   /**
   *  Constructs a AS400JDBCConnectionPoolMaintenance object.
@@ -59,7 +60,7 @@ class PoolMaintenance extends Thread
   /**
   *  Runs the pool maintenance cleanup thread.
   **/
-  public synchronized void run()
+  public void run()
   {
     if (Trace.traceOn_)
     {
@@ -73,7 +74,10 @@ class PoolMaintenance extends Thread
         try
         {
           // sleep for cleanup interval.
-          wait(pool_.getCleanupInterval());
+          synchronized(waitLock_)
+          {
+            waitLock_.wait(pool_.getCleanupInterval());
+          }
         }
         catch (InterruptedException ie)
         {
@@ -87,7 +91,11 @@ class PoolMaintenance extends Thread
       {
         try
         {
-          wait();  // wait for someone to notify() me to continue
+          // sleep until someone notifies me to continue.
+          synchronized(waitLock_)
+          {
+            waitLock_.wait();
+          }
         }
         catch (InterruptedException e)
         {
@@ -103,12 +111,15 @@ class PoolMaintenance extends Thread
   *  To terminate the thread, call shutdown().
   *  @param running true if running; false otherwise.
   **/
-  public synchronized void setRunning(boolean running)
+  public void setRunning(boolean running)
   {
     if (run_ != running)
     {
-      run_ = running;
-      notify();
+      synchronized(waitLock_)
+      {
+        run_ = running;
+        waitLock_.notify();
+      }
     }
   }
 
@@ -119,7 +130,10 @@ class PoolMaintenance extends Thread
   {
     run_ = false;
     stayAlive_ = false;
-    notify();
+    synchronized(waitLock_)
+    {
+      waitLock_.notify();
+    }
   }
 
 }
