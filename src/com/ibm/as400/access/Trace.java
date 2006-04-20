@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;                                   // $D0A
 import java.util.Hashtable;                                         // $W1A
@@ -221,6 +222,7 @@ public class Trace
 
   private static Hashtable printWriterHash = new Hashtable();      // @W1A
   private static Hashtable fileNameHash    = new Hashtable();      // @W1A
+  private static SimpleDateFormat timeStampFormatter_ = new SimpleDateFormat( "EEE MMM d HH:mm:ss:SSS z yyyy" );
 
 
   /**
@@ -616,7 +618,7 @@ public class Trace
       pw.print("  ");                                        //@D3A @W1C
     }                                                        //@D3A @W1C
 
-    pw.print((new Date()).toString());                       // @W1C
+    pw.print(timeStampFormatter_.format(new Date()));             // @W1C
     pw.print("  ");                                          // @W1C
   }
 
@@ -633,7 +635,7 @@ public class Trace
       buf.append("  ");
     }
 
-    buf.append((new Date()).toString());
+    buf.append(timeStampFormatter_.format(new Date()));
     buf.append("  ");
   }
 
