@@ -161,7 +161,7 @@ public class SystemPool
 
      SystemPool(AS400 system, byte[] poolInformation) throws AS400SecurityException, IOException
      {
-         this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 40, 10));
+         this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 44, 10));
      }
 
      /**
