@@ -1387,6 +1387,10 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
         // Assume that the Context.INITIAL_CONTEXT_FACTORY system property has been set.
         Context ctx = new InitialContext();
         cpds_ = (AS400JDBCManagedConnectionPoolDataSource)ctx.lookup(dataSourceName_);
+        if (cpds_ == null) {
+          logError("Data source name is not bound in JNDI: " + dataSourceName_);
+          JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
+        }
 
         getConnectionPoolKey(); // initialize the default connection pool key
         poolManager_ = new JDConnectionPoolManager(this, cpds_);
@@ -2137,7 +2141,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets the dataSourceName property.
    This property can be used for connection pooling implementations.
-   <tt>dataSourceName</tt> is assumed to be bound (via JDNI) to an instance of {@link AS400JDBCManagedConnectionPoolDataSource AS400JDBCManagedConnectionPoolDataSource}.
+   <tt>dataSourceName</tt> is assumed to be bound (via JNDI) to an instance of {@link AS400JDBCManagedConnectionPoolDataSource AS400JDBCManagedConnectionPoolDataSource}.
    <p>
    Note: The properties of the specified datasource will override all similarly-named properties of this object.  For example, if the specified datasource has a "serverName" property, then that value will be used by {@link #getConnection getConnection()}, and any value set via {@link #setServerName setServerName()} will be disregarded.
    <p>
@@ -2479,7 +2483,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   // method required by javax.sql.DataSource
   /**
    Sets the log writer for this data source.
-   <p><i>Note:</i> The specified PrintWriter might not be retained when an object is obtained via JNDI, that is, by a call to <tt>javax.naming.Context.lookup()</tt>.  Therefore, use this method <i>only</i> on the DataSource object that is used directly by your application (rather than on the "template" DataSource object that was bound in JDNI).
+   <p><i>Note:</i> The specified PrintWriter might not be retained when an object is obtained via JNDI, that is, by a call to <tt>javax.naming.Context.lookup()</tt>.  Therefore, use this method <i>only</i> on the DataSource object that is used directly by your application (rather than on the "template" DataSource object that was bound in JNDI).
    @param writer The log writer; to disable, set to null.
    @throws SQLException If a database error occurs.
    **/
