@@ -91,6 +91,7 @@ class PcmlDocument extends PcmlDocRoot
     private static AS400ZonedDecimal  m_Zoned_15_5 = new AS400ZonedDecimal(15, 5);
 
     private long   correlationID_ = 0;                       // @C8A
+    private final Object correlationIDLock_ = new Object();
 
     // Transient data not stored durial serialization
     // These are a cache of the most common converters.
@@ -477,9 +478,11 @@ class PcmlDocument extends PcmlDocRoot
     PcmlDataValues to control data conversion, PcmlDataVector to keep track
     of when the data dimension changes, and PcmlDocument for serialization.
     */
-    synchronized long getCorrelationID()                                           // @C8A
+    long getCorrelationID()                                           // @C8A
     {
+      synchronized (correlationIDLock_) {
         return ++correlationID_;                                                    // @C8A
+      }
     }
 
     /**
