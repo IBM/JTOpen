@@ -4041,7 +4041,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         changes_.firePropertyChange(property, oldOption, newOption);
 
-        if(!traceCategory.equals("") || !traceCategory.equals("none"))
+        if(!traceCategory.equals("") && !traceCategory.equals("none"))
         {
             if (! Trace.isTraceOn())
             {
