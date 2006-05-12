@@ -91,7 +91,6 @@ class PcmlDocument extends PcmlDocRoot
     private static AS400ZonedDecimal  m_Zoned_15_5 = new AS400ZonedDecimal(15, 5);
 
     private long   correlationID_ = 0;                       // @C8A
-    private final Object correlationIDLock_ = new Object();
 
     // Transient data not stored durial serialization
     // These are a cache of the most common converters.
@@ -113,6 +112,7 @@ class PcmlDocument extends PcmlDocRoot
     private transient boolean m_bSerializingWithData = false;       // @C1A
     private transient long m_DeserializationTs = 0;                 // @C1A
     private transient PcmlProgram m_pcmlProgram;
+    private transient Object correlationIDLock_ = new Object();
 
 
     // @E1A -- String constant for use in XPCML
@@ -165,7 +165,8 @@ class PcmlDocument extends PcmlDocRoot
 		// Note that timestamps are only an issue when serializing "with data".
 		// The timestamp sensitive classes are not serialized when serializing
 		// without data.
-                m_DeserializationTs = getCorrelationID();                  // @C1A @C8C
+          correlationIDLock_ = new Object();
+          m_DeserializationTs = getCorrelationID();                  // @C1A @C8C
 
 		// Default deserialization
 		in.defaultReadObject();                                     // @C1A
