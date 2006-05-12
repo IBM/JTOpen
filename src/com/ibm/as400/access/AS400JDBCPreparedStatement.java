@@ -503,13 +503,19 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // input parameter, then it is okay for it not to have been
             // set.  However, if an input parameter was not set,
             // we throw an exception.
+            boolean outputExpected_ = false;        // @K2A We do not want to increment our row index in commonExecuteAfter() if there are no output parameters
             for(int i = 0; i < parameterCount_; ++i)
             {
                 if(!parameterSet_[i] && parameterRow_.isInput(i+1))
                 {
                     JDError.throwSQLException (this, JDError.EXC_PARAMETER_COUNT_MISMATCH);
                 }
+
+                if(parameterRow_.isOutput(i+1))    //  @K2A
+                    outputExpected_ = true;        //  @K2A
             }
+            if(!outputExpected_)                   //  @K2A
+                outputParametersExpected_ = false; //  @K2A
 
             // Create the descriptor if needed.  This should only
             // be done once (on the first execute for the prepared
