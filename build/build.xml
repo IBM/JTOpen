@@ -603,22 +603,22 @@
     </condition>        
     <fail message="Can't find cvs executable.  Copy cvs.exe to local directory." unless="cvsExeExists"/>
 -->
-    <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400" password=""/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvspass cvsroot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400" password=""/>
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="src" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="contrib" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="include" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="micro" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="build" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="stubs" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="license.html" dest="${build}"/>
-    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+    <cvs cvsRoot=":pserver:anonymous@jt400.cvs.sourceforge.net:/cvsroot/jt400"
              command="checkout -P -A" package="readme.html" dest="${build}"/>
   </target>
 
