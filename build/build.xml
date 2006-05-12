@@ -271,6 +271,7 @@
     <delete dir="${build}/CVS"/>
     <delete file="${build}/license.html"/>
     <delete file="${build}/readme.html"/>
+    <delete file="${build}/changes.html"/>
   </target>
 
 
@@ -685,6 +686,7 @@ Available Ant targets for the JTOpen build script include:
       <zipfileset dir="${build}/build" excludes="**/mypasswd"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
+      <zipfileset dir="${build}" includes="changes.html"/>
     </zip>
     <checksum file="${dist}/src.zip"/>
   </target>  
