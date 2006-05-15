@@ -16,6 +16,7 @@ package com.ibm.as400.data;
 import com.ibm.as400.access.AS400DataType;
 import com.ibm.as400.access.AS400Text;
 import com.ibm.as400.access.BidiStringType;
+import com.ibm.as400.access.BinaryConverter;
 import com.ibm.as400.access.Trace;                                  // @D3A
 
 import java.math.BigDecimal;
@@ -918,11 +919,30 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         byte[] byteArray = new byte[dataLength];
                         for (int i=0; i < dataLength; i++)
                         {
-                            if (st.hasMoreTokens())
-                                byteVal = Byte.decode(st.nextToken()).byteValue();
-                            else
-                                ; // Pad with last token in string
-                            byteArray[i] = byteVal;
+                          if (st.hasMoreTokens())
+                          {
+                            String token = st.nextToken();
+                            try {
+                              byteVal = Byte.decode(token).byteValue();
+                            }
+                            catch (NumberFormatException nfe)
+                            {
+                              // If leftmost bit is on (as in, for example, 0x80), and token isn't prefixed by a minus sign, Byte.decode() throws a NumberFormatException.
+                              // For such cases we must use a more accommodating conversion utility.
+                              try {
+                                byte[] bytes = BinaryConverter.stringToBytes(token);
+                                byteVal =  bytes[0];
+                              }
+                              catch (NumberFormatException e) {
+                                // Rethrow original exception; it's more informative.
+                                throw nfe;
+                              }
+                            }
+                          }
+                          else {
+                            // Pad with final token in string
+                          }
+                          byteArray[i] = byteVal;
                         }
                         convertedVal = byteArray;
                     }
