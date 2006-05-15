@@ -211,10 +211,10 @@ public class Trace
   static boolean traceJDBC_;                            // @D5A
   static boolean tracePCML_;
 
-  private static int lastTraceAction_;  // either 0 (no action), TURNED_TRACE_OFF, or TURNED_TRACE_ON
+  private static int mostRecentTracingChange_;  // either 0 (no action), TURNED_TRACE_OFF, or TURNED_TRACE_ON
   private static final int TURNED_TRACE_ON = 1;
   private static final int TURNED_TRACE_OFF = 2;
-  private static boolean calledSetTraceCategory_ = false;  // goes to 'true' when any setTrace...() method has been called
+  private static boolean aTraceCategoryHasBeenActivated_ = false;  // goes to 'true' when any setTraceXxx() method has been called with argument 'true'
 
   private static String fileName_ = null;
   private static PrintWriter destination_ = new PrintWriter(System.out, true);  // never null
@@ -310,15 +310,18 @@ public class Trace
 
   // Design note: We needed to segregate the Logger logic into a separate class.  The Java logging package doesn't exist prior to JDK 1.4, so if we're executing in an older JVM, we get SecurityException's if the JVM sees _any_ runtime reference to a java.util.logging class.
   private static ToolboxLogger logger_ = null;
-  private static boolean JDK14_OR_LATER = false;
+  private static boolean firstCallToFindLogger_ = true;
+  private static boolean JDK14_OR_HIGHER;
   // @D0A
   static
   {
     try {
-      Class.forName("java.util.logging.LogManager");
-      JDK14_OR_LATER = true;  // if we got this far, we're on JDK 1.4 or higher
+      Class.forName("java.util.logging.LogManager"); // Class added in JDK 1.4.
+      JDK14_OR_HIGHER = true;  // If we got this far, we're on JDK 1.4 or higher.
     }
-    catch (Throwable e) {}  // package java.util.logging was added in JDK 1.4
+    catch (Throwable e) {      // We're not on JDK 1.4 or higher,
+      JDK14_OR_HIGHER = false; // so don't even try to get the Toolbox Logger.
+    }
 
     loadTraceProperties ();
   }
@@ -1225,7 +1228,7 @@ public class Trace
     traceProxy_      = traceAll;
     traceThread_     = traceAll; //@D3A
     traceWarning_    = traceAll;
-    calledSetTraceCategory_ = true;
+    if (traceAll) aTraceCategoryHasBeenActivated_ = true;
     if (findLogger()) logger_.setLevel();
   }
 
@@ -1239,9 +1242,12 @@ public class Trace
    **/
   public static void setTraceConversionOn(boolean traceConversion)
   {
-    traceConversion_ = traceConversion;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceConversion_ != traceConversion)
+    {
+      traceConversion_ = traceConversion;
+      if (traceConversion) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
   /**
@@ -1253,9 +1259,12 @@ public class Trace
    **/
   public static void setTraceDatastreamOn(boolean traceDatastream)
   {
-    traceDatastream_ = traceDatastream;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceDatastream_ != traceDatastream)
+    {
+      traceDatastream_ = traceDatastream;
+      if (traceDatastream) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
   /**
@@ -1267,9 +1276,12 @@ public class Trace
    **/
   public static void setTraceDiagnosticOn(boolean traceDiagnostic)
   {
-    traceDiagnostic_ = traceDiagnostic;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceDiagnostic_ != traceDiagnostic)
+    {
+      traceDiagnostic_ = traceDiagnostic;
+      if (traceDiagnostic) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
   /**
@@ -1281,9 +1293,12 @@ public class Trace
    **/
   public static void setTraceErrorOn(boolean traceError)
   {
-    traceError_ = traceError;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceError_ != traceError)
+    {
+      traceError_ = traceError;
+      if (traceError) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
   // Note: If this method is called with a non-null argument, we will disregard any existing Logger.
@@ -1429,9 +1444,12 @@ public class Trace
    **/
   public static void setTraceInformationOn(boolean traceInformation)
   {
-    traceInfo_ = traceInformation;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceInfo_ != traceInformation)
+    {
+      traceInfo_ = traceInformation;
+      if (traceInformation) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
 
@@ -1451,50 +1469,64 @@ public class Trace
    **/
   public static void setTraceJDBCOn(boolean traceJDBC)           // @D5A
   {
-    traceJDBC_ = traceJDBC;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceJDBC_ != traceJDBC)
+    {
+      traceJDBC_ = traceJDBC;
+      if (traceJDBC) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
-  // Obtains the (static) Toolbox logger from the JVM, if one exists.
-  // To activate a Toolbox logger, the application can simply call Logger.getLogger(Trace.LOGGER_NAME).
-  private static boolean findLogger()
+  /**
+   Obtains the (static) Toolbox logger from the JVM, if one exists.
+   To activate a Toolbox logger, the application can simply call Logger.getLogger(Trace.LOGGER_NAME).
+   Note: For performance, only the first invocation of this method will check for the existence of a Toolbox Logger in the JVM.
+   **/
+  private static final boolean findLogger()
   {
-    if (logger_ == null && JDK14_OR_LATER)
+    if (firstCallToFindLogger_)  // Just do the following checking the first time.
     {
-      logger_ = ToolboxLogger.getLogger(); // returns null if no Logger activated
-      if (logger_ != null) {
-        logger_.info("Toolbox for Java - " + Copyright.version);
-        if (!logger_.isLoggingOff() &&
-            lastTraceAction_ != TURNED_TRACE_OFF) {
-          traceOn_ = true;
+      firstCallToFindLogger_ = false;
+      if ((logger_ == null) && JDK14_OR_HIGHER)
+      {
+        logger_ = ToolboxLogger.getLogger(); // returns null if no Logger activated
+        if (logger_ != null && logger_.isLoggingOn())
+        {
+          logger_.info("Toolbox for Java - " + Copyright.version);
+          if (mostRecentTracingChange_ != TURNED_TRACE_OFF) {
+            traceOn_ = true;
+          }
         }
       }
     }
+
     return (logger_ != null);
   }
 
   /**
-    Sets tracing on or off.  When this is off nothing is logged in any
+    Sets tracing on or off.  When this is off, nothing is logged in any
     category, even those that are on.  When this is on, tracing occurs
     for all categories that are also on.
     @param  traceOn  If true, tracing is on; otherwise, all tracing is disabled.
    **/
   public static void setTraceOn(boolean traceOn)
   {
-    traceOn_ = traceOn;
-    lastTraceAction_ = (traceOn ? TURNED_TRACE_ON : TURNED_TRACE_OFF);
-    findLogger();
-    if (traceOn_ &&                                    //$D1A
-        (logger_ == null || userSpecifiedDestination_))
-      destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
+    if (traceOn_ != traceOn)
+    {
+      traceOn_ = traceOn;
+      mostRecentTracingChange_ = (traceOn ? TURNED_TRACE_ON : TURNED_TRACE_OFF);
+      findLogger();
+      if (traceOn_ &&                                    //$D1A
+          (logger_ == null || userSpecifiedDestination_))
+        destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
 
-    // If logger exists, set its attributes accordingly.
-    if (logger_ != null && calledSetTraceCategory_) {
-      logger_.setLevel();
-      logger_.config("Toolbox for Java - " + Copyright.version);
+      // If logger exists, set its attributes accordingly.
+      if (logger_ != null && aTraceCategoryHasBeenActivated_) {
+        logger_.setLevel();
+        logger_.config("Toolbox for Java - " + Copyright.version);
+      }
     }
-    // Design issue: How does the Trace class reliably become aware that a Logger exists (and therefore that traceOn_ should be set to true), if the calling app prefaces each Trace method call with "if (traceOn_)"?  (Most Toolbox classes check that condition before Trace.log() calls.)  We can't rely on everything to get set up correctly at static initialization time.
+    // Design issue: How does the Trace class reliably become aware that a Logger exists (and therefore that traceOn_ should be set to true), if the caller prefaces each Trace method call with "if (traceOn_)"?  (Most Toolbox classes check that condition before Trace.log() calls.)  We can't rely on everything to get set up correctly at static initialization time.
   }
 
 
@@ -1506,9 +1538,11 @@ public class Trace
    **/
   public static void setTracePCMLOn(boolean tracePCML)           // @D5A
   {
-    tracePCML_ = tracePCML;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (tracePCML_ != tracePCML)
+    {
+      tracePCML_ = tracePCML;
+      if (tracePCML) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
 
     // try                                                                                                   // @D7A @D8D
     // {                                                                                                     // @D7A @D8D
@@ -1518,6 +1552,7 @@ public class Trace
     // {                                                                                                     // @D7A @D8D
     //     destination_.println("Unable to enable PCML tracing:  NoClassDefFoundError - PcmlMessageLog");    // @D7A @D8D
     // }                                                                                                     // @D7A @D8D
+    }
   }
 
 
@@ -1531,9 +1566,12 @@ public class Trace
    **/
   public static void setTraceProxyOn(boolean traceProxy)
   {
-    traceProxy_ = traceProxy;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceProxy_ != traceProxy)
+    {
+      traceProxy_ = traceProxy;
+      if (traceProxy) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
   // @D3A
@@ -1548,9 +1586,12 @@ public class Trace
    **/
   public static void setTraceThreadOn(boolean traceThread)
   {
-    traceThread_ = traceThread;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceThread_ != traceThread)
+    {
+      traceThread_ = traceThread;
+      if (traceThread) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
 
@@ -1563,9 +1604,12 @@ public class Trace
    **/
   public static void setTraceWarningOn(boolean traceWarning)
   {
-    traceWarning_ = traceWarning;
-    calledSetTraceCategory_ = true;
-    if (findLogger()) logger_.setLevel();
+    if (traceWarning_ != traceWarning)
+    {
+      traceWarning_ = traceWarning;
+      if (traceWarning) aTraceCategoryHasBeenActivated_ = true;
+      if (findLogger()) logger_.setLevel();
+    }
   }
 
   // Indicates if this category is being traced or not.

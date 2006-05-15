@@ -14,6 +14,8 @@
 package com.ibm.as400.access;
 
 import java.util.logging.*;
+import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  This class is used to wrapper the (static) Toolbox Logger (java.util.logging.Logger), if one has been activated.  We need to do this indirection because the java.util.logging package didn't exist prior to JDK 1.4.
@@ -23,15 +25,19 @@ class ToolboxLogger
   private static final String copyright = "Copyright (C) 2005-2005 International Business Machines Corporation and others.";
 
   private static Logger logger_ = null;
-  private static boolean JDK14_OR_LATER = false;
+  private static Logger[] parentLoggers_ = null;
+  private final static Object loggerLock_ = new Object();
+
+  private static boolean JDK14_OR_HIGHER;
   static
   {
     try {
-      Class.forName("java.util.logging.LogManager");
-      logger_ = LogManager.getLogManager().getLogger(Trace.LOGGER_NAME);  // Returns null unless the calling application has activated one, via Logger.getLogger(LOGGER_NAME).
-      JDK14_OR_LATER = true;  // if we got this far, we're on JDK 1.4 or higher
+      Class.forName("java.util.logging.LogManager"); // Class added in JDK 1.4.
+      JDK14_OR_HIGHER = true;  // If we got this far, we're on JDK 1.4 or higher.
     }
-    catch (Throwable e) {}  // package java.util.logging was added in JDK 1.4
+    catch (Throwable e) {      // We're not on JDK 1.4 or higher,
+      JDK14_OR_HIGHER = false; // so don't even try to get the Toolbox Logger.
+    }
   }
 
   // Private constructor to prevent instantiation by other classes.
@@ -50,10 +56,47 @@ class ToolboxLogger
    **/
   static final ToolboxLogger getLogger()
   {
-    if (logger_ == null && JDK14_OR_LATER) {
-      logger_ = LogManager.getLogManager().getLogger(Trace.LOGGER_NAME);
-      // Returns null unless the calling application has activated a Toolbox Logger.
+    if (logger_ == null && JDK14_OR_HIGHER)
+    {
+      synchronized (loggerLock_)
+      {
+        if (logger_ == null)
+        {
+          // Determine if a Toolbox Logger has been registered.
+
+          // Note: The javadoc for LogManager.getLogger() says that it "Returns matching logger or null if none is found".  That appears to be the behavior in JDK 1.4.  However, in JDK 1.5 (J2SE 5.0) this method apparently returns a non-null value in all cases.
+          // So a safer technique is to call LogManager.getLoggerNames(), and see if the Toolbox Logger is listed.
+
+
+          // Get list of all registered Loggers.
+          Enumeration loggerNames = LogManager.getLogManager().getLoggerNames();
+
+          // See if the list contains the Toolbox Logger.
+          while (loggerNames.hasMoreElements() && logger_ == null) {
+            String name = (String)loggerNames.nextElement();
+            if (name.equals(Trace.LOGGER_NAME)) { // Found the Toolbox Logger.
+              logger_ = LogManager.getLogManager().getLogger(Trace.LOGGER_NAME);
+            }
+          }
+
+          // Build the list of parent loggers.
+          if (logger_ != null)
+          {
+            Vector parents = new Vector();
+            Logger parent = logger_.getParent();
+            while (parent != null) {
+              parents.add(parent);
+              parent = parent.getParent();
+            }
+
+            if (!parents.isEmpty()) {
+              parentLoggers_ = (Logger[])parents.toArray(new Logger[0]);
+            }
+          }
+        }
+      }
     }
+
     if (logger_ != null) return new ToolboxLogger();
     else return null;
   }
@@ -68,9 +111,25 @@ class ToolboxLogger
     return logger_.isLoggable(mapTracingLevel(category));
   }
 
-  final boolean isLoggingOff()
+
+  final boolean isLoggingOn()
   {
-    return (logger_.getLevel() == Level.OFF);
+    if      (logger_ == null)                 return false;
+    else if (logger_.getLevel() == Level.OFF) return false;
+    else if (logger_.getLevel() != null)      return true;
+    else // Level is null, indicating that the level is inherited from parent.
+    {
+      if (parentLoggers_ != null) // are there any parent Loggers
+      {
+        // Work upwards through the parents until we find a non-null Level.
+        for (int i=0; i<parentLoggers_.length; i++) {
+          if (parentLoggers_[i].getLevel() == null) continue; // keep looking upwards
+          else return (parentLoggers_[i].getLevel() != Level.OFF);
+        }
+      }
+      // If we got this far, then either there are no parents, or all parents have null-valued Level.
+      return false;
+    }
   }
 
 
@@ -92,8 +151,8 @@ class ToolboxLogger
   private static final Level mapTracingLevel()
   {
     // Note: Trace.traceThread_ is merely a modifier for other trace categories.
-    // Therefore we can ignore it.
-    Level level = Level.OFF;
+    // Therefore we can ignore it in the context of this method.
+    Level level = null;
     if (Trace.traceOn_)
     {
       if (Trace.traceError_) level = Level.SEVERE;
@@ -102,6 +161,7 @@ class ToolboxLogger
       if (Trace.traceDiagnostic_) level = Level.FINE;
       if (Trace.traceJDBC_ || Trace.tracePCML_ || Trace.traceProxy_) level = Level.FINER;
       if (Trace.traceConversion_ || Trace.traceDatastream_) level = Level.FINEST;
+      if (level == null) level = Level.OFF;
     }
     else level = Level.OFF;
 
