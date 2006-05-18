@@ -531,7 +531,7 @@ implements Connection
             || (checkStatementHoldability_ && getVRM() >= JDUtilities.vrm520))  // @F3A
             markCursorsClosed(false);                                           // @B4A
 
-        if(!getAutoCommit())        //@KBL if auto commit is off, check to see if any statements have been partially closed
+        if(!getAutoCommit() && properties_.getBoolean(JDProperties.HOLD_STATEMENTS ))        //@KBL if auto commit is off, check to see if any statements have been partially closed //@PDA additional HOLD_STATEMENTS check
             markStatementsClosed(); //@KBL
 
         if (JDTrace.isTraceOn())
@@ -2259,7 +2259,8 @@ implements Connection
             // @F3 Passing true means we called markCursorClosed from rollback.
             markCursorsClosed(true);                                        // @B4A @F3C
 
-            markStatementsClosed(); //@KBL
+            if(properties_.getBoolean(JDProperties.HOLD_STATEMENTS )) //@PDA additional HOLD_STATEMENTS check
+                markStatementsClosed(); //@KBL
 
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Transaction rollback");
@@ -2298,7 +2299,8 @@ implements Connection
 
         sp.setStatus(AS400JDBCSavepoint.CLOSED);                  
 
-        markStatementsClosed();         //@KBL
+        if(properties_.getBoolean(JDProperties.HOLD_STATEMENTS )) //@PDA additional HOLD_STATEMENTS check
+            markStatementsClosed();         //@KBL
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Rollback with savepoint " + sp.getName() + " complete.");
