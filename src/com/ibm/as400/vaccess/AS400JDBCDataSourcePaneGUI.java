@@ -23,7 +23,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"@Serialize", "1"},
       {"@StringEditorBounds", "132,142,926,796"},
       {"AJDSP_BADCHARACTERS", "[]{}()?*=!@,;"},
-      {"AJDSP_BADDSN", "The data source name is not valid.  Make sure the data source name begins with an alphabetic character and does not contain any of the following characters: \n [ ] { } ( ) ? * = ! @ , ;"},
+      {"AJDSP_BADDSN", "The data source name is not valid.  Make sure the data source name begins with an alphabetic character and does not contain any of the following characters: \\n [ ] { } ( ) ? * = ! @ , ;"},
       {"AJDSP_BLOCK_SIZE_0", "0"},
       {"AJDSP_BLOCK_SIZE_1", "1"},
       {"AJDSP_BLOCK_SIZE_128", "128"},
