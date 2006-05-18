@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.io.ByteArrayOutputStream; //@PDA for lazy close check
 import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -1022,7 +1023,8 @@ Overrides the superclass to write the datastream.
         out.write(data_, 0, currentOffset_);
         out.flush();                                         //@W1a
       }
-      if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A @P0C
+      //@PDA only trace if stream is actually being sent now. (no trace on lazy close here)
+      if (Trace.traceOn_ && !(out instanceof ByteArrayOutputStream)) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A @P0C
     }                                                                                       // @E3A
   }
 }
