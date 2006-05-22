@@ -116,6 +116,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_QUERY_OPTIMIZE_GOAL", "queryOptimizeGoal"}, //@540
       { "PROP_NAME_XA_LOOSELY_COUPLED_SUPPORT", "xaLooselyCoupledSupport"}, //@540
       { "PROP_NAME_TRANSLATE_BOOLEAN", "translateBoolean"}, //@PDA
+      { "PROP_NAME_METADATA_SOURCE", "metaDataSource"}, //@PDA
       
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -198,6 +199,7 @@ public class JDMRI extends ListResourceBundle
       { "QUERY_OPTIMIZE_GOAL_DESC", "Specifies the goal the server should use with optimization of queries."}, //@540
       { "XA_LOOSELY_COUPLED_SUPPORT_DESC", "Specifies whether lock sharing is allowed for loosely coupled transaction branches."}, //@540
       { "TRANSLATE_BOOLEAN_DESC", "Specifies how Boolean objects are interpreted when setting the value for a character field/parameter."}, //@PDA
+      { "METADATA_SOURCE_DESC", "Specifies how to retrieve DatabaseMetaData."}, //@PDA
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

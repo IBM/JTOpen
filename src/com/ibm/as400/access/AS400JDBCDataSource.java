@@ -789,6 +789,21 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return writer_;
     }
 
+    //@PDA
+    /**                                                               
+    *  Indicates how to retrieve DatabaseMetaData.
+    *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+    *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+    *  The methods that currently are available through stored procedures are:
+    *  getColumnPrivileges
+    *  @return the metadata setting.
+    *  The default value is 1.
+    **/
+    public int getMetaDataSource()
+    {
+        return properties_.getInt(JDProperties.METADATA_SOURCE);
+    }
+    
     /**
     *  Returns the server naming convention used when referring to tables.
     *  @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
@@ -2451,6 +2466,31 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         log_ = new EventLog(writer);
     }
 
+    //@PDA
+    /**                                                               
+    *  Sets how to retrieve DatabaseMetaData.
+    *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+    *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+    *  The methods that currently are available through stored procedures are:
+    *  getColumnPrivileges
+    *  @param mds The setting for metadata source
+    *  The default value is 1.
+    **/
+    public void setMetaDataSource(int mds)
+    {
+        String property = "metaDataSource";
+
+        Integer oldValue = new Integer(getMetaDataSource());
+        Integer newValue = new Integer(mds);
+
+        properties_.setString(JDProperties.METADATA_SOURCE, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + mds);
+    }
+    
     /**
     *  Sets the server naming convention used when referring to tables.
     *  @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)

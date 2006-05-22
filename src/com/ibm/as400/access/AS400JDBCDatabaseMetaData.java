@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -703,140 +704,162 @@ implements DatabaseMetaData
 
         JDRowCache rowCache = null;  // Creates a set of rows
                                      // that are readable one at a time.
-        try
-        {
-            // Check for conditions that would result in an empty result set
-            // Must check for null first to avoid NullPointerException
-            if (!isCatalogValid(catalog) ||     // catalog is empty string
 
+       
+
+        // Check for conditions that would result in an empty result set
+        // Must check for null first to avoid NullPointerException
+        if (!isCatalogValid(catalog) ||     // catalog is empty string
+                
                 // schema is not null and is empty string
                 ((schema != null) && (schema.length()==0)) ||
-
+                
                 // Table is null
                 table==null      ||
-
+                
                 // Table is empty string
                 table.length()==0  ||
-
+                
                 // columnPattern is not null and is empty string
                 ((columnPattern != null) && (columnPattern.length()==0)))
-            { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
-            }
-
-            else
-            { // parameter values are valid, build request & send
-              // Create a request
-              //@P0C
-                DBReturnObjectInformationRequestDS request = null;
-                DBReplyRequestedDS reply = null;
-                try
-                {
-                    request = DBDSPool.getDBReturnObjectInformationRequestDS (
-                                                                             DBReturnObjectInformationRequestDS.FUNCTIONID_FIELD_INFO,
-                                                                             id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA +
-                                                                             DBBaseRequestDS.ORS_BITMAP_DATA_FORMAT +
-                                                                             DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
-
-                    // Set the library name
-                    if (schema == null)
-                    {   // use default library or qgpl
-                        request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C @P0C
-                    }
-                    else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
-
-                    // Set the table name
-                    request.setFileName(normalize(table), connection_.converter_);                  // @E4C @P0C
-
-
-                    // Set the column name and search pattern
-                    // If null, do not set parameter. The server default
-                    // value of *ALL is used.
-                    if (!(columnPattern==null))
-                    {
-                        JDSearchPattern column = new JDSearchPattern(columnPattern);
-                        request.setFieldName(column.getPatternString(), connection_.converter_); //@P0C
-                        request.setFieldNameSearchPatternIndicator(column.getIndicator());
-                    }
-
-                    // Set the Field Information to Return Bitmap
-                    // Return library, table, and column
-                    request.setFieldReturnInfoBitmap(0xA8000000);
-
-
-                    // Set the short / long file and field name indicator
-                    request.setFileShortOrLongNameIndicator(0xF0); // Long
-
-
-                    // Set the Field Information Order By Indicator parameter
-                    // Order by: Schema and File
-                    request.setFileInfoOrderByIndicator (2);
-
-
-                    //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
-                    //--------------------------------------------------------
-
-                    reply = connection_.sendAndReceive(request);
-
-
-                    // Check for errors - throw exception if errors were
-                    // returned
-                    int errorClass = reply.getErrorClass();
-                    if (errorClass !=0)
-                    {
-                        int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (this, connection_, id_,
-                                                   errorClass, returnCode);
-                    }
-
-                    // Get the data format and result data
-                    DBDataFormat dataFormat = reply.getDataFormat();
-                    DBData resultData = reply.getResultData();   
-                    if (resultData != null)
-                    {
-                        JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
-                        // Create the mapped row format that is returned in the
-                        // result set.
-                        // This does not actual move the data, it just sets up
-                        // the mapping.
-                        JDFieldMap[] maps = new JDFieldMap[8];
-                        maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
-                        maps[1] = new JDSimpleFieldMap (1); // library
-                        maps[2] = new JDSimpleFieldMap (2); // table
-                        maps[3] = new JDSimpleFieldMap (3); // column
-                        maps[4] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false ); // grantor
-                        maps[5] = new JDHardcodedFieldMap (getUserName ()); // grantee - return userid
-                        maps[6] = new JDHardcodedFieldMap(""); // privilege
-                        maps[7] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_),true, false ); // is_grantable
-
-                        // Create the mapped row cache that is returned in the
-                        // result set
-                        JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
-
-                        rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
-                    }
-                    else
-                        rowCache = new JDSimpleRowCache(formatRow);
-
-                }
-                finally
-                {
-                    if (request != null) request.inUse_ = false;
-                    if (reply != null) reply.inUse_ = false;
-                }
-            }  // End of else to build and send request
-        } // End of try block
-
-        catch (DBDataStreamException e)
-        {
-            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
+        { // Return empty result set
+            rowCache = new JDSimpleRowCache (formatRow);
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges"); //@PDC
+            
         }
-
-
-        // Return the results
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges");
+        else if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_ROI))
+        {
+            // parameter values are valid, build request & send
+            // Create a request
+            //@P0C
+            DBReturnObjectInformationRequestDS request = null;
+            DBReplyRequestedDS reply = null;
+            try
+            {
+                request = DBDSPool.getDBReturnObjectInformationRequestDS (
+                        DBReturnObjectInformationRequestDS.FUNCTIONID_FIELD_INFO,
+                        id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA +
+                        DBBaseRequestDS.ORS_BITMAP_DATA_FORMAT +
+                        DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
+                // Set the library name
+                if (schema == null)
+                {   // use default library or qgpl
+                    request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C @P0C
+                }
+                else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
+                
+                // Set the table name
+                request.setFileName(normalize(table), connection_.converter_);                  // @E4C @P0C
+                
+                
+                // Set the column name and search pattern
+                // If null, do not set parameter. The server default
+                // value of *ALL is used.
+                if (!(columnPattern==null))
+                {
+                    JDSearchPattern column = new JDSearchPattern(columnPattern);
+                    request.setFieldName(column.getPatternString(), connection_.converter_); //@P0C
+                    request.setFieldNameSearchPatternIndicator(column.getIndicator());
+                }
+                
+                // Set the Field Information to Return Bitmap
+                // Return library, table, and column
+                request.setFieldReturnInfoBitmap(0xA8000000);
+                
+                // Set the short / long file and field name indicator
+                request.setFileShortOrLongNameIndicator(0xF0); // Long
+                
+                // Set the Field Information Order By Indicator parameter
+                // Order by: Schema and File
+                request.setFileInfoOrderByIndicator (2);
+                
+                
+                //--------------------------------------------------------
+                //  Send the request and cache all results from the server
+                //--------------------------------------------------------
+                reply = connection_.sendAndReceive(request);
+                
+                
+                // Check for errors - throw exception if errors were
+                // returned
+                int errorClass = reply.getErrorClass();
+                if (errorClass !=0)
+                {
+                    int returnCode = reply.getReturnCode();
+                    JDError.throwSQLException (this, connection_, id_,
+                            errorClass, returnCode);
+                }
+                // Get the data format and result data
+                DBDataFormat dataFormat = reply.getDataFormat();
+                DBData resultData = reply.getResultData();   
+                if (resultData != null)
+                {
+                    JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
+                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
+                    // Create the mapped row format that is returned in the
+                    // result set.
+                    // This does not actual move the data, it just sets up
+                    // the mapping.
+                    JDFieldMap[] maps = new JDFieldMap[8];
+                    maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
+                    maps[1] = new JDSimpleFieldMap (1); // library
+                    maps[2] = new JDSimpleFieldMap (2); // table
+                    maps[3] = new JDSimpleFieldMap (3); // column
+                    maps[4] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false ); // grantor
+                    maps[5] = new JDHardcodedFieldMap (getUserName ()); // grantee - return userid
+                    maps[6] = new JDHardcodedFieldMap(""); // privilege
+                    maps[7] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_),true, false ); // is_grantable
+                    // Create the mapped row cache that is returned in the
+                    // result set
+                    JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
+                    
+                    rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
+                }
+                else
+                    rowCache = new JDSimpleRowCache(formatRow);
+            } catch (DBDataStreamException e)
+            {
+                JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
+            }
+            finally
+            {
+                if (request != null) request.inUse_ = false;
+                if (reply != null) reply.inUse_ = false;
+            }
+            // Return the results
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges");
+     
+        }  // End of else to build and send request
+        
+        else
+        {
+            //@PDC change to use sysibm.sqlcolprivileges stored procedure 
+            
+            // Set the library name
+            if (schema == null)
+            {   // use default library or qgpl
+                schema = normalize(connection_.getDefaultSchema());
+            }
+            else schema = normalize(schema);
+            
+            // Set the table name
+            table = normalize(table);
+            
+            // Set the column name and search pattern
+            // If null, do not set parameter. The server default
+            // value of *ALL is used.
+            
+            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
+            
+            cstmt.setString(1, catalog);
+            cstmt.setString(2, schema);
+            cstmt.setString(3, table);
+            cstmt.setString(4, columnPattern);
+            cstmt.setObject(5, "DataType=jdbc");
+            ResultSet rs = cstmt.executeQuery();
+            return rs;
+        }
+             
     }
 
 

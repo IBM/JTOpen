@@ -144,12 +144,13 @@ class JDProperties implements Serializable
     static final int              SEND_BUFFER_SIZE        = 69;   //        get propagated to SocketProperties
     static final int              XA_LOOSELY_COUPLED_SUPPORT = 70; //@540
     static final int              TRANSLATE_BOOLEAN          = 71; //@PDA
+    static final int              METADATA_SOURCE            = 72; //@PDA
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 72;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 73;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-
+                                                               // @PDC   
 
 
     // Property names.
@@ -227,6 +228,7 @@ class JDProperties implements Serializable
     private static final String SEND_BUFFER_SIZE_ = "send buffer size"; //@540
     private static final String XA_LOOSELY_COUPLED_SUPPORT_ = "XA loosely coupled support";       //@540
     private static final String TRANSLATE_BOOLEAN_ = "translate boolean";       //@PDA
+    private static final String METADATA_SOURCE_ = "metadata source";       //@PDA
 
 
 
@@ -411,6 +413,9 @@ class JDProperties implements Serializable
 
     static final String         XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED = "0";  //@540
     static final String         XA_LOOSELY_COUPLED_SUPPORT_SHARED = "1";  //@540
+    
+    static final String         METADATA_SOURCE_ROI = "0";  //@PDA
+    static final String         METADATA_SOURCE_STORED_PROCEDURE = "1";  //@PDA
 
     // Static data.
     private static DriverPropertyInfo[] dpi_;
@@ -1198,7 +1203,7 @@ class JDProperties implements Serializable
         dpi_[i] = new DriverPropertyInfo (XA_LOOSELY_COUPLED_SUPPORT_, "");
         dpi_[i].description = "XA_LOOSELY_COUPLED_SUPPORT_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[3];
+        dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED;
         dpi_[i].choices[1]  = XA_LOOSELY_COUPLED_SUPPORT_SHARED;
         defaults_[i]        = XA_LOOSELY_COUPLED_SUPPORT_NOT_SHARED;
@@ -1212,6 +1217,16 @@ class JDProperties implements Serializable
         dpi_[i].choices[0]  = FALSE_;
         dpi_[i].choices[1]  = TRUE_;
         defaults_[i]        = TRUE_;
+        
+        // Database Metadata   //@PDA
+        i = METADATA_SOURCE;
+        dpi_[i] = new DriverPropertyInfo (METADATA_SOURCE_, "");
+        dpi_[i].description = "METADATA_SOURCE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = METADATA_SOURCE_ROI;
+        dpi_[i].choices[1]  = METADATA_SOURCE_STORED_PROCEDURE;
+        defaults_[i]        = METADATA_SOURCE_STORED_PROCEDURE;
     }
 
 
