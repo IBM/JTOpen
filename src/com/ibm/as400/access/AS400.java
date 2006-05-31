@@ -3241,7 +3241,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the indicator for whether the default user is used.  The default user is used if a system name is provided, but a user ID is not.  If a default user is set for that system, then the default user is used.
-     @param  useDefaultUser  The value indicating if the default user should be used.  Set to true if default user should be used; false otherwise.
+     @param  useDefaultUser  The value indicating if the default user should be used.  Set to true if default user should be used; false otherwise.  The default is true, indicating that the default user is used.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setUseDefaultUser(boolean useDefaultUser) throws PropertyVetoException
