@@ -69,7 +69,7 @@ import javax.naming.StringRefAddr;                // JNDI
 *  Connection connection = datasource.getConnection("myUser", "MYPWD");
 *  </pre></blockquote>
 **/
-public class AS400JDBCDataSource implements DataSource, Referenceable, Serializable
+public class AS400JDBCDataSource implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
     static final long serialVersionUID = 4L;
 
@@ -408,6 +408,25 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         as400_.addPropertyChangeListener(listener);
     }
 
+    //@PDA 550 - clone
+    /**
+     * Method to create a clone of AS400JDBCDataSource. This does a shallow
+     * copy, with the exception of JDProperties, which also gets cloned.
+     */
+    public Object clone()
+    {
+        try
+        {
+            AS400JDBCDataSource clone = (AS400JDBCDataSource) super.clone();
+            clone.properties_ = (JDProperties) this.properties_.clone();
+            return clone;
+        } catch (CloneNotSupportedException e)
+        { // This should never happen.
+            Trace.log(Trace.ERROR, e);
+            throw new UnsupportedOperationException("clone()");
+        }
+    }
+    
     /**
     *  Returns the level of database access for the connection.
     *  @return The access level.  Valid values include: "all" (all SQL statements allowed),

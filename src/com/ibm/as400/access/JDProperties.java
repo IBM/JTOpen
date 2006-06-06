@@ -57,7 +57,7 @@ attributes for the driver.
 //    for them.  This saves the descriptions from being
 //    loaded in all cases.
 //
-class JDProperties implements Serializable
+class JDProperties implements Serializable, Cloneable //@PDC 550
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
@@ -1351,7 +1351,25 @@ class JDProperties implements Serializable
         }
     }
 
-
+    //@PDA 550 - clone
+    /**
+     * Method to create a clone of JDProperties.
+     * This makes a semi-deep copy of values_ array, so both values_ array references point to separate array objects.
+     */
+    public Object clone()
+    {
+        try
+        {
+            JDProperties clone = (JDProperties) super.clone();
+            clone.values_ = (String[]) this.values_.clone();
+            //since Strings are immutable, no need to clone String objects that both arrays refer to.
+            return clone;
+        } catch (CloneNotSupportedException e)
+        { // This should never happen.
+            Trace.log(Trace.ERROR, e);
+            throw new UnsupportedOperationException("clone()");
+        }
+    }
 
     /**
     Is the value of the specified property set to the specified
