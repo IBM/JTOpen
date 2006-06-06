@@ -43,7 +43,6 @@ implements JDRowCache
   private int                     bufferSize_;                                  //@K54  
 
 
-
   // Index always points to the row within the cache.
   // It is not the row number within the result set.
   //
@@ -85,15 +84,16 @@ prefetched.
                     AS400JDBCConnection connection,
                     int id,
                     int blockingFactor, 
+                    boolean lastBlock,  //@PDA perf
                     int resultSetType)
   throws SQLException
   {
     blockingFactor_ = blockingFactor;
     connection_     = connection;
-    emptyChecked_   = false;
+    lastBlock_      = lastBlock;  //@PDC perf 
+    emptyChecked_   = lastBlock_;  //@PDC perf - false unless we are at lastBlock, then true
     firstBlock_     = true;
     id_             = id;
-    lastBlock_      = false;
     row_            = row;
     serverData_     = null;
 
