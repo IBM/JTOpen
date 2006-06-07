@@ -147,13 +147,38 @@ implements SQLData
             case SQLConversionSettings.TIME_FORMAT_USA:                                                   // @A0A
                 // @E3D int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 char amPm;
+                //@PDc - translate to ampm based on hour,min,sec
+                
+                //13-23 -> (x-12)pm
+                //12 -> 12pm
+                //1-11 -> xam
+                //0 -> 12am
+                //0:0:0 -> 00:00:00am (special case)
+                //24:0:0 -> 12:00:00am (special case) //hour=0, hourIn=24 since 0 and 24 both map to 0 in Calendar
+             
                 if(hour > 12)
                 {
                     hour -= 12;
                     amPm = 'P';
                 }
-                else
+                else if(hour == 12)
+                    amPm = 'P';
+                else if((hour > 0) && (hour < 12))
                     amPm = 'A';
+                else if((minute == 0) && (second == 0))
+                {
+                    //special cases: 0:0:0 and 24:0:0
+                    if(hourIn == 24)
+                        hour = 12;
+                    amPm = 'A';
+                }
+                else 
+                { 
+                    //0 hour case
+                    hour = 12;
+                    amPm = 'A';
+                } 
+                    
                 buffer.append(JDUtilities.padZeros(hour, 2));
                 buffer.append(':');
                 buffer.append(JDUtilities.padZeros(minute, 2));            // @E3C
@@ -218,6 +243,10 @@ implements SQLData
                 hour_   = (rawBytes[offset] & 0x0f) * 10 + (rawBytes[offset+1] & 0x0f);
                 minute_ = (rawBytes[offset+3] & 0x0f) * 10 + (rawBytes[offset+4] & 0x0f);
                 second_ = 0;
+                
+                //translate from ampm to 24hour
+                //since we can get back duplicate values of 00:00 (00:00am) and 24:00 (12:00am) (which map to
+                //the same time of day in Calendar), we need a way to differentiate the two.
                 if(((rawBytes[offset+6] == (byte)0xd7) && (hour_ < 12)) || // xd7='P'
                    ((rawBytes[offset+6] == (byte)0xC1) && (hour_ == 12))) // xC1='A'
                     hour_ += 12;
