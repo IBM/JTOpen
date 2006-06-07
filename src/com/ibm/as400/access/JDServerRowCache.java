@@ -92,6 +92,7 @@ prefetched.
     connection_     = connection;
     lastBlock_      = lastBlock;  //@PDC perf 
     emptyChecked_   = lastBlock_;  //@PDC perf - false unless we are at lastBlock, then true
+    empty_          = lastBlock_;  //@PDA perf
     firstBlock_     = true;
     id_             = id;
     row_            = row;
