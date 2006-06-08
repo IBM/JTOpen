@@ -569,6 +569,14 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             as400Object = new AS400(getServerName(), user, password);       //@C2A
         }                                                                   //@C2A
 
+        try                                                                 //@PDA
+        {                                                                   //@PDA
+            if(!as400_.isThreadUsed())                                      //@PDA
+                as400Object.setThreadUsed(false);  //true by default        //@PDA
+        } catch (PropertyVetoException pve)                                 //@PDA
+        { /*ignore*/                                                        //@PDA
+        }                                                                   //@PDA
+        
         //set gui available on the new object to false if user turned prompting off
         try
         {                                                                   //@C2A                                
