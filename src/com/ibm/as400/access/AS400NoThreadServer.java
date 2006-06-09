@@ -96,21 +96,21 @@ class AS400NoThreadServer extends AS400Server
 
     DataStream sendAndReceive(DataStream requestStream) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "send and receive(): ...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ..."); //@pdc 
         int correlationID = send(requestStream);
         return receive(correlationID);
     }
 
     void sendAndDiscardReply(DataStream requestStream) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ..."); //@pdc
         int correlationID = send(requestStream);
         discardList_.addElement(new Integer(correlationID));
     }
 
     int send(DataStream requestStream) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
         int correlationID = newCorrelationId();
         requestStream.setCorrelation(correlationID);
         requestStream.write(outStream_);
@@ -128,14 +128,14 @@ class AS400NoThreadServer extends AS400Server
 
     void send(DataStream requestStream, int correlationId) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
         requestStream.setCorrelation(correlationId);
         requestStream.write(outStream_);
     }
 
     synchronized DataStream receive(int correlationId) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "AS400Server receive");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive"); //@pdc
         DataStream reply = null;
         do
         {
@@ -158,7 +158,7 @@ class AS400NoThreadServer extends AS400Server
 
             if (reply == null)
             {
-                Trace.log(Trace.DIAGNOSTIC, "run(): wait for reply...");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): wait for reply..."); //@pdc
 
                 DataStream ds = null;
                 if (service_ != AS400.RECORDACCESS)
@@ -192,7 +192,7 @@ class AS400NoThreadServer extends AS400Server
             }
             else
             {
-                Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId); //@pdc
             }
         }
         while (reply == null);
