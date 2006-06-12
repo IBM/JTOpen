@@ -26,7 +26,7 @@ import com.ibm.as400.access.*;
 
 /**
  *  The MEServer class is used to fulfill requests from programs
- *  that are using the ToolboxME for iSeries jar file.  The MEServer is responsible for
+ *  that are using the ToolboxME for i5/OS jar file.  The MEServer is responsible for
  *  creating and invoking methods on Toolbox objects on behalf of the
  *  program.  The MEServer is intended for use when the client
  *  is running on a Tier 0 wireless device.
@@ -1108,7 +1108,7 @@ public class MEServer implements Runnable
 
 
     /**
-     * Receives the signon datastream from the client, connects to the iSeries, and sends a reply.
+     * Receives the signon datastream from the client, connects to the i5/OS system, and sends a reply.
      *
      * Datastream request format:
      *  String - server name

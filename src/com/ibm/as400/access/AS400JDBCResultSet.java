@@ -1991,13 +1991,12 @@ public class AS400JDBCResultSet implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as an Array object.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (int columnIndex)
     throws SQLException
@@ -2011,15 +2010,14 @@ public class AS400JDBCResultSet implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as an Array object.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.getArray("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (String columnName)
     throws SQLException
@@ -3115,13 +3113,12 @@ public class AS400JDBCResultSet implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as a Ref object.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
     
     @param  columnIndex   The column index (1-based).
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (int columnIndex)
     throws SQLException
@@ -3135,15 +3132,14 @@ public class AS400JDBCResultSet implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as a Ref object.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.getRef("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (String columnName)
     throws SQLException
@@ -3976,13 +3972,12 @@ public class AS400JDBCResultSet implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of a column as an Array object.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -3996,15 +3991,14 @@ public class AS400JDBCResultSet implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of a column as an Array object.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateArray("\"MixedCase\"", columnValue).
     
     @param  columnName   The column name.
     @param  columnValue  The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -4836,7 +4830,7 @@ public class AS400JDBCResultSet implements ResultSet
     // @D0C
     /**
     Updates a column in the current row using a Java long value.
-    If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    If the connected system supports SQL BIGINT data, the driver
     converts this to an SQL BIGINT value.  Otherwise, the driver
     converts this to an SQL INTEGER value.  SQL BIGINT data is
     supported on V4R5 and later.
@@ -4872,7 +4866,7 @@ public class AS400JDBCResultSet implements ResultSet
     // @D0C
     /**
     Updates a column in the current row using a Java long value.
-    If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    If the connected system supports SQL BIGINT data, the driver
     converts this to an SQL BIGINT value.  Otherwise, the driver
     converts this to an SQL INTEGER value.  SQL BIGINT data is
     supported on V4R5 and later.
@@ -4962,7 +4956,7 @@ public class AS400JDBCResultSet implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     
@@ -4997,7 +4991,7 @@ public class AS400JDBCResultSet implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     To perform a case-sensitive search use a quoted String
@@ -5031,7 +5025,7 @@ public class AS400JDBCResultSet implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     
@@ -5074,7 +5068,7 @@ public class AS400JDBCResultSet implements ResultSet
     The driver converts this to a value of an SQL type, depending on
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
-    where an SQL type is not supported by DB2 UDB for iSeries, the 
+    where an SQL type is not supported by DB2 for i5/OS, the 
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     To perform a case-sensitive search use a quoted String
@@ -5111,14 +5105,13 @@ public class AS400JDBCResultSet implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of an SQL REF output parameter as a Ref value.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
        
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -5132,7 +5125,7 @@ public class AS400JDBCResultSet implements ResultSet
     //@G4A JDBC 3.0
     /**
     Updates the value of an SQL REF output parameter as a Ref value.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateRef("\"MixedCase\"", columnValue).
        
@@ -5140,8 +5133,7 @@ public class AS400JDBCResultSet implements ResultSet
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException

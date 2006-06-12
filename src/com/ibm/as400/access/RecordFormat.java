@@ -26,7 +26,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**
- *The RecordFormat class represents the format of data returned from an iSeries server.
+ *The RecordFormat class represents the format of data returned from an i5/OS system.
  *It contains FieldDescription objects that describe the
  *data returned from a server.  The RecordFormat class is used to generate a Record
  *object that can be used to access the data returned from the server as Java objects or

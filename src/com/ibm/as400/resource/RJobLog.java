@@ -581,7 +581,7 @@ characteristics change.
 
 /**
 Writes a program message to the job log for the job in which the program is running.
-<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the i5/OS system.
 
 @param system       The system.  If the system specifies localhost, the message is written
                     to the job log of the process from which this method is called.
@@ -613,7 +613,7 @@ Writes a program message to the job log for the job in which the program is runn
 
 /**
 Writes a program message to the job log for the job in which the program is running.
-<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the i5/OS system.
 
 @param system           The system.  If the system specifies localhost, the message is written
                         to the job log of the process from which this method is called.
@@ -648,7 +648,7 @@ Writes a program message to the job log for the job in which the program is runn
 
 /**
 Writes a program message to the job log for the job in which the program is running.
-<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the i5/OS system.
 
 @param system           The system.  If the system specifies localhost, the message is written
                         to the job log of the process from which this method is called.
@@ -681,7 +681,7 @@ Writes a program message to the job log for the job in which the program is runn
 
 /**
 Writes a program message to the job log for the job in which the program is running.
-<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the iSeries server.
+<br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the i5/OS system.
 
 @param system           The system.  If the system specifies localhost, the message is written
                         to the job log of the process from which this method is called.

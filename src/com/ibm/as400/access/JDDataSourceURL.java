@@ -20,9 +20,9 @@ import java.util.Properties;
 
 
 /**
-<p>A class representing a URL specifying an AS/400 or iSeries data source.
+<p>A class representing a URL specifying an i5/OS system data source.
 This is needed to connect before accessing data. The supported
-syntaxes for the AS/400 or iSeries database URL are documented
+syntaxes for the DB2 for i5/OS database URL are documented
 in the comments for AS400JDBCDriver.
 **/
 class JDDataSourceURL implements Serializable

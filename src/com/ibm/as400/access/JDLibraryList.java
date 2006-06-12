@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 
 
 /**
-<p>This class represents an iSeries system library list for database access.
+<p>This class represents a system library list for database access.
 **/
 class JDLibraryList
 {

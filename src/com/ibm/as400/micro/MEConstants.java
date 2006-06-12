@@ -15,7 +15,7 @@ package com.ibm.as400.micro;
 
 /**
  *  The MEConstants class defines global constants for the
- *  ToolboxME for iSeries support.
+ *  ToolboxME for i5/OS support.
 **/
 
 interface MEConstants

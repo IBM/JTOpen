@@ -16,7 +16,7 @@ package com.ibm.as400.micro;
 
 /**
  *  The MEException class represents an exception that indicates an error occured 
- *  while processing the ToolboxME for iSeries request.
+ *  while processing the ToolboxME for i5/OS request.
  **/
 public final class MEException extends Exception
 {
@@ -80,7 +80,7 @@ public final class MEException extends Exception
     public static final int PROPERTY_NOT_SET= 0x0011;
 
     /**
-     *  The return code indicating that the iSeries resource has a length that is not valid or cannot be handled through this interface.
+     *  The return code indicating that the i5/OS resource has a length that is not valid or cannot be handled through this interface.
      **/
     public static final int LENGTH_NOT_VALID = 0x0012;                                     
     

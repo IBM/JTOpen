@@ -342,7 +342,7 @@ implements ResultSetMetaData
     /**
     Indicates if the column is automatically numbered.
     @param  columnIndex     The column index (1-based).
-    @return                 Always false.  DB2 UDB for iSeries
+    @return                 Always false.  DB2 for i5/OS
                             does not support automatically
                             numbered columns.
     @exception  SQLException    If the column index is not valid.
@@ -374,7 +374,7 @@ implements ResultSetMetaData
     /**
     Indicates if the column is a currency value.
     @param  columnIndex     The column index (1-based).
-    @return                 Always false.  DB2 UDB for iSeries
+    @return                 Always false.  DB2 for i5/OS
                             does not directly support currency
                             values.
     @exception  SQLException    If the column index is not valid.

@@ -3015,7 +3015,7 @@ public class AS400JDBCStatement implements Statement
     /**
     Sets the escape processing mode.  When processing escape
     clauses, the JDBC driver substitutes escape clauses
-    in SQL statements with DB2 UDB for iSeries SQL grammar elements.
+    in SQL statements with DB2 for i5/OS SQL grammar elements.
     If escape processing is not needed, then setting the escape
     processing mode to false improves performance.
     

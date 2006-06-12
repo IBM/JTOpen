@@ -26,7 +26,7 @@ replicated to the Clustered Hash Table domain. The Clustered Hash Table domain i
 nodes defined in a cluster. The Clustered Hash Table domain is defined using the STRCHTSVR CL command.
 
 <p>For further details on a cluster, see the Cluster Resource Services APIs and the Clustering
-topic in the iSeries Information Center.
+topic in the i5/OS Information Center.
 
 <p>The purpose of this class is to provide interfaces to the Clustered Hash Table APIs.
 An instance of this class can be used to {@link #put put()} and {@link #get get()}
@@ -633,7 +633,7 @@ implements java.io.Serializable
   This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server must be active on the iSeries server.
+    <li>The Clustered Hash table server must be active on the i5/OS system.
     </ul>
     <p>For information on the authority considerations, see the Clustered Hash Table APIs.
     @param key The key to use to return information.

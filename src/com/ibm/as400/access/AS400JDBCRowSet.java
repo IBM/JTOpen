@@ -557,13 +557,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 UDB for iSeries does not support arrays.
+    *  DB2 for i5/OS does not support arrays.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2
-    *                              UDB for iSeries does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (int columnIndex) throws SQLException
     {
@@ -573,13 +572,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 UDB for iSeries does not support arrays.
+    *  DB2 for i5/OS does not support arrays.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2
-    *                              UDB for iSeries does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray (String columnName) throws SQLException
     {
@@ -1078,7 +1076,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     }
 
     /**
-    *  Returns the name of the iSeries data source as identified in JNDI.
+    *  Returns the name of the data source as identified in JNDI.
     *  @return The data source name.  The default value is null.
     **/
     public String getDataSourceName()
@@ -1553,13 +1551,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 UDB for iSeries does not support structured types.
+    *  DB2 for i5/OS does not support structured types.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2
-    *                              UDB for iSeries does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (int columnIndex) throws SQLException
     {
@@ -1570,13 +1567,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 UDB for iSeries does not support structured types.
+    *  DB2 for i5/OS does not support structured types.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2
-    *                              UDB for iSeries does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public Ref getRef (String columnName) throws SQLException
     {
@@ -2641,10 +2637,10 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     }
 
     /**
-    *  Sets the name of the iSeries data source.
+    *  Sets the name of the data source.
     *  Note:  This property is not supported.  The setDataSource method
     *  should be used for setting the data source.
-    *  @param dataSourceName The iSeries data source name.
+    *  @param dataSourceName The data source name.
     **/
     public void setDataSourceName(String dataSourceName)
     {
@@ -3145,8 +3141,8 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     /**
     *  Sets the type map to be used for distinct and structured types.
     *
-    *  Note: Distinct types are supported by DB2 UDB for iSeries, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
-    *  behave as if they are the underlying type. Structured types are not supported by DB2 UDB for iSeries. Consequently, this driver does not support the type map.
+    *  Note: Distinct types are supported by DB2 for i5/OS, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
+    *  behave as if they are the underlying type. Structured types are not supported by DB2 for i5/OS. Consequently, this driver does not support the type map.
     *
     *  @param map The type map.
     *  @exception SQLException If a database error occurs.
@@ -3236,13 +3232,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -3256,13 +3251,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  columnName    The column name.
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -3989,7 +3983,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Updates a column in the current row using a Java long value.
-    *  If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    *  If the connected system supports SQL BIGINT data, the driver
     *  converts this to an SQL BIGINT value.  Otherwise, the driver
     *  converts this to an SQL INTEGER value.  SQL BIGINT data is
     *  supported on V4R5 and later.
@@ -4017,7 +4011,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Updates a column in the current row using a Java long value.
-    *  If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    *  If the connected system supports SQL BIGINT data, the driver
     *  converts this to an SQL BIGINT value.  Otherwise, the driver
     *  converts this to an SQL INTEGER value.  SQL BIGINT data is
     *  supported on V4R5 and later.
@@ -4095,7 +4089,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 UDB for iSeries, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4127,7 +4121,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 UDB for iSeries, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4158,7 +4152,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 UDB for iSeries, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4192,7 +4186,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 UDB for iSeries, the
+    *  where an SQL type is not supported by DB2 for i5/OS, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4243,15 +4237,14 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
        
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
     @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -4265,15 +4258,14 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
        
     @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
     @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
