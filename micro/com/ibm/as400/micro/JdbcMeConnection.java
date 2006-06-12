@@ -57,7 +57,7 @@ public class JdbcMeConnection implements java.sql.Connection
      *  server if one does not already exist.
      *
      *  @param url The URL for the database.
-     *  @param  system  The iSeries to connect.
+     *  @param  system  The system to connect.
      *
      *  @exception JdbcMeException If the driver is unable to make the connection.
      **/

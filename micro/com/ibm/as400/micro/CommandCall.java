@@ -16,7 +16,7 @@ package com.ibm.as400.micro;
 import java.io.IOException;
 
 /**
- *  The CommandCall class represents an iSeries command object.  This class allows the user to call a CL command 
+ *  The CommandCall class represents a command object.  This class allows the user to call a CL command 
  *  from a wireless device.  This class provides a modified subset of the functions available in 
  *  com.ibm.as400.access.CommandCall.
  *

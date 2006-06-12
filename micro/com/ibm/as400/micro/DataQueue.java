@@ -16,7 +16,7 @@ package com.ibm.as400.micro;
 import java.io.IOException;
 
 /**
- *  The DataQueue class represents an iSeries data queue object.
+ *  The DataQueue class represents a data queue object.
  *  This class provides a modified subset of the functions available in 
  *  com.ibm.as400.access.DataQueue.
  *

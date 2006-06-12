@@ -18,7 +18,7 @@ import java.util.Random;
 import javax.microedition.io.*;
 
 /**
- *  The AS400 class represents an iSeries system sign-on from a wireless device.
+ *  The AS400 class represents a sign-on to the i5/OS host servers from a wireless device.
  *  This class provides a modified subset of the functions available in 
  *  com.ibm.as400.access.AS400.
  *
@@ -207,13 +207,13 @@ public final class AS400
 
 
     /**
-     *  Connect to an iSeries server.<p>
+     *  Connect to an i5/OS system.<p>
      *
      *  A connection is typically made implicitly; therefore, this method does not have to be 
-     *  called to connect to the iSeries. This method can be used to control when the connection 
+     *  called to connect to the system. This method can be used to control when the connection 
      *  is established.
      *
-     *  @exception  IOException  If an error occurs while communicating with the iSeries server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public boolean connect() throws IOException, MEException

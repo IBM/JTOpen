@@ -18,7 +18,7 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 
 /**
- *  The ProgramCall class allows a user to call an iSeries program and access data returned after the program runs
+ *  The ProgramCall class allows a user to call a program and access data returned after the program runs
  *  from a wireless device.  This class provides a modified subset of the functions available in 
  *  com.ibm.as400.access.ProgramCall.<p>
  *  

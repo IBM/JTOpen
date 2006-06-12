@@ -18,10 +18,10 @@ import java.io.*;
 
 
 /**
- *  The JdbcMeDriver class is a driver that accesses DB2 for OS/400 databases.
+ *  The JdbcMeDriver class is a driver that accesses DB2 for i5/OS databases.
  *
  *  <p>This class registers itself automatically when it is loaded.  To use the
- *  iSeries Developer Kit for Java Native JDBC driver, specify the "driver=native" on the url.
+ *  IBM Developer Kit for Java Native JDBC driver, specify the "driver=native" on the url.
  *
  *  <p>Applications make connection requests to the DriverManager, which dispatches 
  *  them to the appropriate driver.  This driver accepts connection requests
@@ -31,8 +31,8 @@ import java.io.*;
  *  </pre>
  *  Additionally, for the JdbcMe driver, if the port is unspecified, the port number 3470 is used.
  *
- *  <p>The driver uses the specified server name to connect
- *  to a corresponding iSeries server.  If a server name is not
+ *  <p>The driver uses the specified system name to connect
+ *  to a corresponding system.  If a system name is not
  *  specified, an exception will occur.  If a userid or password
  *  is not specified via the url or by using the getConnection(url, userid, password)
  *  method, an exception will occur.
@@ -55,10 +55,10 @@ import java.io.*;
  *  See <a href="doc-files/JDBCProperties.html"> JDBC properties</a> for a complete list of properties supported by this driver.
  *
  *  <p>The following example URL specifies a connection to the
- *  database on server <em>mysystem.helloworld.com</em> with
+ *  database on <em>mysystem.helloworld.com</em> with
  *  <em>mylibrary</em> as the default schema.  The connection will
  *  use the system naming convention, return full error messages, and
- *  connect to the iSeries through the specified MEServer <em>myMeServer</em>:
+ *  connect to the system through the specified MEServer <em>myMeServer</em>:
  *
  *  <pre>
  *  jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full;meserver=myMeServer;
