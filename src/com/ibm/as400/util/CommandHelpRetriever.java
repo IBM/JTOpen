@@ -54,28 +54,28 @@ import javax.xml.parsers.ParserConfigurationException;
  *  <p>
  *  <dl>
  *
- *  <dt><b><code>-library </b></code><var>iSeries library.</var></dt>
- *  <dd>Specifies the iSeries library.
+ *  <dt><b><code>-library </b></code><var>i5/OS library.</var></dt>
+ *  <dd>Specifies the i5/OS library.
  *  This parameter may be abbreviated <code>-l</code> or <code>-lib</code>.
  *  </dd>
  *
- *  <dt><b><code>-command </b></code><var>iSeries command.</var></dt>
- *  <dd>Specifies the iSeries command.
+ *  <dt><b><code>-command </b></code><var>i5/OS command.</var></dt>
+ *  <dd>Specifies the i5/OS command.
  *  This parameter may be abbreviated <code>-c</code> or <code>-cmd</code>.
  *  </dd>
  *
- *  <dt><b><code>-system </b></code><var>iSeries system name</var></dt>
- *  <dd>Specifies the iSeries system.  If an iSeries system name is not provided, a signon dialog will be displayed.
+ *  <dt><b><code>-system </b></code><var>i5/OS system name</var></dt>
+ *  <dd>Specifies the i5/OS system.  If an i5/OS system name is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-s</code> or <code>-sys</code>.
  *  </dd>
  *  
- *  <dt><b><code>-userid </b></code><var>iSeries userId.</var></dt>
- *  <dd>Specifies the iSeries userId.    If an iSeries userid  is not provided, a signon dialog will be displayed.
+ *  <dt><b><code>-userid </b></code><var>i5/OS userId.</var></dt>
+ *  <dd>Specifies the i5/OS userId.    If an i5/OS userid  is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-u</code> or <code>-uid</code>.
  *  </dd>
  *
- *  <dt><b><code>-password </b></code><var>iSeries password.</var></dt>
- *  <dd>Specifies the iSeries password.  If an iSeries password is not provided, a signon dialog will be displayed.
+ *  <dt><b><code>-password </b></code><var>i5/OS password.</var></dt>
+ *  <dd>Specifies the i5/OS password.  If an i5/OS password is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-p</code> or <code>-pwd</code>.
  *  </dd>
  * 

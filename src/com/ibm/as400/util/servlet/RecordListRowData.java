@@ -30,8 +30,8 @@ import java.util.Vector;
 *  <UL>
 *    <LI>An entry in a data queue.</LI>
 *    <LI>The parameter data provided to or returned by a program call.</LI>
-*    <LI>A record to be written to or read from a server or iSeries file.</LI>
-*    <LI>Any data returned from the server or iSeries that needs to be converted between i5/OS
+*    <LI>A record to be written to or read from a file.</LI>
+*    <LI>Any data returned from the i5/OS system that needs to be converted between i5/OS
 *    format and Java format.</LI>
 *  </UL>
 *

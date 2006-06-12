@@ -80,7 +80,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_FORMAT.AJDSP_TIME_SEP_LABEL", "Separator:  "},
       {"AJDSP_FORMAT.EditorBounds", "245,280,972,648"},
       {"AJDSP_GENERAL", "General"},
-      {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "iSeries system:"},
+      {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "i5/OS system:"},
       {"AJDSP_GENERAL.AJDSP_AS400SERVER_TEXTBOX", ""},
       {"AJDSP_GENERAL.AJDSP_DATASOURCE_NAME_LABEL", "Data source name:"},
       {"AJDSP_GENERAL.AJDSP_DATASOURCE_NAME_TEXTBOX", ""},

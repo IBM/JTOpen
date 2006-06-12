@@ -26,7 +26,7 @@ import javax.swing.JOptionPane;
 
 
 /**
- * Used to remotely format a iSeries trace residing in a IFS directory.
+ * Used to remotely format a trace residing in an IFS directory.
  */
 class FormatRemote implements Runnable {
 	private String classpath_ = "/QIBM/ProdData/OS400/JT400/lib/JT400Native.jar";

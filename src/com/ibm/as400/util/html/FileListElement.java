@@ -378,7 +378,7 @@ public class FileListElement implements java.io.Serializable
 
 
   /**
-   *  Constructs an FileListElement for an iSeries file system
+   *  Constructs an FileListElement for an i5/OS file system
    *  using the pathInfo from the specified <i>request</i>, and 
    *  the designated <i>system</i>.
    *
@@ -399,7 +399,7 @@ public class FileListElement implements java.io.Serializable
 
   //@CRS
   /**
-   *  Constructs an FileListElement for an iSeries file system
+   *  Constructs an FileListElement for an i5/OS file system
    *  using the pathInfo from the specified <i>request</i>, and 
    *  the designated <i>system</i>.
    *
@@ -446,7 +446,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system at the network share point.  
    *
-   *  @param system    The iSeries system.
+   *  @param system    The i5/OS system.
    *  @param request   The Http servlet request.
    *  @param shareName The NetServer share name.
    *  @param sharePath The NetServer share path.
@@ -471,7 +471,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system at the network share point.  
    *
-   *  @param system    The iSeries system.
+   *  @param system    The i5/OS system.
    *  @param request   The Http servlet request.
    *  @param shareName The NetServer share name.
    *  @param sharePath The NetServer share path.

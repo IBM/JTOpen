@@ -26,7 +26,7 @@ import javax.swing.Icon;
 
 
 /**
-  * IFSFileSystemView provides a gateway to the iSeries integrated file system,
+  * IFSFileSystemView provides a gateway to the i5/OS integrated file system,
   * for use when constructing javax.swing.JFileChooser objects.
   * <p>JFileChooser is a standard Java way to build dialogs for navigating
   * and choosing files, and is the recommended replacement for
@@ -83,7 +83,7 @@ public class IFSFileSystemView extends FileSystemView
 
     /**
      Constructs an IFSFileSystemView object.
-     @param system The iSeries system that contains the file.
+     @param system The system that contains the file.
      **/
     public IFSFileSystemView(AS400 system)
     {
@@ -241,7 +241,7 @@ public class IFSFileSystemView extends FileSystemView
 
     /**
      Returns the home directory.
-     <br>The iSeries integrated file system has one home directory, the "/" directory.
+     <br>The i5/OS integrated file system has one home directory, the "/" directory.
      @return the home directory.
      **/
     public File getHomeDirectory()
@@ -275,7 +275,7 @@ public class IFSFileSystemView extends FileSystemView
 
     /**
      Returns all root partitions on this system.
-     <br>The iSeries integrated file system has one root partition, the "/" directory.
+     <br>The i5/OS integrated file system has one root partition, the "/" directory.
      @return all root partitions on this system.
      **/
     public File[] getRoots()
@@ -298,7 +298,7 @@ public class IFSFileSystemView extends FileSystemView
     }
 
     /**
-     * Always returns an icon representing an iSeries server.
+     * Always returns an icon representing an i5/OS system.
      **/
     public Icon getSystemIcon(File f)
     {
@@ -385,7 +385,7 @@ public class IFSFileSystemView extends FileSystemView
 
     /**
      Determines if the given file is a root in the navigatable tree(s).
-     <br>The iSeries integrated file system has one root, the "/" directory.
+     <br>The i5/OS integrated file system has one root, the "/" directory.
      @param file A File object representing a directory.
      @return true if file is a root in the navigatable tree.
      **/

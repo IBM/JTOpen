@@ -51,7 +51,7 @@ import com.ibm.as400.vaccess.FileFilter;
 import com.ibm.as400.vaccess.IFSFileDialog;
 
 /**
- * FormatDisplay is used to format iSeries traces. The actual formatting is done by the Format class.<br>
+ * FormatDisplay is used to format traces. The actual formatting is done by the Format class.<br>
  * FormatDisplay is also used to display formated traces from disk.<br>
  */
 class FormatDisplay extends WindowAdapter implements Runnable {

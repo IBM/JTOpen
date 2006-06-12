@@ -33,7 +33,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
   *  The AS400Servlet class is an abstract class that represents an HTML Servlet.
   *  <p>
   *  A connection pool can be used to share connections and manage the number of 
-  *  connections a servlet user can have to the server or iSeries. When using connection 
+  *  connections a servlet user can have to the system. When using connection 
   *  pooling and a system is requested, a fully functional AS400 object is returned 
   *  to the calling application. It is then up to the application to return the AS400 
   *  object to the pool. It is not recommended that an application use this object to 
@@ -164,7 +164,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an object representing the server. It uses the specified <i>systemName</i>.
      *  
-     *  @param  systemName  The name of the server or iSeries.  
+     *  @param  systemName  The name of the system.  
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
@@ -201,10 +201,10 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an object representing the server. It connects to the specified <i>service</i>.
      *  
-     *  @param  service  The name of the server or iSeries service.  
+     *  @param  service  The name of the service.  
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the server or iSeries.
+     *  @exception IOException If an error occurs while communicating with the system.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The system object.
@@ -249,11 +249,11 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an object representing the server. It connects to the specified <i>systemName</i> and <i>service</i>.
      *  
-     *  @param systemName   The name of the server or iSeries.
-     *  @param service  The name of the server or iSeries service.
+     *  @param systemName   The name of the system.
+     *  @param service  The name of the service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the server or iSeries.
+     *  @exception IOException If an error occurs while communicating with the system.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The system object.
@@ -297,7 +297,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an object representing the server. It uses the specified <i>systemName</i>, <i>user ID</i>, and <i>password</i>.  
      *
-     *  @param  systemName  The name of the server or iSeries.  
+     *  @param  systemName  The name of the system.  
      *  @param  userId  The user ID to use to connect to the system.  
      *  @param  password  The password to use to connect to the system.  
      *
@@ -330,13 +330,13 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an object representing the server. It uses the specified <i>systemName</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
      * 
-     *  @param  systemName  The name of the server or iSeries.  
+     *  @param  systemName  The name of the system.  
      *  @param  userId  The user ID to use to connect to the system.
      *  @param  password  The password to use to connect to the system.  
-     *  @param  service  The name of the server or iSeries service.
+     *  @param  service  The name of the service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the server or iSeries.
+     *  @exception IOException If an error occurs while communicating with the system.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The system object.

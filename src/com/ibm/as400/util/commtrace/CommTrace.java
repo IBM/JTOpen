@@ -56,8 +56,8 @@ import com.ibm.as400.vaccess.FileFilter;
 import com.ibm.as400.vaccess.IFSFileDialog;
 
 /**
- * CommTrace is used to provide a front end for the Format class to display and transfer the iSeries trace.<br>
- * The traces must originate from an iSeries(running OS/400 V5R2 or greater) and reside in the IFS directory structure.<br>
+ * CommTrace is used to provide a front end for the Format class to display and transfer the trace.<br>
+ * The traces must originate from a system(running OS/400 V5R2 or greater) and reside in the IFS directory structure.<br>
  * They should be created with the following sequence of commands: <br>
  * STRCMNTRC<br>
  * ENDCMNTRC<br>
@@ -74,7 +74,7 @@ import com.ibm.as400.vaccess.IFSFileDialog;
  * 
  * <p>
  * If Remote is selected:<br>
- * The file will be formated remotely on the iSeries using 
+ * The file will be formated remotely on the i5/OS using 
  * JavaCommandCall. The output file will be an IFS file in the same directory as the trace but with a .bin extension 
  * appended. The progress of the format operation is not relayed to the 
  * Commtrace program unless the -verbose option is specified. A dialog will appear when the format has completed.<br>
@@ -433,7 +433,7 @@ public class CommTrace extends WindowAdapter {
     }
 
 	/**
-	 * Disconnects from the previously connected iSeries.
+	 * Disconnects from the previously connected i5/OS system.
 	 */
 	void disconnect() {
 		sys_.disconnectAllServices(); 
@@ -446,7 +446,7 @@ public class CommTrace extends WindowAdapter {
 	 * retrieved.<br>
 	 * If the user pressed OK a FileDialog is presented to allow the user to 
 	 * specify a place to save the file.<br>
-     * Then transfers the file from the iSeries.
+     * Then transfers the file from the i5/OS system.
      */
     void transfer() {
 		if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {

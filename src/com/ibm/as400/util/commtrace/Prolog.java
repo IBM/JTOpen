@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * Parses the 256 byte header of an iSeries trace and allows for printing and 
+ * Parses the 256 byte header of a trace and allows for printing and 
  * access to the fields of the Prolog<br>
  */
 public class Prolog {

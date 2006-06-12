@@ -30,14 +30,14 @@ public class CTMRI extends ListResourceBundle
    private final static Object[][] resources= {
 
 { "Transfer", "Transfer" },
-{ "TransferDescription", "Copies a file from a iSeries to the local PC" },
+{ "TransferDescription", "Copies a file from an i5/OS system to the local PC" },
 { "Display", "Display " },
 { "DisplayButtonDescription", "Displays a previously formatted trace stored on the local PC" },
 { "Format", "Format" },
 { "FormatOpt", "Format Options" },
 { "FormatDescription", "Formats a trace stored on the local PC" },
-{ "FormatRemoteDescription", "Formats a trace stored on an iSeries and saves the result on an iSeries" },
-{ "DisplayRemoteDescription", "Displays a previously formatted trace that resides on a iSeries" },
+{ "FormatRemoteDescription", "Formats a trace stored on an i5/OS system and saves the result on an i5/OS system" },
+{ "DisplayRemoteDescription", "Displays a previously formatted trace that resides on an i5/OS system" },
 { "Remote", "Remote" },
 { "Local", "Local" },
 { "File", "File" },
