@@ -3134,7 +3134,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the secondary URL to be used for a connection on the middle-tier's
     *  DriverManager in a multiple tier environment, if it is different than
     *  already specified.  This property allows you to use this driver to connect
-    *  to databases other than an iSeries server. Use a backslash as an escape character
+    *  to databases other than DB2 for i5/OS. Use a backslash as an escape character
     *  before backslashes and semicolons in the URL.
     *  @param url The secondary URL.
     **/
@@ -3187,8 +3187,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the iSeries server name.
-    *  @param serverName The server name.
+    *  Sets the i5/OS system name.
+    *  @param serverName The system name.
     **/
     public void setServerName(String serverName)
     {

@@ -65,7 +65,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified <i>serverName</i>.
-    *  @param serverName The name of the iSeries server.
+    *  @param serverName The i5/OS system name.
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName)
     {
@@ -75,7 +75,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information.
-    *  @param serverName The iSeries system name.
+    *  @param serverName The i5/OS system name.
     *  @param user The user id.
     *  @param password The password.
     **/
@@ -89,7 +89,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information
     *  to use for SSL communications with the server.
-    *  @param serverName The iSeries system name.
+    *  @param serverName The i5/OS system name.
     *  @param user The user id.
     *  @param password The password.
     *  @param keyRingName The key ring class name to be used for SSL communications with the server.

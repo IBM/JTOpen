@@ -307,13 +307,12 @@ implements CallableStatement
     // JDBC 2.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
     
     @param  parameterIndex  The parameter index (1-based).
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray(int parameterIndex)
     throws SQLException
@@ -325,13 +324,12 @@ implements CallableStatement
     //@G4A JDBC 3.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 UDB for iSeries does not support arrays.
+    DB2 for i5/OS does not support arrays.
         
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public Array getArray(String parameterName)
     throws SQLException
@@ -1343,7 +1341,7 @@ implements CallableStatement
 
     // @D0C
     /**
-    If the connected AS/400 or iSeries server supports SQL BIGINT data, this returns
+    If the connected system supports SQL BIGINT data, this returns
     the value of an SQL BIGINT output parameter as a Java long.
     Otherwise, this returns the value of an SQL INTEGER output
     parameter as a Java long.  SQL BIGINT data is supported on V4R5
@@ -1426,7 +1424,7 @@ implements CallableStatement
 
     //@G4A  JDBC 3.0
     /**
-    If the connected AS/400 or iSeries server supports SQL BIGINT data, this returns
+    If the connected system supports SQL BIGINT data, this returns
     the value of an SQL BIGINT output parameter as a Java long.
     Otherwise, this returns the value of an SQL INTEGER output
     parameter as a Java long.  SQL BIGINT data is supported on V4R5
@@ -1591,13 +1589,12 @@ implements CallableStatement
     // JDBC 2.0
     /**
     Returns the value of an SQL REF output parameter as a Ref value.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
     
     @param  parameterIndex  The parameter index (1-based).
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public Ref getRef(int parameterIndex)
     throws SQLException
@@ -1609,13 +1606,12 @@ implements CallableStatement
     //@G4A  JDBC 3.0
     /**
     Returns the value of an SQL REF output parameter as a Ref value.
-    DB2 UDB for iSeries does not support structured types.
+    DB2 for i5/OS does not support structured types.
     
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
     public Ref getRef(String parameterName)
     throws SQLException
@@ -2732,7 +2728,7 @@ implements CallableStatement
     //@G4A JDBC 3.0
     /**
     Sets an input parameter to a Java long value.
-    If the connected AS/400 or iSeries server supports SQL BIGINT data, the driver
+    If the connected system supports SQL BIGINT data, the driver
     converts this to an SQL BIGINT value.  Otherwise, the driver
     converts this to an SQL INTEGER value.  SQL BIGINT data is
     supported on V4R5 and later.
@@ -2817,7 +2813,7 @@ implements CallableStatement
     this to a value of an SQL type, depending on the type of the
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
-    SQL type is not supported by DB2 UDB for iSeries, the
+    SQL type is not supported by DB2 for i5/OS, the
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a> 
     is used.
     <br>If proxy support is in use, the Object must be serializable.

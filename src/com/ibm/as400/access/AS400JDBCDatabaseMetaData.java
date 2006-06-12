@@ -250,7 +250,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog. Since DB2 UDB for iSeries does not support 
+    catalog, not the attributes catalog. Since DB2 for i5/OS does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -595,7 +595,7 @@ implements DatabaseMetaData
     properties.
     
     @return     If using SQL naming convention, "." is returned. If
-                using iSeries system naming convention, "/" is returned.
+                using system naming convention, "/" is returned.
     
     @exception  SQLException    This exception is never thrown.
     **/
@@ -614,7 +614,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 UDB for iSeries SQL term for "catalog".
+    Returns the DB2 for i5/OS SQL term for "catalog".
     
     @return     The term "System".
     
@@ -3366,7 +3366,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 UDB for iSeries SQL term for "procedure".
+    Returns the DB2 for i5/OS SQL term for "procedure".
     
     @return     The term for "procedure".
     
@@ -3418,7 +3418,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 UDB for iSeries SQL term for "schema".
+    Returns the DB2 for i5/OS SQL term for "schema".
     
     @return     The term for schema.
     
@@ -3540,7 +3540,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog.  Since DB2 UDB for iSeries does not support 
+    catalog, not the attributes catalog.  Since DB2 for i5/OS does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -3575,7 +3575,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog. Since DB2 UDB for iSeries does not support 
+    catalog, not the attributes catalog. Since DB2 for i5/OS does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -5170,7 +5170,7 @@ implements DatabaseMetaData
     to the LOB.
     
     @return     Always true.    Updateable lob methods update a copy of the LOB. 
-    ResultSet.updateRow() must be called to update the LOB in the DB2 UDB for iSeries database.
+    ResultSet.updateRow() must be called to update the LOB in the DB2 for i5/OS database.
     
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6323,7 +6323,7 @@ implements DatabaseMetaData
     //
     // Implementation note:
     //
-    // The unsupported combinations are dictated by the iSeries DB2
+    // The unsupported combinations are dictated by the DB2
     // cursor support.
     //
     public boolean supportsResultSetConcurrency (int resultSetType, int resultSetConcurrency)
@@ -6389,7 +6389,7 @@ implements DatabaseMetaData
     public boolean supportsSavepoints ()
     throws SQLException
     {                     
-        // Note we check only the iSeries level.  We don't need to
+        // Note we check only the system level.  We don't need to
         // check JDBC/JDK level because if running prior to JDBC 3.0
         // the app cannot call this method (it does not exist
         // in the interface).

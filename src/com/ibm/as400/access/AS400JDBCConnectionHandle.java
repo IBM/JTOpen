@@ -638,12 +638,12 @@ implements Connection //@A5A
   /**
   *  Returns the native form of an SQL statement without
   *  executing it. The JDBC driver converts all SQL statements
-  *  from the JDBC SQL grammar into the native DB2 UDB for iSeries
+  *  from the JDBC SQL grammar into the native DB2 for i5/OS
   *  SQL grammar prior to executing them.
   *
   *  @param  sql     The SQL statement in terms of the JDBC SQL grammar.
   *  @return         The translated SQL statement in the native
-  *                  DB2 UDB for iSeries SQL grammar.
+  *                  DB2 for i5/OS SQL grammar.
   *
   *  @exception      SQLException    If the SQL statement has a syntax error.
   **/
@@ -1382,12 +1382,12 @@ ResultSet.CONCUR_READ_ONLY.
   *  isolation level cannot be changed while in the middle of
   *  a transaction.
   *
-  *  <p>JDBC and DB2 UDB for iSeries use different terminology for transaction 
+  *  <p>JDBC and DB2 for i5/OS use different terminology for transaction 
   *  isolation levels.  The following table provides a terminology 
   *  mapping:
   *
   *  <p><table border>
-  *  <tr><th>AS/400 or iSeries isolation level</th><th>JDBC transaction isolation level</th></tr>
+  *  <tr><th>DB2 for i5/OS isolation level</th><th>JDBC transaction isolation level</th></tr>
   *  <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
   *  <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
   *  <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
@@ -1417,10 +1417,10 @@ ResultSet.CONCUR_READ_ONLY.
   /**
   *  Sets the type map to be used for distinct and structured types.
   *
-  *  <p>Note: Distinct types are supported by DB2 UDB for iSeries, but
+  *  <p>Note: Distinct types are supported by DB2 for i5/OS, but
   *  are not externalized by the IBM Toolbox for Java JDBC driver.
   *  In other words, distinct types behave as if they are the underlying
-  *  type.  Structured types are not supported by DB2 UDB for iSeries.
+  *  type.  Structured types are not supported by DB2 for i5/OS.
   *  Consequently, this driver does not support the type map.
   *
   *  @param typeMap  The type map.

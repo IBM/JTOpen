@@ -985,7 +985,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Returns the timeout value in seconds.
    <br><i>Note: This value is not used or supported by the Toolbox JDBC driver.</i>
-   Rather, the timeout value is determined by iSeries server.
+   Rather, the timeout value is determined by the i5/OS system.
    @return the maximum time in seconds that this data source can wait while attempting to connect to a database.
    **/
   public int getLoginTimeout()
@@ -2469,7 +2469,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    A value of zero specifies that the timeout is the system default if one exists; otherwise it specifies that
    there is no timeout. The default value is initially zero.
    <br><i>Note: This value is not used or supported by the Toolbox JDBC driver.</i>
-   Rather, the timeout value is determined by iSeries server.
+   Rather, the timeout value is determined by the i5/OS system.
    @param timeout The login timeout in seconds.
    **/
   public void setLoginTimeout(int timeout) throws SQLException
@@ -2754,7 +2754,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    Sets the secondary URL to be used for a connection on the middle-tier's
    DriverManager in a multiple tier environment, if it is different than
    already specified.  This property allows you to use this driver to connect
-   to databases other than an iSeries server. Use a backslash as an escape character
+   to databases other than DB2 for i5/OS. Use a backslash as an escape character
    before backslashes and semicolons in the URL.
    @param url The secondary URL.
    **/

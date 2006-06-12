@@ -1540,14 +1540,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
     // JDBC 2.0
     /**
-    Sets an input parameter to an Array value.  DB2 UDB for
-    iSeries does not support arrays.
+    Sets an input parameter to an Array value.  DB2 for i5/OS
+    does not support arrays.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
   
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
     **/
     public void setArray (int parameterIndex, Array parameterValue)
     throws SQLException
@@ -2271,7 +2270,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     }
 
 
-    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to iSeries.
+    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to i5/OS.
     /**
     Sets an input parameter to SQL NULL.
   
@@ -2301,7 +2300,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     this to a value of an SQL type, depending on the type of the
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
-    SQL type is not supported by DB2 UDB for iSeries, the
+    SQL type is not supported by DB2 for i5/OS, the
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     <br>If proxy support is in use, the Object must be serializable.
@@ -2439,14 +2438,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
     // JDBC 2.0
     /**
-    Sets an input parameter to a Ref value.  DB2 UDB for
-    iSeries does not support structured types.
+    Sets an input parameter to a Ref value.  DB2 for i5/OS
+    does not support structured types.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
   
-    @exception  SQLException    Always thrown because DB2
-                                UDB for iSeries does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
     **/
     public void setRef (int parameterIndex, Ref parameterValue)
     throws SQLException
