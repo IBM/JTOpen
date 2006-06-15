@@ -165,6 +165,7 @@ public class PTFGroup
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
             try
             {
+                pc.setThreadSafe(true); // We have to do it this way since UserSpace will make a native ProgramCall.
                 if (!pc.run())
                 {
                     throw new AS400Exception(pc.getMessageList());
@@ -332,6 +333,7 @@ public class PTFGroup
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
             try
             {
+                pc.setThreadSafe(true); // We have to do it this way since UserSpace will make a native ProgramCall.
                 if (!pc.run())
                 {
                     throw new AS400Exception(pc.getMessageList());
