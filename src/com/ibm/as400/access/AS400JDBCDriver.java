@@ -42,7 +42,7 @@ appropriate driver.  This driver accepts connection requests
 for databases specified by the URLs that match the following syntax:
 
 <pre>
-jdbc:as400://<em>server-name</em>/<em>default-schema</em>;<em>properties</em>
+jdbc:as400://<em>system-name</em>/<em>default-schema</em>;<em>properties</em>
 </pre>
 
 <p>The driver uses the specified system name to connect
@@ -71,7 +71,7 @@ See
 for a complete list of properties supported by this driver.
 
 <p>The following example URL specifies a connection to the
-database on server <em>mysystem.helloworld.com</em> with
+database on system <em>mysystem.helloworld.com</em> with
 <em>mylibrary</em> as the default schema.  The connection will
 use the system naming convention and return full error messages:
 <pre>
