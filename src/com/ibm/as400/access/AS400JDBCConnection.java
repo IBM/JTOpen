@@ -132,7 +132,7 @@ implements Connection
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The server passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R3M01   "; // @EDA F8c H2c
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R4M01   "; // @EDA F8c H2c pdc
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
