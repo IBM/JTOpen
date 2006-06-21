@@ -38,7 +38,7 @@ Only entries matching the pattern string are returned.
 
 <p>For example, if the schemaPattern argument for getTables()
 is "H%WO_LD", then the following schemas might match
-the pattern, provided they exist on the server:
+the pattern, provided they exist on the system:
 <pre>
 HELLOWORLD
 HIWORLD
@@ -83,11 +83,11 @@ double-quotes.
 //
 //   When the parameter is search pattern capable and:
 //     null is specified for:
-//             schemaPattern (library) - no value sent to server.
-//					 Server default of
+//             schemaPattern (library) - no value sent to system.
+//					 System default of
 //                                       *USRLIBL is used.
-//             tablePattern (file)     - no value sent to server
-//                                       server default of *ALL used
+//             tablePattern (file)     - no value sent to system
+//                                       system default of *ALL used
 //     empty string is specified for:
 //             schemaPattern (library) - empty result set is returned
 //             tablePattern (file)     - empty result set is returned
@@ -120,7 +120,7 @@ implements DatabaseMetaData
     /**
     Constructs an AS400JDBCDatabaseMetaData object.
     
-    @param   connection  The connection to the server.
+    @param   connection  The connection to the system.
     @param   id          The ID the caller has assigned to this
                          AS400JDBCDatabaseMetaData.
     **/
@@ -456,7 +456,7 @@ implements DatabaseMetaData
                                                                0xF1 : 0xF0);
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -516,9 +516,9 @@ implements DatabaseMetaData
     /**
     Returns the catalog name available in this database.  This
     will return a ResultSet with a single row, whose value is
-    the server name.
+    the i5/OS system name.
     
-    @return      The ResultSet containing the server name.
+    @return      The ResultSet containing the i5/OS system name.
     
     @exception  SQLException    If the connection is not open
                                 or an error occurs.
@@ -539,11 +539,11 @@ implements DatabaseMetaData
         // If running to a system running OS/400 v5r2 or i5/OS the list can contain more than just the system
         // name (when IASPs are on the system).  Try to retrieve that list.  Note 
         // if getting the list fails we will still return a result set containing
-        // one item -- the name of the server.  We just built that result set 
+        // one item -- the name of the system.  We just built that result set 
         // (the previous six lines of code) and that is what we will return.  That
         // result set will be consistent with the result set returned when connecting
         // to OS/400 v5r1 or earlier versions.  If getting the list works we will
-        // build and return a new result set containing data retrieved from the server. 
+        // build and return a new result set containing data retrieved from the system. 
         if (connection_.getVRM() >= JDUtilities.vrm520)                                  // @F1a
         {                                                                                // @F1a
             try
@@ -573,13 +573,13 @@ implements DatabaseMetaData
                 else
                 {                                                                     // @F1a                                                                        // @F1a
                     if (JDTrace.isTraceOn())                                             // @F1a
-                        JDTrace.logInformation (this, "Could not retrieve list of RDBs from server (count = 0).");  // @F1a
+                        JDTrace.logInformation (this, "Could not retrieve list of RDBs from system (count = 0).");  // @F1a
                 }                                                                        // @F1a
             }                                                                            // @F1a
             catch (Exception e)                                                          // @F1a
             {                                                                            // @F1a
                 if (JDTrace.isTraceOn())                                                 // @F1a
-                    JDTrace.logInformation (this, "Could not retrieve list of RDBs from server (exception).");     // @F1a
+                    JDTrace.logInformation (this, "Could not retrieve list of RDBs from system (exception).");     // @F1a
             }                                                                            // @F1a
         }                                                                                // @F1a
 
@@ -648,7 +648,7 @@ implements DatabaseMetaData
     @param  table           The table name. If null or empty string is specified,
                             an empty result set is returned.
     @param  columnPattern   The column name pattern.  If null is specified,
-                            no value is sent to the server and the server
+                            no value is sent to the system and the system
                             default of *all is used.  If empty string
                             is specified, an empty result set is returned.
     
@@ -753,7 +753,7 @@ implements DatabaseMetaData
                 
                 
                 // Set the column name and search pattern
-                // If null, do not set parameter. The server default
+                // If null, do not set parameter. The system default
                 // value of *ALL is used.
                 if (!(columnPattern==null))
                 {
@@ -775,7 +775,7 @@ implements DatabaseMetaData
                 
                 
                 //--------------------------------------------------------
-                //  Send the request and cache all results from the server
+                //  Send the request and cache all results from the system
                 //--------------------------------------------------------
                 reply = connection_.sendAndReceive(request);
                 
@@ -846,7 +846,7 @@ implements DatabaseMetaData
             table = normalize(table);
             
             // Set the column name and search pattern
-            // If null, do not set parameter. The server default
+            // If null, do not set parameter. The system default
             // value of *ALL is used.
             
             CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
@@ -873,15 +873,15 @@ implements DatabaseMetaData
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
     @param  schemaPattern   The schema name pattern.  If null is specified,
-                            no value is sent to the server and the server
+                            no value is sent to the system and the system
                             default of *USRLIBL is used.  If empty string
                             is specified, an empty result set is returned.
     @param  tablePattern    The table name pattern. If null is specified,
-                            no value is sent to the server and the server
+                            no value is sent to the system and the system
                             default of *ALL is used.  If empty string
                             is specified, an empty result set is returned.
     @param  columnPattern   The column name pattern.  If null is specified,
-                            no value is sent to the server and the server
+                            no value is sent to the system and the system
                             default of *ALL is used.  If empty string
                             is specified, an empty result set is returned.
     
@@ -1092,7 +1092,7 @@ implements DatabaseMetaData
                                                                              DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
 
                     // Set the Library Name and Library Name Search Pattern parameters
-                    // If null, do not set parameter.  The server default value of
+                    // If null, do not set parameter.  The system default value of
                     // *USRLIBL is used
                     if (schemaPattern != null)
                     {
@@ -1104,7 +1104,7 @@ implements DatabaseMetaData
 
 
                     // Set the Table Name and Table Name Search Pattern parameters
-                    // If null, do not set parameter.  The server default value of
+                    // If null, do not set parameter.  The system default value of
                     // *ALL is used.
                     if (tablePattern!=null)
                     {
@@ -1115,7 +1115,7 @@ implements DatabaseMetaData
 
 
                     // Set the Field Name and Field Name Search Pattern parameters
-                    // If null, do not set parameter.  The server default value of
+                    // If null, do not set parameter.  The system default value of
                     // *ALL is used.
                     if (columnPattern!=null)
                     {
@@ -1139,7 +1139,7 @@ implements DatabaseMetaData
 
 
                     //-------------------------------------------------------
-                    // Send the request and cache all results from the server
+                    // Send the request and cache all results from the system
                     //-------------------------------------------------------
                     reply = connection_.sendAndReceive(request);
 
@@ -1318,7 +1318,7 @@ implements DatabaseMetaData
     **/
 
     //-------------------------------------------------//
-    //   The server returns the following:
+    //   The system returns the following:
     //   0 = cascade
     //   1 = No action or restrict
     //   2 = set null or set default
@@ -1330,12 +1330,12 @@ implements DatabaseMetaData
     //     importedKeySetDefault
     //     importedKeyRestrict
     //
-    //   Since the server groups together
+    //   Since the system groups together
     //   some of the values, all of the
     //   possible JDBC values can not be returned.
     //
     //   For Update Rule, the only values
-    //   supported by the server are
+    //   supported by the system are
     //   no action and restrict.  Since
     //   the value of 1 is returned for
     //   both no action and restrict,
@@ -1346,9 +1346,9 @@ implements DatabaseMetaData
     //   For Delete Rule
     //   the following is returned.  It is
     //   consistent with the ODBC implementation.
-    //    if 0 from server = importedKeyCascade
-    //    if 1 from server = importedKeyRestrict
-    //    if 2 from server = importedKeySetNull
+    //    if 0 from system = importedKeyCascade
+    //    if 1 from system = importedKeyRestrict
+    //    if 2 from system = importedKeySetNull
     //
     //
     //    importedKeyNoAction and importedKeySetDefault
@@ -1484,7 +1484,7 @@ implements DatabaseMetaData
                     request.setFileShortOrLongNameIndicator (0xF0); // @PDA Long table names.  
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -1877,7 +1877,7 @@ implements DatabaseMetaData
 
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -2131,7 +2131,7 @@ implements DatabaseMetaData
                     request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -2358,7 +2358,7 @@ implements DatabaseMetaData
 
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -2919,7 +2919,7 @@ implements DatabaseMetaData
                     request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -3630,12 +3630,12 @@ implements DatabaseMetaData
                                 is ignored.  If empty string is specified,
                                 an empty result set is returned.
     @param  schemaPattern       The schema name pattern. If null is specified,
-                                no value is sent to the server and the
-                                server default of *USRLIBL is used.
+                                no value is sent to the system and the
+                                system default of *USRLIBL is used.
                                 If empty string is specified, an empty
                                 result set is returned.
     @param  tablePattern        The table name. If null is specified,
-                                no value is sent to the server and the server
+                                no value is sent to the system and the system
                                 default of *ALL is used.  If empty string
                                 is specified, an empty result set is returned.
     @return                     The ResultSet containing the description of the
@@ -3719,7 +3719,7 @@ implements DatabaseMetaData
                                                                              DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
 
                     // Set the library name and search pattern indicator
-                    // If null, do not set parameter. The server default
+                    // If null, do not set parameter. The system default
                     // value of *USRLIBL is used.
                     if (schemaPattern!=null)
                     {
@@ -3731,7 +3731,7 @@ implements DatabaseMetaData
 
 
                     // Set the table name and search pattern indicator
-                    // If null, do not set parameter. The server default
+                    // If null, do not set parameter. The system default
                     // value of *ALL is used.
                     if (tablePattern!=null)
                     {
@@ -3750,7 +3750,7 @@ implements DatabaseMetaData
 
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -3823,11 +3823,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schemaPattern  The schema name pattern.  If null is specified,
-                           no value is sent to the server and the server
+                           no value is sent to the system and the system
                            default of *USRLIBL is used.  If empty string
                            is specified, an empty result set is returned.
     @param  tablePattern   The table name pattern. If null is specified,
-                           no value is sent to the server and the server
+                           no value is sent to the system and the system
                            default of *ALL is used.  If empty string
                            is specified, an empty result set is returned.
     @param  tableTypes     The list of table types to include, or null to
@@ -3968,7 +3968,7 @@ implements DatabaseMetaData
                 //
                 // If none of the above values are specified, file
                 // attribute is set to -1 and an empty result set will
-                // be created. No request is sent to the server.
+                // be created. No request is sent to the system.
                 //--------------------------------------------------------
                 int fileAttribute;
                 boolean needToRemoveAliases = true;         //@K3A
@@ -4101,7 +4101,7 @@ implements DatabaseMetaData
 
 
                         // Set the Library Name and Library Name Search Pattern parameters
-                        // If null, do not set parameter.  The server default value of
+                        // If null, do not set parameter.  The system default value of
                         // *USRLIBL is used.
                         if (schemaPattern != null)
                         { // use default library or qgpl
@@ -4113,7 +4113,7 @@ implements DatabaseMetaData
 
 
                         // Set the Table Name and Table Name Search Pattern parameters
-                        // If null, do not set parameter.  The server default value of
+                        // If null, do not set parameter.  The system default value of
                         // *ALL is used.
                         if (tablePattern!=null)
                         {
@@ -4151,12 +4151,12 @@ implements DatabaseMetaData
                         }
 
                         // Order the results by table type, table schema, table name
-                        // This is the same as ordering by tables on the server
+                        // This is the same as ordering by tables on the system
                         request.setFileInfoOrderByIndicator (2);
 
 
                         //-------------------------------------------------------
-                        // Send the request and cache all results from the server
+                        // Send the request and cache all results from the system
                         //-------------------------------------------------------
 
                         reply = connection_.sendAndReceive (request);
@@ -4187,7 +4187,7 @@ implements DatabaseMetaData
 
                             // Put the result data into a row cache
                             // ServerRowCache needs rowFormat to get offset and other info
-                            // Only need this with this type of server (not with simple)
+                            // Only need this with this type of row cache (not with simple)
                             JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                             // This is not actually moving data, it just sets up the mapping
@@ -4271,7 +4271,7 @@ implements DatabaseMetaData
     }
 
 //@K3A                                                           
-// Parses the result data from the server to determine if any aliases were returned.
+// Parses the result data from the system to determine if any aliases were returned.
     void parseResultData(DBData resultData, DBDataFormat dataFormat) {
         try{
             byte[] rawBytes = resultData.getRawBytes();
@@ -4593,11 +4593,11 @@ implements DatabaseMetaData
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
     @param  schemaPattern   The schema name pattern.  If null is specified,
-                            no value is sent to the server and the server
+                            no value is sent to the system and the system
                             default of *USRLIBL is used.  If empty string
                             is specified, an empty result set is returned.
     @param  typeNamePattern The type name pattern. If null is specified,
-                            no value is sent to the server and the server
+                            no value is sent to the system and the system
                             default of *ALL is used.  If empty string
                             is specified, an empty result set is returned.
     @param  types           The list of user-defined types to include, or null to
@@ -5009,7 +5009,7 @@ implements DatabaseMetaData
 
 
                     //--------------------------------------------------------
-                    //  Send the request and cache all results from the server
+                    //  Send the request and cache all results from the system
                     //--------------------------------------------------------
 
                     reply = connection_.sendAndReceive(request);
@@ -5915,9 +5915,9 @@ implements DatabaseMetaData
     Indicates if, after a statement is executed, auto-generated keys can be retrieved 
     using the method Statement.getGeneratedKeys().
     
-    @return     True if the user is connecting to a server running OS/400 V5R2      
+    @return     True if the user is connecting to a system running OS/400 V5R2      
     or i5/OS, otherwise false.  Auto-generated keys are supported
-    only if connecting to a server running OS/400 V5R2 or i5/OS.
+    only if connecting to a system running OS/400 V5R2 or i5/OS.
         
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6357,7 +6357,7 @@ implements DatabaseMetaData
     Indicates if a type of result set holdability is supported.  The two 
     types are ResultSet.HOLD_CURSORS_OVER_COMMIT and ResultSet.CLOSE_CURSORS_AT_COMMIT.
         
-    @return     True if the user is connecting to a server running OS/400     
+    @return     True if the user is connecting to a system running OS/400     
     V5R2 or i5/OS, otherwise false.  Both types of result set 
     holidability are supported if connecting to OS/400 V5R2 or i5/OS.
             
@@ -6379,7 +6379,7 @@ implements DatabaseMetaData
     /**
     Indicates if savepoints are supported.
         
-    @return     True if the user is connecting to a server running 
+    @return     True if the user is connecting to a system running 
     OS/400 V5R2 or i5/OS, otherwise false.  Savepoints are supported
     only if connecting to OS/400 V5R2 or i5/OS.
             
