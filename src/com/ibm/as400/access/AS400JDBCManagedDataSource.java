@@ -45,7 +45,7 @@ import javax.naming.Context;
  <p>
  A DataSource is a factory for connections to the physical data source that this DataSource object represents. An alternative to the DriverManager facility, a DataSource object is the preferred means of getting a connection. An object that implements the DataSource interface will typically be registered with a naming service based on the Java Naming and Directory (JNDI) API.
  <p>
- A DataSource object has properties that can be modified when necessary. For example, if the data source is moved to a different server, the property for the server can be changed. The benefit is that because the data source's properties can be changed, any code accessing that data source does not need to be changed.
+ A DataSource object has properties that can be modified when necessary. For example, if the data source is moved to a different system, the property for the system can be changed. The benefit is that because the data source's properties can be changed, any code accessing that data source does not need to be changed.
  <p>
  A driver that is accessed via a DataSource object does not register itself with the DriverManager. Rather, a DataSource object is retrieved though a lookup operation and then used to create a Connection object. With a basic implementation, the connection obtained through a DataSource object is identical to a connection obtained through the DriverManager facility.
  <p>
@@ -111,7 +111,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   private int     pwHashcode_;       // hashed password
   // Note: A "portNumber" property is not provided.  It is specified in the JDProperties.
   // Note: A "roleName" property is not provided.
-  private String serialServerName_;                         // Server name used in serialization.
+  private String serialServerName_;                         // system name used in serialization.
   private String serialUserName_;                           // User name used in serialization.
 
   // Additional properties.
@@ -120,8 +120,8 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   private boolean isSecure_;
   private char[]  serialKeyRingPWBytes_;
   private boolean savePasswordWhenSerialized_;              // By default, don't save password!!!!
-  private JDProperties properties_ = new JDProperties();    // server connection properties.
-  private SocketProperties sockProps_ = new SocketProperties(); // server socket properties
+  private JDProperties properties_ = new JDProperties();    // system connection properties.
+  private SocketProperties sockProps_ = new SocketProperties(); // socket properties
 
   // Internal utility fields.
 
@@ -196,7 +196,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Constructs an AS400JDBCManagedDataSource object to the specified <i>serverName</i>.
-   @param serverName The name of the server.
+   @param serverName The name of the i5/OS system.
    **/
   public AS400JDBCManagedDataSource(String serverName)
   {
@@ -207,7 +207,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Constructs an AS400JDBCManagedDataSource object with the specified signon information.
-   @param serverName The name of the server.
+   @param serverName The name of the i5/OS system.
    @param user The user id.
    @param password The user password.
    **/
@@ -227,12 +227,12 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Constructs an AS400JDBCManagedDataSource object with the specified signon information
-   to use for SSL communications with the server.
-   @param serverName The name of the server.
+   to use for SSL communications with the i5/OS system.
+   @param serverName The name of the system.
    @param user The user id.
    @param password The user password.
-   @param keyRingName The key ring class name to be used for SSL communications with the server.
-   @param keyRingPassword The password for the key ring class to be used for SSL communications with the server.
+   @param keyRingName The key ring class name to be used for SSL communications with the system.
+   @param keyRingPassword The password for the key ring class to be used for SSL communications with the system.
    **/
   public AS400JDBCManagedDataSource(String serverName, String user, String password,
                                     String keyRingName, String keyRingPassword)
@@ -512,7 +512,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     AS400JDBCConnection connection = new AS400JDBCConnection();
 
-    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database server.
+    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database host server.
 
     if (JDTrace.isTraceOn() || log_ != null) logInformation(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));
     return connection;
@@ -530,7 +530,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
 
   /**
-   Returns the level of database access for the server connection.
+   Returns the level of database access for the connection.
    @return The access level.  Valid values include: "all" (all SQL statements allowed),
    "read call" (SELECT and CALL statements allowed), and "read only" (SELECT statements only).
    The default value is "all".
@@ -578,9 +578,9 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
 
   /**
-   Returns the criteria for retrieving data from the server in
+   Returns the criteria for retrieving data from the system in
    blocks of records.  Specifying a non-zero value for this property
-   will reduce the frequency of communication to the server, and
+   will reduce the frequency of communication to the system, and
    therefore increase performance.
    @return The block criteria.
    <p>Valid values include:
@@ -596,10 +596,10 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the block size in kilobytes to retrieve from the server and
+   Returns the block size in kilobytes to retrieve from the i5/OS system and
    cache on the client.  This property has no effect unless the block criteria
    property is non-zero.  Larger block sizes reduce the frequency of
-   communication to the server, and therefore may increase performance.
+   communication to the system, and therefore may increase performance.
    @return The block size in kilobytes.
    <p>Valid values include:
    <ul>
@@ -823,7 +823,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    </ul>
    The default is "asensitive".
    This property is ignored when connecting to systems
-   running V5R1 and earlier versions of server.
+   running V5R1 and earlier versions of OS/400.
    **/
   public String getCursorSensitivity()
   {
@@ -852,7 +852,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server date format used in date literals within SQL statements.
+   Returns the date format used in date literals within SQL statements.
    @return The date format.
    <p>Valid values include:
    <ul>
@@ -874,7 +874,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server date separator used in date literals within SQL statements.
+   Returns the date separator used in date literals within SQL statements.
    This property has no effect unless the "data format" property is set to:
    "julian", "mdy", "dmy", or "ymd".
    @return The date separator.
@@ -895,7 +895,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server decimal separator used in numeric literals within SQL statements.
+   Returns the decimal separator used in numeric literals within SQL statements.
    @return The decimal separator.
    <p>Valid values include:
    <ul>
@@ -940,7 +940,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Returns the amount of detail for error messages originating from
-   the server.
+   the i5/OS system.
    @return The error message level.
    Valid values include: "basic" and "full".  The default value is "basic".
    **/
@@ -950,7 +950,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server libraries to add to the server job's library list.
+   Returns the libraries to add to the server job's library list.
    The libraries are delimited by commas or spaces, and
    "*LIBL" may be used as a place holder for the server job's
    current library list.  The library list is used for resolving
@@ -965,13 +965,13 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server maximum LOB (large object) size in bytes that
+   Returns the maximum LOB (large object) size in bytes that
    can be retrieved as part of a result set.  LOBs that are larger
    than this threshold will be retrieved in pieces using extra
-   communication to the server.  Larger LOB thresholds will reduce
-   the frequency of communication to the server, but will download
+   communication to the i5/OS system.  Larger LOB thresholds will reduce
+   the frequency of communication to the system, but will download
    more LOB data, even if it is not used.  Smaller LOB thresholds may
-   increase frequency of communication to the server, but will only
+   increase frequency of communication to the system, but will only
    download LOB data as it is needed.
    @return The lob threshold.  Valid range is 0-16777216.
    The default value is 0.
@@ -1005,7 +1005,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server naming convention used when referring to tables.
+   Returns the naming convention used when referring to tables.
    @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
    and "system" (e.g. schema/table).  The default value is "sql".
    **/
@@ -1016,7 +1016,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Returns the base name of the SQL package.  Note that only the
-   first seven characters are used to generate the name of the SQL package on the server.
+   first seven characters are used to generate the name of the SQL package on the i5/OS system.
    This property has no effect unless
    the extended dynamic property is set to true.  In addition, this property
    must be set if the extended dynamic property is set to true.
@@ -1178,7 +1178,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Returns the value of the serverName property.
-   @return The server name.
+   @return The system name.
    **/
   public String getServerName()
   {
@@ -1189,16 +1189,16 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Returns the level of tracing started on the JDBC server job.
    If tracing is enabled, tracing is started when
-   the client connects to the server and ends when the connection
+   the client connects to the i5/OS system and ends when the connection
    is disconnected.  Tracing must be started before connecting to
-   the server since the client enables server tracing only at connect time.
-   Trace data is collected in spooled files on the server.  Multiple
-   levels of server tracing can be turned on in combination by adding
+   the system since the client enables tracing only at connect time.
+   Trace data is collected in spooled files on the system.  Multiple
+   levels of tracing can be turned on in combination by adding
    the constants and passing that sum on the set method.  For example,
    <pre>
    dataSource.setServerTraceCategories(AS400JDBCManagedDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCManagedDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
    </pre>
-   @return The server tracing level.
+   @return The tracing level.
    <p>The value is a combination of the following:
    <ul>
    <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
@@ -1216,7 +1216,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <P>
    Tracing the JDBC server job will use significant amounts of server resources.
    Additional processor resource is used to collect the data, and additional
-   storage is used to save the data.  Turn on server tracing only to debug
+   storage is used to save the data.  Turn on tracing only to debug
    a problem as directed by IBM service.
    *
    **/
@@ -1226,7 +1226,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns how server sorts records before sending them to the
+   Returns how the i5/OS system sorts records before sending them to the
    client.
    @return The sort value.
    <p>Valid values include:
@@ -1255,7 +1255,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Returns the library and file name of a sort sequence table stored on the
-   server.
+   i5/OS system.
    @return The qualified sort table name.
    **/
   public String getSortTable()
@@ -1264,7 +1264,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns how server treats case while sorting records.
+   Returns how the i5/OS system treats case while sorting records.
    @return The sort weight.
    Valid values include: "shared" (upper- and lower-case characters are sorted as the
    same character) and "unique" (upper- and lower-case characters are sorted as
@@ -1276,7 +1276,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server time format used in time literals with SQL statements.
+   Returns the time format used in time literals with SQL statements.
    @return The time format.
    <p>Valid values include:
    <ul>
@@ -1295,7 +1295,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Returns the server time separator used in time literals within SQL
+   Returns the time separator used in time literals within SQL
    statements.
    @return The time separator.
    <p>Valid values include:
@@ -1315,7 +1315,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
 
   /**
-   Returns the server's transaction isolation.
+   Returns the i5/OS system's transaction isolation.
    @return The transaction isolation level.
    <p>Valid values include:
    <ul>
@@ -1570,11 +1570,11 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Indicates whether extended dynamic support is used.  Extended dynamic
    support provides a mechanism for caching dynamic SQL statements on
-   the server.  The first time a particular SQL statement is prepared, it is
-   stored in an SQL package on the server.
+   the i5/OS system.  The first time a particular SQL statement is prepared, it is
+   stored in an SQL package on the system.
    If the package does not exist, it will be automatically created.
    On subsequent prepares of the
-   same SQL statement, the server can skip a significant part of the
+   same SQL statement, the system can skip a significant part of the
    processing by using information stored in the SQL package.
    @return true if extended dynamic support is used; false otherwise.
    The default value is not to use extended dynamic support.
@@ -1586,7 +1586,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Indicates whether the driver should request extended metadata from the
-   server.  If this property is set to true, the accuracy of the information
+   i5/OS system.  If this property is set to true, the accuracy of the information
    that is returned from ResultSetMetaData methods getColumnLabel(int),
    isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
    In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this
@@ -1596,8 +1596,8 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    *
    For example, without this property turned on, isSearchable(int) will
    always return true even though the correct answer may be false because
-   the driver does not have enough information from the server to make a judgment.  Setting
-   this property to true forces the driver to get the correct data from the server.
+   the driver does not have enough information from the system to make a judgment.  Setting
+   this property to true forces the driver to get the correct data from the system.
    *
    @return true if extended metadata will be requested; false otherwise.
    The default value is false.
@@ -1610,13 +1610,13 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
 
   /**
-   Indicates whether the server fully opens a file when performing a query.
-   By default the server optimizes opens so they perform better.  In
+   Indicates whether the i5/OS system fully opens a file when performing a query.
+   By default the system optimizes opens so they perform better.  In
    certain cases an optimized open will fail.  In some
    cases a query will fail when a database performance monitor
    is turned on even though the same query works with the monitor
    turned off.  In this case set the full open property to true.
-   This disables optimization on the server.
+   This disables optimization on the system.
    @return true if files are fully opened; false otherwise.
    The default value is false.
    **/
@@ -1681,7 +1681,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Indicates whether a subset of the SQL package information is cached in client memory.
    Caching SQL packages locally
-   reduces the amount of communication to the server for prepares and describes.  This
+   reduces the amount of communication to the i5/OS system for prepares and describes.  This
    property has no effect unless the extended dynamic property is set to true.
    @return true if caching is used; false otherwise.
    The defalut value is false.
@@ -1717,7 +1717,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Indicates whether the user is prompted if a user name or password is
-   needed to connect to the server.  If a connection can not be made
+   needed to connect to the i5/OS system.  If a connection can not be made
    without prompting the user, and this property is set to false, then an
    attempt to connect will fail throwing an exception.
    @return true if the user is prompted for signon information; false otherwise.
@@ -1743,7 +1743,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <P>
    If the password is saved, it is up to the application to protect
    the serialized form of the object because it contains all necessary
-   information to connect to the server.  The default is false.  It
+   information to connect to the i5/OS system.  The default is false.  It
    is a security risk to save the password with the rest of the
    properties so by default the password is not saved.  If the programmer
    chooses to accept this risk, call setSavePasswordWhenSerialized(true)
@@ -1760,7 +1760,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Indicates whether a Secure Socket Layer (SSL) connection is used to communicate
-   with the server.  SSL connections are only available when connecting to servers
+   with the i5/OS system.  SSL connections are only available when connecting to systems
    at V4R4 or later.
    @return true if Secure Socket Layer connection is used; false otherwise.
    The default value is false.
@@ -1888,7 +1888,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
 
   /**
-   Sets the level of database access for the server connection.
+   Sets the level of database access for the connection.
    @param access The access level.
    <p>Valid values include:
    <ul>
@@ -2002,9 +2002,9 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the criteria for retrieving data from the server in
+   Sets the criteria for retrieving data from the i5/OS system in
    blocks of records.  Specifying a non-zero value for this property
-   will reduce the frequency of communication to the server, and
+   will reduce the frequency of communication to the system, and
    therefore increase performance.
    @param blockCriteria The block criteria.
    <p>Valid values include:
@@ -2024,10 +2024,10 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the block size in kilobytes to retrieve from the server and
+   Sets the block size in kilobytes to retrieve from the i5/OS system and
    cache on the client.  This property has no effect unless the block criteria
    property is non-zero.  Larger block sizes reduce the frequency of
-   communication to the server, and therefore may increase performance.
+   communication to the system, and therefore may increase performance.
    @param blockSize The block size in kilobytes.
    <p>Valid values include:
    <ul>
@@ -2063,7 +2063,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    </ul>
    The default is "asensitive".
    This property is ignored when connecting to systems
-   running V5R1 and earlier versions of server.
+   running V5R1 and earlier versions of OS/400.
    **/
   public void setCursorSensitivity(String cursorSensitivity)
   {
@@ -2092,7 +2092,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    This property is ignored when connecting to systems
    running V5R1 and earlier versions of OS/400.
    If a database name is specified it must exist in the relational
-   database directory on the server.  Use i5/OS command WRKRDBDIRE
+   database directory on the i5/OS system.  Use i5/OS command WRKRDBDIRE
    to view the directory.
    The following criteria are used to determine
    which database is accessed:
@@ -2180,7 +2180,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server date format used in date literals within SQL statements.
+   Sets the date format used in date literals within SQL statements.
    @param dateFormat The date format.
    <p>Valid values include:
    <ul>
@@ -2208,7 +2208,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server date separator used in date literals within SQL statements.
+   Sets the date separator used in date literals within SQL statements.
    This property has no effect unless the "data format" property is set to:
    "julian", "mdy", "dmy", or "ymd".
    @param dateSeparator The date separator.
@@ -2234,7 +2234,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server decimal separator used in numeric literals within SQL
+   Sets the decimal separator used in numeric literals within SQL
    statements.
    @param decimalSeparator The decimal separator.
    <p>Valid values include:
@@ -2270,7 +2270,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets how server sorts records before sending them to the client.
+   Sets how the i5/OS system sorts records before sending them to the client.
    @param sort The sort value.
    <p>Valid values include:
    <ul>
@@ -2294,7 +2294,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the amount of detail to be returned in the message for errors
-   occurring on the server.
+   occurring on the i5/OS system.
    @param errors The error message level.
    Valid values include: "basic" and "full".  The default value is "basic".
    **/
@@ -2311,11 +2311,11 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets whether to use extended dynamic support.  Extended dynamic
    support provides a mechanism for caching dynamic SQL statements on
-   the server.  The first time a particular SQL statement is prepared, it is
-   stored in an SQL package on the server.
+   the i5/OS system.  The first time a particular SQL statement is prepared, it is
+   stored in an SQL package on the system.
    If the package does not exist, it will be automatically created.
    On subsequent prepares of the
-   same SQL statement, the server can skip a significant part of the
+   same SQL statement, the system can skip a significant part of the
    processing by using information stored in the SQL package.  If this
    is set to "true", then a package name must be set using the "package"
    property.
@@ -2332,7 +2332,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets whether the driver should request extended metadata from the
-   server.  This property is ignored when connecting to systems
+   i5/OS system.  This property is ignored when connecting to systems
    running V5R1 and earlier versions of OS/400.
    If this property is set to true and connecting to a system running
    V5R2 or later version of i5/OS, the accuracy of the information
@@ -2345,10 +2345,10 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    *
    For example, without this property turned on, isSearchable(int) will
    always return true even though the correct answer may be false because
-   the driver does not have enough information from the server to make a judgment.  Setting
-   this property to true forces the driver to get the correct data from the server.
+   the driver does not have enough information from the system to make a judgment.  Setting
+   this property to true forces the driver to get the correct data from the system.
    *
-   @param extendedMetaData True to request extended metadata from the server, false otherwise.
+   @param extendedMetaData True to request extended metadata from the system, false otherwise.
    The default value is false.
    **/
   public void setExtendedMetaData(boolean extendedMetaData)
@@ -2362,7 +2362,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets whether to fully open a file when performing a query.
-   By default the server optimizes opens so they perform better.
+   By default the i5/OS system optimizes opens so they perform better.
    In most cases optimization functions correctly and improves
    performance.  Running a query repeatedly
    when a database performance monitor is turned on may fail
@@ -2423,7 +2423,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server libraries to add to the server job's library list.
+   Sets the libraries to add to the server job's library list.
    The libraries are delimited by commas or spaces, and
    "*LIBL" may be used as a place holder for the server job's
    current library list.  The library list is used for resolving
@@ -2442,13 +2442,13 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server maximum LOB (large object) size in bytes that
+   Sets the maximum LOB (large object) size in bytes that
    can be retrieved as part of a result set.  LOBs that are larger
    than this threshold will be retrieved in pieces using extra
-   communication to the server.  Larger LOB thresholds will reduce
-   the frequency of communication to the server, but will download
+   communication to the i5/OS system.  Larger LOB thresholds will reduce
+   the frequency of communication to the system, but will download
    more LOB data, even if it is not used.  Smaller LOB thresholds may
-   increase frequency of communication to the server, but will only
+   increase frequency of communication to the system, but will only
    download LOB data as it is needed.
    *
    @param threshold The lob threshold.  Valid range is 0-16777216.
@@ -2503,7 +2503,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server naming convention used when referring to tables.
+   Sets the naming convention used when referring to tables.
    @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
    and "system" (e.g. schema/table).  The default value is "sql".
    **/
@@ -2519,7 +2519,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the base name of the SQL package.  Note that only the
-   first seven characters are used to generate the name of the SQL package on the server.
+   first seven characters are used to generate the name of the SQL package on the i5/OS system.
    This property has no effect unless
    the extended dynamic property is set to true.  In addition, this property
    must be set if the extended dynamic property is set to true.
@@ -2553,7 +2553,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets whether to cache a subset of the SQL package information in client memory.
    Caching SQL packages locally
-   reduces the amount of communication to the server for prepares and describes.  This
+   reduces the amount of communication to the i5/OS system for prepares and describes.  This
    property has no effect unless the extended dynamic property is set to true.
    @param cache True if caching is used; false otherwise.  The default value is false.
    **/
@@ -2669,7 +2669,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets whether the user should be prompted if a user name or password is
-   needed to connect to the server.  If a connection can not be made
+   needed to connect to the i5/OS system.  If a connection can not be made
    without prompting the user, and this property is set to false, then an
    attempt to connect will fail.
    @param prompt true if the user is prompted for signon information; false otherwise.
@@ -2768,7 +2768,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets whether a Secure Socket Layer (SSL) connection is used to communicate
-   with the server.  SSL connections are only available when connecting to servers
+   with the i5/OS system.  SSL connections are only available when connecting to systems
    at V4R4 or later.
    @param secure true if Secure Socket Layer connection is used; false otherwise.
    The default value is false.
@@ -2795,7 +2795,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the serverName property.
-   @param serverName The server name.
+   @param serverName The system name.
    @throws ExtendedIllegalStateException If the data source is already in use.
    **/
   public void setServerName(String serverName)
@@ -2828,13 +2828,13 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Enables tracing of the JDBC server job.
    If tracing is enabled, tracing is started when
-   the client connects to the server, and ends when the connection
+   the client connects to the i5/OS system, and ends when the connection
    is disconnected.  Tracing must be started before connecting to
-   the server since the client enables server tracing only at connect time.
+   the system since the client enables tracing only at connect time.
    *
    <P>
-   Trace data is collected in spooled files on the server.  Multiple
-   levels of server tracing can be turned on in combination by adding
+   Trace data is collected in spooled files on the system.  Multiple
+   levels of tracing can be turned on in combination by adding
    the constants and passing that sum on the set method.  For example,
    <pre>
    dataSource.setServerTraceCategories(AS400JDBCManagedDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCManagedDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
@@ -2854,9 +2854,9 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    The numeric value of this constant is 32.
    </ul>
    <P>
-   Tracing the JDBC server job will use significant amounts of server resources.
+   Tracing the JDBC server job will use significant amounts of system resources.
    Additional processor resource is used to collect the data, and additional
-   storage is used to save the data.  Turn on server tracing only to debug
+   storage is used to save the data.  Turn on tracing only to debug
    a problem as directed by IBM service.
    *
    *
@@ -2898,7 +2898,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <P>
    If the password is saved, it is up to the application to protect
    the serialized form of the object because it contains all necessary
-   information to connect to the server.  The default is false.  It
+   information to connect to the i5/OS system.  The default is false.  It
    is a security risk to save the password with the rest of the
    properties so by default the password is not saved.  If the application
    programmer chooses to accept this risk, set this property to true
@@ -2934,7 +2934,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the library and file name of a sort sequence table stored on the
-   server.
+   i5/OS system.
    This property has no effect unless the sort property is set to "table".
    The default is an empty String ("").
    @param table The qualified sort table name.
@@ -2948,7 +2948,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets how the server treats case while sorting records.  This property
+   Sets how the i5/OS system treats case while sorting records.  This property
    has no effect unless the sort property is set to "language".
    @param sortWeight The sort weight.
    Valid values include: "shared" (upper- and lower-case characters are sorted as the
@@ -2980,7 +2980,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server time format used in time literals with SQL statements.
+   Sets the time format used in time literals with SQL statements.
    @param timeFormat The time format.
    <p>Valid values include:
    <ul>
@@ -3004,7 +3004,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Sets the server time separator used in time literals within SQL statements.
+   Sets the time separator used in time literals within SQL statements.
    This property has no effect unless the time format property is set to "hms".
    @param timeSeparator The time separator.
    <p>Valid values include:
@@ -3054,7 +3054,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
 
   /**
-   Sets the server's transaction isolation.
+   Sets the i5/OS system's transaction isolation.
    @param transactionIsolation The transaction isolation level.
    <p>Valid values include:
    <ul>
@@ -3282,7 +3282,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Gets the package CCSID property, which indicates the
-   CCSID in which statements are sent to the server and
+   CCSID in which statements are sent to the i5/OS system and
    also the CCSID of the package they are stored in.
    @return The value of the package CCSID property.
    **/
@@ -3293,7 +3293,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the package CCSID property, which indicates the
-   CCSID in which statements are sent to the server and
+   CCSID in which statements are sent to the i5/OS system and
    also the CCSID of the package they are stored in.
    @param ccsid The package CCSID.
    **/
@@ -3318,7 +3318,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Gets the maximum precision property. This property indicates the
-   maximum decimal precision the server should use.
+   maximum decimal precision the i5/OS system should use.
    @return The maximum precision.
    **/
   public int getMaximumPrecision()
@@ -3328,7 +3328,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Gets the maximum scale property.  This property indicates the
-   maximum decimal scale the server should use.
+   maximum decimal scale the i5/OS system should use.
    @return The maximum scale.
    **/
   public int getMaximumScale()
@@ -3352,7 +3352,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the maximum precision property. This property indicates the
-   maximum decimal precision the server should use.
+   maximum decimal precision the i5/OS system should use.
    @param precision The maximum precision.
    **/
   public void setMaximumPrecision(int precision)
@@ -3366,7 +3366,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   /**
    Sets the maximum scale property.  This property indicates the
-   maximum decimal scale the server should use.
+   maximum decimal scale the i5/OS system should use.
    @param scale The maximum scale.
    **/
   public void setMaximumScale(int scale)
@@ -3510,7 +3510,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
   /**
-   Serializes the server and user information.
+   Serializes the i5/OS system and user information.
    @param out The output stream.
    @throws IOException If a file I/O error occurs.
    **/
