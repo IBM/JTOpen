@@ -485,7 +485,7 @@ implements Connection //@A5A
 
   /**
   *  Returns the job identifier of the host server job corresponding to this connection.
-  *  Every JDBC connection is associated with a host server job on the server.  The
+  *  Every JDBC connection is associated with a host server job on the system.  The
   *  format is:
   *  <ul>
   *    <li>10 character job name
@@ -557,7 +557,7 @@ implements Connection //@A5A
   }
 
   /**
-  *  Returns the user name as currently signed on to the server.
+  *  Returns the user name as currently signed on to the system.
   *
   *  @return      The user name.
   **/
@@ -1041,7 +1041,7 @@ ResultSet.CONCUR_READ_ONLY.
 
 
   /**
-  *  Sends a request data stream to the server using the
+  *  Sends a request data stream to the system using the
   *  connection's id and does not expect a reply.
   *
   *  @param   request     The request.
@@ -1061,7 +1061,7 @@ ResultSet.CONCUR_READ_ONLY.
   }
 
   /**
-  *  Sends a request data stream to the server and does not
+  *  Sends a request data stream to the system and does not
   *  expect a reply.
   *
   *  @param   request     The request.
@@ -1082,7 +1082,7 @@ ResultSet.CONCUR_READ_ONLY.
   }
 
   /**
-  *  Sends a request data stream to the server and does not
+  *  Sends a request data stream to the system and does not
   *  expect a reply.
   *
   *  @param   request        The request.
@@ -1107,7 +1107,7 @@ ResultSet.CONCUR_READ_ONLY.
   }
 
   // @A2D   /**
-  // @A2D   *  Sends a request data stream to the server and discards the reply.
+  // @A2D   *  Sends a request data stream to the system and discards the reply.
   // @A2D   *
   // @A2D   *  @param   request        The request.
   // @A2D   *  @param   id             The id.
@@ -1125,9 +1125,9 @@ ResultSet.CONCUR_READ_ONLY.
   // @A2D  	}
 
   /**
-  *  Sends a request data stream to the server using the
+  *  Sends a request data stream to the system using the
   *  connection's id and returns the corresponding reply from
-  *  the server.
+  *  the system.
   *
   *  @param   request     The request.
   *  @return              The reply.
@@ -1147,8 +1147,8 @@ ResultSet.CONCUR_READ_ONLY.
   }
 
   /**
-  *  Sends a request data stream to the server and returns the
-  *  corresponding reply from the server.
+  *  Sends a request data stream to the system and returns the
+  *  corresponding reply from the system.
   *
   *  @param   request     The request.
   *  @param   id          The id.
@@ -1206,7 +1206,7 @@ ResultSet.CONCUR_READ_ONLY.
   /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
-    eWLM correlators require i5/OS V5R3 or later servers.  This request is ignored when running to OS/400 V5R2 or earlier servers.
+    eWLM correlators require i5/OS V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
     
     @param bytes The eWLM correlator value
     **/
@@ -1436,7 +1436,7 @@ ResultSet.CONCUR_READ_ONLY.
 
   /**
   *  Returns the connection's catalog name.  
-  *  This is the name of the server.
+  *  This is the name of the i5/OS system.
   *  @return     The catalog name.
   **/
   public String toString ()

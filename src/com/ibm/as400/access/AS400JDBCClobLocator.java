@@ -37,7 +37,7 @@ import java.util.Vector;
 
 // Offset refers to a 0-based index. Position refers to a 1-based index.
 
-// In the event that the column on the server is a DBCLOB, know that
+// In the event that the column in the database is a DBCLOB, know that
 // JDLobLocator knows that it is graphic and will correctly convert
 // the byte offsets and lengths into character offsets and lengths.
 
@@ -66,7 +66,7 @@ public class AS400JDBCClobLocator implements Clob
   /**
   Constructs an AS400JDBCClob object.  The data for the
   CLOB will be retrieved as requested, directly from the
-  server, using the locator handle.
+  i5/OS system, using the locator handle.
   
   @param  locator             The locator.
   @param  converter           The text converter.
@@ -413,7 +413,7 @@ Returns the handle to this CLOB locator in the database.
       }
 
       // We don't really know if all of these chars can be written until we go to
-      // the server, so we just return the char[] length as the number written.
+      // the system, so we just return the char[] length as the number written.
       byte[] bytesToWrite = converter_.stringToByteArray(charsToWrite, 0, charsToWrite.length);
       locator_.writeData((long)offset, bytesToWrite, false);            //@K1A
       return charsToWrite.length;
@@ -461,7 +461,7 @@ Returns the handle to this CLOB locator in the database.
       string.getChars(offset, offset + numChars, charsToWrite, 0);          //@K2C
 
       // We don't really know if all of these chars can be written until we go to
-      // the server, so we just return the char[] length as the number written.
+      // the system, so we just return the char[] length as the number written.
       byte[] bytesToWrite = converter_.stringToByteArray(charsToWrite, 0, charsToWrite.length);
       locator_.writeData((long)clobOffset, bytesToWrite, false);            //@k1A
       return charsToWrite.length;
@@ -493,9 +493,9 @@ Returns the handle to this CLOB locator in the database.
       // The host server does not currently provide a way for us
       // to truncate the temp space used to hold the locator data,
       // so we just keep track of it ourselves.  This should work,
-      // since the temp space on the server should only be valid
+      // since the temp space on the system should only be valid
       // within the scope of our transaction/connection. That means
-      // there's no reason to go to the server to update the data,
+      // there's no reason to go to the system to update the data,
       // since no other process can get at it.
       locator_.writeData(length, new byte[0], 0, 0, true);          //@k1A
     }

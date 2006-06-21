@@ -71,7 +71,7 @@ implements CallableStatement
     /**
     Constructs an AS400JDBCCallableStatement object.
     
-    @param   connection             The connection to the server.
+    @param   connection             The connection to the system.
     @param   id                     The id.
     @param   transactionManager     The transaction manager for the connection.
     @param   packageManager         The package manager for the connection.
@@ -222,7 +222,7 @@ implements CallableStatement
                 }
                 else // using system naming
                 {
-                  // Retrieve the library list from server - Use ROI Retrieve Library List.
+                  // Retrieve the library list from the i5/OS - Use ROI Retrieve Library List.
                   ResultSet rs1 = JDUtilities.getLibraries(this, connection_, null, true);
                   Vector libListV = new Vector();
                   while(rs1.next()) {

@@ -48,7 +48,7 @@ public class AS400JDBCBlob implements Blob
 
 /**
 Constructs an AS400JDBCBlob object.  The data is contained
-in the raw byte array.  No further server communication
+in the raw byte array.  No further communication with the i5/OS system
 is necessary.
 
 @param  data     The BLOB data.

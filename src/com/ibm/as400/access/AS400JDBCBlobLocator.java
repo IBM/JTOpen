@@ -56,7 +56,7 @@ public class AS400JDBCBlobLocator implements Blob
 /**
 Constructs an AS400JDBCBlobLocator object.  The data for the
 BLOB will be retrieved as requested, directly from the
-server, using the locator handle.
+i5/OS system, using the locator handle.
 
 @param  locator             The locator.
 **/
@@ -327,7 +327,7 @@ Returns the position at which a pattern is found in the BLOB.
       }
 
       // We don't really know if all of these bytes can be written until we go to
-      // the server, so we just return the byte[] length as the number written.
+      // the system, so we just return the byte[] length as the number written.
       locator_.writeData((long)offset, bytesToWrite, false);        //@K1A
       return bytesToWrite.length;
     }
@@ -374,7 +374,7 @@ Returns the position at which a pattern is found in the BLOB.
       System.arraycopy(bytesToWrite, offset, newData, 0, lengthOfWrite);
 
       // We don't really know if all of these bytes can be written until we go to
-      // the server, so we just return the byte[] length as the number written.
+      // the system, so we just return the byte[] length as the number written.
       locator_.writeData((long)blobOffset, newData, false);             //@K1A
       return newData.length;
     }
@@ -403,9 +403,9 @@ Returns the position at which a pattern is found in the BLOB.
       // The host server does not currently provide a way for us
       // to truncate the temp space used to hold the locator data,
       // so we just keep track of it ourselves.  This should work,
-      // since the temp space on the server should only be valid
+      // since the temp space on the system should only be valid
       // within the scope of our transaction/connection. That means
-      // there's no reason to go to the server to update the data,
+      // there's no reason to go to the system to update the data,
       // since no other process can get at it.
       locator_.writeData(length, new byte[0], 0, 0, true);                  //@K1A
     }

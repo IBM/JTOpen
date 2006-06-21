@@ -58,14 +58,14 @@ statements.
 //
 //     The id is used as a convention for assigning each
 //     connection and statement its own ORS (Operation Result
-//     Set) on the server as well as assigning each statement
+//     Set) on the i5/OS as well as assigning each statement
 //     its own RPB (Request Parameter Block).
 //
-//     Every communication to the server requires a connection
+//     Every communication to the database requires a connection
 //     and an id within that connection.
 //
 // 2.  It is a requirement that no finalize() methods need to
-//     receive a reply from the server.  Because of the way the
+//     receive a reply from the i5/OS system.  Because of the way the
 //     AS400Server class is implemented, certain scenarios where
 //     this is the case will result in deadlock.  The AS400Server
 //     class provides sendAndDiscardReply() specifically to avoid
@@ -84,7 +84,7 @@ implements Connection
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-    // Turn this flag on to prevent this Connection object from establishing an actual connection to the server.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
+    // Turn this flag on to prevent this Connection object from establishing an actual connection to the i5/OS system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
     // For production, this flag _must_ be set to 'false'.
     private static final boolean TESTING_THREAD_SAFETY = false;             //@CPMa
 
@@ -120,17 +120,17 @@ implements Connection
 
     // This is a compile time flag for forcing the use of
     // extended datastream formats.  This can be useful when
-    // testing extended formats, but the server is not reporting
+    // testing extended formats, but the i5/OS system is not reporting
     // the correct VRM.
     //
     // The choices are:
     //   true  = Force extended datastream formats.
-    //   false = Decide based on server VRM (for production code).
+    //   false = Decide based on system VRM (for production code).
     //
     // @E9D private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
     
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
-    //        The server passes it along to database to enable correct package caching of
+    //        The i5/OS passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
     private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R4M01   "; // @EDA F8c H2c pdc
 
@@ -245,12 +245,12 @@ implements Connection
         // Lock out all other operations for this connection.
         synchronized(cancelLock_)
         {
-            if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
+            if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact the system
             cancelling_ = true;
             AS400JDBCConnection cancelConnection = null;
             try
             {
-                // If the server job identifier was returned, and the server is at a
+                // If the server job identifier was returned, and the system is at a
                 // functional level 5 or greater, then use the job identifier to issue
                 // the cancel from another connection.  Otherwise, do nothing.
                 if ((serverJobIdentifier_ != null) && (serverFunctionalLevel_ >= 5))
@@ -295,7 +295,7 @@ implements Connection
                 else
                 {
                     if (JDTrace.isTraceOn())
-                        JDTrace.logInformation (this, "Cancel of statement " + id + " requested, but is not supported by server");
+                        JDTrace.logInformation (this, "Cancel of statement " + id + " requested, but is not supported by system");
                 }
             }
             finally
@@ -395,7 +395,7 @@ implements Connection
     void checkOpen ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
         if (server_ == null)
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
@@ -421,7 +421,7 @@ implements Connection
     Releases the connection's resources immediately instead of waiting
     for them to be automatically released.  This rolls back any active
     transactions, closes all statements that are running in the context
-    of the connection, and disconnects from the server.
+    of the connection, and disconnects from the i5/OS system.
     
     @exception SQLException If an error occurs.
     **/
@@ -457,7 +457,7 @@ implements Connection
         // partial close (moved rollback and closing of all the statements).     @E1
         pseudoClose();
 
-        // Disconnect from the server.
+        // Disconnect from the system.
         if (server_ != null)
         {
 
@@ -514,7 +514,7 @@ implements Connection
         // Note:  Intuitively, it seems like if we are in
         //        auto-commit mode, that we should not need to
         //        do anything for an explicit commit.  However,
-        //        somewhere along the line, the server gets
+        //        somewhere along the line, the system gets
         //        confused, so we go ahead an send the commit
         //        anyway.
 
@@ -1091,7 +1091,7 @@ implements Connection
     // @E8A
     /**
     Returns the job identifier of the host server job corresponding to this connection.
-    Every JDBC connection is associated with a host server job on the server.  The
+    Every JDBC connection is associated with a host server job on the i5/OS system.  The
     format is:
     <ul>
       <li>10 character job name
@@ -1124,7 +1124,7 @@ implements Connection
 
     // @EHA
     /**
-    Returns the system object which is managing the connection to the server.
+    Returns the system object which is managing the connection to the system.
     
     <p>Note: Since this method is not defined in the JDBC Connection interface,
     you typically need to cast a Connection object to AS400JDBCConnection in order
@@ -1284,7 +1284,7 @@ implements Connection
 
     // @j31a new method -- Must the user have "for update" on their
     //       SQL statement to guarantee an updatable cursor?  The answer is
-    //       no for v5r2 and v5r1 servers with a PTF.  For V5R1 servers
+    //       no for v5r2 and v5r1 systems with a PTF.  For V5R1 systems
     //       without the PTF, v4r5, and earlier, the answer is yes.  
     boolean getMustSpecifyForUpdate ()
     {
@@ -1309,14 +1309,14 @@ implements Connection
 
 
     /**
-    Returns the user name as currently signed on to the server.
+    Returns the user name as currently signed on to the system.
     
     @return      The user name.
     **/
     String getUserName ()
     throws SQLException // @EGA
     {
-        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact i5/OS system
         {
           String userName = as400_.getUserId ();
           if (userName == null || userName.length() == 0) {
@@ -1387,7 +1387,7 @@ implements Connection
     public boolean isClosed ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact i5/OS system
 
         if (server_ == null)                        // @EFC
             return true;                            // @EFA
@@ -2046,7 +2046,7 @@ implements Connection
             }                                                                            // @J4a
         }
 
-        // @j1a clean up any server debug that is going on.  This entire block
+        // @j1a clean up any i5/OS debug that is going on.  This entire block
         //      is new for @J1
         if (traceServer_ > 0)
         {
@@ -2312,7 +2312,7 @@ implements Connection
 
 
     /**
-    Sends a request data stream to the server using the
+    Sends a request data stream to the system using the
     connection's id and does not expect a reply.
     
     @param   request     The request.
@@ -2331,7 +2331,7 @@ implements Connection
 
 
     /**
-    Sends a request data stream to the server and does not
+    Sends a request data stream to the system and does not
     expect a reply.
     
     @param   request     The request.
@@ -2351,7 +2351,7 @@ implements Connection
 
 
     /**
-    Sends a request data stream to the server and does not
+    Sends a request data stream to the system and does not
     expect a reply.
     
     @param   request        The request.
@@ -2375,7 +2375,7 @@ implements Connection
         try
         {
             // Since we are just calling send() (instead of sendAndReceive()),              // @EAA
-            // make sure we are not asking the server for a reply.  Otherwise,              // @EAA
+            // make sure we are not asking the system for a reply.  Otherwise,              // @EAA
             // the reply will come back and it will get held in the AS400                   // @EAA
             // read daemon indefinitely - - a memory leak.                                  // @EAA
             if (JDTrace.isTraceOn())
@@ -2448,7 +2448,7 @@ implements Connection
 
 
     // @EBD /**
-    // @EBD Sends a request data stream to the server and discards
+    // @EBD Sends a request data stream to the system and discards
     // @EBD the reply.
     // @EBD
     // @EBD @param   request        The request.
@@ -2519,7 +2519,7 @@ implements Connection
         try
         {
             // Since we are just calling send() (instead of sendAndReceive()),              // @EAA
-            // make sure we are not asking the server for a reply.  Otherwise,              // @EAA
+            // make sure we are not asking the system for a reply.  Otherwise,              // @EAA
             // the reply will come back and it will get held in the AS400                   // @EAA
             // read daemon indefinitely - - a memory leak.                                  // @EAA
             if (JDTrace.isTraceOn())
@@ -2553,7 +2553,7 @@ implements Connection
                 System.out.println("This request was HELD.");
             }
         }
-        // Note: No need to check for an IOException in this method, since we don't contact the server.       @J5A
+        // Note: No need to check for an IOException in this method, since we don't contact the system.       @J5A
         catch (Exception e)
         {
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
@@ -2563,9 +2563,9 @@ implements Connection
 
 
     /**
-    Sends a request data stream to the server using the
+    Sends a request data stream to the system using the
     connection's id and returns the corresponding reply from
-    the server.
+    the system.
     
     @param   request     The request.
     @return              The reply.
@@ -2584,8 +2584,8 @@ implements Connection
 
 
     /**
-    Sends a request data stream to the server and returns the
-    corresponding reply from the server.
+    Sends a request data stream to the system and returns the
+    corresponding reply from the system.
     
     @param   request     The request.
     @param   id          The id.
@@ -2710,7 +2710,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
 
         transactionManager_.setAutoCommit (autoCommit);
 
@@ -2736,7 +2736,7 @@ implements Connection
     /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
-    eWLM correlators require i5/OS V5R3 or later servers.  This request is ignored when running to OS/400 V5R2 or earlier servers.
+    eWLM correlators require i5/OS V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
     
     @param bytes The eWLM correlator value
     **/
@@ -2814,7 +2814,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
 
         if (!checkHoldabilityConstants(holdability))                            //@F3A
             JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
@@ -2837,7 +2837,7 @@ implements Connection
                         AS400 as400)
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact i5/OS system
         {
           as400PublicClassObj_ = as400;
         }
@@ -2905,8 +2905,8 @@ implements Connection
         defaultSchema_ = libraryList.getDefaultSchema ();
 
         // The connection gets an id automatically, but never
-        // creates an RPB on the server.  There should never be a need
-        // to create an RPB on the server for a connection, but an
+        // creates an RPB on the system.  There should never be a need
+        // to create an RPB on the system for a connection, but an
         // id is needed for retrieving Operational Result Sets (ORS)
         // for errors, etc.
 
@@ -2922,7 +2922,7 @@ implements Connection
                                          JDProperties.ACCESS_READ_ONLY));
 
 
-        // Determine the amount of server tracing that should be started.  Trace
+        // Determine the amount of system tracing that should be started.  Trace
         // can be started by either a JDBC property or the ServerTrace class.  Our value
         // will be the combination of the two (instead of one overriding the other).
         traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) +
@@ -2944,7 +2944,7 @@ implements Connection
             JDTrace.logInformation("JDBC Level: " + JDUtilities.JDBCLevel_);          // @F6a
         }                                                                             // @F6a
 
-        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact server
+        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact i5/OS system
         {
           try
           {
@@ -3024,7 +3024,7 @@ implements Connection
             JDTrace.logDataEvenIfTracingIsOff(this, "Server functional level:  " + getServerFunctionalLevel());          // @E7A
 
 
-            // Determine server level.  Some commands are slightly different
+            // Determine system level.  Some commands are slightly different
             // to v5r1 machines.
             boolean preV5R1 = true;
             boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
@@ -3081,7 +3081,7 @@ implements Connection
             }
 
             boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  //@540                                                        
-            //@540 Database Host Server Trace is supported on V5R3 and later servers
+            //@540 Database Host Server Trace is supported on V5R3 and later systems
             boolean traceDatabaseHostServer = ((getVRM() >= JDUtilities.vrm530) && ((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)); //@540
             // Optionally start trace on the database server job or database host server
             //@540D if ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0)
@@ -3251,7 +3251,7 @@ implements Connection
         // only option supported by the i5/OS system at this time.  We have to specify
         // it because the SQL default is close cursors.  Since we need to use 
         // an option other than the default we have to specify it on the statement.
-        // Plus, the server will return an error if we don't specify it.  
+        // Plus, the system will return an error if we don't specify it.  
         processSavepointRequest("SAVEPOINT " + name + " ON ROLLBACK RETAIN CURSORS" );
 
         return(Savepoint)(Object) new AS400JDBCSavepoint(name, id);
@@ -3273,7 +3273,7 @@ implements Connection
     private void setServerAttributes ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact server
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
         try
         {
             vrm_ = as400_.getVRM();                                     // @D0A @ECM
@@ -3298,11 +3298,11 @@ implements Connection
 
 
                 // @E2D // Do not set the client CCSID.  We do not want
-                // @E2D // the server to convert data, since we are going
+                // @E2D // the system to convert data, since we are going
                 // @E2D // to do all conersion on the client.  By not telling
-                // @E2D // the server our CCSID, then we achieve this.
+                // @E2D // the system our CCSID, then we achieve this.
                 // @E2D //
-                // @E2D // Note that the database server documentation
+                // @E2D // Note that the database host server documentation
                 // @E2D // states that when we do this, the CCSID values
                 // @E2D // in data formats may be incorrect and that we
                 // @E2D // should always use the server job's CCSID.
@@ -3327,10 +3327,10 @@ implements Connection
                 }
 
                 // This language feature code is used to tell the
-                // server what language to send error messages in.
-                // If that language is not installed on the server,
+                // system what language to send error messages in.
+                // If that language is not installed on the system,
                 // we get messages back in the default language that
-                // was installed on the server.
+                // was installed on the system.
                 //
                 String nlv = as400_.getNLV();  // @F1C
                 request.setLanguageFeatureCode(nlv);                            // @EDC
@@ -3427,9 +3427,9 @@ implements Connection
                 if (defaultSchema_ != null)
                     request.setDefaultSQLLibraryName (defaultSchema_, tempConverter);
 
-                // There is no need to tell the server what our code
+                // There is no need to tell the system what our code
                 // page is, nor is there any reason to get a translation
-                // table back from the server at this point.  This
+                // table back from the system at this point.  This
                 // will be handled later by the Converter class.
 
                 // I haven't found a good reason to set the ambiguous select
@@ -3440,7 +3440,7 @@ implements Connection
 
                 request.setPackageAddStatementAllowed (properties_.getBoolean (JDProperties.PACKAGE_ADD) ? 1 : 0);
 
-                // If the server is at V4R4 or later, then set some more attributes.
+                // If the system is at V4R4 or later, then set some more attributes.
                 if (vrm_ >= JDUtilities.vrm440)
                 {                  // @D0C @E9C
                     // @E9D || (FORCE_EXTENDED_FORMATS_)) {
@@ -3451,7 +3451,7 @@ implements Connection
                         request.setUseExtendedFormatsIndicator (0xF1);
 
                     // Although we publish a max lob threshold of 16777216,                   @E6A
-                    // the server can only handle 15728640.  We do it this                    @E6A
+                    // the system can only handle 15728640.  We do it this                    @E6A
                     // way to match ODBC.                                                     @E6A
                     int lobThreshold = properties_.getInt (JDProperties.LOB_THRESHOLD);    // @E6A
                     if (lobThreshold <= 0)                                                 // @E6A
@@ -3468,7 +3468,7 @@ implements Connection
                 // and earlier the default was updatable).  If the app requests updatable
                 // statements we will now specify "updatable" on the RPB.  Do this
                 // only to V5R1 systems with the needed PTF, and V5R2 and later systems 
-                // because they have the server fix needed to support 
+                // because they have the fix needed to support 
                 // altering the cursor type in the RPB.  (AmbiguousSelectOption(1)
                 // means read-only)
                 if (vrm_ >= JDUtilities.vrm520)                              // @J3a
@@ -3590,7 +3590,7 @@ implements Connection
                         JDTrace.logInformation (this, "Using original datastreams");
                 }
 
-                // Send an RDB name to the server only if connecting to 
+                // Send an RDB name to the system only if connecting to 
                 // v5r2 and newer versions of i5/OS
                 if (vrm_ >= JDUtilities.vrm520)                                                                   // @J2a
                 {
@@ -3626,7 +3626,7 @@ implements Connection
                 else if ((errorClass == 7) && (returnCode == 304))
                     postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
                                                                                              
-                // -704 is RDB (IASP) does not exist.  We do not go back to the server to get
+                // -704 is RDB (IASP) does not exist.  We do not go back to the system to get
                 // error info since they are sending an invalid attribute exception when the
                 // IASP is not found.  We can create a better error than that. 
                 else if ((errorClass == 7) && (returnCode == -704))                    // @J2a
@@ -3639,7 +3639,7 @@ implements Connection
                     JDError.throwSQLException(this, JDError.EXC_RDB_DOES_NOT_EXIST);   // @J2a
                 }                                                                      // @J2a
 
-                // Other server errors.
+                // Other system errors.
                 else if (errorClass != 0)
                     JDError.throwSQLException (this, this, id_, errorClass, returnCode);
 
@@ -3930,7 +3930,7 @@ implements Connection
 
     /**
     Returns the connection's catalog name.  This is the
-    name of the server.
+    name of the i5/OS system.
     
     @return     The catalog name.
     **/
