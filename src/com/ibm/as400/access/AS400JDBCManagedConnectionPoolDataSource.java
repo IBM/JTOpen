@@ -137,12 +137,12 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
 
   /**
    Constructs an AS400JDBCManagedConnectionPoolDataSource with the specified signon information
-   to use for SSL communications with the server.
+   to use for SSL communications with the i5/OS system.
    @param serverName The i5/OS system name.
    @param user The user id.
    @param password The password.
-   @param keyRingName The key ring class name to be used for SSL communications with the server.
-   @param keyRingPassword The password for the key ring class to be used for SSL communications with the server.
+   @param keyRingName The key ring class name to be used for SSL communications with the system.
+   @param keyRingPassword The password for the key ring class to be used for SSL communications with the system.
    **/
   public AS400JDBCManagedConnectionPoolDataSource(String serverName, String user, String password,
                                                   String keyRingName, String keyRingPassword)
@@ -315,7 +315,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
 
   // method required by javax.sql.ConnectionPoolDataSource
   /**
-   Returns a pooled connection that is connected to the server.
+   Returns a pooled connection that is connected to the i5/OS system.
    @return A pooled connection.
    @throws SQLException If a database error occurs.
    **/
@@ -329,7 +329,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
 
   // method required by javax.sql.ConnectionPoolDataSource
   /**
-   Returns a pooled connection that is connected to the server.
+   Returns a pooled connection that is connected to the i5/OS system.
    @param user The userid for the connection.
    @param password The password for the connection.
    @return A pooled connection.

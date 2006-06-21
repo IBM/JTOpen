@@ -49,7 +49,7 @@ class AS400JDBCInputStream extends InputStream
 /**
 Constructs an AS400JDBCInputStream object.  The data for the
 binary stream will be retrieved as requested, directly from the
-server, using the locator handle.
+system, using the locator handle.
 
 @param  locator             The locator.
 **/
