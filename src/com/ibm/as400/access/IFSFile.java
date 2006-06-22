@@ -413,6 +413,7 @@ public class IFSFile
   /**
    Determines if the applet or application can read from the integrated file system
    object represented by this object.
+   Note that i5/OS <i>directories</i> are not readable; only <i>files</i> can be readable.
    @return true if the object exists and is readable; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -451,6 +452,7 @@ public class IFSFile
   /**
    Determines if the applet or application can write to the integrated file system
    object represented by this object.
+   Note that i5/OS <i>directories</i> are not writable; only <i>files</i> can be writable.
    @return true if the object exists and is writeable; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -656,11 +658,10 @@ public class IFSFile
 
 
   /**
-   Atomically create a new, empty file.  The file is
-   created if and only if the file does not yet exist.  The
-   check for existence and the file creation is a
-   single atomic operation.
-   @return true if the file is created, false otherwise.
+   Atomically creates a new, empty file named by this abstract pathname if and only if a file with this name does not yet exist.
+   The check for the existence of the file and the creation of the file if it does not exist are a single operation that is atomic with respect to all other filesystem activities that might affect the file.
+   If the file already exists, its data are left intact.
+   @return <tt>true</tt> if the named file does not exist and was successfully created; <tt>false</tt> if the named file already exists.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.

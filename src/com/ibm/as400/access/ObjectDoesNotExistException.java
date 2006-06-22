@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 
 /**
    The ObjectDoesNotExistException class represents an exception 
-   that indicates that a server object does not exists.
+   that indicates that a server object does not exist.
 **/
 public class ObjectDoesNotExistException extends Exception
                               implements ReturnCodeException
@@ -40,14 +40,12 @@ public class ObjectDoesNotExistException extends Exception
    // If a value is added here, it must also be added to MRI.properties.
  
    /**
-       The return code indicating that
-       the library does not exist.
+       The return code indicating that the library does not exist.
    **/
    public static final int LIBRARY_DOES_NOT_EXIST = 1;
 
    /**
-       The return code indicating that
-       the object does not exist.
+       The return code indicating that the object does not exist.
    **/
    public static final int OBJECT_DOES_NOT_EXIST = 2;
 
