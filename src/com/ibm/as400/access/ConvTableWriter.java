@@ -154,6 +154,7 @@ public class ConvTableWriter extends OutputStreamWriter
 
     private void addToCache(char[] c, int off, int len) throws IOException
     {
+        if (len == 0) return;  // nothing to cache
         synchronized (lock)
         {
             checkOpen();
@@ -345,7 +346,7 @@ public class ConvTableWriter extends OutputStreamWriter
      Writes a portion of the specified array of characters.
      @param  buffer  The characters to be written.
      @param  offset  The offset into the array from which to begin extracting characters to write.
-     @param  length  The number of characters to write.
+     @param  length  The number of characters to write.  If zero is specified, this method does nothing.
      @exception  IOException  If an I/O exception occurs.
      **/
     public void write(char[] buffer, int offset, int length) throws IOException
@@ -355,6 +356,7 @@ public class ConvTableWriter extends OutputStreamWriter
             Trace.log(Trace.ERROR, "Parameter 'buffer' is null.");
             throw new NullPointerException("buffer");
         }
+        if (length == 0) return;  // nothing to write
         if (offset < 0 || offset >= buffer.length)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'offset' is not valid:", offset);
@@ -388,7 +390,7 @@ public class ConvTableWriter extends OutputStreamWriter
      Writes a portion of the specified String.
      @param  data  The String to write.
      @param  offset  The offset into the String from which to begin extracting characters to write.
-     @param  length  The number of characters to write.
+     @param  length  The number of characters to write.  If zero is specified, this method does nothing.
      @exception  IOException  If an I/O exception occurs.
      **/
     public void write(String data, int offset, int length) throws IOException
@@ -398,6 +400,7 @@ public class ConvTableWriter extends OutputStreamWriter
             Trace.log(Trace.ERROR, "Parameter 'data' is null.");
             throw new NullPointerException("data");
         }
+        if (length == 0) return;  // nothing to write
         if (offset < 0 || offset >= data.length())
         {
             Trace.log(Trace.ERROR, "Value of parameter 'offset' is not valid:", offset);

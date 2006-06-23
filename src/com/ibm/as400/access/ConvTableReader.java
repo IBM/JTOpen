@@ -558,7 +558,7 @@ public class ConvTableReader extends InputStreamReader
      Reads characters into a portion of the specified array.  If close() is called prior to calling this method, an exception will be thrown.
      @param  buffer  The destination buffer.
      @param  offset  The offset into the buffer at which to begin storing data.
-     @param  length  The maximum number of characters to store.
+     @param  length  The maximum number of characters to store.  If a zero length is specified, this method does nothing and returns 0.
      @return  The number of characters read, or -1 if the end of the stream has been reached.
      @exception  IOException  If an I/O exception occurs.
      **/
@@ -570,12 +570,13 @@ public class ConvTableReader extends InputStreamReader
             throw new NullPointerException("buffer");
         }
         if (length == 0) return 0; // The JDK doesn't throw exceptions when the length is 0.
-        if (offset < 0 || offset > buffer.length)
+        if (offset < 0 || offset >= buffer.length)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'offset' is not valid:", offset);
             throw new ExtendedIllegalArgumentException("offset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
-        if (length < 0 || (offset + length) > buffer.length)
+        //if (length < 0 || (offset + length) > buffer.length)
+        if (length < 0)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
             throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -594,9 +595,9 @@ public class ConvTableReader extends InputStreamReader
     }
 
     /**
-     Reads up to <I>length</I> characters out of the underlying stream.  If close() is called prior to calling this method, an exception will be thrown.
-     @param  length  The number of Unicode characters to return as a String.  The number of bytes read from the underlying InputStream could be greater than <I>length</I>.
-     @return  A String of up to <I>length</I> Unicode characters, or null if the end of the stream has been reached.  The actual number of characters returned may be less than the specified <I>length</I> if the end of the underlying InputStream is reached while reading.
+     Reads up to <tt>length</tt> characters out of the underlying stream.  If close() is called prior to calling this method, an exception will be thrown.
+     @param  length  The maximum number of Unicode characters to return as a String.  Note that the number of <i>bytes</i> read from the underlying InputStream could be greater than <tt>length</tt>.  If a zero length is specified, this method does nothing and returns "".
+     @return  A String of up to <tt>length</tt> Unicode characters, or null if the end of the stream has been reached.  The actual number of characters returned may be less than the specified <tt>length</tt> if the end of the underlying InputStream is reached while reading.
      @exception  IOException  If an I/O exception occurs.
      **/
     public String read(int length) throws IOException

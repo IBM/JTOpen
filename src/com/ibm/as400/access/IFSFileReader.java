@@ -84,6 +84,7 @@ public class IFSFileReader extends Reader
   {
     if (file == null) throw new NullPointerException("file");
     int ccsid = file.getCCSID();  // do this before opening the stream, to avoid "File In Use"
+    if (ccsid == -1) throwException(file.getPath());
     inputStream_ = new IFSFileInputStream(file);
     reader_ = new ConvTableReader(inputStream_, ccsid);
   }
@@ -135,6 +136,7 @@ public class IFSFileReader extends Reader
     throws AS400SecurityException, IOException
   {
     int ccsid = fd.getCCSID();  // do this before opening the stream, to avoid "File In Use"
+    if (ccsid == -1) throwException(fd.getPath());
     inputStream_ = new IFSFileInputStream(fd);
     reader_ = new ConvTableReader(inputStream_, ccsid);
     // Note: IFSFileDescriptor has a shareOption data member.
@@ -291,6 +293,15 @@ public class IFSFileReader extends Reader
     throws IOException
   {
     inputStream_.unlock(key);
+  }
+
+
+  // Utility method.
+  private static final void throwException(String path)
+    throws ExtendedIOException
+  {
+    Trace.log(Trace.ERROR, "File does not exist or is not readable.");
+    throw new ExtendedIOException(path, ExtendedIOException.FILE_NOT_FOUND);
   }
 
 }

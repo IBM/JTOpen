@@ -77,18 +77,19 @@ public class IFSFileWriter extends Writer
    Other readers and writers are allowed to access the file.
    @param file The file to be opened for writing.
 
-   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the server.
+   @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file)
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
     int ccsid = file.getCCSID();  // do this before opening stream
+    if (ccsid == -1) throwException(file.getPath());
     outputStream_ = new IFSFileOutputStream(file);
     writer_ = new ConvTableWriter(outputStream_, ccsid);
   }
-
 
   /**
    Constructs an IFSFileWriter object.
@@ -99,8 +100,9 @@ public class IFSFileWriter extends Writer
    @param ccsid The CCSID to convert the data to when writing to the file.
    The file's "data CCSID" tag on the server is not changed.
 
-   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the server.
+   @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, int ccsid)
     throws AS400SecurityException, IOException
@@ -119,14 +121,16 @@ public class IFSFileWriter extends Writer
    @param file The file to be opened for writing.
    @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
 
-   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the server.
+   @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, boolean append)
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
     int ccsid = file.getCCSID();  // do this before opening stream
+    if (ccsid == -1) throwException(file.getPath());
     outputStream_ = new IFSFileOutputStream(file, IFSFileOutputStream.SHARE_ALL, append);
     writer_ = new ConvTableWriter(outputStream_, ccsid);
   }
@@ -139,14 +143,16 @@ public class IFSFileWriter extends Writer
    @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
 
-   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the server.
+   @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, boolean append, int shareOption)
     throws AS400SecurityException, IOException
   {
     if (file == null) throw new NullPointerException("file");
     int ccsid = file.getCCSID();  // do this before opening stream
+    if (ccsid == -1) throwException(file.getPath());
     outputStream_ = new IFSFileOutputStream(file, shareOption, append);
     writer_ = new ConvTableWriter(outputStream_, ccsid);
   }
@@ -154,15 +160,16 @@ public class IFSFileWriter extends Writer
 
   /**
    Constructs an IFSFileWriter object.
-   The file is opened if it exists; otherwise an exception is thrown.
+   The file is opened if it exists; otherwise an exception may be thrown.
    @param file The file to be opened for writing.
    @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param ccsid The CCSID to convert the data to when writing to the file.
    The file's "data CCSID" tag on the server is not changed.
 
-   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the server.
+   @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, boolean append, int shareOption, int ccsid)
     throws AS400SecurityException, IOException
@@ -176,11 +183,16 @@ public class IFSFileWriter extends Writer
    Constructs an IFSFileWriter object. 
    The file is opened if it exists; otherwise an exception is thrown.
    @param fd The file descriptor to be opened for writing.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the server.
+   @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFileDescriptor fd)
     throws AS400SecurityException, IOException
   {
     int ccsid = fd.getCCSID();  // do this before opening stream
+    if (ccsid == -1) throwException(fd.getPath());
     outputStream_ = new IFSFileOutputStream(fd);
     writer_ = new ConvTableWriter(outputStream_, ccsid);
     // Note: IFSFileDescriptor has a shareOption data member.
@@ -359,6 +371,15 @@ public class IFSFileWriter extends Writer
   public void write(String data, int offset, int length) throws IOException
   {
     writer_.write(data, offset, length);
+  }
+
+
+  // Utility method.
+  private static final void throwException(String path)
+    throws ExtendedIOException
+  {
+    Trace.log(Trace.ERROR, "File does not exist or is not writable.");
+    throw new ExtendedIOException(path, ExtendedIOException.FILE_NOT_FOUND);
   }
 
 }
