@@ -31,9 +31,9 @@ When a transaction is rolled back to a savepoint, all changes made
 after the savepoint was created are undone. 
 <P>
 Savepoints can be either named or unnamed. 
-The server does not support unnamed savepoints 
+The DB2 for i5/OS does not support unnamed savepoints 
 so internally the Toolbox JDBC driver will create 
-a name to send to the server.  The
+a name to send to the system.  The
 format is T_JDBCINTERNAL_n where 'n' is a counter that is
 incremented every time an unnamed savepoint is created.
 <P>
@@ -101,7 +101,7 @@ implements Savepoint
 
     // Counter to help create unique name for unnamed savepoints.  Every savepoint
     // on the serve has a name.  We will create a name for unnamed savepoints to
-    // send to the server.
+    // send to the system.
     static synchronized int getNextId()
     {
        return counter_++;

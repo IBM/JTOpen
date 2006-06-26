@@ -42,7 +42,7 @@ implements ResultSetMetaData
     // Searchable constants 
     //@G1A @G2C
     private static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
-    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our server
+    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our i5/OS system
     private static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
     private static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
 
@@ -50,7 +50,7 @@ implements ResultSetMetaData
     //@G1A @G2C
     private static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
     private static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
-    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our server
+    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our i5/OS system
 
     // Private data.
     private String              catalog_;
@@ -170,7 +170,7 @@ implements ResultSetMetaData
     @param  columnIndex     The column index (1-based).
     @return                 The column label if the user set the 
                             driver property "extended metadata" to true and
-                            the server returns us a column label,
+                            the system returns us a column label,
                             otherwise the column name.
     @exception  SQLException    If the column index is not valid.
     **/
@@ -287,7 +287,7 @@ implements ResultSetMetaData
     @param  columnIndex     The column index (1-based).
     @return                 The schema name if the user set the 
                             driver property "extended metadata" to true and
-                            the server returns us a schema name,
+                            the system returns us a schema name,
                             otherwise "".
     @exception  SQLException    If the column index is not valid.
     **/
@@ -316,7 +316,7 @@ implements ResultSetMetaData
     @param  columnIndex     The column index (1-based).
     @return                 The base table name if the user set the 
                             driver property "extended metadata" to true and
-                            the server returns us a table name,
+                            the system returns us a table name,
                             otherwise "".
     @exception  SQLException    If the column index is not valid.
     **/

@@ -87,7 +87,7 @@ regardless of the concurrency set in the statement:
 
 <p>In the following case, result sets are always read only 
 regardless of the concurrency set in the statement if connecting 
-to a server running OS/400 V4R5 or a previous release:
+to a system running OS/400 V4R5 or a previous release:
 <ul>
 <li>SELECT statements which do not specify FOR UPDATE
 </ul>
@@ -115,7 +115,7 @@ index rather than accessing them by their name.
 //
 //    * Result sets from caller-issued selects.
 //    * Result sets created and returned from DatabaseMetaData.
-//    * Result sets generated on the server and mapped to
+//    * Result sets generated on the i5/OS system and mapped to
 //      a different format by DatabaseMetaData.
 //
 //    One solution would be to provide a different implementation
@@ -1010,7 +1010,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Handle max rows.
             // @E3, fixes to correctly handle maxRows,  (1) Make sure
             //      we don't go before first when absolute < 0, and (2) make sure
-            //      we get the row number right because the server and row cache
+            //      we get the row number right because the system and row cache
             //      do not deal with maxRows.  They always deal with the entire
             //      result set.  
             //
@@ -1358,9 +1358,9 @@ public class AS400JDBCResultSet implements ResultSet
     on the end of the result set.  This method will be slow in these
     cases because internally the method must get every row to determine
     how many rows are in the result set before calculating the current
-    row.  The server does not know how many rows are in the result
+    row.  The system does not know how many rows are in the result
     set until every row is touched.  That is why this method may
-    start at the highest row retrieve so far, then do next() until
+    start at the highest row retrieved so far, then do next() until
     the last row is retrieved.  
     <P>
     Once the maximum number of rows in the result set is determined, 
