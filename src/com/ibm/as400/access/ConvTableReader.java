@@ -575,8 +575,7 @@ public class ConvTableReader extends InputStreamReader
             Trace.log(Trace.ERROR, "Value of parameter 'offset' is not valid:", offset);
             throw new ExtendedIllegalArgumentException("offset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
-        //if (length < 0 || (offset + length) > buffer.length)
-        if (length < 0)
+        if (length < 0 || (offset + length) > buffer.length)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
             throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
