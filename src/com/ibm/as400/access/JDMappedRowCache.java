@@ -21,7 +21,7 @@ import java.sql.SQLException;
 The JDMappedRowCache class implements a set of rows that are
 mapped from one row cache to a new format.  This comes in handy
 for DatabaseMetaData catalog methods, where the format that comes
-back from the server is different from the format that the JDBC
+back from the system is different from the format that the JDBC
 specification says we must return.
 **/
 class JDMappedRowCache
