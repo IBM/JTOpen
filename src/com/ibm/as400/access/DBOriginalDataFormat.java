@@ -20,7 +20,7 @@ import java.io.CharConversionException;
 /**
 The DBOriginalDataFormat class is an implementation of
 DBDataFormat which describes the data format used in
-datastreams for V4R3 and previous servers.
+datastreams for V4R3 and previous systems.
 **/
 class DBOriginalDataFormat
 implements DBDataFormat

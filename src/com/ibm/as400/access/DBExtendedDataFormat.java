@@ -20,7 +20,7 @@ import java.io.CharConversionException;
 /**
 The DBExtendedDataFormat class is an implementation of
 DBDataFormat which describes the data format used in
-datastreams for V4R4 and later servers.
+datastreams for V4R4 and later systems.
 **/
 class DBExtendedDataFormat
 implements DBDataFormat

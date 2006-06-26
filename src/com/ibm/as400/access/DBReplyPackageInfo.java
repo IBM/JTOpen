@@ -161,7 +161,7 @@ class DBReplyPackageInfo {
             //@F1A code in AS400JDBCStatement which checks the length of what is 
             //@F1A returned from here to see if it's 0 will correctly detect that 
             //@F1A we are unable to use this name and will prepare the statement
-            //@F1A again on the server instead of taking a NullPointerException.
+            //@F1A again on the system instead of taking a NullPointerException.
             return "";                                //@F1A 
         }                                             
     }

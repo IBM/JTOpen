@@ -33,11 +33,11 @@ import java.io.PrintStream;
 //    Template: This is fixed length data that is required.
 //              Each reply has it's own template format and may vary
 //              depending on both the request id and client/server id.
-//              The operational results are stored on the server
+//              The operational results are stored on the i5/OS
 //              system and can be received at a later time.
 //                Bitmap: Used to identify the operation results to
 //                        return.  Bit 1 is the left-most bit when it
-//                        arrives at the server system
+//                        arrives at the i5/OS system
 //                        Bit 1: 1=reply should be sent immediately to
 //                                 the client application
 //                               0=reply is not sent and the rest of
@@ -81,15 +81,15 @@ import java.io.PrintStream;
 //               Message ID:  A seven character field that contains
 //                            the id of the message generated as a
 //                            results of the last operation performed
-//                            by the server.
+//                            by the system.
 //               First Level Message Text:
 //                            The first level text of the message
 //                            generated as a result of the last operation
-//                            performed by the server.
+//                            performed by the system.
 //               Second Level Message Text:
 //                            The second level text of the message
 //                            generated as a result of the last operation
-//                            performed by the server.
+//                            performed by the system.
 //               Server Attributes:
 //                            Character string that contains the server
 //                            attribute information.
@@ -117,7 +117,7 @@ import java.io.PrintStream;
   should inherit from this class.
 
   Here are the steps needed to handle a reply data stream
-  from the server.
+  from the i5/OS system.
 
     1.  Add a prototype reply data stream to the collection
       of reply prototypes.  There must be a prototype reply

@@ -19,8 +19,8 @@ import java.sql.SQLException;
 
 
 /**
-This class implements a cursor on the server.  NOTE: Creating this
-object does not explicitly create the cursor on the server.
+This class implements a cursor on the i5/OS system.  NOTE: Creating this
+object does not explicitly create the cursor on the system.
 **/
 class JDCursor
 {
@@ -55,7 +55,7 @@ class JDCursor
 /**
 Constructs a JDCursor object.
 
-@param  connection      Connection to the server.
+@param  connection      Connection to the system.
 @param   id             The id.
 @param  name            Cursor name.
 @param  concurrency     The concurrency
@@ -161,7 +161,7 @@ SQL statement.
 **/
 //
 // Implementation note: Cursors perform better on
-// the server when read only, so set the open
+// the system when read only, so set the open
 // attributes to read only in as many cases as
 // possible.  (Of course, not when the user needs
 // to update using the cursor.)
@@ -189,7 +189,7 @@ SQL statement.
     // when we are record blocking.  Note that record
     // blocking implies a read only cursor.    
 
-    // Change for J3 -- a server change in mod 5 allows updatable cursors 
+    // Change for J3 -- a system change in mod 5 allows updatable cursors 
     // even when the select statement does not specific "for update".  The
     // J3 change takes this into consideration.  The J3 change is to add
     // !(concurrency_ == ResultSet.CONCUR_UPDATABLE)) to the check.
@@ -374,7 +374,7 @@ bitmap in the request.
   void processConcurrencyOverride(int openAttributes, DBBaseReplyDS reply)
   throws DBDataStreamException
   {
-    // If the server overrides our open attributes, reflect that fact.
+    // If the system overrides our open attributes, reflect that fact.
     DBReplySQLCA sqlca = reply.getSQLCA ();
     switch (sqlca.getWarn5())
     {
@@ -385,8 +385,8 @@ bitmap in the request.
       case (byte)0xF4:  // EBCDIC'4' Read, deleteable, and updateable
         concurrency_ = ResultSet.CONCUR_UPDATABLE;
         break;
-        /* @E7D - We should not do an override if this is an old server.
-        default:    // Old server (without override indication)
+        /* @E7D - We should not do an override if this is an old system.
+        default:    // Old system (without override indication)
             switch(openAttributes) {
             case OPEN_READONLY_:
                 concurrency_ = ResultSet.CONCUR_READ_ONLY;

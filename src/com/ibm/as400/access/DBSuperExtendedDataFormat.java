@@ -51,7 +51,7 @@ Field Name - Char(*)                        72
 /**
 The DBSuperExtendedDataFormat class is an implementation of
 DBDataFormat which describes the data format used in
-datastreams for V5R4 and later servers.
+datastreams for V5R4 and later systems.
 **/
 class DBSuperExtendedDataFormat
 implements DBDataFormat

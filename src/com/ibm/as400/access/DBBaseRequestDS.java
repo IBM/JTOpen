@@ -40,11 +40,11 @@ import java.sql.SQLException;
 //    Template: This is fixed length data that is required.
 //              Each request has it's own template format and may vary
 //              depending on both the request id and client/server id.
-//              The operational results are stored on the server
+//              The operational results are stored on the i5/OS
 //              system and can be received at a later time.
 //                Bitmap: Used to identify the operation results to
 //                        return.  Bit 1 is the left-most bit when it
-//                        arrives at the server system
+//                        arrives at the i5/OS system
 //                        Bit 1: 1=reply should be sent immediately to
 //                                 the client application
 //                               0=reply is not sent and the rest of
@@ -99,7 +99,7 @@ import java.sql.SQLException;
 //                   character set of the data
 //                 o All LLs include the length of the LL
 //                 o The client is responsible for providing numerics
-//                   in the server format so the server will not
+//                   in the server format so the system will not
 //                   need to perform data conversions.
 //
 //---------------------------------------------------------------------
@@ -132,7 +132,7 @@ import java.sql.SQLException;
                 - Request length
                  - parameter count
 
-      5. Then you are ready to send the request to the server.  There are
+      5. Then you are ready to send the request to the system.  There are
          two choices:
           - If no reply is needed use:
               try {
@@ -499,7 +499,7 @@ Adds a variable length string parameter.
 /**
 Adds a variable length string parameter with a four byte length.
 **/
-//Note:  This method will only be called if running to a V5R4 or later server.  boolean v5r4 is just to distinguish this
+//Note:  This method will only be called if running to a V5R4 or later system.  boolean v5r4 is just to distinguish this
 // method from the method above (protected void addParameter(int codePoint,ConvTable converter, String value)).
   protected void addParameter(int codePoint, boolean v5r4,
                               ConvTable converter,

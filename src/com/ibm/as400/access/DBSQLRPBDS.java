@@ -244,7 +244,7 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
 //
-// Implementation note: This only works for servers V4R1 and later.
+// Implementation note: This only works for systems running V4R1 and later.
 //
   void setQueryTimeout(int value)
   throws DBDataStreamException

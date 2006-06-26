@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 /**
 The DBExtendedData class is an implementation of DBData which
 describes the data used in datastreams for V4R4 and later
-servers.
+systems.
 **/
 class DBExtendedData
 implements DBData

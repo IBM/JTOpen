@@ -67,7 +67,7 @@ extends DBBaseRequestDS
     public static final int FETCH_CURRENT       = 0x0006;
     public static final int FETCH_RELATIVE      = 0x0007;
 
-    //@F6A Constants for cursor sensitivity property (for >= v5r2 servers)
+    //@F6A Constants for cursor sensitivity property (for >= v5r2 systems)
     public static final int CURSOR_NOT_SCROLLABLE_ASENSITIVE  = 0;      
     public static final int CURSOR_SCROLLABLE_ASENSITIVE      = 1;          
     public static final int CURSOR_SCROLLABLE_INSENSITIVE     = 2; 
@@ -196,7 +196,7 @@ extends DBBaseRequestDS
 	void setFetchScrollOption(int value, int rows)
 		throws DBDataStreamException
 	{
-	    // The server gives an error when we pass rows
+	    // The system gives an error when we pass rows
 	    // and value != FETCH_RELATIVE.
 	    if (value == FETCH_RELATIVE)
     		addParameter (0x380E, (short)value, rows);

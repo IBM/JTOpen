@@ -33,7 +33,7 @@ class DBColumnDescriptorsDataFormat
     private byte[]                 baseTableSchemaName_;
 
     // Column label is a string because we are given the CCSID in the field if we receive
-    // a column label from the server.
+    // a column label from the system.
     private String                 columnLabel_;  
     private int                     jobCCSID_;                  // Fix for JTOpen Bug 4034
 
@@ -123,7 +123,7 @@ class DBColumnDescriptorsDataFormat
 
     String getBaseColumnName(ConvTable convTable)
     {
-        //We don't have to be returned a baseColumnName by the server, depending on the query
+        //We don't have to be returned a baseColumnName by the system, depending on the query
         if (baseColumnName_ != null)
         {
             return convTable.byteArrayToString (baseColumnName_, 0, baseColumnName_.length);
@@ -136,7 +136,7 @@ class DBColumnDescriptorsDataFormat
 
     String getBaseTableName(ConvTable convTable)
     {
-        //We don't have to be returned a baseTableName by the server, depending on the query
+        //We don't have to be returned a baseTableName by the system, depending on the query
         if (baseTableName_ != null)
         {
             return convTable.byteArrayToString (baseTableName_, 0, baseTableName_.length);
@@ -149,7 +149,7 @@ class DBColumnDescriptorsDataFormat
 
     String getBaseTableSchemaName(ConvTable convTable)
     {
-        //We don't have to be returned a baseTableSchemaName by the server, depending on the query
+        //We don't have to be returned a baseTableSchemaName by the system, depending on the query
         if (baseTableSchemaName_ != null)
         {
             return convTable.byteArrayToString (baseTableSchemaName_, 0, 
@@ -163,7 +163,7 @@ class DBColumnDescriptorsDataFormat
 
     String getColumnLabel(ConvTable convTable)
     {
-        //We don't have to be returned a column label by the server, depending on the query.
+        //We don't have to be returned a column label by the system, depending on the query.
         //In fact, if the column label is the same as the base column name, we will not be returned
         //it.  If we get a base column name and not a column label, we can assume that the column
         //label is the same as the base column name and return that.

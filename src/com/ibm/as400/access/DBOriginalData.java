@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 /**
 The DBOriginalData class is an implementation of DBData which
 describes the data used in datastreams for V4R3 and previous
-servers.
+systems.
 **/
 class DBOriginalData
 implements DBData
@@ -247,8 +247,8 @@ when it was not previously set by the constructor.
 
 
     //This will always return false, because variable-length field compression only applies
-    //to information returned in a result set for V5R3 and later servers.  This class only
-    //applies to V4R3 and previous servers.
+    //to information returned in a result set for V5R3 and later systems.  This class only
+    //applies to V4R3 and previous systems.
     public boolean isVariableFieldsCompressed(){                       //@K54
         return false;
     }

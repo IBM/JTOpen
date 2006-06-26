@@ -20,7 +20,7 @@ import java.sql.SQLException;
 /**
 The JDCharToShortFieldMap class converts a 2 character field to 
 the short value required by JDBC.  It handles the situation where
-the server sends back data of type char, but it actually contains 
+the system sends back data of type char, but it actually contains 
 an integer.  For example, instead of having the expected "00F1" 
 for 1, it has "0001".
 **/
@@ -45,7 +45,7 @@ implements JDFieldMap
 
         if (serverData instanceof String) {                                     // @C1A
             // In V4R3 and before:                                              // @C1A
-            // The server returns a smallint tagged as a char(2), so we need
+            // The system returns a smallint tagged as a char(2), so we need
             // to convert it ourselves. 
             byte[] asBytes = ((String) serverData).getBytes ();
             short asShort = BinaryConverter.byteArrayToShort (asBytes, 0);
