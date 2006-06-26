@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 /**
 The JDHandleNullFieldMap class returns the value sent from
-the server when not null, or a hardcoded value if null.
+the system when not null, or a hardcoded value if null.
 This will always report the field as non-null then.
 **/
 class JDHandleNullFieldMap

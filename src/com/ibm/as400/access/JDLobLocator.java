@@ -49,9 +49,9 @@ class JDLobLocator
 
   /**
    * Constructs an JDLobLocator object.  
-   * @param  connection              The connection to the server.
+   * @param  connection              The connection to the system.
    * @param  id                      The correlation ID used for any subsequent LOB datastreams (@CRS - why is this here?).
-   * @param  maxLength               The max length in bytes on the server.
+   * @param  maxLength               The max length in bytes on the system.
   **/
   JDLobLocator(AS400JDBCConnection connection, int id, int maxLength, boolean graphic)
   {
@@ -67,7 +67,7 @@ class JDLobLocator
   // copy of the locator (that gets reused) does not get handed to the user. If that
   // were to happen, the next time a statement went to update the locator object with
   // a new handle id, the user's locator would all of a sudden be pointing to the
-  // wrong data on the server.
+  // wrong data on the system.
   JDLobLocator(JDLobLocator loc)
   {
     connection_ = loc.connection_;
@@ -92,7 +92,7 @@ class JDLobLocator
 
 
   /**
-   * Returns the length of this LOB in LOB-characters (the length returned from the server).
+   * Returns the length of this LOB in LOB-characters (the length returned from the system).
    * For BLOBs and CLOBs (single/mixed) this is the same as the number of bytes.
    * For DBCLOBs, this is half the number of bytes.
   **/
@@ -182,11 +182,11 @@ Retrieves part of the contents of the lob.
                                              + DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
         request.setLOBLocatorHandle(handle_);
         request.setRequestedSize(length);
-        request.setStartOffset((int)offset); // Some day the server will support 8-byte offsets.
+        request.setStartOffset((int)offset); // Some day the i5/OS will support 8-byte offsets.
         request.setCompressionIndicator(dataCompression_ ? 0xF1 : 0xF0);
         request.setReturnCurrentLengthIndicator(0xF1);
         // If a column index has not been set for this locator, then do not pass
-        // the optional column index parameter to the server.
+        // the optional column index parameter to the system.
         if (columnIndex_ != -1)
         {
           request.setColumnIndex(columnIndex_);
@@ -291,7 +291,7 @@ Writes part of the contents of the lob.
     if (lobOffset > 0x7FFFFFFF) lobOffset = 0x7FFFFFFF;
 
     // If we are a DBCLOB, the data in the byte array is already double-byte data,
-    // but we need to tell the server that the number of characters we're writing is
+    // but we need to tell the system that the number of characters we're writing is
     // half of that (that is, we need to tell it the number of LOB-characters). 
     // The lobOffset is still the right offset, in terms of LOB-characters.
     int lengthToUse = graphic_ ? length / 2 : length;
@@ -309,7 +309,7 @@ Writes part of the contents of the lob.
         request.setLobTruncation(truncate);          //Do not truncate   @K1A
         request.setLOBLocatorHandle(handle_);
         request.setRequestedSize(lengthToUse);
-        request.setStartOffset((int)lobOffset); // Some day the server will support 8-byte offsets.
+        request.setStartOffset((int)lobOffset); // Some day the i5/OS will support 8-byte offsets.
         request.setCompressionIndicator(0xF0); // No compression for now.
         request.setLOBData(data, offset, length);
         if (JDTrace.isTraceOn())
@@ -325,7 +325,7 @@ Writes part of the contents of the lob.
         {
           JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
         }
-        length_ = -1; //@CRS - We could probably re-calculate it, but for now, we force another call to the server.
+        length_ = -1; //@CRS - We could probably re-calculate it, but for now, we force another call to the system.
         return length;
       }
       finally

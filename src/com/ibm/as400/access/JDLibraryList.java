@@ -54,7 +54,7 @@ Constructor.
       if (defaultSchema.length() > 0)
         defaultSchema_ = defaultSchema.toUpperCase ();
 
-    // @F1: through v4r5 the server automatically added the default schema
+    // @F1: through v4r5 the system automatically added the default schema
     //      to the front of the library list.  In v5r1 they stopped adding it.
     //      ODBC Customers complained their apps no longer worked so ODBC changed
     //      to add the default schema to the library list.  We will do the same
@@ -136,7 +136,7 @@ Constructor.
         token = tokenizer.nextToken().toUpperCase();
 
         // Mark the position of *LIBL.  Only mark
-        // the first occurence.  The server will
+        // the first occurence.  The system will
         // return an error later if it occurs
         // more than once.
         if (token.equalsIgnoreCase (LIBL_))
@@ -218,7 +218,7 @@ back of the server job's library list.  If *LIBL is not
 specified in the list, then all libraries are replaced
 in the server job's library list.
 
-@param      connection      Connection to the server.
+@param      connection      Connection to the system.
 @param      id              The id.
 
 @exception  SQLException    If an error occurs.

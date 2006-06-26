@@ -20,7 +20,7 @@ import java.sql.SQLException;
 /**
 The JDFieldMap interface that defines how the client sees
 the data for a field. It is generated based on row data that
-is returned from the server.
+is returned from the system.
 **/
 interface JDFieldMap
 {
