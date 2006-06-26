@@ -134,7 +134,7 @@ Get the properties that were specified as part of the URL.
 
 /**
 Validate and return the schema as it was parsed
-from the URL.  We do validation here since the server
+from the URL.  We do validation here since the system
 does not do any - which results in errors happening later
 that are difficult to debug.
 
@@ -174,9 +174,9 @@ Get the secondary URL, as it was parsed from the URL.
 
 
 /**
-Get the server name as it was parsed from the URL.
+Get the system name as it was parsed from the URL.
 
-@return         Server name.
+@return         System name.
 **/
     String getServerName ()
     {
@@ -300,7 +300,7 @@ Parse a URL.
                                      nextSemicolonPos);
         ++tokenCount;
 
-        // Parse the first token.  This is the server name and
+        // Parse the first token.  This is the system name and
         // default schema.
         if (tokenCount == 1) {
 
@@ -310,7 +310,7 @@ Parse a URL.
             if (token.substring (0, 2).equals ("//"))
               token = token.substring (2);
 
-          // Split it into server name and schema.
+          // Split it into system name and schema.
           int slash = token.indexOf ('/');
           if (slash == -1)
             serverName_ = token;
@@ -319,7 +319,7 @@ Parse a URL.
             schema_ = token.substring (slash+1);
           }
 
-          // Validate the server name.
+          // Validate the system name.
           int colon = serverName_.indexOf (':');
           if (colon != -1) {
             serverName_ = serverName_.substring (0, colon);

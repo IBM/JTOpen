@@ -117,9 +117,9 @@ Returns the reason text based on a SQL state.
 
 // @E2C
 /**
-Returns the message text for the last operation on the server.
+Returns the message text for the last operation on the i5/OS system.
 
-@param  connection  Connection to the server.
+@param  connection  Connection to the system.
 @param  id          Id for the last operation.
 @param  returnCode  The return code from the last operation.
 @return             Reason - error description.
@@ -133,8 +133,8 @@ Returns the message text for the last operation on the server.
       // Check to see if the caller wants second level text, too.
       boolean secondLevelText = connection.getProperties().equals (JDProperties.ERRORS, JDProperties.ERRORS_FULL);
 
-      // Get the message text from the server.  We also retrieve
-      // the SQL state at this time to save a trip to the server.
+      // Get the message text from the system.  We also retrieve
+      // the SQL state at this time to save a trip to the system.
       int orsBitmap = DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                       + DBBaseRequestDS.ORS_BITMAP_SQLCA
                       + DBBaseRequestDS.ORS_BITMAP_MESSAGE_ID
@@ -228,9 +228,9 @@ Returns the message text for the last operation on the server.
 
 
 /**
-Returns the SQL state for the last operation on the server.
+Returns the SQL state for the last operation on the i5/OS system.
 
-@param  connection  Connection to the server.
+@param  connection  Connection to the system.
 @param  id          Id for the last operation.
 @return             The SQL state.
 **/
@@ -246,7 +246,7 @@ Returns the SQL state for the last operation on the server.
       return sqlState;
     }
 
-    // Otherwise, go to the server to get it.
+    // Otherwise, go to the system to get it.
     try
     {
       int orsBitmap = DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SQLCA;
@@ -315,12 +315,12 @@ error table.
 
 /**
 Returns an SQL warning based on information
-retrieved from the server.
+retrieved from the i5/OS system.
 
-@param  connection  connection to the server.
+@param  connection  connection to the system.
 @param  id          id for the last operation.
-@param  errorClass  error class from the server reply.
-@param  returnCode  return code from the server reply.
+@param  errorClass  error class from the system reply.
+@param  returnCode  return code from the system reply.
 **/
   public static SQLWarning getSQLWarning (AS400JDBCConnection connection,
                                           int id,
@@ -594,12 +594,12 @@ trace for debugging purposes.
 
 /**
 Throws an SQL exception based on information
-retrieved from the server.
+retrieved from the i5/OS system.
 
-@param  connection  connection to the server.
+@param  connection  connection to the system.
 @param  id          id for the last operation.
-@param  errorClass  error class from the server reply.
-@param  returnCode  return code from the server reply.
+@param  errorClass  error class from the system reply.
+@param  returnCode  return code from the system reply.
 
 @exception          SQLException    Always.
 **/
@@ -628,12 +628,12 @@ retrieved from the server.
 //     who is throwing the exception.
 /**
 Throws an SQL exception based on information
-retrieved from the server.
+retrieved from the system.
 
-@param  connection  connection to the server.
+@param  connection  connection to the system.
 @param  id          id for the last operation.
-@param  errorClass  error class from the server reply.
-@param  returnCode  return code from the server reply.
+@param  errorClass  error class from the system reply.
+@param  returnCode  return code from the system reply.
 
 @exception          SQLException    Always.
 **/

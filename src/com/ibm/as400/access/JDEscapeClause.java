@@ -60,7 +60,7 @@ class JDEscapeClause
 
         // Numeric functions.
         //
-        // Supported by server:
+        // Supported by system:
         // V4R5:
         //    abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log10,mod,power,round,sin,sign,sqrt,tan,truncate
         // >=V5R1:
@@ -75,7 +75,7 @@ class JDEscapeClause
 
         // String functions.
         //
-        // Supported by server:
+        // Supported by system:
         // V4R5:
         //    concat,left,locate,ltrim,rtrim,substring,ucase
         // V5R1:
@@ -98,7 +98,7 @@ class JDEscapeClause
 
         // System functions.
         //
-        // Supported by server:
+        // Supported by system:
         //    ifnull,user
         //
         // Supported by mapping:
@@ -111,7 +111,7 @@ class JDEscapeClause
 
         // Time and date functions.
         //
-        // Supported by server:
+        // Supported by system:
         //    curdate,curtime,dayname,dayofmonth,dayofweek,dayofyear,hour,minute,month,monthname,now,quarter,second,timestampdiff,week,year
         //
         // Not supported:
