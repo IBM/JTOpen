@@ -25,7 +25,7 @@ The AS400JDBCXADataSource class represents a factory for
 AS400JDBCXAConnection objects.
 
 <p>
-This support is only available when connecting to servers running OS/400 V5R1 or later ori5/OS.
+This support is only available when connecting to systems running OS/400 V5R1 or later ori5/OS.
 
 <p>The following example creates an AS400JDBCXADataSource 
 object and creates a connection to the database.
@@ -91,13 +91,13 @@ Constructs an AS400JDBCXADataSource with the specified signon information.
 //@A1A
 /**
 Constructs an AS400JDBCXADataSource with the specified signon information 
-to use for SSL communications with the server.
+to use for SSL communications with the i5/OS system.
    
 @param serverName The name of the i5/OS system.
 @param user The user id.
 @param password The password.
-@param keyRingName The key ring class name to be used for SSL communications with the server.
-@param keyRingPassword The password for the key ring class to be used for SSL communications with the server.	
+@param keyRingName The key ring class name to be used for SSL communications with the system.
+@param keyRingPassword The password for the key ring class to be used for SSL communications with the system.	
 **/
    public AS400JDBCXADataSource(String serverName, String user, String password, 
 				String keyRingName, String keyRingPassword)

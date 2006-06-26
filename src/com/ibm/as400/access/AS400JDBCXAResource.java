@@ -26,7 +26,7 @@ import java.sql.SQLException;
 The AS400JDBCXAResource class represents a resource manager
 for use in XA transaction management.
 
-<p>This support is only available when connecting to servers running OS/400 V5R1 or later, or i5/OS.
+<p>This support is only available when connecting to systems running OS/400 V5R1 or later, or i5/OS.
 
 <p>The following example creates an AS400JDBCXAResource object
 that can be used to work with the XA resource manager.
@@ -137,7 +137,7 @@ implements XAResource
   private static int              COUNT_                          = 64;
   private static byte[]           DEFAULT_XA_INFORMATION_         = new byte[256];
 
-  // Start the resource manager IDs at 0xC0001.  The server does not like 0.
+  // Start the resource manager IDs at 0xC0001.  The system does not like 0.
   // Microsoft starts at 1.  CA ODBC will start with something else.  This will
   // enable us to quickly identify ours.
   private static int              nextResourceManagerID_          = 0xC001;
@@ -259,7 +259,7 @@ Commits a global transaction.
       // Mark the transaction state.
       transactionManager_.markGlobalTransactionBoundary();
 
-      //@KKB resend the transaction isolation since server gets reset somehow
+      //@KKB resend the transaction isolation since i5/OS gets reset somehow
       transactionManager_.resetXAServer();
       
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
@@ -511,7 +511,7 @@ is the same resource manager represented by the specified XA resource.
     if (! (xaResource instanceof AS400JDBCXAResource))
       return false;
     //@PDC per spec at java.sun.com/products/jta isSameRM it connected to same RM
-    //for now, we will do same as native driver, and compare server names
+    //for now, we will do same as native driver, and compare system names
     try{ 
        return ( connection_.getCatalog().equalsIgnoreCase( ((AS400JDBCXAResource)xaResource).connection_.getCatalog()));
     }catch (SQLException e){
@@ -713,7 +713,7 @@ resource manager.
         
         //@pda throw XAException for return codes not thrown in processXAReturnCode()
         //if this gets > 0 return codes, we want to ignore since method only throws XAER_* codes
-        //note: server returns xid count via return code.
+        //note: system returns xid count via return code.
         if(returnCode < 0)
             throw new XAException(returnCode);
         
@@ -782,7 +782,7 @@ Rolls back a transaction branch.
       // Mark the transaction state.
       transactionManager_.markGlobalTransactionBoundary();
 
-      //@KKB resend the transaction isolation since server gets reset somehow
+      //@KKB resend the transaction isolation since i5/OS gets reset somehow
       transactionManager_.resetXAServer();
       
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
@@ -870,7 +870,7 @@ specified.
         throw new XAException(XAException.XAER_INVAL);
       if (started_ != null)
         throw new XAException(XAException.XAER_PROTO);
-      if (flags != TMNOFLAGS && flags != TMJOIN && connection_.getVRM() < JDUtilities.vrm540)                //@K1C  added TMJOIN check //@540C the TMSuspend restriction can be removed when running to V5R4 and later servers
+      if (flags != TMNOFLAGS && flags != TMJOIN && connection_.getVRM() < JDUtilities.vrm540)                //@K1C  added TMJOIN check //@540C the TMSuspend restriction can be removed when running to V5R4 and later systems
         throw new XAException(XAException.XAER_INVAL);
 
 
@@ -890,7 +890,7 @@ specified.
         request.setXid(AS400JDBCXid.xidToBytes(xid));
         request.setFlags(flags);
 
-        if(connection_.getServerFunctionalLevel() >= 11)    //@KBA  server level must be version 11 or higher
+        if(connection_.getServerFunctionalLevel() >= 11)    //@KBA  system functional level must be version 11 or higher
         {
             request.setCtlTimeout(transactionTimeout_);
             if(lockWait_ != -1)
