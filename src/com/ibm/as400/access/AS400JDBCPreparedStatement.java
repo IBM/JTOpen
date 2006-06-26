@@ -68,14 +68,14 @@ a target SQL type.
 //    we have to fake it as the first parameter marker.  If this appears,
 //    in the SQL statement, we strip it off and maintain this separately.
 //    Of course in that case we are always mapping the caller's parameter
-//    indices to the server's indices by decrementing by 1 as needed.
+//    indices to the database's indices by decrementing by 1 as needed.
 //
 // @G8c
 // 3. If there is a return value (ie ?=call xxxx) and the parameter
 //    index is 1 then return data for the return value (always an Integer).
 //    If not, decrement the parm index by one because internally the return
 //    value doesn't count.  If there is no return value the count is correct
-//    so don't do anything in that case.  Also, the server supports returning
+//    so don't do anything in that case.  Also, the database supports returning
 //    only integers so the metadata will always be an SQLInteger.
 //
 public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements PreparedStatement
@@ -113,7 +113,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     /**
     Constructs an AS400JDBCPreparedStatement object.
   
-    @param   connection                 The connection to the server.
+    @param   connection                 The connection to the system.
     @param   id                         The id.
     @param   transactionManager         The transaction manager for the connection.
     @param   packageManager             The package manager for the connection.
@@ -597,7 +597,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                             {
                                 // @G1 -- zero out the comm buffer if the parameter marker is null.
                                 //        If the buffer is not zero'ed out old data will be sent to
-                                //        the server possibily messing up a future request.
+                                //        the system possibily messing up a future request.
                                 if((batchExecute_ && parameters[i] == null) ||               // @G9A
                                    (!batchExecute_ && parameterNulls_[i]))             // @B9C @G9C
                                 {
@@ -923,7 +923,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 {
                     //@H7 Native type should ONLY be BLOCK_INSERT if the statement is of type
                     //@H7 "INSERT INTO MYTABLE ? ROWS VALUES (?,?)" with a ROWS VALUES clause,
-                    //@H7 not just if we are going to send the values as a batch to the server.
+                    //@H7 not just if we are going to send the values as a batch to the system.
                     //@H7 We determine whether the statement is of that form in 
                     //@H7 JDSQLStatement.java, not here.
                     //@H7D sqlStatement_.setNativeType(JDSQLStatement.TYPE_BLOCK_INSERT);  // @G9A
@@ -2205,7 +2205,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     // @D0C
     /**
     Sets an input parameter to a Java long value.
-    If the connected server supports SQL BIGINT data, the driver
+    If the connected system supports SQL BIGINT data, the driver
     converts this to an SQL BIGINT value.  Otherwise, the driver
     converts this to an SQL INTEGER value.  SQL BIGINT data is
     supported on V4R5 and later.
