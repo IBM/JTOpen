@@ -47,7 +47,7 @@ explicitly close statements rather than counting on garbage collection.
 //
 // 1. The RPB is used to provide parameters for requests.
 //    If we make a request without specifying some of the
-//    parameters, then the server will look in the RPB.
+//    parameters, then the system will look in the RPB.
 //
 //    Specifically, we use an RPB for each statement object to
 //    store parameters that do not depend on the SQL statement:
@@ -126,7 +126,7 @@ public class AS400JDBCStatement implements Statement
     /**
     Constructs an AS400JDBCStatement object.
     
-    @param  connection              The connection to the server.
+    @param  connection              The connection to the system.
     @param  id                      The id.
     @param  transactionManager      The transaction manager for the connection.
     @param  packageManager          The package manager for the connection.
@@ -633,7 +633,7 @@ public class AS400JDBCStatement implements Statement
 
 
     /**
-    Executes an SQL statement on the server.
+    Executes an SQL statement on the i5/OS system.
     
     @param  sqlStatement    The SQL statement.
     @param  resultRow       The result row or null if none.
@@ -698,7 +698,7 @@ public class AS400JDBCStatement implements Statement
                     boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);       //@541A moved up from farther below in code
                     //@F5D Send this on the prepare, not the execute
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;      //@F3M   //@541C undeleted
-                    //@F5D //@F3A If we are on a server that supports extended column descriptors and if the              //@F3A
+                    //@F5D //@F3A If we are on a system that supports extended column descriptors and if the              //@F3A
                     //@F5D //@F3A user asked for them, send the extended column descriptors code point.                   //@F3A
                     boolean extendedMetaData = false;                                                              //@F3A   //@541C undeleted
                     //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                                //@F3A   
@@ -820,7 +820,7 @@ public class AS400JDBCStatement implements Statement
                         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);    //@K1A        Option 2
                     }    //@K1A
 
-                    // Check server level before sending new code point
+                    // Check system level before sending new code point
                     if(connection_.getVRM() >= JDUtilities.vrm520)    // @G4A
                     {
                         // @G4A
@@ -846,7 +846,7 @@ public class AS400JDBCStatement implements Statement
                     // Note the number of rows inserted/updated
                     rowsInserted_ = sqlca.getErrd(3);    // @G5A
 
-                    // Check for server errors.  Take note on prefetch
+                    // Check for system errors.  Take note on prefetch
                     // if the last block was fetched.
                     int errorClass = reply.getErrorClass();
                     int returnCode = reply.getReturnCode();
@@ -855,7 +855,7 @@ public class AS400JDBCStatement implements Statement
                     // errors occur.
                     //
                     // Except:
-                    //   * When a query timeout occurs, the server
+                    //   * When a query timeout occurs, the system
                     //     does not leave a cursor open.
                     if(openNeeded && (errorClass != 1 || returnCode != -666)) cursor_.setState(false);
 
@@ -915,8 +915,8 @@ public class AS400JDBCStatement implements Statement
                                                              getBlockingFactor (sqlStatement, resultRow.getRowLength()), lastBlock, resultSetType_); //@PDC perf
 
                         // If the result set concurrency is updatable, check to                            @E1C
-                        // see if the server overrode the cursor type to read only.                        @E1C
-                        // Don't worry about the other direction (server overrides                         @E1C
+                        // see if the system overrode the cursor type to read only.                        @E1C
+                        // Don't worry about the other direction (system overrides                         @E1C
                         // from read-only to updatable).                                                   @E1C
                         int actualConcurrency = (resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE)    // @E1C
                                                 ? cursor_.getConcurrency() : resultSetConcurrency_;    // @E1C @EAC
@@ -951,7 +951,7 @@ public class AS400JDBCStatement implements Statement
                     // If this is a CALL and result sets came back, but
                     // no format was returned, then open the cursor. The
                     // result set must be forward only and read only.
-                    // This is a server restriction.                                    @EBA
+                    // This is a system restriction.                                    @EBA
                     // As of V5R3 the restriction to be forward only no longer applies  @KBA
                     if(sqlStatement != null)
                     {
@@ -1070,7 +1070,7 @@ public class AS400JDBCStatement implements Statement
 
 
     /**
-    Prepares (pre-compiles) the SQL statement on the server.
+    Prepares (pre-compiles) the SQL statement on the i5/OS system.
     
     @param   sqlStatement   The SQL statement.
     @return                 The result row or null if none.
@@ -1148,7 +1148,7 @@ public class AS400JDBCStatement implements Statement
         }
 
         // If the SQL package is not cached, then we must prepare
-        // the statement on the server.
+        // the statement on the system.
         if(nameOverride_.length() == 0)
         {
 
@@ -1257,7 +1257,7 @@ public class AS400JDBCStatement implements Statement
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A
-                    //@F5A If we are on a server that supports extended column descriptors and if the              //@F5A
+                    //@F5A If we are on a system that supports extended column descriptors and if the              //@F5A
                     //@F5A user asked for them, send the extended column descriptors code point.                   //@F5A
                     boolean extendedMetaData = false;    //@F5A
                     if(connection_.getVRM() >= JDUtilities.vrm520)    //@F5A
@@ -1359,7 +1359,7 @@ public class AS400JDBCStatement implements Statement
                     // If this is a CALL and result sets came back, but
                     // no format was returned, then open the cursor.  The result
                     // set must be forward only and read only.
-                    // This is a server restriction.                                    @EBA
+                    // This is a system restriction.                                    @EBA
                     // As of V5R3, the restriction to be forward only no longer applies @KBA
                     if((isCall == true) && (numberOfResults_ > 0))
                     {
@@ -1438,7 +1438,7 @@ public class AS400JDBCStatement implements Statement
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A @F10C
-                    //@F5A If we are on a server that supports extended column descriptors and if the               //@F5A
+                    //@F5A If we are on a system that supports extended column descriptors and if the               //@F5A
                     //@F5A user asked for them, send the extended column descriptors code point.                   //@F5A
                     boolean extendedMetaData = false;    //@F5A
                     if(connection_.getVRM() >= JDUtilities.vrm520)    //@F5A
@@ -2273,7 +2273,7 @@ public class AS400JDBCStatement implements Statement
     //@G4A JDBC 3.0
     /**
     Retrieves any auto-generated keys created as a result of executing this Statement object. 
-    Currently the server supports returning only one auto-generated key to the Toolbox JDBC driver
+    Currently DB2 for i5/OS supports returning only one auto-generated key to the Toolbox JDBC driver
     -- the key for the last inserted row.  Be aware that the generated key returned is not 
     guaranteed to be unique unless a unique constraint is created on the table.  
     
@@ -2450,7 +2450,7 @@ public class AS400JDBCStatement implements Statement
                     DBReplySQLCA sqlca = reply.getSQLCA ();
                     DBDataFormat dataFormat = reply.getDataFormat ();
 
-                    // Check for server errors.
+                    // Check for system errors.
                     int errorClass = reply.getErrorClass();
                     int returnCode = reply.getReturnCode();
 
@@ -2476,8 +2476,8 @@ public class AS400JDBCStatement implements Statement
                                                                                                               null, row.getRowLength()), false, resultSetType_); //@PDC perf
 
                     // If the result set concurrency is updatable, check to                            @E1C
-                    // see if the server overrode the cursor type to read only.                        @E1C
-                    // Don't worry about the other direction (server overrides                         @E1C
+                    // see if the system overrode the cursor type to read only.                        @E1C
+                    // Don't worry about the other direction (system overrides                         @E1C
                     // from read-only to updatable).                                                   @E1C
                     int actualConcurrency = (resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE)    // @E1C
                                             ? cursor_.getConcurrency() : resultSetConcurrency_;    // @E1C @EAC
@@ -2542,9 +2542,9 @@ public class AS400JDBCStatement implements Statement
 
     //@F10A
     /**
-    Will return the value of the last syntax error that came back from the server.
+    Will return the value of the last syntax error that came back from the i5/OS system.
     
-    @return     The value of the character of the last syntax error from the server,
+    @return     The value of the character of the last syntax error from the system,
                 or 0 if no errors occurred or the value is not known.
     
     @exception  SQLException    If the statement is not open.
@@ -2794,14 +2794,14 @@ public class AS400JDBCStatement implements Statement
             //@F6A
             generatedKeys_.close();    //@F6A
         }    //@F6A
-        //Code checks we are running to a v5r2 or later server before calling this method
+        //Code checks we are running to a v5r2 or later system before calling this method
         BigDecimal generatedKey = null;    //@F6C
         if(JDTrace.isTraceOn())
             JDTrace.logInformation (this, "returnCode is: " + returnCode);
 
         if(returnCode < 0)
         {
-            // If SQLCode (returnCode) from server is not 0, then don't go look
+            // If SQLCode (returnCode) from system is not 0, then don't go look
             // for auto-generated key because it will not be there.  Instead,
             // make empty result set.
             //@F6D generatedKey = ""; 
@@ -2814,14 +2814,14 @@ public class AS400JDBCStatement implements Statement
             // Even though it is wasteful to return a ResultSet with only one element,
             // that's what the spec. says we have to do.
 
-            // Consider going to server in the future to fill in the field name.
+            // Consider going to system in the future to fill in the field name.
             // Right now, it doesn't seem like a cost-effective trip.
 
             // If there is no error, the errmc is instead filled with the auto-generated
             // key for us.
             generatedKey = sqlca.getGeneratedKey();    //@P0C @F6C Deleted converter
             if(JDTrace.isTraceOn())
-                JDTrace.logInformation (this, "generated key from server is: " + generatedKey);
+                JDTrace.logInformation (this, "generated key from system is: " + generatedKey);
             // generatedKey will be null if the database did not return to us a 
             // proper generatedKey
         }
@@ -2871,7 +2871,7 @@ public class AS400JDBCStatement implements Statement
             //@F5D cursor_.setState(true);
             //@F4 Instead of calling closeResultSet which does more work than we need to, 
             //@F4 just move the code here that we need to clean up our internal variables.
-            //@F4 Otherwise, we'd make an unnecessary flow to the server to tell it to 
+            //@F4 Otherwise, we'd make an unnecessary flow to the system to tell it to 
             //@F4 close the cursor which it already has.
             if(resultSet_ != null)    //@F4A
             {
@@ -3281,7 +3281,7 @@ public class AS400JDBCStatement implements Statement
                 }    // @J3a
 
                 //@F5D Do not need to specify this on the RPB
-                //@F5D Check server level before sending new code point
+                //@F5D Check system level before sending new code point
                 //@F5D if (connection_.getVRM() >= JDUtilities.vrm520)                                    // @F4A
                 //@F5D {   
                 //@F5D     if (resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT)       // @F4A
