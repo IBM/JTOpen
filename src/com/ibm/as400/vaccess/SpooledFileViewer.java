@@ -2060,7 +2060,7 @@ a spooled file.
     **/
         public void paint(Graphics g)
         {
-            setSize(viewSize_);
+            //@PDD causes recursive paint events to fire and eats up cpu setSize(viewSize_);
             g.drawImage(currentPageImage_,0,0,viewSize_.width, viewSize_.height, this);
         }
 
