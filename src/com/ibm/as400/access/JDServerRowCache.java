@@ -41,7 +41,8 @@ implements JDRowCache
   private DBData                  serverData_;
   private boolean                 variableFieldCompressionSupported_ = false;   //@K54
   private int                     bufferSize_;                                  //@K54  
-
+  private JDCursor                cursor_ = null; //@pda perf2 - fetch/close
+  
 
   // Index always points to the row within the cache.
   // It is not the row number within the result set.
@@ -77,6 +78,8 @@ prefetched.
 @param  connection      The connection to the server.
 @param  id              The id.
 @param  blockingFactor  The blocking factor (in rows).
+@param  lastBlock       Has the last block been fetched?
+@param  resultSetType   The type of result set.
 
 @exception  SQLException    If an error occurs.
 **/
@@ -118,7 +121,37 @@ prefetched.
 
     row_.setRowIndex (index_);
   }
-
+  
+  
+  
+    //@pda perf2
+    /**
+    Constructs a row cache assuming that no data has been
+    prefetched.
+   
+    @param  row             The row describing the format.
+    @param  connection      The connection to the server.
+    @param  id              The id.
+    @param  blockingFactor  The blocking factor (in rows).
+    @param  lastBlock       Has the last block been fetched?
+    @param  resultSetType   The type of result set.
+    @param  JDCursor        Cursor associated with rows.
+   
+    @exception  SQLException    If an error occurs.
+    **/
+    JDServerRowCache (JDServerRow row,
+                      AS400JDBCConnection connection,
+                      int id,
+                      int blockingFactor, 
+                      boolean lastBlock,  
+                      int resultSetType,
+                      JDCursor cursor) 
+    throws SQLException
+    {
+        this(row, connection, id, blockingFactor, lastBlock, resultSetType);
+        cursor_ = cursor;  
+    }
+    
 
 
 /**
@@ -131,6 +164,7 @@ prefetched.
 @param  blockingFactor  Blocking factor (in rows).
 @param  serverData      Prefetched data.
 @param  lastBlock       Has the last block been fetched?
+@param  resultSetType   The type of result set.
 
 @exception  SQLException    If an error occurs.
 **/
@@ -185,7 +219,37 @@ prefetched.
     row_.setRowIndex (index_);
     row_.setServerData (serverData_);
   }
+  
+  
+    //@pda perf2
+    /**
+    Constructs a row cache including data that has been
+    prefetched.
 
+    @param  row             The row describing the format.
+    @param  connection      The connection to the server.
+    @param  id              The id.
+    @param  blockingFactor  Blocking factor (in rows).
+    @param  serverData      Prefetched data.
+    @param  lastBlock       Has the last block been fetched?
+    @param  resultSetType   The type of result set.
+    @param  JDCursor        Cursor associated with rows.
+
+    @exception  SQLException    If an error occurs.
+    **/
+    JDServerRowCache (JDServerRow row,
+                      AS400JDBCConnection connection,
+                      int id,
+                      int blockingFactor,
+                      DBData serverData,
+                      boolean lastBlock,
+                      int resultSetType,
+                      JDCursor cursor)
+    throws SQLException
+    {
+        this(row, connection, id, blockingFactor, serverData, lastBlock, resultSetType);
+        cursor_ = cursor;  
+    }
 
 
 /**
@@ -277,7 +341,13 @@ Fetches a block of data from the server.
         if (((errorClass == 1) && (returnCode == 100))
             || ((errorClass == 2) && (returnCode == 701)))
           endBlock = true;
-
+        else if((errorClass == 2) && (returnCode == 700)) //@pda perf2 - fetch/close
+        {
+            endBlock = true;
+            if(cursor_ != null)
+                cursor_.setState(true); //closed cursor already on server
+            
+        }
         // As in AS400JDBCStatement, post a warning if the server gives us a warning,
         // otherwise throw an exception
         else if (errorClass != 0)

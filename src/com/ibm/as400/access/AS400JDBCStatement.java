@@ -390,6 +390,7 @@ public class AS400JDBCStatement implements Statement
             // Close the current result set.  (Note: This has no
             // effect if the user explicitly closed the result set
             // before closing the statement.
+            //@PDA perf2 comment:  if we get back 700,2 from fetch, then cursor is already closed, but resultSet_ is still usable
             if(! cursor_.isClosed())
             {    // @B3A
                 closeResultSet (JDCursor.REUSE_NO);
@@ -867,6 +868,13 @@ public class AS400JDBCStatement implements Statement
                     {
                         lastBlock = true;
                     }
+                    else if((errorClass == 2) && (returnCode == 700) 
+                            && (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)) //@pda perf2 - fetch/close
+                    {
+                        lastBlock = true;
+                        cursor_.setState(true); //closed cursor already on server
+                        
+                    }
                     else if(errorClass != 0)
                     {
                         positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A
@@ -908,11 +916,11 @@ public class AS400JDBCStatement implements Statement
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
                                                              getBlockingFactor (sqlStatement, resultRow.getRowLength()), resultData,
-                                                             lastBlock, resultSetType_);
+                                                             lastBlock, resultSetType_, cursor_); //@pdc perf2 - fetch/close
                         else
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, resultRow.getRowLength()), lastBlock, resultSetType_); //@PDC perf
+                                                             getBlockingFactor (sqlStatement, resultRow.getRowLength()), lastBlock, resultSetType_, cursor_); //@PDC perf //@pdc perf2 - fetch/close
 
                         // If the result set concurrency is updatable, check to                            @E1C
                         // see if the system overrode the cursor type to read only.                        @E1C
@@ -963,7 +971,7 @@ public class AS400JDBCStatement implements Statement
                                                                                                       resultSetType_), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
                                                                               connection_, id_, getBlockingFactor (sqlStatement,
-                                                                                                                   row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_));  //@PDC perf
+                                                                                                                   row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_);  //@PDC perf //@pda perf2 - fetch/close
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
                             if(preV5R3)                                                           //@KBA
                             {                             
@@ -1368,7 +1376,7 @@ public class AS400JDBCStatement implements Statement
                                                            cursor_.openDescribe (openAttributes, resultSetType_),             //@KBA
                                                            settings_);
                         JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (
-                                                                                                                   sqlStatement, row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_)); //@PDC perf
+                                                                                                                   sqlStatement, row.getRowLength()), false, (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_), cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                         //if pre-v5r3 create a FORWARD_ONLY RESULT SET
                             if(preV5R3)                                                           //@KBA
@@ -2473,7 +2481,7 @@ public class AS400JDBCStatement implements Statement
                                                        settings_);
                     JDServerRowCache rowCache = new JDServerRowCache (
                                                                      row, connection_, id_, getBlockingFactor (
-                                                                                                              null, row.getRowLength()), false, resultSetType_); //@PDC perf
+                                                                                                              null, row.getRowLength()), false, resultSetType_, cursor_); //@PDC perf //@pda perf2 - fetch/close
 
                     // If the result set concurrency is updatable, check to                            @E1C
                     // see if the system overrode the cursor type to read only.                        @E1C
