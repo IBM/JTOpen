@@ -316,7 +316,7 @@ public class ObjectDescription
    * Object attribute representing whether journal entries
    * to be omitted are journaled.
    * This field is true if no
-   * entries are ommitted; that is, all entries are journaled
+   * entries are omitted; that is, all entries are journaled
    * including open and close entries that would normally be
    * omitted.
    * This field is false if
@@ -1205,8 +1205,24 @@ public class ObjectDescription
           release.append(Integer.parseInt(lpp.substring(14,2)));
           return new Product(system_, prodID, Product.PRODUCT_OPTION_BASE, release.toString(), Product.PRODUCT_FEATURE_CODE);
         }
+      case USER_CHANGED:
+      case ALLOW_CHANGE_BY_PROGRAM:
+      case CHANGED_BY_PROGRAM:
+      case OVERFLOWED_ASP:
+      case JOURNAL_STATUS:
+      case JOURNAL_IMAGES:
+      case DIGITALLY_SIGNED:
+      case DIGITALLY_SIGNED_TRUSTED:
+      case DIGITALLY_SIGNED_MULTIPLE:
+        return new Boolean (((String)o).charAt(0) == '1');
+      case USAGE_INFO_UPDATED:
+        return new Boolean (((String)o).charAt(0) == 'Y');
+      case JOURNAL_OMITTED_ENTRIES:
+        return new Boolean(((String)o).charAt(0) == '0');
+
+      default:
+        return o;
     }
-    return o;
   }
 
 
@@ -1439,7 +1455,7 @@ public class ObjectDescription
       set(SYSTEM_LEVEL, conv.byteArrayToString(data, 390, 9));
       set(COMPILER, conv.byteArrayToString(data, 399, 16).trim());
       set(OBJECT_LEVEL, conv.byteArrayToString(data, 415, 8).trim());
-      set(USER_CHANGED, data[423] == 0xF1); // '1' if the user changed the object, '0' if not.
+      set(USER_CHANGED, conv.byteArrayToString(data, 423, 1)); // '1' if the user changed the object, '0' if not.
       set(LICENSED_PROGRAM, conv.byteArrayToString(data, 424, 16).trim());
       set(PTF, conv.byteArrayToString(data, 440, 10).trim());
       set(APAR, conv.byteArrayToString(data, 450, 10).trim());
@@ -1447,32 +1463,32 @@ public class ObjectDescription
     if (format >= 400)
     {
       set(LAST_USED_DATE, conv.byteArrayToString(data, 460, 7).trim());
-      set(USAGE_INFO_UPDATED, data[467] == (byte)0xE8); // 'Y' was changed, 'N' was not.
+      set(USAGE_INFO_UPDATED, conv.byteArrayToString(data, 467, 1)); // 'Y' was changed, 'N' was not.
       set(DAYS_USED, BinaryConverter.byteArrayToInt(data, 468));
       set(OBJECT_SIZE, BinaryConverter.byteArrayToInt(data, 472));
       set(OBJECT_SIZE_MULTIPLIER, BinaryConverter.byteArrayToInt(data, 476));
       set(COMPRESSION, conv.byteArrayToString(data, 480, 1));
-      set(ALLOW_CHANGE_BY_PROGRAM, data[481] == (byte)0xF1); // '1' means it can be changed by QLICOBJD, '0' means not.
-      set(CHANGED_BY_PROGRAM, data[482] == (byte)0xF1); // '1' means it has been changed by QLICOBJD, '0' means not.
+      set(ALLOW_CHANGE_BY_PROGRAM, conv.byteArrayToString(data, 481, 1)); // '1' means it can be changed by QLICOBJD, '0' means not.
+      set(CHANGED_BY_PROGRAM, conv.byteArrayToString(data, 482, 1)); // '1' means it has been changed by QLICOBJD, '0' means not.
       set(USER_DEFINED_ATTRIBUTE, conv.byteArrayToString(data, 483, 10).trim());
-      set(OVERFLOWED_ASP, data[493] == (byte)0xF1); // '1' means it overflowed the ASP it's in, '0' means not.
+      set(OVERFLOWED_ASP, conv.byteArrayToString(data, 493, 1)); // '1' means it overflowed the ASP it's in, '0' means not.
       set(SAVE_ACTIVE_DATE, conv.byteArrayToString(data, 494, 13)); // date
       set(AUDITING, conv.byteArrayToString(data, 507, 10).trim());
       set(PRIMARY_GROUP, conv.byteArrayToString(data, 517, 10).trim());
-      set(JOURNAL_STATUS, data[527] == (byte)0xF1); // '1' means it is currently being journaled, '0' means not.
+      set(JOURNAL_STATUS, conv.byteArrayToString(data, 527, 1)); // '1' means it is currently being journaled, '0' means not.
       set(JOURNAL, conv.byteArrayToString(data, 528, 10).trim());
       set(JOURNAL_LIBRARY, conv.byteArrayToString(data, 538, 10).trim());
-      set(JOURNAL_IMAGES, data[548] == (byte)0xF1); // '1' means both before and after images are generated, '0' means just after images.
-      set(JOURNAL_OMITTED_ENTRIES, data[549] == (byte)0xF0); // '0' means no entries are omitted, '1' means open/close ops don't generate entries, ' ' means object isn't journaled.
+      set(JOURNAL_IMAGES, conv.byteArrayToString(data, 548, 1)); // '1' means both before and after images are generated, '0' means just after images.
+      set(JOURNAL_OMITTED_ENTRIES, conv.byteArrayToString(data, 549, 1)); // '0' means no entries are omitted (i.e. all entries are journaled), '1' means open/close ops don't generate entries, ' ' means object isn't journaled.
       set(JOURNAL_START_DATE, conv.byteArrayToString(data, 550, 13).trim()); // date; will be blank of not journaled
-      set(DIGITALLY_SIGNED, data[563] == (byte)0xF1); // '1' means it has a digital signature, '0' means not.
+      set(DIGITALLY_SIGNED, conv.byteArrayToString(data, 563, 1)); // '1' means it has a digital signature, '0' means not.
       set(SAVE_SIZE, BinaryConverter.byteArrayToInt(data, 564));
       set(SAVE_SIZE_MULTIPLIER, BinaryConverter.byteArrayToInt(data, 568));
       set(LIBRARY_ASP_NUMBER, BinaryConverter.byteArrayToInt(data, 572));
       set(OBJECT_ASP_DEVICE_NAME, conv.byteArrayToString(data, 576, 10).trim());
       set(LIBRARY_ASP_DEVICE_NAME, conv.byteArrayToString(data, 586, 10).trim());
-      set(DIGITALLY_SIGNED_TRUSTED, data[596] == (byte)0xF1); // '1' means at least one signature came from a trusted source, '0' means none did.
-      set(DIGITALLY_SIGNED_MULTIPLE, data[597] == (byte)0xF1); // '1' means there is more than one signature, '0' means there is only one or no signatures.
+      set(DIGITALLY_SIGNED_TRUSTED, conv.byteArrayToString(data, 596, 1)); // '1' means at least one signature came from a trusted source, '0' means none did.
+      set(DIGITALLY_SIGNED_MULTIPLE, conv.byteArrayToString(data, 597, 1)); // '1' means there is more than one signature, '0' means there is only one or no signatures.
     }
   }
 
