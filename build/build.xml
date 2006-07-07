@@ -89,7 +89,15 @@
 // Filename: midpapi10.jar
 // Location: http://java.sun.com/products/sjwtoolkit/
 // Description: J2ME Wireless Toolkit MIDP APIs needed for the com.ibm.as400.micro package.
+//              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
 //              (The midpapi10.jar file can be found in C:\WTKxx\lib after the install, where "xx" is the J2ME WTK version number.)
+//
+//
+// Filename: cldcapi10.jar
+// Location: http://java.sun.com/products/sjwtoolkit/
+// Description: J2ME Wireless Toolkit CLDC APIs needed for the com.ibm.as400.micro package.
+//              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
+//              (The cldcapi10.jar file can be found in C:\WTKxx\lib after the install, where "xx" is the J2ME WTK version number.)
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -100,7 +108,16 @@
 // Location: http://java.sun.com/products/sjwtoolkit/
 // Description: J2ME Wireless Toolkit preverification tool required to build the
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
+//              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
 //              (The preverify.exe file can be found in C:\WTKxx\bin after the install, where "xx" is the J2ME WTK version number.)
+//
+//
+// Filename: preverify1.1 or preverify1.1.exe
+// Location: http://java.sun.com/products/sjwtoolkit/
+// Description: J2ME Wireless Toolkit preverification tool required to build the 
+//              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
+//              Note:  The J2ME Wireless Toolkit can only be installed on Windows or Linux.
+//              (The preverify1.1.exe file can be found in C:\WTKxx\bin after the install, where "xx" is the J2ME WTK version number.)
 //
 //
 // Filename: cvs or cvs.exe
@@ -309,6 +326,7 @@
   <target name="compile-micro" depends="init">
     <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <fail message="Can't find ${include}/midpapi10.jar." unless="midpapiJarExists"/>
+    <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <javac srcdir="${source-micro}:${source}"
            destdir="${output-micro}"
            failonerror="true"
@@ -331,7 +349,7 @@
       <exclude name="com/ibm/as400/micro/StatementHandler.java"/>
       
       <bootclasspath>
-        <pathelement path="${include}/midpapi10.jar:${include}"/>
+        <pathelement path="${include}/midpapi10.jar:${include}/cldcapi10.jar:${include}"/>
       </bootclasspath>
     </javac>
   </target>      
@@ -363,10 +381,15 @@
       <available file="${include}/midpapi10.jar" type="file"/>
     </condition>
     
+    <condition property="cldcapiJarExists">
+      <available file="${include}/cldcapi10.jar" type="file"/>
+    </condition>
+    
     <condition property="javadocIncludesExist">
       <and>
         <available file="${include}/servlet.jar" type="file"/>
         <available file="${include}/midpapi10.jar" type="file"/>
+        <available file="${include}/cldcapi10.jar" type="file"/>
         <available file="${include}/jui400.jar" type="file"/>
         <available file="${include}/sslightx.zip" type="file"/>
       </and>
@@ -505,6 +528,7 @@
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
         <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
         <pathelement location="${include}/midpapi10.jar"/> <!-- Need this for the server-side Micro Edition classes. -->
+        <pathelement location="${include}/cldcapi10.jar"/> <!-- Need this for the server-side Micro Edition classes. -->
       </classpath>
       <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
       <group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
@@ -520,6 +544,7 @@
       Can't find one of:
         ${include}/servlet.jar
         ${include}/midpapi10.jar
+        ${include}/cldcapi10.jar
         ${include}/jui400.jar
         ${include}/sslightx.zip
     </echo>
@@ -542,10 +567,11 @@
       </or>
     </condition>
     <fail message="Can't find ${include}/midpapi10.jar." unless="midpapiJarExists"/>
+    <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <fail message="Can't find ${bin}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
     <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
-      <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi10.jar ${output-micro}"/>
+      <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi10.jar;${include}/cldcapi10.jar ${output-micro}"/>
     </exec>
   </target>
 
