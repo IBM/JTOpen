@@ -95,7 +95,7 @@ class PcmlDocument extends PcmlDocRoot
     // Transient data not stored durial serialization
     // These are a cache of the most common converters.
     // NOTE: For AS400Text converters, the cached objects are 'thrown away'
-    // when the iSeries system object changes via setAs400(). This will cause
+    // when the i5/OS system object changes via setAs400(). This will cause
     // the new system (and CCSID) to be used to construct new converters.
     protected transient AS400Text          m_Text_1  = null; // Create at run time
     protected transient AS400Text          m_Text_10 = null; // Create at run time
@@ -523,7 +523,7 @@ class PcmlDocument extends PcmlDocRoot
     }
 
     /**
-    Returns the list of iSeries system messages returned from running the
+    Returns the list of i5/OS system messages returned from running the
     program. An empty list is returned if the program has not been run yet.
 
     @return The array of messages returned by the server for the program.

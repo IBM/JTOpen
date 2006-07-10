@@ -506,7 +506,7 @@ class PcmlData extends PcmlDocNode
         }
     }
 
-    // Set iSeries server bytes
+    // Set i5/OS system bytes
     void setBytes(byte[] ba)
     {
     }
@@ -924,7 +924,7 @@ class PcmlData extends PcmlDocNode
     boolean isSupportedAtHostVRM() throws PcmlException             // @A1A
     {                                                               // @A1A
         if (m_IsRfml) return true;                                  // @D0A
-        int hostVrm = getAs400VRM();      // VRM of the iSeries system  @A1A
+        int hostVrm = getAs400VRM();      // VRM of the i5/OS system  @A1A
 
         // If the minvrm= for this element is greater than the server VRM
         // do not process this element. The item is not available at this release.
@@ -944,7 +944,7 @@ class PcmlData extends PcmlDocNode
     }                                                               // @A1A
 
 
-    // Convert Java object iSeries server bytes
+    // Convert Java object i5/OS system bytes
     // Returns the number of bytes converted
     int toBytes(OutputStream bytes, int offset, PcmlDimensions indices) throws PcmlException
     {
@@ -2206,7 +2206,7 @@ class PcmlData extends PcmlDocNode
     }
 
 
-    // Check if a string is a valid iSeries system VRM
+    // Check if a string is a valid i5/OS system VRM
     // Allowed syntax:
     //    "VxRyMz"
     //

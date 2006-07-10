@@ -744,7 +744,7 @@ class PcmlStruct extends PcmlDocNode
     // Returns false if not.
     boolean isSupportedAtHostVRM() throws PcmlException             // @A1A
     {                                                               // @A1A
-        int hostVrm = getAs400VRM();      // VRM of the iSeries system  @A1A
+        int hostVrm = getAs400VRM();      // VRM of the i5/OS system  @A1A
 
         // If the minvrm= for this element is greater than the server VRM
         // do not process this element. The item is not available at this release.
@@ -763,7 +763,7 @@ class PcmlStruct extends PcmlDocNode
         return true;                                                // @A1A
     }                                                               // @A1A
 
-    // Convert data to iSeries system format
+    // Convert data to i5/OS system format
     // Returns the number of bytes to'ed
     int toBytes(OutputStream bytes, int offset, PcmlDimensions indices) throws PcmlException
     {

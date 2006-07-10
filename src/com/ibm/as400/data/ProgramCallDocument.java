@@ -51,12 +51,12 @@ import org.xml.sax.SAXException;                                    //@E1A
  * XML Document based program call.
  *
  * The <code>ProgramCallDocument</code> class uses a Program Call Markup Language (PCML) to
- * call iSeries system programs.
+ * call i5/OS system programs.
  * PCML is an XML language for describing the input and output parameters
- * to the iSeries system program.
+ * to the i5/OS system program.
  *
  * This class parses a PCML document and allows the application to call
- * iSeries system programs described in the PCML document.
+ * i5/OS system programs described in the PCML document.
  *
  * <h3>Command Line Interface</h3>
  * The command line interface may be used to serialize
@@ -683,7 +683,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Returns the list of iSeries system messages returned from running the
+    Returns the list of i5/OS system messages returned from running the
     program. An empty list is returned if the program has not been run yet.
 
     @param name The name of the &lt;program&gt; element in the PCML document.
@@ -730,7 +730,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Returns the Java object value for the named element.
     <p>
     If the named element is an output value of a program, the value will
-    be converted from iSeries system data to a Java Object.
+    be converted from i5/OS system data to a Java Object.
     <p>
     The type of object returned depends on the description in the PCML document.
     <table border=1>
@@ -778,7 +778,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     must be specified for each dimension of the data.
     <p>
     If the named element is an output value of a program, the value will
-    be converted from iSeries system data to a Java Object.
+    be converted from i5/OS system data to a Java Object.
     <p>
     The type of object returned depends on the description in the PCML document.
     <table border=1>
@@ -1087,7 +1087,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     will be converted to a Java Short object. In this case the value specified must be an instance of Number or String.
     <p>
     If the named element is an input value to a program, the value will
-    be converted to iSeries system data when <code>callProgram()</code> is called.
+    be converted to i5/OS system data when <code>callProgram()</code> is called.
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param value The java object value for the named element. The type of Object passed must be
@@ -1113,7 +1113,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     will be converted to a Java Short object. In this case the value specified must be an instance of Number or String.
     <p>
     If the named element is an input value to a program, the value will
-    be converted to iSeries system data when <code>callProgram()</code> is called.
+    be converted to i5/OS system data when <code>callProgram()</code> is called.
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param indices An array of indices for setting the value of an element in an array.
