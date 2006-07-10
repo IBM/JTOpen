@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Locale;      //@B2A
 
 /** 
-  *  ConnectionList is a list of connections specific to an AS400 or iSeries and userID.  The 
+  *  ConnectionList is a list of connections specific to an i5/OS system and userID.  The 
   *  connection list is used to create new connections and get connections from the pool.
   *  The connection list can remove connections that have exceeded inactivity time and 
   *  replace connections that have exceeded the maximum use count or maximum lifetime.

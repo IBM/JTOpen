@@ -40,7 +40,7 @@ abstract class ConversionMaps
         return (String)ccsidEncoding_.get(String.valueOf(ccsid));
     }
 
-    // This is a table that maps all Java encodings to OS/400 CCSIDs.  Some encodings could map to more than one CCSID, so they are not included in the table.  When a lookup is performed, it will then return null.  Some encodings are supported by the iSeries server but not by the Toolbox.  The ConvTable code handles this.
+    // This is a table that maps all Java encodings to OS/400 CCSIDs.  Some encodings could map to more than one CCSID, so they are not included in the table.  When a lookup is performed, it will then return null.  Some encodings are supported by the i5/OS but not by the Toolbox.  The ConvTable code handles this.
     // Based on http://java.sun.com/products/jdk/1.2/docs/guide/internat/encoding.doc.html
     // V5R1 JVM encodings: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/fileenc.htm
     // V5R1 JVM locales: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/locales.htm
@@ -228,7 +228,7 @@ abstract class ConversionMaps
             ccsidEncoding_.put(encodingCcsid_.get(key), key);
         }
 
-        ccsidEncoding_.put("17584", "UTF-16BE"); // iSeries doesn't support this, but other people use it.
+        ccsidEncoding_.put("17584", "UTF-16BE"); // i5/OS doesn't support this, but other people use it.
 
         // Any other ccsids that are used for which we know no encoding will have their encoding set to equal their ccsid.
 

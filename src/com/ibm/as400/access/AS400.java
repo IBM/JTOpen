@@ -3473,7 +3473,7 @@ public class AS400 implements Serializable
     // Determine if user ID matches current user ID.
     private static boolean userIdMatchesLocal(String userId, boolean mustUseSuppliedProfile)
     {
-        // First, see if we are running on an iSeries.
+        // First, see if we are running on i5/OS.
         if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
         {
             String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());

@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 /**
  The AS400BidiTransform class provides layout transformations that allow the conversion of Bidi text in server format (after its conversion to Unicode) to Bidi text in Java format, or vice-versa.
  <p>Bidi text is a combination of a sequence of characters and a set of Bidi flags.  That text (Arabic or Hebrew) has characters which are read from right to left.  That text might also be mixed with numbers which are read from left to right, and possibly also mixed with Latin characters.  Conversion support is needed to display text properly with the correct order and shape.
- <p>Bidi text from an iSeries server may be represented by a combination of a String (the characters) and a CCSID (which implies a set of Bidi flags specific to that CCSID).
+ <p>Bidi text from an i5/OS system may be represented by a combination of a String (the characters) and a CCSID (which implies a set of Bidi flags specific to that CCSID).
  <p><b>Multi-threading considerations:</b> different threads may use the same AS400BidiTransform object if they have the same transformation needs, as follows:
  <ul>
  <li>Same CCSID for the server data.

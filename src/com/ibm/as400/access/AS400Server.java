@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.util.Hashtable;
 
-// A class representing an iSeries server job.
+// A class representing an i5/OS server job.
 abstract class AS400Server
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";

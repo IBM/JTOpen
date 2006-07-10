@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- The DataQueue class represents an iSeries server sequential data queue object.
+ The DataQueue class represents an i5/OS sequential data queue object.
  **/
 public class DataQueue extends BaseDataQueue
 {

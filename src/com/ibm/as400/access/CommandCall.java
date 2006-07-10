@@ -26,7 +26,7 @@ import java.util.Vector;
 import com.ibm.as400.resource.RJob;
 
 /**
- Represents an iSeries server command object.  This class allows the user to call any non-interactive iSeries server CL command.  Results of the command are returned in a message list.
+ Represents an i5/OS command object.  This class allows the user to call any non-interactive CL command.  Results of the command are returned in a message list.
  <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent i5/OS API or program, and use {@link ProgramCall ProgramCall} instead.
  <P>The following example demonstrates the use of CommandCall:
  <br>

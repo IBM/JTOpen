@@ -1626,7 +1626,7 @@ class AS400ImplRemote implements AS400Impl
                 // Generate token errors: can not obtain the EIM registry name.
                 return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME);
             case 0x00070004:
-                // Generate token errors: no mapping exists between the WebSphere Portal user identity and an iSeries user profile.
+                // Generate token errors: no mapping exists between the WebSphere Portal user identity and an i5/OS user profile.
                 return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_NO_MAPPING);
             default:
                 // Internal errors or unexpected return codes.

@@ -21,8 +21,8 @@ import java.beans.*;
 
 
 /**
- * The AS400FTP class represents a client for the iSeries FTP server.
- * It is written to take advantage of iSeries server features.
+ * The AS400FTP class represents a client for the i5/OS FTP server.
+ * It is written to take advantage of i5/OS features.
  * Use the parent class, FTP, if you need a generic
  * client.
  *
@@ -34,10 +34,10 @@ import java.beans.*;
  * the system name, userid, and password in both the FTP class and other
  * Toolbox classes.
  * <P>
- * One restriction when the client is an iSeries --
+ * One restriction when the client is an i5/OS system --
  * the userid and password must be
  * set on the AS400 object in this environment.  That is, *CURRENT
- * will not work when connecting from one iSeries to another iSeries.
+ * will not work when connecting from one i5/OS system to another i5/OS system.
  * <P><LI>
  * Automatically setting the current directory to the
  * root directory on the server when a connection is made. If the

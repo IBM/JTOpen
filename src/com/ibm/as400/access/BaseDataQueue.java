@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
- The BaseDataQueue class represents an iSeries server data queue object.
+ The BaseDataQueue class represents an i5/OS data queue object.
  **/
 public abstract class BaseDataQueue implements Serializable
 {

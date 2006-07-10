@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 /**
- The DataQueueEntry class represents an entry on an iSeries server data queue.
+ The DataQueueEntry class represents an entry on a data queue.
  **/
 public class DataQueueEntry
 {
