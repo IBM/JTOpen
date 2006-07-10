@@ -1023,7 +1023,7 @@ implements java.io.Serializable
       *   <LI> ATTR_DESTOPTION - Specifies a destination-dependant option.  These options will
       *                          be sent to the remote system with the spooled file.
       *   <LI> ATTR_DESTINATION - Specifies the type of system to which the spooled file is
-      *                           being sent.  When sending to other iSeries systems, this value
+      *                           being sent.  When sending to other i5/OS systems, this value
       *                           should be *AS/400.  May also be *OTHER or *PSF/2.
       *                           *OTHER is the default.
       *   <LI> ATTR_INTERNETADDR - Specifies the Internet address of the receiving system.

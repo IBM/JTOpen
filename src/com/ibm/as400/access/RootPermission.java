@@ -29,7 +29,7 @@ set methods (<i>setAlter()</i>, <i>setExistence()</i>, <i>setManagement()</i>,
 or <i>setReference()</i>) to turn the value on or off. After all the values 
 are set, use the <i>commit()</i> method from the Permissions class to send the changes 
 to the server. 
-<P>For more information, refer the iSeries Advance Series Security Basic Manual (SC41-5301-00).
+<P>For more information, refer the i5/OS Advance Series Security Basic Manual (SC41-5301-00).
 **/
 public class RootPermission extends UserPermission
 {

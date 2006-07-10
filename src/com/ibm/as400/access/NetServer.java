@@ -33,7 +33,7 @@ import java.util.Vector;
 <li>netServer.start()
 </ol>
  <p>
- If the NetServer job on the iSeries server is not started, the <code>listXxx</code> methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use one of the {@link #start() start} methods.  These methods will also attempt to start the QSERVER subsystem if it is not running.
+ If the NetServer job on the i5/OS system is not started, the <code>listXxx</code> methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use one of the {@link #start() start} methods.  These methods will also attempt to start the QSERVER subsystem if it is not running.
  <p>
  Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile has *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
@@ -734,7 +734,7 @@ extends ChangeableResource
 
 
   /**
-   Ends the NetServer job on the iSeries server.
+   Ends the NetServer job on the i5/OS system.
    <br>This method requires *IOSYSCFG special authority on the server.
 
    @exception ResourceException  If an error occurs.
@@ -862,7 +862,7 @@ extends ChangeableResource
 
 
   /**
-   Indicates whether or not the NetServer job on the iSeries server is started.
+   Indicates whether or not the NetServer job on the i5/OS system is started.
    @return  <code>true</code> if the NetServer job is started; <code>false</code> otherwise.
 
    @exception ResourceException  If an error occurs.
@@ -1064,7 +1064,7 @@ extends ChangeableResource
 
 
   /**
-   Starts the NetServer job on the iSeries server.
+   Starts the NetServer job on the i5/OS system.
    If the NetServer is already started, this method does nothing.
    This method requires *IOSYSCFG special authority on the server.
    If the QSERVER subsystem is not running, this method will attempt to start it. 
@@ -1079,7 +1079,7 @@ extends ChangeableResource
   }
 
   /**
-   Starts the NetServer job on the iSeries server, and (optionally) resets it.
+   Starts the NetServer job on the i5/OS system, and (optionally) resets it.
    If the NetServer is already started, this method does nothing.
    This method requires *IOSYSCFG special authority on the server.
    If the QSERVER subsystem is not running, this method will attempt to start it. 
@@ -1112,7 +1112,7 @@ extends ChangeableResource
     }
 
 
-    // Start the NetServer job (QZLSSERVER) on the iSeries.
+    // Start the NetServer job (QZLSSERVER) on the i5/OS.
     try {
       ProgramCallDocument document = (ProgramCallDocument)staticDocument_.clone();
       document.setSystem(getSystem());

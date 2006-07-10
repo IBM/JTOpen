@@ -180,7 +180,7 @@ public class QSYSObjectPathName implements Serializable
      </pre>
      @param  libraryName  The library in which the object exists.  It must be 1-10 characters.
      @param  objectName  The name of the object.  It must be 1-10 characters.
-     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the iSeries server abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      **/
     public QSYSObjectPathName(String libraryName, String objectName, String objectType)
     {
@@ -445,7 +445,7 @@ public class QSYSObjectPathName implements Serializable
     }
 
     /**
-     Returns type of object this path name represents.  Type is the iSeries server abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     Returns type of object this path name represents.  Type is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      @return  The type of the object.
      **/
     public String getObjectType()
@@ -791,7 +791,7 @@ public class QSYSObjectPathName implements Serializable
 
     /**
      Sets type of object this path name represents.  If the type is not MBR, the member name property will be set to an empty string.  The value will be uppercased.  This is a bound and constrained property.  Note that changes to this property also affect the memberName and pathName properties.
-     @param  objectType  The type of the object. It must be 1-6 characters.  This is the iSeries server abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     @param  objectType  The type of the object. It must be 1-6 characters.  This is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      @exception  PropertyVetoException  If the change was vetoed.
      **/
     public void setObjectType(String objectType) throws PropertyVetoException
@@ -903,7 +903,7 @@ public class QSYSObjectPathName implements Serializable
      Builds an integrated file system path name to represent the object.
      @param  libraryName  The library the object is in. It must be 1-10 characters.
      @param  objectName  The name of the object.  It must be 1-10 characters.
-     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the iSeries server abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      @return  The integrated file system name for the object.
      **/
     public static String toPath(String libraryName, String objectName, String objectType)
