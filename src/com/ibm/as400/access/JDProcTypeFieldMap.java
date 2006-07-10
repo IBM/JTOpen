@@ -20,7 +20,7 @@ import java.sql.DatabaseMetaData;
 /**
    The JDProcTypeFieldMap class converts the
    update and delete rule values
-   received from the server to the values
+   received from the system to the values
    required for JDBC.
 **/
 
@@ -31,8 +31,8 @@ import java.sql.DatabaseMetaData;
 //     procedureReturnsResult
 //
 //
-//    if 0 from server = procedureNoResult
-//    if >0 from server = procedureReturnsResult
+//    if 0 from system = procedureNoResult
+//    if >0 from system = procedureReturnsResult
 //    if any other value =  procedureResultUnknown
 //
 //-------------------------------------------------//
@@ -43,7 +43,7 @@ implements JDFieldMap
 {
     private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    // fromIndex is the index of the data received from server.
+    // fromIndex is the index of the data received from the system.
     JDProcTypeFieldMap (int fromIndex)
     {
         super (fromIndex);

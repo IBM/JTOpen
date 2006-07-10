@@ -18,9 +18,9 @@ import java.sql.SQLException;
 
 /**
    The JDPrivilegeFieldMap converts the authority
-   information returned from the server to the string
+   information returned from the system to the string
    value required by JDBC.
-   The server returns a char(2) which
+   The system returns a char(2) which
    contains the following information:
 <UL>
 <LI> AUTHORITY   CHAR(2)

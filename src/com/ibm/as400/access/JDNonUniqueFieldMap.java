@@ -27,9 +27,9 @@ implements JDFieldMap
 {
     private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    // fromIndex is the index of the data received from server.
+    // fromIndex is the index of the data received from the system.
     // Need to specify the index to the non-unique information
-    // returned from the server.
+    // returned from the system.
     JDNonUniqueFieldMap (int fromIndex)
     {
         super (fromIndex);

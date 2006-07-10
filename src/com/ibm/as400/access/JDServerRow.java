@@ -21,7 +21,7 @@ import java.util.Hashtable;
 
 /**
 The JDServerRow class implements a row of data that is loaded
-directly from a datastream to or from the server.
+directly from a datastream to or from the system.
 **/
 class JDServerRow
 implements JDRow
@@ -55,9 +55,9 @@ implements JDRow
     /**
     Constructs a JDServerRow object.  Use this constructor
     when the format information has already been retrieved
-    from the server.
+    from the system.
     
-    @param      connection      The connection to the server.
+    @param      connection      The connection to the system.
     @param      id              The id.
     @param      serverFormat    The server format information.
     @param      settings        The conversion settings.
@@ -77,9 +77,9 @@ implements JDRow
 
     /**
     Constructs a JDServerRow object.  Use this constructor when format
-    information has not yet been retrieved from the server.
+    information has not yet been retrieved from the system.
     
-    @param  connection      The connection to the server.
+    @param  connection      The connection to the system.
     @param  id              The id.
     @param  settings        The conversion settings.
     
@@ -134,7 +134,7 @@ implements JDRow
     /**
     Initializes the state of the object.
     
-    @param      connection          The connection to the server.
+    @param      connection          The connection to the system.
     @param      id                  The id.
     @param      serverFormat        The server format information.
     @param      settings            The conversion settings.
@@ -237,7 +237,7 @@ implements JDRow
 
     /**
     Sets the server data.  Use this when new data has been retrieved
-    from the server.
+    from the system.
     
     @param  serverData      The server data.
     
@@ -469,7 +469,7 @@ implements JDRow
             {
 
                 // @E1D // The CCSID returned in the data format is not
-                // @E1D // necessarily correct (says the database server
+                // @E1D // necessarily correct (says the database host server
                 // @E1D // documentation), so we should always use the server
                 // @E1D // job CCSID or its graphic equivalent.
                 // @E1D ConverterImplRemote ccsidConverter = null;

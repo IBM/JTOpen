@@ -30,7 +30,7 @@ implements JDFieldMap
 
 
 
-    // fromIndex is the index of the data received from server.
+    // fromIndex is the index of the data received from the system.
     JDNullableStringFieldMap (int fromIndex)
     {
         super (fromIndex);

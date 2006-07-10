@@ -19,7 +19,7 @@ import java.sql.SQLException;
 
 /**
 <p>The JDServerRowCache class implements a set of rows that
-are generated on the server.
+are generated on the system.
 **/
 class JDServerRowCache
 implements JDRowCache
@@ -58,7 +58,7 @@ implements JDRowCache
 
   // Keep track of the cursor position of the first 
   // row in the row cache from the front of the 
-  // result.  We need to know this to keep the server's
+  // result.  We need to know this to keep the system's
   // cursor in sync with the client's cursor.  Remember we
   // don't know the number of records in the result set so
   // moving the cursor based on the end of the rs makes
@@ -75,7 +75,7 @@ Constructs a row cache assuming that no data has been
 prefetched.
 
 @param  row             The row describing the format.
-@param  connection      The connection to the server.
+@param  connection      The connection to the system.
 @param  id              The id.
 @param  blockingFactor  The blocking factor (in rows).
 @param  lastBlock       Has the last block been fetched?
@@ -130,7 +130,7 @@ prefetched.
     prefetched.
    
     @param  row             The row describing the format.
-    @param  connection      The connection to the server.
+    @param  connection      The connection to the system.
     @param  id              The id.
     @param  blockingFactor  The blocking factor (in rows).
     @param  lastBlock       Has the last block been fetched?
@@ -159,7 +159,7 @@ Constructs a row cache including data that has been
 prefetched.
 
 @param  row             The row describing the format.
-@param  connection      The connection to the server.
+@param  connection      The connection to the system.
 @param  id              The id.
 @param  blockingFactor  Blocking factor (in rows).
 @param  serverData      Prefetched data.
@@ -227,7 +227,7 @@ prefetched.
     prefetched.
 
     @param  row             The row describing the format.
-    @param  connection      The connection to the server.
+    @param  connection      The connection to the system.
     @param  id              The id.
     @param  blockingFactor  Blocking factor (in rows).
     @param  serverData      Prefetched data.
@@ -253,7 +253,7 @@ prefetched.
 
 
 /**
-Fetches a block of data from the server.
+Fetches a block of data from the system.
 
 @param  fetchScrollOption   The fetch scroll option.
 @return                     true if the first or last block (in
@@ -271,7 +271,7 @@ Fetches a block of data from the server.
 
 
 /**
-Fetches a block of data from the server.
+Fetches a block of data from the system.
 
 @param  fetchScrollOption   The fetch scroll option.
 @param  rows                The number of rows when
@@ -331,7 +331,7 @@ Fetches a block of data from the server.
         }   
 
         if (JDTrace.isTraceOn ())
-          JDTrace.logInformation (connection_, "Fetching a block of data from the server");
+          JDTrace.logInformation (connection_, "Fetching a block of data from the system");
 
         reply = connection_.sendAndReceive (request, id_); //@P0C
 
@@ -345,10 +345,10 @@ Fetches a block of data from the server.
         {
             endBlock = true;
             if(cursor_ != null)
-                cursor_.setState(true); //closed cursor already on server
+                cursor_.setState(true); //closed cursor already on system
             
         }
-        // As in AS400JDBCStatement, post a warning if the server gives us a warning,
+        // As in AS400JDBCStatement, post a warning if the system gives us a warning,
         // otherwise throw an exception
         else if (errorClass != 0)
         {                                                                                // @D1a
@@ -502,14 +502,14 @@ Sets the fetch size.
   public void absolute (int rowNumber)
   throws SQLException
   {
-    // Since the server does not provide a fetch absolute,
+    // Since the system does not provide a fetch absolute,
     // we have to start at the first or last (depending
     // on the sign of the row number) and go relative
     // from there.
     // 
     // @E1A: I investigated making the call to first()
     // or last() more efficient.  In a nutshell, I changed
-    // them to position the cursor on the server, but
+    // them to position the cursor on the system, but
     // not to fetch data.  In addition, I tried to chain
     // the requests to the following call to relative().
     // This did not work since, in some cases, the call
@@ -520,10 +520,10 @@ Sets the fetch size.
     // So, I decided to resign to the fact the absolute
     // will be slow in many cases!
     //
-    // The change for @G1 is to force a trip to the server.
-    // That syncs the server cursor with the client cursor.
-    // Before we forced a trip to the server we would get
-    // in the case where the server cursor was one place,
+    // The change for @G1 is to force a trip to the system.
+    // That syncs the system cursor with the client cursor.
+    // Before we forced a trip to the system we would get
+    // in the case where the system cursor was one place,
     // we thought we were in a different place, and data
     // for the wrong row was given to the app. 
     if (rowNumber > 0)
@@ -548,7 +548,7 @@ Sets the fetch size.
     if (lastBlock_)
       index_ = cached_;
 
-    // Otherwise, change the cursor on the server.
+    // Otherwise, change the cursor on the system.
     else
     {
       fetch (DBSQLRequestDS.FETCH_AFTER_LAST);
@@ -574,7 +574,7 @@ Sets the fetch size.
     if (firstBlock_)
       index_ = -1;
 
-    // Otherwise, change the cursor on the server.
+    // Otherwise, change the cursor on the system.
     else
     {
       fetch (DBSQLRequestDS.FETCH_BEFORE_FIRST);
@@ -593,7 +593,7 @@ Sets the fetch size.
 
   // @G1c 
   // The logic of this routine was moved to first(boolean).  Call the new
-  // routine saying there is no need to go to the server if the data
+  // routine saying there is no need to go to the system if the data
   // is in the local cache.
   public void first ()
   throws SQLException
@@ -607,16 +607,16 @@ Sets the fetch size.
   throws SQLException
   {
     // If first block is cached, then move the index
-    // within the cache (if we are not forced to go to the server).
-    // @G1 change -- do this only if we attempted to go to the server
+    // within the cache (if we are not forced to go to the system).
+    // @G1 change -- do this only if we attempted to go to the system
     // at least once.  If we just opened the rs, go to the 
-    // server to see if there are rows in the rs.  
+    // system to see if there are rows in the rs.  
     if ((emptyChecked_)       &&                                     // @G1c
         (! mustAccessServer)  && 
         (firstBlock_))
       index_ = 0;
 
-    // Otherwise, change the cursor on the server.
+    // Otherwise, change the cursor on the system.
     else
     {
       fetch (DBSQLRequestDS.FETCH_FIRST);
@@ -651,13 +651,13 @@ Sets the fetch size.
   {
     // If the last block is cached and contains data, then
     // move the index within the cache (if we are not forced to
-    // go to the server).
+    // go to the system).
     if ((lastBlock_)  && 
         (cached_ > 0) && 
         (!mustGoToServer))
       index_ = cached_ - 1;
 
-    // Otherwise, change the cursor on the server.
+    // Otherwise, change the cursor on the system.
     else
     {
       fetch (DBSQLRequestDS.FETCH_LAST);
@@ -689,7 +689,7 @@ Sets the fetch size.
     else if (lastBlock_)
       index_ = cached_;
 
-    // Otherwise, fetch data from the server.
+    // Otherwise, fetch data from the system.
     else
     {
       int oldCached = cached_;                                     // @G1a
@@ -722,12 +722,12 @@ Sets the fetch size.
       --index_;
 
     // If the first block has not been fetched,
-    // then fetch data from the server.
+    // then fetch data from the system.
     else if (! firstBlock_)
     {
       // We did not find the record in the cache so we must be 
       // on the first record in the cache trying to back up one.
-      // First move the server's cursor so it is in the correct
+      // First move the system's cursor so it is in the correct
       // place, then back up one.  Having a block of records in 
       // the cache but not knowing where they came from is a
       // "should not occur" error so throw an internal exception.
@@ -772,19 +772,19 @@ Sets the fetch size.
       if ((newIndex >= 0) && (newIndex < cached_))
         index_ = newIndex;
 
-      // Otherwise, fetch data from the server.  If the
+      // Otherwise, fetch data from the system.  If the
       // last block is flagged, then this means the
       // request was not valid.
       else
       {
         // Since we could not find the row in the cache we have to find
-        // it on the server.  First call the server to resync the 
+        // it on the system.  First call the system to resync the 
         // cursor position with what we think it is on the client
         // (the local cursor will move if we have a cache hit), then 
-        // the call the server to get data.  Note if we have a block
+        // the call the system to get data.  Note if we have a block
         // of records in the cache but do not know where they came
         // from, flag an error. That should not happen.  We have to 
-        // move the server cursor only if we cached a block of records.
+        // move the system cursor only if we cached a block of records.
         // If only one record is in the cache then the two cursors
         // are already in sync.
         if (cached_ > 1)                                            // @G1a

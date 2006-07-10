@@ -123,7 +123,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              EXTENDED_METADATA       = 48;   // @F5A
     static final int              CURSOR_SENSITIVITY      = 49;   // @F6A
     static final int              BEHAVIOR_OVERRIDE       = 50;   // @F7A
-    static final int              PACKAGE_CCSID           = 51;   // @M0A - support sending SQL to server in UTF-16 and storing it in a UTF-16 package
+    static final int              PACKAGE_CCSID           = 51;   // @M0A - support sending SQL to system in UTF-16 and storing it in a UTF-16 package
     static final int              MINIMUM_DIVIDE_SCALE    = 52;   // @M0A - support 63 digit decimal precision
     static final int              MAXIMUM_PRECISION       = 53;
     static final int              MAXIMUM_SCALE           = 54;
@@ -572,7 +572,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
 
 
         // Date format.  The order that the choices are listed
-        // is significant - the index matches the server value.
+        // is significant - the index matches the system value.
         // These also correspond to the constants defined in
         // SQLConversionSettings.
         i = DATE_FORMAT;
@@ -591,7 +591,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = DATE_FORMAT_NOTSET;
 
         // Date separator.  The order that the choices are listed
-        // is significant - the index matches the server value.
+        // is significant - the index matches the system value.
         i = DATE_SEPARATOR;
         dpi_[i] = new DriverPropertyInfo (DATE_SEPARATOR_, "");
         dpi_[i].description = "DATE_SEPARATOR_DESC";
@@ -605,7 +605,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = DATE_SEPARATOR_NOTSET;
 
         // Decimal separator.  The order that the choices are listed
-        // is significant - the index matches the server value.
+        // is significant - the index matches the system value.
         i = DECIMAL_SEPARATOR;
         dpi_[i] = new DriverPropertyInfo (DECIMAL_SEPARATOR_, "");
         dpi_[i].description = "DECIMAL_SEPARATOR_DESC";
@@ -721,7 +721,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = "32768";
 
         // Naming.  The order that the choices are listed
-        // is significant - the index matches the server value.
+        // is significant - the index matches the system value.
         i = NAMING;
         dpi_[i] = new DriverPropertyInfo (NAMING_, "");
         dpi_[i].description = "NAMING_DESC";
@@ -889,10 +889,10 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         // Sort language.
         //
         // We set the default to Engligh United States.  At first, we set              @E4A
-        // it to "   " (3 spaces), but that causes an host server error.               @E4A
+        // it to "   " (3 spaces), but that causes a host server error.               @E4A
         // It would probably be better to choose a default based on the client         @E4A
         // locale, but that may prove to be a high-maintenance mapping,                @E4A
-        // as locales are added to Java and languages are added to the server.         @E4A
+        // as locales are added to Java and languages are added to the system.         @E4A
         i = SORT_LANGUAGE;
         dpi_[i] = new DriverPropertyInfo (SORT_LANGUAGE_, "");
         dpi_[i].description = "SORT_LANGUAGE_DESC";
@@ -929,7 +929,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = TRUE_;
 
         // Time format.  The order that the choices are listed
-        // is significant - the index matches the server value.
+        // is significant - the index matches the system value.
         // These also correspond to the constants defined in
         // SQLConversionSettings.
         i = TIME_FORMAT;
@@ -945,7 +945,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = TIME_FORMAT_NOTSET;
 
         // Time separator.  The order that the choices are listed
-        // is significant - the index matches the server value.
+        // is significant - the index matches the system value.
         i = TIME_SEPARATOR;
         dpi_[i] = new DriverPropertyInfo (TIME_SEPARATOR_, "");
         dpi_[i].description = "TIME_SEPARATOR_DESC";
@@ -1653,7 +1653,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     //
     // @param in The input stream from which to deserialize the object.
     // @exception ClassNotFoundException If the class being deserialized is not found.
-    // @exception IOException If an error occurs while communicating with the server.
+    // @exception IOException If an error occurs while communicating with the system.
     //
     private void readObject(java.io.ObjectInputStream in)
     throws ClassNotFoundException,

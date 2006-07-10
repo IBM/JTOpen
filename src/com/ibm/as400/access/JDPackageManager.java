@@ -28,7 +28,7 @@ class JDPackageManager
 
 
   //private static final String SUFFIX_INVARIANT_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //@G0D
-  // because we only send unicode to the server anyway we don't check if the server         //@G0A
+  // because we only send unicode to the system anyway we don't check if the system         //@G0A
   // supports unicode first like ODBC does                                                  //@G0A
   private static final String SUFFIX_INVARIANT_ = "9876543210ZYXWVUTSRQPONMLKJIHGFEDCBA";   //@G0A
 
@@ -51,7 +51,7 @@ class JDPackageManager
   /**
   Constructs a JDPackageManager object.
   
-  @param  connection      the connection to the server.
+  @param  connection      the connection to the system.
   @param  id              the id.
   @param  properties      the connection properties.
   @param  commitMode      the current commit mode for connection.
@@ -114,7 +114,7 @@ class JDPackageManager
 
 
   /**
-  Downloads the package from the server and caches it in memory.
+  Downloads the package from the system and caches it in memory.
   
   @exception  SQLException    If an error occurs.
   **/
@@ -176,8 +176,8 @@ class JDPackageManager
 
 
   /**
-  Creates the package on the server, if extended dynamic support is
-  enabled.  If the package already existed on the server, and the
+  Creates the package on the system, if extended dynamic support is
+  enabled.  If the package already existed on the system, and the
   user has enabled package caching, then this downloads and caches
   the package.
   
@@ -592,10 +592,10 @@ class JDPackageManager
   Posts an error for the connection.  This will post the error
   as a warning or exception as specified in the properties.
   
-  @param  connection  connection to the server.
+  @param  connection  connection to the system.
   @param  id          id for the last operation.
-  @param  errorClass  error class from the server reply.
-  @param  returnCode  return code from the server reply.
+  @param  errorClass  error class from the system reply.
+  @param  returnCode  return code from the system reply.
   
   @exception  SQLException    The generated exception, if
                 the error is to be an exception.
