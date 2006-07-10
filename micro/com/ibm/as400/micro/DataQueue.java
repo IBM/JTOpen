@@ -60,7 +60,7 @@ public final class DataQueue
      *
      *  @return The bytes that were read.  If no entries were available, null is returned.
      *
-     *  @exception  IOException  If an error occurs while communicating with the server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static byte[] readBytes(AS400 system, String path) throws IOException, MEException
@@ -112,7 +112,7 @@ public final class DataQueue
      *
      *  @return The entry read from the queue. If no entries were available, null is returned.
      *
-     *  @exception  IOException  If an error occurs while communicating with the server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static String readString(AS400 system, String path) throws IOException, MEException
@@ -162,7 +162,7 @@ public final class DataQueue
      *  @param  path  The fully qualified integrated file system path name of the data queue.
      *  @param  data  The string to write to the queue.
      *
-     *  @exception  IOException  If an error occurs while communicating with the server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static void write(AS400 system, String path, String data) throws IOException, MEException
@@ -205,7 +205,7 @@ public final class DataQueue
      *  @param  path  The fully qualified integrated file system path name of the data queue.
      *  @param  data  The array of bytes to write to the queue.
      *
-     *  @exception  IOException  If an error occurs while communicating with the server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static void write(AS400 system, String path, byte[] data) throws IOException, MEException

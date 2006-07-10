@@ -54,7 +54,7 @@ public class JdbcMeConnection implements java.sql.Connection
     /**
      *  Construct a new JdbcMeConnection using the URL, and system specified.
      *  This causes an implicit network connection to the database
-     *  server if one does not already exist.
+     *  if one does not already exist.
      *
      *  @param url The URL for the database.
      *  @param  system  The system to connect.
@@ -88,7 +88,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -99,7 +99,7 @@ public class JdbcMeConnection implements java.sql.Connection
      *  Releases the connection's resources immediately instead of waiting
      *  for them to be automatically released.  This rolls back any active
      *  transactions, closes all statements that are running in the context
-     *  of the connection, and disconnects from the server.
+     *  of the connection, and disconnects from the system.
      *
      *  @exception JdbcMeException  If an error occurs.
      **/
@@ -194,7 +194,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -252,7 +252,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -313,7 +313,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -362,7 +362,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -399,7 +399,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -475,7 +475,7 @@ public class JdbcMeConnection implements java.sql.Connection
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             disconnected();
             throw new JdbcMeException(e.toString(), null);

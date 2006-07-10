@@ -142,13 +142,13 @@ public class JdbcMeLiveResultSet implements ResultSet
             connection_.system_.toServer_.writeInt(rsId_);
             connection_.system_.toServer_.flush();
 
-            // Don't wait for ack from server.
+            // Don't wait for ack from system.
             closeHard();
             return;
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             connection_.disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -207,7 +207,7 @@ public class JdbcMeLiveResultSet implements ResultSet
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             connection_.disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -236,7 +236,7 @@ public class JdbcMeLiveResultSet implements ResultSet
         if (columnIndex < 1 || columnIndex > currentRow_.length)
             throw new JdbcMeException("RS Column " + columnIndex, null);
 
-        if(onWhichRow_ == ROW_INSERT)  return modifiedRowBuffer_[columnIndex-1].toString();    //@A1A We want to get the values for the row we are inserting, not the value for the row the server cursor is on
+        if(onWhichRow_ == ROW_INSERT)  return modifiedRowBuffer_[columnIndex-1].toString();    //@A1A We want to get the values for the row we are inserting, not the value for the row the system cursor is on
         else return currentRow_[columnIndex-1].toString();
     }
 
@@ -262,7 +262,7 @@ public class JdbcMeLiveResultSet implements ResultSet
         if (columnIndex < 1 || columnIndex > currentRow_.length)
             throw new JdbcMeException("RS Column " + columnIndex, null);
 
-        if(onWhichRow_ == ROW_INSERT)                               //@A1A We want to get the values for the row we are inserting, not the value for the row the server cursor is on
+        if(onWhichRow_ == ROW_INSERT)                               //@A1A We want to get the values for the row we are inserting, not the value for the row the system cursor is on
         {
             if(stmt_.columnTypes_[columnIndex-1] == Types.INTEGER){ //@A1A
                 return ((Integer)modifiedRowBuffer_[columnIndex-1]).intValue(); //@A1A
@@ -381,7 +381,7 @@ public class JdbcMeLiveResultSet implements ResultSet
                 currentRow_[i] = new Integer(connection_.system_.fromServer_.readInt());
                 break;
             default :
-                // The server sends a string for every value
+                // The database sends a string for every value
                 // other than the ones handled explicitly above.
                 currentRow_[i] = connection_.system_.fromServer_.readUTF();
             }
@@ -570,7 +570,7 @@ public class JdbcMeLiveResultSet implements ResultSet
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             connection_.disconnected();
             throw new JdbcMeException(e.toString(), null);
@@ -608,7 +608,7 @@ public class JdbcMeLiveResultSet implements ResultSet
             modifiedRowBuffer_ = new Object[currentRow_.length];
 
         //@A1C changed to ROW_INSERT from ROW_UPDATE.  If we are inserting a new row, we do not want to copy the data
-        //from the current row on the server to it.
+        //from the current row on the system to it.
         if(onWhichRow_ != ROW_INSERT)    {   //@A1A
             System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);      //@A1A
             onWhichRow_ = ROW_UPDATE;  //@A1A we are updating a current row in the result set, not inserting a new row
@@ -628,7 +628,7 @@ public class JdbcMeLiveResultSet implements ResultSet
             modifiedRowBuffer_[columnIndex-1] = new Integer(Integer.parseInt(value));
             break;
         default :
-            // The server sends a string for every value
+            // The database sends a string for every value
             // other than the ones handled explicitly above.
             modifiedRowBuffer_[columnIndex-1] = value;
         }
@@ -664,7 +664,7 @@ public class JdbcMeLiveResultSet implements ResultSet
             modifiedRowBuffer_ = new Object[currentRow_.length];
 
         //@A1C changed to ROW_INSERT from ROW_UPDATE.  If we are inserting a new row, we do not want to copy the data
-        //from the current row on the server to it.
+        //from the current row on the system to it.
         if (onWhichRow_ != ROW_INSERT)               //@A1C
         {
             System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);
@@ -685,7 +685,7 @@ public class JdbcMeLiveResultSet implements ResultSet
             modifiedRowBuffer_[columnIndex-1] = new Integer(value);
             break;
         default :
-            // The server sends a string for every value
+            // The database sends a string for every value
             // other than the ones handled explicitly above.
             modifiedRowBuffer_[columnIndex-1] = Integer.toString(value);
         }
@@ -782,7 +782,7 @@ public class JdbcMeLiveResultSet implements ResultSet
                     connection_.system_.toServer_.writeInt(((Integer)modifiedRowBuffer_[i]).intValue());
                     break;
                 default :
-                    // The server sends a string for every value
+                    // The database sends a string for every value
                     // other than the ones handled explicitly above.
                     connection_.system_.toServer_.writeUTF(modifiedRowBuffer_[i].toString());
                 }
@@ -797,7 +797,7 @@ public class JdbcMeLiveResultSet implements ResultSet
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             connection_.disconnected();
             throw new JdbcMeException(e.toString(), null);

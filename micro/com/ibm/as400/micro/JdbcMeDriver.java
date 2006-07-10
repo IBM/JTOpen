@@ -27,7 +27,7 @@ import java.io.*;
  *  them to the appropriate driver.  This driver accepts connection requests
  *  for databases specified by the URLs that match the following syntax:
  *  <pre>
- *  jdbc:as400://<em>server-name</em>/<em>default-schema</em>;meserver=&lt;server&gt;[:port];<em>[other properties]</em>;
+ *  jdbc:as400://<em>system-name</em>/<em>default-schema</em>;meserver=&lt;server&gt;[:port];<em>[other properties]</em>;
  *  </pre>
  *  Additionally, for the JdbcMe driver, if the port is unspecified, the port number 3470 is used.
  *
@@ -86,7 +86,7 @@ public class JdbcMeDriver
 
 
     /**
-     *  Process an exception line flow from the server
+     *  Process an exception line flow from the system
      *  and throw the resulting SQL exception.
      *  
      *  The exception line flow consists of the
@@ -202,7 +202,7 @@ public class JdbcMeDriver
             remoteUrl += url.substring(k);
         }
 
-        // This data gets sent to the server in the JDBC URL
+        // This data gets sent to the system in the JDBC URL
         // for each DB connection attempt unless it is
         // already specified in the URL.
         int index = url.indexOf("user=");

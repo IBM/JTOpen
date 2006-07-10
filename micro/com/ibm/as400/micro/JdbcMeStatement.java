@@ -49,7 +49,7 @@ public class JdbcMeStatement implements Statement
     /**
      *  Constructs an JdbcMeStatement object.
      *
-     *  @param  connection  The connection to the server.
+     *  @param  connection  The connection to the system.
      *  @param  statementId  The statement ID handle.
      *
      *  @exception JdbcMeException If an error occurs.
@@ -89,7 +89,7 @@ public class JdbcMeStatement implements Statement
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             connection_.disconnected();
 
@@ -250,7 +250,7 @@ public class JdbcMeStatement implements Statement
         }
         catch (IOException e)
         {
-            // If an IOException occurs, our connection to the server
+            // If an IOException occurs, our connection to the database
             // has been toasted. Lets reset it.
             connection_.disconnected();
             throw new JdbcMeException(e.toString(), null);

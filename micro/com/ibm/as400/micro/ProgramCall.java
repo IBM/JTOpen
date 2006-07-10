@@ -24,7 +24,7 @@ import java.util.Enumeration;
  *  
  *  Each PCML document must be registered with the MEserver.  The document can be
  *  registered during runtime when the PCML document name parameter is provided or as an argument when the
- *  MEServer is started or reconfigured.<p>  The registration is simply telling the server which PCML-defined program(s)
+ *  MEServer is started or reconfigured.<p>  The registration is simply telling the system which PCML-defined program(s)
  *  to run.  <p>
  *
  *  A hashtable is used to specify the names and values of the parameters to set.  The key in the hashtable
@@ -106,7 +106,7 @@ public final class ProgramCall
      *
      *  @return  the data requested returned from the program.  An empty array is returned if no data is returned.
      *
-     *  @exception  IOException  If an error occurs while communicating with the server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static String[] run(AS400 system, String pcmlName, String program, Hashtable parametersToSet, String[] parametersToGet) throws IOException, MEException

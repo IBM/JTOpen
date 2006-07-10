@@ -70,7 +70,7 @@ public final class CommandCall
      *  @return  the message text  returned from running the command.  An empty array will be return if there were no messages
      *               or if the command completed successfully.
      *  
-     *  @exception  IOException  If an error occurs while communicating with the server.
+     *  @exception  IOException  If an error occurs while communicating with the system.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static String[] run(AS400 system, String command) throws IOException, MEException
