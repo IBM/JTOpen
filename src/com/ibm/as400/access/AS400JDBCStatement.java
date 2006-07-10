@@ -400,7 +400,7 @@ public class AS400JDBCStatement implements Statement
             // there are more result sets that were returned, we
             // need to close them, too.  At first I though we
             // would have to Open/Describe and Close each one
-            // in turn, but the database server allows us to
+            // in turn, but the database host server allows us to
             // close the current cursor with REUSE_NO to close
             // all remaining result sets.  The catch is that we
             // need to have an open cursor before closing it, so
@@ -693,7 +693,7 @@ public class AS400JDBCStatement implements Statement
                 int openAttributes = 0;
                 try
                 {
-                    //@541 When running to a V5R4 or higher server, we can request to get extended column descriptors
+                    //@541 When running to a V5R4 or higher system, we can request to get extended column descriptors
                     // from a stored procedure result set.  In order to do that, we need to set the extended column
                     // descriptor option on the execute of the statement.
                     boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);       //@541A moved up from farther below in code
@@ -872,7 +872,7 @@ public class AS400JDBCStatement implements Statement
                             && (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)) //@pda perf2 - fetch/close
                     {
                         lastBlock = true;
-                        cursor_.setState(true); //closed cursor already on server
+                        cursor_.setState(true); //closed cursor already on system
                         
                     }
                     else if(errorClass != 0)

@@ -236,7 +236,7 @@ extends DBBaseRequestDS
     // @E2C
     /**
        Sets the Language Feature Code parameter in the data stream.
-       @param value	the server language feature code.
+       @param value	the language feature code.
        @exception DBDataStreamException If there is not enough space left in the data byte array.
     **/
     void setLanguageFeatureCode(String value)                           // @E2C
@@ -388,9 +388,9 @@ extends DBBaseRequestDS
     // @M0A - added method to support new codepoint on datastream for 63 digit decimal precision
     /**
      * Sets the 63 digit decimal precision parameters in the datastream.
-     * @param maximumDecimalPrecision The maximum decimal precision the server should use.
-     * @param maximumDecimalScale     The maximum decimal scale the server should use.
-     * @param minimumDivideScale      The minimum scale the server should use for decimal division.
+     * @param maximumDecimalPrecision The maximum decimal precision the system should use.
+     * @param maximumDecimalScale     The maximum decimal scale the system should use.
+     * @param minimumDivideScale      The minimum scale the system should use for decimal division.
      * @exception DBDataStreamException If there is not enough space left in the data byte array.
      **/
     void setDecimalPrecisionIndicators(int maximumDecimalPrecision, int maximumDecimalScale, int minimumDivideScale)

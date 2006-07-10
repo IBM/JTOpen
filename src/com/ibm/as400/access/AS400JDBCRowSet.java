@@ -352,7 +352,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
 
     /**
-    *  Connects to the database server.
+    *  Connects to the database.
     *  @exception SQLException If database errors creating the connection.
     **/
     private void connect() throws SQLException
