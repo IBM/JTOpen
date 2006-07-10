@@ -137,8 +137,8 @@ public class Format {
 	/**
 	 * Creates a new Format.<br>
 	 * Initializes the MRI.<br>
-	 * Takes an iSeries object as an argument which will be used for 
-	 * all iSeries operations.<br>
+	 * Takes an AS400 object as an argument which will be used for 
+	 * all i5/OS operations.<br>
 	 * 
 	 * @param sys The system that this object should connect to.
 	 */
@@ -512,7 +512,7 @@ public class Format {
 	}
 	
 	/**
-	 * Sets the iSeries to use for all iSeries connections.
+	 * Sets the system to use for all i5/OS connections.
 	 * @param system The system to connect to.
 	 */
 	public void setSystem(AS400 system) {
@@ -645,7 +645,7 @@ public class Format {
 		
 		if (pro_.invalidData()) { // If the prolog had invalid data return
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Not a valid iSeries CommTrace");
+				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Not a valid i5/OS CommTrace");
 			}
 			return 1;
 		}
@@ -714,7 +714,7 @@ public class Format {
 		
 		if (pro_.invalidData()) { // If the prolog had invalid data return
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Not a valid iSeries CommTrace");
+				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Not a valid i5/OS CommTrace");
 			}
 			return 1;
 		}
