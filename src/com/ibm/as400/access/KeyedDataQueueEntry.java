@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 /**
- The KeyedDataQueueEntry class represents an entry on an iSeries server keyed data queue.
+ The KeyedDataQueueEntry class represents an entry on a keyed data queue.
  **/
 public class KeyedDataQueueEntry extends DataQueueEntry
 {

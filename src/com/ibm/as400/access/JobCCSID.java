@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- The JobCCSID class represents an iSeries Job CCSID.
+ The JobCCSID class represents an i5/OS Job CCSID.
  **/
 public class JobCCSID
 {

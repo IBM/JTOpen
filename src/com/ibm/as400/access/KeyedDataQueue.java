@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- The KeyedDataQueue class represents an iSeries server keyed data queue object.
+ The KeyedDataQueue class represents a keyed data queue object.
  **/
 public class KeyedDataQueue extends BaseDataQueue
 {
