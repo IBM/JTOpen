@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- The IllegalObjectTypeException class represents an exception that indicates that the iSeries server object is not the required type.
+ The IllegalObjectTypeException class represents an exception that indicates that the i5/OS system object is not the required type.
  **/
 public class IllegalObjectTypeException extends Exception implements ReturnCodeException
 {

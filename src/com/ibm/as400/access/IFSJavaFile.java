@@ -25,12 +25,12 @@ import java.net.MalformedURLException;
 
 /**
  * The IFSJavaFile class represents a file in the
- * integrated file system of the iSeries server.
+ * integrated file system of an i5/OS system.
  * <br>
  *
  * IFSJavaFile extends the java.io.File class and allows programs
  * to be written for the java.io.File interface and still access
- * the iSeries integrated file system.
+ * the i5/OS integrated file system.
  *
  * IFSFile should be considered as an alternate to java.io.File class.
  * <p>
@@ -41,21 +41,21 @@ import java.net.MalformedURLException;
  * java.io.File, is needed.  For example, you have written code
  * that accesses the native file system.  Now you want to move
  * the design to a networked file system.  More particularly,
- * you need to move the code to the iSeries integrated file system.
- * When a program is being ported and needs to use the iSeries
+ * you need to move the code to the i5/OS integrated file system.
+ * When a program is being ported and needs to use the i5/OS
  * integrated file system, IFSJavaFile is a good choice.
  * IFSJavaFile also provides SecurityManager features defined in
  * java.io.File.
  * <p>
  * <li>
- * If you need to take full advantage of the iSeries integrated file
+ * If you need to take full advantage of the i5/OS integrated file
  * system, {@link IFSFile IFSFile} is more useful.  IFSFile is written to
- * handle more of the specific iSeries integrated file system details.
+ * handle more of the specific i5/OS integrated file system details.
  * <p>
  * <li>
- * java.io.File can be used to access the iSeries file system
- * if you use a product like iSeries Access for Windows to map a local drive
- * to the iSeries integrated file system.
+ * java.io.File can be used to access the i5/OS file system
+ * if you use a product like System i5 Access for Windows to map a local drive
+ * to the i5/OS integrated file system.
  * <p>
  * </ul>
  *
@@ -76,14 +76,14 @@ import java.net.MalformedURLException;
  *     java.io.File than IFSFile.  It is designed to enable
  *     a plug-in fit for previously written java.io.File code.
  * <li>IFSJavaFile always implements a SecurityManager using
- *     iSeries security.  The SecurityManager provides authority
+ *     i5/OS security.  The SecurityManager provides authority
  *     checks.  It throws security exceptions when illegal access
  *     attempts are made.
  * </ol>
  *
  * <p>
  * The following example demonstrates the use of IFSJavaFile.  It shows how a few lines
- * of platform specific code enable the creation of a file on either the iSeries or
+ * of platform specific code enable the creation of a file on either the i5/OS system or
  * the local client.
  * <pre>
  *     int location            = ON_THE_AS400;
@@ -498,7 +498,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    * check for existence and the file creation is a
    * single atomic operation.
    * @return true if the file is created, false otherwise.
-   * @exception IOException If an I/O error occurs while communicating with the iSeries server.
+   * @exception IOException If an I/O error occurs while communicating with the i5/OS system.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean createNewFile()
@@ -646,7 +646,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return an IFSJavaFile object based on the canonical path name
  *         of the current object.
  *
- * @exception IOException If an I/O error occurs while communicating with the iSeries server.
+ * @exception IOException If an I/O error occurs while communicating with the i5/OS system.
  * @see #getCanonicalPath
 **/
   // @D1 - new method because of changes to java.io.file in Java 2.
@@ -665,7 +665,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return The canonical path name for this IFSJavaFile.
  *
- * @exception IOException If an I/O error occurs while communicating with the iSeries server.
+ * @exception IOException If an I/O error occurs while communicating with the i5/OS system.
 **/
   public String getCanonicalPath() throws IOException
   {
@@ -909,7 +909,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 
 /**
- * Indicates if the IFSJavaFile is hidden.  On the iSeries server, a file is
+ * Indicates if the IFSJavaFile is hidden.  On the i5/OS system, a file is
  * hidden if its hidden attribute is set.
  *
  * @return <code>true</code> if the file is hidden; <code>false</code> otherwise.
@@ -1223,8 +1223,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information may
- * become inconsistent with the iSeries server.
+ * will not be refreshed from the i5/OS system.  This means attribute information may
+ * become inconsistent with the i5/OS system.
  * @return An array of objects in the directory.
  * This list does not include the current directory
  * or the parent directory.  If this IFSJavaFile is not
@@ -1242,8 +1242,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information may
- * become inconsistent with the iSeries server.
+ * will not be refreshed from the i5/OS system.  This means attribute information may
+ * become inconsistent with the i5/OS system.
  *
  * @param   filter The file name filter.
  *
@@ -1327,8 +1327,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information may
- * become inconsistent with the iSeries server.
+ * will not be refreshed from the i5/OS system.  This means attribute information may
+ * become inconsistent with the i5/OS system.
  *
  * @param   filter The file filter.
  *
@@ -1405,8 +1405,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in the IFSJavaFile directory that satisfy <i>file name filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information may
- * become inconsistent with the iSeries server.
+ * will not be refreshed from the i5/OS system.  This means attribute information may
+ * become inconsistent with the i5/OS system.
  * @param   filter The file name filter.
  *
  * @return  An array of objects in the directory that
@@ -1449,8 +1449,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i> and
  * <i>pattern</i>.  With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information may
- * become inconsistent with the iSeries server.
+ * will not be refreshed from the i5/OS system.  This means attribute information may
+ * become inconsistent with the i5/OS system.
  *
  * <p>Note:<br>If the file does not match <i>pattern</i>, it will not be processed by <i>filter</i>.
  *
@@ -1500,8 +1500,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that match <i>pattern</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information may
- * become inconsistent with the iSeries server.
+ * will not be refreshed from the i5/OS system.  This means attribute information may
+ * become inconsistent with the i5/OS system.
  *
  * @param   pattern The pattern that all filenames must match.
  *          Acceptable characters are wildcards (* - matches
@@ -1527,12 +1527,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Lists the file system roots for the integrated file system
- * of the iSeries server.  The iSeries integrated file system has
+ * of the i5/OS system.  The i5/OS integrated file system has
  * only one root -- "/".
  *
  * @return  An array of IFSJavaFile objects that represent the
  *          file system roots of the integrated file system
- *          of the iSeries server.  Since the iSeries integrated file system
+ *          of the i5/OS system.  Since the i5/OS integrated file system
  *          has only one root, the returned
  *          array contains only one element.
 **/
@@ -1772,7 +1772,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Marks the file named by this IFSJavaFile object so that only
- * read operations are allowed.  On the iSeries server, a file is marked
+ * read operations are allowed.  On the i5/OS system, a file is marked
  * read only by setting the read only attribute of the file.
  *
  * @return <code>true</code> if the read only attribute is set; <code>false</code> otherwise.
@@ -1796,7 +1796,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Sets the system.
  *
- * @param   system The iSeries system object.
+ * @param   system The system object.
  *
  * @return  <code>true</code> if the system was set;
  *          <code>false</code> otherwise.
@@ -1835,8 +1835,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Converts the abstract path name into a <code>file:</code> URL.
- * The iSeries file/directory will be accessed and if it is a directory the
- * resulting URL will end with the iSeries separator character
+ * The i5/OS file/directory will be accessed and if it is a directory the
+ * resulting URL will end with the i5/OS separator character
  * (forward slash).  The server name will be obtained from
  * the AS400 object.  If the path name or AS400 object has
  * not been set, a NullPointerException will be thrown.

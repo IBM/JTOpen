@@ -1278,7 +1278,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Sets the system.
    The system cannot be changed once a connection is made to the server.
-   @param system The iSeries system object.
+   @param system The system object.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public void setSystem(AS400 system)

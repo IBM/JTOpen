@@ -24,7 +24,7 @@ import java.beans.PropertyVetoException;
  This class allows the user to query and modify the state and configuration
  of the NetServer.
  <p>
- If the NetServer job on the iSeries server is not started, the "list" methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use the {@link #start() start} method.
+ If the NetServer job on the i5/OS system is not started, the "list" methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use the {@link #start() start} method.
 <P>
 Note: The first call to one of the attribute "getter" methods will cause an implicit call to
 {@link #refresh() refresh}, if refresh() hasn't yet been explicitly called.
@@ -1209,7 +1209,7 @@ implements Serializable
   /**
    Returns the value of the "authentication method" attribute.
    This attribute indicates the method used to authenticate users.
-   <i>Note: This attribute is available only if the iSeries server is at release <b>V5R2</b> or higher.</i>
+   <i>Note: This attribute is available only if the i5/OS system is at release <b>V5R2</b> or higher.</i>
    @return  The value of the "authentication method" attribute.
    Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #NETWORK_AUTHENTICATION NETWORK_AUTHENTICATION}, and {@link #NETWORK_AUTHENTICATION_OR_PASSWORDS NETWORK_AUTHENTICATION_OR_PASSWORDS}.
    **/
@@ -1248,7 +1248,7 @@ implements Serializable
   /**
    Sets the value of the "authentication method" attribute.
    This attribute indicates the authentication method used to authenticate users.
-   <i>Note: This attribute is available only if the iSeries server is at release <b>V5R2</b> or higher.</i>
+   <i>Note: This attribute is available only if the i5/OS system is at release <b>V5R2</b> or higher.</i>
    @param value The value of the "authentication method" attribute.
    Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #NETWORK_AUTHENTICATION NETWORK_AUTHENTICATION}, and {@link #NETWORK_AUTHENTICATION_OR_PASSWORDS NETWORK_AUTHENTICATION_OR_PASSWORDS}.
    **/
@@ -1564,7 +1564,7 @@ implements Serializable
    Returns the value of the "LAN Manager authentication" attribute.
    This attribute represents the level of restriction on the use of the LANMAN password hash for authentication.
    Possible values are {@link #PASSWORD_STRONGER PASSWORD_STRONGER} and {@link #PASSWORD_STRONGER_OR_MISMATCH PASSWORD_STRONGER_OR_MISMATCH}.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The value of the "LAN Manager authentication" attribute.
    **/
   public int getLANManagerAuthentication()
@@ -1575,7 +1575,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "LAN Manager authentication" attribute.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The pending value of the "LAN Manager authentication" attribute.
    @see #getLANManagerAuthentication()
    **/
@@ -1589,7 +1589,7 @@ implements Serializable
    Sets the value of the "LAN Manager authentication" attribute.
    This attribute represents the level of restriction on the use of the LANMAN password hash for authentication.
    Possible values are {@link #PASSWORD_STRONGER PASSWORD_STRONGER} and {@link #PASSWORD_STRONGER_OR_MISMATCH PASSWORD_STRONGER_OR_MISMATCH}.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @param value  The value of the "LAN Manager authentication" attribute.
    **/
   public void setLANManagerAuthentication(int value)
@@ -1645,7 +1645,7 @@ implements Serializable
    Returns the value of the "message authentication" attribute.
    This attribute represents the status of message authentication.
    Possible values are {@link #MSG_AUTH_NOT_SUPPORTED MSG_AUTH_NOT_SUPPORTED}, {@link #MSG_AUTH_NEGOTIATED MSG_AUTH_NEGOTIATED}, and {@link #MSG_AUTH_REQUIRED MSG_AUTH_REQUIRED}.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The value of the "message authentication" attribute.
    **/
   public int getMessageAuthentication()
@@ -1656,7 +1656,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "message authentication" attribute.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The pending value of the "message authentication" attribute.
    @see #getMessageAuthentication()
    **/
@@ -1670,7 +1670,7 @@ implements Serializable
    Sets the value of the "message authentication" attribute.
    This attribute represents the status of message authentication.
    Possible values are {@link #MSG_AUTH_NOT_SUPPORTED MSG_AUTH_NOT_SUPPORTED}, {@link #MSG_AUTH_NEGOTIATED MSG_AUTH_NEGOTIATED}, and {@link #MSG_AUTH_REQUIRED MSG_AUTH_REQUIRED}.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @param value  The value of the "message authentication" attribute.
    **/
   public void setMessageAuthentication(int value)
@@ -1684,7 +1684,7 @@ implements Serializable
    Returns the value of the "minimum message severity" attribute.
    This attribute represents the minimum message severity of administrative alerts to send to users of the server.
    A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The value of the "minimum message severity" attribute.
    **/
   public int getMinimumMessageSeverity()
@@ -1695,7 +1695,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "minimum message severity" attribute.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The pending value of the "minimum message severity" attribute.
    @see #getMinimumMessageSeverity()
    **/
@@ -1709,7 +1709,7 @@ implements Serializable
    Sets the value of the "minimum message severity" attribute.
    This attribute represents the minimum message severity of administrative alerts to send to users of the server.
    A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @param value  The value of the "minimum message severity" attribute.
    **/
   public void setMinimumMessageSeverity(int value)
@@ -1764,7 +1764,7 @@ implements Serializable
    This attribute represents the amount of time, in seconds, that the server will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
    A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
    The default value is 30 seconds.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The value of the "opportunistic lock timeout" attribute.
    **/
   public int getOpportunisticLockTimeout()
@@ -1775,7 +1775,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "opportunistic lock timeout" attribute.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The pending value of the "opportunistic lock timeout" attribute.
    @see #getOpportunisticLockTimeout()
    **/
@@ -1790,7 +1790,7 @@ implements Serializable
    This attribute represents the amount of time, in seconds, that the server will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
    A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
    The default value is 30 seconds.
-   <br><em>Note: This attribute is not supported prior to the iSeries release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @param value  The value of the "opportunistic lock timeout" attribute.
    **/
   public void setOpportunisticLockTimeout(int value)
@@ -2517,7 +2517,7 @@ implements Serializable
 
 
   /**
-   Ends the NetServer job on the iSeries server.
+   Ends the NetServer job on the i5/OS system.
    <br>This method requires *IOSYSCFG special authority on the server.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -2620,7 +2620,7 @@ implements Serializable
 
 
   /**
-   Indicates whether or not the NetServer job on the iSeries server is started.
+   Indicates whether or not the NetServer job on the i5/OS system is started.
    @return  <tt>true</tt> if the NetServer job is started; <tt>false</tt> otherwise.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -2679,7 +2679,7 @@ implements Serializable
 
 
   /**
-   Starts the NetServer job on the iSeries server.
+   Starts the NetServer job on the i5/OS system.
    If the NetServer is already started, this method does nothing.
    This method requires *IOSYSCFG special authority on the server.
    If the QSERVER subsystem is not running, this method will attempt to start the subsystem.
@@ -2696,7 +2696,7 @@ implements Serializable
   }
 
   /**
-   Starts the NetServer job on the iSeries server, and (optionally) resets it.
+   Starts the NetServer job on the i5/OS system, and (optionally) resets it.
    If the NetServer is already started, this method does nothing.
    This method requires *IOSYSCFG special authority on the server.
    If the QSERVER subsystem is not running, this method will attempt to start it.
@@ -2736,7 +2736,7 @@ implements Serializable
     // to take effect, replacing the (former) "current" attribute values.
     refreshedSinceStart_ = false;
 
-    // Start the NetServer job (QZLSSERVER) on the iSeries.
+    // Start the NetServer job (QZLSSERVER) on the i5/OS.
 
     // Compose the arguments for the API.
 
