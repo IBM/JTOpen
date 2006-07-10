@@ -479,9 +479,9 @@ public abstract class OpenList implements Serializable
     }
 
     // Used for Enumerations so they can tell us that they have reached the end.  We remove them from our list so they can get garbage collected.
-    void remove(OpenListEnumeration enum)
+    void remove(OpenListEnumeration enum1)
     {
-        enumerations_.removeElement(enum);
+        enumerations_.removeElement(enum1);
     }
 
     /**
