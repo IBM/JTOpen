@@ -18,7 +18,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.Trace;
 import java.beans.PropertyVetoException;
 /**
- * The UserProfilePrincipal class represents an iSeries system user profile.
+ * The UserProfilePrincipal class represents an i5/OS system user profile.
  *
  * @see AS400Principal
  *
@@ -127,7 +127,7 @@ public int hashCode() {
 	return hash;
 }
 /**
- * Initializes a principal for the local iSeries system
+ * Initializes a principal for the local i5/OS system
  * based on the given user profile name.
  *
  * @param name

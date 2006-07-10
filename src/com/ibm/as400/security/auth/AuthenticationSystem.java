@@ -63,7 +63,7 @@ class AuthenticationSystem
         throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
     }
 
-    // Indicates if the given iSeries server and its user ID match the current environment.
+    // Indicates if the given i5/OS system and its user ID match the current environment.
     // @return  true if matched; false otherwise.
     static boolean isLocal(AS400 system)
     {
@@ -77,10 +77,10 @@ class AuthenticationSystem
         return AuthenticationSystem.system_;
     }
 
-    // Resets services for the local host; ignored if not running on an iSeries server.  Since the cached system is always intended to represent the current system and user, it is always affected when a swap occurs.  A reset is also required to allow the correct evaluation of when to use native optimizations.
+    // Resets services for the local host; ignored if not running on an i5/OS system.  Since the cached system is always intended to represent the current system and user, it is always affected when a swap occurs.  A reset is also required to allow the correct evaluation of when to use native optimizations.
     static void resetLocalHost()
     {
-        // Ignore if not running on iSeries server.
+        // Ignore if not running on i5/OS.
         if (!AuthenticationSystem.onAS400_) return;
 
         // Reset services for the cached system started under the old identity.

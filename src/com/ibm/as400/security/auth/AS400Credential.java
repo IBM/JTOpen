@@ -36,13 +36,13 @@ import java.lang.reflect.Method;
 import java.util.Vector;
 /**
  * The AS400Credential class provides an abstract superclass for
- * representations of iSeries system security-related attributes.
+ * representations of i5/OS system security-related attributes.
  *
  * <p> Credentials may be used for authenticating to system 
  * services, or may simply enable certain actions to
  * be performed.
  *
- * <p> Typical iSeries system credentials include, but are not necessarily
+ * <p> Typical i5/OS system credentials include, but are not necessarily
  * limited to, profile tokens.
  *
  * <p> This abstract class must be subclassed to provide
@@ -270,7 +270,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     * sensitive information for the credential.
     *
     * @exception AS400SecurityException
-    *		If an iSeries system security or authentication error occurs.
+    *		If an i5/OS system security or authentication error occurs.
     *
     */
    public void destroy() throws AS400SecurityException {
@@ -594,7 +594,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *		based on time.
     *
     * @exception AS400SecurityException
-    *		If an iSeries system security or authentication error occurs.
+    *		If an i5/OS system security or authentication error occurs.
     *
     */
    public int getTimeToExpiration() throws AS400SecurityException {
@@ -621,7 +621,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    /**
     * Returns the name of the class providing an implementation
     * for code delegated by the credential that performs native
-    * optimization when running on an iSeries system.
+    * optimization when running on an i5/OS system.
     *
     * <p> Default is to return null, indicating no native
     * optimization for this credential.
@@ -707,7 +707,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    }
    /**
     * Indicates if a timed credential is still considered valid
-    * for authenticating to associated iSeries system services
+    * for authenticating to associated i5/OS system services
     * or performing related actions.
     *
     * @return
@@ -845,7 +845,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     * programmatically updated or extended.
     *
     * @exception AS400SecurityException
-    *		If an iSeries system security or authentication error occurs.
+    *		If an i5/OS system security or authentication error occurs.
     *
     */
    public void refresh() throws AS400SecurityException {
@@ -917,7 +917,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * iSeries system (for example, refresh).
+    * i5/OS system (for example, refresh).
     *
     * @param b
     *		true if the validity period of the credential
@@ -941,7 +941,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * iSeries system (for example, refresh).
+    * i5/OS system (for example, refresh).
     *
     * @param b
     *		true if the credential can be used to perform
@@ -963,7 +963,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * iSeries system (for example, refresh).
+    * i5/OS system (for example, refresh).
     *
     * @param b
     *		true if the credential has been identified
@@ -985,7 +985,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     * 
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * iSeries system (for example, refresh).
+    * i5/OS system (for example, refresh).
     *
     * @param p
     *		The principal.
@@ -1010,7 +1010,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     * 
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * iSeries system (for example, refresh).
+    * i5/OS system (for example, refresh).
     *
     * @param system
     *		The AS400 system object.
@@ -1134,7 +1134,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *
     * <p> <b>Note:</b> This method affects the running user
     * profile for subsequent native code invocations and any
-    * further requests against the assigned iSeries system.
+    * further requests against the assigned i5/OS system.
     * Other AS400 instances, even if defined for the local host
     * and current user, are not affected if connections
     * have been established under the old identity.
@@ -1154,7 +1154,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *
     * <p> <b>Note:</b> This method affects the running user
     * profile for subsequent native code invocations and any
-    * further requests against the assigned iSeries system.
+    * further requests against the assigned i5/OS system.
     * Other AS400 instances, even if defined for the local host
     * and current user, are not affected if connections
     * have been established under the old identity.
@@ -1178,7 +1178,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *		be null if <i>returnCredential</i> is false.
     *
     * @exception AS400SecurityException
-    *		If an iSeries system security or authentication error occurs.
+    *		If an i5/OS system security or authentication error occurs.
     *
     */
    public AS400Credential swap(boolean returnCredential) throws AS400SecurityException {

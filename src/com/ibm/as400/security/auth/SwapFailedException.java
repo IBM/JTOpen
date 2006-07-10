@@ -17,7 +17,7 @@ import com.ibm.as400.access.AS400Message;
 /**
  * The SwapFailedException class represents an exception
  * issued when errors occur while attempting to change
- * thread identity on the iSeries system.
+ * thread identity on the i5/OS system.
  *
  * <p> If available, one or more AS400Message objects
  * may be included in the exception.

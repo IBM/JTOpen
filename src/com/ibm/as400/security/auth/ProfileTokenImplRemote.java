@@ -33,7 +33,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
     * <p> Subsequent requests may result in a NullPointerException.
     *
     * <p> This class will also attempt to remove the associated
-    * profile token from the iSeries system.
+    * profile token from the i5/OS system.
     *
     * @exception DestroyFailedException
     *		If errors occur while destroying or clearing
@@ -102,7 +102,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 		    AuthenticationSystem.handleUnexpectedException(ioe); }
         
         // Use the AS400 object to obtain the token.
-        // This will obtain the token by interacting with the iSeries 
+        // This will obtain the token by interacting with the i5/OS 
         // system signon server and avoid transmitting a cleartext password.
         byte[] tkn = null;
         try {
@@ -283,7 +283,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
             int timeoutInterval) throws RetrieveFailedException {
 
         // Use the AS400 object to obtain the token.
-        // This will obtain the token by interacting with the iSeries 
+        // This will obtain the token by interacting with the i5/OS 
         // system signon server and avoid transmitting a cleartext password.
         byte[] tkn = null;
         try {
@@ -428,7 +428,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
     }
 
     /**
-    * Removes the token from the iSeries system.
+    * Removes the token from the i5/OS system.
     *
     * @exception DestroyFailedException
     *		If errors occur while removing the credential.

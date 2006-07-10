@@ -15,7 +15,7 @@ package com.ibm.as400.security.auth;
 import com.ibm.as400.access.AS400Message;
 /**
  * The DestroyFailedException class represents an exception
- * issued when error occur when destroying iSeries server
+ * issued when error occur when destroying i5/OS system
  * authentication information.
  *
  * <p> If available, one or more AS400Message objects may

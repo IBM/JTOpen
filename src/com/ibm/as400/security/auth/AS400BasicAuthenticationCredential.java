@@ -13,7 +13,7 @@ package com.ibm.as400.security.auth;
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * The AS400BasicAuthenticationCredential interface defines iSeries
+ * The AS400BasicAuthenticationCredential interface defines i5/OS
  * credentials that can be exploited by authentication services
  * that rely on basic user and password authentication.
  *
@@ -32,7 +32,7 @@ public interface AS400BasicAuthenticationCredential {
  */
 public String[] basicAuthenticationPrompt();
 /**
- * Initializes and validates a credential for the local iSeries system.
+ * Initializes and validates a credential for the local i5/OS system.
  *
  * @param principal
  *		The principal identifying the authenticated user.

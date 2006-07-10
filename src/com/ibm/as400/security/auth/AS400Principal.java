@@ -34,10 +34,10 @@ import java.security.Principal;
 import java.util.Vector;
 /**
  * The AS400Principal class provides an abstract superclass
- * for representations of iSeries system security-related
+ * for representations of i5/OS system security-related
  * identities.
  *
- * <p> Typical iSeries system Principals include, but are not
+ * <p> Typical i5/OS system Principals include, but are not
  * necessarily limited to, user profiles.
  *
  */
@@ -67,7 +67,7 @@ public AS400Principal() {
  * specified value.
  *
  * @param system
- *        The iSeries system associated with the principal.
+ *        The i5/OS system associated with the principal.
  *
  */
 public AS400Principal(AS400 system) {
@@ -177,7 +177,7 @@ public AS400 getSystem() {
      return system_;
 }
 /**
- * Returns an iSeries system User object based on the
+ * Returns an i5/OS system User object based on the
  * <A HREF="#getUserProfileName()">user profile name</A> and
  * <A HREF="#getSystem()">system</A> associated with
  * the principal.
@@ -192,7 +192,7 @@ public AS400 getSystem() {
  * @exception ExtendedIllegalStateException
  *        If a required property is not set.
  * @exception AS400Exception
- *        If the iSeries system returns an error message.
+ *        If the i5/OS system returns an error message.
  * @exception AS400SecurityException
  *        If a security or authority error occurs.
  * @exception ConnectionDroppedException

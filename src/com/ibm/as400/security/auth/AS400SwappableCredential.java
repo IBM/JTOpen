@@ -13,10 +13,10 @@ package com.ibm.as400.security.auth;
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * The AS400SwappableCredential interface defines iSeries
+ * The AS400SwappableCredential interface defines i5/OS
  * credentials that can be exploited by authentication services
  * to swap the operating system thread identity when running
- * on the local iSeries system.
+ * on the local i5/OS system.
  *
  */
 public interface AS400SwappableCredential {
