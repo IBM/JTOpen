@@ -20,7 +20,7 @@ import java.util.Calendar;
  * <p>
  * A class that defines how the client sees the data for a mapped field, i.e., a
  * field that simply gets copied from an actual field in the row data, as is with
- * start and end delimiters trimmed.  This is needed because the server db returns
+ * start and end delimiters trimmed.  This is needed because the db returns
  * schema, pk, and fk names with delimiter chars.  
  * Note that this FieldMap is designed only for strings.
  * Note that the field index may be different than the field that this is

@@ -21,7 +21,7 @@ import java.sql.SQLException;
 /**
 <p>This class manages transaction operations.
 
-<p>In addition to issuing commits and rollbacks to the server,
+<p>In addition to issuing commits and rollbacks to the database,
 it manages auto-commit and the transaction isolation level.
 Auto-commit and the transaction isolation level interact in the
 following ways:
@@ -45,7 +45,7 @@ getIsolation.
 // In the code and documentation, "transaction isolation level"
 // and "level" refer to the JDBC transaction isolation level (i.e.
 // Connection.TRANSACTION_* constants) and "commit mode" refers
-// to the value as set on the server.
+// to the value as set on the system.
 //
 // External to this class, only the transaction isolation level
 // is used.  Internal to this class, the transaction isolation
@@ -58,8 +58,8 @@ class JDTransactionManager
 
 
   // @C6A Server commit mode constants
-  // @C6A *CS and *CHG are different numbers on the server than in the client; these are the 
-  // @C6A numbers we need to send to the server in an AS400JDBCConnection.setServerAttributes().
+  // @C6A *CS and *CHG are different numbers on the system than in the client; these are the 
+  // @C6A numbers we need to send to the system in an AS400JDBCConnection.setServerAttributes().
   private static final int COMMIT_SERVER_MODE_CS_    = 1;  // TRANSACTION_READ_COMMITTED   //@C6A
   private static final int COMMIT_SERVER_MODE_CHG_   = 2;  // TRANSACTION_READ_UNCOMMITTED //@C6A
 
@@ -92,19 +92,19 @@ class JDTransactionManager
   private boolean             localAutoCommit_    = true;  // @C4A
   private boolean             localTransaction_   = true;  // @C4A
   // @C5D private boolean             newAutoCommitSupport_ = false;                             // @C5A
-  private int                 serverCommitMode_;          // Commit mode on the server. Always base off of JDBC transaction isolation level (currentCommitMode_)
+  private int                 serverCommitMode_;          // Commit mode on the system. Always base off of JDBC transaction isolation level (currentCommitMode_)
 
 
 
 /**
 Constructor.  The transaction isolation level should
 be initialized independently of this class.  However, since
-commits and rollbacks always cause the server to revert
+commits and rollbacks always cause the database to revert
 back to the initial commit mode, we need to remember what
 this initial commit mode is, so we can predict how the
-server is behaving.
+system is behaving.
 
-@param  connection              Connection to the server.
+@param  connection              Connection to the system.
 @param  id                      The id.
 @param  initialLevel            One of the Connection.TRANSACTION_*
                                 values.
@@ -369,7 +369,7 @@ Marks a global transaction boundary.
 /**
 Processes a commit on return indicator from a reply.
 If this indicator is set, it means that the transaction
-was committed or rolled back on the server and we should
+was committed or rolled back on the system and we should
 mark the transaction as not being active.
 
 @param reply            The reply.
@@ -377,7 +377,7 @@ mark the transaction as not being active.
   void processCommitOnReturn(DBBaseReplyDS reply)
   throws DBDataStreamException
   {
-    // If the server indicates commit-on-, reflect that fact.            
+    // If the system indicates commit-on-, reflect that fact.            
     DBReplySQLCA sqlca = reply.getSQLCA ();                             
     if (sqlca.getEyecatcherBit54())
       activeLocal_ = false;                                           // @C4C
@@ -386,8 +386,8 @@ mark the transaction as not being active.
 
 
 /**
-Reset the server to the current commit mode.  This is useful
-since after commits and rollbacks, the server automatically
+Reset the system to the current commit mode.  This is useful
+since after commits and rollbacks, the database automatically
 reverts back to its initial commit mode.
 
 @exception  SQLException    In an error occurs.
@@ -397,7 +397,7 @@ reverts back to its initial commit mode.
   {
       if(connection_.newAutoCommitSupport_ == 0)                        //@KBA  If V5R2 or earlier do what we always have
       {
-        // Model the server automatically reverting back to
+        // Model the database automatically reverting back to
         // its initial commit mode.
         serverCommitMode_ = initialCommitMode_;
 
@@ -476,7 +476,7 @@ Set the auto-commit mode.
     // If we are in a distributed transaction, then reject a request           @C4A
     // to turn on auto-commit.  If we are supposed to turn it off,             @C4A
     // then just remember for when we are out of the distributed               @C4A
-    // transaction, since the server won't let us do any transaction           @C4A
+    // transaction, since the database won't let us do any transaction           @C4A
     // stuff during the distributed transaction.                               @C4A
     if (!localTransaction_)
     {                                               // @C4A
@@ -558,7 +558,7 @@ Set the auto-commit mode.
 
 
 /**
-Set the commit mode on the server.
+Set the commit mode on the system.
 
 @param      commitMode      The commit mode.
 
@@ -598,7 +598,7 @@ Set the commit mode on the server.
           request.setStatementType (sqlStatement.getNativeType ());
 
           // This statement certainly does not need a cursor, but some
-          // versions of the server choke when none is specified.
+          // versions of the system choke when none is specified.
           request.setCursorName ("MURCH", connection_.converter_); //@P0C
 
           reply = connection_.sendAndReceive (request); //@P0C
@@ -671,7 +671,7 @@ java.sql.Connection.TRANSACTION_* values.
     currentCommitMode_     = mapLevelToCommitMode (level);
     currentIsolationLevel_ = level;
 
-    // Set the commit mode on the server.
+    // Set the commit mode on the system.
     if(connection_.newAutoCommitSupport_ == 0)                                  //@KBA OS/400 V5R2 or earlier do what we always have
         setCommitMode (currentCommitMode_);
     else                                                                        //@KBA use new auto commit and commit level support
@@ -772,7 +772,7 @@ can not be called directly on this object.
     {
       localAutoCommit_ = autoCommit_;
       autoCommit_ = false;
-      if(connection_.newAutoCommitSupport_ == 0)            //@KBA   Server is v5r2 or less, do what we always have
+      if(connection_.newAutoCommitSupport_ == 0)            //@KBA   System is v5r2 or less, do what we always have
           setCommitMode(currentCommitMode_);
       else                                                  //@KBA
       {
@@ -817,7 +817,7 @@ can not be called directly on this object.
   // @C5D     if (newAutoCommitSupport)                                       // @C5A                              
   // @C5D         setAutoCommit (true);                                       // @C5A        
   // @C5D                     // The default - but we have to send it now     // @C5A   
-  // @C5D                     // so that the server nows we want to use       // @C5A
+  // @C5D                     // so that the system nows we want to use       // @C5A
   // @C5D                     // the new support.                             // @C5A
   // @C5D }                                                                   // @C5A
 
@@ -837,7 +837,7 @@ Take note that a statement has been executed.
 
   //@KBA
   /**
-  Returns the isolation/commit level to send to the server.
+  Returns the isolation/commit level to send to the system.
   **/
   private int getIsolationLevel()           
   {

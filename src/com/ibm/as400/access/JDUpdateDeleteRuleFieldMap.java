@@ -19,12 +19,12 @@ import java.sql.DatabaseMetaData;
 /**
    The JDUpdateDeleteRuleFieldMap class converts
    the update and delete rule values
-   received from the server to the values
+   received from the system to the values
    required by JDBC.
 **/
 
 //-------------------------------------------------//
-//   The server returns the following:
+//   The system returns the following:
 //   0 = cascade
 //   1 = No action or restrict
 //   2 = set null or set default
@@ -36,12 +36,12 @@ import java.sql.DatabaseMetaData;
 //     importedKeySetDefault
 //     importedKeyRestrict
 //
-//   Since the server groups together
+//   Since the system groups together
 //   some of the values, all of the
 //   possible JDBC values can not be returned.
 //
 //   For Update Rule, the only values
-//   supported by the server are
+//   supported by the system are
 //   no action and restrict.  Since
 //   the value of 1 is returned for
 //   both no action and restrict,
@@ -52,9 +52,9 @@ import java.sql.DatabaseMetaData;
 //   For Delete Rule
 //   the following will be returned.  It is
 //   consistent with the ODBC implementation.
-//    if 0 from server = importedKeyCascade
-//    if 1 from server = importedKeyRestrict
-//    if 2 from server = importedKeySetNull
+//    if 0 from system = importedKeyCascade
+//    if 1 from system = importedKeyRestrict
+//    if 2 from system = importedKeySetNull
 //
 //
 //    importedKeyNoAction and importedKeySetDefault
@@ -67,7 +67,7 @@ implements JDFieldMap
 {
     private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    // fromIndex is the index of the data received from server.
+    // fromIndex is the index of the data received from the system.
     JDUpdateDeleteRuleFieldMap (int fromIndex)
     {
         super (fromIndex);

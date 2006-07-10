@@ -217,7 +217,7 @@ class JDSQLTokenizer implements Enumeration
       if (p < bufferLen && buffer[offset] == '/' && buffer[p] == '*')
       {
         // Scan for end of comment block. We check for nested comment blocks, because this is
-        // what the server expects.
+        // what the system expects.
         int start = offset;
         offset = p+1;
         int commentDepth = 1;

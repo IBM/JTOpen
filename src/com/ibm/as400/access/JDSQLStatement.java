@@ -497,7 +497,7 @@ class JDSQLStatement
             }
 
             //@H2A Look for VALUES clause to determine whether this statement can be block inserted.
-            //@H2A The server will throw out block insert statements that have values other than
+            //@H2A The database will throw out block insert statements that have values other than
             //@H2A parameter markers, like "INSERT INTO TABLE VALUES (NULL, ?)".
             int l = upperCaseSql.indexOf(VALUES_);                                        //@H2A
             if(l != -1)                                                                 //@H2A
@@ -840,7 +840,7 @@ class JDSQLStatement
 
 
         // If there is a return value parameter, strip if off now.                         @E1A
-        // The server does not understand these.                                           @E1A
+        // The database does not understand these.                                           @E1A
         if(hasReturnValueParameter_)
         {                                                 // @E1A
             int call = value_.toUpperCase().indexOf(CALL_);                             // @E1A

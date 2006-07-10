@@ -97,7 +97,7 @@ implements JDRowCache
     /**
     Constructs a JDSimpleRowCache object.  This is intended for
     data to be fully cached based on another row cache (most likely
-    one from the server).
+    one from the system).
     
     @param  otherRowCache   The other row cache.
     

@@ -19,7 +19,7 @@ import java.sql.SQLException;
 /**
    The JDTableTypeFieldMap class converts
    the table type values received from the
-   server to the values required by JDBC.
+   system to the values required by JDBC.
 **/
 class JDTableTypeFieldMap
 extends JDSimpleFieldMap

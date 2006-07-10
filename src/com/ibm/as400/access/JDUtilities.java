@@ -117,14 +117,14 @@ for use in implementing various pieces of the JDBC driver.
 
     //@DELIMa
     /**
-    Returns the names of the libraries on the server.
+    Returns the names of the libraries on the system.
     This will return a ResultSet with a list of all the libraries.
 
     @param caller The calling object.
     @param connection The connection to the database.
     @param setting The conversion settings (optional).
     @param libraryListOnly  If true, returns only the libraries on the library list.
-                        Otherwise returns all libraries on the server.
+                        Otherwise returns all libraries on the system.
     @return  A ResultSet containing the list of the libraries.
 
     @exception  SQLException    If the connection is not open
@@ -159,7 +159,7 @@ for use in implementing various pieces of the JDBC driver.
                        DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
 
 
-                if (!libraryListOnly) // Return list of all libraries on the server
+                if (!libraryListOnly) // Return list of all libraries on the system
                 {
                   
                   request.setLibraryName("%", connection.converter_);
@@ -171,7 +171,7 @@ for use in implementing various pieces of the JDBC driver.
                 // Return only the library name
                 request.setLibraryReturnInfoBitmap(0x80000000);
 
-                // Send the request and cache all results from the server
+                // Send the request and cache all results from the system
                 reply = connection.sendAndReceive(request);
 
 
@@ -441,10 +441,10 @@ Reads a reader and returns its data as a String.
 
 //@j1 new method
 /**
-Runs a CL command via the database server.  It uses the QCMDEXC
+Runs a CL command via the database host server.  It uses the QCMDEXC
 stored procedure to run the command
 
-@param  connection  Connection to the server
+@param  connection  Connection to the system
 @param  command     The CL command to run
 
 @exception SQLException If the command failed.
