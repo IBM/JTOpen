@@ -25,3 +25,9 @@
 #DEFAULT (echo ""; id; echo %s; date; cat) >> $CVSROOT/CVSROOT/commitlog
 # or
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
+#
+# This line sends all changes to the build module to the project admin.
+# It is recommended that someone be watching this module
+# as it shouldn't need to be modified very often.
+build/ /cvsroot/sitedocs/CVSROOT/cvstools/syncmail %{sVv} coover-oss@users.sourceforge.net
+
