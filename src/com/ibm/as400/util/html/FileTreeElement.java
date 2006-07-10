@@ -37,7 +37,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
 *  <p>
-*  // Create a object to represent the connection to the server.
+*  // Create a object to represent the connection to the system.
 *  AS400 system = new AS400(mySystem, myUserId, myPassword);
 *  <p>
 *  // Create an IFS object.
@@ -381,7 +381,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
           // the listFiles() method becuase it is not dependant on any
           // JDK1.2 code.  Using listFiles() will also cache information
           // like if it is a directory, so we don't flow another call to the 
-          // server to find that out.  We can then build both the 
+          // system to find that out.  We can then build both the 
           // directory and file list at the same time.
           File[] filesAndDirs = ((IFSJavaFile) file_).listFiles();       // @B6A
 
@@ -419,7 +419,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
           // object because that is not dependant on any JDK1.2 code.
           // Using the listFiles() method on IFSJavaFile objects will
           // also cache information (ie - is it a directory) so we don't
-          // have to flow another call to the server to find that information
+          // have to flow another call to the system to find that information
           // out all the time.  
 
           // Get the list of files that satisfy the directory filter.

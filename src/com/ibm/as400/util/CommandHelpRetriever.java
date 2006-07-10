@@ -764,7 +764,7 @@ public class CommandHelpRetriever
       {
         if (Trace.isTraceOn())
         {
-          Trace.log(Trace.WARNING, "Extended command XML format not supported by this server. Using older version.");
+          Trace.log(Trace.WARNING, "Extended command XML format not supported by this system. Using older version.");
         }
         xml = command.getXML();
       }

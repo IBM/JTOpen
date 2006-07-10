@@ -113,7 +113,7 @@ implements SQLData
             // The buffer we are filling with data is big enough to hold the entire field.
             // For varchar fields the actual data is often smaller than the field width.
             // That means whatever is in the buffer from the previous send is sent to the
-            // server.  The data stream includes actual data length so the old bytes are not 
+            // system.  The data stream includes actual data length so the old bytes are not 
             // written to the database, but the junk left over may decrease the affectiveness 
             // of compression.  The following code will write hex 0s to the buffer when
             // actual length is less that field length.  Note the 0s are written only if 

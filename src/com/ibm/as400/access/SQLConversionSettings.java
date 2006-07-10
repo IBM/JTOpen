@@ -70,7 +70,7 @@ class SQLConversionSettings
 /**
 Constructs a SQLConversionSettings object.
 
-@param  connection  Connection to the server.
+@param  connection  Connection to the system.
 **/
     SQLConversionSettings (AS400JDBCConnection connection)
         throws SQLException

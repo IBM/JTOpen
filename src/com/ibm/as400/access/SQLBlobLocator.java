@@ -88,8 +88,8 @@ final class SQLBlobLocator implements SQLLocator
     {
         BinaryConverter.intToByteArray(locator_.getHandle(), rawBytes, offset);
 
-        // Now we write our saved data to the server, because the prepared statement is being executed.
-        // We used to write the data to the server on the call to set(), but this messed up
+        // Now we write our saved data to the system, because the prepared statement is being executed.
+        // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
         if(savedObject_ != null) writeToServer();
@@ -101,7 +101,7 @@ final class SQLBlobLocator implements SQLLocator
     //                                                         //
     //---------------------------------------------------------//
 
-    // This method actually writes the data to the server.
+    // This method actually writes the data to the system.
     private void writeToServer()
     throws SQLException
     {
@@ -534,7 +534,7 @@ final class SQLBlobLocator implements SQLLocator
         // toObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
         // inside the AS400JDBCBlobLocator. Then, when convertToRawBytes() is called, the writeToServer()
         // code checks the AS400JDBCBlobLocator's saved InputStream... if it exists, then it writes the
-        // data out of the InputStream to the server by calling writeToServer() again.
+        // data out of the InputStream to the system by calling writeToServer() again.
 
         // Since toObject could also be called from an external user's standpoint, we have
         // to clone our internal locator (because we reuse it internally).

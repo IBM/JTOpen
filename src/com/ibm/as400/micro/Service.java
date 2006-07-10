@@ -17,7 +17,7 @@ import java.util.Properties;
 import java.io.IOException;
 
 /**
-Interface to standardize the format of server
+Interface to standardize the format of 
 services to provide from the MEServer.
 **/
 interface Service

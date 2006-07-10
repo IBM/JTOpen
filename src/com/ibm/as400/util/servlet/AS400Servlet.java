@@ -126,7 +126,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
    
    
    /**
-     *  Returns an object representing the server.
+     *  Returns an object representing the system.
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
@@ -162,7 +162,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
                                      
 
     /**
-     *  Returns an object representing the server. It uses the specified <i>systemName</i>.
+     *  Returns an object representing the system. It uses the specified <i>systemName</i>.
      *  
      *  @param  systemName  The name of the system.  
      *
@@ -199,7 +199,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
     
     
     /**
-     *  Returns an object representing the server. It connects to the specified <i>service</i>.
+     *  Returns an object representing the system. It connects to the specified <i>service</i>.
      *  
      *  @param  service  The name of the service.  
      *
@@ -247,7 +247,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
     
     
     /**
-     *  Returns an object representing the server. It connects to the specified <i>systemName</i> and <i>service</i>.
+     *  Returns an object representing the system. It connects to the specified <i>systemName</i> and <i>service</i>.
      *  
      *  @param systemName   The name of the system.
      *  @param service  The name of the service.
@@ -295,7 +295,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
 
     
     /**
-     *  Returns an object representing the server. It uses the specified <i>systemName</i>, <i>user ID</i>, and <i>password</i>.  
+     *  Returns an object representing the system. It uses the specified <i>systemName</i>, <i>user ID</i>, and <i>password</i>.  
      *
      *  @param  systemName  The name of the system.  
      *  @param  userId  The user ID to use to connect to the system.  
@@ -328,7 +328,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
    
     
     /**
-     *  Returns an object representing the server. It uses the specified <i>systemName</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
+     *  Returns an object representing the system. It uses the specified <i>systemName</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
      * 
      *  @param  systemName  The name of the system.  
      *  @param  userId  The user ID to use to connect to the system.

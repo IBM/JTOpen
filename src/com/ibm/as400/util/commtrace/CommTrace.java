@@ -106,7 +106,7 @@ import com.ibm.as400.vaccess.IFSFileDialog;
 
 public class CommTrace extends WindowAdapter {
     private AS400 sys_; // The system our connections will be made on.
-	private FormatDisplay format; // Formats a server communications trace
+	private FormatDisplay format; // Formats a communications trace
 	//Commtrace.MainFrame_ Has to be static so our dialogs have something to be bound to.
 	// Otherwise the dialogs will get lost easily.
     private static JFrame MainFrame_;

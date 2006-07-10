@@ -53,7 +53,7 @@ import java.util.Vector;
  *
  * <P>The following example creates a ResourceListRowData object using an RUserList:
  * <P><BLOCKQUOTE><PRE>
- * <P>          // Create an object to represent the server system.
+ * <P>          // Create an object to represent the system.
  * AS400 mySystem = new AS400("mySystem.myCompany.com");
  * <P>          // Create a resource user list.
  * RUserList userList = new RUserList(sys);

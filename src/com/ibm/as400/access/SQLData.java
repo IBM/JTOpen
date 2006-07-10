@@ -85,8 +85,8 @@ extends Cloneable
 
     /**
     Loads the contents of the data from raw bytes, as returned
-    in a reply from the server.
-    @param  rawBytes    raw bytes from the server.
+    in a reply from the system.
+    @param  rawBytes    raw bytes from the system.
     @param  offset      offset.
     @param  converter   the converter.
     @exception  SQLException    If the raw bytes are not in
@@ -97,8 +97,8 @@ extends Cloneable
 
     /**
     Converts the contents of the data in raw bytes, as needed
-    in a request to the server.
-    @param  rawBytes         the raw bytes for the server.
+    in a request to the system.
+    @param  rawBytes         the raw bytes for the system.
     @param  offset           the offset into the byte array.
     @param  ccsidConverter   the converter.
     **/

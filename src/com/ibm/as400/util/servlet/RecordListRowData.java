@@ -61,7 +61,7 @@ import java.util.Vector;
 *  <P>The following example creates a RecordListRowData object and adds the records from a
 *  sequential file.
 *  <BLOCKQUOTE><PRE>
-*  <P>       // Create an object to represent the server system.
+*  <P>       // Create an object to represent the system.
 *  AS400 mySystem = new AS400("mySystem.myCompany.com");
 *  <P>       // Create a file object that represents the file.
 *  SequentialFile sf = new SequentialFile(mySystem, ifspath);

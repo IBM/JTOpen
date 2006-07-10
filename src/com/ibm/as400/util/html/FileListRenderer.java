@@ -326,7 +326,7 @@ public class FileListRenderer
             // the listFiles() method becuase it is not dependant on any
             // JDK1.2 code.  Using listFiles() will also cache information
             // like if it is a directory, so we don't flow another call to the 
-            // server to find that out.  We can then build both the 
+            // system to find that out.  We can then build both the 
             // directory and file list at the same time.
 
             File[] filesAndDirs = ((IFSJavaFile) file).listFiles();        // @B3A
@@ -372,7 +372,7 @@ public class FileListRenderer
             // object because that is not dependant on any JDK1.2 code.
             // Using the listFiles() method on IFSJavaFile objects will
             // also cache information (ie - is it a directory) so we don't
-            // have to flow another call to the server to find that information
+            // have to flow another call to the system to find that information
             // out all the time.  
 
             // Get the list of files that satisfy the directory filter.

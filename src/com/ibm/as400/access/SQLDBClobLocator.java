@@ -87,8 +87,8 @@ final class SQLDBClobLocator implements SQLLocator
     {
         BinaryConverter.intToByteArray(locator_.getHandle(), rawBytes, offset);
 
-        // Now we write our saved data to the server, because the prepared statement is being executed.
-        // We used to write the data to the server on the call to set(), but this messed up
+        // Now we write our saved data to the system, because the prepared statement is being executed.
+        // We used to write the data to the system on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
         if(savedObject_ != null) writeToServer();
@@ -539,7 +539,7 @@ final class SQLDBClobLocator implements SQLLocator
         // getObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
         // inside the AS400JDBCClobLocator. Then, when convertToRawBytes() is called, the writeToServer()
         // code checks the AS400JDBCClobLocator's saved InputStream... if it exists, then it writes the
-        // data out of the InputStream to the server by calling writeToServer() again.
+        // data out of the InputStream to the system by calling writeToServer() again.
         truncated_ = 0;
         return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
     }

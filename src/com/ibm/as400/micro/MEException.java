@@ -50,12 +50,12 @@ public final class MEException extends Exception
     public static final int USERID_NOT_SET = 0x0005;
 
     /**
-     *  The return code indicating that the user ID has been disabled by the server.
+     *  The return code indicating that the user ID has been disabled by the system.
      **/
     public static final int USERID_DISABLE = 0x0006;
     
     /**
-     *  The return code indicating that the user ID is not known by the server.
+     *  The return code indicating that the user ID is not known by the system.
      **/
     public static final int USERID_UNKNOWN = 0x0007;
 

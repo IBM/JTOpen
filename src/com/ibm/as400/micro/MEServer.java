@@ -1111,7 +1111,7 @@ public class MEServer implements Runnable
      * Receives the signon datastream from the client, connects to the i5/OS system, and sends a reply.
      *
      * Datastream request format:
-     *  String - server name
+     *  String - system name
      *  String - user profile
      *  String - password
      *

@@ -44,7 +44,7 @@ import com.ibm.as400.util.servlet.RowDataException;
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
 *  <p>
-*  // Create a object to represent the connection to the server.
+*  // Create a object to represent the connection to the system.
 *  AS400 system = new AS400(mySystem, myUserId, myPassword);
 *  <p>
 *  // Create an IFS object.

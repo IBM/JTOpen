@@ -133,8 +133,8 @@ public class AuthenticationServlet extends HttpServlet
 
 
     /**
-     * Retrieve the realm that was used for the authentication.  For the server, the realm is the
-     * i5/OS system name.
+     * Retrieve the realm that was used for the authentication.  For the i5/OS system, the realm is the
+     * system name.
      *
      * @return     The realm.
      */
@@ -382,8 +382,8 @@ public class AuthenticationServlet extends HttpServlet
 
 
     /**
-      * Set the realm that will be used for the authentication.  For the server, the realm is the
-      * i5/OS system name.
+      * Set the realm that will be used for the authentication.  For the i5/OS system, the realm is the
+      * system name.
       *
       * @param realm The realm, which refers to the system name.
       **/

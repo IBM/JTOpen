@@ -628,7 +628,7 @@ public class Format {
 	}
 
 	/**
-	 * Format the trace and write the results to a binary IFS file on the server 
+	 * Format the trace and write the results to a binary IFS file on the system 
 	 * we are connected to.
 	 * @return A error code if any.
 	 */
