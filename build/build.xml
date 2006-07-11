@@ -570,7 +570,8 @@
     <fail message="Can't find ${include}/cldcapi10.jar." unless="cldcapiJarExists"/>
     <fail message="Can't find ${bin}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
-    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
+    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false"> 
+      <!-- The preverify tool expects directories to be separted by ';' in its -classpath option. -->
       <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi10.jar;${include}/cldcapi10.jar ${output-micro}"/>
     </exec>
   </target>
