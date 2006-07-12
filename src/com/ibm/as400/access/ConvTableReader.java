@@ -577,7 +577,8 @@ public class ConvTableReader extends InputStreamReader
         }
         if (length < 0 || (offset + length) > buffer.length)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
+            // Note: InputStreamReader throws IndexOutOfBoundsException if length overflow buffer.  We try to be a little nicer.
+            Trace.log(Trace.ERROR, "Specified length would overflow buffer:", length);
             throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         synchronized (lock)
