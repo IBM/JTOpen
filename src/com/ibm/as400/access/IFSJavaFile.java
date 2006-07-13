@@ -463,34 +463,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return getPath().compareTo(file.getPath());
   }
 
-/**
- * Compares the path of IFSJavaFile with an <code>Object</code>'s path.
- * If the other object is an IFSJavaFile,
- * then this function behaves like compareTo(IFSJavaFile).
- * If the other object is an IFSFile,
- * then this function behaves like compareTo(IFSFile).
- * If the other object is a java.io.File,
- * then this function behaves like compareTo(File).
- * Otherwise, it throws a <code>ClassCastException</code>, since
- * IFSJavaFile is comparable only to IFSJavaFile, IFSFile, and File.
- *
- * <p>Note:<br>The comparison is case sensitive.
- *
- * @param   obj The <code>Object</code> to be compared.
- *
- * @return  <code>0</code> if this IFSJavaFile path equals the argument's path;
- *          a value less than <code>0</code> if this IFSJavaFile path is less than the argument's
- *          path; and a value greater than <code>0</code> if this IFSJavaFile path is greater
- *          than the argument's path.
- *
- * @since JDK1.2
-**/
-  public int compareTo(Object obj)
-  {
-    if (obj instanceof IFSJavaFile) return compareTo((IFSJavaFile)obj);  // @A7c
-    else if (obj instanceof IFSFile) return compareTo((IFSFile)obj);     // @A8c
-    else return compareTo((File)obj);                                    // @A7c
-  }
 
   /**
    * Atomically create a new, empty file.  The file is
