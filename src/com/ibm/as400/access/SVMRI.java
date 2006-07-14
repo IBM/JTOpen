@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,9 @@ public class SVMRI extends ListResourceBundle
         { "QPRTDEV_DES" , "Printer device description" },
         { "QPRTKEYFMT_DES" , "Print header and/or border information" },
         { "QPRTTXT_DES" , "Print text" },
+        { "QPWDCHGBLK_DES" , "Prevent password change time limit" },  //@H1A
         { "QPWDEXPITV_DES" , "Password expiration interval" },
+        { "QPWDEXPWRN_DES" , "Password expiration warning interval" },  //@H1A
         { "QPWDLMTAJC_DES" , "Limit adjacent digits in password" },
         { "QPWDLMTCHR_DES" , "Limit characters in password" },
         { "QPWDLMTREP_DES" , "Limit repeating characters in password" },
@@ -151,6 +153,7 @@ public class SVMRI extends ListResourceBundle
         { "QPWDPOSDIF_DES" , "Limit password character positions" },
         { "QPWDRQDDGT_DES" , "Require digit in password" },
         { "QPWDRQDDIF_DES" , "Duplicate password control" },
+        { "QPWDRULES_DES"  , "Password rules" },  //@H1A
         { "QPWDVLDPGM_DES" , "Password validation program" },
         { "QPWRDWNLMT_DES" , "Maximum time for PWRDWNSYS *IMMED" },
         { "QPWRRSTIPL_DES" , "Automatic IPL after power restored" },

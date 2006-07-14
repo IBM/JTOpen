@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,8 +27,6 @@ import java.util.Vector;
 
 public class SystemValueList implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     /**
@@ -93,9 +91,9 @@ public class SystemValueList implements Serializable
      **/
     public static final int TYPE_STRING = 1;
 
-    // Constant indicating the system value's type on the server is BINARY.
+    // Constant indicating the system value's type on the system is BINARY.
     static final byte SERVER_TYPE_BINARY = (byte)0xC2;
-    // Constant indicating the system value's type on the server is CHAR.
+    // Constant indicating the system value's type on the system is CHAR.
     static final byte SERVER_TYPE_CHAR = (byte)0xC3;
 
     // Constants for operating system VRM.
@@ -106,6 +104,7 @@ public class SystemValueList implements Serializable
     private static final int VRM520 = 0x00050200;
     private static final int VRM530 = 0x00050300;
     private static final int VRM540 = 0x00050400;
+    private static final int VRM550 = 0x00050500;
 
     // The total number of groups.
     private static final int GROUP_COUNT = 10;
@@ -148,9 +147,10 @@ public class SystemValueList implements Serializable
     // For V5R2, there are 2 additional system values.
     // For V5R3, there are 10 additional system values.
     // For V5R4, there are 2 additional system values.
-    // There are at least 189 system values.
-    // The optimal hash size is 189/0.75 = 252.
-    private static Hashtable list = new Hashtable(252);
+    // For V5R5, there are 3 additional system values.
+    // There are at least 192 system values.
+    // The optimal hash size is 192/0.75 = 256.
+    private static Hashtable list = new Hashtable(256);
 
     // Provided for convenient lookup of system value groups.
     static Vector[] groups = { new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector() };
@@ -367,6 +367,11 @@ public class SystemValueList implements Serializable
         SystemValueList.list.put("QALWJOBITP", new SystemValueInfo("QALWJOBITP", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM540, ResourceBundleLoader.getSystemValueText("QALWJOBITP_DES")));
         SystemValueList.list.put("QLOGOUTPUT", new SystemValueInfo("QLOGOUTPUT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM540, ResourceBundleLoader.getSystemValueText("QLOGOUTPUT_DES")));
 
+        // V5R5 system values.
+        SystemValueList.list.put("QPWDRULES", new SystemValueInfo("QPWDRULES", SERVER_TYPE_CHAR, 15, 50, TYPE_ARRAY, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QPWDRULES_DES")));
+        SystemValueList.list.put("QPWDCHGBLK", new SystemValueInfo("QPWDCHGBLK", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QPWDCHGBLK_DES")));
+        SystemValueList.list.put("QPWDEXPWRN", new SystemValueInfo("QPWDEXPWRN", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QPWDEXPWRN_DES")));
+
         // Populate the group vectors.
         Enumeration elements = SystemValueList.list.elements();
         while (elements.hasMoreElements())
@@ -377,7 +382,7 @@ public class SystemValueList implements Serializable
         }
     }
 
-    // The server where the system value list is located.
+    // The system where the system value list is located.
     private AS400 system_ = null;
     // Flag indicating if a connection been made.
     private boolean connected_ = false;
@@ -397,7 +402,7 @@ public class SystemValueList implements Serializable
 
     /**
      Constructs a SystemValueList object. It creates a SystemValueList instance that represents a list of system values on <i>system</i>.
-     @param  system  The server that contains the system values.
+     @param  system  The system that contains the system values.
      **/
     public SystemValueList(AS400 system)
     {
@@ -456,12 +461,12 @@ public class SystemValueList implements Serializable
         }
     }
 
-    // Makes a connection to the server.  The <i>system</i> property must be set before a connection can be made.
+    // Makes a connection to the system.  The <i>system</i> property must be set before a connection can be made.
     private void connect() throws AS400SecurityException, IOException
     {
         if (system_ == null)
         {
-            Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+            Trace.log(Trace.ERROR, "Cannot connect before setting system.");
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
@@ -475,8 +480,8 @@ public class SystemValueList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public Vector getGroup(int group) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -491,7 +496,7 @@ public class SystemValueList implements Serializable
         // Get the group vector.
         Vector infos = SystemValueList.groups[group];
 
-        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the server release is V5R1M0 or below, we fix up the group here.
+        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the i5/OS release is V5R1M0 or below, we fix up the group here.
         if (system_.getVRM() <= VRM510)
         {
             switch (group)
@@ -615,8 +620,8 @@ public class SystemValueList implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the system value list exists.
-     @return  The system object representing the server on which the system value list exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the system value list exists.
+     @return  The system object representing the system on which the system value list exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -683,8 +688,8 @@ public class SystemValueList implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the system value list exists.
-     @param  system  The system object representing the server on which the system value list exists.
+     Sets the system object representing the system on which the system value list exists.
+     @param  system  The system object representing the system on which the system value list exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException

@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,20 +15,18 @@ package com.ibm.as400.access;
 
 import java.io.Serializable;
 
-// The SystemValueInfo class represents all of the static properties of a system value on an server. The dynamic properties of a system value, such as its data and caching, are encapsulated by the SystemValue class.
+// The SystemValueInfo class represents all of the static properties of a system value.  The dynamic properties of a system value, such as its data and caching, are encapsulated by the SystemValue class.
 class SystemValueInfo implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // The name of this system value.
     String name_ = null;
-    // The server data type of this system value.
+    // The i5/OS data type of this system value.
     byte serverDataType_ = '\0';
-    // The size in bytes of this system value on the server.
+    // The size in bytes of this system value on the system.
     int size_ = 0;
-    // The number of actual data values this system value contains on the server.
+    // The number of actual data values this system value contains on the system.
     // Note:  arraySize_ is multiplied by size_ to get the total length of this system value on the datastream.
     // e.g. QACGLVL represents an 8-element array of 10-byte character values so size_ = 10 and arraySize_ = 8 for QACGLVL.
     int arraySize_ = 1;

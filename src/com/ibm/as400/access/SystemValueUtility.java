@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,9 @@ import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Vector;
 
-// Contains static methods for setting and getting system values from the server.  Used by the SystemValue, SystemValueGroup, and SystemValueList classes.
+// Contains static methods for setting and getting system values from the system.  Used by the SystemValue, SystemValueGroup, and SystemValueList classes.
 class SystemValueUtility
 {
-
     // Parses the data stream returned by the Program Call.  Extracts the system value information tables from the data stream.
     // @return  A Vector of Java objects corresponding to the values retrieved from the data stream.
     private static Vector parse(byte[] data, AS400 system, Converter conv) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, IOException
@@ -162,7 +161,7 @@ class SystemValueUtility
         return values;
     }
 
-    // Retrieves a system value from the server.
+    // Retrieves a system value from the system.
     // @return  A Java object representing the current setting for the system value specified by <i>info</i> on <i>system</i>.
     static Object retrieve(AS400 system, SystemValueInfo info) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -172,8 +171,8 @@ class SystemValueUtility
         return values.elementAt(0);
     }
 
-    // Retrieves several system values from the server.  If a value is not supported by the provided system, then it is not retrieved.
-    // @param  system  The server.
+    // Retrieves several system values from the system.  If a value is not supported by the provided system, then it is not retrieved.
+    // @param  system  The system.
     // @param  infos  The enumeration of SystemValueInfo objects for which to retrieve values.
     // @return  A Vector of SystemValue objects representing the current settings for the system values specified by <i>infos</i> on <i>system</i>.
     static Vector retrieve(AS400 system, Enumeration infos, String groupName, String groupDescription) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -233,7 +232,7 @@ class SystemValueUtility
         int rLength = 4;
         byte[] names = new byte[valuesCount * 10];
         for (int i = 0; i < names.length; ++i) names[i] = 0x40;
-        Converter conv = new Converter(system.getCcsid(), system);
+        Converter conv = new Converter(system.getJobCcsid(), system);
         for (int i = 0; i < valuesCount; ++i)
         {
             SystemValueInfo svi = (SystemValueInfo)infos.elementAt(i);
@@ -257,10 +256,9 @@ class SystemValueUtility
         };
 
         ProgramCall prog = new ProgramCall(system, isNetA ? "/QSYS.LIB/QWCRNETA.PGM" : "/QSYS.LIB/QWCRSVAL.PGM", parameters);
-        if (!ProgramCall.isThreadSafetyPropertySet()) // property not set
-        {
-          prog.setThreadSafe(true);  // this API is known to be thread-safe
-        }
+        // Both QWCRNETA and QWCRSVAL are threadsafe.
+        if (!ProgramCall.isThreadSafetyPropertySet()) prog.setThreadSafe(true);
+
         if (!prog.run())
         {
             throw new AS400Exception(prog.getMessageList());
@@ -270,8 +268,8 @@ class SystemValueUtility
         return parse(parameters[0].getOutputData(), system, conv);
     }
 
-    // Sets the system value on the server.
-    // @param  system  The server.
+    // Sets the system value on the system.
+    // @param  system  The system.
     // @param  info  The system value to set.
     // @param  value  The data that the system value is to contain.
     static void set(AS400 system, SystemValueInfo info, Object value) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -404,10 +402,7 @@ class SystemValueUtility
 
         CommandCall cmd = new CommandCall(system, command);
         // Neither CHGSYSVAL nor CHGNETA is threadsafe.
-        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
-        {
-          cmd.setThreadSafe(false);
-        }
+        if (!CommandCall.isThreadSafetyPropertySet()) cmd.setThreadSafe(false);
 
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Running system value command: " + command);
 

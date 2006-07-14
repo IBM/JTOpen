@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,6 @@ import java.util.EventObject;
  **/
 public class SystemValueEvent extends EventObject
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // Private data

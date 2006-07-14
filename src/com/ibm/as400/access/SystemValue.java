@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,15 +23,13 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- The SystemValue class represents a system value or network attribute on the server.
+ The SystemValue class represents a system value or network attribute on the system.
  **/
 public class SystemValue implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
-    // The server where the system value is located.
+    // The system where the system value is located.
     private AS400 system_ = null;
     // The properties of this system value.
     SystemValueInfo info_ = null;  // Also accessed by SystemValueGroup.
@@ -46,7 +44,7 @@ public class SystemValue implements Serializable
     // Locale specific MRI description.
     private String localeDescription_ = null;
 
-    // Flag indicating this system value has been read from the server.
+    // Flag indicating this system value has been read from the system.
     transient private boolean cached_ = false;
     // Flag indicating if a connection been made.
     transient private boolean connected_ = false;
@@ -69,7 +67,7 @@ public class SystemValue implements Serializable
 
     /**
      Constructs a SystemValue object.  It creates a SystemValue instance that represents the system value <i>name</i> on <i>system</i>.
-     @param  system  The system object representing the server on which the system value exists.
+     @param  system  The system object representing the system on which the system value exists.
      @param  name  The name of the system value.
      **/
     public SystemValue(AS400 system, String name)
@@ -185,7 +183,7 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Clears this system value from the cache.  The next time a getValue() is performed on this system value, the value will be retrieved from the server instead of from the cache.
+     Clears this system value from the cache.  The next time a getValue() is performed on this system value, the value will be retrieved from the system instead of from the cache.
      **/
     public void clear()
     {
@@ -193,27 +191,27 @@ public class SystemValue implements Serializable
         cached_ = false;
     }
 
-    // Makes a "connection" to the server.  The system and name properties must be set before a connection can be made.
+    // Makes a "connection" to the system.  The system and name properties must be set before a connection can be made.
     private void connect() throws AS400SecurityException, IOException, RequestNotSupportedException
     {
         // Verify required attributes have been set.
         if (system_ == null)
         {
-            Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+            Trace.log(Trace.ERROR, "Cannot connect before setting system.");
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
         if (info_ == null)
         {
-            Trace.log(Trace.ERROR, "Cannot connect to server before setting name.");
+            Trace.log(Trace.ERROR, "Cannot connect before setting name.");
             throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        // Check if the system value is supported on this server.
+        // Check if the system value is supported on this system.
         // Also don't want to prohibit the user from running to a pre-V4R2 system, even though we do not support it.
         if (info_.release_ > system_.getVRM() && info_.release_ != 0x00040200)
         {
             byte[] vrmBytes = BinaryConverter.intToByteArray(info_.release_);
-            Trace.log(Trace.ERROR, "Server not at correct release for system value, name: " + info_.name_ + ", release:", vrmBytes);
+            Trace.log(Trace.ERROR, "System not at correct release for system value, name: " + info_.name_ + ", release:", vrmBytes);
             throw new RequestNotSupportedException(info_.name_, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
         }
         connected_ = true;
@@ -279,7 +277,7 @@ public class SystemValue implements Serializable
 
         int group = info_.group_;
 
-        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the server release is V5R1M0 or below, we fix up the group here.
+        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the system release is V5R1M0 or below, we fix up the group here.
         try
         {
             if (system_ != null && info_.name_.equals("QFRCCVNRST")  && system_.getVRM() <= 0x00050100)
@@ -330,7 +328,7 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Returns the supported release for this system value.  The returned value is the earliest version of server operating system under which the system value is supported.  If the system value is supported in a release prior to V4R2M0, then V4R2M0 is returned.
+     Returns the supported release for this system value.  The returned value is the earliest version of i5/OS under which the system value is supported.  If the system value is supported in a release prior to V4R2M0, then V4R2M0 is returned.
      @see  AS400#generateVRM
      @return  The release.
      **/
@@ -368,8 +366,8 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the system value exists.
-     @return  The system object representing the server on which the system value exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the system value exists.
+     @return  The system object representing the system on which the system value exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -402,17 +400,15 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Returns the current value of this system value.
-     Use {@link #getType getType()} to determine the type of the returned object.
-     For example, some system values are represented as arrays of String.
-     @see #getType
+     Returns the current value of this system value.  Use {@link #getType getType()} to determine the type of the returned object.  For example, some system values are represented as arrays of String.
+     @see  #getType
      @return  The data.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
-     @exception  RequestNotSupportedException  If the release level of the server does not support the system value.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  RequestNotSupportedException  If the i5/OS release level of the system does not support the system value.
      **/
     public Object getValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
     {
@@ -546,8 +542,8 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the system value exists.
-     @param  system  The system object representing the server on which the system value exists.
+     Sets the system object representing the system on which the system value exists.
+     @param  system  The system object representing the system on which the system value exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -589,16 +585,14 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Sets the value for this system value.
-     Use {@link #getType getType()} to determine the type of object to set.
-     For example, some system values are represented as arrays of String.
-     @see #getType
+     Sets the value for this system value.  Use {@link #getType getType()} to determine the type of object to set.  For example, some system values are represented as arrays of String.
+     @see  #getType
      @param  value  The data.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  RequestNotSupportedException  If the release level of the server does not support the system value.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  RequestNotSupportedException  If the i5/OS release level of the system does not support the system value.
      **/
     public void setValue(Object value) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException
     {

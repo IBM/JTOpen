@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,11 +31,9 @@ import java.util.Vector;
  **/
 public class SystemValueGroup implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
-    // The server where the group of system values is located.
+    // The system where the group of system values is located.
     private AS400 system_ = null;
     // The user-defined group name.
     private String groupName_ = null;
@@ -62,7 +60,7 @@ public class SystemValueGroup implements Serializable
 
     /**
      Constructs a SystemValueGroup object.  The group of system value names is initialized to be empty.
-     @param  system  The server that this group of system value names references.
+     @param  system  The system that this group of system value names references.
      @param  groupName  The user-defined group name to be used.
      @param  groupDescription  The user-defined group description to be used.
      **/
@@ -93,7 +91,7 @@ public class SystemValueGroup implements Serializable
 
     /**
      Constructs a SystemValueGroup object.  The group of system value names is initialized to contain the system value names in <i>names</i>.
-     @param  system  The server that this group of system value names references.
+     @param  system  The system that this group of system value names references.
      @param  groupName  The user-defined group name to be used.
      @param  groupDescription  The user-defined group description to be used.
      @param  names  The array of system value names to be initially added to this group.
@@ -131,8 +129,8 @@ public class SystemValueGroup implements Serializable
 
     /**
      Constructs a SystemValueGroup object.  The group of system value names is initialized to contain all of the system value names in the system-defined group <i>groupIndicator</i>.  For example, specifying SystemValueList.GROUP_ALL for <i>groupIndicator</i> would result in this group of system value names being initialized to contain all system value and network attribute names.
-     <p>Note:  This constructor now makes a connection to the <I>system</I> in order to retrieve the release level of the server.
-     @param  system  The server that this group of system values references.
+     <p>Note:  This constructor now makes a connection to the <I>system</I> in order to retrieve the i5/OS release level of the system.
+     @param  system  The system that this group of system values references.
      @param  groupName  The user-defined group name to be used.
      @param  groupDescription  The user-defined group description to be used.
      @param  group  The system value group constant indicating the set of system value names to be initially added to this group.  Valid constants are defined in the SystemValueList class.
@@ -192,7 +190,7 @@ public class SystemValueGroup implements Serializable
             }
         }
 
-        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the server release is V5R1M0 or below, we fix up the group here.
+        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the system release is V5R1M0 or below, we fix up the group here.
         if (vrm <= 0x00050100)
         {
             switch (group)
@@ -350,8 +348,8 @@ public class SystemValueGroup implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the system value group exists.
-     @return  The system object representing the server on which the system value group exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the system value group exists.
+     @return  The system object representing the system on which the system value group exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -367,8 +365,8 @@ public class SystemValueGroup implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #refresh
      **/
     public Vector getSystemValues() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -377,7 +375,7 @@ public class SystemValueGroup implements Serializable
         // Make sure they've set the system, we don't care about the name or description.
         if (system_ == null)
         {
-            Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+            Trace.log(Trace.ERROR, "Cannot connect to system before setting system.");
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
@@ -396,8 +394,8 @@ public class SystemValueGroup implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.SystemValue#clear
      **/
     public static void refresh(Vector systemValues) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -434,7 +432,7 @@ public class SystemValueGroup implements Serializable
                     }
                     sameSystemVals.addElement(systemValue);
                 }
-                catch(ClassCastException e)
+                catch (ClassCastException e)
                 {
                     Trace.log(Trace.ERROR, "Type of element 'systemValues[" + i + "]' is not valid:", e);
                     throw new ExtendedIllegalArgumentException("systemValues[" + i + "]", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -454,7 +452,7 @@ public class SystemValueGroup implements Serializable
 
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Refreshing, system: " + system + ", number of values:", systemSystemValues.size());
 
-            // Next, retrieve the values from the server. This actually results in 2 ProgramCalls, one for the system values, the other for the network attributes.  This code is similar to SystemValueUtility.retrieve().
+            // Next, retrieve the values from the system. This actually results in 2 ProgramCalls, one for the system values, the other for the network attributes.  This code is similar to SystemValueUtility.retrieve().
             Vector svInfos = new Vector(); // System values These are the SystemValueInfo objects.
             Vector naInfos = new Vector(); // Network attributes.
             Vector svSystemValues = new Vector(); // These are the SystemValue objects.
@@ -512,7 +510,7 @@ public class SystemValueGroup implements Serializable
      **/
     public boolean remove(String name)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removeing from system value group, name: " + name);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing from system value group, name: " + name);
         if (name == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'name' is null.");
@@ -636,8 +634,8 @@ public class SystemValueGroup implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the system value group exists.
-     @param  system  The system object representing the server on which the system value group exists.
+     Sets the system object representing the system on which the system value group exists.
+     @param  system  The system object representing the system on which the system value group exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
