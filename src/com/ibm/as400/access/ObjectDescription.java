@@ -1443,7 +1443,7 @@ public class ObjectDescription
       set(CREATOR_USER_PROFILE, conv.byteArrayToString(data, 219, 10).trim());
       set(CREATOR_SYSTEM, conv.byteArrayToString(data, 229, 8).trim());
       set(RESET_DATE, conv.byteArrayToString(data, 237, 7)); // date-7
-      set(SAVE_SIZE, (long)BinaryConverter.byteArrayToInt(data, 244)); // See 400 format section for more on save size.
+      //set(SAVE_SIZE, (long)BinaryConverter.byteArrayToInt(data, 244)); // See 400 format section for more on save size.
       set(SAVE_SEQUENCE_NUMBER, BinaryConverter.byteArrayToInt(data, 248));
       set(STORAGE_STATUS, conv.byteArrayToString(data, 252, 10).trim());
       set(SAVE_COMMAND, conv.byteArrayToString(data, 262, 10).trim());
