@@ -220,9 +220,10 @@ class RfmlDocument extends PcmlDocument {
     public void toXml(OutputStream outStream)
       throws IOException, XmlException
     {
-      PrintWriter xmlFile = new PrintWriter(outStream);
+      PrintWriter xmlFile = null;
       try
       {
+        xmlFile = new PrintWriter(outStream);
         xmlFile.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");         // @A1c
         xmlFile.println("<!DOCTYPE rfml SYSTEM \"rfml.dtd\">");
 
@@ -235,7 +236,7 @@ class RfmlDocument extends PcmlDocument {
         }
       }
       finally {
-        xmlFile.close(); // Note: close() flushes the stream first.
+        if (xmlFile != null) xmlFile.close(); // Note: close() flushes the stream first.
       }
     }
 

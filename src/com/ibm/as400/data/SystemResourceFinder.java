@@ -370,56 +370,66 @@ class SystemResourceFinder
 
     boolean isXPCML = false;
     InputStream stream = null;
-    if (loader != null)
-    {
-      stream = loader.getResourceAsStream(docPath);
-      if (stream == null)
-      {
-        // We throw an exception here because if the user specified a ClassLoader,
-        // they probably don't want us to use ours, and we don't want to return another
-        // version of the document found by a different class loader.
-        throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
-      }
-    }
-    if (stream == null)
-    {
-      stream = loadResource(docPath);
-      if (stream == null)
-      {
-        // We couldn't load the resource, no matter how many class loaders we tried.
-        throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
-      }
-    }
-    
-    // Cache the line count of the header
-    LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
+    LineNumberReader lnr = null;
     try
     {
-      String line = lnr.readLine();
-      boolean found=false;
-      while (line != null && !found)
+      if (loader != null)
       {
-        // Look for xpcml tag
-        if (line.indexOf("<xpcml") != -1)
+        stream = loader.getResourceAsStream(docPath);
+        if (stream == null)
         {
-          found = true;
-          isXPCML= true;
-          continue;
+          // We throw an exception here because if the user specified a ClassLoader,
+          // they probably don't want us to use ours, and we don't want to return another
+          // version of the document found by a different class loader.
+          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
         }
-        if (line.indexOf("<pcml") != -1)
+      }
+      if (stream == null)
+      {
+        stream = loadResource(docPath);
+        if (stream == null)
         {
-          found = true;
-          isXPCML = false;
-          continue;
+          // We couldn't load the resource, no matter how many class loaders we tried.
+          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
         }
-        line = lnr.readLine();
+      }
+
+      // Cache the line count of the header
+      lnr = new LineNumberReader(new InputStreamReader(stream));
+      try
+      {
+        String line = lnr.readLine();
+        boolean found=false;
+        while (line != null && !found)
+        {
+          // Look for xpcml tag
+          if (line.indexOf("<xpcml") != -1)
+          {
+            found = true;
+            isXPCML= true;
+            continue;
+          }
+          if (line.indexOf("<pcml") != -1)
+          {
+            found = true;
+            isXPCML = false;
+            continue;
+          }
+          line = lnr.readLine();
+        }
+      }
+      catch (IOException e)
+      {
+        Trace.log(Trace.PCML, "Error when reading input stream in isXPCML");
+        throw e;
       }
     }
-    catch (IOException e)
+    finally
     {
-      Trace.log(Trace.PCML, "Error when reading input stream in isXPCML");
-      throw e;
+      if (lnr != null) try { lnr.close(); } catch (Exception e) {}
+      if (stream != null) stream.close();
     }
+
     // Return isXPCML
     return isXPCML;
   }

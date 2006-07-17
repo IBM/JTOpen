@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
+import java.io.UnsupportedEncodingException;
 
 import java.lang.reflect.Method;
 
@@ -731,18 +732,17 @@ public class RecordFormatDocument implements Serializable, Cloneable
         throws XmlException
     {
         RfmlDocument pd = null;
+        InputStream is = null;
+        ObjectInputStream in = null;
 
         // First try to find a serialized Rfml document
         try
         {
             // Try to open the serialized Rfml document
-            InputStream is = SystemResourceFinder.getSerializedRFMLDocument(docName, loader);
+            is = SystemResourceFinder.getSerializedRFMLDocument(docName, loader);
 
-            ObjectInputStream in = new ObjectInputStream(is);
+            in = new ObjectInputStream(is);
             pd = (RfmlDocument)in.readObject();
-
-
-            in.close();
         }
         catch (MissingResourceException e)
         {
@@ -763,6 +763,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
             if (Trace.isTraceErrorOn())
                e.printStackTrace(Trace.getPrintWriter());
             throw new XmlException(e);
+        }
+        finally
+        {
+          if (in != null) try { in.close(); } catch (Exception e) {}
+          if (is != null) try { is.close(); } catch (Exception e) {}
         }
 
         return pd;
@@ -825,11 +830,12 @@ public class RecordFormatDocument implements Serializable, Cloneable
         }
 
         // Load the document from source (previously serialized documents are ignored)
+        FileOutputStream fos = null;
         try
         {
           RecordFormatDocument doc = new RecordFormatDocument(args[1]);
           String outFileName = doc.getDocName() + SystemResourceFinder.m_rfmlSerializedExtension;
-          FileOutputStream fos = new FileOutputStream(outFileName);
+          fos = new FileOutputStream(outFileName);
           doc.serialize(fos);
 
           Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.XML_SERIALIZED, new Object[] {"RFML", outFileName} ));   // @A6C
@@ -838,6 +844,10 @@ public class RecordFormatDocument implements Serializable, Cloneable
         {
           System.out.println(e.getLocalizedMessage());
           System.exit(-1);
+        }
+        finally
+        {
+          if (fos != null) try { fos.close(); } catch (Exception e) {}
         }
 
       }
@@ -856,7 +866,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     private static void saveRfmlDocument(RfmlDocument pd, OutputStream outStream)
         throws XmlException
     {
-        ObjectOutputStream out;
+        ObjectOutputStream out = null;
 
         pd.setSerializingWithData(false);
 
@@ -864,14 +874,16 @@ public class RecordFormatDocument implements Serializable, Cloneable
         {
             out = new ObjectOutputStream(outStream);
             out.writeObject(pd);
-            out.flush();
-            out.close();
         }
         catch (IOException e)
         {
             if (Trace.isTraceErrorOn())
                e.printStackTrace(Trace.getPrintWriter());
             throw new XmlException(e);
+        }
+        finally
+        {
+          if (out != null) try { out.close(); } catch (Exception e) {}
         }
     }
 
@@ -905,8 +917,16 @@ public class RecordFormatDocument implements Serializable, Cloneable
     public void serialize(File file)
       throws IOException, XmlException
     {
-      serialize(new FileOutputStream(file));
-
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(file);
+        serialize(fos);
+      }
+      finally
+      {
+        if (fos != null) fos.close();
+      }
     }
 
     /**
@@ -919,7 +939,16 @@ public class RecordFormatDocument implements Serializable, Cloneable
     public void serialize(String fileName)
       throws IOException, XmlException
     {
-      serialize(new FileOutputStream(fileName));
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(fileName);
+        serialize(fos);
+      }
+      finally
+      {
+        if (fos != null) fos.close();
+      }
     }
 
     /**
@@ -1216,7 +1245,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
       try {
         recFormatNode.setValues(record);
       }
-      catch (java.io.UnsupportedEncodingException e) {
+      catch (UnsupportedEncodingException e) {
         throw new XmlException(e);
       }
     }
@@ -1288,7 +1317,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
       try {
         return new Record(toRecordFormat(formatName), toByteArray(formatName));
       }
-      catch (java.io.UnsupportedEncodingException e) {
+      catch (UnsupportedEncodingException e) {
         throw new XmlException(e);  // This should never happen, but if it does...
       }
     }
@@ -1326,7 +1355,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
      @exception IOException  If an error occurs while writing the data.
      @exception XmlException  If an error occurs while processing RFML.
      **/
-    public void toXml(java.io.OutputStream outputStream)
+    public void toXml(OutputStream outputStream)
       throws IOException, XmlException
     {
       if (outputStream == null) {
@@ -1346,11 +1375,19 @@ public class RecordFormatDocument implements Serializable, Cloneable
      @exception IOException  If an error occurs while writing the data.
      @exception XmlException  If an error occurs while processing RFML.
      **/
-    public void toXml(java.io.File file)
+    public void toXml(File file)
       throws IOException, XmlException
     {
-      toXml(new java.io.FileOutputStream(file));
-
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(file);
+        toXml(fos);
+      }
+      finally
+      {
+        if (fos != null) fos.close();
+      }
     }
 
     /**
@@ -1364,7 +1401,16 @@ public class RecordFormatDocument implements Serializable, Cloneable
     public void toXml(String fileName)
       throws IOException, XmlException
     {
-      toXml(new java.io.FileOutputStream(fileName));
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(fileName);
+        toXml(fos);
+      }
+      finally
+      {
+        if (fos != null) fos.close();
+      }
     }
 
     /**

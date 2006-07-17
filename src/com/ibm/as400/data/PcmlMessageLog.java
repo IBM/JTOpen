@@ -83,15 +83,18 @@ public class PcmlMessageLog
     static void main(String[] args)
         throws IOException
     {
+      FileOutputStream logStream = null;
+      try
+      {
         logError("This is a test error to the console");
         traceOut("Message to stdout");
         traceErr("Message to stderr");
-        
+
         traceOut("Test dump of byte array: " + byteArrayToHexString(new byte[] {0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32} ) );
         byte[] bytes = new byte[Byte.MAX_VALUE - Byte.MIN_VALUE + 1];
         for (byte b = Byte.MIN_VALUE; b < Byte.MAX_VALUE; b++) 
         {
-            bytes[b - Byte.MIN_VALUE] = b;
+          bytes[b - Byte.MIN_VALUE] = b;
         }
         bytes[Byte.MAX_VALUE - Byte.MIN_VALUE] = Byte.MAX_VALUE;
         dumpBytes(bytes);
@@ -99,7 +102,8 @@ public class PcmlMessageLog
         setLogFileName("pcml.log");
         logError("This is a test error to pcml.log");
 
-        setLogStream(new FileOutputStream("user.log"));
+        logStream = new FileOutputStream("user.log");
+        setLogStream(logStream);
         logError("This is a test error to user.log with throwable", new IllegalArgumentException("test exception"));
 
         setLogFileName(null);
@@ -108,9 +112,14 @@ public class PcmlMessageLog
         setTraceEnabled(false);
         traceOut("Message to stdout should not be sent");
         traceErr("Message to stderr should not be sent");
-      
+
 
         System.out.println("Test complete!");
+      }
+      catch (Exception e) { e.printStackTrace(); }
+      finally {
+        if (logStream != null) try { logStream.close(); } catch (Exception e) {}
+      }
     }
 
     // Prevent the user from constructing a PcmlMessageLog object

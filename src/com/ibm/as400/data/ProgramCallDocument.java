@@ -1178,9 +1178,17 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException, IOException
     {
       String outFileName = pd.getDocName() + SystemResourceFinder.m_pcmlSerializedExtension;
-      BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFileName));
+      BufferedOutputStream fos = null;
+      try
+      {
+        fos = new BufferedOutputStream(new FileOutputStream(outFileName));
 
-      savePcmlDocument(pd, fos);
+        savePcmlDocument(pd, fos);
+      }
+      finally
+      {
+        if (fos != null) fos.close();
+      }
     }
 
 
@@ -1191,14 +1199,20 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException, IOException
     {
         pd.setSerializingWithData(false);
+        ObjectOutputStream out = null;
 
-        ObjectOutputStream out = new ObjectOutputStream(outStream);
-        out.writeObject(pd);
-        out.flush();
-        out.close();
+        try
+        {
+          out = new ObjectOutputStream(outStream);
+          out.writeObject(pd);
 
-        String outFileName = pd.getDocName() + SystemResourceFinder.m_pcmlSerializedExtension;
-        Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.PCML_SERIALIZED, new Object[] {outFileName} )); // @D2C
+          String outFileName = pd.getDocName() + SystemResourceFinder.m_pcmlSerializedExtension;
+          Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.PCML_SERIALIZED, new Object[] {outFileName} )); // @D2C
+        }
+        finally
+        {
+          if (out != null) out.close();
+        }
     }
 
 
@@ -1234,19 +1248,23 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException
     {
         PcmlDocument pd = null;
+        ObjectInputStream in = null;
 
         try
         {
             // Try to open the serialized PCML document
-            ObjectInputStream in = new ObjectInputStream(docStream);
+            in = new ObjectInputStream(docStream);
             pd = (PcmlDocument)in.readObject();
-            in.close();
         }
         catch (Exception e)
         {
           if (Trace.isTraceErrorOn())
              e.printStackTrace(Trace.getPrintWriter());
           throw new PcmlException(e.getClass().getName());
+        }
+        finally
+        {
+          if (in != null) try { in.close(); } catch (Exception e) {}
         }
 
         return pd;
@@ -1295,16 +1313,17 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException
     {
         PcmlDocument pd = null;
+        InputStream is = null;
+        ObjectInputStream in = null;
 
         // First try to find a serialized PCML document
         try
         {
             // Try to open the serialized PCML document
-            InputStream is = SystemResourceFinder.getSerializedPCMLDocument(docName, loader);   // @C8C
+            is = SystemResourceFinder.getSerializedPCMLDocument(docName, loader);   // @C8C
 
-            ObjectInputStream in = new ObjectInputStream(is);
+            in = new ObjectInputStream(is);
             pd = (PcmlDocument)in.readObject();
-            in.close();
         }
         catch (MissingResourceException e)
         {
@@ -1326,6 +1345,11 @@ public class ProgramCallDocument implements Serializable, Cloneable
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
             throw new PcmlException(e.getClass().getName());
         }
+        finally
+        {
+          if (in != null) try { in.close(); } catch (Exception e) {}
+          if (is != null) try { is.close(); } catch (Exception e) {}
+        }
 
         return pd;
     }
@@ -1337,17 +1361,19 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException
     {
         PcmlDocument pd = null;
+        InputStream is = null;
+        GZIPInputStream gzis = null;
+        ObjectInputStream in = null;
 
         // First try to find a serialized PCML document
         try
         {
             // Try to open the serialized PCML document
-            InputStream is = SystemResourceFinder.getSerializedPCMLDocument(docName, loader);       // @C8C
+            is = SystemResourceFinder.getSerializedPCMLDocument(docName, loader);       // @C8C
 
-            GZIPInputStream gzis = new GZIPInputStream(is);
-            ObjectInputStream in = new ObjectInputStream(gzis);
+            gzis = new GZIPInputStream(is);
+            in = new ObjectInputStream(gzis);
             pd = (PcmlDocument)in.readObject();
-            in.close();
         }
         catch (MissingResourceException e)
         {
@@ -1364,6 +1390,12 @@ public class ProgramCallDocument implements Serializable, Cloneable
             if (Trace.isTraceErrorOn())                         // @C4A
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
             throw new PcmlException(e.getClass().getName());
+        }
+        finally
+        {
+          if (in != null)   try { in.close(); } catch (Exception e) {}
+          if (gzis != null) try { gzis.close(); } catch (Exception e) {}
+          if (is != null)   try { is.close(); } catch (Exception e) {}
         }
 
         return pd;
@@ -1494,7 +1526,15 @@ public class ProgramCallDocument implements Serializable, Cloneable
       if (fileName == null) {
         throw new NullPointerException(fileName);
       }
-      generateXPCML(null, new FileOutputStream(fileName));
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(fileName);
+        generateXPCML(null, fos);
+      }
+      finally {
+        if (fos != null) fos.close();
+      }
     }
 
     /**
@@ -1523,7 +1563,15 @@ public class ProgramCallDocument implements Serializable, Cloneable
       if (pgmName == null) {
         throw new NullPointerException(pgmName);
       }
-      generateXPCML(pgmName, new FileOutputStream(fileName));
+      FileOutputStream fos = null;
+      try
+      {
+        fos = new FileOutputStream(fileName);
+        generateXPCML(pgmName, fos);
+      }
+      finally {
+        if (fos != null) fos.close();
+      }
     }
 
      // ******************************
@@ -1702,8 +1750,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
               xpcmlName="xpcml.xsd";
 
            // Write contents of ByteArrayOutputStream to ByteArrayInputStream
-           ByteArrayInputStream inStream1 = new ByteArrayInputStream(outStream1.toByteArray());
-           ByteArrayInputStream inStream2 = new ByteArrayInputStream(outStream1.toByteArray());
+           ByteArrayInputStream inStream1 = new ByteArrayInputStream(outStream1.toByteArray());  // no need to close byte-array stream
+           ByteArrayInputStream inStream2 = new ByteArrayInputStream(outStream1.toByteArray());  // no need to close byte-array stream
 
            // Create new XSD type definitions based on full XPCML stream
            XPCMLHelper.doCondenseTransform("xpcml_xsd.xsl",inStream1, xsdStream, xpcmlName); //@CRS

@@ -139,155 +139,175 @@ class PcmlSAXParser extends DefaultHandler
     // @E1A -- Changes for XPCML.  First find out if document is XPCML.  Then setup SequenceInputStream
     // for PCML doc and BufferedInputStream for XPCML docs.
     isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
-    InputStream isHeader, isPCML;                               //@E1A
+    InputStream isHeader=null, isPCML=null;                     //@E1A
     SequenceInputStream sis=null;                               //@E1A
     BufferedInputStream bis=null;                               //@E1A
 
-
-    // First check if xsd stream is valid if this is XPCML
-    if (isXPCML)
-    {
-      // Transform the xsd stream to a byte stream we can more easily read
-      if (xsdFileStream != null)
-      {
-        try
-        {
-          XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
-        }
-        catch (IOException e)
-        {
-          throw e;
-        }
-        catch (SAXException e)
-        {
-          throw e;
-        }
-
-        stream = new ByteArrayInputStream(xmlOut.toByteArray());
-        if (stream == null)
-          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
-      }
-    }
-
-    if (!isXPCML)                                               //@E1A
-    {
-      // Doc is a PCML document.  Do old processing...
-      // Open the PCML header document that contains the DTD
-      isHeader = SystemResourceFinder.getPCMLHeader();
-
-      // Now try to open the PCML file
-      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-      // Concatenate the two input streams
-      sis = new SequenceInputStream(isHeader, isPCML);
-
-    }
-    else                                                       //@E1A
-    {
-      // Doc is an XPCML document
-      // Now try to open the XPCML file
-      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-      // Concatenate the two input streams
-      bis = new BufferedInputStream(isPCML);                          //@E1A
-    }
-
-    // Instantiate our error listener
-    XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
-
-    SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
-    factory.setValidating(true); //@E0A
-    factory.setNamespaceAware(false); //@E0A
-
-    // @E1A -- Set new features for XPCML
-    // set parser features
-    if (isXPCML)
-      setFeatures(factory);
-
-    SAXParser parser = factory.newSAXParser(); //@E0A
-    //@E0D        SAXParser parser = new SAXParser();                                         // @C2C
-    //@E0D        try {                                                                       // @C2A
-    //@E0D            parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A
-    //@E0D            parser.setFeature( "http://xml.org/sax/features/namespaces", false );   // @C2A
-    //@E0D        } catch (org.xml.sax.SAXException se) {                                     // @C2A
-    //@E0D        }
-    //@E0D        parser.setErrorHandler(xh);
-    //@E0D        parser.setDocumentHandler(this);                                            // @C3C
-
-    // Create an InputSource for passing to the parser.
-    // Wrap any SAXExceptions as ParseExceptions.
     try
     {
-      XMLReader reader = parser.getXMLReader(); //@E0A
-      reader.setErrorHandler(xh); //@E0A
-
-      //@E1A -- New for XPCML.  Need to do slightly different processing for XPCML vs PCML docs
-      // Create the proper input source depending on the doc type and then parse the document
-      if (!isXPCML)      // @E1A -- PCML document
-      {
-        parser.parse(new InputSource(sis), this); //@E0C
-        // Close the input stream
-        sis.close();
-        sis = null;
-      }
-      else
-      {
-        parser.parse(new InputSource(bis),this); //@E0C
-        // Close the input stream
-        bis.close();
-        bis = null;
-      }
-    }
-    catch (SAXException e)
-    {
-      ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
-      pe.addMessage(e.getMessage());
-      throw pe;
-    }
-
-    // Close the input stream -- @E1C - moved to above
-    //@E1D        sis.close();
-    //@E1D        sis = null;
-    isPCML = null;
-
-    // Check for errors
-    ParseException exc = xh.getException();
-    if (exc != null)
-    {
-      exc.reportErrors();
-      throw exc;
-    }
-
-    // Recursively walk the document tree and augment the tree with
-    // cloned subtrees for <data type="struct"> nodes.
-    augmentTree(m_rootNode, new Stack());
-
-    // Perform post-parsing attribute checking.
-    // Recursively walk the document tree and ask each node
-    // to verify all attributes.
-    // Note that this phase must be performed after the document is completely
-    // parsed because some attributes (length=, count=, etc.) make reference
-    // to named document elements occuring later in the document.
-
-    checkAttributes(m_rootNode);
-
-    // Copy in values from augmented nodes
-    try
-    {
+      // First check if xsd stream is valid if this is XPCML
       if (isXPCML)
-        m_rootNode.copyValues(m_rootNode, m_rootNode);
-    }
-    catch (XmlException e)
-    {
-      Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs...");
-      throw new SAXException(e);
-    }
+      {
+        // Transform the xsd stream to a byte stream we can more easily read
+        if (xsdFileStream != null)
+        {
+          try
+          {
+            XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
+          }
+          catch (IOException e)
+          {
+            throw e;
+          }
+          catch (SAXException e)
+          {
+            throw e;
+          }
 
-    if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
+          stream = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (stream == null)
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
+        }
+      }
+
+      if (!isXPCML)                                               //@E1A
+      {
+        // Doc is a PCML document.  Do old processing...
+        // Open the PCML header document that contains the DTD
+        isHeader = SystemResourceFinder.getPCMLHeader();
+
+        // Now try to open the PCML file
+        isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
+
+        // Concatenate the two input streams
+        sis = new SequenceInputStream(isHeader, isPCML);
+
+      }
+      else                                                       //@E1A
+      {
+        // Doc is an XPCML document
+        // Now try to open the XPCML file
+        isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
+
+        // Concatenate the two input streams
+        bis = new BufferedInputStream(isPCML);                          //@E1A
+      }
+
+      // Instantiate our error listener
+      XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
+
+      SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
+      factory.setValidating(true); //@E0A
+      factory.setNamespaceAware(false); //@E0A
+
+      // @E1A -- Set new features for XPCML
+      // set parser features
+      if (isXPCML)
+        setFeatures(factory);
+
+      SAXParser parser = factory.newSAXParser(); //@E0A
+      //@E0D        SAXParser parser = new SAXParser();                                         // @C2C
+      //@E0D        try {                                                                       // @C2A
+      //@E0D            parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A
+      //@E0D            parser.setFeature( "http://xml.org/sax/features/namespaces", false );   // @C2A
+      //@E0D        } catch (org.xml.sax.SAXException se) {                                     // @C2A
+      //@E0D        }
+      //@E0D        parser.setErrorHandler(xh);
+      //@E0D        parser.setDocumentHandler(this);                                            // @C3C
+
+      // Create an InputSource for passing to the parser.
+      // Wrap any SAXExceptions as ParseExceptions.
+      try
+      {
+        XMLReader reader = parser.getXMLReader(); //@E0A
+        reader.setErrorHandler(xh); //@E0A
+
+        //@E1A -- New for XPCML.  Need to do slightly different processing for XPCML vs PCML docs
+        // Create the proper input source depending on the doc type and then parse the document
+        if (!isXPCML)      // @E1A -- PCML document
+        {
+          parser.parse(new InputSource(sis), this); //@E0C
+          // Close the input stream
+          sis.close();
+          sis = null;
+        }
+        else
+        {
+          parser.parse(new InputSource(bis),this); //@E0C
+          // Close the input stream
+          bis.close();
+          bis = null;
+        }
+      }
+      catch (SAXException e)
+      {
+        ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
+        pe.addMessage(e.getMessage());
+        throw pe;
+      }
+
+      // Close the input stream -- @E1C - moved to above
+      //@E1D        sis.close();
+      //@E1D        sis = null;
+      if (isPCML != null) {
+        isPCML.close();
+        isPCML = null;
+      }
+
+      // Check for errors
+      ParseException exc = xh.getException();
+      if (exc != null)
+      {
+        exc.reportErrors();
+        throw exc;
+      }
+
+      // Recursively walk the document tree and augment the tree with
+      // cloned subtrees for <data type="struct"> nodes.
+      augmentTree(m_rootNode, new Stack());
+
+      // Perform post-parsing attribute checking.
+      // Recursively walk the document tree and ask each node
+      // to verify all attributes.
+      // Note that this phase must be performed after the document is completely
+      // parsed because some attributes (length=, count=, etc.) make reference
+      // to named document elements occuring later in the document.
+
+      checkAttributes(m_rootNode);
+
+      // Copy in values from augmented nodes
+      try
+      {
+        if (isXPCML)
+          m_rootNode.copyValues(m_rootNode, m_rootNode);
+      }
+      catch (XmlException e)
+      {
+        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs...");
+        throw new SAXException(e);
+      }
+
+      if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
+      {
+        PcmlSpecificationException e = m_rootNode.getPcmlSpecificationException();
+        e.printStackTrace();
+        throw m_rootNode.getPcmlSpecificationException();
+      }
+    }
+    finally
     {
-      PcmlSpecificationException e = m_rootNode.getPcmlSpecificationException();
-      e.printStackTrace();
-      throw m_rootNode.getPcmlSpecificationException();
+      if (isHeader != null) {
+        try { isHeader.close(); } catch (Exception e) {};
+      }
+      if (isPCML != null) {
+        try { isPCML.close(); } catch (Exception e) {};
+      }
+      if (sis != null) {
+        try { sis.close(); } catch (Exception e) {};
+      }
+      if (bis != null) {
+        try { bis.close(); } catch (Exception e) {};
+      }
     }
   }
 
@@ -326,157 +346,177 @@ class PcmlSAXParser extends DefaultHandler
     // @E1A -- Changes for XPCML.  First find out if document is XPCML.  Then setup SequenceInputStream
     // for PCML doc and BufferedInputStream for XPCML docs.
 //    isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
-    InputStream isHeader, isPCML;                               //@E1A
+    InputStream isHeader=null, isPCML=null;                       //@E1A
     SequenceInputStream sis=null;                               //@E1A
     BufferedInputStream bis=null;                               //@E1A
 
-
-    // First check if xsd stream is valid if this is XPCML
-    if (isXPCML)
-    {
-      // Transform the xsd stream to a byte stream we can more easily read
-      if (xsdFileStream != null)
-      {
-        try
-        {
-          XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
-        }
-        catch (IOException e)
-        {
-          throw e;
-        }
-        catch (SAXException e)
-        {
-          throw e;
-        }
-
-        stream = new ByteArrayInputStream(xmlOut.toByteArray());
-        if (stream == null)
-          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
-      }
-    }
-
-    if (!isXPCML)                                               //@E1A
-    {
-      // Doc is a PCML document.  Do old processing...
-      // Open the PCML header document that contains the DTD
-      isHeader = SystemResourceFinder.getPCMLHeader();
-
-      // Now try to open the PCML file
-//      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-      // Concatenate the two input streams
-//      sis = new SequenceInputStream(isHeader, isPCML);
-      sis = new SequenceInputStream(isHeader, docStream);
-
-    }
-    else                                                       //@E1A
-    {
-      // Doc is an XPCML document
-      // Now try to open the XPCML file
-//      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
-
-      // Concatenate the two input streams
-//      bis = new BufferedInputStream(isPCML);                          //@E1A
-      bis = new BufferedInputStream(docStream);
-    }
-
-    // Instantiate our error listener
-    XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
-
-    SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
-    factory.setValidating(true); //@E0A
-    factory.setNamespaceAware(false); //@E0A
-
-    // @E1A -- Set new features for XPCML
-    // set parser features
-    if (isXPCML)
-      setFeatures(factory);
-
-    SAXParser parser = factory.newSAXParser(); //@E0A
-    //@E0D        SAXParser parser = new SAXParser();                                         // @C2C
-    //@E0D        try {                                                                       // @C2A
-    //@E0D            parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A
-    //@E0D            parser.setFeature( "http://xml.org/sax/features/namespaces", false );   // @C2A
-    //@E0D        } catch (org.xml.sax.SAXException se) {                                     // @C2A
-    //@E0D        }
-    //@E0D        parser.setErrorHandler(xh);
-    //@E0D        parser.setDocumentHandler(this);                                            // @C3C
-
-    // Create an InputSource for passing to the parser.
-    // Wrap any SAXExceptions as ParseExceptions.
     try
     {
-      XMLReader reader = parser.getXMLReader(); //@E0A
-      reader.setErrorHandler(xh); //@E0A
-
-      //@E1A -- New for XPCML.  Need to do slightly different processing for XPCML vs PCML docs
-      // Create the proper input source depending on the doc type and then parse the document
-      if (!isXPCML)      // @E1A -- PCML document
-      {
-        parser.parse(new InputSource(sis), this); //@E0C
-        // Close the input stream
-        sis.close();
-        sis = null;
-      }
-      else
-      {
-        parser.parse(new InputSource(bis),this); //@E0C
-        // Close the input stream
-        bis.close();
-        bis = null;
-      }
-    }
-    catch (SAXException e)
-    {
-      ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
-      pe.addMessage(e.getMessage());
-      throw pe;
-    }
-
-    // Close the input stream -- @E1C - moved to above
-    //@E1D        sis.close();
-    //@E1D        sis = null;
-    isPCML = null;
-
-    // Check for errors
-    ParseException exc = xh.getException();
-    if (exc != null)
-    {
-      exc.reportErrors();
-      throw exc;
-    }
-
-    // Recursively walk the document tree and augment the tree with
-    // cloned subtrees for <data type="struct"> nodes.
-    augmentTree(m_rootNode, new Stack());
-
-    // Perform post-parsing attribute checking.
-    // Recursively walk the document tree and ask each node
-    // to verify all attributes.
-    // Note that this phase must be performed after the document is completely
-    // parsed because some attributes (length=, count=, etc.) make reference
-    // to named document elements occuring later in the document.
-
-    checkAttributes(m_rootNode);
-
-    // Copy in values from augmented nodes
-    try
-    {
+      // First check if xsd stream is valid if this is XPCML
       if (isXPCML)
-        m_rootNode.copyValues(m_rootNode, m_rootNode);
-    }
-    catch (XmlException e)
-    {
-      Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs...");
-      throw new SAXException(e);
-    }
+      {
+        // Transform the xsd stream to a byte stream we can more easily read
+        if (xsdFileStream != null)
+        {
+          try
+          {
+            XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
+          }
+          catch (IOException e)
+          {
+            throw e;
+          }
+          catch (SAXException e)
+          {
+            throw e;
+          }
 
-    if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
+          stream = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (stream == null)
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
+        }
+      }
+
+      if (!isXPCML)                                               //@E1A
+      {
+        // Doc is a PCML document.  Do old processing...
+        // Open the PCML header document that contains the DTD
+        isHeader = SystemResourceFinder.getPCMLHeader();
+
+        // Now try to open the PCML file
+//      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
+
+        // Concatenate the two input streams
+//      sis = new SequenceInputStream(isHeader, isPCML);
+        sis = new SequenceInputStream(isHeader, docStream);
+
+      }
+      else                                                       //@E1A
+      {
+        // Doc is an XPCML document
+        // Now try to open the XPCML file
+//      isPCML = SystemResourceFinder.getPCMLDocument(docName, loader); // @C2C
+
+        // Concatenate the two input streams
+//      bis = new BufferedInputStream(isPCML);                          //@E1A
+        bis = new BufferedInputStream(docStream);
+      }
+
+      // Instantiate our error listener
+      XMLErrorHandler xh = new XMLErrorHandler(m_docName, SystemResourceFinder.getHeaderLineCount());
+
+      SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
+      factory.setValidating(true); //@E0A
+      factory.setNamespaceAware(false); //@E0A
+
+      // @E1A -- Set new features for XPCML
+      // set parser features
+      if (isXPCML)
+        setFeatures(factory);
+
+      SAXParser parser = factory.newSAXParser(); //@E0A
+      //@E0D        SAXParser parser = new SAXParser();                                         // @C2C
+      //@E0D        try {                                                                       // @C2A
+      //@E0D            parser.setFeature("http://xml.org/sax/features/validation", true);      // @C2A
+      //@E0D            parser.setFeature( "http://xml.org/sax/features/namespaces", false );   // @C2A
+      //@E0D        } catch (org.xml.sax.SAXException se) {                                     // @C2A
+      //@E0D        }
+      //@E0D        parser.setErrorHandler(xh);
+      //@E0D        parser.setDocumentHandler(this);                                            // @C3C
+
+      // Create an InputSource for passing to the parser.
+      // Wrap any SAXExceptions as ParseExceptions.
+      try
+      {
+        XMLReader reader = parser.getXMLReader(); //@E0A
+        reader.setErrorHandler(xh); //@E0A
+
+        //@E1A -- New for XPCML.  Need to do slightly different processing for XPCML vs PCML docs
+        // Create the proper input source depending on the doc type and then parse the document
+        if (!isXPCML)      // @E1A -- PCML document
+        {
+          parser.parse(new InputSource(sis), this); //@E0C
+          // Close the input stream
+          sis.close();
+          sis = null;
+        }
+        else
+        {
+          parser.parse(new InputSource(bis),this); //@E0C
+          // Close the input stream
+          bis.close();
+          bis = null;
+        }
+      }
+      catch (SAXException e)
+      {
+        ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
+        pe.addMessage(e.getMessage());
+        throw pe;
+      }
+
+      // Close the input stream -- @E1C - moved to above
+      //@E1D        sis.close();
+      //@E1D        sis = null;
+      if (isPCML != null) {
+        isPCML.close();
+        isPCML = null;
+      }
+
+      // Check for errors
+      ParseException exc = xh.getException();
+      if (exc != null)
+      {
+        exc.reportErrors();
+        throw exc;
+      }
+
+      // Recursively walk the document tree and augment the tree with
+      // cloned subtrees for <data type="struct"> nodes.
+      augmentTree(m_rootNode, new Stack());
+
+      // Perform post-parsing attribute checking.
+      // Recursively walk the document tree and ask each node
+      // to verify all attributes.
+      // Note that this phase must be performed after the document is completely
+      // parsed because some attributes (length=, count=, etc.) make reference
+      // to named document elements occuring later in the document.
+
+      checkAttributes(m_rootNode);
+
+      // Copy in values from augmented nodes
+      try
+      {
+        if (isXPCML)
+          m_rootNode.copyValues(m_rootNode, m_rootNode);
+      }
+      catch (XmlException e)
+      {
+        Trace.log(Trace.ERROR, "All data values may not have been copied to struct parm refs...");
+        throw new SAXException(e);
+      }
+
+      if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
+      {
+        PcmlSpecificationException e = m_rootNode.getPcmlSpecificationException();
+        e.printStackTrace();
+        throw m_rootNode.getPcmlSpecificationException();
+      }
+    }
+    finally
     {
-      PcmlSpecificationException e = m_rootNode.getPcmlSpecificationException();
-      e.printStackTrace();
-      throw m_rootNode.getPcmlSpecificationException();
+      if (isHeader != null) {
+        try { isHeader.close(); } catch (Exception e) {};
+      }
+      if (isPCML != null) {
+        try { isPCML.close(); } catch (Exception e) {};
+      }
+      if (sis != null) {
+        try { sis.close(); } catch (Exception e) {};
+      }
+      if (bis != null) {
+        try { bis.close(); } catch (Exception e) {};
+      }
     }
   }
 

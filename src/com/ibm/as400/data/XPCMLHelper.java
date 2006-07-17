@@ -40,7 +40,7 @@ class XPCMLHelper
            throws TransformerException, TransformerConfigurationException,
            SAXException, IOException, PcmlException	
     	{
-            StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
+            StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));  // Note: Class 'StreamSource' has no close() method.
             TransformerFactory tFactory = TransformerFactory.newInstance(); //@CRS
             Transformer transformer = tFactory.newTransformer(in);
             transformer.transform(new StreamSource(streamSource), new StreamResult(streamResult));

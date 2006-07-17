@@ -227,76 +227,83 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
 
     m_docName = qualDocName.substring(qualDocName.lastIndexOf('.') + 1);
 
-    // Now try to open the Rfml file
-    InputStream inStream = SystemResourceFinder.getRFMLDocument(docName, loader);  // TBD: Buffer the InputStream???  On AIX at least, this always appears to return a java.io.BufferedInputStream.
+    InputStream inStream = null;
+    try
+    {
+      // Now try to open the Rfml file
+      inStream = SystemResourceFinder.getRFMLDocument(docName, loader);  // Note: Buffer the InputStream???  On AIX at least, this always appears to return a java.io.BufferedInputStream.
 
-    // Instantiate our error listener
-    if (m_xh == null) {
-      m_xh = new XMLErrorHandler(m_docName, 0);
-    }
+      // Instantiate our error listener
+      if (m_xh == null) {
+        m_xh = new XMLErrorHandler(m_docName, 0);
+      }
 
-    SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
-    factory.setValidating(true); //@E0A
-    factory.setNamespaceAware(false); //@E0A
+      SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
+      factory.setValidating(true); //@E0A
+      factory.setNamespaceAware(false); //@E0A
 //@E0D            SAXParser parser = new SAXParser();
 //@E0D             try {
 //@E0D               parser.setFeature("http://xml.org/sax/features/validation", true);
-    ///parser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", true);
-    factory.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); // TBD: This is to eliminate hang condition if rfml.dtd is not found by SAXParser.parse().  See below.
-    SAXParser parser = factory.newSAXParser(); //@E0A
+      factory.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); // Note: This is to eliminate hang condition if rfml.dtd is not found by SAXParser.parse().  See below.
+      SAXParser parser = factory.newSAXParser(); //@E0A
 
 //@E0D               parser.setFeature( "http://xml.org/sax/features/namespaces", false );
 //@E0D             }
 //@E0D             catch (org.xml.sax.SAXException se) {
 //@E0D               if (Trace.isTraceErrorOn()) se.printStackTrace(Trace.getPrintWriter());
-    ///System.out.println("Exception = " + se);
 //@E0D             }
 //@E0D             parser.setErrorHandler(xh);
 //@E0D             parser.setContentHandler(this);
 //@E0D             parser.setEntityResolver(this);  // So that we can find the rfml.dtd for the parser.
 
-    // Create an InputSource for passing to the parser.
-    // Wrap any SAXExceptions as ParseExceptions.
-    try
-    {
-      XMLReader reader = parser.getXMLReader(); //@E0A
-      reader.setErrorHandler(m_xh); //@E0A
-      reader.setEntityResolver(this);  //@E0A So that we can find the rfml.dtd for the parser.
-      parser.parse(new InputSource(inStream), this); // TBD: This hangs if rfml.dtd can't be found and "continue-after-fatal-error" is set to true. @E0C
+      // Create an InputSource for passing to the parser.
+      // Wrap any SAXExceptions as ParseExceptions.
+      try
+      {
+        XMLReader reader = parser.getXMLReader(); //@E0A
+        reader.setErrorHandler(m_xh); //@E0A
+        reader.setEntityResolver(this);  //@E0A So that we can find the rfml.dtd for the parser.
+        parser.parse(new InputSource(inStream), this); // Note: This hangs if rfml.dtd can't be found and "continue-after-fatal-error" is set to true. @E0C
+      }
+      catch (SAXException e)
+      {
+        if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
+        ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
+        pe.addMessage(e.getMessage());
+        throw pe;
+      }
+
+      // Close the input stream
+      inStream.close();
+      inStream = null;
+
+      // Check for errors
+      ParseException exc = m_xh.getException();
+      if (exc != null)
+      {
+        //exc.reportErrors();   // Note - This is redundant with a call in loadSourceXxxDocument() in RecordFormatDocument and ProgramCallDocument.
+        throw exc;
+      }
+
+      // Recursively walk the document tree and augment the tree with
+      // cloned subtrees for <data type="struct"> nodes.
+      augmentTree(m_rootNode, new Stack());
+
+      // Perform post-parsing attribute checking.
+      // Recursively walk the document tree and ask each node
+      // to verify all attributes.
+      // Note that this phase must be performed after the document is completely
+      // parsed because some attributes (length=, count=, etc.) make reference
+      // to named document elements occuring later in the document.
+      checkAttributes(m_rootNode);
+
+      if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
+        throw m_rootNode.getPcmlSpecificationException();
     }
-    catch (SAXException e)
+    finally
     {
-      if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
-      ParseException pe = new ParseException(SystemResourceFinder.format(DAMRI.FAILED_TO_PARSE, new Object[] {m_docName} ) );
-      pe.addMessage(e.getMessage());
-      throw pe;
+      if (inStream != null) inStream.close();
     }
-
-    // Close the input stream
-    inStream.close();
-
-    // Check for errors
-    ParseException exc = m_xh.getException();
-    if (exc != null)
-    {
-      ///exc.reportErrors();   // Note - This is redundant with a call in loadSourceXxxDocument() in RecordFormatDocument and ProgramCallDocument.
-      throw exc;
-    }
-
-    // Recursively walk the document tree and augment the tree with
-    // cloned subtrees for <data type="struct"> nodes.
-    augmentTree(m_rootNode, new Stack());
-
-    // Perform post-parsing attribute checking.
-    // Recursively walk the document tree and ask each node
-    // to verify all attributes.
-    // Note that this phase must be performed after the document is completely
-    // parsed because some attributes (length=, count=, etc.) make reference
-    // to named document elements occuring later in the document.
-    checkAttributes(m_rootNode);
-
-    if (m_rootNode != null && m_rootNode.getPcmlSpecificationException() != null)
-      throw m_rootNode.getPcmlSpecificationException();
   }
 
   /**
@@ -389,7 +396,6 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
     }
     else if (tagName.equals("data"))
     {
-      ///newNode = new RfmlData(attrs);
       newNode = new RfmlData(attrs);
     }
     else
