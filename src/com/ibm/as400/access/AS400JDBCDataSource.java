@@ -3793,6 +3793,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * Gets the package CCSID property, which indicates the
     * CCSID in which statements are sent to the i5/OS system and
     * also the CCSID of the package they are stored in.
+    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
     * @return The value of the package CCSID property.
     **/
     public int getPackageCCSID()
@@ -3805,6 +3806,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * Sets the package CCSID property, which indicates the
     * CCSID in which statements are sent to the i5/OS system and
     * also the CCSID of the package they are stored in.
+    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
     * @param ccsid The package CCSID.
     **/
     public void setPackageCCSID(int ccsid)
@@ -3828,6 +3830,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Gets the minimum divide scale property.  This property ensures the scale
     * of the result of decimal division is never less than its specified value.
+    * Valid values: 0-9.  0 is default.
     * @return The minimum divide scale.
     **/
     public int getMinimumDivideScale()
@@ -3839,6 +3842,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Gets the maximum precision property. This property indicates the 
     * maximum decimal precision the i5/OS system should use.
+    * Valid values: 31 or 63.  31 is default.
     * @return The maximum precision.
     **/
     public int getMaximumPrecision()
@@ -3850,6 +3854,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Gets the maximum scale property.  This property indicates the
     * maximum decimal scale the i5/OS system should use.
+    * Valid values: 0-63.  31 is default.
     * @return The maximum scale.
     **/
     public int getMaximumScale()
@@ -3861,6 +3866,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Sets the minimum divide scale property.  This property ensures the scale
     * of the result of decimal division is never less than its specified value.
+    * Valid values: 0-9.  0 is default.
     * @param scale The minimum divide scale.
     **/
     public void setMinimumDivideScale(int scale)
@@ -3884,6 +3890,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Sets the maximum precision property. This property indicates the 
     * maximum decimal precision the i5/OS system should use.
+    * Valid values: 31 or 63.  31 is default.
     * @param precision The maximum precision.
     **/
     public void setMaximumPrecision(int precision)
@@ -3907,6 +3914,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Sets the maximum scale property.  This property indicates the
     * maximum decimal scale the i5/OS system should use.
+    * Valid values: 0-63.  31 is default.
     * @param scale The maximum scale.
     **/
     public void setMaximumScale(int scale)
