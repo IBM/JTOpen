@@ -1906,7 +1906,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
             else if(parameterValue.length > maxToLog_)
                 JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " length: " + parameterValue.length);  // @H1A
-            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + parameterValue.length + " value: " + new String(parameterValue) ); // @H1A  //@PDC
         }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1);
