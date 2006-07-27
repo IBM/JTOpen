@@ -788,7 +788,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  increase frequency of communication to the system, but will only
     *  download LOB data as it is needed.
     *  @return The lob threshold.  Valid range is 0-16777216.
-    *  The default value is 0.
+    *  The default value is 32768.
     **/
     public int getLobThreshold()
     {
@@ -1031,11 +1031,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  <p>Valid values include:
     *  <ul>
     *    <li>"hex" (base the sort on hexadecimal values)
-    *    <li>"job" (base the sort on the setting for the server job)
     *    <li>"language" (base the sort on the language set in the sort language property)
     *    <li> "table" (base the sort on the sort sequence table set in the sort table property)
     *  </ul>
-    *  The default value is "job".
+    *  The default value is "hex".
     **/
     public String getSort()
     {
@@ -1045,7 +1044,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Returns the three-character language id to use for selection of a sort sequence.
     *  @return The three-character language id.
-    *  The default value is based on the locale.
+    *  The default value is ENU.
     **/
     public String getSortLanguage()
     {
@@ -1255,7 +1254,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Indicates whether true auto commit support is used.
     *  @return true if true auto commit support is used; false otherwise.
-    *  The default value is true.
+    *  The default value is false.
     **/
     public boolean isTrueAutoCommit()
     {
@@ -1678,7 +1677,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Sets whether true auto commit support is used.
     *  @param value true if true auto commit support should be used; false otherwise.
-    *  The default value is true.
+    *  The default value is false.
     **/
     public void setTrueAutoCommit(boolean value)
     {
@@ -2173,11 +2172,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  <p>Valid values include:
     *  <ul>
     *    <li> "hex" (base the sort on hexadecimal values)
-    *    <li> "job" (base the sort on the setting for the server job)
     *    <li> "language" (base the sort on the language set in the sort language property)
     *    <li> "table" (base the sort on the sort sequence table set in the sort table property).
     *  </ul>
-    *  The default value is "job".
+    *  The default value is "hex".
     **/
     public void setSort(String sort)
     {
@@ -2424,7 +2422,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  download LOB data as it is needed.
     *
     *  @param threshold The lob threshold.  Valid range is 0-16777216.
-    *  The default value is 0.
+    *  The default value is 32768.
     **/
     public void setLobThreshold(int threshold)
     {
@@ -3340,7 +3338,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the three-character language id to use for selection of a sort sequence.
     *  This property has no effect unless the sort property is set to "language".
     *  @param language The three-character language id.
-    *  The default value is based on the locale.
+    *  The default value is ENU.
     **/
     public void setSortLanguage(String language)
     {
@@ -3793,7 +3791,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * Gets the package CCSID property, which indicates the
     * CCSID in which statements are sent to the i5/OS system and
     * also the CCSID of the package they are stored in.
-    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
+    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+    * Default value: 13488
     * @return The value of the package CCSID property.
     **/
     public int getPackageCCSID()
@@ -3806,7 +3805,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * Sets the package CCSID property, which indicates the
     * CCSID in which statements are sent to the i5/OS system and
     * also the CCSID of the package they are stored in.
-    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
+    * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+    * Default value: 13488
     * @param ccsid The package CCSID.
     **/
     public void setPackageCCSID(int ccsid)

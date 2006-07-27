@@ -315,7 +315,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         REMARKS_SYSTEM                  = SYSTEM_;
 
     static final String         SORT_HEX                        = "hex";
-    static final String         SORT_JOB                        = "job";
+    //@PDD static final String         SORT_JOB                        = "job";
     static final String         SORT_LANGUAGE1                  = "language";
     static final String         SORT_TABLE1                     = "table";
 
@@ -879,12 +879,12 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo (SORT_, "");
         dpi_[i].description = "SORT_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[4];
+        dpi_[i].choices     = new String[3]; //@PDC
         dpi_[i].choices[0]  = SORT_HEX;
-        dpi_[i].choices[1]  = SORT_JOB;
-        dpi_[i].choices[2]  = SORT_LANGUAGE1;
-        dpi_[i].choices[3]  = SORT_TABLE1;
-        defaults_[i]        = SORT_JOB;
+        //@PDD dpi_[i].choices[1]  = SORT_JOB;
+        dpi_[i].choices[1]  = SORT_LANGUAGE1; //@PDC
+        dpi_[i].choices[2]  = SORT_TABLE1; //@PDC
+        defaults_[i]        = SORT_HEX; //@PDC
 
         // Sort language.
         //
