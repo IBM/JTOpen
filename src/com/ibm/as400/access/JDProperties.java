@@ -45,6 +45,8 @@ attributes for the driver.
 //
 //    __ Add getXXX/setXXX methods to AS400JDBCDataSource.java.
 //
+//    __ Add getXXX/setXXX methods to AS400JDBCManagedDataSource.java
+//
 //    __ Add a property to AS400JDBCDataSourceBeanInfo.java.
 //
 //    __ Update the testcase JDDriverGetPropertyInfo.java to
