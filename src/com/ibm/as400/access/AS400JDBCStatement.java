@@ -2138,7 +2138,8 @@ public class AS400JDBCStatement implements Statement
         // Only block if the cursor is not updatable
         // and no locators are in the result set.                                  @B2A
         if((cursor_.getConcurrency() != ResultSet.CONCUR_UPDATABLE)    // @B2C @EAC
-           && (lastPrepareContainsLocator_ == false))
+           && (lastPrepareContainsLocator_ == false)
+           && (resultSetType_ != ResultSet.TYPE_SCROLL_SENSITIVE))  //@KKB we do not want to block if a sensitive cursor is being used
         {    // @B2A
 
             // Determine if we should block based on the block
