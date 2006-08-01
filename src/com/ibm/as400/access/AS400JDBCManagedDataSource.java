@@ -56,7 +56,7 @@ import javax.naming.Context;
  @see AS400JDBCConnectionPoolDataSource
  @see AS400JDBCXADataSource
  **/
-public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Serializable
+public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
   private static final String copyright = "Copyright (C) 2005-2006 International Business Machines Corporation and others.";
   private static final boolean DEBUG = false;
@@ -519,6 +519,26 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
 
+  //@PDA 550 - clone
+  /**
+   * Method to create a clone of AS400JDBCManagedDataSource. This does a shallow
+   * copy, with the exception of JDProperties, which also gets cloned.
+   */
+  public Object clone()
+  {
+      try
+      {
+          AS400JDBCManagedDataSource clone = (AS400JDBCManagedDataSource) super.clone();
+          clone.properties_ = (JDProperties) this.properties_.clone();
+          return clone;
+      } catch (CloneNotSupportedException e)
+      { // This should never happen.
+          Trace.log(Trace.ERROR, e);
+          throw new UnsupportedOperationException("clone()");
+      }
+  }
+  
+
   /**
    Shuts down the connection pool in an orderly manner.  Closes all connections in the pool.
    @throws Throwable If an error occurs.
@@ -974,7 +994,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    increase frequency of communication to the system, but will only
    download LOB data as it is needed.
    @return The lob threshold.  Valid range is 0-16777216.
-   The default value is 0.
+   The default value is 32768.
    **/
   public int getLobThreshold()
   {
@@ -1003,6 +1023,22 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     return writer_;
   }
+  
+  //@PDA
+  /**                                                               
+  *  Indicates how to retrieve DatabaseMetaData.
+  *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+  *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+  *  The methods that currently are available through stored procedures are:
+  *  getColumnPrivileges
+  *  @return the metadata setting.
+  *  The default value is 1.
+  **/
+  public int getMetaDataSource()
+  {
+      return properties_.getInt(JDProperties.METADATA_SOURCE);
+  }
+  
 
   /**
    Returns the naming convention used when referring to tables.
@@ -1232,11 +1268,10 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <p>Valid values include:
    <ul>
    <li>"hex" (base the sort on hexadecimal values)
-   <li>"job" (base the sort on the setting for the server job)
    <li>"language" (base the sort on the language set in the sort language property)
    <li> "table" (base the sort on the sort sequence table set in the sort table property)
    </ul>
-   The default value is "job".
+   The default value is "hex".
    **/
   public String getSort()
   {
@@ -1246,7 +1281,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Returns the three-character language id to use for selection of a sort sequence.
    @return The three-character language id.
-   The default value is based on the locale.
+   The default value is ENU.
    **/
   public String getSortLanguage()
   {
@@ -1803,10 +1838,27 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     return properties_.getBoolean(JDProperties.TRANSLATE_BINARY);
   }
 
+  //@PDA
+  /**
+  *  Indicates how Boolean objects are interpreted when setting the value 
+  *  for a character field/parameter using the PreparedStatement.setObject(), 
+  *  CallableStatement.setObject() or ResultSet.updateObject() methods.  Setting the 
+  *  property to "true", would store the Boolean object in the character field as either 
+  *  "true" or "false".  Setting the property to "false", would store the Boolean object 
+  *  in the character field as either "1" or "0".
+  *  @return true if boolean data is translated; false otherwise.
+  *  The default value is true.
+  **/
+  public boolean isTranslateBoolean()
+  {
+      return properties_.getBoolean(JDProperties.TRANSLATE_BOOLEAN);
+  }
+   
+  
   /**
    Indicates whether true auto commit support is used.
    @return true if true auto commit support is used; false otherwise.
-   The default value is true.
+   The default value is false.
    **/
   public boolean isTrueAutoCommit()
   {
@@ -1913,7 +1965,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets whether true auto commit support is used.
    @param value true if true auto commit support should be used; false otherwise.
-   The default value is true.
+   The default value is false.
    **/
   public void setTrueAutoCommit(boolean value)
   {
@@ -2275,11 +2327,10 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    <p>Valid values include:
    <ul>
    <li> "hex" (base the sort on hexadecimal values)
-   <li> "job" (base the sort on the setting for the server job)
    <li> "language" (base the sort on the language set in the sort language property)
    <li> "table" (base the sort on the sort sequence table set in the sort table property).
    </ul>
-   The default value is "job".
+   The default value is "hex".
    **/
   public void setSort(String sort)
   {
@@ -2452,7 +2503,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    download LOB data as it is needed.
    *
    @param threshold The lob threshold.  Valid range is 0-16777216.
-   The default value is 0.
+   The default value is 32768.
    **/
   public void setLobThreshold(int threshold)
   {
@@ -2501,6 +2552,25 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       log_ = new EventLog(writer);
     }
   }
+  
+  //@PDA
+  /**                                                               
+  *  Sets how to retrieve DatabaseMetaData.
+  *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+  *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+  *  The methods that currently are available through stored procedures are:
+  *  getColumnPrivileges
+  *  @param mds The setting for metadata source
+  *  The default value is 1.
+  **/
+  public void setMetaDataSource(int mds)
+  {
+      Integer newValue = new Integer(mds);
+
+      properties_.setString(JDProperties.METADATA_SOURCE, newValue.toString());
+
+  }
+  
 
   /**
    Sets the naming convention used when referring to tables.
@@ -2689,6 +2759,214 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     catch (PropertyVetoException vp) {} // this will never happen
   }
 
+  //@PDA
+  /**
+   * Sets the properties based on ";" delimited string of properties, in same
+   * fashion as URL properties specified with
+   * DriverManager.getConnection(urlProperties). This method simply parses
+   * property string and then calls setPropertes(Properties). This method is
+   * intended as an enhancement so that the user does not have to write new
+   * code to call the setters for new/deleted properties.
+   * 
+   * @param propertiesString list of ";" delimited properties
+   */
+  public void setProperties(String propertiesString)
+  {
+      //use existing JDDatasourceURL to parse properties string like Connection does
+      //but first have to add dummy protocol so we can re-use parsing code
+      propertiesString = "jdbc:as400://dummyhost;" + propertiesString;
+      JDDataSourceURL dsURL = new JDDataSourceURL(propertiesString);
+      //returns only properties specified in propertyString.. (none of
+      // JDProperties defaults)
+      Properties properties = dsURL.getProperties();
+      setProperties(properties);
+  }
+
+  //@PDA
+  /**
+   * Sets the properties for this datasource. This method is intended as an
+   * enhancement so that the user does not have to write new code to call the
+   * setters for new/deleted properties.
+   * 
+   * @param newProperties object containing updated property values
+   */
+  public void setProperties(Properties newProperties)
+  {
+      //1. turn on/off tracing per new props
+      //2. set needed AS400JDBCManagedDataSource instance variables
+      //3. set socket props
+      //4. propagate newProperties to existing properties_ object
+
+      // Check first thing to see if the trace property is
+      // turned on. This way we can trace everything, including
+      // the important stuff like loading the properties.
+
+      // If trace property was set to true, turn on tracing. If trace property
+      // was set to false,
+      // turn off tracing. If trace property was not set, do not change.
+      if (JDProperties.isTraceSet(newProperties, null) == JDProperties.TRACE_SET_ON)
+      {
+          if (!JDTrace.isTraceOn())
+              JDTrace.setTraceOn(true);
+      } else if (JDProperties.isTraceSet(newProperties, null) == JDProperties.TRACE_SET_OFF)
+      {
+          if (JDTrace.isTraceOn())
+              JDTrace.setTraceOn(false);
+      }
+
+      // If toolbox trace is set to datastream. Turn on datastream tracing.
+      if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceDatastreamOn(true);
+      }
+      // If toolbox trace is set to diagnostic. Turn on diagnostic tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceDiagnosticOn(true);
+      }
+      // If toolbox trace is set to error. Turn on error tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_ERROR)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceErrorOn(true);
+      }
+      // If toolbox trace is set to information. Turn on information tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_INFORMATION)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceInformationOn(true);
+      }
+      // If toolbox trace is set to warning. Turn on warning tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_WARNING)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceWarningOn(true);
+      }
+      // If toolbox trace is set to conversion. Turn on conversion tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_CONVERSION)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceConversionOn(true);
+      }
+      // If toolbox trace is set to proxy. Turn on proxy tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_PROXY)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceProxyOn(true);
+      }
+      // If toolbox trace is set to pcml. Turn on pcml tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_PCML)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTracePCMLOn(true);
+      }
+      // If toolbox trace is set to jdbc. Turn on jdbc tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_JDBC)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceJDBCOn(true);
+      }
+      // If toolbox trace is set to all. Turn on tracing for all categories.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_ALL)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceAllOn(true);
+      }
+      // If toolbox trace is set to thread. Turn on thread tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_THREAD)
+      {
+          if (!Trace.isTraceOn())
+          {
+              Trace.setTraceOn(true);
+          }
+          Trace.setTraceThreadOn(true);
+      }
+      // If toolbox trace is set to none. Turn off tracing.
+      else if (JDProperties.isToolboxTraceSet(newProperties, null) == JDProperties.TRACE_TOOLBOX_NONE)
+      {
+          if (Trace.isTraceOn())
+          {
+              Trace.setTraceOn(false);
+          }
+      }
+
+      //next we need to set instance vars (via setX() methods)
+      //or setup socket properties or set in properties_
+      //Note: this is similar to AS400JDBCManagedDataSource(Reference reference)logic
+
+      Enumeration e = newProperties.keys();
+      while (e.hasMoreElements())
+      {
+          String propertyName = (String) e.nextElement();
+          String propertyValue = (String) newProperties.getProperty(propertyName);
+
+          int propIndex = JDProperties.getPropertyIndex(propertyName);
+
+          //some of the setter methods also set the properties_ below
+          if (propIndex == JDProperties.DATABASE_NAME)
+              setDatabaseName(propertyValue);
+          else if (propIndex == JDProperties.USER)
+              setUser(propertyValue);
+          else if (propIndex == JDProperties.PASSWORD)
+              setPassword(properties_.getString(JDProperties.PASSWORD));
+          else if (propIndex == JDProperties.SECURE)
+              setSecure(propertyValue.equals(TRUE_) ? true : false);
+          else if (propIndex == JDProperties.KEEP_ALIVE)
+              setKeepAlive(propertyValue.equals(TRUE_) ? true : false);
+          else if (propIndex == JDProperties.RECEIVE_BUFFER_SIZE)
+              setReceiveBufferSize(Integer.parseInt(propertyValue));
+          else if (propIndex == JDProperties.SEND_BUFFER_SIZE)
+              setSendBufferSize(Integer.parseInt(propertyValue));
+          else if (propIndex == JDProperties.PROMPT)
+              setPrompt(propertyValue.equals(TRUE_) ? true : false);
+          else if (propIndex == JDProperties.KEY_RING_NAME){
+              //at this time, decided to not allow this due to security and fact that there is no setKeyRingName() method
+              if (JDTrace.isTraceOn())
+                  JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCManagedDataSource constructor");  
+          } else if (propIndex == JDProperties.KEY_RING_PASSWORD){
+              //at this time, decided to not allow this due to security and fact that there is no setKeyRingPassword() method
+              if (JDTrace.isTraceOn())
+                  JDTrace.logInformation(this, "Property: " + propertyName + " can only be changed in AS400JDBCManagedDataSource constructor");  
+          } else if (propIndex != -1)
+          {
+              properties_.setString(propIndex, propertyValue);
+          }
+      } 
+  }
+  
+ 
   /**
    Sets the name of the proxy server.
    @param proxyServer The proxy server.
@@ -2922,7 +3200,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    Sets the three-character language id to use for selection of a sort sequence.
    This property has no effect unless the sort property is set to "language".
    @param language The three-character language id.
-   The default value is based on the locale.
+   The default value is ENU.
    **/
   public void setSortLanguage(String language)
   {
@@ -3091,6 +3369,26 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       properties_.setString(JDProperties.TRANSLATE_BINARY, FALSE_);
   }
 
+  //@PDA
+  /**
+  *  Sets how Boolean objects are interpreted when setting the value 
+  *  for a character field/parameter using the PreparedStatement.setObject(), 
+  *  CallableStatement.setObject() or ResultSet.updateObject() methods.  Setting the 
+  *  property to "true", would store the Boolean object in the character field as either 
+  *  "true" or "false".  Setting the property to "false", would store the Boolean object 
+  *  in the character field as either "1" or "0".
+  *  @param translate if boolean data is translated; false otherwise.
+  *  The default value is true.
+  **/
+  public void setTranslateBoolean(boolean translate)
+  {
+      if (translate)
+          properties_.setString(JDProperties.TRANSLATE_BOOLEAN, TRUE_);
+      else
+          properties_.setString(JDProperties.TRANSLATE_BOOLEAN, FALSE_);
+  }
+  
+  
   /**
    Sets the 'user' property.
    @param user The user.
@@ -3284,6 +3582,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    Gets the package CCSID property, which indicates the
    CCSID in which statements are sent to the i5/OS system and
    also the CCSID of the package they are stored in.
+   Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
    @return The value of the package CCSID property.
    **/
   public int getPackageCCSID()
@@ -3295,6 +3594,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    Sets the package CCSID property, which indicates the
    CCSID in which statements are sent to the i5/OS system and
    also the CCSID of the package they are stored in.
+   Valid values:  1200 (UCS-2) and 13488 (UTF-16).  Default value: 13488
    @param ccsid The package CCSID.
    **/
   public void setPackageCCSID(int ccsid)
@@ -3309,6 +3609,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Gets the minimum divide scale property.  This property ensures the scale
    of the result of decimal division is never less than its specified value.
+   Valid values: 0-9.  0 is default.
    @return The minimum divide scale.
    **/
   public int getMinimumDivideScale()
@@ -3319,6 +3620,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Gets the maximum precision property. This property indicates the
    maximum decimal precision the i5/OS system should use.
+   Valid values: 31 or 63.  31 is default.
    @return The maximum precision.
    **/
   public int getMaximumPrecision()
@@ -3329,6 +3631,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Gets the maximum scale property.  This property indicates the
    maximum decimal scale the i5/OS system should use.
+   Valid values: 0-63.  31 is default.
    @return The maximum scale.
    **/
   public int getMaximumScale()
@@ -3339,6 +3642,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets the minimum divide scale property.  This property ensures the scale
    of the result of decimal division is never less than its specified value.
+   Valid values: 0-9.  0 is default.
    @param scale The minimum divide scale.
    **/
   public void setMinimumDivideScale(int scale)
@@ -3353,6 +3657,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets the maximum precision property. This property indicates the
    maximum decimal precision the i5/OS system should use.
+   Valid values: 31 or 63.  31 is default.
    @param precision The maximum precision.
    **/
   public void setMaximumPrecision(int precision)
@@ -3367,6 +3672,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets the maximum scale property.  This property indicates the
    maximum decimal scale the i5/OS system should use.
+   Valid values: 0-63.  31 is default.
    @param scale The maximum scale.
    **/
   public void setMaximumScale(int scale)
