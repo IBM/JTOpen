@@ -257,7 +257,7 @@ public class VMRI extends ListResourceBundle
            // #TRANNOTE then a short identifier to describe the
            // #TRANNOTE message.
            // #TRANNOTE
-      { "EXC_AS400_ERROR", "An error occurred on the server." },
+      { "EXC_AS400_ERROR", "An error occurred on the system." }, //@550
       { "EXC_DIRECTORY_NOT_CREATED", "Directory not created." },
       { "EXC_FILE_ALREADY_EXISTS", "File already exists." },
       { "EXC_FILE_NOT_CREATED", "File not created." },
@@ -802,9 +802,9 @@ public class VMRI extends ListResourceBundle
       { "PROP_VALUE_STATE_OK", "OK" },
       { "PROP_VALUE_STATE_CANCEL", "Cancel" },
 
-      { "PROP_DESC_SYSTEM", "The server system on which the object resides." },
+      { "PROP_DESC_SYSTEM", "The system on which the object resides." }, //@550
 
-           // #TRANNOTE The server on which the object resides.
+           // #TRANNOTE The system on which the object resides. //@550
       { "PROP_NAME_SYSTEM", "system" },
 
       { "PROP_DESC_TABLE_SCHEMAS", "The database schemas for which tables are shown." },

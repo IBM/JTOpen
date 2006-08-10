@@ -80,7 +80,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_FORMAT.AJDSP_TIME_SEP_LABEL", "Separator:  "},
       {"AJDSP_FORMAT.EditorBounds", "245,280,972,648"},
       {"AJDSP_GENERAL", "General"},
-      {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "i5/OS system:"},
+      {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "i5/OS system:"},   //@550
       {"AJDSP_GENERAL.AJDSP_AS400SERVER_TEXTBOX", ""},
       {"AJDSP_GENERAL.AJDSP_DATASOURCE_NAME_LABEL", "Data source name:"},
       {"AJDSP_GENERAL.AJDSP_DATASOURCE_NAME_TEXTBOX", ""},
@@ -122,7 +122,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RC", "Allow select and call statements only (read/call)"},
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RO", "Allow select statements only (read only)"},
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RW", "Allow all SQL statements (read/write)"},
-      {"AJDSP_OTHER.AJDSP_OS400DESC_RADIOBUTTON", "i5/OS object description  "},
+      {"AJDSP_OTHER.AJDSP_OS400DESC_RADIOBUTTON", "i5/OS object description  "},  //@550
       {"AJDSP_OTHER.AJDSP_REMARKSSOURCE_LABEL", "Remarks source:"},
       {"AJDSP_OTHER.AJDSP_SQLDESC_RADIOBUTTON", "SQL object comment  "},
       {"AJDSP_OTHER.EditorBounds", "230,32,968,662"},
@@ -158,7 +158,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_RECBLK_NOTUPDT", "Block except if FOR UPDATE OF specified"},
       {"AJDSP_RMDSTITLE", "Refresh Managed Data Sources"},
       {"AJDSP_SECURESSL", "Secured with Secured Sockets Layer (SSL)"},
-      {"AJDSP_SERVER", "Server"},
+      {"AJDSP_SERVER", "System"},        //@550
       {"AJDSP_SERVER.AJDSP_COMMIT_MODE_COMBOBOX.EditorBounds", "12,159,454,250"},
       {"AJDSP_SERVER.AJDSP_COMMIT_MODE_LABEL", "Commit mode: "},
       {"AJDSP_SERVER.AJDSP_DFT_LIBS_LABEL", "Library list:"},
@@ -170,7 +170,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_SERVER.MAX_PRECISIONLBL", "Maximum precision  (31 or 63):"},
       {"AJDSP_SERVER.MAX_SCALE_LBL", "Maximum scale  (0-63):"},
       {"AJDSP_SERVER.MIN_DIV_SCALE_LBL", "Minimum divide scale  (0-9):"},
-      {"AJDSP_SERVER1", "Server"},
+      {"AJDSP_SERVER1", "System"},       //@550
       {"AJDSP_SORTHEX", "HEX values"},
       {"AJDSP_SORTJOB", "Job profile"},
       {"AJDSP_SORTLANGID", "Language ID"},
