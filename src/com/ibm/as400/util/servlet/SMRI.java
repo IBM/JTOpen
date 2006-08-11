@@ -145,7 +145,7 @@ public class SMRI extends ListResourceBundle
          // #TRANNOTE system / userid has been authenticated.
       { "PROP_DESC_AUTHENTICATED", "&0 to &1 authenticated" },                 //$B2A
 
-      { "PROP_DESC_AUTHFAILED", "Server authentication failed" },              //$B2A
+      { "PROP_DESC_AUTHFAILED", "System authentication failed" },              //$B2A @550
 
          // #TRANNOTE authentication failed for userid - (messages from error)
       { "PROP_DESC_AUTHENTICATEFAILED", "authentication failed for &0 - &1" }, //$B2A

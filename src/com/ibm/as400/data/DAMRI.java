@@ -118,7 +118,7 @@ public class DAMRI extends ListResourceBundle
     { NULL_VALUE,                  "Cannot set a value to 'null'. Processing <data> element ''{0}''." },
     { STRING_OR_NUMBER,            "Invalid data type ''{0}''. String or Number expected. Processing <data> element ''{1}''." },
     { BYTE_ARRAY,                  "Invalid data type ''{0}''. byte[] expected. Processing <data> element ''{1}''." },
-    { UNSUPPORTED_CCSID,           "Unsupported CCSID {0} for server {1}. Processing <data> element ''{2}''." },
+    { UNSUPPORTED_CCSID,           "Unsupported CCSID {0} for system {1}. Processing <data> element ''{2}''." },          //@550
     { STRING_TO_BYTES,             "Error converting String to data using CCSID {0}. Processing <data> element ''{1}''." },
     { ELEMENT_NOT_FOUND,           "{1} element named ''{0}'' not found in document." },
     { WRONG_ELEMENT_TYPE,          "Element named ''{0}'' in document is not a {1} element." },

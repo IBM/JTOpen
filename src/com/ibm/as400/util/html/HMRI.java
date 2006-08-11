@@ -99,9 +99,9 @@ public class HMRI extends ListResourceBundle
 
            // #TRANNOTE Denotes a Web URL (Uniform Resource Locator) or Web Page
       { "PROP_NAME_URL", "URL" },
-      { "PROP_DESC_URL", "The ACTION URL address of the form handler on the server." },
+      { "PROP_DESC_URL", "The ACTION URL address of the form handler on the web server." },//@550
       { "PROP_NAME_METHOD", "method" },
-      { "PROP_DESC_METHOD", "The HTTP method used for sending form contents to the server." },
+      { "PROP_DESC_METHOD", "The HTTP method used for sending form contents to the web server." },  //@550
 
       { "PROP_NAME_TARGET", "target" },
       { "PROP_HF_DESC_TARGET", "The target frame for the form response." },
@@ -299,7 +299,7 @@ public class HMRI extends ListResourceBundle
       { "PROP_NAME_REQUEST", "request" },                                                           //$B7A
       { "PROP_DESC_REQUEST", "The http servlet request." },                                         //$B7A
       { "PROP_NAME_SYSTEM",  "system" },                                                            //$B8A
-      { "PROP_DESC_SYSTEM",  "The server on which the objects reside." },                           //$B8A
+      { "PROP_DESC_SYSTEM",  "The system on which the objects reside." },                           //$B8A @550
       { "PROP_NAME_RENDERER", "renderer" },                                                         //$B8A @B9C
       { "PROP_DESC_RENDERER", "The renderer used to display FileListElement data." },               //$B8A @B9C
       { "PROP_NAME_TABLE", "table" },                                                               //$B8A
