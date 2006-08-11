@@ -122,7 +122,7 @@ public class SVMRI extends ListResourceBundle
         { "QLMTSECOFR_DES" , "Limit security officer device access" },
         { "QLOCALE_DES" , "Locale path name" },
         { "QLOGOUTPUT_DES" , "Produce printer output for job log" },  // @G1A
-        { "QMAXACTLVL_DES" , "Maximum activity level of server" },
+        { "QMAXACTLVL_DES" , "Maximum activity level of system" }, //@550
         { "QMAXJOB_DES" , "Maximum number of jobs" },              //@D2a
         { "QMAXSGNACN_DES" , "Action to take for failed signon attempts" },
         { "QMAXSIGN_DES" , "Maximum sign-on attempts allowed" },

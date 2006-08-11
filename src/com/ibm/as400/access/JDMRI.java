@@ -117,14 +117,15 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_XA_LOOSELY_COUPLED_SUPPORT", "xaLooselyCoupledSupport"}, //@540
       { "PROP_NAME_TRANSLATE_BOOLEAN", "translateBoolean"}, //@PDA
       { "PROP_NAME_METADATA_SOURCE", "metaDataSource"}, //@PDA
+      { "PROP_NAME_QUERY_STORAGE_LIMIT", "queryStorageLimit"}, //@550
       
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
       { "BIDI_STRING_TYPE_DESC", "Specifies the output string type of bidi data."}, //@E6A
       { "BIG_DECIMAL_DESC", "Specifies whether an intermediate java.math.BigDecimal object is used for packed and zoned decimal conversions." }, // @E0A
-      { "BLOCK_CRITERIA_DESC", "Specifies the criteria for retrieving data from the server in blocks of records." },
-      { "BLOCK_SIZE_DESC", "Specifies the block size (in kilobytes) to retrieve from the server and cache on the client." },
+      { "BLOCK_CRITERIA_DESC", "Specifies the criteria for retrieving data from the system in blocks of records." },    //@550
+      { "BLOCK_SIZE_DESC", "Specifies the block size (in kilobytes) to retrieve from the system and cache on the client." }, //@550
       { "CURSOR_HOLD_DESC", "Specifies whether to hold the cursor across transactions." },      // @E2
       { "CURSOR_SENSITIVITY_DESC", "Specifies the cursor sensitivity to request from the database." },     //@J4A
       { "DATABASE_NAME_DESC", "Specifies the name of the database." },      // @E2
@@ -136,12 +137,12 @@ public class JDMRI extends ListResourceBundle
       { "DECIMAL_SEPARATOR_DESC", "Specifies the decimal separator used in numeric constants within SQL statements." },
       { "DESCRIPTION_DESC", "Specifies the description of the data source." },      // @E2
       { "DRIVER_DESC", "Specifies the JDBC driver implementation." },      // @E4A
-      { "ERRORS_DESC", "Specifies the amount of detail to be returned in the message for errors that occur on the server." },
+      { "ERRORS_DESC", "Specifies the amount of detail to be returned in the message for errors that occur on the system." },//@550
       { "EXTENDED_DYNAMIC_DESC", "Specifies whether to use extended dynamic support." },
-      { "EXTENDED_METADATA_DESC", "Specifies whether to request extended metadata from the server." },     //@J2A
+      { "EXTENDED_METADATA_DESC", "Specifies whether to request extended metadata from the system." },     //@J2A   @550
       { "FULL_OPEN_DESC", "Specifies whether to use an optimized query." },              // @W1
-      { "KEY_RING_NAME_DESC", "Specifies the key ring class name used for SSL communications with the server." }, //@E7A
-      { "KEY_RING_PASSWORD_DESC", "Specifies the password for the key ring class used for SSL communications with the server." }, //@E7A
+      { "KEY_RING_NAME_DESC", "Specifies the key ring class name used for SSL communications with the system." }, //@E7A @550
+      { "KEY_RING_PASSWORD_DESC", "Specifies the password for the key ring class used for SSL communications with the system." }, //@E7A @550
       { "LAZY_CLOSE_DESC", "Specifies whether to delay closing cursors until subsequent requests." }, // @E3A
       { "LIBRARIES_DESC", "Specifies the libraries to add to the server job's library list." },
       { "LOB_THRESHOLD_DESC", "Specifies the maximum LOB (large object) size (in kilobytes) that can be retrieved as part of a result set." },
@@ -153,36 +154,35 @@ public class JDMRI extends ListResourceBundle
       { "PACKAGE_CRITERIA_DESC", "Specifies the type of SQL statements to be stored in the SQL package" },
       { "PACKAGE_ERROR_DESC", "Specifies the action to take when SQL package errors occur." },
       { "PACKAGE_LIBRARY_DESC", "Specifies the library for the SQL package." },
-      { "PASSWORD_DESC", "Specifies the password for connecting to the server." },
+      { "PASSWORD_DESC", "Specifies the password for connecting to the system." }, //@550
       { "PREFETCH_DESC", "Specifies whether to prefetch data when running a SELECT statement." },
-      { "PROMPT_DESC", "Specifies whether the user should be prompted if a user name or password is needed to connect to the server." },
+      { "PROMPT_DESC", "Specifies whether the user should be prompted if a user name or password is needed to connect to the system." }, //@550
       { "PROXY_SERVER_DESC", "Specifies the host name and (optionally) port number of the middle-tier machine where the proxy server is running." },  //@A2A
-    //{ "PROXY_SERVER_SECURE_DESC", "Specifies whether a Secure Sockets Layer (SSL) connection is used for communication between the client and the proxy server." },  //@A2A
       { "REMARKS_DESC", "Specifies the source of the text for REMARKS columns in ResultSet objects returned by DatabaseMetaData methods." },
       { "SAVE_PASSWORD_WHEN_SERIALIZED", "Specifies whether to save the password when the data source object is serialized." },  //@J3a
       { "SECONDARY_URL_DESC", "Specifies the URL that the proxy server should use when establishing a JDBC connection." },  //@A2A
-      { "SECURE_DESC", "Specifies whether a Secure Sockets Layer (SSL) connection is used to communicate with the server." },
-      { "SERVER_NAME_DESC", "Specifies the name of the server."},                  // @E2
-      { "SORT_DESC", "Specifies how the server sorts records before sending them to the client." },
+      { "SECURE_DESC", "Specifies whether a Secure Sockets Layer (SSL) connection is used to communicate with the system." }, //@550
+      { "SERVER_NAME_DESC", "Specifies the name of the system."},                  // @E2 @550
+      { "SORT_DESC", "Specifies how the system sorts records before sending them to the client." }, //@550
       { "SORT_LANGUAGE_DESC", "Specifies a 3-character language ID to use for selection of a sort sequence." },
-      { "SORT_TABLE_DESC", "Specifies the library and file name of a sort sequence table stored on the server." },
-      { "SORT_WEIGHT_DESC", "Specifies how the server treats case while sorting records." },
+      { "SORT_TABLE_DESC", "Specifies the library and file name of a sort sequence table stored on the system." }, //@550
+      { "SORT_WEIGHT_DESC", "Specifies how the system treats case while sorting records." },                        //@550
       { "THREAD_USED_DESC", "Specifies whether to use threads in communication with the host servers." },  //@E1A
       { "TIME_FORMAT_DESC", "Specifies the time format used in time literals within SQL statements." },
       { "TIME_SEPARATOR_DESC", "Specifies the time separator used in time literals within SQL statements." },
       { "TRACE_DESC", "Specifies whether trace messages should be logged." },
-      { "TRACE_SERVER_DESC", "Specifies whether the job on the server should be traced." },     //@J1a
+      { "TRACE_SERVER_DESC", "Specifies whether the job on the system should be traced." },     //@J1a @550
       { "TRACE_TOOLBOX_DESC", "Specifies what category of a toolbox trace to log." },           //@K1A
       { "TRANSACTION_ISOLATION_DESC", "Specifies the default transaction isolation." },
       { "TRANSLATE_BINARY_DESC", "Specifies whether binary data is translated." },
-      { "USER_DESC", "Specifies the user name for connecting to the server." },
-      { "KEEP_ALIVE_DESC", "Specifies the socket keep alive value to use when connecting to the server." },
-      { "RECEIVE_BUFFER_SIZE_DESC", "Specifies the socket receive buffer size to use when connecting to the server." },
-      { "SEND_BUFFER_SIZE_DESC", "Specifies the socket send buffer size to use when connecting to the server." },
-      { "SO_LINGER_DESC", "Specifies the socket linger value to use when connecting to the server." },
-      { "SO_TIMEOUT_DESC", "Specifies the socket timeout value to use when connecting to the server." },
-      { "TCP_NO_DELAY_DESC", "Specifies the socket TCP no delay value to use when connecting to the server." },
-      { "PACKAGE_CCSID_DESC", "Specifies the character encoding to use for the SQL package and any statements sent to the server." }, // @M0A
+      { "USER_DESC", "Specifies the user name for connecting to the system." }, //@550
+      { "KEEP_ALIVE_DESC", "Specifies the socket keep alive value to use when connecting to the system." }, //@550
+      { "RECEIVE_BUFFER_SIZE_DESC", "Specifies the socket receive buffer size to use when connecting to the system." }, //@550
+      { "SEND_BUFFER_SIZE_DESC", "Specifies the socket send buffer size to use when connecting to the system." }, //@550
+      { "SO_LINGER_DESC", "Specifies the socket linger value to use when connecting to the system." }, //@550
+      { "SO_TIMEOUT_DESC", "Specifies the socket timeout value to use when connecting to the system." }, //@550
+      { "TCP_NO_DELAY_DESC", "Specifies the socket TCP no delay value to use when connecting to the system." }, //@550
+      { "PACKAGE_CCSID_DESC", "Specifies the character encoding to use for the SQL package and any statements sent to the system." }, // @M0A @550
       { "MINIMUM_DIVIDE_SCALE_DESC", "Specifies the minimum scale value for the result of decimal division." },                       // @M0A
       { "MAXIMUM_PRECISION_DESC", "Specifies the maximum decimal precision the database should use." },                               // @M0A
       { "MAXIMUM_SCALE_DESC", "Specifies the maximum scale the database should use." },                                               // @M0A
@@ -196,10 +196,11 @@ public class JDMRI extends ListResourceBundle
       { "HOLD_STATEMENTS_DESC", "Specifies if statements should remain open until a transaction boundary."}, //@KBL
       { "ROLLBACK_CURSOR_HOLD_DESC", "Specifies whether to hold cursors across a rollback."}, //@K94
       { "VARIABLE_FIELD_COMPRESSION_DESC", "Specifies whether variable-length fields should be compressed."}, //@K54
-      { "QUERY_OPTIMIZE_GOAL_DESC", "Specifies the goal the server should use with optimization of queries."}, //@540
+      { "QUERY_OPTIMIZE_GOAL_DESC", "Specifies the goal the system should use with optimization of queries."}, //@540 @550
       { "XA_LOOSELY_COUPLED_SUPPORT_DESC", "Specifies whether lock sharing is allowed for loosely coupled transaction branches."}, //@540
       { "TRANSLATE_BOOLEAN_DESC", "Specifies how Boolean objects are interpreted when setting the value for a character field/parameter."}, //@PDA
       { "METADATA_SOURCE_DESC", "Specifies how to retrieve DatabaseMetaData."}, //@PDA
+      { "QUERY_STORAGE_LIMIT_DESC", "Specifies the query storage limit to be used when statements in a connection are executed."}, //@550
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

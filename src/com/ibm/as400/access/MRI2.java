@@ -131,13 +131,13 @@ public class MRI2 extends ListResourceBundle
       { "PROP_DESC_SS_DTG", "The date and time status gathered." },
 
       { "PROP_NAME_SS_UCSO", "usersCurrentSignedOn" },
-      { "PROP_DESC_SS_UCSO", "Number of users currently signed on the server." },
+      { "PROP_DESC_SS_UCSO", "Number of users currently signed on the system." },       //@550
 
       { "PROP_NAME_SS_UTSO", "usersTemporarilySignedOff" },
-      { "PROP_DESC_SS_UTSO", "Number of users temporarily signed off the server." },
+      { "PROP_DESC_SS_UTSO", "Number of users temporarily signed off the system." },    //@550
 
       { "PROP_NAME_SS_USBS", "usersSuspendedBySystem" },
-      { "PROP_DESC_SS_USBS", "Number of user jobs suspended by the server." },
+      { "PROP_DESC_SS_USBS", "Number of user jobs suspended by the system." }, //@550
 
       { "PROP_NAME_SS_USOWP", "usersSignedOffWithPrinter" },
       { "PROP_DESC_SS_USOWP", "Number of users signed off with printer output waiting to print." },

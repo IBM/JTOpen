@@ -65,9 +65,9 @@ public class MRI extends ListResourceBundle
         { "DLG_RETRY_BUTTON", "Retry" },
         { "DLG_YES_BUTTON", "Yes" },
 
-        { "DLG_DEFAULT_USER_EXISTS", "A default user already exists for this server." },
+        { "DLG_DEFAULT_USER_EXISTS", "A default user already exists for this system." }, //@550
         { "DLG_SET_DEFAULT_USER_FAILED", "Default user has not been changed." },
-        { "DLG_SIGNON_TITLE", "Signon to the Server" },
+        { "DLG_SIGNON_TITLE", "Signon to the System" }, //@550
         { "DLG_CHANGE_PASSWORD_TITLE", "Change Password" },
         { "DLG_MISSING_USERID", "Missing system name, user ID, or password." },  // @F4C
         { "DLG_MISSING_PASSWORD", "Missing user ID, old or new password." },
@@ -95,7 +95,7 @@ public class MRI extends ListResourceBundle
 
         // #TRANNOTE An AS400FileRecordDescription event has occurred.
         { "EVT_NAME_AS400FILE_RECORD_DESCRIPTION", "AS400FileRecordDescription" },
-        { "EVT_DESC_CONNECTION_CONNECTED", "Connected to the server." },
+        { "EVT_DESC_CONNECTION_CONNECTED", "Connected to the system." }, //@550
         { "EVT_NAME_CONNECTION_CONNECTED", "connected" },
         { "EVT_DESC_CONNECTION_EVENT", "A connection event has occurred." },
         { "EVT_NAME_CONNECTION_EVENT", "connection" },
@@ -148,7 +148,7 @@ public class MRI extends ListResourceBundle
         // #TRANNOTE message.
         // #TRANNOTE
         { "EXC_ACCESS_DENIED", "Access to request was denied." },
-        { "EXC_AS400_ERROR", "An error occurred on the server." },
+        { "EXC_AS400_ERROR", "An error occurred on the system." }, //@550
         { "EXC_ATTRIBUTE_NOT_VALID", "Attribute name not valid." },
 
         { "EXC_HIGH_NIBBLE_NOT_VALID", "High-order nibble of the byte at array offset &0 is not valid.  Byte value: &1" },
@@ -301,14 +301,14 @@ public class MRI extends ListResourceBundle
         { "EXC_SECURITY_GENERAL", "General security error." },
         { "EXC_SECURITY_INVALID_STATE", "Internal error in the security manager." },
         { "EXC_SEND_REPLY_INVALID", "Send reply indicator is not valid." },
-        { "EXC_SERVER_CONVERSION_ERROR", "An error occurred on the server while converting data between code pages." },  // @F5A
-        { "EXC_SERVER_CRYPTO_ERROR", "An error occurred on the server while using cryptographic interfaces." },  // @F5A
-        { "EXC_SERVER_EIM_ERROR", "An error occurred on the server while using EIM interfaces." },  // @F5A
+        { "EXC_SERVER_CONVERSION_ERROR", "An error occurred on the system while converting data between code pages." },  // @F5A @550
+        { "EXC_SERVER_CRYPTO_ERROR", "An error occurred on the system while using cryptographic interfaces." },  // @F5A @550
+        { "EXC_SERVER_EIM_ERROR", "An error occurred on the system while using EIM interfaces." },  // @F5A @550
         { "EXC_SERVER_ID_NOT_VALID", "Server ID is not valid." },  // @F1A
-        { "EXC_SERVER_KEY_NOT_FOUND", "The server could not find the public key." },  // @F5A
-        { "EXC_SERVER_NOT_STARTED", "Unable to start the server." },
-        { "EXC_SERVER_NO_MEMORY", "Server was not able to allocate space needed for authorization." },  // @F5A
-        { "EXC_SERVER_TOKEN_VERSION", "The server version does support the token version." },  // @F5A
+        { "EXC_SERVER_KEY_NOT_FOUND", "The system could not find the public key." },  // @F5A @550
+        { "EXC_SERVER_NOT_STARTED", "Unable to start the host server." }, //@550
+        { "EXC_SERVER_NO_MEMORY", "System was not able to allocate space needed for authorization." },  // @F5A @550
+        { "EXC_SERVER_TOKEN_VERSION", "The system version does support the token version." },  // @F5A @550
         { "EXC_SHARE_VIOLATION", "Sharing violation occurred." },
         { "EXC_SIGNON_CANCELED", "Signon was canceled." },
         { "EXC_SIGNON_CONNECT_FAILED", "Failed to connect to signon server." },
@@ -316,9 +316,9 @@ public class MRI extends ListResourceBundle
         { "EXC_SPECIAL_AUTHORITY_INSUFFICIENT", "User is not authorized for operation." },    // @E4A
         { "EXC_SPOOLED_FILE_NO_MESSAGE_WAITING", "Spooled file does not have a message waiting." },
         { "EXC_START_SERVER_REQUEST_NOT_VALID", "Start server request is not valid.  User ID or password may be missing." },
-        { "EXC_START_SERVER_UNKNOWN_ERROR", "Unknown error starting server." },
+        { "EXC_START_SERVER_UNKNOWN_ERROR", "Unknown error starting host server." }, //@550
         { "EXC_SYNTAX_ERROR", "Syntax error occurred." },
-        { "EXC_SYSTEM_LEVEL_NOT_CORRECT", "Correct server level is required." },
+        { "EXC_SYSTEM_LEVEL_NOT_CORRECT", "Correct system level is required." }, //@550
         { "EXC_SYSTEM_UNKNOWN", "System name is not known." },  // @F4A
 
         { "EXC_TOKEN_LENGTH_NOT_VALID", "Token length is not valid." },  // @F1A
@@ -361,7 +361,7 @@ public class MRI extends ListResourceBundle
         { "PROP_NAME_AS400_GUI", "guiAvailable" },
         { "PROP_DESC_AS400_GUI", "User interface available." },
         { "PROP_NAME_AS400_SYSTEM", "systemName" },
-        { "PROP_DESC_AS400_SYSTEM", "The name of the server." },
+        { "PROP_DESC_AS400_SYSTEM", "The name of the system." }, //@550
         { "PROP_NAME_AS400_DEFUSER", "useDefaultUserID" },
         { "PROP_DESC_AS400_DEFUSER", "Use the default user ID for signon." },
         { "PROP_NAME_AS400_PWCACHE", "usePasswordCache" },
@@ -493,7 +493,7 @@ public class MRI extends ListResourceBundle
         { "PROP_NAME_WRTJ_NAME_FILTER", "writerFilter" },
         { "PROP_DESC_WRTJ_OUTQ_FILTER", "The filter that selects writer jobs by the integrated file system name of the output queue being processed." },
         { "PROP_NAME_WRTJ_OUTQ_FILTER", "queueFilter" },
-        { "PROP_DESC_COMMAND", "The command to run on the server." },
+        { "PROP_DESC_COMMAND", "The command to run on the system." }, //@550
         { "PROP_NAME_COMMAND", "command" },
         { "PROP_DESC_PROGRAM", "The integrated file system name of the program to run." },
         { "PROP_NAME_PROGRAM", "program" },
