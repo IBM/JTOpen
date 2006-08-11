@@ -413,8 +413,8 @@ public class IFSFile
   /**
    Determines if the applet or application can read from the integrated file system
    object represented by this object.
-   Note that i5/OS <i>directories</i> are not readable; only <i>files</i> can be readable.
-   @return true if the object exists and is readable; false otherwise.
+   Note that i5/OS <i>directories</i> are never readable; only <i>files</i> can be readable.
+   @return true if the object exists and is readable by the application; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.
@@ -434,7 +434,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; // @A7D Unnecessary assignment
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      ///throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -452,8 +452,8 @@ public class IFSFile
   /**
    Determines if the applet or application can write to the integrated file system
    object represented by this object.
-   Note that i5/OS <i>directories</i> are not writable; only <i>files</i> can be writable.
-   @return true if the object exists and is writeable; false otherwise.
+   Note that i5/OS <i>directories</i> are never writable; only <i>files</i> can be writable.
+   @return true if the object exists and is writeable by the application; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.
@@ -474,7 +474,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       //returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      ///throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -668,6 +668,7 @@ public class IFSFile
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the server cannot be started.
    @exception UnknownHostException If the server cannot be located.
+   @exception IOException If the user is not authorized to create the file.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2679,31 +2680,31 @@ public class IFSFile
     }
     // Note: The file server will not allow us to set the length of a file to a value larger than (2Gig minus 1), or 2147483647 (0x7FFFFFFF) bytes, which happens to be the maximum positive value which an 'int' will hold.  Therefore we do not provide a setLength(long) method.
 
-    if (impl_ == null)
     try
     {
-      chooseImpl();
+      if (impl_ == null)
+        chooseImpl();
+
+      boolean success = impl_.setLength(length);
+
+      if (success)
+      {
+        // Fire the file modified event.
+        if (fileListeners_.size() != 0) {
+          IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
+        }
+
+        // Clear any cached attributes.
+        cachedAttributes_ = null;
+      }
+
+      return success;
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
-
-    boolean success = impl_.setLength(length);
-
-    if (success)
-    {
-      // Fire the file modified event.
-      if (fileListeners_.size() != 0) {
-        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
-      }
-
-      // Clear any cached attributes.
-      cachedAttributes_ = null;
-    }
-
-    return success;
   }
 
   /**

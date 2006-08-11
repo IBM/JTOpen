@@ -78,18 +78,20 @@ implements IFSRandomAccessFileImpl
    @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
-    throws IOException
+    throws Throwable
   {
-    if (fd_ != null)
-      fd_.finalize0();  // @B2C
-
     try
     {
-      super.finalize();
+      if (fd_ != null)
+        fd_.finalize0();  // @B2C
     }
     catch(Throwable e)
     {
-      throw new IOException(e.getMessage());
+      Trace.log(Trace.ERROR, "Error during finalization.", e);
+    }
+    finally
+    {
+      super.finalize();
     }
   }
 
@@ -109,7 +111,12 @@ implements IFSRandomAccessFileImpl
     // Ensure that the file is open.
     open();
 
-    fd_.flush();  // @B2C
+    try {
+      fd_.flush();  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -253,7 +260,12 @@ implements IFSRandomAccessFileImpl
     // Ensure that the file is open.
     open();
 
-    return fd_.lock(offset,length);  // @B2C
+    try {
+      return fd_.lock(offset,length);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -405,7 +417,7 @@ implements IFSRandomAccessFileImpl
   private int read(byte[] data,
                   int    dataOffset,
                   int    length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the arguments have been validated by the public class.
 
@@ -443,35 +455,40 @@ implements IFSRandomAccessFileImpl
     throws IOException
   {
     // Assume the arguments have been validated by the public class.
-
-    if (!readFully)
-      return read(data, dataOffset, length);
-    else
-    {  // Read fully.
-      int totalBytesRead = 0;
-      while (totalBytesRead < length)
-      {
-        // Try to read all data requested.
-        int bytesRead = read(data, dataOffset + totalBytesRead,
-                             length - totalBytesRead);
-        if (bytesRead > 0)
+    try
+    {
+      if (!readFully)
+        return read(data, dataOffset, length);
+      else
+      {  // Read fully.
+        int totalBytesRead = 0;
+        while (totalBytesRead < length)
         {
-          totalBytesRead += bytesRead;
-        }
-
-        // Verify that all requested data was read.
-        if (totalBytesRead != data.length)
-        {
-          try
+          // Try to read all data requested.
+          int bytesRead = read(data, dataOffset + totalBytesRead,
+                               length - totalBytesRead);
+          if (bytesRead > 0)
           {
-            // Pause for 64 milliseconds before trying again.
-            Thread.sleep(64);
+            totalBytesRead += bytesRead;
           }
-          catch(Exception e)
-          {}
+
+          // Verify that all requested data was read.
+          if (totalBytesRead != data.length)
+          {
+            try
+            {
+              // Pause for 64 milliseconds before trying again.
+              Thread.sleep(64);
+            }
+            catch(Exception e)
+            {}
+          }
         }
+        return totalBytesRead;
       }
-      return totalBytesRead;
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
     }
   }
 
@@ -489,7 +506,12 @@ implements IFSRandomAccessFileImpl
     if (bytesInCache == 0)
     {
       // Refill the cache
-      readCacheLength_ = read(readCache_, 0, readCache_.length);
+      try {
+        readCacheLength_ = read(readCache_, 0, readCache_.length);
+      }
+      catch (AS400SecurityException e) {
+        throw new IOException(e.getMessage());
+      }
       if (readCacheLength_ == -1)
       {
         // End of file.
@@ -595,86 +617,92 @@ implements IFSRandomAccessFileImpl
   public final String readUTF()
     throws IOException
   {
-    // Determine the length.
-    int bytesRead = read(bytes2, 0, 2);
-    if (bytesRead != 2)
+    try
     {
-      throw new EOFException();
-    }
-
-    int length = ((bytes2[0] & 0xff) << 8) | (bytes2[1] & 0xff);
-    if (length < 0)
-    {
-      length += 65536;
-    }
-
-    // Read the modified UTF-8 data.
-    byte[] data = new byte[length];
-    if (read(data, 0, length) != length)
-    {
-      throw new EOFException();
-    }
-
-    // Convert the modified UTF-8 data to a String.  UTF-8 format goes as follows:
-    // All characters in the range '\u0001' to '\u007f' are represented by a single byte:
-    // ________________
-    // | 0 | bits 0-7 |
-    //
-    // The null character '\u0000' and characters in the range '\u0080' to
-    // '\u07FF' are represented by a pair of bytes:
-    // ____________________________________________
-    // | 1 | 1 | 0 | bits 6-10 | 1 | 0 | bits 0-5 |
-    //
-    // Characters in the range '\u0800' to '\uFFFF' are represented by three bytes:
-    // _____________________________________________________________________
-    // | 1 | 1 | 1 | 0 | bits 12-15 | 1 | 0 | bits 6-11 | 1 | 0 | bits 0-5 |
-    //
-    String s = "";
-    for (int i = 0; i < length;)
-    {
-      // Determine if the next character is in 1, 2, or 3 byte format.
-      if ((data[i] & 0x80) == 0)
+      // Determine the length.
+      int bytesRead = read(bytes2, 0, 2);
+      if (bytesRead != 2)
       {
-        // One byte format.
-        s += (char) data[i];
-        i++;
+        throw new EOFException();
       }
-      else if ((data[i] & 0xe0) == 0xc0)
+
+      int length = ((bytes2[0] & 0xff) << 8) | (bytes2[1] & 0xff);
+      if (length < 0)
       {
-        // Two byte format.  Ensure that we have one more byte.
-        if (i + 1 < length)
+        length += 65536;
+      }
+
+      // Read the modified UTF-8 data.
+      byte[] data = new byte[length];
+      if (read(data, 0, length) != length)
+      {
+        throw new EOFException();
+      }
+
+      // Convert the modified UTF-8 data to a String.  UTF-8 format goes as follows:
+      // All characters in the range '\u0001' to '\u007f' are represented by a single byte:
+      // ________________
+      // | 0 | bits 0-7 |
+      //
+      // The null character '\u0000' and characters in the range '\u0080' to
+      // '\u07FF' are represented by a pair of bytes:
+      // ____________________________________________
+      // | 1 | 1 | 0 | bits 6-10 | 1 | 0 | bits 0-5 |
+      //
+      // Characters in the range '\u0800' to '\uFFFF' are represented by three bytes:
+      // _____________________________________________________________________
+      // | 1 | 1 | 1 | 0 | bits 12-15 | 1 | 0 | bits 6-11 | 1 | 0 | bits 0-5 |
+      //
+      String s = "";
+      for (int i = 0; i < length;)
+      {
+        // Determine if the next character is in 1, 2, or 3 byte format.
+        if ((data[i] & 0x80) == 0)
         {
-          char c = (char) (((data[i] & 0x1f) << 6) | (data[i + 1] & 0x3f));
-          s += c;
-          i += 2;
+          // One byte format.
+          s += (char) data[i];
+          i++;
+        }
+        else if ((data[i] & 0xe0) == 0xc0)
+        {
+          // Two byte format.  Ensure that we have one more byte.
+          if (i + 1 < length)
+          {
+            char c = (char) (((data[i] & 0x1f) << 6) | (data[i + 1] & 0x3f));
+            s += c;
+            i += 2;
+          }
+          else
+          {
+            throw new UTFDataFormatException();
+          }
+        }
+        else if ((data[i] & 0xe0) == 0xe0)
+        {
+          // Three byte format. Ensure that we have two more bytes.
+          if (i + 2 < length)
+          {
+            char c = (char) (((data[i] & 0xf) << 12) |
+                             ((data[i + 1] & 0x3f) << 6) | (data[i + 2] & 0x3f));
+            s += c;
+            i += 3;
+          }
+          else
+          {
+            throw new UTFDataFormatException();
+          }
         }
         else
         {
           throw new UTFDataFormatException();
         }
       }
-      else if ((data[i] & 0xe0) == 0xe0)
-      {
-        // Three byte format. Ensure that we have two more bytes.
-        if (i + 2 < length)
-        {
-          char c = (char) (((data[i] & 0xf) << 12) |
-                           ((data[i + 1] & 0x3f) << 6) | (data[i + 2] & 0x3f));
-          s += c;
-          i += 3;
-        }
-        else
-        {
-          throw new UTFDataFormatException();
-        }
-      }
-      else
-      {
-        throw new UTFDataFormatException();
-      }
-    }
 
-    return s;
+      return s;
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
   /**
@@ -749,7 +777,12 @@ implements IFSRandomAccessFileImpl
   {
     // Assume the argument has been validated by the public class.
 
-    fd_.setLength(length);
+    try {
+      fd_.setLength(length);
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -793,7 +826,12 @@ implements IFSRandomAccessFileImpl
     // Ensure that the file is open.
     open();
 
-    fd_.unlock(key);  // @B2C
+    try {
+      fd_.unlock(key);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -820,7 +858,12 @@ implements IFSRandomAccessFileImpl
     // Ensure that the file is open.
     open();
 
-    fd_.writeBytes(data, dataOffset, length, forceToStorage_);  // @B2C
+    try {
+      fd_.writeBytes(data, dataOffset, length, forceToStorage_);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 

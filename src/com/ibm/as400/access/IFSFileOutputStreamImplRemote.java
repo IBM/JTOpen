@@ -77,18 +77,20 @@ implements IFSFileOutputStreamImpl
    @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
-    throws IOException
+    throws Throwable
   {
-    if (fd_ != null)
-      fd_.finalize0();  // @B2C
-
     try
     {
-      super.finalize();
+      if (fd_ != null)
+        fd_.finalize0();  // @B2C
     }
     catch(Throwable e)
     {
-      throw new IOException(e.getMessage());
+      Trace.log(Trace.ERROR, "Error during finalization.", e);
+    }
+    finally
+    {
+      super.finalize();
     }
   }
 
@@ -102,7 +104,13 @@ implements IFSFileOutputStreamImpl
   {
       // Flush the OutputStream.
       open(fd_.getPreferredCCSID());  // @B4a
-      fd_.flush();  // @B4a
+
+      try {
+        fd_.flush();  // @B4a
+      }
+      catch (AS400SecurityException e) {
+        throw new IOException(e.getMessage());
+      }
   }
 
 
@@ -125,7 +133,12 @@ implements IFSFileOutputStreamImpl
     // Ensure that the file is open.
     open(fd_.getPreferredCCSID());
 
-    return fd_.lock(length);  // @B2C
+    try {
+      return fd_.lock(length);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -280,7 +293,12 @@ implements IFSFileOutputStreamImpl
     // Ensure that the file is open.
     open(fd_.getPreferredCCSID());
 
-    fd_.unlock(key);  // @B2C
+    try {
+      fd_.unlock(key);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -385,7 +403,12 @@ implements IFSFileOutputStreamImpl
     }
     // @A4A (end of code block)
 
-    fd_.writeBytes(data, dataOffset, length);  // @B2C
+    try {
+      fd_.writeBytes(data, dataOffset, length);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 

@@ -106,19 +106,20 @@ implements IFSFileInputStreamImpl
    @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
-    throws IOException
+    throws Throwable
   {
-    if (fd_ != null)
-      fd_.finalize0();  // @B2C
-
     try
     {
-      super.finalize();
+      if (fd_ != null)
+        fd_.finalize0();  // @B2C
     }
     catch(Throwable e)
     {
       Trace.log(Trace.ERROR, "Error during finalization.", e);
-      throw new IOException(e.getMessage());
+    }
+    finally
+    {
+      super.finalize();
     }
   }
 
@@ -236,7 +237,12 @@ implements IFSFileInputStreamImpl
     // Ensure that the file is open.
     open();
 
-    return fd_.lock(length);  // @B2C
+    try {
+      return fd_.lock(length);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 
@@ -407,8 +413,12 @@ implements IFSFileInputStreamImpl
     // Ensure that the file is open.
     open();
 
-    int bytesRead = fd_.read(data, dataOffset, length);  // @B2C
-    return bytesRead;
+    try {
+      return fd_.read(data, dataOffset, length);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
   // Used by IFSTextFileInputStream.read(int) only:
@@ -525,7 +535,12 @@ implements IFSFileInputStreamImpl
     // Ensure that the file is open.
     open();
 
-    fd_.unlock(key);  // @B2C
+    try {
+      fd_.unlock(key);  // @B2C
+    }
+    catch (AS400SecurityException e) {
+      throw new IOException(e.getMessage());
+    }
   }
 
 }

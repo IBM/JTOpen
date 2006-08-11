@@ -434,7 +434,7 @@ implements IFSFileImpl
 
   // @B8a
   public boolean setLength(int length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return connection_.callMethod (pxId_, "setLength",

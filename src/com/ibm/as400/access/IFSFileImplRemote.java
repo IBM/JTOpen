@@ -1530,8 +1530,8 @@ implements IFSFileImpl
     boolean success = false;
     IFSObjAttrs2 objAttrs = reply.getObjAttrs2(); // get the OA2* structure
 
-    // Sanity-check the length: If it's an OA2a or OA2b, the length will be 150 bytes (144 plus a 6-byte LLCP).  If it's an OA2c, the length will be 166 bytes (160 plus LLCP).
-    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Length of returned OA2* structure (should be 150 or 166): " + objAttrs.length());
+    // Sanity-check the length: If it's an OA2a or OA2b, the length will be 144 bytes.  If it's an OA2c, the length will be 160 bytes.
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Length of returned OA2* structure (should be 144 or 160): " + objAttrs.length());
 
     // Reset the "CCSID of the object" field in the OA2* structure.
     objAttrs.setCCSID(ccsid, fd_.serverDatastreamLevel_);
@@ -1936,7 +1936,7 @@ implements IFSFileImpl
    @exception UnknownHostException If the server cannot be located.
    **/
   public boolean setLength(int length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the argument has been validated by the public class.
 

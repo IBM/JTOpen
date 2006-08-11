@@ -67,7 +67,7 @@ interface IFSFileImpl
   boolean setFixedAttributes(int attributes) throws IOException;         //@D1a
   boolean setHidden(boolean attribute) throws IOException;               //@D1a
   boolean setLastModified(long time) throws IOException;
-  boolean setLength(int length) throws IOException;                 //@B8a
+  boolean setLength(int length) throws IOException, AS400SecurityException;    //@B8a
   void setPatternMatching(int patternMatching);
   boolean setReadOnly(boolean attribute) throws IOException;             //@D1a
   void setPath(String path);

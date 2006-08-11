@@ -92,15 +92,16 @@ implements IFSFileDescriptorImpl
   // @B8m  - Moved this method here from IFSFileImplRemote.
   // Determine if the directory entry can be accessed in the specified
   // manner.
+  // Returns the returnCode that was set (as a side effect) by createFileHandle().
   int checkAccess(int access, int openOption)   // @D1C @B8c
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     int fileHandle = UNINITIALIZED;
     try {
       fileHandle = createFileHandle(access, openOption);
     }
     finally {
-      close(fileHandle);  // we don't need this handle anymore
+      if (fileHandle != UNINITIALIZED) close(fileHandle);  // we don't need this handle anymore
     }
     return errorRC_;
   }
@@ -220,7 +221,7 @@ implements IFSFileDescriptorImpl
     {
       system_.disconnectServer(server_);
       server_ = null;
-      close();  // Note: Not relevant for IFSFileImplRemote.
+      try { close(); } catch (Exception exc) {}  // Note: Not relevant for IFSFileImplRemote.
     }
     Trace.log(Trace.ERROR, "Byte stream connection lost.");
     throw e;
@@ -253,6 +254,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
+        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
         String path = (rc == IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME ? destinationPath : path_);
         throw new ExtendedIOException(path, rc);
@@ -271,7 +273,8 @@ implements IFSFileDescriptorImpl
 
   // Opens the file for 'read' access, and returns a file handle.
   // If failure, sets errorRC_ and returns UNINITIALIZED.
-  private final int createFileHandle() throws IOException
+  private final int createFileHandle()
+    throws IOException, AS400SecurityException
   {
     return createFileHandle(IFSOpenReq.READ_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN);
   }
@@ -279,7 +282,7 @@ implements IFSFileDescriptorImpl
   // Opens the file with specified access and option, and returns a file handle.
   // If failure, sets errorRC_ and returns UNINITIALIZED.
   int createFileHandle(int access, int openOption)   // @D1C @B8c
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     int fileHandle = UNINITIALIZED;
@@ -303,6 +306,7 @@ implements IFSFileDescriptorImpl
       else if (ds instanceof IFSReturnCodeRep)
       {
         returnCode = ((IFSReturnCodeRep) ds).getReturnCode();
+        throwSecurityExceptionIfAccessDenied(returnCode); // check for "access denied"
         if (Trace.isTraceOn() && Trace.isTraceErrorOn())
         {
           Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
@@ -345,7 +349,7 @@ implements IFSFileDescriptorImpl
    @exception IOException If an error occurs while communicating with the server.
    **/
   void exchangeServerAttributes() // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
-    throws IOException
+    throws IOException, AS400SecurityException
   {
       synchronized (server_)
       {
@@ -357,7 +361,9 @@ implements IFSFileDescriptorImpl
             if (ds instanceof IFSReturnCodeRep)
             {
               int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-              Trace.log(Trace.ERROR, "Unexpected IFSReturnCodeRep, return code ", rc);
+              throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
+              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
+                        rc);
               throw new ExtendedIOException(path_, rc);
             }
             else {
@@ -436,7 +442,9 @@ implements IFSFileDescriptorImpl
                 if (ds instanceof IFSReturnCodeRep)
                 {
                   int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-                  Trace.log(Trace.ERROR, "Unexpected IFSReturnCodeRep, return code ", rc);
+                  throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
+                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
+                            rc);
                   throw new ExtendedIOException(path_, rc);
                 }
                 else {
@@ -488,41 +496,34 @@ implements IFSFileDescriptorImpl
   /**
    Ensures that the file output stream is closed when there are no more
    references to it.
-   @exception IOException If an error occurs while communicating with the server.
    **/
   // Note: We call this "finalize0" because a "finalize" method would need to be protected; and we want other classes to call this method.
   void finalize0()  // @B2A
-    throws IOException
+    throws Throwable
   {
-    if (fileHandle_ != UNINITIALIZED)  // @B8c
-    {
-      // Close the file.  Send a close request to the server.
-      IFSCloseReq req = new IFSCloseReq(fileHandle_);
-      try
-      {
-        server_.sendAndDiscardReply(req);
-      }
-      catch(IOException e)
-      {
-        throw e;
-      }
-      catch(Exception e)
-      {
-        Trace.log(Trace.ERROR, "Error during finalization.", e);
-      }
-      finally
-      {
-        close0();
-      }
-    }
-
     try
     {
-      super.finalize();
+      if (fileHandle_ != UNINITIALIZED)  // @B8c
+      {
+        // Close the file.  Send a close request to the server.
+        IFSCloseReq req = new IFSCloseReq(fileHandle_);
+        try
+        {
+          server_.sendAndDiscardReply(req);
+        }
+        finally
+        {
+          close0();
+        }
+      }
     }
     catch(Throwable e)
     {
-      throw new IOException(e.getMessage());
+      Trace.log(Trace.ERROR, "Error during finalization.", e);
+    }
+    finally
+    {
+      super.finalize();
     }
   }
 
@@ -531,7 +532,7 @@ implements IFSFileDescriptorImpl
    Forces any buffered output bytes to be written.
    **/
   void flush()  // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Request that changes be committed to disk.
     IFSCommitReq req = new IFSCommitReq(fileHandle_);
@@ -557,6 +558,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
+        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
         throw new ExtendedIOException(path_, rc);
       }
@@ -738,19 +740,12 @@ implements IFSFileDescriptorImpl
         // that match the specification have been returned.
         rc = ((IFSReturnCodeRep) ds).getReturnCode();
 
-        if (rc == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
-        ||  rc == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
-        {
-          Trace.log(Trace.ERROR, "Error getting file attributes for file " + path_ + ": " +
-                    "IFSReturnCodeRep return code = ", rc);
-          throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
-        }
-
         if (rc != IFSReturnCodeRep.SUCCESS &&                               // @D4A
             rc != IFSReturnCodeRep.NO_MORE_FILES &&
             rc != IFSReturnCodeRep.FILE_NOT_FOUND &&
             rc != IFSReturnCodeRep.PATH_NOT_FOUND)
         {
+          throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
           Trace.log(Trace.ERROR, "Error getting file attributes for file " + path_ + ": " +
                     "IFSReturnCodeRep return code = ", rc);  // @A9C
           throw new ExtendedIOException(path_, rc);
@@ -887,13 +882,13 @@ implements IFSFileDescriptorImpl
    @see #unlock
    **/
   IFSKey lock(long length)   // @B2A
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     return lock(fileOffset_, length);
   }
   IFSKey lock(long offset,   // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
               long length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the arguments have been validated by the caller.
 
@@ -937,6 +932,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
+        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
         throw new ExtendedIOException(path_, rc);
       }
@@ -975,7 +971,7 @@ implements IFSFileDescriptorImpl
   int read(byte[] data,  // @B2A - code relocated from IFSFileInputStreamImplRemote,etc.
            int    dataOffset,
            int    length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the arguments have been validated by the public class.
 
@@ -1049,6 +1045,7 @@ implements IFSFileDescriptorImpl
           }
           else  // none of the above
           {
+            throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
             Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
             throw new ExtendedIOException(path_, rc);
           }
@@ -1125,7 +1122,7 @@ implements IFSFileDescriptorImpl
 
   // @B8a
   boolean setLength(long length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume that we are connected to the server.
 
@@ -1163,8 +1160,10 @@ implements IFSFileDescriptorImpl
       if (rc == IFSReturnCodeRep.SUCCESS)
         success = true;
       else
-        Trace.log(Trace.ERROR, "Error resetting file length: " +
-                  "IFSReturnCodeRep return code = ", rc);
+      {
+        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+      }
     }
     else
     {
@@ -1244,6 +1243,18 @@ implements IFSFileDescriptorImpl
     }
   }
 
+  private final void throwSecurityExceptionIfAccessDenied(int returnCode)
+    throws AS400SecurityException
+  {
+    if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY ||
+        returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
+    {
+      Trace.log(Trace.ERROR, "Access denied to file " + path_ + ". " +
+                "IFSReturnCodeRep return code ", returnCode);
+      throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
+    }
+  }
+
 
   /**
    Undoes a lock on this file.
@@ -1255,7 +1266,7 @@ implements IFSFileDescriptorImpl
    @see #lock
    **/
   void unlock(IFSKey key)  // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the argument has been validated by the caller.
 
@@ -1294,6 +1305,7 @@ implements IFSFileDescriptorImpl
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
+        throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
         Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
         throw new ExtendedIOException(path_, rc);
       }
@@ -1327,7 +1339,7 @@ implements IFSFileDescriptorImpl
   void writeBytes(byte[]  data,     // @B2A
                   int     dataOffset,
                   int     length)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     writeBytes(data, dataOffset, length, false);
   }
@@ -1335,7 +1347,7 @@ implements IFSFileDescriptorImpl
                   int     dataOffset,
                   int     length,
                   boolean forceToStorage)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the arguments have been validated by the caller.
 
@@ -1407,6 +1419,8 @@ implements IFSFileDescriptorImpl
         int rc = ((IFSReturnCodeRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.SUCCESS)
         {
+          throwSecurityExceptionIfAccessDenied(rc); // check for "access denied"
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
           throw new ExtendedIOException(path_, rc);
         }
       }
