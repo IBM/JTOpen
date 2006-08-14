@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#52">Fixes and enhancements in JTOpen 5.2</A><BR>
 <A HREF="#51_1">Fixes and enhancements in JTOpen 5.1.1</A><BR>
 <A HREF="#51">Fixes and enhancements in JTOpen 5.1</A><BR>
 <A HREF="#50">Fixes and enhancements in JTOpen 5.0</A><BR>
@@ -43,6 +44,42 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="52">Fixes and enhancements in JTOpen 5.2</A> <i>(released 2006-08-30)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated iSeries and server references in comments, text.
+- <i>Various:</i>  Updated javadoc and property descriptions.
+- Build:  Updated for new cvs server access.
+- Build:  Updated for changes to the J2ME Toolkit. 
+- Data conversion:  Enhanced trace messages.
+- Data converstion:  Fixed recently introduced inconsistency with java.io.Reader.
+- IFS:  Added new classes ErrnoException, FileAttributes, and ObjectReferences.
+- IFS:  Eliminated compareTo(Object) method for JDK 1.5 compatibility.
+- IFS:  Better handling of 'access denied errors.
+- IFS:  Fixed JTOpen bug 1481835: Tolerate zero-length writes and reads. 
+- JDBC:  Fixed 'thread used' property to propagate it to AS400 object.
+- JDBC:  Various performance changes.
+- JDBC:  Updated client functional level.
+- JDBC:  Added 'metadata source' connection property.
+- JDBC:  Fix so convertFromRawBytes() is not called unexpectedly when using addBatch() with CallableStatement objects.
+- JDBC:  Fixed bug in USA time format.
+- JDBC:  Added clonable support to AS400JDBCDataSource.
+- JDBC:  Various tracing improvements.
+- JDBC:  Changes to not block data if a sensitive cursor is being used.
+- JDBC:  Close generated keys result set if Statement.close() is closed or if the statement is re-executed.
+- Object description:  Fixed bug where Boolean attributes are sometimes reported as Strings. 
+- Object description:  Fix ClassCastException retrieving SAVE_SIZE.
+- Open list:  Renamed 'enum' variable.
+- PCML:  Removed performance bottleneck by un-synchronizing a method.
+- PCML:  Close opened streams in 'finally' clause.
+- PCML:  Allow leftmost bit to be on for byte field init values. 
+- Print:  CPU performance fix due to recursive paint events in SpooledFileViewer.
+- RFML:  Close opened streams in 'finally' clause.
+- PTFGroup:  Updated for Native support.
+- System value:  Various updates.
+- Trace:  Updated for JDK 1.5 misbehavior in LogManager.getLogger().
+</PRE>
 
 <HR>
 <H3><A NAME="51_1">Fixes and enhancements in JTOpen 5.1.1</A> <i>(released 2006-04-26)</i></H3>
