@@ -879,6 +879,11 @@ public class MRI2 extends ListResourceBundle
 
       { "LM_EXCEPTION",     "A license error occurred.  The primary return code is &0.  The secondary return code is &1." }, // @F5A
 
+          // #TRANNOTE #####################################################
+          // #TRANNOTE This is information about this product.
+          // #TRANNOTE #####################################################
+      { "PRODUCT_TITLE", "Toolbox for Java" },   //@KBA
+
       // @M1A
       // ME support MRI.   
       // #TRANNOTE ################################################################
