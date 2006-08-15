@@ -538,10 +538,10 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             
             //@PDA - added support for metadata source 
             PropertyDescriptor metaDataSource = new PropertyDescriptor("metaDataSource", beanClass, "getMetaDataSource", "setMetaDataSource");
-            translateBoolean.setBound(true);
-            translateBoolean.setConstrained(false);
-            translateBoolean.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_METADATA_SOURCE"));
-            translateBoolean.setShortDescription(AS400JDBCDriver.getResource("METADATA_SOURCE_DESC"));
+            metaDataSource.setBound(true);  //@PDC fix name
+            metaDataSource.setConstrained(false); //@PDC fix name
+            metaDataSource.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_METADATA_SOURCE")); //@PDC fix name
+            metaDataSource.setShortDescription(AS400JDBCDriver.getResource("METADATA_SOURCE_DESC")); //@PDC fix name
 
             
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
