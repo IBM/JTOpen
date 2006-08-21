@@ -71,7 +71,7 @@ public class XmlException extends Exception
         // If there is no string for this exception, use a generic "Exception received" message.
         if (m_localizedMessage == null)
         {
-            m_localizedMessage = SystemResourceFinder.format(DAMRI.EXCEPTION_RECEIVED, new Object[] {e.getClass().getName()});
+            m_localizedMessage = SystemResourceFinder.format(DAMRI.EXCEPTION_RECEIVED, new Object[] { "["+e.getClass().getName()+"] " + e.getLocalizedMessage()});
         }
 
 		m_exception = e;

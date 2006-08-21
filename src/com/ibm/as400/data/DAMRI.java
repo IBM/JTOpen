@@ -132,7 +132,7 @@ public class DAMRI extends ListResourceBundle
     { PCML_NOT_FOUND,              "PCML document source ''{0}'' cannot be found." },
     { PCML_DTD_NOT_FOUND,          "PCML document type definition (DTD) ''{0}'' cannot be found" },
     { PCML_SERIALIZED,             "PCML document ''{0}'' saved." },
-    { EXCEPTION_RECEIVED,          "Exception ''{0}'' received." },
+    { EXCEPTION_RECEIVED,          "Exception received: ''{0}''." },      // @C4C
     { OFFSETFROM_NOT_FOUND,        "Element ''{0}'' for offsetfrom= attribute is not a parent of this element. Processing <data> element ''{1}''." },
     { CIRCULAR_REFERENCE,          "Structure referenced, ''{0}'', is a circular reference. Processing {1} element ''{2}''." },
     { REF_NOT_FOUND,               "{1} element named ''{0}'' not found in document. Processing {2} element ''{3}''." },

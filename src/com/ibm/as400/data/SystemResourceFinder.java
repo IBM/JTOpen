@@ -381,7 +381,7 @@ class SystemResourceFinder
           // We throw an exception here because if the user specified a ClassLoader,
           // they probably don't want us to use ours, and we don't want to return another
           // version of the document found by a different class loader.
-          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
+          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_NOT_FOUND, new Object[] {docName}), docName, "");
         }
       }
       if (stream == null)
@@ -390,7 +390,7 @@ class SystemResourceFinder
         if (stream == null)
         {
           // We couldn't load the resource, no matter how many class loaders we tried.
-          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
+          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_NOT_FOUND, new Object[] {docName}), docName, "");
         }
       }
 

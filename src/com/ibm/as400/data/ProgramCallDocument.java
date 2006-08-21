@@ -858,7 +858,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
       }
       catch (IOException e) {
         if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
-        throw new PcmlException(e.getClass().getName());
+        throw new PcmlException(e);
       }
     }
 
@@ -1260,7 +1260,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
         {
           if (Trace.isTraceErrorOn())
              e.printStackTrace(Trace.getPrintWriter());
-          throw new PcmlException(e.getClass().getName());
+          throw new PcmlException(e);
         }
         finally
         {
@@ -1283,24 +1283,18 @@ public class ProgramCallDocument implements Serializable, Cloneable
       catch (ParseException pe)
       {
           pe.reportErrors();
-          throw new PcmlException(pe.getClass().getName());
+          throw new PcmlException(pe);
       }
       catch (PcmlSpecificationException pse)
       {
           pse.reportErrors();
-          throw new PcmlException(pse.getClass().getName());
-      }
-      catch (IOException ioe)
-      {
-          if (Trace.isTraceErrorOn())
-             ioe.printStackTrace(Trace.getPrintWriter());
-          throw new PcmlException(ioe.getClass().getName());
+          throw new PcmlException(pse);
       }
       catch (Exception e)
       {
         if (Trace.isTraceErrorOn())
            e.printStackTrace(Trace.getPrintWriter());
-        throw new PcmlException(e.getClass().getName());
+        throw new PcmlException(e);
       }
 
       return pd;
@@ -1337,13 +1331,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
         {
             if (Trace.isTraceErrorOn())                         // @C4A
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
-            throw new PcmlException(e.getClass().getName());
+            throw new PcmlException(e);
         }
         catch (ClassNotFoundException e)
         {
             if (Trace.isTraceErrorOn())                         // @C4A
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
-            throw new PcmlException(e.getClass().getName());
+            throw new PcmlException(e);
         }
         finally
         {
@@ -1383,13 +1377,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
         {
             if (Trace.isTraceErrorOn())                         // @C4A
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
-            throw new PcmlException(e.getClass().getName());
+            throw new PcmlException(e);
         }
         catch (ClassNotFoundException e)
         {
             if (Trace.isTraceErrorOn())                         // @C4A
                e.printStackTrace(Trace.getPrintWriter());       // @C4C
-            throw new PcmlException(e.getClass().getName());
+            throw new PcmlException(e);
         }
         finally
         {
@@ -1419,24 +1413,18 @@ public class ProgramCallDocument implements Serializable, Cloneable
         catch (ParseException pe)
         {
             pe.reportErrors();
-            throw new PcmlException(pe.getClass().getName());
+            throw new PcmlException(pe);
         }
         catch (PcmlSpecificationException pse)
         {
             pse.reportErrors();
-            throw new PcmlException(pse.getClass().getName());
-        }
-        catch (IOException ioe)
-        {
-            if (Trace.isTraceErrorOn())                         // @C4A
-               ioe.printStackTrace(Trace.getPrintWriter());     // @C4C
-            throw new PcmlException(ioe.getClass().getName());
+            throw new PcmlException(pse);
         }
         catch (Exception e) //@E0A
         {
           if (Trace.isTraceErrorOn()) //@E0A
              e.printStackTrace(Trace.getPrintWriter()); //@E0A
-          throw new PcmlException(e.getClass().getName()); //@E0A
+          throw new PcmlException(e);
         }
 
         return pd;
