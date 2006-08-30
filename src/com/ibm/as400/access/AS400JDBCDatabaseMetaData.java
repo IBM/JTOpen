@@ -942,7 +942,7 @@ implements DatabaseMetaData
                 new SQLInteger (), // radix
                 new SQLInteger (), // nullable
                 new SQLVarchar (254, settings_),  // remarks
-                new SQLVarchar (254, settings_),  // column def
+                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm550) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
                 new SQLInteger (),  // sql data type
                 new SQLInteger (),  // datetime sub
                 new SQLInteger (),  // octet length
@@ -1009,7 +1009,7 @@ implements DatabaseMetaData
                 new SQLInteger (), // radix
                 new SQLInteger (), // nullable
                 new SQLVarchar (254, settings_),  // remarks
-                new SQLVarchar (254, settings_),  // column def
+                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm550) ? 2000 : 254, settings_),  // column def
                 new SQLInteger (),  // sql data type
                 new SQLInteger (),  // datetime sub
                 new SQLInteger (),  // octet length
@@ -1130,7 +1130,10 @@ implements DatabaseMetaData
 
                     // Set the Field Information to Return Bitmap
                     // Return everything but the reserved fields
-                    request.setFieldReturnInfoBitmap(0xEFF60000);   // @E3C   //@KKB changed from EFF20000 inorder to request CCSID
+                    if(connection_.getVRM() >= JDUtilities.vrm550)  //@550 column default value support
+                        request.setFieldReturnInfoBitmap(0xEFF70000);   //@550 request column default, 16th bit
+                    else                                                //@550
+                        request.setFieldReturnInfoBitmap(0xEFF60000);   // @E3C   //@KKB changed from EFF20000 inorder to request CCSID
 
 
                     // Set the Field Information Order By Indicator parameter
@@ -1191,8 +1194,11 @@ implements DatabaseMetaData
                     else
                         maps[11] = new JDSimpleFieldMap (5);  // return text
 
-                    // Always return null
-                    maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false); // column def
+                    // Always return null if V5R4 or earlier
+                    if(connection_.getVRM() <= JDUtilities.vrm540)   //@550 column default value support
+                        maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false); // column def
+                    else    //@550 return what we are returned
+                        maps[12] = new JDSimpleFieldMap(14);
 
                     // Per JDBC api - not used - hardcode to 0
                     maps[13] = new JDHardcodedFieldMap (new Integer (0)); // SQL data type
@@ -2547,7 +2553,10 @@ implements DatabaseMetaData
     public int getMaxColumnsInGroupBy ()
     throws SQLException
     {
-        return 120;
+        if(connection_.getVRM() >= JDUtilities.vrm550)          //@550  max columns in group by support
+            return 8000;                                        //@550
+        else                                                    //@550
+            return 120;
     }
 
 
