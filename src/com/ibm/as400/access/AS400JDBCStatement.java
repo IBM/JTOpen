@@ -68,7 +68,8 @@ public class AS400JDBCStatement implements Statement
 
 
     // Constants.
-    static final int            MAX_CURSOR_NAME_LENGTH = 18;
+    static final int            MAX_CURSOR_NAME_LENGTH_PRE_V5R5 = 18;   //@550C
+    static final int            MAX_CURSOR_NAME_LENGTH          = 128;  //@550A
 
     // Constants for generated key support
     static final int            RETURN_GENERATED_KEYS = 1;    //@G4A
@@ -2994,7 +2995,8 @@ public class AS400JDBCStatement implements Statement
 
             // Validate the length of the cursor name.
             int cursorNameLength = cursorName.length();    // @EEA
-            if((cursorNameLength > MAX_CURSOR_NAME_LENGTH) || (cursorNameLength == 0))    // @EEC
+            int maxLength = (connection_.getVRM() >= JDUtilities.vrm550) ? MAX_CURSOR_NAME_LENGTH : MAX_CURSOR_NAME_LENGTH_PRE_V5R5;    //@550 128 byte cursor name support
+            if((cursorNameLength > maxLength) || (cursorNameLength == 0))    // @EEC    @550 changed MAX_CURSOR_NAME_LENGTH to maxLength
                 JDError.throwSQLException (JDError.EXC_CURSOR_NAME_INVALID);
 
             // If the name is the same as the current cursor name,
