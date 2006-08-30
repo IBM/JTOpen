@@ -535,7 +535,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             translateBoolean.setConstrained(false);
             translateBoolean.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_BOOLEAN"));
             translateBoolean.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_BOOLEAN_DESC"));
-            
+
             //@PDA - added support for metadata source 
             PropertyDescriptor metaDataSource = new PropertyDescriptor("metaDataSource", beanClass, "getMetaDataSource", "setMetaDataSource");
             metaDataSource.setBound(true);  //@PDC fix name
@@ -543,13 +543,20 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             metaDataSource.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_METADATA_SOURCE")); //@PDC fix name
             metaDataSource.setShortDescription(AS400JDBCDriver.getResource("METADATA_SOURCE_DESC")); //@PDC fix name
 
+            //@550 - added support for query storage limit
+            PropertyDescriptor queryStorageLimit = new PropertyDescriptor("queryStorageLimit", beanClass, "getQueryStorageLimit", "setQueryStorageLimit");  //@550
+            queryStorageLimit.setBound(true);   //@550
+            queryStorageLimit.setConstrained(false);    //@550
+            queryStorageLimit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_STORAGE_LIMIT")); //@550
+            queryStorageLimit.setShortDescription(AS400JDBCDriver.getResource("QUERY_STORAGE_LIMIT_DESC")); //@550
+
             
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource}; //@540
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit}; //@540 @550
         }
         catch(Exception e)
         {

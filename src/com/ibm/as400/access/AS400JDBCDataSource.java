@@ -136,6 +136,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private char[]  serialKeyRingPWBytes_ = null;        //@J3a
     private boolean savePasswordWhenSerialized_ = false; //@J3a   by default, don't save password!!!!
 
+    /**
+     * The maximum storage space in megabytes, that can be used to execute a query.
+    **/
+    public static final int MAX_STORAGE_LIMIT = 2147352578;                    // Maximum query storage limit @550
+
 
     /**
       Start tracing the JDBC client.  This is the same as setting
@@ -1165,6 +1170,19 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     public int getQueryOptimizeGoal()
     {
         return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
+    }
+
+    //@550
+    /**
+    * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
+    * @param limit - the storage limit  (in megabytes)
+    * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
+    * The default value is -1 meaning there is no limit.
+    **/
+    public int getQueryStorageLimit()
+    {
+        return properties_.getInt(JDProperties.QUERY_STORAGE_LIMIT);
     }
 
     //@540
@@ -4027,6 +4045,32 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + goal);
+    }
+
+    //@550
+    /**
+    * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
+    * @param limit the storage limit (in megabytes)
+    * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
+    * The default value is -1 meaning there is no limit.
+    **/
+    public void setQueryStorageLimit(int limit)
+    {
+        String property = "queryStorageLimit";
+
+        if (limit < -1 || limit > MAX_STORAGE_LIMIT)
+            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+        Integer oldValue = new Integer(getQueryStorageLimit());
+        Integer newValue = new Integer(limit);
+
+        properties_.setString(JDProperties.QUERY_STORAGE_LIMIT, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if(JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + limit);
     }
 
     //@540

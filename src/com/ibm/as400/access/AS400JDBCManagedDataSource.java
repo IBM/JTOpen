@@ -143,6 +143,11 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   transient private boolean inUse_;
 
   /**
+   * The maximum storage space that can be used to execute a query.
+  **/
+  public static final int MAX_STORAGE_LIMIT = AS400JDBCDataSource.MAX_STORAGE_LIMIT; // Maximum query storage limit @550
+
+  /**
    Start tracing the JDBC client.  This is the same as setting
    property "trace=true";  Note the constant is not public.
    It is defined only to be compatible with ODBC
@@ -1134,6 +1139,19 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
   }
+
+  //@550
+    /**
+    * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
+    * @param limit - the storage limit  (in megabytes)
+    * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
+    * The default value is -1 meaning there is no limit.
+    **/
+    public int getQueryStorageLimit()
+    {
+        return properties_.getInt(JDProperties.QUERY_STORAGE_LIMIT);
+    }
 
 
   // method required by javax.naming.Referenceable
@@ -2998,6 +3016,24 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
     properties_.setString(JDProperties.QUERY_OPTIMIZE_GOAL, Integer.toString(goal));
   }
+
+  //@550
+    /**
+    * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
+    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
+    * @param limit - the storage limit (in megabytes)
+    * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
+    * The default value is -1 meaning there is no limit.
+    **/
+    public void setQueryStorageLimit(int limit)
+    {
+        String property = "queryStorageLimit";
+
+        if (limit < -1 || limit > MAX_STORAGE_LIMIT)
+            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+        properties_.setString(JDProperties.QUERY_STORAGE_LIMIT, Integer.toString(limit));
+    }
 
   /**
    Sets the source of the text for REMARKS columns in ResultSets returned
