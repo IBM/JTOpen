@@ -1012,7 +1012,17 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     //@CRS - We must be an INSERT...??  But we don't know which statement in the batch
                     // caused the exception, so all we can do is return an array of size 1 with the
                     // number of rows inserted/updated according to the host server.
-                    counts = new int[] { rowsInserted_};
+                    //   After some investigation, the above is not true.  See below:                               //@550
+                    //  If autocommit is on and we are running under *NONE, then rowsInserted_ contains the number  //@550
+                    //  of inserts that executed successfully before the error.  rowsInserted_ is set from the      //@550
+                    //  the value in SQLERRD3.  If autocommit is running under an isolation level other than *NONE, //@550 
+                    //  or autocommit is off, no rows are commited.  Thus rowsInserted_ will be zero.               //@550
+                    //  Since we don't have any update counts for each statement, use Statement.SUCCESS_NO_INFO     //@550
+                    //@550D counts = new int[] { rowsInserted_};
+                    counts = new int[rowsInserted_];                                                                //@550 batch update support
+                    for(int i=0; i<counts.length; i++)                                                              //@550
+                        counts[i] = Statement.SUCCESS_NO_INFO;                                                                             //@550  
+                    
                 }
                 else
                 {
