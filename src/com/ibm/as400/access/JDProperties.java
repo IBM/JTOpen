@@ -147,12 +147,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              XA_LOOSELY_COUPLED_SUPPORT = 70; //@540
     static final int              TRANSLATE_BOOLEAN          = 71; //@PDA
     static final int              METADATA_SOURCE            = 72; //@PDA
+    static final int              QUERY_STORAGE_LIMIT        = 73; //@550
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 73;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 74;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC   
+                                                               // @PDC @550  
 
 
     // Property names.
@@ -231,6 +232,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String XA_LOOSELY_COUPLED_SUPPORT_ = "XA loosely coupled support";       //@540
     private static final String TRANSLATE_BOOLEAN_ = "translate boolean";       //@PDA
     private static final String METADATA_SOURCE_ = "metadata source";       //@PDA
+    private static final String QUERY_STORAGE_LIMIT_ = "query storage limit";   //@550
 
 
 
@@ -418,6 +420,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     
     static final String         METADATA_SOURCE_ROI = "0";  //@PDA
     static final String         METADATA_SOURCE_STORED_PROCEDURE = "1";  //@PDA
+    
+    static final String         QUERY_STORAGE_LIMIT_NOMAX               = "-1"; //@550
 
     // Static data.
     private static DriverPropertyInfo[] dpi_;
@@ -1229,6 +1233,14 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = METADATA_SOURCE_ROI;
         dpi_[i].choices[1]  = METADATA_SOURCE_STORED_PROCEDURE;
         defaults_[i]        = METADATA_SOURCE_STORED_PROCEDURE;
+        
+        // Query Storage Limit   //@550
+        i = QUERY_STORAGE_LIMIT;
+        dpi_[i] = new DriverPropertyInfo (QUERY_STORAGE_LIMIT_, "");
+        dpi_[i].description = "QUERY_STORAGE_LIMIT_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = QUERY_STORAGE_LIMIT_NOMAX;
     }
 
 

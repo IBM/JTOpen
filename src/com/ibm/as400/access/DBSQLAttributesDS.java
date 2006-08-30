@@ -312,6 +312,17 @@ extends DBBaseRequestDS
         addParameter(0x3833, (byte)value);                                  // @540
     }                                                                       // @540
 
+    /**
+    Set the query storage limit that should be used for queries.
+    @param value the storage limit
+    @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void setQueryStorageLimit(int value)                                    //@550
+    throws DBDataStreamException                                            //@550
+    {                                                                       //@550            
+        addParameter(0x3834, value);                                        //@550
+    }                                                                       //@550
+
     // @J2 new method
     /**
        Sets the database (IASP) name for this connection.  The RDB name
