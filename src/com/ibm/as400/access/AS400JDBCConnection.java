@@ -3582,6 +3582,23 @@ implements Connection
                             JDTrace.logInformation(this, "query optimize goal = " + queryOptimizeGoal);
                 }
 
+                //@550  Query Storage Limit Support
+                if(vrm_ >= JDUtilities.vrm550){
+                    //Set the query storage limit
+                    int queryStorageLimit = properties_.getInt(JDProperties.QUERY_STORAGE_LIMIT);
+                    if(queryStorageLimit != -1) // Only need to send if we are not using the default of *NOMAX (-1)
+                    {
+                        if(queryStorageLimit < -1)
+                            request.setQueryStorageLimit(-1);
+                        else if(queryStorageLimit > AS400JDBCDataSource.MAX_STORAGE_LIMIT)         // if larger than the max just set to max
+                            request.setQueryStorageLimit(2147352578);
+                        else
+                            request.setQueryStorageLimit(queryStorageLimit);
+                    }
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "query storage limit = " + queryStorageLimit);
+                }
+
                 if (JDTrace.isTraceOn ())
                 {
                     if (extendedFormats_)
