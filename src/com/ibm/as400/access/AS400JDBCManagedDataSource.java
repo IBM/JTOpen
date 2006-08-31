@@ -1144,7 +1144,6 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     /**
     * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
     * Note, this setting is ignored when running to V5R4 i5/OS or earlier
-    * @param limit - the storage limit  (in megabytes)
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
     **/
