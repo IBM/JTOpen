@@ -34,7 +34,7 @@ import java.util.Vector;
   * <P>
   * RunJavaApplication demonstrates the use of com.ibm.as400.access.JavaApplicationCall.
   * It gathers information from the user about the class to run, then uses a
-  * JavaApplicationCall object to run the program on the server's JVM.  It
+  * JavaApplicationCall object to run the program on the i5/OS system's JVM.  It
   * uses the capabilities of JavaApplicationCall to send input to the Java
   * program and displays output the Java program writes to standard out and
   * standard error.
@@ -43,7 +43,7 @@ import java.util.Vector;
   * RunJavaApplication has three command line parameters.  All parameters are optional.
   *
   * <UL>
-  * <i>system</i> - the name of the server.
+  * <i>system</i> - the name of the system.
   * <i>userid</i> - run the Java program under this userid.<BR>
   * <i>password</i> - the password of the user. <BR>
   * </UL>
@@ -51,23 +51,23 @@ import java.util.Vector;
   * <p>
   * Once started, four commands can be run:
   * <UL>
-  * <li><i>set</i> - set options to define the JVM environment on the server.
-  * <li><i>java</i> - run a Java application on server.
+  * <li><i>set</i> - set options to define the JVM environment on the system.
+  * <li><i>java</i> - run a Java application on i5/OS system.
   * <li><i>help</i> - display help.
   * <li><i>quit</i> - end the application.
   * </UL>
   *
   * <p>
   * You can set the following options via the set command.  For more information
-  * on each option display the on-line help for the Java command on the server.
+  * on each option display the on-line help for the Java command on the system.
   * <UL>
-  * <li>Classpath - the CLASSPATH environment variable on the server.
+  * <li>Classpath - the CLASSPATH environment variable on the system.
   * <li>DefaultPort - the default port for communicating standard in, standard out
   * and standard error between the client and the server Java program.
   * <li>FindPort - Indicates to search for a port if the specified port is in use
   * <li>Interpret - Indicates if all Java class files should be run interpretively.
   * <li>Optimize - Optimization level of the Java classes that are not already optimized.
-  * <li>Options - Options to pass to the server's JVM.
+  * <li>Options - Options to pass to the i5/OS system's JVM.
   * <li>SecurityCheckLevel - The level of warnings for writable directories in CLASSPATH.
   * <li>GarbageCollectionFrequency  - The relative frequency that garbage collection runs.
   * <li>GarbageCollectionInitialSize - The initial size, in kilobytes, of the garbage collection heap.
@@ -100,7 +100,7 @@ public class RunJavaApplication
     private static String[] option_ = {"*NONE"};
 
     /**
-      * Runs Java programs on the server's JVM.
+      * Runs Java programs on the i5/OS system's JVM.
       * @param parameters The command line parameters.  See the prolog
       *                   of this class for information on the command line parameters.
      **/
@@ -224,7 +224,7 @@ public class RunJavaApplication
                        }
                    }
                    else
-                   {   // send the string to server
+                   {   // send the string to system
                        runMain_.sendStandardInString(is);
                    }
                }

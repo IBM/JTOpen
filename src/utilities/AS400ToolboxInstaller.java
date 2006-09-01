@@ -571,7 +571,7 @@ AS400ToolboxInstaller.install("ACCESS", "C:\\java\\", sourceURL);
 @return    true if an install/update occurred, false if no updates were
            needed.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
 public static boolean install(String packageName,
                               String targetPath,
@@ -1057,7 +1057,7 @@ AS400ToolboxInstaller.isUpdateNeeded("ACCESS", "C:\\java\\", sourceURL);
 @return    true if an update is needed, false if no updates are
            needed.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
 public static boolean isUpdateNeeded(String packageName,
                                      String targetPath,

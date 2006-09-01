@@ -31,7 +31,7 @@ import javax.swing.border.*;
  * VRunJavaApplication demonstrates the use of the Toolbox
  * com.ibm.as400.vaccess.VJavaApplicationCall component.
  * The component (VJavaApplicationCall) does processing necessary to
- * call a Java program on the server but it is not a complete
+ * call a Java program on the system but it is not a complete
  * application.  This class is a complete application.  It does
  * setup work such as parsing command line parameters and
  * creating a swing frame, then uses VJavaApplicationCall
@@ -41,13 +41,13 @@ import javax.swing.border.*;
  * VRunJavaApplication has three parameters command line parameters.  All
  * parameters are optional.  The parameters are:
  * <UL>
- *   <i>System</i> - the server that contains the Java program <BR>
+ *   <i>System</i> - the system that contains the Java program <BR>
  *   <i>UserID</i> - run the Java program under this userid    <BR>
  *   <i>Password</i> - the password for the userid             <BR>
  * </UL>
  *
  * <P>
- * For example, to run Java programs on server "mySystem":
+ * For example, to run Java programs on system "mySystem":
  * <a name="ex"> </a>
  * <UL>
  * java utilities.VRunJavaApplication mySystem
