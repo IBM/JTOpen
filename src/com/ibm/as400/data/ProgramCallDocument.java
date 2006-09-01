@@ -687,7 +687,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     program. An empty list is returned if the program has not been run yet.
 
     @param name The name of the &lt;program&gt; element in the PCML document.
-    @return The array of messages returned by the server for the program.
+    @return The array of messages returned by the system for the program.
     @exception PcmlException
                If an error occurs.
     */
@@ -1132,7 +1132,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Allows for dynamically specifying the program path.
 
     @param program The name of the &lt;program&gt; element in the PCML document.
-    @param path A String containing the path to the program objectto be run on the server.
+    @param path A String containing the path to the program object to be run on the system.
     @exception PcmlException
                If an error occurs.
     */

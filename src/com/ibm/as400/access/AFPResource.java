@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.beans.PropertyVetoException;
 
 /**
- * The AFPResource class represents a server AFP resource.
+ * The AFPResource class represents a system AFP resource.
  * An instance of this class can be used to manipulate an individual
  * i5/OS AFP resource.
  *
@@ -71,10 +71,10 @@ implements java.io.Serializable
     /**
      * Constructs an AFPResource object. It uses the system and
      * resource name that identify it on that system.
-     * The server referenced by <i>system</i> must be at V3R7 or later to
+     * The system referenced by <i>system</i> must be at V3R7 or later to
      * support using AFP resources.
      *
-     * @param system The server on which this AFP resource exists.
+     * @param system The system on which this AFP resource exists.
      * @param resourceName The integrated file system name of the AFP resource. The format of
      * the resource string must be in the format of "/QSYS.LIB/libname.LIB/resourcename.type".
      * Valid values for <i>type</i> include FNTRSC, FORMDF, OVL, PAGSEG, and PAGDFN.
@@ -131,10 +131,10 @@ implements java.io.Serializable
       * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported because
-      *                                         the server operating system is not at the correct level.
+      *                                         the system operating system is not at the correct level.
       **/
     public PrintObjectInputStream getInputStream()
         throws AS400Exception,

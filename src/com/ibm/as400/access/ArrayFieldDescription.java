@@ -19,8 +19,8 @@ import java.io.Serializable;
  *The  ArrayFieldDescription class represents the description of an array of data.
  *It allows:
  *<ul>
- *<li>The user to describe an array of server data.
- *<li>The Java program to describe an array of server data to the user.
+ *<li>The user to describe an array of data.
+ *<li>The Java program to describe an array of data to the user.
  *</ul>
 **/
 public class ArrayFieldDescription extends FieldDescription implements Serializable

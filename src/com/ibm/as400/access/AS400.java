@@ -2803,7 +2803,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then these conditions will result in return codes and exceptions.  Applications that are running as server applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
+     Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then these conditions will result in return codes and exceptions.  Applications that are running as i5/OS applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
      @param  guiAvailable  true to prompt; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/

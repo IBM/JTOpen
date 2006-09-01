@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
   * used by a particular spooled file).  In addition,
   * font resources may be filtered by pel density.
   *
-  * To list and use AFP resources, your server operating system must
+  * To list and use AFP resources, your system operating system must
   * be at V3R7 or later.
   *
   *@see AFPResource
@@ -63,7 +63,7 @@ implements java.io.Serializable
      * criteria will list all resources in the system library list.
      * Use the various setXxxxFilter methods to override the defaults.
      *
-     * @param system The server on which the AFP resources exist.
+     * @param system The system on which the AFP resources exist.
      **/
     public AFPResourceList(AS400 system)
     {
