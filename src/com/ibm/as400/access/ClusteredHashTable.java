@@ -111,7 +111,7 @@ implements java.io.Serializable
   public final static int INCONSISTENT_ENTRIES = 1;
 
   /**
-    Entry status value to retreive all entries on a node.
+    Entry status value to retrieve all entries on a node.
   **/
   public final static int ALL_ENTRIES = -1;
 
@@ -325,7 +325,7 @@ implements java.io.Serializable
 
 
   /**
-     Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retreive all entries.
+     Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries.
     This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
@@ -342,7 +342,7 @@ implements java.io.Serializable
 
 
   /**
-    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retreive all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
+    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>

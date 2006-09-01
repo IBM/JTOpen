@@ -269,7 +269,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES = 61;
     /**
-     The return code indicating that the Kerberos ticket is not valid.  Kerberos service ticket could not be retreived.
+     The return code indicating that the Kerberos ticket is not valid.  Kerberos service ticket could not be retrieved.
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_RETRIEVE = 62;
     /**

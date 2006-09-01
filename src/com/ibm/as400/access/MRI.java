@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2006 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -226,7 +226,7 @@ public class MRI extends ListResourceBundle
         { "EXC_KERBEROS_TICKET_NOT_VALID_EIM", "Authentication token is not valid.  EIM configuration error detected." },  // @F1A @F5C
         { "EXC_KERBEROS_TICKET_NOT_VALID_MECHANISM", "Kerberos ticket is not valid." },  // @F1A
         { "EXC_KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES", "Authentication token is not valid.  Token maps to multiple user profile names." },  // @F1A @F5C
-        { "EXC_KERBEROS_TICKET_NOT_VALID_RETRIEVE", "Kerberos service ticket could not be retreived." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_RETRIEVE", "Kerberos service ticket could not be retrieved." },  // @F1A @550
         { "EXC_KERBEROS_TICKET_NOT_VALID_SIGNATURE", "Kerberos token or identity token contains incorrect signature." },  // @F1A @F5C
         { "EXC_KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE", "Kerberos ticket is not valid." },  // @F1A
         { "EXC_KERBEROS_TICKET_NOT_VALID_VERIFICATION", "Kerberos ticket is not valid." },  // @F1A

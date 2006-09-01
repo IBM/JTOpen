@@ -1892,7 +1892,7 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Sets the severity of the messages which are returned.  All messages of the specified severity and greater are returned.  The default is 0.  This takes effect the next time that the list of queued messages is retreived or refreshed.
+     Sets the severity of the messages which are returned.  All messages of the specified severity and greater are returned.  The default is 0.  This takes effect the next time that the list of queued messages is retrieved or refreshed.
      @param  severity  The severity of the messages to be returned.  The value must be between 0 and 99, inclusive.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      @see  com.ibm.as400.resource.RMessageQueue#SEVERITY_CRITERIA

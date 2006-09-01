@@ -96,7 +96,7 @@ class AS400ImplRemote implements AS400Impl
     // Dispatcher of connection events from this implementation to public object.
     private ConnectionListener dispatcher_;
 
-    // Single use seed recieved from public object in exchange seed method, held until next sign-on, change password, or generate profile token.
+    // Single use seed received from public object in exchange seed method, held until next sign-on, change password, or generate profile token.
     private byte[] proxySeed_ = null;
     // Single use seed sent to public object in exchange seed method, held until next sign-on, change password, or generate profile token.
     private byte[] remoteSeed_ = null;
