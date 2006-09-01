@@ -65,8 +65,8 @@
     <xs:attribute name="entryPoint" type="xs:string"/>
     <!-- The type of value, if any, returned from a service program call. -->
     <xs:attribute name="returnValue" type="returnValueType"/>
-    <!-- When calling a Java program and iSeries program is on same server -->
-    <!-- and is thread-safe, set to true to call the iSeries program in same job -->
+    <!-- When calling a Java program and i5/OS program is on same server -->
+    <!-- and is thread-safe, set to true to call the i5/OS program in same job -->
     <!-- and on same thread as the Java program. -->
     <xs:attribute name="threadSafe" type="xs:boolean"  />
     <!-- The CCSID of the entry point name within a service program. -->
@@ -698,7 +698,7 @@
 
 <!-- Field Definition schema. -->
 
-  <!-- Define basic iSeries native data types. -->
+  <!-- Define basic i5/OS native data types. -->
 
      <xs:complexType name="zonedDecimal">
         <xs:simpleContent>

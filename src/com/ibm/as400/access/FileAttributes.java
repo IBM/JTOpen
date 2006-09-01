@@ -329,7 +329,7 @@ public class FileAttributes
     String objectOwner_;
     /**
      Returns the name of the user profile that is the owner of the object.
-     @return  The name of the user profile that is the owner of the object or the special value "*NOUSRPRF" which is an indication by the Network File System that there is no user profile on the local iSeries server with a user ID (UID) matching the UID of the remote object.
+     @return  The name of the user profile that is the owner of the object or the special value "*NOUSRPRF" which is an indication by the Network File System that there is no user profile on the local i5/OS system with a user ID (UID) matching the UID of the remote object.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -349,7 +349,7 @@ public class FileAttributes
      @return  The name of the user profile that is the primary group of the object or the following special values:
      <ul>
      <li>"*NONE" - The object does not have a primary group.
-     <li>"*NOUSRPRF" - This special value is used by the Network File System to indicate that there is no user profile on the local server with a group ID (GID) matching the GID of the remote object.
+     <li>"*NOUSRPRF" - This special value is used by the Network File System to indicate that there is no user profile on the local system with a group ID (GID) matching the GID of the remote object.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -758,7 +758,7 @@ public class FileAttributes
         return allowCheckpointWrite_;
     }
     /**
-     Sets whether a stream file (*STMF) can be shared with readers and writers during the save-while-active checkpoint processing.  Setting this attribute may cause unexpected results.  See the Back up your server topic for details on this attribute.
+     Sets whether a stream file (*STMF) can be shared with readers and writers during the save-while-active checkpoint processing.  Setting this attribute may cause unexpected results.  See the Back up your system topic for details on this attribute.
      @param  allowCheckpointWrite  true if the object can be shared with readers and writers; false if the object can be shared with readers only.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -1287,7 +1287,7 @@ public class FileAttributes
      <li>The user is the owner of the directory.
      <li>The user has *ALLOBJ special authority.
      </ul>
-     This restriction only applies to directories.  Other types of object can have this attribute on, however, it will be ignored.  In addition, this attribute can only be specified for objects within the Network File System (NFS), QFileSvr.400, "root" (/), QOpenSys, or user-defined file systems.  Both the NFS and QFileSvr.400 file systems support this attribute by passing it to the server and surfacing it to the caller.  This attribute is also equivalent to the S_ISVTX mode bit for an object.
+     This restriction only applies to directories.  Other types of object can have this attribute on, however, it will be ignored.  In addition, this attribute can only be specified for objects within the Network File System (NFS), QFileSvr.400, "root" (/), QOpenSys, or user-defined file systems.  Both the NFS and QFileSvr.400 file systems support this attribute by passing it to the system and surfacing it to the caller.  This attribute is also equivalent to the S_ISVTX mode bit for an object.
      @param  restrictedRenameAndUnlink  true if the additional restrictions for rename and unlink operations are on; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
