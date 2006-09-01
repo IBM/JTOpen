@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RPrinterList class represents a list of printers that are attached to the server.
+The RPrinterList class represents a list of printers that are attached to the system.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
@@ -230,7 +230,7 @@ Constructs an RPrinterList object.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.

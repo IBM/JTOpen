@@ -26,7 +26,7 @@ import java.util.Vector;
 
 /**
 The RIFSFileList class represents a list of files and directories
-in the server integrated file system.  This class provides function similar to
+in the integrated file system.  This class provides function similar to
 {@link com.ibm.as400.access.IFSFile IFSFile } and
 {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile }
 except that it is a subclass of
@@ -221,7 +221,7 @@ Constructs an RIFSFileList object.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -403,9 +403,9 @@ Returns the resource specified by the index.
 
 /**
 Sets the directory path.  This does not change the directory on
-the server.  Instead, it changes the directory to which
+the system.  Instead, it changes the directory to which
 this object references.  This cannot be changed
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param path    The directory path.
 **/

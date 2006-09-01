@@ -28,7 +28,7 @@ import java.util.Date;
 
 
 /**
-The RUser class represents a user profile and directory entry on the server.
+The RUser class represents a user profile and directory entry on the system.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
@@ -2911,7 +2911,7 @@ Deletes the user.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -3196,9 +3196,9 @@ ResourceEvent.
 
 /**
 Sets the user profile name.  This does not change the user profile on
-the server.  Instead, it changes the user profile to which
+the system.  Instead, it changes the user profile to which
 this object references.  This cannot be changed
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param name    The user profile name.
 

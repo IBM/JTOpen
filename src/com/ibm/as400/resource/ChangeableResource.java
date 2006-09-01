@@ -23,9 +23,9 @@ import java.util.Vector;
 
 
 /**
-The ChangeableResource represents an server resource.
+The ChangeableResource represents a system resource.
 This is an abstract subclass of {@link com.ibm.as400.resource.Resource Resource}
-which adds the ability to change attribute values of an server resource.
+which adds the ability to change attribute values of a system resource.
 Attribute changes are cached internally until they are committed
 or canceled.  This allows you to change many attribute values at
 once.  Every attribute is identified using an attribute ID.  Any given

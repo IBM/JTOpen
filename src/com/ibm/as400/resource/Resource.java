@@ -34,14 +34,14 @@ import java.util.Vector;
 
 
 /**
-The Resource class represents an server resource.  This is an abstract
+The Resource class represents a system resource.  This is an abstract
 class which provides generic access to the resource's attributes.
 Every attribute is identified using an attribute ID.  Any given subclass
 of Resource will normally document the attribute IDs that it supports.
 
 <p>One example of a concrete subclass of Resource is 
 {@link com.ibm.as400.resource.RUser RUser}
-which represents a server user.  RUser supports
+which represents a system user.  RUser supports
 many <a href="{@docRoot}/com/ibm/as400/resource/RUser.html#attributeIDs">attribute IDs</a>, 
 each of which can be used to get
 attribute values.  Here is an example which retrieves an attribute
@@ -395,7 +395,7 @@ Indicates if this resource is equal to an object.
 
 
 /**
-Establishes the connection to the server, if any.  Subclasses can override
+Establishes the connection to the system, if any.  Subclasses can override
 this method and put all connection initialization code here.
 It is assumed that all properties have been set when this
 method is called.  Any subclass that overrides this method
@@ -776,7 +776,7 @@ true.
 
 
 /**
-Indicates if a connection to the server is established, if any.  
+Indicates if a connection to the system is established, if any.  
 
 @return     true if a connection is established, false otherwise.
 **/
@@ -909,9 +909,9 @@ Sets the resource key.
 
 /**
 Sets the system.  This does not change the job on 
-the server.  Instead, it changes the system to which 
+the system.  Instead, it changes the system to which 
 this object references.  This cannot be changed 
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param system    The system.
 

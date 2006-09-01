@@ -21,7 +21,7 @@ import com.ibm.as400.access.AS400;
 The ValueMap interface represents a mapping between physical and
 logical values.  While this could be used in many contexts, the
 most common is to consider the physical value as stored on or
-communicated to a server, and the logical value to be manipulated
+communicated to a system, and the logical value to be manipulated
 or externalized in Java.
 
 <p>This class is intended as a helper class for implementing subclasses

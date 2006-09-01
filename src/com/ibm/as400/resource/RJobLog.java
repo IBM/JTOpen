@@ -26,7 +26,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RJobLog class represents a server job log.  This is used
+The RJobLog class represents a job log.  This is used
 to get a list of messages in a job log or to write messages to a job log.
 In order to access a job log, the system and either the job name, user name,
 and job number or internal job identifier need to be set.  A valid combination
@@ -362,7 +362,7 @@ Constructs an RJobLog object.  This sets the job name to "*INT".
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -461,7 +461,7 @@ Returns the user name.
 Sets the internal job identifier.  The job name
 must be set to "*INT" for this to be recognized.
 This cannot be changed if the object has established
-a connection to the server.
+a connection to the system.
 
 @param internalJobID    The internal job identifier.
 
@@ -486,7 +486,7 @@ a connection to the server.
 
 /**
 Sets the job name.  This cannot be changed
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param name The job name.
 
@@ -511,7 +511,7 @@ if the object has established a connection to the server.
 
 /**
 Sets the job number. This cannot be changed
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param number The job number.
 
@@ -536,7 +536,7 @@ if the object has established a connection to the server.
 
 /**
 Sets the user name.  This cannot be changed
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param user The user name.
 

@@ -350,7 +350,7 @@ Constructs an RJobList object.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically 
 when the connection needs to be established.

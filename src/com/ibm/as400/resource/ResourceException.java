@@ -341,8 +341,8 @@ Unwraps the underlying exception and throws it.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the server.
-@exception ObjectDoesNotExistException     If the server object does not exist.
+@exception IOException                     If an error occurs while communicating with the system.
+@exception ObjectDoesNotExistException     If the system object does not exist.
 **/
     public void unwrap()
         throws  AS400SecurityException,

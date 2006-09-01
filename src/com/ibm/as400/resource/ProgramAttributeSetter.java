@@ -27,7 +27,7 @@ import java.util.Vector;
 
 /**
 The ProgramAttributeSetter class sets attribute values by calling a
-program on the server.  The program call is specified using Program Call
+program on the system.  The program call is specified using Program Call
 Markup Language (PCML).  
 
 <p>This class uses a {@link com.ibm.as400.resource.ProgramMap ProgramMap} 

@@ -26,8 +26,8 @@ import java.util.Date;
 
 
 /**
-The RJavaProgram class represents a Java program on the server.   This is supported
-only when connecting to servers running OS/400 V5R1 or later.
+The RJavaProgram class represents a Java program on the system.   This is supported
+only when connecting to systems running OS/400 V5R1 or later.
 
 In the context of this discussion, a "Java program" is the i5/OS executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 
@@ -809,7 +809,7 @@ Deletes the Java program.  This does not delete the class, jar, or zip file.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -957,7 +957,7 @@ ResourceEvent.
 
 /**
 Sets the path.  This does not change the Java program
-on the server.  Instead, it changes the Java program
+on the system.  Instead, it changes the Java program
 that this object references.
 
 @param path         The path.  This can be any class, jar, or zip file.

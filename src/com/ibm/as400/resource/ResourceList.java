@@ -34,7 +34,7 @@ import java.util.Vector;
 
 
 /**
-The ResourceList class represents a list of server resources.  This
+The ResourceList class represents a list of system resources.  This
 is an abstract class which provides generic access to the list's
 contents.
 
@@ -441,7 +441,7 @@ This method fires a listClosed() ResourceListEvent.
 
 
 /**
-Establishes the connection to the server, if any.  Subclasses can override
+Establishes the connection to the system, if any.  Subclasses can override
 this method and put all connection initialization code here.
 It is assumed that all properties have been set when this
 method is called.  Any subclass that overrides this method
@@ -1023,7 +1023,7 @@ may load resources on demand.
 
 
 /**
-Indicates if a connection to the server is established.  This means that the
+Indicates if a connection to the system is established.  This means that the
 resource is in a state where certain properties can no longer be
 changed.
 
@@ -1432,7 +1432,7 @@ or refreshed.
 /**
 Sets the system.   This cannot be changed
 if the object has established a connection
-to the server.
+to the system.
 
 @param  system  The system.
 

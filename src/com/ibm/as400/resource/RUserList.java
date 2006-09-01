@@ -22,7 +22,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RUserList class represents a list of users on the server.
+The RUserList class represents a list of users on the system.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
@@ -212,7 +212,7 @@ if {@link #SELECTION_CRITERIA SELECTION_CRITERIA} is not set to
 Selection ID for user profile.  This identifies a String selection,
 which represents the user profile specification that describes the
 users to be included in the list.  The user profile can be specified
-only when connecting to servers running OS/400 V5R1 or later.
+only when connecting to systems running OS/400 V5R1 or later.
 Possible values are:
 <ul>
 <li>{@link #ALL ALL} - All users are specified.
@@ -320,7 +320,7 @@ Constructs an RUserList object.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.

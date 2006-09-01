@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RPrinter class represents a printer connected to the server.
+The RPrinter class represents a printer connected to the system.
 
 <a name="attributeIDs <p>The following attribute IDs are supported:
 <ul>
@@ -937,7 +937,7 @@ printing.
 /**
 Attribute ID for published status.  This identifies a read-only Boolean
 attribute, which indicates whether the printer is published.  This attribute
-is supported only when connecting to servers running OS/400 V5R1 or later.
+is supported only when connecting to systems running OS/400 V5R1 or later.
 **/
     public static final String PUBLISHED_STATUS                        = "PUBLISHED_STATUS";
 
@@ -1405,7 +1405,7 @@ Computes a resource key.
 
 
 /**
-Establishes the connection to the server.
+Establishes the connection to the system.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -1559,9 +1559,9 @@ ResourceEvent.
 
 /**
 Sets the printer device name.  This does not change the printer on
-the server.  Instead, it changes the printer to which
+the system.  Instead, it changes the printer to which
 this object references.  This cannot be changed
-if the object has established a connection to the server.
+if the object has established a connection to the system.
 
 @param name    The printer device name.
 
