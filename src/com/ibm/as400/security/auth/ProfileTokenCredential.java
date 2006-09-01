@@ -26,9 +26,9 @@ import java.util.Random;
  * The ProfileTokenCredential class represents an i5/OS system profile token.
  *
  * <p> A profile token provides a timed credential representing an
- * authenticated server user profile and password. A profile token can be
- * established in either a remote (not running on the target server) or local
- * (running on the target server) context. Once created, it may be
+ * authenticated system user profile and password. A profile token can be
+ * established in either a remote (not running on the target system) or local
+ * (running on the target system) context. Once created, it may be
  * serialized or distributed as required by the application.
  *
  * <p> When referenced from a running process on the associated i5/OS system,
@@ -38,8 +38,8 @@ import java.util.Random;
  * system cannot be used to swap thread identity on any other system.
  *
  * <p> An application of this support would be in a single tier
- * application running on the server when a designated operation must be
- * run under the server authorities and permissions of a specific
+ * application running on the system when a designated operation must be
+ * run under the system authorities and permissions of a specific
  * user profile. A profile token can be used to swap identity prior
  * to performing the operation. Support is also provided to swap
  * back to the original identity upon completion.
@@ -52,7 +52,7 @@ import java.util.Random;
  * passing the user ID and password over the network. The profile token can
  * be distributed as required to the program on the second tier, which can
  * perform the <i>swap()</i> and run designated operations under the
- * server authorities and permissions assigned to the user.
+ * system authorities and permissions assigned to the user.
  *
  * <p> <b>Note:</b> While inherently more secure than passing a user profile
  * and password due to limited life span, profile tokens should still be
@@ -269,7 +269,7 @@ public final class ProfileTokenCredential extends AS400Credential
     * the specified token value.
     *
     * @param system
-    *        The server associated with the credential.
+    *        The system associated with the credential.
     *
     * @param token
     *        The actual bytes for the token as it exists on the

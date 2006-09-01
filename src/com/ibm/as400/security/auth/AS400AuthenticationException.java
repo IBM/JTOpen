@@ -17,7 +17,7 @@ import com.ibm.as400.access.AS400SecurityException;
 /**
  * The AS400AuthenticationException class and subclasses
  * represent exceptions issued when errors occur
- * during server authentication.
+ * during system authentication.
  *
  */
 public class AS400AuthenticationException extends AS400SecurityException {

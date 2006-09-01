@@ -18,7 +18,7 @@ import com.ibm.as400.access.AS400Message;
 
 /**
  * The RetrieveFailedException class represents an exception
- * issued when errors occur while retrieving server
+ * issued when errors occur while retrieving system
  * authentication information.
  *
  * <p> If available, one or more AS400Message objects may

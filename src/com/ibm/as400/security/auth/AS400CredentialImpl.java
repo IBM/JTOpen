@@ -65,7 +65,7 @@ int getTimeToExpiration() throws RetrieveFailedException;
 int getVersion();
 /**
  * Indicates if the credential is still considered valid
- * for authenticating to associated server services
+ * for authenticating to associated system services
  * or performing related actions.
  *
  * <p> An exception is not thrown on failure to remain

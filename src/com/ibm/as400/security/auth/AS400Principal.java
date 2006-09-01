@@ -202,9 +202,9 @@ public AS400 getSystem() {
  * @exception InterruptedException
  *        If this thread is interrupted.
  * @exception IOException
- *        If an error occurs while communicating with the server.
+ *        If an error occurs while communicating with the system.
  * @exception ObjectDoesNotExistException
- *        If the server object does not exist.
+ *        If the system object does not exist.
  * @exception UnsupportedEncodingException
  *        If the character encoding is not supported.
  *
@@ -257,7 +257,7 @@ void initTransient() {
  *        If the class being deserialized is not found.
  *
  * @exception IOException
- *        If an error occurs while communicating with the server.
+ *        If an error occurs while communicating with the system.
  *
  */
 private void readObject(java.io.ObjectInputStream in)

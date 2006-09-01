@@ -69,7 +69,7 @@ public UserProfilePrincipal(String name) {
  * are set to the specified values.
  *
  * @param system
- *		The server associated with the principal.
+ *		The system associated with the principal.
  *
  * @param name
  *		The user profile name.

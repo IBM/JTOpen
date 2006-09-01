@@ -15,7 +15,7 @@ package com.ibm.as400.security.auth;
 import com.ibm.as400.access.AS400Message;
 /**
  * The RefreshFailedException class represents an exception
- * issued when errors occur while refreshing server
+ * issued when errors occur while refreshing system
  * authentication information.
  *
  * <p> If available, one or more AS400Message objects may
