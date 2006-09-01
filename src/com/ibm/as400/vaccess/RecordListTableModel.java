@@ -31,14 +31,14 @@ import java.util.Vector;
 
 /**
 The RecordListTableModel class represents a table that contains
-the records of a server file using record-level access.
+the records of a file using record-level access.
 This model can be used to create a table of the results.
 
 <p>This class should be used by users who wish to change the default
 interface for the table.  When the default look and behavior is
 sufficient, RecordListTablePane can be used.
 
-<p>Users must call <i>close()</i> to ensure that the server
+<p>Users must call <i>close()</i> to ensure that the system
 resources are properly freed when this model is no longer needed.
 
 <p>The data in the model is retrieved from the system when
@@ -139,7 +139,7 @@ Constant indicating search type of less than or equal.
 static public final int KEY_LE = RecordListData.KEY_LE;
 
 
-//The server file from which records are being displayed.
+//The file from which records are being displayed.
 private RecordListData   tableData_ = new RecordListData();
 
 // Column information
@@ -308,7 +308,7 @@ public void addWorkingListener (WorkingListener listener)
 
 
 /**
-Closes the server file this model represents.
+Closes the file this model represents.
 **/
 public void close ()
 {

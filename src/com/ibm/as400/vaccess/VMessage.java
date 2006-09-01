@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 /**
 The VMessage class defines the representation of a message
-returned from a server for use in various models and panes
+returned from a system for use in various models and panes
 in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -289,7 +289,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public void load ()
     {

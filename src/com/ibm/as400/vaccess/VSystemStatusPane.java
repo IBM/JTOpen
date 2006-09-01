@@ -419,7 +419,7 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
    }
 
    /**
-    * Loads system status information from the server.
+    * Loads system status information from the system.
    **/
    public void load()
 
@@ -598,10 +598,10 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
 
 
    /**
-    * Sets the root, or the server resource, from which all information
+    * Sets the root, or the system resource, from which all information
     * for the model is gathered.
     *
-    * @param root The root, or the server resource, from which all
+    * @param root The root, or the system resource, from which all
     *              information for the model is gathered. 
     * @exception PropertyVetoException If the proposed change to root
     *            is unacceptable.

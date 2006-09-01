@@ -19,7 +19,7 @@ import javax.swing.tree.TreeNode;
 
 /**
 The VNode interface defines the representation of an
-server resource that exists in a hierarchy.
+system resource that exists in a hierarchy.
 
 <p>In the hierarchy, a node has exactly one parent and
 any number of children.  Note that there may be a different

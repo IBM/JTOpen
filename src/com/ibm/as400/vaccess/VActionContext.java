@@ -65,7 +65,7 @@ to create dialogs.
 
 
 /**
-Prompts the user to edit the text for a server resource.
+Prompts the user to edit the text for a system resource.
 This will start an edit session usually within
 a graphical component.
 

@@ -32,7 +32,7 @@ import java.util.Vector;
 
 /**
 The VIFSFile class defines the representation of a file
-in the integrated file system of a server for use in
+in the integrated file system for use in
 various models and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -104,7 +104,7 @@ implements VObject, VIFSConstants, Serializable
 /**
 Constructs a VIFSFile object. The system and path properties
 will need to be set before using any method requiring a
-connection to the server.
+connection to the system.
 **/
     public VIFSFile ()
     {
@@ -133,7 +133,7 @@ Constructs a VIFSFile object.
 /**
 Constructs a VIFSFile object.
 
-@param  system      The server on which the file resides.
+@param  system      The system on which the file resides.
 @param  path        The fully qualified path name of the file. 
 **/
     public VIFSFile (AS400 system, String path)
@@ -525,7 +525,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public void load ()
     {

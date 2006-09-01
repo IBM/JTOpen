@@ -36,10 +36,10 @@ import java.util.Enumeration;
 
 /**
 The VMessageQueue class defines the representation of a
-message queue on a server for use in various models and
+message queue on a system for use in various models and
 panes in this package.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -221,7 +221,7 @@ Constructs a VMessageQueue object.
 /**
 Constructs a VMessageQueue object.
 
-@param system   The server on which the message queue resides.
+@param system   The system on which the message queue resides.
 **/
     public VMessageQueue (AS400 system)
     {
@@ -237,7 +237,7 @@ Constructs a VMessageQueue object.
 /**
 Constructs a VMessageQueue object.
 
-@param  system      The server on which the message queue resides.
+@param  system      The system on which the message queue resides.
 @param  path        The fully qualified integrated file system path name of the message queue. The path  must be in the format of /QSYS.LIB/libname.LIB/messageQueue.MSGQ.
 **/
     public VMessageQueue (AS400 system, String path)
@@ -257,7 +257,7 @@ Constructs a VMessageQueue object.
 Constructs a VMessageQueue object.
 
 @param  parent      The parent.
-@param  system      The server on which the message queue resides.
+@param  system      The system on which the message queue resides.
 @param  path        The fully qualified integrated file system path name of the message queue. The path  must be in the format of /QSYS.LIB/libname.LIB/messageQueue.MSGQ.
 **/
     public VMessageQueue (VNode parent, AS400 system, String path)
@@ -708,7 +708,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public void load ()
     {
@@ -763,7 +763,7 @@ Loads information about the object from the server.
 
 
 /**
-Loads more messages from the server.
+Loads more messages from the system.
 
 @param index    The index needed.
 **/

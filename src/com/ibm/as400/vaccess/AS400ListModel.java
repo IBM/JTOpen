@@ -29,9 +29,9 @@ import java.util.Vector;
 /**
 The AS400ListModel class implements an underlying model for
 a list, where all information for the model is gathered
-from the contents of a server resource, known as the root.
+from the contents of a system resource, known as the root.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Use this class if you want to customize the graphical
 user interface that presents a list.  If you do not need
@@ -51,7 +51,7 @@ in order to diagnose and recover from error conditions.
 
 <p>The following example creates a list model filled with
 the contents of a directory in the integrated file system
-of a server.  It then presents the list in a JList object.
+of a system.  It then presents the list in a JList object.
 
 <pre>
 // Set up the list model and JList.
@@ -106,7 +106,7 @@ Constructs an AS400ListModel object.
 /**
 Constructs an AS400ListModel object.
 
-@param  root    The root, or the server resource, from which all information for the model is gathered.
+@param  root    The root, or the system resource, from which all information for the model is gathered.
 **/
     public AS400ListModel (VNode root)
     {
@@ -207,9 +207,9 @@ Returns the element at the specifed index.
 
 
 /**
-Returns the root, or the server resource, from which all information for the model is gathered.
+Returns the root, or the system resource, from which all information for the model is gathered.
 
-@return     The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
+@return     The root, or the system resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public VNode getRoot ()
     {
@@ -258,7 +258,7 @@ Initializes transient data.
 
 
 /**
-Loads the information from the server.
+Loads the information from the system.
 **/
     public void load ()
     {
@@ -358,10 +358,10 @@ Removes a working listener.
 
 
 /**
-  Sets the root, or the server resource, from which all information for the model is gathered. It will not take effect until load() is done.
+  Sets the root, or the system resource, from which all information for the model is gathered. It will not take effect until load() is done.
 
 
-@param  root    The root, or the server resource, from which all information for the model is gathered.
+@param  root    The root, or the system resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

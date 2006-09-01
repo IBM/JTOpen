@@ -463,7 +463,7 @@ public class  VUserAndGroup
     }
 
     /**
-    Loads information about the object from the server.
+    Loads information about the object from the system.
     **/
     public void load()
     {

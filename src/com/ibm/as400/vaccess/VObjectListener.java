@@ -31,7 +31,7 @@ extends EventListener
 
 
 /**
-Invoked when a server resource is changed.
+Invoked when a system resource is changed.
 
 @param event The event.
 **/
@@ -40,7 +40,7 @@ Invoked when a server resource is changed.
 
 
 /**
-Invoked when a server resource is created.
+Invoked when a system resource is created.
 
 @param event The event.
 **/
@@ -49,7 +49,7 @@ Invoked when a server resource is created.
 
 
 /**
-Invoked when a server resource is deleted.
+Invoked when a system resource is deleted.
 
 @param event The event.
 **/

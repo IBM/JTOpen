@@ -31,9 +31,9 @@ import java.util.Vector;
 /**
 The AS400TreeModel class implements an underlying model for
 a tree, where all information for the tree is gathered from
-the hierarchy of objects rooted at a server resource.
+the hierarchy of objects rooted at a system resource.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Use this class if you want to customize the graphical
 user interface that presents a tree.  If you do not need
@@ -52,7 +52,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a tree model filled with
-the list of printers on a server.  It then presents the tree
+the list of printers on a system.  It then presents the tree
 in a JTree object.
 
 <pre>
@@ -109,7 +109,7 @@ Constructs an AS400TreeModel object.
 /**
 Constructs an AS400TreeModel object.
 
-@param  root    The root, or the server resource, from which all information for the model is gathered.
+@param  root    The root, or the system resource, from which all information for the model is gathered.
 **/
     public AS400TreeModel (VNode root)
     {
@@ -289,9 +289,9 @@ hierarchy. The last element in the path will be this object.
 
 
 /**
-Returns the root, or the server resource, from which all information for the model is gathered.
+Returns the root, or the system resource, from which all information for the model is gathered.
 
-@return The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
+@return The root, or the system resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public Object getRoot ()
     {
@@ -342,7 +342,7 @@ Indicates if the object is a leaf in the tree.
 
 
 /**
-Loads the information from the server.
+Loads the information from the system.
 **/
     public void load ()
     {
@@ -430,10 +430,10 @@ Removes a working listener.
 
 
 /**
-Sets the root, or the server resource, from which all information
+Sets the root, or the system resource, from which all information
 for the model is gathered. It will not take effect until load() is done.
 
-@param  root     The root, or the server resource, from which all
+@param  root     The root, or the system resource, from which all
                  information for the model is gathered.  This must
                  be a VNode.
 

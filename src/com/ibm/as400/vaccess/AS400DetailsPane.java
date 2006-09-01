@@ -50,9 +50,9 @@ import java.util.Vector;
 
 /**
 The AS400DetailsPane class represents a graphical user interface
-that displays the details regarding the contents of a server
+that displays the details regarding the contents of a system
 resource, known as the root.  You must explicitly call load() to
-load the information from the server.
+load the information from the system.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -164,7 +164,7 @@ Constructs an AS400DetailsPane object.
 /**
 Constructs an AS400DetailsPane object.
 
-@param  root  The root, or the server resource, from which all information for the model is gathered.
+@param  root  The root, or the system resource, from which all information for the model is gathered.
 **/
     public AS400DetailsPane (VNode root)
     {
@@ -299,7 +299,7 @@ Returns the model that contains data for the table.
 
 
 /**
-Returns the root, or the server resource, from which all information for the model is gathered.
+Returns the root, or the system resource, from which all information for the model is gathered.
 
 @return     The parent root, or null if none.
 **/
@@ -433,7 +433,7 @@ Indicates if the object is selected.
 
 
 /**
-Loads the information from the server.
+Loads the information from the system.
 **/
     public void load ()
     {
@@ -557,9 +557,9 @@ is true.
 
 
 /**
-Sets the root, or the server resource, from which all information for the model is gathered.
+Sets the root, or the system resource, from which all information for the model is gathered.
 
-@param  root   The root, or the server resource, from which all information for the model is gathered.
+@param  root   The root, or the system resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException If the change is vetoed.
 **/

@@ -26,7 +26,7 @@ import java.io.Serializable;
 
 /**
 The VQueuedMessage class defines the representation of
-a queued message on a server for use in various models
+a queued message on a system for use in various models
 and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -376,7 +376,7 @@ Initializes the transient data.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public void load ()
     {

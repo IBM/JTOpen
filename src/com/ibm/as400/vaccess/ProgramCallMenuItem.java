@@ -34,7 +34,7 @@ import java.io.Serializable;
 
 /**
 The ProgramCallMenuItem class represents a menu item
-that calls a server program when pressed.
+that calls a program when pressed.
 The results of the program are returned in a message list.
 
 <p>ProgramCallMenuItem objects generate the following events:
@@ -113,7 +113,7 @@ implements Serializable
 
     @param  text        The menu item text, or null if there is no text.
     @param  icon        The menu item icon, or null if there is no icon.
-    @param  system      The server on which the programs are run.
+    @param  system      The system on which the programs are run.
     **/
     public ProgramCallMenuItem(String text,
                              Icon icon,
@@ -130,7 +130,7 @@ implements Serializable
 
     @param  text        The menu item text, or null if there is no text.
     @param  icon        The menu item icon, or null if there is no icon.
-    @param  system      The server on which the programs are run.
+    @param  system      The system on which the programs are run.
     @param  program     The program name as a fully qualified path name
                         in the library file system.
                         The library and program name must each be
@@ -361,7 +361,7 @@ Removes a vetoable change listener.
 
 /**
    
-Sets the list of parameters to pass to the server program.
+Sets the list of parameters to pass to the program.
 
 @param parmlist  A list of up to 35 parameters with which to run the program.
                  It will replace any parameters previously set.

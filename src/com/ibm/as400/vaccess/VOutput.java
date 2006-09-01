@@ -22,7 +22,7 @@ import java.util.Calendar;
 
 /**
 The VOutput class defines the representation of a
-spooled file output on a server for use in various
+spooled file output on a system for use in various
 models and panes in this package.
 
 <p>Most errors are reported as ErrorEvents rather than
@@ -508,7 +508,7 @@ Returns the spooled file.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public synchronized void load ()
     {

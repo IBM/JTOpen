@@ -37,9 +37,9 @@ import java.util.Enumeration;
 
 /**
 The VUserList class defines the representation of a user list
-on a server for use in various models and panes in this package.
+on a system for use in various models and panes in this package.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -675,7 +675,7 @@ implements VNode, Serializable
 
 
     /**
-    Loads information about the object from the server.
+    Loads information about the object from the system.
     **/
     public void load()
     {
@@ -721,9 +721,9 @@ implements VNode, Serializable
         // This line used to be the last line in the method but
         // that caused an infininte loop.  The event support
         // calls load().  Since isLoaded_ is still
-        // false, userList ran to the server to get user info again.
+        // false, userList ran to the system to get user info again.
         // My moving isLoaded=true to here, the event support
-        // knows we have the info and there is no need to go to the server.
+        // knows we have the info and there is no need to go to the system.
         isLoaded_ = true;                                           // @B1m
 
         if (error != null)

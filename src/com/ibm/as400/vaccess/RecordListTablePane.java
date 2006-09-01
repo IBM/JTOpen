@@ -43,13 +43,13 @@ import java.util.Enumeration;
 
 /**
 The RecordListTablePane class represents a table that contains
-the records and fields of a server file using record-level access.
+the records and fields of a file using record-level access.
 
 <p>The data in the table is retrieved from the system when
 <i>load()</i> is called.  If <i>load()</i> is not called,
 the table will be empty.
 
-<p>Users must call <i>close()</i> to ensure that the server
+<p>Users must call <i>close()</i> to ensure that the system
 resources are properly freed when this table is no longer needed.
 
 <p>Most errors are reported by firing ErrorEvents, rather
@@ -334,7 +334,7 @@ public void addVetoableChangeListener (VetoableChangeListener listener)
 
 
 /**
-Closes the server file this table represents.
+Closes the file this table represents.
 **/
 public void close()
 {

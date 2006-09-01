@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 /**
 The CommandCallButton class represents a button
-that calls a server CL command when pressed.
+that calls a CL command when pressed.
 Results of the command are returned in a message list.
 
 <p>CommandCallButton objects generate the following events:
@@ -112,7 +112,7 @@ implements Serializable
 
     @param  text    The button text, or null if there is no text.
     @param  icon    The button icon, or null if there is no icon.
-    @param  system  The server on which commands are run.
+    @param  system  The system on which commands are run.
     **/
     public CommandCallButton(String text,
                              Icon icon,
@@ -129,7 +129,7 @@ implements Serializable
 
     @param  text    The button text, or null if there is no text.
     @param  icon    The button icon, or null if there is no icon.
-    @param  system  The server on which commands are run.
+    @param  system  The system on which commands are run.
     @param  command The command.
     **/
     public CommandCallButton(String text,
@@ -144,7 +144,7 @@ implements Serializable
 
 
     /**
-    Adds a listener to be notified when a command has been run on the server.
+    Adds a listener to be notified when a command has been run on the system.
 
     @param  listener  The listener.
     **/

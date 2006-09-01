@@ -45,7 +45,7 @@ import java.util.Enumeration;
 
 /**
 The VPrinter class defines the representation of a
-server printer for use in various models and panes
+system printer for use in various models and panes
 in this package.
 
 <p>A VPrinter object has no children.  Its details
@@ -1383,9 +1383,9 @@ Initializes the transient data.
     }
 
 /**
-Loads information about the object from the server.  A printer must be
+Loads information about the object from the system.  A printer must be
 specified either on construction or from a call to setPrinter() inorder
-to get information about the object from the server.
+to get information about the object from the system.
 **/
     public void load ()
     {

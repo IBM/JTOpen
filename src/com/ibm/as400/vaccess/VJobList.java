@@ -34,9 +34,9 @@ import java.util.Vector;
 
 /**
 The VJobList class defines the representation of a job list on
-a server for use in various models and panes in this package.
+a system for use in various models and panes in this package.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -688,7 +688,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public void load()
     {

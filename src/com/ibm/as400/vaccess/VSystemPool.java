@@ -37,7 +37,7 @@ import java.util.Enumeration;
 
 /**
  * The VSystemPool class defines the representation of system pool on a
- * server for use in various models and panes in this package.
+ * system for use in various models and panes in this package.
  *
  * <p>Most errors are reported as ErrorEvents rather than throwing exceptions.
  *    Users should listen for ErrorEvents in order to diagnose and recover
@@ -334,7 +334,7 @@ implements VObject, Serializable
 
 
     /**
-     * Loads information about the object from the server.
+     * Loads information about the object from the system.
     **/
     public void load ()
     {

@@ -51,9 +51,9 @@ import java.io.Serializable;
 /**
 The IFSTextFileDocument class implements an underlying model
 for text components, where the text is the contents of a text
-file located in the integrated file system of a server.
+file located in the integrated file system.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Use this class in conjuction with any JTextComponent or
 any other component that works with the Document interface.
@@ -74,7 +74,7 @@ in order to diagnose and recover from error conditions.
 
 <p>The following example creates a document which contains
 the contents of a text file in the integrated file system
-of a server.  It then presents the document in a JTextArea
+of a system.  It then presents the document in a JTextArea
 object.
 
 <pre>
@@ -88,7 +88,7 @@ JFrame frame = new JFrame ("My Window");
 frame.getContentPane().add(new JScrollPane(textArea));
 
 <br>
-// Load the information from the server.
+// Load the information from the system.
 document.load ();
 </pre>
 @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
@@ -613,7 +613,7 @@ last read or written.
 
 /**
 Loads the contents of the document from the file on the
-server.
+system.
 **/
     public void load ()
     {
@@ -823,7 +823,7 @@ executed. The runnable itself may not make any mutations.
 
 
 /**
-Saves the contents of the document to the file on the server.
+Saves the contents of the document to the file on the system.
 This will creates the file if it does not already exist.
 **/
     public void save ()

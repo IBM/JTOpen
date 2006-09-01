@@ -96,7 +96,7 @@ public class IFSFileSystemView extends FileSystemView
      Returns a File object constructed in directory from the given filename.
      <br>Note: This method does not create an actual file in the file system.
      @param containingDir The directory in which to create the file.
-     <br>containingDir is assumed to represent an existing directory on the server.  If null, it is ignored.
+     <br>containingDir is assumed to represent an existing directory on the system.  If null, it is ignored.
      @param name The file name.
      @return a File object representing the new file.
      **/
@@ -160,7 +160,7 @@ public class IFSFileSystemView extends FileSystemView
      Creates a new folder with a default name.
      <br>Note: In the context of this class, "folder" is synonymous with "directory".
      @param containingDir The parent directory in which to create the folder.
-     <br>containingDir is assumed to represent an existing directory on the server.
+     <br>containingDir is assumed to represent an existing directory on the system.
      @return a File object representing the new folder.
      **/
     public File createNewFolder(File containingDir)
@@ -209,7 +209,7 @@ public class IFSFileSystemView extends FileSystemView
 
     /**
      * Returns the user's default starting directory for the file chooser.
-     * This will represent the 'root' directory on the server.
+     * This will represent the 'root' directory on the system.
      * @return A <code>File</code> object representing the default
      *         starting folder.
      **/
@@ -252,7 +252,7 @@ public class IFSFileSystemView extends FileSystemView
     /**
      Returns the parent directory of <tt>dir</tt>. 
      @param dir The directory being queried.
-     <br><tt>dir</tt> is assumed to represent an existing directory on the server.
+     <br><tt>dir</tt> is assumed to represent an existing directory on the system.
      @return the parent directory of <tt>dir</tt>, or null if <tt>dir</tt> is null.
      **/
     public File getParentDirectory(File dir)
@@ -351,7 +351,7 @@ public class IFSFileSystemView extends FileSystemView
 
 
     /**
-     * Returns true if f represents the root directory on the server ("/"),
+     * Returns true if f represents the root directory on the system ("/"),
      * and false otherwise.
      *
      * @param f A <code>File</code> object representing a directory.

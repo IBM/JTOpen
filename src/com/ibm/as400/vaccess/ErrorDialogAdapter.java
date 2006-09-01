@@ -36,7 +36,7 @@ component is set, then a default frame will be used.
 
 <p>The following example creates an explorer pane filled
 with the contents of a directory in the integrated file
-system of a server.  It will use an ErrorDialogAdapter
+system.  It will use an ErrorDialogAdapter
 object to display all errors in a message dialog.
 
 <pre>

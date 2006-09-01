@@ -35,7 +35,7 @@ import java.util.Hashtable;
 
 /**
 The VPropertiesAction class is an action that presents a
-properties pane for a server resource in a modeless dialog.
+properties pane for a system resource in a modeless dialog.
 
 <p>If a property dialog is already visible for the object,
 then it will be given focus.

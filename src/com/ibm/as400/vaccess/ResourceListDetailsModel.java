@@ -70,7 +70,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a details model filled with
-details about the jobs running on a server.  It then presents
+details about the jobs running on a system.  It then presents
 the table in a JTable object.
 
 <blockquote><pre>
@@ -99,7 +99,7 @@ frame.show();
 // The JTable will appear empty until we tell the
 // ResourceListDetailsModel to load.  This gives us 
 // control of when the list of jobs is retrieved 
-// from the server.
+// from the system.
 detailsModel.load();
 </pre></blockquote>
 @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>

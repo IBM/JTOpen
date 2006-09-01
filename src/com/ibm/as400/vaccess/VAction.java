@@ -17,7 +17,7 @@ package com.ibm.as400.vaccess;
 
 /**
 The VAction interface defines an action to be performed
-on a server resource.
+on a system resource.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents

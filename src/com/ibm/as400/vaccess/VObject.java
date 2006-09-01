@@ -19,7 +19,7 @@ import javax.swing.Icon;
 
 /**
 The VObject interface defines the representation of an
-server resource for use in various models and panes in this
+system resource for use in various models and panes in this
 package.
 
 <p>An object has any number of properties.  These are
@@ -195,7 +195,7 @@ This is called when rendering the VObject in a user interface.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     abstract public void load ();
 

@@ -49,7 +49,7 @@ import java.util.Vector;
 
 /**
 The VPrinters class represents
-a list of server printers for use in various models
+a list of system printers for use in various models
 and panes in this package.
 
 <p>Both the children and details children of a VPrinters
@@ -163,7 +163,7 @@ Constructs a VPrinters object.
 /**
 Constructs a VPrinters object.
 
-@param  system      The server from which the list will be retrieved.
+@param  system      The system from which the list will be retrieved.
 **/
     public VPrinters( AS400 system )
     {
@@ -181,7 +181,7 @@ Constructs a VPrinters object.
 Constructs a VPrinters object.
 
 @param  parent      The parent.
-@param  system      The server from which the list will be retrieved.
+@param  system      The system from which the list will be retrieved.
 **/
     public VPrinters(VNode parent, AS400 system )
     {
@@ -576,7 +576,7 @@ Initializes the transient data.
         thisPointer_            = this; // used by the loader
 
         // Initialize the children loaded flag to true.  This
-        // makes sure that we do not go to the server until
+        // makes sure that we do not go to the system until
         // after load() has been called.
         childrenLoaded_         = true;
         childrenLoading_        = false;                            // @A4A
@@ -607,7 +607,7 @@ Indicates if the details children are sortable.
     }
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public /* @A4D synchronized */ void load ()
     {
@@ -619,7 +619,7 @@ Loads information about the object from the server.
     }
 
 /**
-Loads the children (printers) from the server
+Loads the children (printers) from the system
 **/
     private /* @A4D synchronized */ void loadChildren ()
         throws Exception

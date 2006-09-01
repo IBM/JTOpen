@@ -37,7 +37,7 @@ import java.io.Serializable;
 
 /**
 The RecordListFormPane class represents a form that is filled in with the fields
-of a file on the server.  The form displays one record at a time
+of a file on the system.  The form displays one record at a time
 and provides buttons that allow the user to scroll forward,
 backward, to the first or last record, or refresh the
 view of the file.
@@ -47,7 +47,7 @@ view of the file.
 when <i>load()</i> is called.  If <i>load()</i> is not called,
 the form will be empty.
 
-<p>Users must call <i>close()</i> to ensure that the server
+<p>Users must call <i>close()</i> to ensure that the system
 resources are properly freed when this form is no longer needed.
 
 <p>Most errors are reported by firing ErrorEvents, rather
@@ -310,7 +310,7 @@ public void addErrorListener (ErrorListener listener)
 
 
 /**
-Closes the server file this form represents.
+Closes the file this form represents.
 **/
 public void close()
 {

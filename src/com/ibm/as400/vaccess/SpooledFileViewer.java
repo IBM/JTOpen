@@ -73,13 +73,13 @@ import java.io.ObjectInputStream;
 import java.io.*;
 
 /**
-The SpooledFileViewer class represents a server spooled file viewer.
+The SpooledFileViewer class represents a system spooled file viewer.
 You can create an instance of this class to view an individual
-AFPDS or SCS spooled file on the server. Viewer functions such as page forward,
+AFPDS or SCS spooled file on the system. Viewer functions such as page forward,
 page back, set current page, and so on, are provided.
 
 The following properties can be set directly, but require the
-invocation of load() to load the information from the server.
+invocation of load() to load the information from the system.
 <ul>
     <li> paper size
     <li> spooled file
@@ -87,7 +87,7 @@ invocation of load() to load the information from the server.
 </ul>
 
 The following properties can be set directly, but require the
-invocation of loadPage() to load the information from the server.
+invocation of loadPage() to load the information from the system.
 <ul>
     <li> current page
 </ul>
@@ -105,14 +105,14 @@ in order to diagnose and recover from error conditions.
     <li>WorkingEvent
 </ul>
 
-(To create new spooled files on the server, use the
+(To create new spooled files on the system, use the
 <b>SpooledFileOutputStream</b> class.
 
 See <a href="doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
 valid attributes.)
 
 <p>The following example creates a spooled file viewer
-to display a spooled file previously created on the server.
+to display a spooled file previously created on the system.
 
 <pre>
 // Assume splf is the spooled file.
@@ -1066,7 +1066,7 @@ Returns the page number of the current page.
 /**
 Returns the number of pages in the spooled file.
 This value may be estimated, depending on the origin of spooled file.
-If the spooled file was created natively on a server, the
+If the spooled file was created natively on a system, the
 value is valid. If the spooled file was created on another
 type of system, the value may be estimated.
 

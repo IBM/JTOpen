@@ -37,10 +37,10 @@ import java.util.Enumeration;
 
 /**
  * The VSystemValueList class defines the representation of a 
- * system value list in a server for use in various models 
+ * system value list in a system for use in various models 
  * and panes in this package.
  * You must explicitly call load() to load the information from
- * the server.
+ * the system.
  * 
  * <p>Most errors are reported as ErrorEvents rather than
  * throwing exceptions.  Users should listen for ErrorEvents
@@ -489,7 +489,7 @@ public class VSystemValueList implements VNode, java.io.Serializable
     }
     
     /**
-     * Loads information about the object from the server.
+     * Loads information about the object from the system.
     **/    
     public void load()
     {

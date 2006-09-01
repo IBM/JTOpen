@@ -91,7 +91,7 @@ frame.show();
 <br>
 // The ResourceListPane will appear empty until we
 // load it.  This gives us control of when the list
-// of messages is retrieved from the server.
+// of messages is retrieved from the system.
 listPane.load();
 </pre></blockquote>
 

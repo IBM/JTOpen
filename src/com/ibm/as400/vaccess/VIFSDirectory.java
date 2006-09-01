@@ -42,10 +42,10 @@ import java.util.Vector;
 
 /**
 The VIFSDirectory class defines the representation of a
-directory in the integrated file system of a server for use
+directory in the integrated file system for use
 in various models and panes in this package.
 You must explicitly call load() to load the information from
-the server.
+the system.
 
 <p>Most errors are reported as ErrorEvents rather than
 throwing exceptions.  Users should listen for ErrorEvents
@@ -234,7 +234,7 @@ Constructs a VIFSDirectory object.
 /**
 Constructs a VIFSDirectory object.
 
-@param  system      The server on which the file resides.
+@param  system      The system on which the file resides.
 @param  path        The fully qualified path name of the file.
 **/
     public VIFSDirectory (AS400 system, String path)
@@ -828,7 +828,7 @@ Initializes the transient data.
         modified_               = new Date ();  //@C1C
 
         // Initialize the children loaded flag to true.  This
-        // makes sure that we do not go to the server until
+        // makes sure that we do not go to the system until
         // after load() has been called.
         childrenLoaded_         = true;
 
@@ -870,7 +870,7 @@ Indicates if the details children are sortable.
 
 
 /**
-Loads information about the object from the server.
+Loads information about the object from the system.
 **/
     public void load ()
     {
@@ -900,7 +900,7 @@ Loads information about the object from the server.
 
 
 /**
-Loads the children from the server.
+Loads the children from the system.
 **/
     private void loadChildren ()
     {
@@ -957,7 +957,7 @@ Loads the children from the server.
                     directories = new Vector (fileCount);
 
                     // For each file and directory that came back from the
-                    // server...
+                    // system...
                     for (int i = 0; i < fileCount; ++i) {
 
                       // Check to see if the VObject already exists.

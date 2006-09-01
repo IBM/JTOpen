@@ -46,9 +46,9 @@ import java.util.Enumeration;
 
 /**
  * The VSystemStatus class defines the representation of system status on a
- * server for use in various models and panes in this package.
+ * system for use in various models and panes in this package.
  * The method load() must be explicitly called to load the information from
- * the server.
+ * the system.
 
  * <p>Most errors are reported as ErrorEvents rather than throwing exceptions.
  *    Users should listen for ErrorEvents in order to diagnose and recover
@@ -169,8 +169,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                  the request is completed.
     * @exception InterruptedException If this thread is interrupted.
     * @exception IOException If an error occurs while communicating with
-                 the server.
-    * @exception ObjectDoesNotExistException If the server object does not
+                 the system.
+    * @exception ObjectDoesNotExistException If the system object does not
                  exist.
     * @exception PropertyVetoException If the change is vetoed.
     * @exception UnsupportedEncodingException If the character encoding is
@@ -208,8 +208,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                  the request is completed.
     * @exception InterruptedException If this thread is interrupted.
     * @exception IOException If an error occurs while communicating with
-                 the server.
-    * @exception ObjectDoesNotExistException If the server object does not
+                 the system.
+    * @exception ObjectDoesNotExistException If the system object does not
                  exist.
     * @exception PropertyVetoException If the change is vetoed.
     * @exception UnsupportedEncodingException If the character encoding is
@@ -250,8 +250,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                     the request is completed.
        * @exception InterruptedException If this thread is interrupted.
        * @exception IOException If an error occurs while communicating with
-                    the server.
-       * @exception ObjectDoesNotExistException If the server object does not
+                    the system.
+       * @exception ObjectDoesNotExistException If the system object does not
                     exist.
        * @exception PropertyVetoException If the change is vetoed.
        * @exception UnsupportedEncodingException If the character encoding is
@@ -287,8 +287,8 @@ public class VSystemStatus implements VNode, Serializable //@B0C
                  the request is completed.
     * @exception InterruptedException If this thread is interrupted.
     * @exception IOException If an error occurs while communicating with
-                 the server.
-    * @exception ObjectDoesNotExistException If the server object does not
+                 the system.
+    * @exception ObjectDoesNotExistException If the system object does not
                  exist.
     * @exception PropertyVetoException If the change is vetoed.
     * @exception UnsupportedEncodingException If the character encoding is
@@ -625,7 +625,7 @@ public class VSystemStatus implements VNode, Serializable //@B0C
    }
 
    /**
-    * Loads information about the object from the server.
+    * Loads information about the object from the system.
    **/
    public void load ()
    {   

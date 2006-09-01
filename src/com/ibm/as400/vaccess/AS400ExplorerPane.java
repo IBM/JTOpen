@@ -46,10 +46,10 @@ import java.io.Serializable;
 /**
 The AS400ExplorerPane class represents a graphical user interface
 that is useful for working with the hierarchy of objects rooted
-at a server resource.  The graphical user interface presents a
+at a system resource.  The graphical user interface presents a
 tree on the left side and the details of the selected resource
 in the right side.  You must explicitly call load() to load the
-information from the server.
+information from the system.
 
 <p>AS400ExplorerPane objects generate the following events:
 <ul>
@@ -61,7 +61,7 @@ information from the server.
 
 <p>The following example creates an explorer pane filled with
 the contents of a directory in the integrated file system
-of a server.
+of a system.
 
 <pre>
 // Set up the explorer pane.
@@ -151,7 +151,7 @@ Constructs an AS400ExplorerPane object.
 /**
 Constructs an AS400ExplorerPane object.
 
-@param  root     The root, or the server resource, from which all information for the model is gathered.
+@param  root     The root, or the system resource, from which all information for the model is gathered.
 **/
     public AS400ExplorerPane (VNode root)
     {
@@ -380,9 +380,9 @@ hierarchy. The last element in the path will be this object.
 
 
 /**
-Returns the root, or the server resource, from which all information for the model is gathered.
+Returns the root, or the system resource, from which all information for the model is gathered.
 
-@return     The root, or the server resource, from which all information for the model is gathered. It will be null if none has been set.
+@return     The root, or the system resource, from which all information for the model is gathered. It will be null if none has been set.
 **/
     public VNode getRoot ()
     {
@@ -547,7 +547,7 @@ Indicates if the object in the tree is currently visible in the tree.
 
 
 /**
-Loads the objects from the server.
+Loads the objects from the system.
 **/
     public void load ()
     {
@@ -685,9 +685,9 @@ programmatically select and deselect objects.
 
 
 /**
-Sets the root, or the server resource, from which all information for the model is gathered. It will not take effect until load() is done.
+Sets the root, or the system resource, from which all information for the model is gathered. It will not take effect until load() is done.
 
-@param  root    The root, or the server resource, from which all information for the model is gathered.
+@param  root    The root, or the system resource, from which all information for the model is gathered.
 
 @exception PropertyVetoException It the change is vetoed.
 **/

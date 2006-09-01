@@ -632,7 +632,7 @@ public boolean getUserSelectTableSchemas ()
 
 /**
 Gets data from the system.
-If the <i>connection</i> is null, the server JDBC driver will
+If the <i>connection</i> is null, the system JDBC driver will
 be used, and the user will be prompted for sign-on information.
 **/
 synchronized public void load()

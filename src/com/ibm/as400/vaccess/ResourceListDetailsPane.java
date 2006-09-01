@@ -116,7 +116,7 @@ frame.show();
 <br>
 // The ResourceListDetailsPane will appear empty until
 // we load it.  This gives us control of when the list
-// of users is retrieved from the server.
+// of users is retrieved from the system.
 detailsPane.load();
 </pre></blockquote>
 

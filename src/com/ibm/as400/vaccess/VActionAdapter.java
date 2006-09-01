@@ -37,7 +37,7 @@ class hierarchy to the javax.swing.Action class hierarchy.
 
 <p>The following example creates an action adapter which is
 used to put up a properties pane for a directory in the integrated
-file system of a server.  The action adapter is then attached
+file system.  The action adapter is then attached
 to a menu item, so that the action is performed when the menu
 item is selected.
 

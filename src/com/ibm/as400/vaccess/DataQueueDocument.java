@@ -42,7 +42,7 @@ import java.io.Serializable;
 /**
 The DataQueueDocument class represents an underlying model
 for text components, where the text is entries from a
-data queue on a server.
+data queue on a system.
 
 <p>Use this class in conjuction with any JTextComponent or
 any other component that works with the Document interface.
@@ -62,7 +62,7 @@ in order to diagnose and recover from error conditions.
 </ul>
 
 <p>The following example creates a document which contains
-the next entry in a data queue on a server.  It then
+the next entry in a data queue on a system.  It then
 presents the document in a JTextField object.
 <pre>
 // Set up the document and the JTextField.
@@ -134,7 +134,7 @@ Constructs a DataQueueDocument object.
 /**
 Constructs a DataQueueDocument object.
 
-@param      system                   The server on which the data queue resides.
+@param      system                   The system on which the data queue resides.
 @param      path                     The fully qualified integrated file system path name of the data queue. The path  must be in the format of /QSYS.LIB/libname.LIB/dataQueue.DTAQ.  The library and queue name must each be 10 characters or less.
 **/
     public DataQueueDocument (AS400 system, String path)

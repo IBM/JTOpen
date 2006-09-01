@@ -19,7 +19,7 @@ import java.util.EventObject;
 
 /**
 The VObjectEvent class represents an event that
-is fired when a server resource is changed,
+is fired when a system resource is changed,
 created, or deleted.
 
 @see VObjectListener
@@ -44,7 +44,7 @@ extends EventObject
 Constructs a VObjectEvent object.
 
 @param  source      The event source.
-@param  object      The affected server resource.
+@param  object      The affected system resource.
 **/
     public VObjectEvent (Object source, VObject object)
     {
@@ -68,8 +68,8 @@ Constructs a VObjectEvent object.
 Constructs a VObjectEvent object.
 
 @param  source      The event source.
-@param  object      The affected server resource.
-@param  parent      The parent of the affected server resource.
+@param  object      The affected system resource.
+@param  parent      The parent of the affected system resource.
                     This is only relevant for object created
                     events.
 **/
@@ -83,9 +83,9 @@ Constructs a VObjectEvent object.
 
 
 /**
-Returns the affected server resource.
+Returns the affected system resource.
 
-@return The server resource.
+@return The system resource.
 **/
     public VObject getObject ()
     {
@@ -95,7 +95,7 @@ Returns the affected server resource.
 
 
 /**
-Returns the parent of the affected server resource.
+Returns the parent of the affected system resource.
 This is only relevant for object created events.
 
 @return The parent, or null if none was set.
