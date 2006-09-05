@@ -20,7 +20,7 @@ import java.io.IOException;
  **/
 public class JobCCSID
 {
-    // The server where the job is located.
+    // The system where the job is located.
     private AS400 system_ = null;
     private int ccsid_ = -1;
 
@@ -34,8 +34,8 @@ public class JobCCSID
     }
 
     /**
-     Constructs a JobCCSID object.  It uses the specified server.
-     @param  system  The server on which to retrieve the CCSID.
+     Constructs a JobCCSID object.  It uses the specified system.
+     @param  system  The system on which to retrieve the CCSID.
      **/
     public JobCCSID(AS400 system)
     {
@@ -45,8 +45,8 @@ public class JobCCSID
     }
 
     /**
-     Returns the server on which the Job CCSID is to be retrieved.
-     @return  The server on which the Job CCSID is to be retrieved.  If the server has not been set, null is returned.
+     Returns the system on which the Job CCSID is to be retrieved.
+     @return  The system on which the Job CCSID is to be retrieved.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -86,8 +86,8 @@ public class JobCCSID
     }
 
     /**
-     Sets the server on which to retrieve the Job CCSID.  The server cannot be changed once a connection is made to the server.
-     @param  system  The server on which to retrieve the Job CCSID.
+     Sets the system on which to retrieve the Job CCSID.  The system cannot be changed once a connection is made to the system.
+     @param  system  The system on which to retrieve the Job CCSID.
      **/
     public void setSystem(AS400 system)
     {

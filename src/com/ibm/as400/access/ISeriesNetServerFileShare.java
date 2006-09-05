@@ -29,7 +29,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
 
 
   /**
-   Value of the "current number of users" attribute, indicating that the server was unable to retrieve the actual value.
+   Value of the "current number of users" attribute, indicating that the system was unable to retrieve the actual value.
    **/
   public final static int UNKNOWN = -1;
 
@@ -162,7 +162,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
 
   /**
    Gets the number of connections that are currently made to the share.
-   A value of {@link #UNKNOWN UNKNOWN} means that the server was unable to retrieve the value.
+   A value of {@link #UNKNOWN UNKNOWN} means that the system was unable to retrieve the value.
    @return The current number of users.
    **/
   public int getCurrentNumberOfUsers()
@@ -222,7 +222,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
 
   /**
    Sets the client CCSID that is used for text file data conversion. Text file data conversion is performed using this CCSID and the current CCSID of the system file.
-   A value of 0 indicates that the user would like to use the currently configured CCSID for the server.
+   A value of 0 indicates that the user would like to use the currently configured CCSID for the system.
    @param ccsid  The CCSID that is used for text file data conversion.
    **/
   public void setCcsidForTextConversion(int ccsid)
@@ -237,7 +237,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
 
 
   /**
-   Gets the list of file extensions for the share.  The file extensions list determines which files are converted by the server.
+   Gets the list of file extensions for the share.  The file extensions list determines which files are converted by the system.
    @return The file extensions list.
    **/
   public String[] getFileExtensions()
@@ -249,7 +249,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
 
 
   /**
-   Sets the list of file extensions for the share.  The file extensions list determines which files are converted by the server.
+   Sets the list of file extensions for the share.  The file extensions list determines which files are converted by the system.
    @param extensions The file extensions list.
    **/
   public void setFileExtensions(String[] extensions)

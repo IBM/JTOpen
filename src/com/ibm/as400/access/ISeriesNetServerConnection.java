@@ -32,7 +32,7 @@ import java.io.UnsupportedEncodingException;
 <pre>
 * import com.ibm.as400.access.*;
 *
-* // Create a ISeriesNetServer object for a specific server system.
+* // Create a ISeriesNetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * ISeriesNetServer ns = new ISeriesNetServer(system);
 *

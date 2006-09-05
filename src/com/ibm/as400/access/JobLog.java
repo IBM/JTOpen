@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Enumeration;
 
 /**
- Represents a job log on the server.  This class is used to get a list of messages in a job log or to write messages to a job log.
+ Represents a job log on the system.  This class is used to get a list of messages in a job log or to write messages to a job log.
  <p>QueuedMessage objects have many attributes.  Only some of theses attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values are set on QueuedMessage objects returned in a list of job log messages:
  <ul>
  <li>alert option
@@ -52,7 +52,7 @@ public class JobLog implements Serializable
     // Shared error code parameter.
     private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
 
-    // The server where the job log is located.
+    // The system where the job log is located.
     private AS400 system_;
     // The job name.
     private String name_ = "*";
@@ -89,7 +89,7 @@ public class JobLog implements Serializable
 
     /**
      Constructs a JobLog object.  The job information defaults to the server job in which the program is run.
-     @param  system  The system object representing the server on which the job log exists.
+     @param  system  The system object representing the system on which the job log exists.
      **/
     public JobLog(AS400 system)
     {
@@ -105,7 +105,7 @@ public class JobLog implements Serializable
 
     /**
      Constructs a JobLog object.
-     @param  system  The system object representing the server on which the job log exists.
+     @param  system  The system object representing the system on which the job log exists.
      @param  name  The job name.
      @param  user  The job user name.
      @param  number  The job number.
@@ -188,12 +188,12 @@ public class JobLog implements Serializable
     }
 
     /**
-     Closes the message list on the server.  This releases any system resources previously in use by this message list.
+     Closes the message list on the system.  This releases any system resources previously in use by this message list.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public synchronized void close() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -251,8 +251,8 @@ public class JobLog implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public Enumeration getMessages() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -263,15 +263,15 @@ public class JobLog implements Serializable
     }
 
     /**
-     Returns a subset of the list of messages in the job log.  This method allows the user to retrieve the message list from the server in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
+     Returns a subset of the list of messages in the job log.  This method allows the user to retrieve the message list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
      @param  listOffset  The offset into the list of messages.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the messages.
      @param  number  The number of messages to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
-     @return  The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the server, and the specified <i>listOffset</i>.
+     @return  The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.QueuedMessage
      **/
     public QueuedMessage[] getMessages(int listOffset, int number) throws  AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -460,8 +460,8 @@ public class JobLog implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the job log exists.
-     @return  The system object representing the server on which the job log exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the job log exists.
+     @return  The system object representing the system on which the job log exists.  If the system has not been set, null is returned.
      @see  #setSystem
      **/
     public AS400 getSystem()
@@ -482,13 +482,13 @@ public class JobLog implements Serializable
     }
 
     /**
-     Loads the list of messages on the server.  This method informs the server to build a list of messages.  This method blocks until the server returns the total number of messages it has compiled.  A subsequent call to {@link #getMessages getMessages()} will retrieve the actual message information and attributes for each message in the list from the server.
+     Loads the list of messages on the system.  This method informs the system to build a list of messages.  This method blocks until the system returns the total number of messages it has compiled.  A subsequent call to {@link #getMessages getMessages()} will retrieve the actual message information and attributes for each message in the list from the system.
      <p>This method updates the list length.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #getLength
      **/
     public synchronized void load() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -656,7 +656,7 @@ public class JobLog implements Serializable
     }
 
     /**
-     Sets the job name.  This cannot be changed if the object has established a connection to the server.
+     Sets the job name.  This cannot be changed if the object has established a connection to the system.
      @param  name  The job name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -697,7 +697,7 @@ public class JobLog implements Serializable
     }
 
     /**
-     Sets the job number. This cannot be changed if the object has established a connection to the server.
+     Sets the job number. This cannot be changed if the object has established a connection to the system.
      @param  number  The job number.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -752,8 +752,8 @@ public class JobLog implements Serializable
     }
 
     /**
-     Sets the system.  This cannot be changed if the object has established a connection to the server.
-     @param  system  The system object representing the server on which the job log exists.
+     Sets the system.  This cannot be changed if the object has established a connection to the system.
+     @param  system  The system object representing the system on which the job log exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -792,7 +792,7 @@ public class JobLog implements Serializable
     }
 
     /**
-     Sets the job user name.  This cannot be changed if the object has established a connection to the server.
+     Sets the job user name.  This cannot be changed if the object has established a connection to the system.
      @param  user  The job user name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -834,8 +834,8 @@ public class JobLog implements Serializable
 
     /**
      Writes a program message to the job log for the job in which the program is running.
-     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the server.
-     @param  system  The system object representing the server on which the job log exists.  If the system specifies localhost, the message is written to the job log of the process from which this method is called.  Otherwise the message is written to the QZRCSRVS job.
+     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the system.
+     @param  system  The system object representing the system on which the job log exists.  If the system specifies localhost, the message is written to the job log of the process from which this method is called.  Otherwise the message is written to the QZRCSRVS job.
      @param  messageID  The message ID.  The message must be in the default message file /QSYS.LIB/QCPFMSG.MSGF.
      @param  messageType  The message type.  Possible values are:
      <ul>
@@ -849,8 +849,8 @@ public class JobLog implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public static void writeMessage(AS400 system, String messageID, int messageType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -881,7 +881,7 @@ public class JobLog implements Serializable
 
     /**
      Writes a program message to the job log for the job in which the program is running.
-     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the server.
+     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the system.
      @param  system  The system.  If the system specifies localhost, the message is written to the job log of the process from which this method is called.  Otherwise the message is written to the QZRCSRVS job.
      @param  messageID  The message ID.  The message must be in the default message file /QSYS.LIB/QCPFMSG.MSGF.
      @param  messageType  The message type. Possible values are:
@@ -897,8 +897,8 @@ public class JobLog implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public static void writeMessage(AS400 system, String messageID, int messageType, byte[] substitutionData) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -929,7 +929,7 @@ public class JobLog implements Serializable
 
     /**
      Writes a program message to the job log for the job in which the program is running.
-     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the server.
+     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the system.
      @param  system  The system.  If the system specifies localhost, the message is written to the job log of the process from which this method is called.  Otherwise the message is written to the QZRCSRVS job.
      @param  messageID  The message ID.
      @param  messageType  The message type. Possible values are:
@@ -945,8 +945,8 @@ public class JobLog implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public static void writeMessage(AS400 system, String messageID, int messageType, String messageFile) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -982,7 +982,7 @@ public class JobLog implements Serializable
 
     /**
      Writes a program message to the job log for the job in which the program is running.
-     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the server.
+     <br>Note: The program runs in the job of the Remote Command Host Server (QZRCSRVS) unless it is invoked "on-thread" on the system.
      @param  system  The system.  If the system specifies localhost, the message is written to the job log of the process from which this method is called.  Otherwise the message is written to the QZRCSRVS job.
      @param  messageID  The message ID.
      @param  messageType  The message type. Possible values are:
@@ -999,8 +999,8 @@ public class JobLog implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public static void writeMessage(AS400 system, String messageID, int messageType, String messageFile, byte[] substitutionData) throws  AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1035,7 +1035,7 @@ public class JobLog implements Serializable
     }
 
     /**
-     Writes a program message to the job log for the job in which the program is running.  The message is sent to the Remote Command Host Server (QZRCSRVS) unless true is specified for the <i>onThread</i> parameter and is invoked while running on the server.
+     Writes a program message to the job log for the job in which the program is running.  The message is sent to the Remote Command Host Server (QZRCSRVS) unless true is specified for the <i>onThread</i> parameter and is invoked while running on the system.
      @param  system  The system.  The system cannot be null.
      @param  messageID  The message ID. The message ID cannot be null.
      @param  messageType  The message type. Possible values are:
@@ -1048,13 +1048,13 @@ public class JobLog implements Serializable
      The message type must be AS400Message.INFORMATIONAL for an immediate message.
      @param  messageFile  The integrated file system path name of the message file.  If null is specified, the message file used is /QSYS.LIB/QCPFMSG.MSGF.
      @param  substitutionData  The substitution data.  The substitution data can be from 0-32767 bytes for a conventional message and from 1-6000 bytes for an immediate message.  If null is specified, no substitution data is used.
-     @param  onThread  Whether or not to stay on thread when calling the API to write the message to the job log. true to write the message to the current job's job log, false to write the message to the Remote Command Host Server job's job log.  Note that this parameter is meaningless unless this Java program is running on the server and the system object is using native optimizations.
+     @param  onThread  Whether or not to stay on thread when calling the API to write the message to the job log. true to write the message to the current job's job log, false to write the message to the Remote Command Host Server job's job log.  Note that this parameter is meaningless unless this Java program is running on the system and the system object is using native optimizations.
      @see  com.ibm.as400.access.ProgramCall#isStayOnThread()
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public static void writeMessage(AS400 system, String messageID, int messageType, String messageFile, byte[] substitutionData, boolean onThread) throws  AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {

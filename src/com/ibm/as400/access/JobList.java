@@ -24,7 +24,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 /**
- Represents a list of jobs on the server.  By default, all jobs are selected.  To filter the list, use the {@link #addJobSelectionCriteria addJobSelectionCriteria()} method.
+ Represents a list of jobs on the system.  By default, all jobs are selected.  To filter the list, use the {@link #addJobSelectionCriteria addJobSelectionCriteria()} method.
  @see com.ibm.as400.access.Job
  **/
 public class JobList implements Serializable
@@ -394,7 +394,7 @@ public class JobList implements Serializable
         sortableKeys_.put(Job.USER_RETURN_CODE, 4); // Binary
     }
 
-    // The server where the jobs are located.
+    // The system where the jobs are located.
     private AS400 system_;
     // List of property change event bean listeners.
     private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
@@ -463,7 +463,7 @@ public class JobList implements Serializable
 
     /**
      Constructs a JobList object.
-     @param  system  The system object representing the server on which the jobs exist.
+     @param  system  The system object representing the system on which the jobs exist.
      **/
     public JobList(AS400 system)
     {
@@ -478,7 +478,7 @@ public class JobList implements Serializable
     }
 
     /**
-     Adds a job attribute that will be retrieved for each job in this job list.  This method allows the Job objects that are retrieved from this JobList to have some of their attributes already filled in, so that a call to {@link com.ibm.as400.access.Job#getValue Job.getValue()} does not result in another API call back to the server for each job in the list.
+     Adds a job attribute that will be retrieved for each job in this job list.  This method allows the Job objects that are retrieved from this JobList to have some of their attributes already filled in, so that a call to {@link com.ibm.as400.access.Job#getValue Job.getValue()} does not result in another API call back to the system for each job in the list.
      <p>The list of job attributes is maintained internally even when this JobList is closed and re-used.  To start over with a new set of job attributes to retrieve, call {@link #clearJobAttributesToRetrieve clearJobAttributesToRetrieve()}.
      @param  attribute  The job attribute to retrieve.  Possible values are all job attributes contained in the {@link com.ibm.as400.access.Job Job} class, <b>excluding</b> the following:
      <ul>
@@ -921,12 +921,12 @@ public class JobList implements Serializable
     }
 
     /**
-     Closes the job list on the server.  This releases any system resources previously in use by this job list.
+     Closes the job list on the system.  This releases any system resources previously in use by this job list.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #load
      **/
     public synchronized void close() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -966,7 +966,7 @@ public class JobList implements Serializable
     }
 
     /**
-     Closes the job list on the server when this object is garbage collected.
+     Closes the job list on the system when this object is garbage collected.
      **/
     protected void finalize() throws Throwable
     {
@@ -976,13 +976,13 @@ public class JobList implements Serializable
     }
 
     /**
-     Returns an Enumeration that wraps the list of jobs on the server.  This method calls {@link #load load()} implicitly if needed.  The Enumeration retrieves jobs from the server in blocks as needed when nextElement() is called.  This JobList should not be closed until the program is done processing elements out of the Enumeration.  That is, this method does not retrieve all of the jobs from the server up front -- it retrieves them as needed, which allows for a lower memory footprint versus more calls to the server.  The block size used internally by the Enumeration is set to 1000 jobs.
+     Returns an Enumeration that wraps the list of jobs on the system.  This method calls {@link #load load()} implicitly if needed.  The Enumeration retrieves jobs from the system in blocks as needed when nextElement() is called.  This JobList should not be closed until the program is done processing elements out of the Enumeration.  That is, this method does not retrieve all of the jobs from the system up front -- it retrieves them as needed, which allows for a lower memory footprint versus more calls to the system.  The block size used internally by the Enumeration is set to 1000 jobs.
      @return  An Enumeration of {@link com.ibm.as400.access.Job Job} objects.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.Job
      **/
     public synchronized Enumeration getJobs() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1008,15 +1008,15 @@ public class JobList implements Serializable
     }
 
     /**
-     Returns a subset of the list of jobs in the job list.  This method allows the user to retrieve the job list from the server in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the jobs at a given offset will change, so a subsequent call to getJobs() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Jobs as the previous call.
+     Returns a subset of the list of jobs in the job list.  This method allows the user to retrieve the job list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the jobs at a given offset will change, so a subsequent call to getJobs() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Jobs as the previous call.
      @param  listOffset  The offset into the list of jobs.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the jobs.
      @param  number  The number of jobs to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
-     @return  The array of retrieved {@link com.ibm.as400.access.Job Job} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the server, and the specified <i>listOffset</i>.
+     @return  The array of retrieved {@link com.ibm.as400.access.Job Job} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.Job
      **/
     public Job[] getJobs(int listOffset, int number) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1159,8 +1159,8 @@ public class JobList implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the jobs exist.
-     @return  The system object representing the server on which the jobs exist.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the jobs exist.
+     @return  The system object representing the system on which the jobs exist.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -1185,8 +1185,8 @@ public class JobList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #getLength
      **/
     public synchronized void load() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1706,8 +1706,8 @@ public class JobList implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the jobs exist.  The system cannot be changed once a connection to the server has been established.
-     @param  system  The system object representing the server on which the jobs exists.
+     Sets the system object representing the system on which the jobs exist.  The system cannot be changed once a connection to the system has been established.
+     @param  system  The system object representing the system on which the jobs exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException

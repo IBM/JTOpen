@@ -28,7 +28,7 @@ public class KeyedDataQueue extends BaseDataQueue
     int keyLength_ = 0;
 
     /**
-     Constructs a KeyedDataQueue object.  The system and path properties must be set before using any method requiring a connection to the server.
+     Constructs a KeyedDataQueue object.  The system and path properties must be set before using any method requiring a connection to the system.
      **/
     public KeyedDataQueue()
     {
@@ -38,7 +38,7 @@ public class KeyedDataQueue extends BaseDataQueue
 
     /**
      Constructs a KeyedDataQueue object.
-     @param  system  The system object representing the server on which the data queue exists.
+     @param  system  The system object representing the system on which the data queue exists.
      @param  path  The fully qualified integrated file system path name of the data queue.  The library and queue name must each be 10 characters or less.
      **/
     public KeyedDataQueue(AS400 system, String path)
@@ -74,10 +74,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @param  key  The key with which data queue entries will be compared.  All entries whose key is equal to this parameter will be removed from the queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void clear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -106,10 +106,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @param  key  The key with which data queue entries will be compared.  All entries whose key is equal to this parameter will be removed from the queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void clear(String key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -123,15 +123,15 @@ public class KeyedDataQueue extends BaseDataQueue
     }
 
     /**
-     Creates a keyed data queue on the server.  The queue will be created with the following attributes: authority = *LIBCRTAUT, saveSenderInformation = false, forceToAuxiliaryStorage = false, description = (50 blanks).
+     Creates a keyed data queue on the system.  The queue will be created with the following attributes: authority = *LIBCRTAUT, saveSenderInformation = false, forceToAuxiliaryStorage = false, description = (50 blanks).
      @param  keyLength  The number of bytes per data queue key. Valid values are 1-256.
      @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectAlreadyExistsException  If the object already exists on the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectAlreadyExistsException  If the object already exists on the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(int keyLength, int maxEntryLength) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
@@ -139,7 +139,7 @@ public class KeyedDataQueue extends BaseDataQueue
     }
 
     /**
-     Creates a keyed data queue on the server.
+     Creates a keyed data queue on the system.
      @param  keyLength  The number of bytes per data queue key. Valid values are 1-256.
      @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @param  authority  The public authority for the data queue.  Valid values are *ALL, *CHANGE, *EXCLUDE, *USE, *LIBCRTAUT.
@@ -148,10 +148,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @param  description  The text description.  This string must be 50 characters or less.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectAlreadyExistsException  If the object already exists on the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectAlreadyExistsException  If the object already exists on the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(int keyLength, int maxEntryLength, String authority, boolean saveSenderInformation, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
@@ -217,10 +217,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The length of the keys.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public int getKeyLength() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -240,10 +240,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry peek(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -258,10 +258,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry peek(byte[] key, int wait, String searchType) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -312,10 +312,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry peek(String key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -330,10 +330,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry peek(String key, int wait, String searchType) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -353,10 +353,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry read(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -371,10 +371,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry read(byte[] key, int wait, String searchType) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -424,10 +424,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry read(String key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -442,10 +442,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public KeyedDataQueueEntry read(String key, int wait, String searchType) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -458,7 +458,7 @@ public class KeyedDataQueue extends BaseDataQueue
         return read(convertKey(key), wait, searchType);
     }
 
-    // Retrieves the attributes of the data queue.  This method assumes that the connection to the server has been started.  It must only be called by open().
+    // Retrieves the attributes of the data queue.  This method assumes that the connection to the system has been started.  It must only be called by open().
     void retrieveAttributes() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving keyed data queue attributes.");
@@ -491,10 +491,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @param  data  The array of bytes to write to the queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -534,10 +534,10 @@ public class KeyedDataQueue extends BaseDataQueue
      @param  data  The string to write to the queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(String key, String data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {

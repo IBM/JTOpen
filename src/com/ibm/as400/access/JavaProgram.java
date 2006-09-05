@@ -21,7 +21,7 @@ import java.util.Date;
 
 /**
 The JavaProgram class represents an OS/400 or i5/OS Java program.   This is supported
-only when connecting to servers running OS/400 V5R1 or later, or servers running i5/OS.
+only when connecting to systems running OS/400 V5R1 or later, or systems running i5/OS.
 
 In the context of this discussion, a "Java program" is the OS/400 or i5/OS executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 <br>

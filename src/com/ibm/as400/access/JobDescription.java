@@ -80,7 +80,7 @@ public class JobDescription implements Serializable
 
   /**
    * Constructs a JobDescription.
-   * @param system The server where the job description resides.
+   * @param system The system where the job description resides.
    * @param name The name of the job description to retrieve.
    * @param library The library containing the job description.
    **/
@@ -97,7 +97,7 @@ public class JobDescription implements Serializable
 
   /**
    * Constructs a JobDescription.
-   * @param system The server where the job description resides.
+   * @param system The system where the job description resides.
    * @param path The fully qualified IFS path to the job description.
    **/
   public JobDescription(AS400 system, QSYSObjectPathName path)
@@ -113,12 +113,12 @@ public class JobDescription implements Serializable
   /**
    * Refreshes the values for all attributes of the job description.
    *
-   * @throws AS400Exception If the server returns an error message.
+   * @throws AS400Exception If the system returns an error message.
    * @throws AS400SecurityException If a security or authority error occurs.
    * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
    * @throws InterruptedException If this thread is interrupted.
-   * @throws ObjectDoesNotExistException If the object does not exist on the server.
-   * @throws IOException If an error occurs while communicating with the server.
+   * @throws ObjectDoesNotExistException If the object does not exist on the system.
+   * @throws IOException If an error occurs while communicating with the system.
    **/
   public void refresh()
     throws
@@ -372,7 +372,7 @@ public class JobDescription implements Serializable
    * <ul>
    * <li>*KEEP - The system keeps DDM conversation connections active when there are no users.
    * <li>*DROP - The system ends a DDM-allocated conversation when there are no users.
-   * <li><tt>null</tt> if server is pre-V5R3.
+   * <li><tt>null</tt> if system is pre-V5R3.
    * </ul>
    * @return Whether DDM conversations are kept or dropped.
    **/
@@ -440,8 +440,8 @@ public class JobDescription implements Serializable
 
   /**
    * Returns the list of initial ASP groups for jobs that use this job description. This does not include the system ASP or basic user ASPs.
-   * <tt>null</tt> if server is pre-V5R2.
-   * @return The list of initial ASP groups.  <tt>null</tt> if server is pre-V5R2.
+   * <tt>null</tt> if system is pre-V5R2.
+   * @return The list of initial ASP groups.  <tt>null</tt> if system is pre-V5R2.
    **/
   public String[] getInitialASPGroupNames()
   {
@@ -492,7 +492,7 @@ public class JobDescription implements Serializable
    * <li>*JOBLOGSVR - The job log will be produced by a job log server. For more information about job log servers, refer to the Start Job Log Server (STRLOGSVR) command.
    * <li>*JOBEND - The job log will be produced by the job itself. If the job cannot produce its own job log, the job log will be produced by a job log server. For example, a job does not produce its own job log when the system is processing a Power Down System (PWRDWNSYS) command. 
    * <li>*PND - The job log will not be produced. The job log remains pending until removed.
-   * <li><tt>null</tt> if server is pre-V5R4.
+   * <li><tt>null</tt> if system is pre-V5R4.
    * </ul>
    * @return The job log output behavior.
    **/
@@ -756,14 +756,14 @@ public class JobDescription implements Serializable
   /**
    * Returns the value that specifies whether spooled files can be accessed through
    * job interfaces once a job has completed its normal activity.
-   * <tt>null</tt> if server is pre-V5R2.
+   * <tt>null</tt> if system is pre-V5R2.
    * Possible values are:
    * <ul>
    * <li> "*KEEP" - Spooled files are kept with the job when the job completes its activity.
    * <li> "*DETACH" -	Spooled files are detached from the job when the job completes its activity.
    * <li> "*SYSVAL" - The jobs using this job description will take the spooled file action specified by the QSPLFACN system value.
    * </ul>
-   * @return Spooled file action.  <tt>null</tt> if server is pre-V5R2.
+   * @return Spooled file action.  <tt>null</tt> if system is pre-V5R2.
    **/
   public String getSpooledFileAction()
   {
@@ -789,8 +789,8 @@ public class JobDescription implements Serializable
   }
 
   /**
-   * Returns the server where the job description is located.
-   * @return The server where the job description resides.
+   * Returns the system where the job description is located.
+   * @return The system where the job description resides.
    **/
   public AS400 getSystem()
   {
@@ -836,7 +836,7 @@ public class JobDescription implements Serializable
 
   /**
    * Sets the library where the job description is located.  Cannot be changed if the object
-   * has established a connection to the server
+   * has established a connection to the system
    * @param library The name of the library
    **/
   public void setLibraryName(String library)
@@ -849,7 +849,7 @@ public class JobDescription implements Serializable
 
   /**
    * Sets the job description name.  Cannot be changed after the object has established
-   * a connection to the server.
+   * a connection to the system.
    * @param name The job description name
    **/
   public void setName(String name)
@@ -862,9 +862,9 @@ public class JobDescription implements Serializable
 
   /**
    * Sets the system.  Cannot be changed after the object
-   * has established a connection to the server.
+   * has established a connection to the system.
    *
-   * @param system The server where the job description resides.
+   * @param system The system where the job description resides.
    **/
   public void setSystem(AS400 system)
   {

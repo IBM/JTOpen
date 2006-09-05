@@ -64,7 +64,7 @@ import java.util.Vector;
  *
  * <P>
  * For example, supposed Java class HelloWorld resides in directory
- * /javatest on the server.  The following calls this program and
+ * /javatest on the system.  The following calls this program and
  * receives program output written to standard out.
  *
  * <a name="ex"> </a>
@@ -87,7 +87,7 @@ import java.util.Vector;
  *
  *       try
  *       {
- *           // Construct an object to represent the server where the Java program is located.
+ *           // Construct an object to represent the system where the Java program is located.
  *           AS400 as400 = new AS400();
  *
  *           // Construct a JavaApplicationCall object.
@@ -202,7 +202,7 @@ public class JavaApplicationCall implements Serializable
      * Constructs a JavaApplicationCall object. The Java program
      * is on an i5/OS <i>system</i>.
      *
-     * @param system The server on which contains the Java program.
+     * @param system The system on which contains the Java program.
     **/
     public JavaApplicationCall(AS400 system)
     {
@@ -218,7 +218,7 @@ public class JavaApplicationCall implements Serializable
      * Constructs a JavaApplicationCall object. The Java program is namee
      * <i>application</i> and runs on system <i>system</i>.
      *
-     * @param system The server on which contains the Java program.
+     * @param system The system on which contains the Java program.
      * @param application  The name of Java program.
     **/
     public JavaApplicationCall(AS400 system,  String application)
@@ -236,10 +236,10 @@ public class JavaApplicationCall implements Serializable
     /**
      * Constructs a JavaApplicationCall object. The Java program is named
      * <i>application</i> and runs on system <i>system</i>.  <i>
-     * classPath</i> is passed to the server as the value of the
+     * classPath</i> is passed to the system as the value of the
      * CLASSPATH environment variable.
      *
-     * @param system The server on which contains the Java program.
+     * @param system The system on which contains the Java program.
      * @param application  The name of Java program.
      * @param classPath The value of the environment variable CLASSPATH.
     **/
@@ -653,7 +653,7 @@ public class JavaApplicationCall implements Serializable
      *
      * <li>*VERBOSE   A message is displayed each time a class file is loaded.
      *
-     * <li>*DEBUG     Allows the server debugger to be used for this Java program.
+     * <li>*DEBUG     Allows the system debugger to be used for this Java program.
      *
      * <li>*VERBOSEGC A message is displayed for each garbage collection sweep.
      *
@@ -731,9 +731,9 @@ public class JavaApplicationCall implements Serializable
 
     /**
      *  Returns the next string written to standard error by the program
-     *  running on the server.
+     *  running on the system.
      *
-     *  @return the next standard error string from the server.
+     *  @return the next standard error string from the system.
     **/
     public String getStandardErrorString()
     {
@@ -779,9 +779,9 @@ public class JavaApplicationCall implements Serializable
     }
 
     /**
-       Returns the server which contains the Java program.
+       Returns the system which contains the Java program.
 
-       @return The server.
+       @return The system.
     **/
     public AS400 getSystem()
     {
@@ -869,9 +869,9 @@ public class JavaApplicationCall implements Serializable
        @exception ConnectionDroppedException If the connection is dropped unexpectedly.
        @exception ErrorCompletingRequestException If an error occurs before the request is completed.
        @exception InterruptedException If this thread is interrupted.
-      @exception IOException If an error occurs while communicating with the server.
-       @exception ServerStartupException If the server cannot be started.
-       @exception UnknownHostException If the server cannot be located.
+      @exception IOException If an error occurs while communicating with the system.
+       @exception ServerStartupException If the system cannot be started.
+       @exception UnknownHostException If the system cannot be located.
 
     **/
     public boolean run() throws AS400SecurityException,
@@ -1091,9 +1091,9 @@ public class JavaApplicationCall implements Serializable
     }
 
     /**
-        Sends the standard input to the application running on server.
+        Sends the standard input to the application running on the system.
 
-        @param data The standard input to the server.
+        @param data The standard input to the system.
     **/
     public void sendStandardInString(String data)
     {
@@ -1506,7 +1506,7 @@ public class JavaApplicationCall implements Serializable
 
        <li>*VERBOSE   A message is displayed each time a class file is loaded.
 
-       <li>*DEBUG     Allows the server debugger to be used for this Java program.
+       <li>*DEBUG     Allows the system debugger to be used for this Java program.
 
        <li>*VERBOSEGC A message is displayed for each garbage collection sweep.
 
@@ -1641,9 +1641,9 @@ public class JavaApplicationCall implements Serializable
     }
 
     /**
-       Sets the server.
+       Sets the system.
 
-       @param system     The server.
+       @param system     The system.
        @exception PropertyVetoException If the change is vetoed.
     **/
     public void setSystem(AS400 system) throws PropertyVetoException

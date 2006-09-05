@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 <pre>
 * import com.ibm.as400.access.*;
 *
-* // Create an ISeriesNetServer object for a specific server system.
+* // Create an ISeriesNetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * ISeriesNetServer ns = new ISeriesNetServer(system);
 *
@@ -103,7 +103,7 @@ public class ISeriesNetServerSession implements java.io.Serializable
 
 
   /**
-   Returns the name of the workstation from which the session to the server was established.
+   Returns the name of the workstation from which the session to the system was established.
    @return The workstation name.
    **/
   public String getName()
@@ -113,7 +113,7 @@ public class ISeriesNetServerSession implements java.io.Serializable
 
 
   /**
-   Returns the unique identifier for the server session.
+   Returns the unique identifier for the system session.
    Note: The session identifier was added to the NetServer API's in V5R1.
    @return The session identifier.
    **/
