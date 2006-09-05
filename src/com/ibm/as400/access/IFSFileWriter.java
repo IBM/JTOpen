@@ -72,13 +72,13 @@ public class IFSFileWriter extends Writer
    Constructs an IFSFileWriter object. 
    Other readers and writers are allowed to access the file.
    The file is opened if it exists; otherwise an exception is thrown.
-   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the server.
+   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the system.
    Any data currently in the file will be overwritten.
    Other readers and writers are allowed to access the file.
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file)
@@ -98,10 +98,10 @@ public class IFSFileWriter extends Writer
    Other readers and writers are allowed to access the file.
    @param file The file to be opened for writing.
    @param ccsid The CCSID to convert the data to when writing to the file.
-   The file's "data CCSID" tag on the server is not changed.
+   The file's "data CCSID" tag on the system is not changed.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, int ccsid)
@@ -116,13 +116,13 @@ public class IFSFileWriter extends Writer
   /**
    Constructs an IFSFileWriter object.
    The file is opened if it exists; otherwise an exception is thrown.
-   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the server.
+   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the system.
    Other readers and writers are allowed to access the file.
    @param file The file to be opened for writing.
    @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, boolean append)
@@ -138,13 +138,13 @@ public class IFSFileWriter extends Writer
   /**
    Constructs an IFSFileWriter object.
    The file is opened if it exists; otherwise an exception is thrown.
-   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the server.
+   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the system.
    @param file The file to be opened for writing.
    @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, boolean append, int shareOption)
@@ -165,10 +165,10 @@ public class IFSFileWriter extends Writer
    @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param ccsid The CCSID to convert the data to when writing to the file.
-   The file's "data CCSID" tag on the server is not changed.
+   The file's "data CCSID" tag on the system is not changed.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFile file, boolean append, int shareOption, int ccsid)
@@ -185,7 +185,7 @@ public class IFSFileWriter extends Writer
    @param fd The file descriptor to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see IFSFile#createNewFile
    **/
   public IFSFileWriter(IFSFileDescriptor fd)
@@ -252,7 +252,7 @@ public class IFSFileWriter extends Writer
 
   /**
    Closes the stream, flushing it first.  Once a stream has been closed, further write() or flush() invocations will cause an IOException to be thrown.  Closing a previously-closed stream, however, has no effect.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void close()
     throws IOException
@@ -263,7 +263,7 @@ public class IFSFileWriter extends Writer
 
   /**
    Flushes the underlying output stream.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void flush() throws IOException
   {
@@ -296,7 +296,7 @@ public class IFSFileWriter extends Writer
    @param length The number of bytes to lock.
    @return The key for undoing this lock.
  
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see #unlockBytes
    **/
   public IFSKey lockBytes(int length)
@@ -309,7 +309,7 @@ public class IFSFileWriter extends Writer
    Undoes a lock on the file.
    @param key The key for the lock.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
  
    @see #lockBytes
    **/
@@ -322,7 +322,7 @@ public class IFSFileWriter extends Writer
   /**
    Writes a single character.
    @param  c  int specifying a character to be written.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void write(int c) throws IOException
   {
@@ -332,7 +332,7 @@ public class IFSFileWriter extends Writer
   /**
    Writes the specified array of characters.
    @param  buffer  The characters to be written.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void write(char[] buffer) throws IOException
   {
@@ -344,7 +344,7 @@ public class IFSFileWriter extends Writer
    @param  buffer  The characters to be written.
    @param  offset  The offset into the array from which to begin extracting characters to write.
    @param  length  The number of characters to write.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void write(char[] buffer, int offset, int length) throws IOException
   {
@@ -354,7 +354,7 @@ public class IFSFileWriter extends Writer
   /**
    Writes a String.
    @param  data  The String to write.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void write(String data) throws IOException
   {
@@ -366,7 +366,7 @@ public class IFSFileWriter extends Writer
    @param  data  The String to write.
    @param  offset  The offset into the String from which to begin extracting characters to write.
    @param  length  The number of characters to write.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void write(String data, int offset, int length) throws IOException
   {

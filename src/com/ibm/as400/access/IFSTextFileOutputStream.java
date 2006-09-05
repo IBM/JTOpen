@@ -67,7 +67,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param name The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSTextFileOutputStream(AS400  system,
                                  String name) 
@@ -88,7 +88,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSTextFileOutputStream(AS400  system,
                                  String name,
@@ -112,7 +112,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSTextFileOutputStream(AS400   system,
                                  String  name,
@@ -138,7 +138,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSTextFileOutputStream(AS400   system,
                                  String  name,
@@ -161,7 +161,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
     **/
   public IFSTextFileOutputStream(IFSFile file)
     throws AS400SecurityException, IOException
@@ -183,7 +183,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSFile file,
@@ -210,7 +210,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSFile file,
@@ -232,7 +232,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
     **/
   public IFSTextFileOutputStream(IFSJavaFile file)
     throws AS400SecurityException, IOException
@@ -254,7 +254,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSJavaFile file,
@@ -281,7 +281,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSJavaFile file,
@@ -306,7 +306,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
 
   /**
    Returns the CCSID.  This is just the bean property, and does not
-   necessarily represent the file's actual original CCSID on the server.
+   necessarily represent the file's actual original CCSID on the system.
    @return The CCSID.
    @see com.ibm.as400.access.IFSFile#getCCSID
    **/
@@ -329,7 +329,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
   /**
    Sets the CCSID for the data written to the file.
    <br>Note: This method is of limited usefulness, since it is invalid after
-   a connection has been opened to the file on the server, and most of the
+   a connection has been opened to the file on the system, and most of the
    constructors for this class open a connection.  The preferred way to set
    the CCSID of the file is via a constructor that has a "ccsid" argument.
    @param ccsid The target CCSID.
@@ -348,7 +348,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    specified CCSID.  
    @param data The characters to write to the stream.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
 
    @see #getCCSID
    @see #setCCSID

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- The EnvironmentVariable class represents a server system-level environment variable.  An environment variable is uniquely identified by the system and the environment variable name.  Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
+ The EnvironmentVariable class represents an i5/OS system-level environment variable.  An environment variable is uniquely identified by the system and the environment variable name.  Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
  <p>This class can only access system-level environment variables.  You must have *JOBCTL special authority to add, change, or delete system-level environment variables.
  <p>Every environment variable has a CCSID associated with it which describes the CCSID in which its contents are stored.  The default CCSID is that of the current job.
  <p>Note that environment variables are different than system values, although they are often used for the same purpose.  See <a href="SystemValue.html">SystemValue</a> for more information on how to access system values.
@@ -126,7 +126,7 @@ public class EnvironmentVariable implements Serializable
         }
     }
 
-    // The server where the environment variable is located.
+    // The system where the environment variable is located.
     private AS400 system_ = null;
     // Service program call object for running environment variable entry points.
     private transient ServiceProgramCall spc_ = null;
@@ -162,7 +162,7 @@ public class EnvironmentVariable implements Serializable
 
     /**
      Constructs an EnvironmentVariable object.
-     @param  system  The server on which the environment variable exists.
+     @param  system  The system on which the environment variable exists.
      **/
     public EnvironmentVariable(AS400 system)
     {
@@ -179,7 +179,7 @@ public class EnvironmentVariable implements Serializable
     /**
      Constructs an EnvironmentVariable object.
      <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
-     @param  system  The server on which the environment variable exists.
+     @param  system  The system on which the environment variable exists.
      @param  name  The environment variable name.
      **/
     public EnvironmentVariable(AS400 system, String name)
@@ -252,8 +252,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void delete() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -306,8 +306,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public int getCCSID() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -349,8 +349,8 @@ public class EnvironmentVariable implements Serializable
     }
 
     /**
-     Returns the server on which the environment variable exists.
-     @return  The server on which the environment variable exists.  If the server has not been set, null is returned.
+     Returns the system on which the environment variable exists.
+     @return  The system on which the environment variable exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -364,8 +364,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public String getValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -386,8 +386,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public String getValue(int stringType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -400,8 +400,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void refreshValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -498,7 +498,7 @@ public class EnvironmentVariable implements Serializable
     }
 
     /**
-     Sets the environment variable name.  This does not change the environment variable name on the server.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
+     Sets the environment variable name.  This does not change the environment variable name on the system.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
      <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
      @param  name  The environment variable name.
      **/
@@ -537,7 +537,7 @@ public class EnvironmentVariable implements Serializable
      }
 
     /**
-     Sets the environment variable name.  This does not change the environment variable name on the server.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
+     Sets the environment variable name.  This does not change the environment variable name on the system.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
      <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
      @param  name  The environment variable name.
      @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
@@ -549,8 +549,8 @@ public class EnvironmentVariable implements Serializable
     }
 
     /**
-     Sets the server for the environment variable.  The server cannot be changed once a connection is made to the server.
-     @param  system  The server on which the environment variable exists.
+     Sets the system for the environment variable.  The system cannot be changed once a connection is made to the system.
+     @param  system  The system on which the environment variable exists.
      **/
     public void setSystem(AS400 system)
     {
@@ -585,8 +585,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setValue(String value) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -605,8 +605,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setValue(String value, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -626,8 +626,8 @@ public class EnvironmentVariable implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setValue(String value, int ccsid, int stringType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {

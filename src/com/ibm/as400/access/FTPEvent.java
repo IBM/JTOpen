@@ -26,28 +26,28 @@ public class FTPEvent extends java.util.EventObject
 
 
   /**
-   Event ID indicating that a connection to the server has been created.
+   Event ID indicating that a connection to the system has been created.
    **/
   public  static final int FTP_CONNECTED = 0;
   private static final int FIRST_EVENT   = 0;
 
   /**
-   Event ID indicating that the connection to the server has been disconnected.
+   Event ID indicating that the connection to the system has been disconnected.
    **/
   public static final int FTP_DISCONNECTED = 1;
 
   /**
-   Event ID indicating that a file has been retrieved from the server.
+   Event ID indicating that a file has been retrieved from the system.
    **/
   public static final int FTP_RETRIEVED = 2;
 
   /**
-   Event ID indicating that a file has been put to the server.
+   Event ID indicating that a file has been put to the system.
    **/
   public static final int FTP_PUT = 3;
 
   /**
-   Event ID indicating that a list of files on the server has been retrieved.
+   Event ID indicating that a list of files on the system has been retrieved.
    **/
   public  static final int FTP_LISTED = 4;
   private static final int LAST_EVENT = 4;

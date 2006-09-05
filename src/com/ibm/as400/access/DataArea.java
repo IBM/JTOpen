@@ -24,7 +24,7 @@ import java.beans.VetoableChangeListener;
 import java.net.UnknownHostException;
 
 /**
-The DataArea class is an abstract base class that represents a server
+The DataArea class is an abstract base class that represents a 
 data area object.
 <p>DataArea objects generate the following events:
 <ul>
@@ -102,7 +102,7 @@ public abstract class DataArea implements Serializable
    Constructs a DataArea object.
    It creates a DataArea instance that represents the data area <i>path</i>
    on <i>system</i>.
-      @param system The server that contains the data area.
+      @param system The system that contains the data area.
       @param path The fully qualified integrated file system path name. The
              integrated file system file extension for a data area is DTAARA. An example of a
              fully qualified integrated file system path to a data area "MYDATA" in library
@@ -209,7 +209,7 @@ public abstract class DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
+     @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the object does not exist.
    **/
    void delete0()
@@ -314,10 +314,10 @@ public abstract class DataArea implements Serializable
         @return The size of the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public int getLength()
         throws AS400SecurityException,
@@ -397,14 +397,14 @@ public abstract class DataArea implements Serializable
 
    /**
    Refreshes the attributes of the data area.
-   This method should be called if the underlying server data area has changed
+   This method should be called if the underlying system data area has changed
    and it is desired that this object should reflect those changes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void refreshAttributes()
         throws AS400SecurityException,
@@ -514,7 +514,7 @@ public abstract class DataArea implements Serializable
    /**
    Sets the system on which the data area exists. The system cannot be set
    if a connection has already been established.
-     @param system The server on which the data area exists.
+     @param system The system on which the data area exists.
      @exception PropertyVetoException If the change is vetoed.
    **/
    public void setSystem(AS400 system) throws PropertyVetoException

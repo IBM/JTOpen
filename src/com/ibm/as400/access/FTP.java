@@ -22,19 +22,19 @@ import java.beans.*;
 /**
  * The FTP class represents a generic ftp client.  Methods
  * on the FTP class allow you to connect to an ftp server,
- * send commands to the server, list files on the server,
- * get files from the server, and put files to the server.
+ * send commands to the system, list files on the system,
+ * get files from the system, and put files to the system.
  * <P>
- * Most methods that communicate with the server return a boolean
+ * Most methods that communicate with the system return a boolean
  * to indicate if the request was successful.  The message returned
- * from the server is also available.  getLastMessage() is used
+ * from the system is also available.  getLastMessage() is used
  * to retrieve the message from the previous request.
  * <P>
  * By default, FTP command are sent via server port 21.  The initial
  * data transfer type is ASCII.  Passive mode is used.
  * <P>
  * No encryption is provided by this class.  The user and password
- * flow un-encrypted to the server.  This class is not SSL enabled.
+ * flow un-encrypted to the system.  This class is not SSL enabled.
  * <P>
  * The forward slash is the separator character for paths sent
  * to the FTP server.
@@ -44,11 +44,11 @@ import java.beans.*;
  * produce debug information.
  * <P>
  * The following example copies a set of files from a directory
- * on the server.
+ * on the system.
  * <a name="example"></a>
  * <ul>
  * <pre>
- * FTP client = new FTP("myServer", "myUID", "myPWD");
+ * FTP client = new FTP("mysystem", "myUID", "myPWD");
  * client.cd("/myDir");
  * client.setDataTransferType(FTP.BINARY);
  * String [] entries = client.ls();
@@ -94,7 +94,7 @@ public class FTP implements java.io.Serializable
     // *                                                        *
     // **********************************************************
 
-               // connect to this server, with the specified user and password
+               // connect to this system, with the specified user and password
                // Do not just grab "clearPassword"!!!!  Always use getPassword()
     private String server_;
     private String user_;
@@ -154,12 +154,12 @@ public class FTP implements java.io.Serializable
 
 
     /**
-     * Use active mode transfers with the server.
+     * Use active mode transfers with the system.
     **/
     public static final int ACTIVE_MODE = 10;
 
     /**
-     * Use passive mode transfers with the server.
+     * Use passive mode transfers with the system.
      * This is the default.
     **/
     public static final int PASSIVE_MODE = 11;
@@ -171,8 +171,8 @@ public class FTP implements java.io.Serializable
 // -----------------------------------------------------------------------
    /**
     * Constructs an FTP object.
-    * The server name, user and password must be set before
-    * requests are sent to the server.
+    * The system name, user and password must be set before
+    * requests are sent to the system.
     **/
 
     public FTP()
@@ -188,7 +188,7 @@ public class FTP implements java.io.Serializable
    /**
     * Constructs an FTP object.
     * The user and password must be set before requests are
-    * sent to the server.
+    * sent to the system.
     *   @param server The system to which to connect.
    **/
 
@@ -270,16 +270,16 @@ public class FTP implements java.io.Serializable
 // ---------------------------------------------------------------------------
 // @D5 new method
    /**
-    * Starts the process of appending data to a file on the server.  FTP
-    * opens the data connection to the server, then opens the file on
-    * the server and returns an output stream to the caller.  The caller
+    * Starts the process of appending data to a file on the system.  FTP
+    * opens the data connection to the system, then opens the file on
+    * the system and returns an output stream to the caller.  The caller
     * then writes the file's data to the output stream.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param fileName The file to put.
     *   @return An output stream to the file.  The caller uses the output
     *           stream to write data to the file.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized OutputStream append(String fileName)
@@ -305,11 +305,11 @@ public class FTP implements java.io.Serializable
 // ---------------------------------------------------------------------------
 // @D5 new method
    /**
-    * Appends data to a file on the server.
+    * Appends data to a file on the system.
     *   @param sourceFileName The file to put.
-    *   @param targetFileName The file on the server.
+    *   @param targetFileName The file on the system.
     *   @return true if the copy was successful; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized boolean append(String sourceFileName, String targetFileName)
@@ -346,12 +346,12 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Appends data to a file on the server.
+    * Appends data to a file on the system.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param sourceFileName The file to put.
-    *   @param targetFileName The file on the server.
+    *   @param targetFileName The file on the system.
     *   @return true if the copy was successful; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized boolean append(java.io.File sourceFileName, String targetFileName)
@@ -423,14 +423,14 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sets the current directory on the server to <i>directory</i>.
+    * Sets the current directory on the system to <i>directory</i>.
     * The method is the same as setCurrentDirectory().
-    * The message returned from the server is saved.  Use getLastMessage()
+    * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
     * <br>Throws SecurityException if userid or password is invalid.
-    *   @param directory The current directory to set on the server.
+    *   @param directory The current directory to set on the system.
     *   @return true if directory changed; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized boolean cd(String directory)
@@ -461,18 +461,18 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Connects to the server.  The connection is via
+    * Connects to the system.  The connection is via
     * port <i>port</i>.  The user and password must be set
     * before calling this method.
     * Calling connect is optional.  Methods that communicate
-    * with the server such as get, put, cd, and ls call connect()
+    * with the system such as get, put, cd, and ls call connect()
     * if necessary.
-    * The message returned from the server is saved.  Use getLastMessage()
+    * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @return true if connection is successful; false otherwise.
-    *   @exception UnknownHostException If a path to the server cannot be found.
-    *   @exception IOException If an error occurs while connecting to the server.
+    *   @exception UnknownHostException If a path to the system cannot be found.
+    *   @exception IOException If an error occurs while connecting to the system.
     *   @exception IllegalStateException If called before user and password are set.
    **/
 
@@ -508,7 +508,7 @@ public class FTP implements java.io.Serializable
 
         //possible state 3 -- this is the first try at connecting
         //or the connection failed and the user wants us to retry.
-        //Attempt to connect to the server.
+        //Attempt to connect to the system.
         if ((server_ == null) || (server_.length() == 0))
         {
            inConnect_ = false;
@@ -566,7 +566,7 @@ public class FTP implements java.io.Serializable
 // ---------------------------------------------------------------------------
    //
    // Decode the password so because it must be in the clear going
-   // to the server.
+   // to the system.
    //
 
    private byte[] decode(byte[] data, byte[] mask, byte[] adder)
@@ -603,7 +603,7 @@ public class FTP implements java.io.Serializable
     * attributes are returned for each entry in the directory.
     * An array of length zero is returned if the directory is empty.
     *   @return The contents of the directory as an array of Strings.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String[] dir()
@@ -629,7 +629,7 @@ public class FTP implements java.io.Serializable
     * if no files meet the search criteria.
     *   @return The contents of the directory as an array of Strings.
     *   @param criteria The search criteria.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String[] dir(String criteria)
@@ -647,11 +647,11 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Closes the connection with the server.  The connection is closed
-    * by sending the <i>quit</i> command to the server.
-    * The message returned from the server is saved.  Use getLastMessage()
+    * Closes the connection with the system.  The connection is closed
+    * by sending the <i>quit</i> command to the system.
+    * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized void disconnect()
@@ -698,16 +698,16 @@ public class FTP implements java.io.Serializable
 // @D5 new method.  This code used to be the put() method that did work. 
    /**
     * Starts the process of putting a file or appending data to a file on 
-    * the server.  FTP opens the data connection to the server, then opens 
-    * the file on the server and returns an output stream to the caller.  The 
+    * the system.  FTP opens the data connection to the system, then opens 
+    * the file on the system and returns an output stream to the caller.  The 
     * caller then writes the file's data to the output stream.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param fileName The file to put.
     *   @param command "APPE" to append data, "STOR" to simply put 
     *   @return An output stream to the file.  The caller uses the output
     *           stream to write data to the file.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     OutputStream doAppendOrPut(String fileName, String command)
@@ -951,19 +951,19 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Starts the process of getting a file from the server.  FTP
-    * opens the data connection to the server, then opens the file on
-    * the server and returns an input stream to the caller.  The caller
+    * Starts the process of getting a file from the system.  FTP
+    * opens the data connection to the system, then opens the file on
+    * the system and returns an input stream to the caller.  The caller
     * reads the file's data from the input stream.
-    * The source file is on the server, accessed via FTP so the path
+    * The source file is on the system, accessed via FTP so the path
     * separator character (if any) must be a forward slash.
     * <br>Throws SecurityException if userid or password is invalid.
     *
     *   @param fileName The file to get.
     *   @return An input stream to the file.  The caller uses the input
     *           stream to read the data from the file.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
     *   @exception FileNotFoundException If the name is a directory or the name is not found.
    **/
 
@@ -1026,15 +1026,15 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Gets a file from the server.
-    * The source file is on the server, accessed via FTP so the path
+    * Gets a file from the system.
+    * The source file is on the system, accessed via FTP so the path
     * separator character (if any) must be a forward slash.
     * The target file is on the client, accessed via java.io
     * so the path separator character (if any) must be client specific.
-    *   @param sourceFileName The file to get on the server.
+    *   @param sourceFileName The file to get on the system.
     *   @param targetFileName The file on the target file system.
     *   @return true if the copy was successful; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
     *   @exception FileNotFoundException If the source file or the targe file
     *              cannot be accessed.
    **/
@@ -1072,15 +1072,15 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Gets a file from the server.
-    * The source file is on the server, accessed via FTP so the path
+    * Gets a file from the system.
+    * The source file is on the system, accessed via FTP so the path
     * separator character (if any) must be a forward slash.
     * The target file is an instance of Java.io.file.
     * <br>Throws SecurityException if userid or password is invalid.
-    *   @param sourceFileName The file to get on the server.
+    *   @param sourceFileName The file to get on the system.
     *   @param targetFile The file on the target file system.
     *   @return true if the copy was successful; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
     *   @exception FileNotFoundException If the source file or the targe file
     *              cannot be accessed.
    **/
@@ -1163,10 +1163,10 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Returns the current directory on the server.
-    *   @return The current directory on the server.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    * Returns the current directory on the system.
+    *   @return The current directory on the system.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String getCurrentDirectory()
@@ -1183,9 +1183,9 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Returns the text of the last reply returned from the server.
+    * Returns the text of the last reply returned from the system.
     * Empty string is returned if no request has been sent.
-    *   @return The text of the last reply returned from the server.
+    *   @return The text of the last reply returned from the system.
    **/
 
     public synchronized String getLastMessage()
@@ -1250,9 +1250,9 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Returns the name of the server.  Null is returned if no system has
+    * Returns the name of the system.  Null is returned if no system has
     * been set.
-    *   @return The name of the server to which this object connects.
+    *   @return The name of the system to which this object connects.
    **/
 
     public String getServer()
@@ -1299,19 +1299,19 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sends a command to the server, returning the reply from the server.
+    * Sends a command to the system, returning the reply from the system.
     * <P>
-    * The command is not altered before sending it to the server, so it
-    * must be recognized by the server.  Many FTP applications change
-    * commands so they are recognized by the server.  For example, the
-    * command to get a list of files from the server is NLST, not ls.  Many
+    * The command is not altered before sending it to the system, so it
+    * must be recognized by the system.  Many FTP applications change
+    * commands so they are recognized by the system.  For example, the
+    * command to get a list of files from the system is NLST, not ls.  Many
     * FTP applications convert ls to NLST before sending the command to
-    * the server.  This method will not do the conversion.
+    * the system.  This method will not do the conversion.
     * <br>Throws SecurityException if userid or password is invalid.
-    *   @param cmd The command to send to the server.
+    *   @param cmd The command to send to the system.
     *   @return The reply to the command.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String issueCommand(String cmd)
@@ -1370,7 +1370,7 @@ public class FTP implements java.io.Serializable
     * directory is empty.
     *   @param details True if file details will be returned.
     *   @return The contents of the directory as an array of Strings.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     String[] list(boolean details, String criteria)    // @D4c
@@ -1449,11 +1449,11 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Logs on to the server
+    * Logs on to the system
     *   @param user The user.
     *   @param password The password.
-    *   @return String containing the reply from the server.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @return String containing the reply from the system.
+    *   @exception IOException If an error occurs while communicating with the system.
     */
 
     private String login(String user, String password)
@@ -1483,7 +1483,7 @@ public class FTP implements java.io.Serializable
     * Lists the contents of the current working directory.  If the directory
     * is empty, an empty list is returned.
     *   @return The contents of the directory as an array of Strings.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String[] ls()
@@ -1505,7 +1505,7 @@ public class FTP implements java.io.Serializable
     * is empty or no files match the search criteria, an empty list is returned.
     *   @return The contents of the directory as an array of Strings.
     *   @param criteria The search criteria.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String[] ls(String criteria)
@@ -1522,12 +1522,12 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sends the NOOP (no operation) command to the server.  This
-    * request is most useful to see if the connection to the server
+    * Sends the NOOP (no operation) command to the system.  This
+    * request is most useful to see if the connection to the system
     * is still active.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @return true if the request was successful, false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     // $$$ change this to package scoped after testing
@@ -1552,16 +1552,16 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Starts the process of putting a file to the server.  FTP
-    * opens the data connection to the server, then opens the file on
-    * the server and returns an output stream to the caller.  The caller
+    * Starts the process of putting a file to the system.  FTP
+    * opens the data connection to the system, then opens the file on
+    * the system and returns an output stream to the caller.  The caller
     * then writes the file's data to the output stream.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param fileName The file to put.
     *   @return An output stream to the file.  The caller uses the output
     *           stream to write data to the file.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized OutputStream put(String fileName)
@@ -1588,11 +1588,11 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Puts a file to the server.
+    * Puts a file to the system.
     *   @param sourceFileName The file to put.
-    *   @param targetFileName The file on the server.
+    *   @param targetFileName The file on the system.
     *   @return true if the copy was successful; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized boolean put(String sourceFileName, String targetFileName)
@@ -1629,12 +1629,12 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Puts a file to the server.
+    * Puts a file to the system.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param sourceFileName The file to put.
-    *   @param targetFileName The file on the server.
+    *   @param targetFileName The file on the system.
     *   @return true if the copy was successful; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized boolean put(java.io.File sourceFileName, String targetFileName)
@@ -1682,12 +1682,12 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Returns the current directory on the server.  PWD is the ftp
+    * Returns the current directory on the system.  PWD is the ftp
     * command Print Working Directory.
     * <br>Throws SecurityException if userid or password is invalid.
-    *   @return The current directory on the server.
-    *           Null is returned if the connection to the server fails.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @return The current directory on the system.
+    *           Null is returned if the connection to the system fails.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized String pwd()
@@ -1790,11 +1790,11 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Receives a reply from the server.  This method is called <B>only</B>
+    * Receives a reply from the system.  This method is called <B>only</B>
     * after calling the get() or put() methods where the calling program
     * copies the data.
-    *   @return The reply from the server.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @return The reply from the system.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     //
@@ -1888,13 +1888,13 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sets the current directory on the server to <i>directory</i>.
+    * Sets the current directory on the system to <i>directory</i>.
     * The method is the same as cd().
-    * The message returned from the server is saved.  Use getLastMessage()
+    * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
-    *   @param directory The current directory to set on the server.
+    *   @param directory The current directory to set on the system.
     *   @return true if directory changed; false otherwise.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized boolean setCurrentDirectory(String directory)
@@ -1920,11 +1920,11 @@ public class FTP implements java.io.Serializable
     * </UL>
     * <P>
     * If a connection does not
-    * already exist, a connection is made to the server.
-    * The message returned from the server is saved.  Use getLastMessage()
+    * already exist, a connection is made to the system.
+    * The message returned from the system is saved.  Use getLastMessage()
     * to retrieve it.
     * <br>Throws SecurityException if userid or password is invalid.
-    *   @exception IOException If an error occurs while communicating with the server.
+    *   @exception IOException If an error occurs while communicating with the system.
    **/
 
     public synchronized void setDataTransferType(int transferType)
@@ -1976,7 +1976,7 @@ public class FTP implements java.io.Serializable
 // ---------------------------------------------------------------------------
    /**
     * Sets the password.  The password cannot be changed once
-    * a connection is made to the server.
+    * a connection is made to the system.
     *   @param password The password for the user.
    **/
 
@@ -2017,10 +2017,10 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sets the port to use when connecting to the server.
+    * Sets the port to use when connecting to the system.
     * The port cannot be changed once
-    * a connection is made to the server.
-    *   @param port The port to use when connecting to the server.
+    * a connection is made to the system.
+    *   @param port The port to use when connecting to the system.
     *   @exception PropertyVetoException If the change is vetoed.
    **/
 
@@ -2054,7 +2054,7 @@ public class FTP implements java.io.Serializable
      * Indicates whether to reuse a socket for multiple file transfers, when in active mode.
      * By default, the "reuse socket" attribute is set to the value of the <tt>com.ibm.as400.access.FTP.reuseSocket</tt> property.
      * If the property is not set, the default is <tt>true</tt> (sockets are reused).
-     * The "reuse socket" attribute (of an FTP object) cannot be reset after that object has connected to the server.
+     * The "reuse socket" attribute (of an FTP object) cannot be reset after that object has connected to the system.
      * @param reuse If true, the socket is reused.  If false, a new socket is created for each subsequent file transfer.
      * @see #setMode
     **/
@@ -2073,9 +2073,9 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sets the name of the server.  The system name cannot be changed once
-    * a connection is made to the server.
-    *   @param server The name of the server to which this object connects.
+    * Sets the name of the system.  The system name cannot be changed once
+    * a connection is made to the system.
+    *   @param server The name of the system to which this object connects.
     *   @exception PropertyVetoException If the change is vetoed.
    **/
 
@@ -2112,12 +2112,12 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * Sets the user identifier used when connecting to the server.
-    * <B>If the client is connected to the server, this method
+    * Sets the user identifier used when connecting to the system.
+    * <B>If the client is connected to the system, this method
     * will disconnect the connection</B>
-    *   @param user The user identifier used when connecting to the server.
+    *   @param user The user identifier used when connecting to the system.
     *   @exception PropertyVetoException If the change is vetoed.
-    *   @exception IllegalStateException If connection already established to the server.
+    *   @exception IllegalStateException If connection already established to the system.
    **/
 
     public synchronized void setUser(String user)
@@ -2155,7 +2155,7 @@ public class FTP implements java.io.Serializable
     }
 
     /**
-     * Renames one or more files on the server, according to a specified pattern.
+     * Renames one or more files on the system, according to a specified pattern.
      * <p>
      * For example:
      * <ul>
@@ -2170,7 +2170,7 @@ public class FTP implements java.io.Serializable
      * describing how to construct the new name out of fromName.
      * <tt>toName</tt> can contain up to two asterisks, one on each side of the ".".
      * @return The number of files renamed. 
-     * @throws IOException If an error occurs while communicating with the server.
+     * @throws IOException If an error occurs while communicating with the system.
      **/
 
     public synchronized int ren(String fromName, String toName)

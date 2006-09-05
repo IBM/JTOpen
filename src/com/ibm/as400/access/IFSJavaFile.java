@@ -1730,10 +1730,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public void setPatternMatching(int patternMatching)
     throws IOException
@@ -1809,7 +1809,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * Converts the abstract path name into a <code>file:</code> URL.
  * The i5/OS file/directory will be accessed and if it is a directory the
  * resulting URL will end with the i5/OS separator character
- * (forward slash).  The server name will be obtained from
+ * (forward slash).  The system name will be obtained from
  * the AS400 object.  If the path name or AS400 object has
  * not been set, a NullPointerException will be thrown.
  *

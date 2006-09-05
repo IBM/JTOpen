@@ -28,7 +28,7 @@ import java.util.Vector;
 
 /**
   * The IFSFile class represents
-  * an object in the integrated file system on the server.
+  * an object in the integrated file system.
   * As in java.io.File, IFSFile is designed to work
   * with the object as a whole.  For example, use IFSFile
   * to delete or rename a file, to access the
@@ -417,10 +417,10 @@ public class IFSFile
    @return true if the object exists and is readable by the application; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public boolean canRead()
     throws IOException
@@ -456,10 +456,10 @@ public class IFSFile
    @return true if the object exists and is writeable by the application; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean canWrite()
@@ -554,7 +554,7 @@ public class IFSFile
 
   /**
    * Copies this file or directory to the specified file or directory
-   * on the server.
+   * on the system.
    * If the destination file already exists, it is overwritten.
    * If this IFSFile represents a directory:
    * <ul>
@@ -562,7 +562,7 @@ public class IFSFile
    * <li> The entire directory (including all of its contents and subdirectories) is copied.
    * </ul>
    * @param path The destination path to copy this IFSFile to.
-   * <br>If the server is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
+   * <br>If the system is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
    * @return true if the copy succeeded (or at least one file of a source
    * directory's contents was copied); false otherwise.
   **/
@@ -574,7 +574,7 @@ public class IFSFile
 
   /**
    * Copies this file or directory to the specified file or directory
-   * on the server.
+   * on the system.
    * If the destination file already exists:
    * <ul>
    * <li> If <i>replace</i> is true, the destination file is overwritten.
@@ -586,9 +586,9 @@ public class IFSFile
    * <li> The entire directory (including all of its contents and subdirectories) is copied.
    * </ul>
    * @param path The destination path to copy this IFSFile to.
-   * <br>Note: If the server is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
+   * <br>Note: If the system is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
    * @param replace true to overwrite the destination if it already exists, false otherwise.
-   * <br>Note: If the server is V5R2 or earlier, this parameter has no effect; that is, the destination is always overwritten.
+   * <br>Note: If the system is V5R2 or earlier, this parameter has no effect; that is, the destination is always overwritten.
    * @return true if the copy succeeded (or at least one file of a source
    * directory's contents was copied); false otherwise.
   **/
@@ -629,10 +629,10 @@ public class IFSFile
    the object does not exist or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public long created()                                         //D3a
@@ -664,10 +664,10 @@ public class IFSFile
    @return <tt>true</tt> if the named file does not exist and was successfully created; <tt>false</tt> if the named file already exists.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    @exception IOException If the user is not authorized to create the file.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
@@ -734,10 +734,10 @@ public class IFSFile
    Returns false if the file system object did not exist prior to the delete() or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean delete()
@@ -777,10 +777,10 @@ public class IFSFile
    passed to the filter object has cached file attribute information. 
    
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles(IFSFileFilter filter, String pattern)
     throws IOException
@@ -817,10 +817,10 @@ public class IFSFile
    not match any files, or the directory is not accessible, then an empty Enumeration is returned. 
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles(String pattern)
     throws IOException
@@ -857,10 +857,10 @@ public class IFSFile
    passed to the filter object has cached file attribute information. 
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles(IFSFileFilter filter)
     throws IOException
@@ -890,10 +890,10 @@ public class IFSFile
    not match any files,  or the directory not accessible, then an empty Enumeration is returned.  
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles()
     throws IOException
@@ -964,10 +964,10 @@ public class IFSFile
    @return true if the object exists; false if the object does not exist or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean exists()
@@ -1013,11 +1013,11 @@ public class IFSFile
 
   //@A9a
   /**
-   Returns the file's data CCSID.  All files in the server's integrated file system
+   Returns the file's data CCSID.  All files in the system's integrated file system
    are tagged with a CCSID.  This method returns the value of that tag.
    If the file is non-existent or is a directory, returns -1.
    @return The file's CCSID.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public int getCCSID()
     throws IOException
@@ -1057,10 +1057,10 @@ public class IFSFile
    @return The number of bytes of storage available.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public long getFreeSpace()
@@ -1150,7 +1150,7 @@ public class IFSFile
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @exception ExtendedIOException If the file does not exist.
    **/
   public String getOwnerName()
@@ -1174,7 +1174,7 @@ public class IFSFile
    Returns the "user ID number" of the owner of the integrated file system file.
    If the file is non-existent or is a directory, returns -1.
    @return The file owner's ID number.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public long getOwnerUID()
     throws IOException
@@ -1202,7 +1202,7 @@ public class IFSFile
    Returns the "user ID number" of the owner of the integrated file system file.
    If the file is non-existent or is a directory, returns -1.
    @return The file owner's ID number.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @deprecated Use getOwnerUID() instead.
    **/  // @C0c
   public int getOwnerId()
@@ -1294,14 +1294,14 @@ public class IFSFile
    * Returns the permission of the object.
    * @return The permission of the object.
    * @see #setPermission
-   * @exception AS400Exception If the server returns an error message.
+   * @exception AS400Exception If the system returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the object does not exist on the server.
-   * @exception UnknownHostException If the server cannot be located.
+   * @exception IOException If an error occurs while communicating with the system.
+   * @exception ObjectDoesNotExistException If the object does not exist on the system.
+   * @exception UnknownHostException If the system cannot be located.
    *
   **/
   public Permission getPermission()
@@ -1349,7 +1349,7 @@ public class IFSFile
    <br>Returns a zero-length string if the object has no subtype.
    @return The subtype of the object.
 
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception AS400SecurityException If a security or authority error occurs.
    **/
   public String getSubtype()
@@ -1456,10 +1456,10 @@ public class IFSFile
    @return true if the integrated file system object exists and is a directory; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
   **/
   public boolean isDirectory()
@@ -1510,10 +1510,10 @@ public class IFSFile
    @return true if the specified file exists and is a "normal" file; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean isFile()
@@ -1541,17 +1541,17 @@ public class IFSFile
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
   public boolean isHidden()
     throws IOException, AS400SecurityException
   {
     // If the attributes are cached from an earlier listFiles() operation
-    // use the cached attributes instead of getting a new set from the server.
+    // use the cached attributes instead of getting a new set from the system.
     if (cachedAttributes_ != null)
        return (cachedAttributes_.getFixedAttributes() &
                                  IFSCachedAttributes.FA_HIDDEN) != 0;
@@ -1569,17 +1569,17 @@ public class IFSFile
    Determines if the integrated file system object represented by this object is a
    symbolic link.<br>
    A file is "normal" if it is not a directory or a container of other objects. <br>
-   Note: Both {@link #isDirectory() isDirectory} and {@link #isFile() isFile} resolve symbolic links to their ultimate destination.  For example, if this object represents a symbolic link on the server, that resolves to a file object, then isSymbolicLink() will return true, isFile() will return true, and isDirectory() will return false. 
-   <br>Note: If the server is V5R2 or earlier, this method always returns false, regardless of whether the server object is a link or not.
+   Note: Both {@link #isDirectory() isDirectory} and {@link #isFile() isFile} resolve symbolic links to their ultimate destination.  For example, if this object represents a symbolic link on the system, that resolves to a file object, then isSymbolicLink() will return true, isFile() will return true, and isDirectory() will return false. 
+   <br>Note: If the system is V5R2 or earlier, this method always returns false, regardless of whether the system object is a link or not.
 
    @return true if the specified file exists and is a symbolic link; false otherwise.
-   <br>If the server is V5R2 or earlier, this method always returns false.
+   <br>If the system is V5R2 or earlier, this method always returns false.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean isSymbolicLink()
@@ -1606,10 +1606,10 @@ public class IFSFile
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -1617,7 +1617,7 @@ public class IFSFile
     throws IOException, AS400SecurityException
   {
     // If the attributes are cached from an earlier listFiles() operation
-    // use the cached attributes instead of getting a new set from the server.
+    // use the cached attributes instead of getting a new set from the system.
     if (cachedAttributes_ != null)
        return (cachedAttributes_.getFixedAttributes() &
                                  IFSCachedAttributes.FA_READONLY) != 0;
@@ -1646,17 +1646,17 @@ public class IFSFile
   /**
    Determines the time that the integrated file system object represented by this
    object was last accessed. With the use of the {@link #listFiles() listFiles} methods, attribute
-   information is cached and will not be automatically refreshed from the server.
-   This means the reported last accessed time may become inconsistent with the server.
+   information is cached and will not be automatically refreshed from the system.
+   This means the reported last accessed time may become inconsistent with the system.
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last accessed, or 0L if
    the object does not exist or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public long lastAccessed()                                    //D3a
@@ -1710,17 +1710,17 @@ public class IFSFile
   /**
    Determines the time that the integrated file system object represented by this
    object was last modified. With the use of the {@link #listFiles() listFiles} methods, attribute
-   information is cached and will not be automatically refreshed from the server.
-   This means the reported last modified time may become inconsistent with the server.
+   information is cached and will not be automatically refreshed from the system.
+   This means the reported last modified time may become inconsistent with the system.
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last modified, or 0L if it does not exist
     or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public long lastModified()
@@ -1759,16 +1759,16 @@ public class IFSFile
   /**
    Determines the length of the integrated file system object represented by this
    object.  With the use of the {@link #listFiles() listFiles} methods, attribute
-   information is cached and will not be automatically refreshed from the server.
-   This means the reported length may become inconsistent with the server.
+   information is cached and will not be automatically refreshed from the system.
+   This means the reported length may become inconsistent with the system.
    @return The length, in bytes, of the integrated file system object, or
    0L if it does not exist  or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public long length()
@@ -1796,10 +1796,10 @@ public class IFSFile
 
    @see #listFiles()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public String[] list()
@@ -1823,10 +1823,10 @@ public class IFSFile
 
    @see #listFiles(IFSFileFilter)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public String[] list(IFSFileFilter filter)
@@ -1846,7 +1846,7 @@ public class IFSFile
   String[] list0(IFSFileFilter filter, String pattern)
     throws IOException, AS400SecurityException
   { // @A5D removed check for null filter (null means no filtering).
-    // Ensure that we are connected to the server.
+    // Ensure that we are connected to the system.
     if (impl_ == null)
       chooseImpl();
 
@@ -1942,10 +1942,10 @@ public class IFSFile
 
    @see #listFiles(IFSFileFilter,String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public String[] list(IFSFileFilter filter,
@@ -1982,10 +1982,10 @@ public class IFSFile
 
    @see #listFiles(String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public String[] list(String pattern)
@@ -1996,7 +1996,7 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this object. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list() list} method, but attribute information may become inconsistent with the server.  
+   Lists the integrated file system objects in the directory represented by this object. With the use of this method, attribute information is cached and will not be automatically refreshed from the system. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list() list} method, but attribute information may become inconsistent with the system.  
    <p>
    When the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
@@ -2006,10 +2006,10 @@ public class IFSFile
    object represents an empty directory, an empty object array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public IFSFile[] listFiles()
@@ -2021,7 +2021,7 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter) list} method, but attribute information may become inconsistent with the server.  
+   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the system. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter) list} method, but attribute information may become inconsistent with the system.  
    <p>
    When the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
@@ -2032,10 +2032,10 @@ public class IFSFile
    object represents an empty directory, an empty object array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public IFSFile[] listFiles(IFSFileFilter filter)
@@ -2047,7 +2047,7 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter,String) list} method, but attribute information may become inconsistent with the server.  
+   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the system. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter,String) list} method, but attribute information may become inconsistent with the system.  
    <p>
    When <code>pattern</code> is "*" and the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
@@ -2065,10 +2065,10 @@ public class IFSFile
    chances that their file attribute information will not be valid.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public IFSFile[] listFiles(IFSFileFilter filter, String pattern)
@@ -2093,7 +2093,7 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this object that match <i>pattern</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(String) list} method, but attribute information may become inconsistent with the server.  
+   Lists the integrated file system objects in the directory represented by this object that match <i>pattern</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the system. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(String) list} method, but attribute information may become inconsistent with the system.  
    <p>
    When <code>pattern</code> is "*" and the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
@@ -2107,10 +2107,10 @@ public class IFSFile
    an empty object array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public IFSFile[] listFiles(String pattern)
@@ -2124,8 +2124,8 @@ public class IFSFile
   /**
    Lists the integrated file system objects in the directory represented by this
    object that satisfy <i>filter</i>.  With the use of this method, attribute
-   information is cached and will not be automatically refreshed from the server.
-   This means attribute information may become inconsistent with the server.
+   information is cached and will not be automatically refreshed from the system.
+   This means attribute information may become inconsistent with the system.
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match.
    @param maxGetCount The maximum number of directory entries to retrieve.
@@ -2144,8 +2144,8 @@ public class IFSFile
   /**
    Lists the integrated file system objects in the directory represented by this
    object that satisfy <i>filter</i>.  With the use of this method, attribute
-   information is cached and will not be automatically refreshed from the server.
-   This means attribute information may become inconsistent with the server.
+   information is cached and will not be automatically refreshed from the system.
+   This means attribute information may become inconsistent with the system.
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match.
    Acceptable characters are wildcards (*) and question marks (?).
@@ -2155,7 +2155,7 @@ public class IFSFile
   {
     // Do not specify both restartName and restartID.  Specify one or the other.
 
-    // Ensure that we are connected to the server.
+    // Ensure that we are connected to the system.
     if (impl_ == null)
        chooseImpl();
 
@@ -2245,10 +2245,10 @@ public class IFSFile
    @return true if the directory was created; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean mkdir()
@@ -2285,10 +2285,10 @@ public class IFSFile
    @return true if the directory (or directories) were created; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
     **/
   public boolean mkdirs()
@@ -2408,11 +2408,11 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
    @exception PropertyVetoException If the change is vetoed.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
 
    **/
   public boolean renameTo(IFSFile file)
@@ -2443,10 +2443,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server, or if the file doesn't exist or is a directory.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or if the file doesn't exist or is a directory.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public boolean setCCSID(int ccsid)
     throws IOException
@@ -2495,10 +2495,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
      // @D1 - new method because of changes to java.io.File in Java 2.
   boolean setFixedAttributes(int attributes)
@@ -2537,10 +2537,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2560,10 +2560,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2606,10 +2606,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public boolean setLastModified(long time)
@@ -2663,10 +2663,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public boolean setLength(int length)
     throws IOException
@@ -2678,7 +2678,7 @@ public class IFSFile
                                                  Integer.toString(length) + ")",
                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    // Note: The file server will not allow us to set the length of a file to a value larger than (2Gig minus 1), or 2147483647 (0x7FFFFFFF) bytes, which happens to be the maximum positive value which an 'int' will hold.  Therefore we do not provide a setLength(long) method.
+    // Note: The file system will not allow us to set the length of a file to a value larger than (2Gig minus 1), or 2147483647 (0x7FFFFFFF) bytes, which happens to be the maximum positive value which an 'int' will hold.  Therefore we do not provide a setLength(long) method.
 
     try
     {
@@ -2760,10 +2760,10 @@ public class IFSFile
    @param patternMatching Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
   public void setPatternMatching(int patternMatching)
     throws IOException
@@ -2793,15 +2793,15 @@ public class IFSFile
    * Sets the permission of the object.
    * @param permission The permission that will be set to the object.
    * @see #getPermission
-   * @exception AS400Exception If the server returns an error message.
+   * @exception AS400Exception If the system returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException If the object does not exist on the server.
+   * @exception IOException If an error occurs while communicating with the system.
+   * @exception ObjectDoesNotExistException If the object does not exist on the system.
    * @exception PropertyVetoException If the change is vetoed.
-   * @exception UnknownHostException If the server cannot be located.
+   * @exception UnknownHostException If the system cannot be located.
 
    *
   **/
@@ -2861,10 +2861,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2885,10 +2885,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
+   @exception ServerStartupException If the system cannot be started.
+   @exception UnknownHostException If the system cannot be located.
    **/
 
   // @D1a new method because of changes to java.io.File in Java 2.
@@ -2927,7 +2927,7 @@ public class IFSFile
    @param sort If <tt>true</tt>: Lists of files are returned in sorted order.
    If <tt>false</tt>: Lists of files are returned in whatever order the file system provides.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @exception AS400SecurityException If a security or authority error occurs.
    **/
   public void setSorted(boolean sort)
@@ -2952,8 +2952,8 @@ public class IFSFile
 
   /**
    Sets the system.
-   The system cannot be changed once a connection is made to the server.
-   @param system The server object.
+   The system cannot be changed once a connection is made to the system.
+   @param system The system object.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public void setSystem(AS400 system)

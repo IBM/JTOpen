@@ -32,19 +32,19 @@ public interface FTPListener extends java.util.EventListener
   public void disconnected( FTPEvent event );
 
   /**
-   * Invoked after a file has been retrieved from the server.
+   * Invoked after a file has been retrieved from the system.
    * @param event The ftp event.
    **/
   public void retrieved( FTPEvent event );
 
   /**
-   * Invoked after a file has been put to the server.
+   * Invoked after a file has been put to the system.
    * @param event The ftp event.
    **/
   public void put( FTPEvent event );
 
   /**
-   * Invoked after a list of files on the server has been retrieved.
+   * Invoked after a list of files on the system has been retrieved.
    * @param event The ftp event.
    **/
   public void listed( FTPEvent event );

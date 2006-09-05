@@ -20,7 +20,7 @@ import java.io.ObjectInputStream;
 import java.beans.PropertyVetoException;
 
 /**
- The ISeriesNetServer class represents the NetServer service on a server.
+ The ISeriesNetServer class represents the NetServer service on a system.
  This class allows the user to query and modify the state and configuration
  of the NetServer.
  <p>
@@ -33,15 +33,15 @@ they will be logged to {@link com.ibm.as400.access.Trace#ERROR Trace.ERROR} and
 ignored. However, should an exception occur during an explicit call to
 <tt>refresh()</tt>, it will be thrown to the caller.
  <p>
- Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile have *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
+ Note: Typically, methods which change the state or attributes of the NetServer require that the system user profile have *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
- Note: This class uses some API fields that are available only when connecting to servers at release V5R1 or higher.
+ Note: This class uses some API fields that are available only when connecting to systems at release V5R1 or higher.
 
 <blockquote>
 <pre>
 * import com.ibm.as400.access.*;
 *
-* // Create a NetServer object for a specific server system.
+* // Create a NetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * ISeriesNetServer ns = new ISeriesNetServer(system);
 *
@@ -99,29 +99,29 @@ implements Serializable
   static final long serialVersionUID = 1L;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with encrypted passwords only.
+   Value of the NetServer "authentication method" attribute, indicating that the system authenticates with encrypted passwords only.
    **/
   public final static int ENCRYPTED_PASSWORDS = 0;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication only.
+   Value of the NetServer "authentication method" attribute, indicating that the system authenticates with Network authentication only.
    **/
   public final static int NETWORK_AUTHENTICATION = 1;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication only.
+   Value of the NetServer "authentication method" attribute, indicating that the system authenticates with Network authentication only.
    @deprecated Renamed to NETWORK_AUTHENTICATION
    **/
   public final static int KERBEROS_V5_TOKENS = NETWORK_AUTHENTICATION;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
+   Value of the NetServer "authentication method" attribute, indicating that the system authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
    <br>Note: This value is valid only for i5/OS release V5R3 and higher.
    **/
   public final static int NETWORK_AUTHENTICATION_OR_PASSWORDS = 2;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
+   Value of the NetServer "authentication method" attribute, indicating that the system authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
    <br>Note: This value is valid only for i5/OS release V5R3 and higher.
    @deprecated Renamed to NETWORK_AUTHENTICATION_OR_PASSWORDS
    **/
@@ -138,17 +138,17 @@ implements Serializable
   public final static int OPP_LOCK_DISABLED = -1;
 
   /**
-   Value of the "message authentication" attribute, indicating that the server does not support message authentication.
+   Value of the "message authentication" attribute, indicating that the system does not support message authentication.
    **/
   public final static int MSG_AUTH_NOT_SUPPORTED = 0;
 
   /**
-   Value of the "message authentication" attribute, indicating that the server supports message authentication, and message authentication is negotiated between the client and the server.
+   Value of the "message authentication" attribute, indicating that the system supports message authentication, and message authentication is negotiated between the client and the server.
    **/
   public final static int MSG_AUTH_NEGOTIATED = 1;
 
   /**
-   Value of the "message authentication" attribute, indicating that the server requires message authentication for all connections.
+   Value of the "message authentication" attribute, indicating that the system requires message authentication for all connections.
    **/
   public final static int MSG_AUTH_REQUIRED = 2;
 
@@ -247,7 +247,7 @@ implements Serializable
 
   /**
    Constructs a NetServer object.
-   @param system  The server with which the NetServer is associated.
+   @param system  The system with which the NetServer is associated.
    **/
   public ISeriesNetServer(AS400 system)
   {
@@ -264,8 +264,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createFileShare(String shareName, String path)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -288,8 +288,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createFileShare(String shareName, String path, String desc, int permission)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -306,8 +306,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createFileShare(String shareName, String path, String desc)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -332,8 +332,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createFileShare(String shareName, String path, String desc, int permission, int maxUsers)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -375,8 +375,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createPrintShare(String shareName, String outqLib, String outqName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -402,8 +402,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createPrintShare(String shareName, String outqLib, String outqName, String desc, int splfType)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -432,8 +432,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createPrintShare(String shareName, String outqLib, String outqName, String desc, int splfType, String prtDriver, String prtFileLib, String prtFileName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -463,8 +463,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void createPrintShare(String shareName, String outqLib, String outqName, String desc, int splfType, String prtDriver, String prtFileLib, String prtFileName, boolean publish)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -557,8 +557,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerFileShare[] listFileShares()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -574,8 +574,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerFileShare[] listFileShares(String shareName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -592,8 +592,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerPrintShare[] listPrintShares()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -609,8 +609,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerPrintShare[] listPrintShares(String shareName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -627,8 +627,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerShare[] listShares()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -725,8 +725,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerSession[] listSessions()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -742,8 +742,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerSession[] listSessionsForWorkstation(String name)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -788,8 +788,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerConnection[] listConnectionsForSession(long sessionID)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -835,8 +835,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerConnection[] listConnectionsForSession(String workstationName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1101,8 +1101,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public ISeriesNetServerConnection[] listConnectionsForShare(String shareName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1146,8 +1146,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void removeShare(String shareName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1171,7 +1171,7 @@ implements Serializable
 
   /**
    Returns the value of the "allow system name" attribute.
-   This attribute indicates whether access is allowed to the server using the server's TCP/IP system name.
+   This attribute indicates whether access is allowed to the system using the system's TCP/IP system name.
    @return  The value of the "allow system name" attribute.
    **/
   public boolean isAllowSystemName()
@@ -1195,7 +1195,7 @@ implements Serializable
 
   /**
    Sets the value of the "allow system name" attribute.
-   This attribute indicates whether access is allowed to the server using the server's TCP/IP system name.
+   This attribute indicates whether access is allowed to the system using the system's TCP/IP system name.
    @param value  The value of the "allow system name" attribute.
    **/
   public void setAllowSystemName(boolean value)
@@ -1270,7 +1270,7 @@ implements Serializable
   /**
    Returns the value of the "autostart" attribute.
    This attribute indicates whether or not the NetServer is to be started automatically when TCP is started.
-   <br>Note: This method requires that the user have *IOSYSCFG authority on the server.  If the user doesn't have that authority, this method throws AS400SecurityException.
+   <br>Note: This method requires that the user have *IOSYSCFG authority on the system.  If the user doesn't have that authority, this method throws AS400SecurityException.
    @return  The value of the "autostart" attribute.
    @exception  AS400SecurityException  If a security or authority error occurs.
    **/
@@ -1322,7 +1322,7 @@ implements Serializable
 
   /**
    Returns the value of the "browsing interval" attribute.
-   This attribute represents the amount of time, in milliseconds, between each server announcement that is used for browsing.  A value of zero indicates that there will be no server announcements.
+   This attribute represents the amount of time, in milliseconds, between each system announcement that is used for browsing.  A value of zero indicates that there will be no system announcements.
    @return  The value of the "browsing interval" attribute.
    **/
   public int getBrowsingInterval()
@@ -1345,7 +1345,7 @@ implements Serializable
 
   /**
    Sets the value of the "browsing interval" attribute.
-   This attribute represents the amount of time, in milliseconds, between each server announcement that is used for browsing.  A value of zero indicates that there will be no server announcements.
+   This attribute represents the amount of time, in milliseconds, between each system announcement that is used for browsing.  A value of zero indicates that there will be no system announcements.
    @param value  The value of the "browsing interval" attribute.
    **/
   public void setBrowsingInterval(int value)
@@ -1357,11 +1357,11 @@ implements Serializable
 
 
   /**
-   Returns the value of the "server CCSID" attribute.
+   Returns the value of the "system CCSID" attribute.
    This attribute represents the coded character set identifier for the NetServer.
-   This is the CCSID that is used for all clients connected to the server.
-   <br> A value of 0 indicates that the user would like to use the associated ASCII CCSID for the CCSID of the job used to start the server.
-   @return  The value of the "server CCSID" attribute.
+   This is the CCSID that is used for all clients connected to the system.
+   <br> A value of 0 indicates that the user would like to use the associated ASCII CCSID for the CCSID of the job used to start the system.
+   @return  The value of the "system CCSID" attribute.
    **/
   public int getCCSID()
   {
@@ -1371,8 +1371,8 @@ implements Serializable
 
 
   /**
-   Returns the pending value of the "server CCSID" attribute.
-   @return  The pending value of the "server CCSID" attribute.
+   Returns the pending value of the "system CCSID" attribute.
+   @return  The pending value of the "system CCSID" attribute.
    @see #getCCSID()
    **/
   public int getCCSIDPending()
@@ -1382,13 +1382,13 @@ implements Serializable
   }
 
   /**
-   Sets the value of the "server CCSID" attribute.
+   Sets the value of the "system CCSID" attribute.
    This attribute represents the coded character set identifier for the NetServer.
-   This is the CCSID that is used for all clients connected to the server.
+   This is the CCSID that is used for all clients connected to the system.
    The default value is the associated ASCII CCSID for the CCSID of the job
-   used to start the server.
-   <br> A value of 0 indicates that the user would like to use the associated ASCII CCSID for the CCSID of the job used to start the server.
-   @param value  The value of the "server CCSID" attribute.
+   used to start the system.
+   <br> A value of 0 indicates that the user would like to use the associated ASCII CCSID for the CCSID of the job used to start the system.
+   @param value  The value of the "system CCSID" attribute.
    **/
   public void setCCSID(int value)
   {
@@ -1486,7 +1486,7 @@ implements Serializable
   /**
    Returns the value of the "guest user profile" attribute.
    This attribute represents the guest user profile for the NetServer.
-   If no guest user profile is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no guest user profile is currently configured on the system, the value of this attribute is "" (an empty String).
    @return  The value of the "guest user profile" attribute.
    **/
   public String getGuestUserProfile()
@@ -1509,9 +1509,9 @@ implements Serializable
   /**
    Sets the value of the "guest user profile" attribute.
    This attribute represents the guest user profile for the NetServer.
-   If no guest user profile is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no guest user profile is currently configured on the system, the value of this attribute is "" (an empty String).
    <p>
-   Note: Guest support allows customers to have users accessing files and printers on the server, without the requirement of a user profile on the server.  It limits access to data and allows customers to support a set of users who may only need print support but do not otherwise need server access.
+   Note: Guest support allows customers to have users accessing files and printers on the system, without the requirement of a user profile on the system.  It limits access to data and allows customers to support a set of users who may only need print support but do not otherwise need system access.
    @param value  The value of the "guest user profile" attribute.
    **/
   public void setGuestUserProfile(String value)
@@ -1602,7 +1602,7 @@ implements Serializable
 
   /**
    Returns the value of the "logon support" attribute.
-   This attribute indicates the logon server role for the server.
+   This attribute indicates the logon system role for the system.
    If true, then the server is a logon server; if false, the server is not a logon server.
    <br>Note: This attribute corresponds to the "server role" field specified
    in the NetServer API's.
@@ -1682,7 +1682,7 @@ implements Serializable
 
   /**
    Returns the value of the "minimum message severity" attribute.
-   This attribute represents the minimum message severity of administrative alerts to send to users of the server.
+   This attribute represents the minimum message severity of administrative alerts to send to users of the system.
    A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
    <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @return  The value of the "minimum message severity" attribute.
@@ -1707,7 +1707,7 @@ implements Serializable
 
   /**
    Sets the value of the "minimum message severity" attribute.
-   This attribute represents the minimum message severity of administrative alerts to send to users of the server.
+   This attribute represents the minimum message severity of administrative alerts to send to users of the system.
    A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
    <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
    @param value  The value of the "minimum message severity" attribute.
@@ -1723,7 +1723,7 @@ implements Serializable
   /**
    Returns the value of the "NetServer name" attribute.
    This attribute represents the name of the NetServer.
-   <br>Note: The NetServer name is always uppercase on the server.
+   <br>Note: The NetServer name is always uppercase on the system.
    @return  The value of the "NetServer name" attribute.
    **/
   public String getName()
@@ -1746,7 +1746,7 @@ implements Serializable
   /**
    Sets the value of the "NetServer name" attribute.
    This attribute represents the name of the NetServer.
-   <br>Note: The NetServer name is always uppercase on the server.
+   <br>Note: The NetServer name is always uppercase on the system.
    @param value  The value of the "NetServer name" attribute.
    **/
   public void setName(String value)
@@ -1761,7 +1761,7 @@ implements Serializable
 
   /**
    Returns the value of the "opportunistic lock timeout" attribute.
-   This attribute represents the amount of time, in seconds, that the server will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
+   This attribute represents the amount of time, in seconds, that the system will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
    A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
    The default value is 30 seconds.
    <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
@@ -1787,7 +1787,7 @@ implements Serializable
 
   /**
    Sets the value of the "opportunistic lock timeout" attribute.
-   This attribute represents the amount of time, in seconds, that the server will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
+   This attribute represents the amount of time, in seconds, that the system will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
    A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
    The default value is 30 seconds.
    <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
@@ -1803,7 +1803,7 @@ implements Serializable
 
   /**
    Returns the value of the "WINS enablement" attribute.
-   This attribute indicates whether the server uses a WINS server.
+   This attribute indicates whether the system uses a WINS server.
    Note: This attribute is also referred to as the "server role".
    @return  The value of the "WINS enablement" attribute.
    **/
@@ -1827,7 +1827,7 @@ implements Serializable
 
   /**
    Sets the value of the "WINS enablement" attribute.
-   This attribute indicates whether the server uses a WINS server.
+   This attribute indicates whether the system uses a WINS server.
    Note: This attribute is also referred to as the "server role".
    @param value  The value of the "WINS enablement" attribute.
    **/
@@ -1879,7 +1879,7 @@ implements Serializable
   /**
    Returns the value of the "WINS scope ID" attribute.
    This attribute represents the network scope used by the WINS server.
-   If no scope ID is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no scope ID is currently configured on the system, the value of this attribute is "" (an empty String).
    @return  The value of the "WINS scope ID" attribute.
    **/
   public String getWINSScopeID()
@@ -1902,7 +1902,7 @@ implements Serializable
   /**
    Sets the value of the "WINS scope ID" attribute.
    This attribute represents the network scope used by the WINS server.
-   If no scope ID is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no scope ID is currently configured on the system, the value of this attribute is "" (an empty String).
    @param value  The value of the "WINS scope ID" attribute.
    **/
   public void setWINSScopeID(String value)
@@ -1952,12 +1952,12 @@ implements Serializable
   }
 
   /**
-   Refreshes the attribute values of this ISeriesNetServer object, from the current in-effect values on the server.
+   Refreshes the attribute values of this ISeriesNetServer object, from the current in-effect values on the system.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void refresh()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1992,14 +1992,14 @@ implements Serializable
 
 
     /**
-     Commits all attribute value changes to the server.
+     Commits all attribute value changes to the system.
      Note that for most attributes, changes do not take effect
-     until the NetServer process on the server is stopped ({@link #end() end}) and restarted ({@link #start() start}).
+     until the NetServer process on the system is stopped ({@link #end() end}) and restarted ({@link #start() start}).
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
   public void commitChanges()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2175,7 +2175,7 @@ implements Serializable
 
 
   // Invokes the QTOCAUTO API, to retrieve the autostart attribute value.
-  // Note: The QTOCAUTO API requires that the user have *IOSYSCFG authority on the server.
+  // Note: The QTOCAUTO API requires that the user have *IOSYSCFG authority on the system.
   // If the user doesn't have that authority, this method simply reports 'false' for the AutoStart attribute.
   private void retrieveAutostart()
     throws IOException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException
@@ -2518,12 +2518,12 @@ implements Serializable
 
   /**
    Ends the NetServer job on the i5/OS system.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void end()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2547,12 +2547,12 @@ implements Serializable
 
   /**
    Ends a specific NetServer session.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void endSession(long sessionID)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2563,12 +2563,12 @@ implements Serializable
 
   /**
    Ends all the sessions that were established from the specified workstation.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void endSessionsForWorkstation(String workstationName)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2586,8 +2586,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   private void endSessions(String workstationName, long sessionID)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2625,8 +2625,8 @@ implements Serializable
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public boolean isStarted()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2681,13 +2681,13 @@ implements Serializable
   /**
    Starts the NetServer job on the i5/OS system.
    If the NetServer is already started, this method does nothing.
-   This method requires *IOSYSCFG special authority on the server.
+   This method requires *IOSYSCFG special authority on the system.
    If the QSERVER subsystem is not running, this method will attempt to start the subsystem.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void start()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2698,16 +2698,16 @@ implements Serializable
   /**
    Starts the NetServer job on the i5/OS system, and (optionally) resets it.
    If the NetServer is already started, this method does nothing.
-   This method requires *IOSYSCFG special authority on the server.
+   This method requires *IOSYSCFG special authority on the system.
    If the QSERVER subsystem is not running, this method will attempt to start it.
-   <p>Note: Reset is used when the NetServer fails to start normally on the server.  It is on the NetServer context menu so an administrator can use it.  The reset does some under-the-covers cleanup, and is used infrequently.  The times it would be used is if the server ended abnormally and there may be jobs or objects hanging around that need to be cleaned up before the server can start again.  The reset does that.
+   <p>Note: Reset is used when the NetServer fails to start normally on the system.  It is on the NetServer context menu so an administrator can use it.  The reset does some under-the-covers cleanup, and is used infrequently.  The times it would be used is if the system ended abnormally and there may be jobs or objects hanging around that need to be cleaned up before the system can start again.  The reset does that.
 
-   @param reset  Whether or not the server is to be reset when started.  Default is no reset.
+   @param reset  Whether or not the system is to be reset when started.  Default is no reset.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void start(boolean reset)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2762,13 +2762,13 @@ implements Serializable
 
 
   /**
-   Refreshes the attribute values of the connection object, from the current values on the server.
+   Refreshes the attribute values of the connection object, from the current values on the system.
    @param connection The connection.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void refresh(ISeriesNetServerConnection connection)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2819,13 +2819,13 @@ implements Serializable
 
 
   /**
-   Refreshes the attribute values of the session object, from the current values on the server.
+   Refreshes the attribute values of the session object, from the current values on the system.
    @param session The session.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void refresh(ISeriesNetServerSession session)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2869,14 +2869,14 @@ implements Serializable
 
 
   /**
-   Refreshes the attribute values of the share object, from the currently in-effect values on the server.
+   Refreshes the attribute values of the share object, from the currently in-effect values on the system.
    Note: This overwrites any attribute changes that have been made but not yet committed.
    @param share The share.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception  ObjectDoesNotExistException  If the server object does not exist.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
    **/
   public void refresh(ISeriesNetServerShare share)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -2942,13 +2942,13 @@ implements Serializable
 
 
     /**
-     Commits attribute value changes to the server, for the specified share.
+     Commits attribute value changes to the system, for the specified share.
      @param share The share.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
   public void commitChanges(ISeriesNetServerFileShare share)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -3049,13 +3049,13 @@ implements Serializable
 
 
     /**
-     Commits attribute value changes to the server, for the specified share.
+     Commits attribute value changes to the system, for the specified share.
      @param share The share.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
   public void commitChanges(ISeriesNetServerPrintShare share)
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException

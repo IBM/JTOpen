@@ -72,12 +72,12 @@ public class IFSFileReader extends Reader
    Constructs an IFSFileReader object. 
    Other readers and writers are allowed to access the file.
    The file is opened if it exists; otherwise an exception is thrown.
-   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the server.
+   The file's CCSID is obtained by referencing the file's "coded character set ID" tag on the system.
    Other readers and writers are allowed to access the file.
    @param file The file to be opened for reading.
 
    @exception AS400SecurityException If  a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSFileReader(IFSFile file)
     throws AS400SecurityException, IOException
@@ -98,7 +98,7 @@ public class IFSFileReader extends Reader
    @param ccsid The CCSID that the file data is currently in.
 
    @exception AS400SecurityException If  a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSFileReader(IFSFile file, int ccsid)
     throws AS400SecurityException, IOException
@@ -117,7 +117,7 @@ public class IFSFileReader extends Reader
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
 
    @exception AS400SecurityException If  a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public IFSFileReader(IFSFile file, int ccsid, int shareOption)
     throws AS400SecurityException, IOException
@@ -145,7 +145,7 @@ public class IFSFileReader extends Reader
 
   /**
    Closes the stream.  Once a stream has been closed, further read(), ready(), mark(), or reset() invocations will throw an IOException.  Closing a previously-closed stream, however, has no effect.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void close()
     throws IOException
@@ -185,7 +185,7 @@ public class IFSFileReader extends Reader
   /**
    Reads a single character.
    @return The character read, or -1 if the end of the stream has been reached.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public int read() throws IOException
   {
@@ -198,7 +198,7 @@ public class IFSFileReader extends Reader
    @param cbuf Destination buffer.
    @return The number of characters read, or -1 if the end of the stream has been reached.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public int read(char[] cbuf) throws IOException
   {
@@ -212,7 +212,7 @@ public class IFSFileReader extends Reader
    @param len Maximum number of characters to read.
    @return The number of characters read, or -1 if the end of the stream has been reached.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public int read(char[] cbuf, int off, int len)
     throws IOException
@@ -224,7 +224,7 @@ public class IFSFileReader extends Reader
   /**
    Tells whether this stream is ready to be read.
    @return <tt>true</tt> if the next read() is guaranteed not to block for input, <tt>false</tt> otherwise.  Note that returning false does not guarantee that the next read will block.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public boolean ready()
     throws IOException
@@ -235,7 +235,7 @@ public class IFSFileReader extends Reader
 
   /**
    Resets the stream.  After this call, the stream will read from the beginning.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void reset()
     throws IOException
@@ -257,7 +257,7 @@ public class IFSFileReader extends Reader
    @param charsToSkip The number of characters to skip.
    @return The number of characters actually skipped.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public long skip(long charsToSkip)
     throws IOException
@@ -272,7 +272,7 @@ public class IFSFileReader extends Reader
    @param length The number of bytes to lock.
    @return The key for undoing this lock.
  
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    @see #unlockBytes
    **/
   public IFSKey lockBytes(int length)
@@ -285,7 +285,7 @@ public class IFSFileReader extends Reader
    Undoes a lock on the file.
    @param key The key for the lock.
 
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
  
    @see #lockBytes
    **/

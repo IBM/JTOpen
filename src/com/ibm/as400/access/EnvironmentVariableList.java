@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /**
- The EnvironmentVariableList class represents a list of server system-level environment variables.
+ The EnvironmentVariableList class represents a list of i5/OS system-level environment variables.
  <p>This class can only access system-level environment variables.  You must have *JOBCTL special authority to add, change, or delete system-level environment variables.
  <p>This example gets the list of environment variables as a java.util.Properties object:
  <pre>
@@ -111,8 +111,8 @@ public class EnvironmentVariableList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public Enumeration getEnvironmentVariables() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -205,8 +205,8 @@ public class EnvironmentVariableList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public Properties getProperties() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -222,8 +222,8 @@ public class EnvironmentVariableList implements Serializable
     }
 
     /**
-     Returns the server on which the environment variable list exists.
-     @return  The server on which the environment variable list exists.  If the server has not been set, null is returned.
+     Returns the system on which the environment variable list exists.
+     @return  The system on which the environment variable list exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -256,8 +256,8 @@ public class EnvironmentVariableList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setProperties(Properties properties) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -272,8 +272,8 @@ public class EnvironmentVariableList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setProperties(Properties properties, int stringType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -300,8 +300,8 @@ public class EnvironmentVariableList implements Serializable
     }
 
     /**
-     Sets the server for the environment variable list.  The server cannot be changed once a connection is made to the server.
-     @param  system  The server on which the environment variable list exists.
+     Sets the system for the environment variable list.  The system cannot be changed once a connection is made to the system.
+     @param  system  The system on which the environment variable list exists.
      **/
     public void setSystem(AS400 system)
     {

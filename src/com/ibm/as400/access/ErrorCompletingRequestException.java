@@ -38,7 +38,7 @@ public class ErrorCompletingRequestException extends Exception
 
     /**
        The return code indicating that 
-       an error has occurred on the server.
+       an error has occurred on the system.
     **/
     public static final int AS400_ERROR = 1;
     /**
@@ -81,7 +81,7 @@ public class ErrorCompletingRequestException extends Exception
     public static final int EXIT_PROGRAM_RESOLVE_ERROR = 8;
     /**
        The return code indicating that 
-       the server resource has a length that is not valid or cannot
+       the system resource has a length that is not valid or cannot
        be handled through this interface.
     **/
     public static final int LENGTH_NOT_VALID = 9;

@@ -25,7 +25,7 @@ public class DataQueue extends BaseDataQueue
     static final long serialVersionUID = 4L;
 
     /**
-     Constructs a DataQueue object.  The system and path properties must be set before using any method requiring a connection to the server.
+     Constructs a DataQueue object.  The system and path properties must be set before using any method requiring a connection to the system.
      **/
     public DataQueue()
     {
@@ -35,7 +35,7 @@ public class DataQueue extends BaseDataQueue
 
     /**
      Constructs a DataQueue object.
-     @param  system  The system object representing the server on which the data queue exists.
+     @param  system  The system object representing the system on which the data queue exists.
      @param  path  The fully qualified integrated file system path name of the data queue.  The library and queue name must each be 10 characters or less.
      **/
     public DataQueue(AS400 system, String path)
@@ -45,15 +45,15 @@ public class DataQueue extends BaseDataQueue
     }
 
     /**
-     Creates a sequential data queue on the server.  The queue will be created with the attributes provided.
+     Creates a sequential data queue on the system.  The queue will be created with the attributes provided.
      @param  attributes  The attributes of the data queue to be created.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectAlreadyExistsException  If the object already exists on the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectAlreadyExistsException  If the object already exists on the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(DataQueueAttributes attributes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
@@ -66,14 +66,14 @@ public class DataQueue extends BaseDataQueue
     }
 
     /**
-     Creates a sequential data queue on the server.  The queue will be created with the following attributes: authority = *LIBCRTAUT, saveSenderInformation = false, FIFO = true, forceToAuxiliaryStorage = false, description = (50 blanks).
+     Creates a sequential data queue on the system.  The queue will be created with the following attributes: authority = *LIBCRTAUT, saveSenderInformation = false, FIFO = true, forceToAuxiliaryStorage = false, description = (50 blanks).
      @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectAlreadyExistsException  If the object already exists on the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectAlreadyExistsException  If the object already exists on the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(int maxEntryLength) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
@@ -81,7 +81,7 @@ public class DataQueue extends BaseDataQueue
     }
 
     /**
-     Creates a sequential data queue on the server.
+     Creates a sequential data queue on the system.
      @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @param  authority  The public authority for the data queue. Valid values are *ALL, *CHANGE, *EXCLUDE, *USE, *LIBCRTAUT.
      @param  saveSenderInformation  true if entry origin information will be saved; false otherwise.
@@ -90,10 +90,10 @@ public class DataQueue extends BaseDataQueue
      @param  description  The text description.  This string must be 50 characters or less.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectAlreadyExistsException  If the object already exists on the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectAlreadyExistsException  If the object already exists on the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(int maxEntryLength, String authority, boolean saveSenderInformation, boolean FIFO, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
@@ -129,7 +129,7 @@ public class DataQueue extends BaseDataQueue
             throw new ExtendedIllegalArgumentException("description (" + description + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        // Start a socket connection to the server.
+        // Start a socket connection to the system.
         chooseImpl();
 
         // Don't commit to the change in attributes until the create completes.
@@ -155,10 +155,10 @@ public class DataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public DataQueueEntry peek() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -171,10 +171,10 @@ public class DataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public DataQueueEntry peek(int wait) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -202,10 +202,10 @@ public class DataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public DataQueueEntry read() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -218,10 +218,10 @@ public class DataQueue extends BaseDataQueue
      @return  The entry read from the queue.  If no entries were available, null is returned.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public DataQueueEntry read(int wait) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -244,7 +244,7 @@ public class DataQueue extends BaseDataQueue
         return entry;
     }
 
-    // Retrieves the attributes of the data queue.  This method assumes that the connection to the server has been started.  It must only be called by open().
+    // Retrieves the attributes of the data queue.  This method assumes that the connection to the system has been started.  It must only be called by open().
     void retrieveAttributes() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving data queue attributes.");
@@ -274,10 +274,10 @@ public class DataQueue extends BaseDataQueue
      @param  data  The array of bytes to write to the queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -306,10 +306,10 @@ public class DataQueue extends BaseDataQueue
      @param  data  The string to write to the queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(String data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {

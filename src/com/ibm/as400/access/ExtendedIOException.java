@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
    The ExtendedIOException class represents an exception
    that indicates that an error has occurred while 
-   communicating with the server.
+   communicating with the system.
 **/
 
 public class ExtendedIOException extends IOException

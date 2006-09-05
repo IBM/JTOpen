@@ -269,7 +269,7 @@ public class DirectoryEntryList
   }
 
   /**
-   * Retrieves the directory entry information from the server.
+   * Retrieves the directory entry information from the system.
    * This method internally calls the OS/400 QOKSCHD system API.
    * @return An array of directory entries.
   **/

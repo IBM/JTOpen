@@ -22,7 +22,7 @@ import java.util.Vector;
  *with an AS400DataType object and a name.  Optionally, the user can specify a
  *data definition specification (DDS) field name and DDS keywords if the field will
  *be used with the record level access classes to define a RecordFormat object
- *with which to create a server physical file.
+ *with which to create a physical file.
  *The FieldDescription class contains methods to
  *set and get field attributes that are common to all field types.<br>
  *<p> 

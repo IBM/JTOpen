@@ -57,7 +57,7 @@ implements ReturnCodeException {
     public static final int PASSWORD_IMPROPERLY_ENCRYPTED = 3;
     /**
        The return code indicating that  
-       a protocol error occurred while communicating with the server.
+       a protocol error occurred while communicating with the system.
     **/
     public static final int PROTOCOL_ERROR = 4;
     /**

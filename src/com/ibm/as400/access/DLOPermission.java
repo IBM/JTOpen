@@ -28,7 +28,7 @@ can have one of the following values:
 </UL>
 Use <i>getAuthority()</i> to display the current value and the <i>setAuthority()</i> 
 to set the  authority to one of the valid values.  Use <i>commit()</i> from the 
-Permission class to send the changes to the server.
+Permission class to send the changes to the system.
 **/
 public class DLOPermission extends UserPermission
 {

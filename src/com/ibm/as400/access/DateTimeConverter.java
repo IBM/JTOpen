@@ -93,8 +93,8 @@ public class DateTimeConverter
    *            the request is completed.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
-   *            the server.
-   * @exception ObjectDoesNotExistException If the object does not exist on the server.
+   *            the system.
+   * @exception ObjectDoesNotExistException If the object does not exist on the system.
   **/
   public byte[] convert(byte[] data, String inFormat, String outFormat)
       throws AS400SecurityException,
@@ -182,8 +182,8 @@ public class DateTimeConverter
    *            the request is completed.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
-   *            the server.
-   * @exception ObjectDoesNotExistException If the object does not exist on the server.
+   *            the system.
+   * @exception ObjectDoesNotExistException If the object does not exist on the system.
   **/
   public Date convert(byte[] data, String inFormat)
       throws AS400SecurityException,
@@ -241,8 +241,8 @@ public class DateTimeConverter
    *            the request is completed.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
-   *            the server.
-   * @exception ObjectDoesNotExistException If the object does not exist on the server.
+   *            the system.
+   * @exception ObjectDoesNotExistException If the object does not exist on the system.
   **/
   public byte[] convert(Date date, String outFormat)
       throws AS400SecurityException,
