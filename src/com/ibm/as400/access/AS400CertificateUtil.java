@@ -211,7 +211,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   /**
    * Constructs an AS400CertificateUtil object.
    *
-   * @param  system  The server on which the certificate repository exists.
+   * @param  system  The system on which the certificate repository exists.
    * @param  path  The fully qualified integrated file system path name of the validation list or user profile. For example, /QSYS.LIB/MYLIB.LIB/MYVLDL.VLDL or /QSYS.LIB/MYPROFILE.USRPRF.
    */
   public AS400CertificateUtil(AS400 system, String path)
@@ -247,7 +247,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate already added and  other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   abstract public void addCertificate(byte[] certificate)
@@ -312,7 +312,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and  other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   abstract public void deleteCertificate(byte[] certificate)
@@ -336,7 +336,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   abstract public void deleteCertificateByHandle(byte[] certificatehandle)
@@ -366,7 +366,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate, firstCertificateToReturn set to more than the total number of certificates in user space, and other invalid input parameters.
    * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   public AS400Certificate [] getCertificates(
@@ -444,7 +444,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIOException If invalid certificate and  other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   public byte[] getCertificateHandle(byte[] certificate)
@@ -521,7 +521,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate and other invalid input parameters.
    * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   public AS400Certificate [] getFirstCertificates(String userSpaceName,
@@ -616,7 +616,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate.
    * @exception ExtendedIOException If certificates are not in "CERT0100" format in the user space, user space and initial certificate to return are not set by calling getCertificates or getFirstCertificates, and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   public AS400Certificate [] getNextCertificates(int buffSize)
@@ -745,7 +745,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
    * @exception ExtendedIOException If i5/OS certificate access error.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
   abstract public int listCertificates(
@@ -817,7 +817,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   /**
     *Sets the system on which the certificate repository exists.
     *
-    *@param  system    The server on which the repository exists.
+    *@param  system    The system on which the repository exists.
     *@exception PropertyVetoException If the change is vetoed.
     **/
   public void setSystem(AS400 system)
@@ -1028,7 +1028,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
      return alreadyFound;
 
     //*************************************************************
-    //Total up the attrs. If more then 7, the server does not
+    //Total up the attrs. If more then 7, the system does not
     //support the search. Only allow supported attrs.
     //*************************************************************
     forloop:
@@ -1233,7 +1233,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *then continue on to restore the state (as necessary) of the remaining varaibles.
    *@param in The input stream from which to deserialize the object.
    *@exception ClassNotFoundException If the class being deserialized is not found.
-   *@exception IOException If an error occurs while communicating with the server.
+   *@exception IOException If an error occurs while communicating with the system.
    **/
    private void readObject(java.io.ObjectInputStream in)
       throws ClassNotFoundException,

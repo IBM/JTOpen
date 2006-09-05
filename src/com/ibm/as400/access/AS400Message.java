@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 /**
- The AS400Message class represents a message returned from a server.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
-<br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the server, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
+ The AS400Message class represents a message returned from an i5/OS system.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
+<br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the system, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
  @see  com.ibm.as400.access.AS400Exception
  @see  com.ibm.as400.access.CommandCall
  @see  com.ibm.as400.access.ProgramCall
@@ -119,7 +119,7 @@ public class AS400Message implements Serializable
      **/
     public static final int MESSAGE_OPTION_NONE = 1;
     /**
-     Constant for the option indicating all the messages should be returned.  All messages sent from invocation beginning to invocation end will be returned.  Servers not supporting this new option will revert to the behavior specified for option MESSAGE_OPTION_UP_TO_10.
+     Constant for the option indicating all the messages should be returned.  All messages sent from invocation beginning to invocation end will be returned.  Systems not supporting this new option will revert to the behavior specified for option MESSAGE_OPTION_UP_TO_10.
      **/
     public static final int MESSAGE_OPTION_ALL = 2;
 
@@ -396,12 +396,12 @@ public class AS400Message implements Serializable
     }
 
     /**
-     Loads additional message information from the server.  If this message does not have an associated message file, this method does nothing.
+     Loads additional message information from the system.  If this message does not have an associated message file, this method does nothing.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public void load() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -409,13 +409,13 @@ public class AS400Message implements Serializable
     }
 
     /**
-     Loads additional message information from the server.  If this message does not have an associated message file, this method does nothing.
+     Loads additional message information from the system.  If this message does not have an associated message file, this method does nothing.
      @param  helpTextFormatting  Formatting performed on the help text.  Valid values for this parameter are defined in the MessageFile class.  They are no formatting, return formatting characters, and replace (substitute) formatting characters.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public void load(int helpTextFormatting) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -459,7 +459,7 @@ public class AS400Message implements Serializable
             }
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
             help_ = retrievedMessage.help_;
-            messageLoaded_ = true;  // Set flag to not go to server again.
+            messageLoaded_ = true;  // Set flag to not go to system again.
         }
         catch (PropertyVetoException e)
         {

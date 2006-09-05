@@ -29,31 +29,31 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**
- *The AS400File class represents a physical or logical file on the server.
+ *The AS400File class represents a physical or logical file on the system.
  *It allows the user to do the following:
  *<ul>
- *<li>Create a physical file on the server by:
+ *<li>Create a physical file on the system by:
  *<ul>
  *<li>Specifying a record length.
  *<li>Specifying an existing DDS source file.
  *<li>Specifying a RecordFormat object that contains a description of the
  *record format for the file.
  *</ul>
- *<li>Access the records in a server file sequentially, by record number, or by
+ *<li>Access the records in a system file sequentially, by record number, or by
  *key.
  * Note: To read a keyed physical or logical file sequentially and have the records
  * returned in key order, use the <tt>read...()</tt> methods of {@link KeyedFile KeyedFile}.
- *<li>Write records to a server file sequentially or by key.
- *<li>Update records in a server file sequentially, by record number or by key.
- *<li>Lock a server file for different types of access.
- *<li>Use commitment control when accessing a server file.  The user can:
+ *<li>Write records to a system file sequentially or by key.
+ *<li>Update records in a system file sequentially, by record number or by key.
+ *<li>Lock a system file for different types of access.
+ *<li>Use commitment control when accessing a system file.  The user can:
  *<ul>
  *<li>Start commitment control for the connection.
  *<li>Specify different commitment control lock levels for the individual
  *    files being accessed.
  *<li>Commit and rollback transactions for the connection.
  *</ul>
- *<li>Delete a physical or logical file or member on the server.
+ *<li>Delete a physical or logical file or member on the system.
  *</ul>
  *AS400File objects generate the following events:
  *<ul>
@@ -243,7 +243,7 @@ abstract public class AS400File implements Serializable
     String name_ = "";
     // Record format for the file.
     RecordFormat recordFormat_;
-    // The server connection information
+    // The system connection information
     AS400 system_;
 
     // The implementation object.
@@ -262,7 +262,7 @@ abstract public class AS400File implements Serializable
      *Constructs an AS400File object. It uses the system and file name specified.
      *If the <i>name</i> for the file does not include a member, the
      *first member of the file will be used.
-     *@param system The server to which to connect. The <i>system</i> cannot
+     *@param system The system to which to connect. The <i>system</i> cannot
      *be null.
      *@param name The integrated file system pathname of the file. The <i>name</i>
      *cannot be null.
@@ -308,20 +308,20 @@ abstract public class AS400File implements Serializable
      *@param textDescription The text description with which to create the file.
      *This value must be 50 characters or less.  If this value is null, the
      *text description will be blank.<br>
-     *The name of the file and the server to which to connect must be set
+     *The name of the file and the system to which to connect must be set
      *prior to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
      *@see AS400File#setSystem
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped
      * unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
-     * server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     * system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void addPhysicalFileMember(String name, String textDescription)
       throws AS400Exception,
@@ -452,14 +452,14 @@ abstract public class AS400File implements Serializable
 
 
     /**
-     *Closes the file on the server.  All file locks held by this connection
+     *Closes the file on the system.  All file locks held by this connection
      *are released.  All uncommitted transactions against the file are
      *rolled back if commitment control has been started.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
-     *server.
+     *system.
      **/
     public synchronized void close()
       throws AS400Exception,
@@ -517,19 +517,19 @@ abstract public class AS400File implements Serializable
      *under this connection, for which a commit lock level was specified, will
      *have outstanding transactions committed.  If commitment control has not been
      *started for the connection, no action is taken.<br>
-     *The server to which to connect must be set prior to invoking this
+     *The system to which to connect must be set prior to invoking this
      *method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setSystem
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped
      *unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
-     *server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void commit()
       throws AS400Exception,
@@ -556,15 +556,15 @@ abstract public class AS400File implements Serializable
      *@param system The system for which transactions will be committed.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setSystem
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped
      *unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
-     *server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public static void commit(AS400 system)
       throws AS400Exception,
@@ -613,7 +613,7 @@ abstract public class AS400File implements Serializable
      * Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
      * command  to change the file after it
      *has been created.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -630,13 +630,13 @@ abstract public class AS400File implements Serializable
      *This value must be 50 characters or less.
      *If this value is null, the empty string, or AS400File.BLANK,
      *the text description is blank.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(int recordLength, String fileType, String textDescription)
       throws AS400Exception,
@@ -706,7 +706,7 @@ abstract public class AS400File implements Serializable
      * Create Physical File (CRTPF) command.
      *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
      *has been created.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -719,13 +719,13 @@ abstract public class AS400File implements Serializable
      *the text description will be blank.
      *Specify AS400File.SOURCE_MEMBER_TEXT for the text description if the text
      *description from <i>ddsSourceFile</i> is to be used.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(String ddsSourceFile, String textDescription)
       throws AS400Exception,
@@ -758,7 +758,7 @@ abstract public class AS400File implements Serializable
      * Create Physical File (CRTPF) command.
      *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
      *has been created.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -768,13 +768,13 @@ abstract public class AS400File implements Serializable
      *This value must be between 1 and 50 characters inclusive.
      *If this value is null, the empty string, or AS400File.BLANK,
      *the text description will be blank.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(RecordFormat recordFormat, String textDescription)
       throws AS400Exception,
@@ -792,7 +792,7 @@ abstract public class AS400File implements Serializable
      * Create Physical File (CRTPF) command.
      *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
      *has been created.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -823,13 +823,13 @@ abstract public class AS400File implements Serializable
      *@param text The value to be specified for the record-level keyword TEXT.  If no
      *value is to be specified, null may be specified.  The single quotes required to
      *surround the TEXT keyword value are added by this class.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(RecordFormat recordFormat,
                        String textDescription,
@@ -887,19 +887,19 @@ abstract public class AS400File implements Serializable
      *Deletes the file.  The object cannot be open when calling this method.  The file
      *and all its members will be deleted.
      *Use deleteMember() to delete only the member associated with this object.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
      *@see AS400File#setSystem
      *@see AS400File#deleteMember
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void delete()
       throws AS400Exception,
@@ -924,11 +924,11 @@ abstract public class AS400File implements Serializable
     /**
      *Deletes the record at the current cursor position.  The file must be open and
      *the cursor must be positioned on an active record.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void deleteCurrentRecord()
       throws AS400Exception,
@@ -953,18 +953,18 @@ abstract public class AS400File implements Serializable
     /**
      *Deletes the member associated with this object from the file.  The object cannot
      *be open when invoking this method.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
      *@see AS400File#setSystem
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void deleteMember()
       throws AS400Exception,
@@ -988,11 +988,11 @@ abstract public class AS400File implements Serializable
      *Ends commitment control for this connection.
      *If commitment control has not been started for the connection, no action
      *is taken.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void endCommitmentControl()
       throws AS400Exception,
@@ -1012,11 +1012,11 @@ abstract public class AS400File implements Serializable
      *is taken.
      *@param system The system for which commitment control should be ended.
      *
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public static void endCommitmentControl(AS400 system)
       throws AS400Exception,
@@ -1218,10 +1218,10 @@ abstract public class AS400File implements Serializable
 
 
     /**
-     *Returns the server object for this object.
+     *Returns the system object for this object.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setSystem
-     *@return The server for this object.  If the system has not been set,
+     *@return The system for this object.  If the system has not been set,
      *null is returned.
      **/
     public AS400 getSystem()
@@ -1409,7 +1409,7 @@ abstract public class AS400File implements Serializable
 
     /**
      *Obtains a lock on the file.
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -1425,13 +1425,13 @@ abstract public class AS400File implements Serializable
      *                     <li>WRITE_ALLOW_SHARED_WRITE_LOCK
      *                     </ul>
      *If <i>lockToObtain</i> has already been obtained, no action is taken.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void lock(int lockToObtain)
       throws AS400Exception,
@@ -1455,7 +1455,7 @@ abstract public class AS400File implements Serializable
      *Opens the file.  The file must not be open when invoking this method.
      *The file cursor is positioned prior to the first record.<br>
      *The record format for the file must be set prior to calling this method.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.<br>
      *A value of READ_WRITE is used for the open type.<br>
      *A value of 1 is used for the blocking factor.<br>
@@ -1464,13 +1464,13 @@ abstract public class AS400File implements Serializable
      *@see AS400File#setPath
      *@see AS400File#setSystem
      *@see AS400File#setRecordFormat
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void open()
       throws AS400Exception, AS400SecurityException, InterruptedException, IOException
@@ -1488,7 +1488,7 @@ abstract public class AS400File implements Serializable
      *by the object) and the file is opened for READ_ONLY, the record cache will
      *be filled with an initial set of records.<br>
      *The record format for the file must be set prior to calling this method.<br>
-     *The name of the file and the server to which to connect must be set prior
+     *The name of the file and the system to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -1517,7 +1517,7 @@ abstract public class AS400File implements Serializable
      *which will cause a blocking factor to be calculated, there is the risk of
      *obtaining stale data when doing multiple read operations.
      *Invoke the refreshRecordCache() method prior to reading a record to cause the object
-     *to read from the server if this is a problem.<br>
+     *to read from the system if this is a problem.<br>
      *@param commitLockLevel Used to control record locking during a transaction if
      *commitment control has been started for the connection.
      *Valid values are:
@@ -1530,13 +1530,13 @@ abstract public class AS400File implements Serializable
      *</ul>
      *The <i>commitLockLevel</i> is ignored if commitment control is not started for
      *the connection.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public /* @B0C abstract */ void open(int openType,
                                          int blockingFactor,
@@ -1577,13 +1577,13 @@ abstract public class AS400File implements Serializable
      *@param commitLockLevel Used to control record locking during a transaction if
      *commitment control has been started for the connection.
      *@param access The type of file access for which to open the file.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started..
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started..
+     *@exception UnknownHostException If the system cannot be located.
      **/
     synchronized void openFile(int openType,
                                int blockingFactor,
@@ -1667,11 +1667,11 @@ abstract public class AS400File implements Serializable
     /**
      *Positions the file cursor to after the last record.  The file must be open when
      *invoking this method.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void positionCursorAfterLast()
       throws AS400Exception,
@@ -1688,11 +1688,11 @@ abstract public class AS400File implements Serializable
     /**
      *Positions the file cursor to before the first record.  The file must be open
      *when invoking this method.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void positionCursorBeforeFirst()
       throws AS400Exception,
@@ -1709,11 +1709,11 @@ abstract public class AS400File implements Serializable
     /**
      *Positions the file cursor to the first record.  The file must be open when
      *invoking this method.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void positionCursorToFirst()
       throws AS400Exception,
@@ -1730,11 +1730,11 @@ abstract public class AS400File implements Serializable
     /**
      *Positions the file cursor to the last record.  The file must be open when
      *invoking this method.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void positionCursorToLast()
       throws AS400Exception,
@@ -1751,11 +1751,11 @@ abstract public class AS400File implements Serializable
     /**
      *Positions the file cursor to the next record.  The file must be open when
      *invoking this method.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void positionCursorToNext()
       throws AS400Exception,
@@ -1772,11 +1772,11 @@ abstract public class AS400File implements Serializable
     /**
      *Positions the file cursor to the previous record.  The file must be open when
      *invoking this method.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void positionCursorToPrevious()
       throws AS400Exception,
@@ -1795,11 +1795,11 @@ abstract public class AS400File implements Serializable
      *invoking this method.  The cursor position does not change when this method is
      *invoked.
      *@return The record read.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public Record read()
       throws AS400Exception,
@@ -1818,13 +1818,13 @@ abstract public class AS400File implements Serializable
      *The record format for the file must have been set prior to invoking this method.
      *@return The records read.  If no records are read, an array of
      *size zero is returned.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     abstract public Record[] readAll()
       throws AS400Exception,
@@ -1838,11 +1838,11 @@ abstract public class AS400File implements Serializable
      *method.  The cursor is positioned to the first record of the file
      *as a result of invoking this method.
      *@return The record read.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public Record readFirst()
       throws AS400Exception,
@@ -1861,11 +1861,11 @@ abstract public class AS400File implements Serializable
      *method.  The cursor is positioned to the last record of the file
      *as a result of invoking this method.
      *@return The record read.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public Record readLast()
       throws AS400Exception,
@@ -1887,11 +1887,11 @@ abstract public class AS400File implements Serializable
      *file, null will be returned and the cursor is positioned after the last record
      *of the file.
      *@return The record read.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public Record readNext()
       throws AS400Exception,
@@ -1914,7 +1914,7 @@ abstract public class AS400File implements Serializable
      *then continue on to restore the state (as necessary) of the remaining varaibles.
      *@param in The input stream from which to deserialize the object.
      *@exception ClassNotFoundException If the class being deserialized is not found.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     private void readObject(java.io.ObjectInputStream in)
       throws ClassNotFoundException,
@@ -1933,11 +1933,11 @@ abstract public class AS400File implements Serializable
      *file, null is returned and the cursor is positioned before the first record
      *of the file.
      *@return The record read.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public Record readPrevious()
       throws AS400Exception,
@@ -1953,17 +1953,17 @@ abstract public class AS400File implements Serializable
 
     /**
      *Refreshes the record cache for this file.  Invoking this method will cause the
-     *retrieval of records from the server.  The cursor position is set to the
+     *retrieval of records from the system.  The cursor position is set to the
      *first record of the file.  This method only needs to
      *be invoked if a blocking factor greater than 1 is being used, and the user
      *wants to refresh the records in the cache.  The file must be open when invoking
      *this method.  No action is taken if records are not being cached (for example, the
      *blocking factor is set to one).
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void refreshRecordCache()
       throws AS400Exception,
@@ -1981,13 +1981,13 @@ abstract public class AS400File implements Serializable
      *Releases all locks acquired via the lock() method.  If no locks have been
      *explicitly obtained, no action is taken.
      *@see AS400File#lock
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void releaseExplicitLocks()
       throws AS400Exception,
@@ -2054,13 +2054,13 @@ abstract public class AS400File implements Serializable
      *to be rolled back.  This means that any AS400File object for which a commit
      *lock level was specified and that was opened under this connection will have
      *outstanding transactions rolled back.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void rollback()
       throws AS400Exception,
@@ -2083,13 +2083,13 @@ abstract public class AS400File implements Serializable
      *lock level was specified and that was opened under this connection will have
      *outstanding transactions rolled back.
      *@param system The system for which transactions will be rolled back.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public static void rollback(AS400 system)
       throws AS400Exception,
@@ -2213,15 +2213,15 @@ abstract public class AS400File implements Serializable
     //@B2A
     /**
      *Sets the record format to be used for this file. Retrieves the record
-     *format(s) from the file on the server and sets the record format to
+     *format(s) from the file on the system and sets the record format to
      *be the first format retrieved from the file. Calling this method is
      *the same as calling setRecordFormat(0).
      *The record format must be set prior to invoking open() or readAll().
      *@see AS400FileRecordDescription#retrieveRecordFormat
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      *@exception PropertyVetoException If a change is vetoed.
      **/
     public void setRecordFormat()
@@ -2238,15 +2238,15 @@ abstract public class AS400File implements Serializable
     //@B2A
     /**
      *Sets the record format to be used for this file. Retrieves the record
-     *format(s) from the file on the server and sets the record format to
+     *format(s) from the file on the system and sets the record format to
      *the <i>recordFormat</i> one.
      *The record format must be set prior to invoking open() or readAll().
      *@see AS400FileRecordDescription#retrieveRecordFormat
      *@param recordFormat The index of the record format to be used.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      *@exception PropertyVetoException If a change is vetoed.
      **/
     public void setRecordFormat(int recordFormat)
@@ -2268,15 +2268,15 @@ abstract public class AS400File implements Serializable
     //@B2A
     /**
      *Sets the record format to be used for this file. Retrieves the record
-     *format(s) from the file on the server and sets the record format to
+     *format(s) from the file on the system and sets the record format to
      *be <i>recordFormat</i>.
      *The record format must be set prior to invoking open() or readAll().
      *@see AS400FileRecordDescription#retrieveRecordFormat
      *@param recordFormat The name of the record format to be used.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      *@exception PropertyVetoException If a change is vetoed.
      **/
     public void setRecordFormat(String recordFormat)
@@ -2322,7 +2322,7 @@ abstract public class AS400File implements Serializable
 
     /**
      * Sets the SSP flag for this file. This flag indicates
-     * whether or not to treat the file on the server
+     * whether or not to treat the file on the system
      * as a System/36 SSP file. When set to true, the record
      * format name is ignored. When set to false, the file
      * is treated as a normal physical or logical DDM file.
@@ -2384,13 +2384,13 @@ abstract public class AS400File implements Serializable
      *                  <li>COMMIT_LOCK_LEVEL_CHANGE
      *                  <li>COMMIT_LOCK_LEVEL_CURSOR_STABILITY
      *                  </ul>
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public void startCommitmentControl(int commitLockLevel)
       throws AS400Exception,
@@ -2428,13 +2428,13 @@ abstract public class AS400File implements Serializable
      *                  <li>COMMIT_LOCK_LEVEL_CHANGE
      *                  <li>COMMIT_LOCK_LEVEL_CURSOR_STABILITY
      *                  </ul>
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception IOException If an error occurs while communicating with the system.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public static void startCommitmentControl(AS400 system, int commitLockLevel)
       throws AS400Exception,
@@ -2481,11 +2481,11 @@ abstract public class AS400File implements Serializable
      *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
      *method to obtain a default record whose fields can be set appropriately by
      *the Java program and then written to the file.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void update(Record record)
       throws AS400Exception,
@@ -2518,11 +2518,11 @@ abstract public class AS400File implements Serializable
      *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
      *method to obtain a default record whose fields can be set appropriately by
      *the Java program and then written to the file.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void write(Record record)
       throws AS400Exception,
@@ -2554,11 +2554,11 @@ abstract public class AS400File implements Serializable
      *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
      *method to obtain default records whose fields can be set appropriately by
      *the Java program and then written to the file.
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
     public void write(Record[] records)
       throws AS400Exception,

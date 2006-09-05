@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.Serializable;
 
 /**
- *  The AS400DataType interface provides an interface for conversions between Java objects and byte arrays representing server data types.
+ *  The AS400DataType interface provides an interface for conversions between Java objects and byte arrays representing i5/OS data types.
  **/
 public interface AS400DataType extends Cloneable, Serializable
 {
@@ -100,7 +100,7 @@ public interface AS400DataType extends Cloneable, Serializable
 
     /**
      * Returns the byte length of the data type.
-     * @return The number of bytes in the server representation of the data type.
+     * @return The number of bytes in the i5/OS representation of the data type.
      **/
     public abstract int getByteLength();
 
@@ -124,40 +124,40 @@ public interface AS400DataType extends Cloneable, Serializable
 
 
     /**
-     * Converts the specified Java object to server format.
+     * Converts the specified Java object to i5/OS format.
      * @param javaValue The object corresponding to the data type.  It must be an instance of the correct type.
-     * @return The server representation of the data type.
+     * @return The i5/OS representation of the data type.
      **/
     public abstract byte[] toBytes(Object javaValue);
 
     /**
-     * Converts the specified Java object into server format in the specified byte array.
+     * Converts the specified Java object into i5/OS format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of the correct type.
-     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
-     * @return The number of bytes in the server representation of the data type.
+     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
+     * @return The number of bytes in the i5/OS representation of the data type.
      **/
     public abstract int toBytes(Object javaValue, byte[] as400Value);
 
     /**
-     * Converts the specified Java object into server format in the specified byte array.
+     * Converts the specified Java object into i5/OS format in the specified byte array.
      * @param javaValue The object corresponding to the data type. It must be an instance of the correct type.
-     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
-     * @param offset The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
-     * @return The number of bytes in the server representation of the data type.
+     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
+     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     * @return The number of bytes in the i5/OS representation of the data type.
      **/
     public abstract int toBytes(Object javaValue, byte[] as400Value, int offset);
 
     /**
-     * Converts the specified server data type to a Java object.
-     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
+     * Converts the specified i5/OS data type to a Java object.
+     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
      * @return The object corresponding to the data type.
      **/
     public abstract Object toObject(byte[] as400Value);
 
     /**
-     * Converts the specified server data type to a Java object.
-     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
+     * Converts the specified i5/OS data type to a Java object.
+     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
      * @return The object corresponding to the data type.
      **/
     public abstract Object toObject(byte[] as400Value, int offset);

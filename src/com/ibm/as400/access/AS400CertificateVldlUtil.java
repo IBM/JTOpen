@@ -51,7 +51,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
   /**
    * Constructs an AS400CertificateVldlUtil object.
    *
-   * @param system  The server on which the validation list exists.
+   * @param system  The system on which the validation list exists.
    * @param path    The fully qualified integrated file system path name of the validation list.  For example, /QSYS.LIB/MYLIB.LIB/MYVLDL.VLDL.
    */
   public AS400CertificateVldlUtil(AS400 system, String path)
@@ -125,7 +125,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate already added and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void addCertificate(byte[] certificate)
@@ -175,7 +175,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public boolean checkCertificate(byte[] certificate)
@@ -226,7 +226,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public boolean checkCertificateByHandle(byte[] certificateHandle)
@@ -274,7 +274,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void deleteCertificate(byte[] certificate)
@@ -322,7 +322,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void deleteCertificateByHandle(byte[] certificateHandle)
@@ -381,7 +381,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
    * @exception ExtendedIOException If i5/OS certificate access error.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
 

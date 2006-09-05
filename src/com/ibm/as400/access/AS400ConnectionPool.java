@@ -223,7 +223,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param password The password of the user.
    * @param service The service to be connected. See the service number constants defined by AS400 class.
    * @param numberOfConnections The number of connections to be made.
-   * @param locale The Locale used to set the National Language Version (NLV) on the server for the AS400 objects
+   * @param locale The Locale used to set the National Language Version (NLV) on the system for the AS400 objects
    * created.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    *
    * @exception ConnectionPoolException If a connection pool error occured.
@@ -416,7 +416,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   userID  The name of the user.
    * @param   password  The password of the user.
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
-   * @param   locale   The Locale used to set the National Language Version (NLV) on the server for the AS400 object returned. 
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
    * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    * @return     A connected AS400 object.
    * @exception ConnectionPoolException If a connection pool error occured.
@@ -528,7 +528,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @param   password  The password of the user.
-   * @param   locale   The Locale used to set the National Language Version (NLV) on the server for the AS400 object returned. 
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
    * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    * @return     An AS400 object.
    * @exception ConnectionPoolException If a connection pool error occured.
@@ -602,7 +602,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @param   connect  If true connect to specified service.
    * @param   secure   If true secure AS400 object was requested.	  
-   * @param   locale   The Locale used to set the National Language Version (NLV) on the server for the AS400 object returned. 
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
    * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    * @return     An AS400 object.
    *
@@ -1029,7 +1029,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * userId, you will want to call this method to remove the connections for the old userID/password 
    * combination.  This will not invalidate connections in use; rather it will mean that the next time
    * a connection is requested for that userID, a new connection 
-   * will be established to the server.  After you call this method, you may want 
+   * will be established to the system.  After you call this method, you may want 
    * to fill the pool with connections with your new password to avoid connection time. 
    *
    * @param systemName The system name of connections you want to remove.

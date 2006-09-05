@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 /**
    The AS400Exception class represents an exception
-   that indicates that an error has occurred on the server.  One or more <A HREF="AS400Message.html">AS400Message</A> objects are
+   that indicates that an error has occurred on the system.  One or more <A HREF="AS400Message.html">AS400Message</A> objects are
    included in this exception.
 **/
 public class AS400Exception extends ErrorCompletingRequestException

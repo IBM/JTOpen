@@ -14,19 +14,19 @@
 package com.ibm.as400.access;
 
 /**
- The AS400BidiTransform class provides layout transformations that allow the conversion of Bidi text in server format (after its conversion to Unicode) to Bidi text in Java format, or vice-versa.
+ The AS400BidiTransform class provides layout transformations that allow the conversion of Bidi text in i5/OS format (after its conversion to Unicode) to Bidi text in Java format, or vice-versa.
  <p>Bidi text is a combination of a sequence of characters and a set of Bidi flags.  That text (Arabic or Hebrew) has characters which are read from right to left.  That text might also be mixed with numbers which are read from left to right, and possibly also mixed with Latin characters.  Conversion support is needed to display text properly with the correct order and shape.
  <p>Bidi text from an i5/OS system may be represented by a combination of a String (the characters) and a CCSID (which implies a set of Bidi flags specific to that CCSID).
  <p><b>Multi-threading considerations:</b> different threads may use the same AS400BidiTransform object if they have the same transformation needs, as follows:
  <ul>
- <li>Same CCSID for the server data.
- <li>Same string type for the server data (if the default string type of the CCSID is used, this will result from using the same CCSID).
- <li>Same orientation for Java data (if the Java data orientation is derived from the server string type, this will result from using the same string type for server data).
+ <li>Same CCSID for the i5/OS data.
+ <li>Same string type for the i5/OS data (if the default string type of the CCSID is used, this will result from using the same CCSID).
+ <li>Same orientation for Java data (if the Java data orientation is derived from the i5/OS string type, this will result from using the same string type for i5/OS data).
  </ul>
  <p>Otherwise, each thread must use its own instances of this class.
  <p>The following example illustrate how to transform bidi text:
  <blockquote><pre>
- * // Java data to server layout:
+ * // Java data to i5/OS layout:
  * AS400BidiTransform abt;
  * abt = new AS400BidiTransform(424);
  * String dst = abt.toAS400Layout("some bidi string");
@@ -43,7 +43,7 @@ package com.ibm.as400.access;
  * abt.setJavaStringType(BidiStringType.ST11);  // Imp Context LTR //
  * String dst = abt.toAS400Layout("some bidi string");
  *
- * // How to transform server data to Java layout:
+ * // How to transform i5/OS data to Java layout:
  * abt.setJavaStringType(BidiStringType.ST6);   // Imp RTL //
  * String dst = abt.toJavaLayout("some bidi string");
  </pre></blockquote>
@@ -148,9 +148,9 @@ public class AS400BidiTransform
     private BidiTransform lastTransform_ = bdxA2J_;  // Keeps track of which transform was used last.
 
     /**
-     Constructs an AS400BidiTransform object assuming that the server Bidi text conforms to a given CCSID.  Typically this will be the CCSID of the system.
-     <p>The given CCSID has a default string type which defines a set of Bidi flags.  The orientation implied by this string type is applied to both the server data layout and the Java data layout.
-     @param  as400Ccsid  The CCSID of the server data.
+     Constructs an AS400BidiTransform object assuming that the i5/OS Bidi text conforms to a given CCSID.  Typically this will be the CCSID of the system.
+     <p>The given CCSID has a default string type which defines a set of Bidi flags.  The orientation implied by this string type is applied to both the i5/OS data layout and the Java data layout.
+     @param  as400Ccsid  The CCSID of the i5/OS data.
      **/
     public AS400BidiTransform(int as400Ccsid)
     {
@@ -160,7 +160,7 @@ public class AS400BidiTransform
 
     /**
      Indicates if a given CCSID may apply to Bidi data.  This is the case for Arabic and Hebrew CCSIDs, and for Unicode (which can encode anything).
-     <p>If a CCSID is not Bidi, there is no need to perform layout transformations when converting server data to Java data and vice-versa.
+     <p>If a CCSID is not Bidi, there is no need to perform layout transformations when converting i5/OS data to Java data and vice-versa.
      @param  ccsid  The CCSID to check.
      @return  true if the given CCSID may apply to Bidi data, false otherwse.
      **/
@@ -251,8 +251,8 @@ public class AS400BidiTransform
 
     /**
      Sets the CCSID.
-     <p>The given CCSID has a default string type which defines a set of Bidi flags.  The orientation implied by this string type is applied to both the server data layout and the Java data layout.
-     @param  as400Ccsid  The CCSID of the server data.
+     <p>The given CCSID has a default string type which defines a set of Bidi flags.  The orientation implied by this string type is applied to both the i5/OS data layout and the Java data layout.
+     @param  as400Ccsid  The CCSID of the i5/OS data.
      **/
     public void setAS400Ccsid(int as400Ccsid)
     {
@@ -261,8 +261,8 @@ public class AS400BidiTransform
     }
 
     /**
-     Returns the current CCSID of server data.
-     @return  The CCSID for the server data.
+     Returns the current CCSID of i5/OS data.
+     @return  The CCSID for the i5/OS data.
      **/
     public int getAS400Ccsid()
     {
@@ -270,9 +270,9 @@ public class AS400BidiTransform
     }
 
     /**
-     Set the explicit string type for server data.  Each CCSID has a default CDRA string type, which defines a set of Bidi flags.  This method may be used to specify Bidi flags different from those implied by the CCSID.
-     <p>The orientation implied by the new given string type is applied to both the server data layout and the Java data layout.  The new string type is applied to the Java data layout by calling setJavaStringType(as400Type).
-     @param  as400Type  The string type to apply to server data.  The parameter string type should always be one of the constants defined in BidiStringType.
+     Set the explicit string type for the i5/OS data.  Each CCSID has a default CDRA string type, which defines a set of Bidi flags.  This method may be used to specify Bidi flags different from those implied by the CCSID.
+     <p>The orientation implied by the new given string type is applied to both the i5/OS data layout and the Java data layout.  The new string type is applied to the Java data layout by calling setJavaStringType(as400Type).
+     @param  as400Type  The string type to apply to the i5/OS data.  The parameter string type should always be one of the constants defined in BidiStringType.
      @see  com.ibm.as400.access.BidiStringType
      **/
     public void setAS400StringType(int as400Type)
@@ -290,8 +290,8 @@ public class AS400BidiTransform
     }
 
     /**
-     Returns the current string type of server data.
-     @return  The string type of the server data.
+     Returns the current string type of the i5/OS data.
+     @return  The string type of the i5/OS data.
      **/
     public int getAS400StringType()
     {
@@ -357,8 +357,8 @@ public class AS400BidiTransform
     }
 
     /**
-     Convert data from the server layout to the Java layout.
-     @param  as400Text  The server string to convert.
+     Convert data from the i5/OS layout to the Java layout.
+     @param  as400Text  The i5/OS string to convert.
      @return  The same text in standard Java Bidi layout.
      **/
     public String toJavaLayout(String as400Text)
@@ -369,9 +369,9 @@ public class AS400BidiTransform
     }
 
     /**
-     Convert data from the Java layout to the server layout.
+     Convert data from the Java layout to the i5/OS layout.
      @param  javaText  The Java string to convert.
-     @return  The same text in server Bidi layout.
+     @return  The same text in i5/OS Bidi layout.
      **/
     public String toAS400Layout(String javaText)
     {

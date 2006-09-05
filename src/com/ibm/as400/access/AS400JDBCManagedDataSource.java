@@ -1267,7 +1267,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    </ul>
    *
    <P>
-   Tracing the JDBC server job will use significant amounts of server resources.
+   Tracing the JDBC server job will use significant amounts of system resources.
    Additional processor resource is used to collect the data, and additional
    storage is used to save the data.  Turn on tracing only to debug
    a problem as directed by IBM service.

@@ -51,7 +51,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
   /**
    * Constructs an AS400CertificateUserProfileUtil object. If the user profile specified is not the user profile that is currently running, adding and deleting certificates require *SECADM special authority for the currently running user profile and *USE and *OBJMGT authorities to the target user profile.
    *
-   * @param system  The server on which the user profile exists.
+   * @param system  The system on which the user profile exists.
    *
    * @param path  The fully qualified integrated file system path name of the user profile, for example, "/QSYS.LIB/MYLIB.LIB/MYUSRPRF.USRPRF".
    */
@@ -132,7 +132,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate already added and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void addCertificate(byte[] certificate)
@@ -178,7 +178,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void deleteCertificate(byte[] certificate)
@@ -225,7 +225,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public void deleteCertificateByHandle(byte[] certificateHandle)
@@ -275,7 +275,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public String findCertificateUser(byte[] certificate)
@@ -329,7 +329,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
    public String findCertificateUserByHandle(byte[] certificateHandle)
@@ -387,7 +387,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
    * @exception ExtendedIOException If i5/OS certificate access error.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the server.
+   * @exception IOException If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
    */
 

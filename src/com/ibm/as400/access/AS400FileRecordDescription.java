@@ -28,7 +28,7 @@ import java.beans.PropertyVetoException;
 
 /**
  *The AS400FileRecordDescription class represents the record descriptions of a physical
- *or logical file on the server.  This class is used to retrieve the file field description
+ *or logical file on the system.  This class is used to retrieve the file field description
  *of a physical or logical file, and to create Java source code
  *for a class extending from
  *{@link com.ibm.as400.access.RecordFormat RecordFormat} that
@@ -79,7 +79,7 @@ public class AS400FileRecordDescription implements Serializable
     private String member_ = "";
     // The IFS path name of the file
     private String name_ = "";
-    // The server the file is on
+    // The system the file is on
     private AS400 system_ = null;
 
     // The list of AS400FileRecordDescriptionEvent listeners
@@ -109,7 +109,7 @@ public class AS400FileRecordDescription implements Serializable
      *which the file resides and the
      *integrated file system path name of
      *the file.
-     *@param system The server on which the file resides.
+     *@param system The system on which the file resides.
      *@param name The integrated file system path name
      *of the file.  If a member is not specified in <i>name</i>, the first
      *member of the file is used.
@@ -225,7 +225,7 @@ public class AS400FileRecordDescription implements Serializable
      *appended to it.  The name of the file is the name of the class with the extension .java.<br>
      *The source files generated can be compiled and used as input to the
      *{@link com.ibm.as400.access.AS400File#setRecordFormat(com.ibm.as400.access.RecordFormat) AS400File.setRecordFormat()} method.<br>
-     *The server to which to connect and the integrated file system
+     *The system to which to connect and the integrated file system
      *pathname for the file must be set prior to invoking this method.
      *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400FileRecordDescription#setPath
@@ -236,14 +236,14 @@ public class AS400FileRecordDescription implements Serializable
      *is used to specify the package statement in the source code for the class.
      * If this value is null, no package statement is specified in the source code for the class.
 
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception IOException If an error occurs while communicating with the
-     *server.
+     *system.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public synchronized void createRecordFormatSource(String filePath, String packageName)
       throws AS400Exception,
@@ -399,7 +399,7 @@ public class AS400FileRecordDescription implements Serializable
      *then continue on to restore the state (as necessary) of the remaining varaibles.
      *@param in The input stream from which to deserialize the object.
      *@exception ClassNotFoundException If the class being deserialized is not found.
-     *@exception IOException If an error occurs while communicating with the server.
+     *@exception IOException If an error occurs while communicating with the system.
      **/
 
     private void readObject(java.io.ObjectInputStream in)
@@ -461,7 +461,7 @@ public class AS400FileRecordDescription implements Serializable
      *RecordFormat object.  If the file is a multiple format logical file, the
      *RecordFormat array may contain
      *more than one RecordFormat object.
-     *The server to which to connect and the integrated file system
+     *The system to which to connect and the integrated file system
      *pathname for the file must be set prior to invoking this method.
      *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400FileRecordDescription#setPath
@@ -469,14 +469,14 @@ public class AS400FileRecordDescription implements Serializable
 
      *@return The record format(s) for the file.
 
-     *@exception AS400Exception If the server returns an error message.
+     *@exception AS400Exception If the system returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception IOException If an error occurs while communicating with the
-     *server.
+     *system.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception ServerStartupException If the server cannot be started.
-     *@exception UnknownHostException If the server cannot be located.
+     *@exception ServerStartupException If the system cannot be started.
+     *@exception UnknownHostException If the system cannot be located.
      **/
     public synchronized RecordFormat[] retrieveRecordFormat()
       throws AS400Exception,
