@@ -305,27 +305,27 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int GENERATE_TOKEN_NO_MAPPING = 70;
     /**
-     The return code indicating that the server was not able to allocate space needed for authorization.
+     The return code indicating that the system was not able to allocate space needed for authorization.
      **/
     public static final int SERVER_NO_MEMORY = 71;
     /**
-     The return code indicating that an error occurred on the server while converting data between code pages.
+     The return code indicating that an error occurred on the system while converting data between code pages.
      **/
     public static final int SERVER_CONVERSION_ERROR = 72;
     /**
-     The return code indicating that an error occurred on the server while using EIM interfaces.
+     The return code indicating that an error occurred on the system while using EIM interfaces.
      **/
     public static final int SERVER_EIM_ERROR = 73;
     /**
-     The return code indicating that an error occurred on the server while using cryptographic interfaces.
+     The return code indicating that an error occurred on the system while using cryptographic interfaces.
      **/
     public static final int SERVER_CRYPTO_ERROR = 74;
     /**
-     The return code indicating that the server version does support the token version.
+     The return code indicating that the system version does support the token version.
      **/
     public static final int SERVER_TOKEN_VERSION = 75;
     /**
-     The return code indicating that the server could not find the public key.
+     The return code indicating that the system could not find the public key.
      **/
     public static final int SERVER_KEY_NOT_FOUND = 76;
 

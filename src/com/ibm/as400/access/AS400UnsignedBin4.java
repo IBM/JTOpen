@@ -55,7 +55,7 @@ public class AS400UnsignedBin4 implements AS400DataType
 
     /**
      * Returns the byte length of the data type.
-     * @return Four (4), the number of bytes in the server representation of the data type.
+     * @return Four (4), the number of bytes in the i5/OS representation of the data type.
      **/
     public int getByteLength()
     {
@@ -81,9 +81,9 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object to server format.
+     * Converts the specified Java object to i5/OS format.
      * @param javaValue The object corresponding to the data type. It must be an instance of Long, and the long must be greater than or equal to zero and representable in four bytes.
-     * @return The server representation of the data type.
+     * @return The i5/OS representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
@@ -98,9 +98,9 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified long to server format.
-     * @param longValue The value to be converted to server format.  The long must be greater than or equal to zero and representable in four bytes.
-     * @return The server representation of the data type.
+     * Converts the specified long to i5/OS format.
+     * @param longValue The value to be converted to i5/OS format.  The long must be greater than or equal to zero and representable in four bytes.
+     * @return The i5/OS representation of the data type.
      **/
     public byte[] toBytes(long longValue)
     {
@@ -114,10 +114,10 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into server format in the specified byte array.
+     * Converts the specified Java object into i5/OS format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Long, and the long must be greater than or equal to zero and representable in four bytes.
-     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
-     * @return Four (4), the number of bytes in the server representation of the data type.
+     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
+     * @return Four (4), the number of bytes in the i5/OS representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] as400Value)
     {
@@ -132,10 +132,10 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified long into server format in the specified byte array.
-     * @param longValue The value to be converted to server format.  The long must be greater than or equal to zero and representable in four bytes.
-     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
-     * @return Four (4), the number of bytes in the server representation of the data type.
+     * Converts the specified long into i5/OS format in the specified byte array.
+     * @param longValue The value to be converted to i5/OS format.  The long must be greater than or equal to zero and representable in four bytes.
+     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
+     * @return Four (4), the number of bytes in the i5/OS representation of the data type.
      **/
     public int toBytes(long longValue, byte[] as400Value)
     {
@@ -149,11 +149,11 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into server format in the specified byte array.
+     * Converts the specified Java object into i5/OS format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Long, and the long must be greater than or equal to zero and representable in four bytes.
-     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
-     * @param offset The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
-     * @return Four (4), the number of bytes in the server representation of the data type.
+     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
+     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     * @return Four (4), the number of bytes in the i5/OS representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] as400Value, int offset)
     {
@@ -168,11 +168,11 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified long into server format in the specified byte array.
-     * @param longValue The value to be converted to server format.  The long must be greater than or equal to zero and representable in four bytes.
-     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
-     * @param offset The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
-     * @return Four (4), the number of bytes in the server representation of the data type.
+     * Converts the specified long into i5/OS format in the specified byte array.
+     * @param longValue The value to be converted to i5/OS format.  The long must be greater than or equal to zero and representable in four bytes.
+     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
+     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     * @return Four (4), the number of bytes in the i5/OS representation of the data type.
      **/
     public int toBytes(long longValue, byte[] as400Value, int offset)
     {
@@ -186,8 +186,8 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified server data type to a long.
-     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
+     * Converts the specified i5/OS data type to a long.
+     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
      * @return The long corresponding to the data type.
      **/
     public long toLong(byte[] as400Value)
@@ -197,9 +197,9 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified server data type to a long.
-     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
+     * Converts the specified i5/OS data type to a long.
+     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
      * @return The long corresponding to the data type.
      **/
     public long toLong(byte[] as400Value, int offset)
@@ -209,8 +209,8 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified server data type to a Java object.
-     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
+     * Converts the specified i5/OS data type to a Java object.
+     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
      * @return The Long object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value)
@@ -220,9 +220,9 @@ public class AS400UnsignedBin4 implements AS400DataType
     }
 
     /**
-     * Converts the specified server data type to a Java object.
-     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
+     * Converts the specified i5/OS data type to a Java object.
+     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
      * @return The Long object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value, int offset)
