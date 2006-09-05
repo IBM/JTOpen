@@ -51,7 +51,7 @@ public class PanelGroup implements Serializable
 
   /**
    * Constructs a PanelGroup object.
-   * @param system The server on which the panel group resides.
+   * @param system The system on which the panel group resides.
    * @param path The fully integrated file system path name of the panel group.
    * @see com.ibm.as400.access.QSYSObjectPathName
   **/
@@ -415,9 +415,9 @@ public class PanelGroup implements Serializable
   }
 
   /**
-   *  Sets the server from which to retrieve the panel group.
+   *  Sets the system from which to retrieve the panel group.
    *
-   *  @param  system  The server from which to retrieve the panel group.
+   *  @param  system  The system from which to retrieve the panel group.
    * @see #getSystem
    **/
   public void setSystem(AS400 system)

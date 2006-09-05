@@ -30,15 +30,15 @@ import java.util.Enumeration;
  * an object.<br>
  * To improve performance, the Permission object caches authority changes 
  * until the <i>commit()</i> method is called. When <i>commit()</i>is called, 
- * all changes up to that point are sent to the server.<br>
+ * all changes up to that point are sent to the system.<br>
  * The permission of an object is a collection of many users' authority to that object,
  * and the UserPermission class is used to represent a user's authority to a object. 
- * Because there are three kinds of objects on the server, three subclasses of 
+ * Because there are three kinds of objects on the system, three subclasses of 
  * UserPermission are defined:
  * <ul>
  *      <li> DLOPermission  - Represents a user's authority to a Document Library Objects (DLO)
  *                            stored in QDLS.
- *      <li> QSYSPermission - Represents a user's authority to the object which is contained in the server library
+ *      <li> QSYSPermission - Represents a user's authority to the object which is contained in the system library
  *                            structure and stored in QSYS.LIB.
  *      <li> RootPermission - Represents a user's authority to the object which is contained in the root directory 
  *                            structure. This includes everything that is not in QSYS.LIB or QDLS.
@@ -74,7 +74,7 @@ public class Permission
     public static final int TYPE_DLO = 0;
 
     /**
-     * Constant indicating the object is contained in the server library
+     * Constant indicating the object is contained in the system library
      * structure and stored in QSYS.LIB.
      *
     **/
@@ -129,13 +129,13 @@ public class Permission
     /**
      * Constructs a Permission object.
      * @param file The IFSFile object. For example, The IFSFile object which represents the object "QSYS.LIB/FRED.LIB".
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
-     * @exception ObjectDoesNotExistException If the server object does not exist.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
      *
     **/
     public Permission(IFSFile file)
@@ -171,13 +171,13 @@ public class Permission
      * @param file The IFSFile object. For example, The IFSFile object which represents the object "QSYS.LIB/FRED.LIB".
      * @param pathMayStartWithIASP True if the path may start with an  
      *                independent auxiliary storage pool (IASP) name; false otherwise.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
-     * @exception ObjectDoesNotExistException If the server object does not exist.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
      *
     **/
     public Permission(IFSFile file, boolean pathMayStartWithIASP)
@@ -196,15 +196,15 @@ public class Permission
 
     /**
      * Constructs a Permission object.
-     * @param as400 The server.
+     * @param as400 The system.
      * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
-     * @exception ObjectDoesNotExistException If the server object does not exist.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
      *
     **/
     public Permission(AS400 as400, String fileName)
@@ -236,17 +236,17 @@ public class Permission
      *    If the second component of the path is not QSYS.LIB, the parameter is ignored.
      *        
      * 
-     * @param as400 The server.
+     * @param as400 The system.
      * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
      * @param pathMayStartWithIASP True if the path may start with an  
      *                independent auxiliary storage pool (IASP) name; false otherwise.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
-     * @exception ObjectDoesNotExistException If the server object does not exist.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
      *
     **/
     public Permission(AS400 as400, String fileName, boolean pathMayStartWithIASP)
@@ -451,15 +451,15 @@ public class Permission
     }
 
     /**
-     * Commits the permission changes to the server.
-     * @exception AS400Exception If the server returns an error message.
+     * Commits the permission changes to the system.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
-     * @exception ObjectDoesNotExistException If the server object does not exist.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
+     * @exception ServerStartupException If the system cannot be started.
      *
     **/
     public synchronized void commit()
@@ -635,8 +635,8 @@ public class Permission
     }
 
     /**
-     * Returns the server
-     * @return The server instance. 
+     * Returns the system
+     * @return The system instance. 
      *
     **/
     public AS400 getSystem()
@@ -650,7 +650,7 @@ public class Permission
      * <ul>
      *    <li> TYPE_DLO - Indicating the object is a Document Library Objects (DLO)
      * stored in QDLS.
-     *    <li> TYPE_QSYS - Indicating the object is contained in the server library
+     *    <li> TYPE_QSYS - Indicating the object is contained in the system library
      * structure and stored in QSYS.LIB.
      *    <li> TYPE_ROOT - Indicating the object is contained in the root directory 
      * structure. This includes everything that is not in QSYS.LIB or QDLS.
@@ -823,7 +823,7 @@ public class Permission
      * Serialization support.  
      * @exception Thrown when an application tries to load in a class through its string name,
      *            but no definition for the class with the specifed name could be found. 
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      *
     **/
     private void readObject(ObjectInputStream s)
@@ -1032,7 +1032,7 @@ public class Permission
     /**
      * Sets the system where system value is retrieved.
      *
-     * @param   system The server object.
+     * @param   system The system object.
      * @see     #getSystem
     **/
     public synchronized void setSystem(AS400 system)
@@ -1071,7 +1071,7 @@ public class Permission
     
     /**
      * Serialization support.  
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      *
     **/
     private void writeObject(ObjectOutputStream s) 
