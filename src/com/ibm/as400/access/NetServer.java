@@ -20,7 +20,7 @@ import java.beans.PropertyVetoException;
 import java.util.Vector;
 
 /**
- The NetServer class represents the NetServer service on a server.
+ The NetServer class represents the NetServer service on a system.
  This class allows the user to query and modify the state and configuration
  of the NetServer.
  <p>
@@ -35,7 +35,7 @@ import java.util.Vector;
  <p>
  If the NetServer job on the i5/OS system is not started, the <code>listXxx</code> methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use one of the {@link #start() start} methods.  These methods will also attempt to start the QSERVER subsystem if it is not running.
  <p>
- Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile has *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
+ Note: Typically, methods which change the state or attributes of the NetServer require that the system user profile has *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
  Note: This class uses some API fields that are not available prior to OS/400 V5R1.
 <p>
@@ -78,14 +78,14 @@ and
 {@link com.ibm.as400.resource.ChangeableResource#setAttributeValue(java.lang.Object,java.lang.Object) setAttributeValue} to access the attribute values for a NetServer.
 <br>
 Note: For the above attributes, getAttributeValue() should never return null.
-For String-valued attributes, if the current actual value of the corresponding property on the server is blank, getAttributeValue() will return "" (an empty String).
+For String-valued attributes, if the current actual value of the corresponding property on the system is blank, getAttributeValue() will return "" (an empty String).
 
 <blockquote>
 <pre>
 * import com.ibm.as400.access.*;
 * import com.ibm.as400.resource.*;
 *
-* // Create a NetServer object for a specific server system.
+* // Create a NetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * NetServer ns = new NetServer(system);
 *
@@ -188,7 +188,7 @@ extends ChangeableResource
 
   /**
    Attribute ID for "allow system name".  This identifies a read-only Boolean
-   attribute, which indicates whether to allow access to the server using the server's TCP/IP system name.
+   attribute, which indicates whether to allow access to the system using the system's TCP/IP system name.
    **/
   public static final String ALLOW_SYSTEM_NAME = "ALLOW_SYSTEM_NAME";
   static {
@@ -198,7 +198,7 @@ extends ChangeableResource
 
   /**
    Attribute ID for "allow system name (pending)".  This identifies a Boolean
-   attribute, which indicates whether to allow access to the server using the server's TCP/IP system name.
+   attribute, which indicates whether to allow access to the system using the system's TCP/IP system name.
    **/
   public static final String ALLOW_SYSTEM_NAME_PENDING = "ALLOW_SYSTEM_NAME_PENDING";
   static {
@@ -212,8 +212,8 @@ extends ChangeableResource
    Attribute ID for "authentication method".  This identifies a read-only Integer
    attribute, which indicates the authentication method used to authenticate users.
    <i>Note: This attribute is not supported prior to OS/400 release V5R2.</i>
-   The value 0 indicates that the server authenticates with encrypted passwords.
-   The value 1 indicates the server authenticates with Kerberos v5 tokens.
+   The value 0 indicates that the system authenticates with encrypted passwords.
+   The value 1 indicates the system authenticates with Kerberos v5 tokens.
 
    **/
   public static final String AUTHENTICATION_METHOD = "AUTHENTICATION_METHOD";
@@ -227,8 +227,8 @@ extends ChangeableResource
    Attribute ID for "authentication method (pending)".  This identifies an Integer
    attribute, which indicates the authentication method used to authenticate users.
    <i>Note: This attribute is not supported prior to OS/400 release V5R2.</i>
-   The value 0 indicates that the server authenticates with encrypted passwords.
-   The value 1 indicates the server authenticates with Kerberos v5 tokens.
+   The value 0 indicates that the system authenticates with encrypted passwords.
+   The value 1 indicates the system authenticates with Kerberos v5 tokens.
    **/
   public static final String AUTHENTICATION_METHOD_PENDING = "AUTHENTICATION_METHOD_PENDING";
   static {
@@ -240,7 +240,7 @@ extends ChangeableResource
   /**
    Attribute ID for "autostart".  This identifies a Boolean
    attribute, which indicates whether or not the NetServer is to be started automatically when TCP is started.
-   <br>Note: Due to API restrictions, if the server user profile does not have *IOSYSCFG authority, the value of this attribute is reported as <code>false</code>, regardless of the actual setting on the server.
+   <br>Note: Due to API restrictions, if the system user profile does not have *IOSYSCFG authority, the value of this attribute is reported as <code>false</code>, regardless of the actual setting on the system.
    **/
   public static final String AUTOSTART = "AUTOSTART";
   static {
@@ -267,8 +267,8 @@ extends ChangeableResource
   }
 
   /**
-   Attribute ID for "browsing interval".  This identifies a read-only Integer attribute, which represents the amount of time, in milliseconds, between each server announcement that is used for browsing.
-   A value of zero indicates that there will be no server announcements.
+   Attribute ID for "browsing interval".  This identifies a read-only Integer attribute, which represents the amount of time, in milliseconds, between each system announcement that is used for browsing.
+   A value of zero indicates that there will be no system announcements.
    **/
   public static final String BROWSING_INTERVAL = "BROWSING_INTERVAL";
   static {
@@ -277,8 +277,8 @@ extends ChangeableResource
   }
 
   /**
-   Attribute ID for "browsing interval (pending)".  This identifies an Integer attribute, which represents the amount of time, in milliseconds, between each server announcement that is used for browsing.
-   A value of zero indicates that there will be no server announcements.
+   Attribute ID for "browsing interval (pending)".  This identifies an Integer attribute, which represents the amount of time, in milliseconds, between each system announcement that is used for browsing.
+   A value of zero indicates that there will be no system announcements.
    **/
   public static final String BROWSING_INTERVAL_PENDING = "BROWSING_INTERVAL_PENDING";
   static {
@@ -292,15 +292,15 @@ extends ChangeableResource
    attribute, which represents the coded character set identifier
    for the NetServer.
    <p> This is the CCSID that is used for all
-   clients connected to the server.
+   clients connected to the system.
    <br>
    The default value for this field is the
    associated ASCII CCSID for the CCSID of the job
-   used to start the server.
+   used to start the system.
    <br>
    Note: A value of 0 indicates that the user would
    like to use the associated ASCII CCSID for the
-   CCSID of the job used to start the server.
+   CCSID of the job used to start the system.
    **/
   public static final String CCSID = "CCSID";
   static {
@@ -389,9 +389,9 @@ extends ChangeableResource
   /**
    Attribute ID for "guest user profile".  This identifies a read-only String
    attribute, which represents the guest user profile for the NetServer.
-   If no guest user profile is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no guest user profile is currently configured on the system, the value of this attribute is "" (an empty String).
    <p>
-   Note: Guest support allows customers to have users accessing files and printers on the server, without the requirement of a user profile on the server.  It limits access to data and allows customers to support a set of users who may only need print support but do not otherwise need server access.
+   Note: Guest support allows customers to have users accessing files and printers on the system, without the requirement of a user profile on the system.  It limits access to data and allows customers to support a set of users who may only need print support but do not otherwise need system access.
    **/
   public static final String GUEST_USER_PROFILE = "GUEST_USER_PROFILE";
   static {
@@ -402,8 +402,8 @@ extends ChangeableResource
   /**
    Attribute ID for "guest profile (pending)".  This identifies a String
    attribute, which represents the pending guest profile for the NetServer.
-   If no pending guest user profile is currently configured on the server, the value of this attribute is "" (an empty String).
-   <br>Note: In order to change this attribute, the server user profile being used to access the NetServer must have *SECADM special authority.  In addition, it requires *USE authority to the guest profile being set.
+   If no pending guest user profile is currently configured on the system, the value of this attribute is "" (an empty String).
+   <br>Note: In order to change this attribute, the system user profile being used to access the NetServer must have *SECADM special authority.  In addition, it requires *USE authority to the guest profile being set.
    **/
   public static final String GUEST_USER_PROFILE_PENDING = "GUEST_USER_PROFILE_PENDING";
   static {
@@ -437,7 +437,7 @@ extends ChangeableResource
 
   /**
    Attribute ID for "logon support".  This identifies a read-only Boolean
-   attribute, which indicates the logon server role for the server.
+   attribute, which indicates the logon server role for the system.
    If true, then the server is a logon server; if false, the server is not a logon server.
    <br><i>Note: This attribute corresponds to the "server role" field specified
    in the NetServer API's.</i>
@@ -463,7 +463,7 @@ extends ChangeableResource
   /**
    Attribute ID for "name".  This identifies a read-only String
    attribute, which represents the name of the NetServer.
-   <br><i>Note: The NetServer name is uppercase on the server.</i>
+   <br><i>Note: The NetServer name is uppercase on the system.</i>
    **/
   public static final String NAME = "NAME";
   static {
@@ -474,7 +474,7 @@ extends ChangeableResource
   /**
    Attribute ID for "name (pending)".  This identifies a String
    attribute, which represents the pending name of the NetServer.
-   <br><i>Note: The pending NetServer name is uppercase on the server.</i>
+   <br><i>Note: The pending NetServer name is uppercase on the system.</i>
    **/
   public static final String NAME_PENDING = "NAME_PENDING";
   static {
@@ -506,7 +506,7 @@ extends ChangeableResource
 
   /**
    Attribute ID for "WINS enablement".  This identifies a read-only Boolean
-   attribute, which indicates whether the server uses a WINS server.
+   attribute, which indicates whether the system uses a WINS server.
    **/
   public static final String WINS_ENABLEMENT = "WINS_ENABLEMENT";
   static {
@@ -516,7 +516,7 @@ extends ChangeableResource
 
   /**
    Attribute ID for "WINS enabled (pending)".  This identifies a Boolean
-   attribute, which indicates whether the server uses a WINS server.
+   attribute, which indicates whether the system uses a WINS server.
    **/
   public static final String WINS_ENABLEMENT_PENDING = "WINS_ENABLEMENT_PENDING";
   static {
@@ -549,7 +549,7 @@ extends ChangeableResource
   /**
    Attribute ID for "WINS scope ID".  This identifies a read-only String
    attribute, which represents the network scope used by the WINS server.
-   If no scope ID is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no scope ID is currently configured on the system, the value of this attribute is "" (an empty String).
    **/
   public static final String WINS_SCOPE_ID = "WINS_SCOPE_ID";
   static {
@@ -560,7 +560,7 @@ extends ChangeableResource
   /**
    Attribute ID for "WINS scope ID (pending)".  This identifies a String
    attribute, which represents the pending network scope used by the WINS server.
-   If no pending scope ID is currently configured on the server, the value of this attribute is "" (an empty String).
+   If no pending scope ID is currently configured on the system, the value of this attribute is "" (an empty String).
    **/
   public static final String WINS_SCOPE_ID_PENDING = "WINS_SCOPE_ID_PENDING";
   static {
@@ -637,7 +637,7 @@ extends ChangeableResource
 
   /**
    Constructs a NetServer object.
-   @param system  The server with which the NetServer is associated.
+   @param system  The system with which the NetServer is associated.
    **/
   public NetServer(AS400 system)
   {
@@ -735,7 +735,7 @@ extends ChangeableResource
 
   /**
    Ends the NetServer job on the i5/OS system.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
 
    @exception ResourceException  If an error occurs.
    **/
@@ -765,7 +765,7 @@ extends ChangeableResource
 
 
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    <p>The method is called by the resource framework automatically
    when the connection needs to be established.
@@ -1066,9 +1066,9 @@ extends ChangeableResource
   /**
    Starts the NetServer job on the i5/OS system.
    If the NetServer is already started, this method does nothing.
-   This method requires *IOSYSCFG special authority on the server.
+   This method requires *IOSYSCFG special authority on the system.
    If the QSERVER subsystem is not running, this method will attempt to start it. 
-   <br>Note: This method does not reset the server.
+   <br>Note: This method does not reset the system.
 
    @exception ResourceException  If an error occurs.
    **/
@@ -1081,11 +1081,11 @@ extends ChangeableResource
   /**
    Starts the NetServer job on the i5/OS system, and (optionally) resets it.
    If the NetServer is already started, this method does nothing.
-   This method requires *IOSYSCFG special authority on the server.
+   This method requires *IOSYSCFG special authority on the system.
    If the QSERVER subsystem is not running, this method will attempt to start it. 
-   <p>Note: Reset is used when the NetServer fails to start normally on the server.  It is on the NetServer context menu so an administrator can use it.  The reset does some under-the-covers cleanup, and is used infrequently.  The times it would be used is if the server ended abnormally and there may be jobs or objects hanging around that need to be cleaned up before the server can start again.  The reset does that.
+   <p>Note: Reset is used when the NetServer fails to start normally on the system.  It is on the NetServer context menu so an administrator can use it.  The reset does some under-the-covers cleanup, and is used infrequently.  The times it would be used is if the system ended abnormally and there may be jobs or objects hanging around that need to be cleaned up before the system can start again.  The reset does that.
 
-   @param reset  Whether or not the server is to be reset when started.
+   @param reset  Whether or not the system is to be reset when started.
 
    @exception ResourceException  If an error occurs.
    **/

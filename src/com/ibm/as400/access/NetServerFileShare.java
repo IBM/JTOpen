@@ -40,16 +40,16 @@ and
 {@link com.ibm.as400.resource.ChangeableResource#setAttributeValue(java.lang.Object,java.lang.Object) setAttributeValue} to access the attribute values for a NetServerFileShare.
 <br>
 Note: For the above attributes, getAttributeValue() should never return null.
-For String-valued attributes, if the current actual value of the corresponding property on the server is blank, getAttributeValue() will return "" (an empty String).
+For String-valued attributes, if the current actual value of the corresponding property on the system is blank, getAttributeValue() will return "" (an empty String).
 
-<p>Note: Typically, methods which add, change, or remove a NetServerFileShare require that the server user profile has *IOSYSCFG special authority, or that the user own the integrated file system directory.
+<p>Note: Typically, methods which add, change, or remove a NetServerFileShare require that the system user profile has *IOSYSCFG special authority, or that the user own the integrated file system directory.
 
 <blockquote>
 <pre>
 * import com.ibm.as400.access.*;
 * import com.ibm.as400.resource.*;
 *
-* // Create a NetServer object for a specific server system.
+* // Create a NetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * NetServer ns = new NetServer(system);
 *
@@ -216,7 +216,7 @@ extends NetServerShare
    <br>The system and share name be set before this method is called.
    <br>The {@link #PATH PATH} attribute must be set before this method is called.
    <br>{@link com.ibm.as400.resource.ChangeableResource#commitAttributeChanges() commitAttributeChanges} must <b>not</b> be called prior to this method.
-   <br>This method requires *IOSYSCFG special authority on the server, or that the user own the integrated file system directory.
+   <br>This method requires *IOSYSCFG special authority on the system, or that the user own the integrated file system directory.
    <br><i>Note: This method is not supported prior to OS/400 V5R1.</i>
 
 
@@ -286,7 +286,7 @@ extends NetServerShare
   /**
    Commits the specified attribute changes.
    This method fires an attributeChangesCommitted() ResourceEvent.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
 
    @exception ResourceException  If an error occurs.
    **/
@@ -325,7 +325,7 @@ extends NetServerShare
 
 
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    <p>The method is called by the resource framework automatically
    when the connection needs to be established.
@@ -340,7 +340,7 @@ extends NetServerShare
 
 
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    @param initializeSetterFromSystem  Indicates whether or not the setter's values should be initialized from the system.  For example, this would be the case when establishing a connection to an existing share, rather than adding a new share.
 

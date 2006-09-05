@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * The NLS class contains a set of static methods that can be used
  * to access various pieces of National Language Support information
- * (such as language and country descriptions) on a server.
+ * (such as language and country descriptions) on a system.
 **/
 public final class NLS
 {
@@ -73,7 +73,7 @@ public final class NLS
   //@B0A
   /**
    * Returns a best-guess CCSID given a Java locale string.
-   * Note that the CCSID returned will be the preferred server CCSID, i.e. 
+   * Note that the CCSID returned will be the preferred system CCSID, i.e. 
    * usually EBCDIC. So, the locale string representing English "en" will
    * return the single-byte EBCDIC CCSID of 37.
    * @param localeString The locale string, e.g. "de_CH".
@@ -100,7 +100,7 @@ public final class NLS
   //@B0A
   /**
    * Returns a best-guess CCSID given a Java Locale object.
-   * Note that the CCSID returned will be the preferred server CCSID, i.e. 
+   * Note that the CCSID returned will be the preferred system CCSID, i.e. 
    * usually EBCDIC. So, the Locale representing English ({@link java.util.Locale#ENGLISH Locale.ENGLISH})
    * will return the single-byte EBCDIC CCSID of 37.
    * @param locale The Locale object.
@@ -159,7 +159,7 @@ public final class NLS
    * The list is cached, so that a subsequent call to this method will
    * return immediately if the specified country or region identifier is in the list.
    * If it is not in the list, the system will be queried.
-   * @param system The server.
+   * @param system The system.
    * @param countryID The country or region identifier.
    * @return The descriptive text.
    * @see #getLanguageDescription
@@ -229,7 +229,7 @@ public final class NLS
    * The list is cached, so that a subsequent call to this method will
    * return immediately if the specified language identifier is in the list.
    * If it is not in the list, the system will be queried.
-   * @param system The server.
+   * @param system The system.
    * @param languageID The language identifier.
    * @return The descriptive text.
    * @see #getCountryDescription
@@ -299,7 +299,7 @@ public final class NLS
    * converter tables that are part of the Toolbox, or the converter tables that are
    * part of the Java Runtime Environment. The default is to use the Toolbox
    * converter tables, since their behavior more closely matches the behavior of 
-   * text conversion on the server.
+   * text conversion on the system.
    * @return true if the Java Runtime Environement converter tables are used;
    * false if the Toolbox converter tables are used. The default is false.
    * @see #setForceJavaConversion
@@ -314,7 +314,7 @@ public final class NLS
    * converter tables that are part of the Toolbox, or the converter tables that are
    * part of the Java Runtime Environment. The default is to use the Toolbox
    * converter tables, since their behavior more closely matches the behavior of 
-   * text conversion on the server.
+   * text conversion on the system.
    * <p>
    * The usefulness of this method is arbitrary. Typically, applications only need to 
    * force Java conversion if they are seeing inconsistent character conversion between

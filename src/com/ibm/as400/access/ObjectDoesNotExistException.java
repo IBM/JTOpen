@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 
 /**
    The ObjectDoesNotExistException class represents an exception 
-   that indicates that a server object does not exist.
+   that indicates that a system object does not exist.
 **/
 public class ObjectDoesNotExistException extends Exception
                               implements ReturnCodeException
@@ -55,7 +55,7 @@ public class ObjectDoesNotExistException extends Exception
 
     /**
        Constructs an ObjectDoesNotExistException object.
-       It indicates that a server object does not exist.
+       It indicates that a system object does not exist.
        Exception message will look like this: Object does not exist. 
        @param returnCode The return code which identifies the message to be returned.
     **/
@@ -71,7 +71,7 @@ public class ObjectDoesNotExistException extends Exception
 
    /**
       Constructs an ObjectDoesNotExistException object.
-      It indicates that a server object does not exist.
+      It indicates that a system object does not exist.
       Exception message will look like this:
       dataQueue (/QSYS.LIB/MYLIB.LIB/MYQUEUE.DTAQ): Object does not exist. 
       @param objectName The object that does not exist.

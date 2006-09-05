@@ -24,9 +24,9 @@ import java.net.UnknownHostException;
 // The server allows only read and write operations on a local data area.
 
 /**
-The LocalDataArea class represents a local data area on the server.
+The LocalDataArea class represents a local data area on the system.
 <p>
-A local data area exists as a character data area on the server. It is
+A local data area exists as a character data area on the system. It is
 automatically associated with a job and cannot be accessed from another
 job; hence, it cannot be directly created or deleted by the user.
 <p>
@@ -37,7 +37,7 @@ is referencing it will no longer be valid.
 <p>
 The following example demonstrates the use of LocalDataArea:
 <pre>
-// Prepare to work with the server named "My400".
+// Prepare to work with the system named "My400".
 AS400 system = new AS400("My400");
 
 // Create a LocalDataArea object to access
@@ -98,7 +98,7 @@ public class LocalDataArea extends DataArea implements Serializable
    Constructs a LocalDataArea object.
    It creates a LocalDataArea instance that represents the local data area
    on <i>system</i>.
-      @param system The server that contains the data area.
+      @param system The system that contains the data area.
    **/
    public LocalDataArea(AS400 system)
    {
@@ -116,8 +116,8 @@ public class LocalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void clear()
        throws AS400SecurityException,
@@ -144,10 +144,10 @@ public class LocalDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public String read()
         throws AS400SecurityException,
@@ -181,10 +181,10 @@ public class LocalDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public String read(int type)                                      //$A2A
         throws AS400SecurityException,
@@ -218,10 +218,10 @@ public class LocalDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public String read(int dataAreaOffset, int dataLength)
         throws AS400SecurityException,
@@ -271,10 +271,10 @@ public class LocalDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public String read(int dataAreaOffset, int dataLength, int type)  //$A2A
         throws AS400SecurityException,
@@ -318,8 +318,8 @@ public class LocalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void write(String data)
        throws AS400SecurityException,
@@ -356,8 +356,8 @@ public class LocalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void write(String data, int dataAreaOffset)
        throws AS400SecurityException,
@@ -406,8 +406,8 @@ public class LocalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void write(String data, int dataAreaOffset, int type)      //$A2A
        throws AS400SecurityException,

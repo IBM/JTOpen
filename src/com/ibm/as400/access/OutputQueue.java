@@ -18,7 +18,7 @@ import java.util.Vector;
 import java.beans.PropertyVetoException;
 
 /**
- * The OutputQueue class represents an server output queue.
+ * The OutputQueue class represents an output queue.
  * An instance of this class can be used to manipulate an individual
  * output queue (hold, release, clear, and so on).
  *
@@ -70,7 +70,7 @@ implements java.io.Serializable
      * Constructs an OutputQueue object. It uses the specified system and
      * output queue name that identifies it on that system.
      *
-     * @param system The server on which this output queue exists.
+     * @param system The system on which this output queue exists.
      * @param queueName The integrated file system name of the output queue. The format of
      * the queue string must be in the format of /QSYS.LIB/libname.LIB/queuename.OUTQ.
      *
@@ -148,7 +148,7 @@ implements java.io.Serializable
 
 
     /**
-     * Clears the output queue on the server.
+     * Clears the output queue on the system.
      *
      * @param clearOptions A PrintParameterList object that may have any of the
      *        following attributes set:
@@ -165,13 +165,13 @@ implements java.io.Serializable
      * </UL>
      *  clearOptions may be null.
      *
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void clear(PrintParameterList clearOptions)
       throws AS400Exception,
@@ -274,15 +274,15 @@ implements java.io.Serializable
 
 
     /**
-     * Holds the output queue on the server.
+     * Holds the output queue on the system.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void hold()
       throws AS400Exception,
@@ -319,15 +319,15 @@ implements java.io.Serializable
 
 
     /**
-     * Releases a held output queue on the server.
+     * Releases a held output queue on the system.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void release()
       throws AS400Exception,

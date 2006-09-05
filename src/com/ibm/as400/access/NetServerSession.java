@@ -42,14 +42,14 @@ import java.util.Vector;
 to access the attribute values for a NetServerSession.
 <br>
 Note: For the above attributes, getAttributeValue() should never return null.
-For String-valued attributes, if the current actual value of the corresponding property on the server is blank, getAttributeValue() will return "" (an empty String).
+For String-valued attributes, if the current actual value of the corresponding property on the system is blank, getAttributeValue() will return "" (an empty String).
 
 <blockquote>
 <pre>
 * import com.ibm.as400.access.*;
 * import com.ibm.as400.resource.*;
 *
-* // Create a NetServer object for a specific server system.
+* // Create a NetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * NetServer ns = new NetServer(system);
 *
@@ -194,7 +194,7 @@ extends Resource
 
   /**
    Attribute ID for "session count".  This identifies a read-only Integer
-   attribute, which represents the number of sessions that are established between the server and the requester.  This value is always 0 or 1.
+   attribute, which represents the number of sessions that are established between the system and the requester.  This value is always 0 or 1.
    **/
   // Note: We will not make this attribute public unless someone says they need it.
   /*public*/ static final String SESSION_COUNT = "SESSION_COUNT";
@@ -286,7 +286,7 @@ extends Resource
   /**
    Ends the session.
    This method fires a resourceDeleted() ResourceEvent.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
 
    @exception ResourceException  If an error occurs.
    **/
@@ -331,7 +331,7 @@ extends Resource
 
 
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    <p>The method is called by the resource framework automatically
    when the connection needs to be established.
@@ -435,7 +435,7 @@ extends Resource
 
 
   /**
-   Returns the name of the workstation from which the session to the server was established.
+   Returns the name of the workstation from which the session to the system was established.
    @return The workstation name.
    **/
   public String getName()

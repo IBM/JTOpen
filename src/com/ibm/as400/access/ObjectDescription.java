@@ -19,7 +19,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Represents a server QSYS object and its attributes.
+ * Represents a system QSYS object and its attributes.
  * ObjectDescription objects can be constructed individually, or generated
  * from an {@link com.ibm.as400.access.ObjectList ObjectList}. An object's
  * attributes can be retrieved by calling {@link #getValue getValue()} and
@@ -1078,7 +1078,7 @@ public class ObjectDescription
    * <P>If the status returned is either STATUS_NO_AUTHORITY or
    * STATUS_LOCKED, no attribute information will have been collected
    * by ObjectList, so any call to {@link #getValue getValue()} will result in another
-   * call to the server, where an exception is likely to occur (because
+   * call to the system, where an exception is likely to occur (because
    * of the lack of authority, for example). Only the object name, library,
    * and type are valid in this case.
   **/

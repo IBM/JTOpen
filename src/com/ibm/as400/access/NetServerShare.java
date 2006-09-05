@@ -119,7 +119,7 @@ extends ChangeableResource
   // Private data.
   //----------------------------------------------------------------------
 
-  // The name of the share.  Note: Uppercased on the server.
+  // The name of the share.  Note: Uppercased on the system.
   private String name_;
 
   // The attributes that need to be set before other attributes are set.
@@ -155,7 +155,7 @@ extends ChangeableResource
   }
 
   /**
-   Adds the server share to the NetServer.
+   Adds the share to the NetServer.
    This method fires a resourceCreated() ResourceEvent.
    @exception ResourceException  If an error occurs.
    **/
@@ -164,7 +164,7 @@ extends ChangeableResource
 
   /**
    Commits the specified attribute changes.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   <br>This method requires *IOSYSCFG special authority on the system.
    This method fires an attributeChangesCommitted() ResourceEvent.
 
    @exception ResourceException  If an error occurs.
@@ -200,7 +200,7 @@ extends ChangeableResource
 
 
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    <p>The method is called by the resource framework automatically
    when the connection needs to be established.
@@ -211,7 +211,7 @@ extends ChangeableResource
     throws ResourceException;
 
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    @param initializeSetterFromSystem  Indicates whether or not the setter's values should be initialized from the system.  For example, this would be the case when establishing a connection to an existing share, rather than adding a new share.
 
@@ -223,7 +223,7 @@ extends ChangeableResource
 
   // Note: This method is reserved for use by the subclasses.
   /**
-   Establishes the connection to the server.
+   Establishes the connection to the system.
 
    <p>The method is called by the resource framework automatically
    when the connection needs to be established.
@@ -350,7 +350,7 @@ extends ChangeableResource
 
   /**
    Returns the network name of the share.
-   <br>Note: All share names are uppercase on the server.
+   <br>Note: All share names are uppercase on the system.
    @return The share name.
    **/
   public String getName()
@@ -542,7 +542,7 @@ extends ChangeableResource
 
   /**
    Sets the network name of the share.
-   <br>Note: All share names are uppercase on the server.
+   <br>Note: All share names are uppercase on the system.
    Share names are limited to 12 characters in length. 
    This method fires a PropertyChangeEvent.
 

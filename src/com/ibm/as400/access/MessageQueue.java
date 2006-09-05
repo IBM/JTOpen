@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Enumeration;
 
 /**
- Represents a message queue object on the server.  If no message queue path is set, then the default is {@link #CURRENT CURRENT}, which represents the current user's message queue.  If necessary, the name of the message queue will be retrieved from the current user's user profile.
+ Represents a message queue object on the system.  If no message queue path is set, then the default is {@link #CURRENT CURRENT}, which represents the current user's message queue.  If necessary, the name of the message queue will be retrieved from the current user's user profile.
  <p>QueuedMessage objects have many attributes.  Only some of these attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values are set on QueuedMessage objects returned in a list of messages:
  <ul>
  <li>alert option
@@ -41,7 +41,7 @@ import java.util.Enumeration;
  <li>sender job name
  <li>sender job number
  <li>sender job user name
- <li>if the server release is V5R3M0 or greater, sending current user
+ <li>if the system release is V5R3M0 or greater, sending current user
  <li>sending program name
  </ul>
  <a name="receiveIDs">
@@ -195,7 +195,7 @@ public class MessageQueue implements Serializable
     // Shared blank key.
     private static final byte[] BLANK_KEY = new byte[] { 0x40, 0x40, 0x40, 0x40 };
 
-    // The server where the message queue is located.
+    // The system where the message queue is located.
     private AS400 system_;
     // The full IFS path name of the message queue.
     private String path_;
@@ -260,7 +260,7 @@ public class MessageQueue implements Serializable
 
     /**
      Constructs a MessageQueue object.  The message queue path defaults to {@link #CURRENT CURRENT}.
-     @param  system  The system object representing the server on which the message queue exists.
+     @param  system  The system object representing the system on which the message queue exists.
      @see  #setPath
      **/
     public MessageQueue(AS400 system)
@@ -278,7 +278,7 @@ public class MessageQueue implements Serializable
 
     /**
      Constructs a MessageQueue object.
-     @param  system  The system object representing the server on which the message queue exists.
+     @param  system  The system object representing the system on which the message queue exists.
      @param  path  The fully qualified integrated file system path name of the message queue, or {@link #CURRENT CURRENT} to refer to the user's default message queue.
      **/
     public MessageQueue(AS400 system, String path)
@@ -355,12 +355,12 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Closes the message list on the server.  This releases any system resources previously in use by this message list.
+     Closes the message list on the system.  This releases any system resources previously in use by this message list.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public synchronized void close() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -382,7 +382,7 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Closes the message list on the server when this object is garbage collected.
+     Closes the message list on the system when this object is garbage collected.
      **/
     protected void finalize() throws Throwable
     {
@@ -451,8 +451,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public Enumeration getMessages() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -463,15 +463,15 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Returns a subset of the list of messages in the message queue.  This method allows the user to retrieve the message list from the server in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
+     Returns a subset of the list of messages in the message queue.  This method allows the user to retrieve the message list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the messages at a given offset will change, so a subsequent call to getMessages() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same QueuedMessages as the previous call.
      @param  listOffset  The offset into the list of messages.  This value must be greater than or equal to 0 and less than the list length, or specify -1 to retrieve all of the messages.
      @param  number  The number of messages to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
-     @return  The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the server, and the specified <i>listOffset</i>.
+     @return  The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.QueuedMessage
      **/
     public QueuedMessage[] getMessages(int listOffset, int number) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -678,8 +678,8 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the message queue exists.
-     @return  The system object representing the server on which the message queue exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the message queue exists.
+     @return  The system object representing the system on which the message queue exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -749,13 +749,13 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Loads the list of messages on the server.  This method informs the server to build a list of messages given the previously added attributes to select, retrieve, and sort.  This method blocks until the server returns the total number of messages it has compiled.  A subsequent call to {@link #getMessages getMessages()} will retrieve the actual message information and attributes for each message in the list from the server.
+     Loads the list of messages on the system.  This method informs the system to build a list of messages given the previously added attributes to select, retrieve, and sort.  This method blocks until the system returns the total number of messages it has compiled.  A subsequent call to {@link #getMessages getMessages()} will retrieve the actual message information and attributes for each message in the list from the system.
      <p>This method updates the list length.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #getLength
      **/
     public synchronized void load() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -919,8 +919,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.QueuedMessage#getKey
      **/
     public QueuedMessage receive(byte[] messageKey) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -961,8 +961,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.QueuedMessage#getKey
      **/
     public QueuedMessage receive(byte[] messageKey, int waitTime, String messageAction, String messageType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1162,8 +1162,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void remove() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1177,8 +1177,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void remove(byte[] messageKey) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1203,8 +1203,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void remove(String messageType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1344,8 +1344,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void reply(byte[] messageKey, String replyText) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1360,8 +1360,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void reply(byte[] messageKey, String replyText, boolean remove) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1494,8 +1494,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void sendInformational(String messageID, String messageFile) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1521,8 +1521,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void sendInformational(String messageID, String messageFile, byte[] substitutionData) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1546,8 +1546,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void sendInformational(String messageText) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1570,8 +1570,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public byte[] sendInquiry(String messageID, String messageFile, String replyMessageQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1604,8 +1604,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public byte[] sendInquiry(String messageID, String messageFile, byte[] substitutionData, String replyMessageQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1636,8 +1636,8 @@ public class MessageQueue implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public byte[] sendInquiry(String messageText, String replyMessageQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1716,7 +1716,7 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Sets the fully qualified integrated file system path name of the message queue.  The default is CURRENT.  The path cannot be changed if the MessageQueue object has established a connection to the server.
+     Sets the fully qualified integrated file system path name of the message queue.  The default is CURRENT.  The path cannot be changed if the MessageQueue object has established a connection to the system.
      @param  path  The fully qualified integrated file system path name of the message queue, or CURRENT to refer to the user's default message queue.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -1930,8 +1930,8 @@ public class MessageQueue implements Serializable
     }
 
     /**
-     Sets the system.  This cannot be changed if the object has established a connection to the server.
-     @param  system  The system object representing the server on which the message queue exists.
+     Sets the system.  This cannot be changed if the object has established a connection to the system.
+     @param  system  The system object representing the system on which the message queue exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException

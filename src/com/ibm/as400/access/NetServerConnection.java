@@ -46,14 +46,14 @@ import java.util.Vector;
 method to access the attribute values for a NetServerConnection.
 <br>
 Note: For the above attributes, getAttributeValue() should never return null.
-For String-valued attributes, if the current actual value of the corresponding property on the server is blank, getAttributeValue() will return "" (an empty String).
+For String-valued attributes, if the current actual value of the corresponding property on the system is blank, getAttributeValue() will return "" (an empty String).
 
 <blockquote>
 <pre>
 * import com.ibm.as400.access.*;
 * import com.ibm.as400.resource.*;
 *
-* // Create a NetServer object for a specific server system.
+* // Create a NetServer object for a specific system.
 * AS400 system = new AS400("MYSYSTEM", "MYUSERID", "MYPASSWORD");
 * NetServer ns = new NetServer(system);
 *
@@ -288,7 +288,7 @@ extends Resource
 
 
   /**
-   Establishes the connection (of this object) to the server.
+   Establishes the connection (of this object) to the system.
 
    <p>The method is called by the resource framework automatically
    when the object connection needs to be established.

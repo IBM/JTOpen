@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The OutputQueueList class is used to build a list of server objects of type OutputQueue.
+ * The OutputQueueList class is used to build a list of system objects of type OutputQueue.
  * The list can be filtered by library and queue name.
  *
  * @see OutputQueue
@@ -52,7 +52,7 @@ implements java.io.Serializable
     /**
      * Constructs an OutputQueueList object. It uses the specified system name.
      *
-     * @param system The server on which the output queues exists.
+     * @param system The system on which the output queues exists.
      *
      **/
     public OutputQueueList(AS400 system)

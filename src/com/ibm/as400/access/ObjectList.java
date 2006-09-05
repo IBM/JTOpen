@@ -20,7 +20,7 @@ import java.util.*;
 
 
 /**
-The ObjectList class represents a list of server objects in a
+The ObjectList class represents a list of system objects in a
 specific library, multiple libraries, or system-wide.
 <p>
 Implementation note:
@@ -304,22 +304,22 @@ public class ObjectList implements Serializable
   /**
    * Adds an object attribute to retrieve when this list is built.
    * The attribute is cached as part of the ObjectDescription objects
-   * that are returned by this list, so that another call to the server
+   * that are returned by this list, so that another call to the system
    * is not necessary. Adding attributes to retrieve may increase list
-   * build time on the server, as well as increasing the amount of
-   * storage used to hold the list on the server.
+   * build time on the system, as well as increasing the amount of
+   * storage used to hold the list on the system.
    * <P>
    * The object NAME, LIBRARY, and TYPE are always retrieved. By
    * default, these are the only attributes that are retrieved.
    * If no other attributes are added, the statuses of the objects (returned
    * by {@link com.ibm.as400.access.ObjectDescription#getStatus ObjectDescription.getStatus()})
    * are unknown. Any attributes that are not retrieved via this interface
-   * will require another call to the server to retrieve them when
+   * will require another call to the system to retrieve them when
    * {@link com.ibm.as400.access.ObjectDescription#getValue ObjectDescription.getValue()}
    * is called.
    * The exceptions to this are the various attributes that represent Date objects,
    * as they need to be converted from system timestamp format, which always requires
-   * another call to the server.
+   * another call to the system.
    * @param attribute The attribute to retrieve. Valid values include
    * any of the attributes on the {@link com.ibm.as400.access.ObjectDescription ObjectDescription} class.
    * @see #clearObjectAttributesToRetrieve
@@ -751,7 +751,7 @@ public class ObjectList implements Serializable
    * @exception InterruptedException            If this thread is interrupted.
    * @exception IOException                     If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException     If the object does not exist on the system.
-   * @exception ServerStartupException          If the server cannot be started.
+   * @exception ServerStartupException          If the system cannot be started.
    * @exception UnknownHostException            If the system cannot be located.
    * @see #load
   **/
@@ -788,14 +788,14 @@ public class ObjectList implements Serializable
   /**
    * Returns the list of objects in the object list.
    * @return An Enumeration of {@link com.ibm.as400.access.ObjectDescription ObjectDescription} objects.
-   * @exception AS400Exception                  If the server returns an error message.
+   * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the server.
-   * @exception ObjectDoesNotExistException     If the server object does not exist.
-   * @exception RequestNotSupportedException    If the requested function is not supported because the server is not at the correct level.
+   * @exception IOException                     If an error occurs while communicating with the system.
+   * @exception ObjectDoesNotExistException     If the system object does not exist.
+   * @exception RequestNotSupportedException    If the requested function is not supported because the system is not at the correct level.
    * @see #close
    * @see #load
   **/
@@ -825,7 +825,7 @@ public class ObjectList implements Serializable
 
   /**
    * Returns a subset of the list of objects.
-   * This method allows the user to retrieve the object list from the server
+   * This method allows the user to retrieve the object list from the system
    * in pieces. If a call to {@link #load load()} is made (either implicitly or explicitly),
    * then the objects at a given offset will change, so a subsequent call to
    * getObjects() with the same <i>listOffset</i> and <i>number</i>
@@ -837,7 +837,7 @@ public class ObjectList implements Serializable
    * to the list length. If the <i>listOffset</i> is -1, this parameter is ignored.
    * @return The array of retrieved {@link com.ibm.as400.access.ObjectDescription ObjectDescription} objects.
    * The length of this array may not necessarily be equal to <i>number</i>, depending upon the size
-   * of the list on the server, and the specified <i>listOffset</i>.
+   * of the list on the system, and the specified <i>listOffset</i>.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -1079,7 +1079,7 @@ public class ObjectList implements Serializable
    * @exception InterruptedException            If this thread is interrupted.
    * @exception IOException                     If an error occurs while communicating with the system.
    * @exception ObjectDoesNotExistException     If the object does not exist on the system.
-   * @exception ServerStartupException          If the server cannot be started.
+   * @exception ServerStartupException          If the system cannot be started.
    * @exception UnknownHostException            If the system cannot be located.
    * @see #getLength
    * @see #close
@@ -1235,7 +1235,7 @@ public class ObjectList implements Serializable
     System.arraycopy(listInformation, 8, handle_, 0, 4);
 
     // This second program call is to retrieve the number of messages in the list.
-    // It will wait until the server has fully populated the list before it
+    // It will wait until the system has fully populated the list before it
     // returns.
     ProgramParameter[] parms2 = new ProgramParameter[7];
     parms2[0] = new ProgramParameter(1); // receiver variable
@@ -1264,7 +1264,7 @@ public class ObjectList implements Serializable
 
   // Resets the handle to indicate we should close the list the next time
   // we do something, usually as a result of one of the selection criteria
-  // being changed since that should build a new list on the server.
+  // being changed since that should build a new list on the system.
   private synchronized void resetHandle()
   {
     if (handleToClose_ == null) handleToClose_ = handle_; // Close the old list on the next load

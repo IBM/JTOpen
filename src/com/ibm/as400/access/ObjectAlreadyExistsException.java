@@ -18,7 +18,7 @@ package com.ibm.as400.access;
 
 /**
    The ObjectAlreadyExistsException class represents an exception 
-   that indicates that a server object already exists.
+   that indicates that a system object already exists.
 **/
 public class ObjectAlreadyExistsException extends Exception
                             implements ReturnCodeException
@@ -52,7 +52,7 @@ public class ObjectAlreadyExistsException extends Exception
    
    /**
        Constructs an ObjectAlreadyExistsException object.
-       It indicates that a server object already exists.
+       It indicates that a system object already exists.
        Exception message will look like this: Object already exists. 
        @param returnCode The return code which identifies the message to be returned.
    **/
@@ -67,7 +67,7 @@ public class ObjectAlreadyExistsException extends Exception
 
    /**
       Constructs an ObjectAlreadyExistsException object.
-      It indicates that a server object already exists.
+      It indicates that a system object already exists.
       Exception message will look like this:  dataQueue (mydataqueue): Object already exists. 
       @param objectName The object that already exists.
                         It should be in the format: type (value).

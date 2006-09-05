@@ -19,18 +19,18 @@ import java.beans.PropertyVetoException;
 import java.net.UnknownHostException;
 
 /**
-The LogicalDataArea class represents a logical data area on the server.
+The LogicalDataArea class represents a logical data area on the system.
 <p>
 The following example demonstrates the use of LogicalDataArea:
 <pre>
-// Prepare to work with the server named "My400".
+// Prepare to work with the system named "My400".
 AS400 system = new AS400("My400");
 
 // Create a LogicalDataArea object.
 QSYSObjectPathName path = new QSYSObjectPathName("MYLIB", "MYDATA", "DTAARA");
 LogicalDataArea dataArea = new LogicalDataArea(system, path.getPath());
 
-// Create the logical data area on the server using default values.
+// Create the logical data area on the system using default values.
 dataArea.create();
 
 // Clear the data area.
@@ -42,7 +42,7 @@ dataArea.write(true);
 // Read from the data area.
 boolean data = dataArea.read();
 
-// Delete the data area from the server.
+// Delete the data area from the system.
 dataArea.delete();
 </pre>
 **/
@@ -87,7 +87,7 @@ public class LogicalDataArea extends DataArea implements Serializable
    Constructs a LogicalDataArea object.
    It creates a LogicalDataArea instance that represents the data area <i>path</i>
    on <i>system</i>.
-      @param system The server that contains the data area.
+      @param system The system that contains the data area.
       @param path The fully qualified integrated file system path name. The
              integrated file system file extension for a data area is DTAARA. An example of a
              fully qualified integrated file system path to a data area "MYDATA" in library
@@ -107,8 +107,8 @@ public class LogicalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void clear()
        throws AS400SecurityException,
@@ -128,7 +128,7 @@ public class LogicalDataArea extends DataArea implements Serializable
 
 
    /**
-   Creates a logical data area on the server.
+   Creates a logical data area on the system.
    This method uses the following default property values.
    <ul>
    <li>initialValue - A value of false.
@@ -139,9 +139,9 @@ public class LogicalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectAlreadyExistsException    If the server object already exists.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectAlreadyExistsException    If the system object already exists.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void create()
        throws AS400SecurityException,
@@ -171,9 +171,9 @@ public class LogicalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectAlreadyExistsException    If the server object already exists.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectAlreadyExistsException    If the system object already exists.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void create(boolean initialValue, String textDescription,
                       String authority)
@@ -210,7 +210,7 @@ public class LogicalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
+     @exception IOException                     If an error occurs while communicating with the system.
      @exception ObjectDoesNotExistException     If the object does not exist.
    **/
    public void delete()
@@ -239,10 +239,10 @@ public class LogicalDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the server object is not the required type.
+     @exception IllegalObjectTypeException      If the system object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public boolean read()
         throws AS400SecurityException,
@@ -289,8 +289,8 @@ public class LogicalDataArea extends DataArea implements Serializable
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
    **/
    public void write(boolean data)
        throws AS400SecurityException,
