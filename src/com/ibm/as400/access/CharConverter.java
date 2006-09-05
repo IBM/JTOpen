@@ -52,7 +52,7 @@ public class CharConverter implements Serializable
 
     /**
      Constructs a CharConverter object using the specified CCSID.
-     @param  ccsid  The CCSID of the server text.
+     @param  ccsid  The CCSID of the i5/OS text.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
      */
     public CharConverter(int ccsid) throws UnsupportedEncodingException
@@ -62,8 +62,8 @@ public class CharConverter implements Serializable
 
     /**
      Constructs a CharConverter object using the specified CCSID and system.
-     @param  ccsid  The CCSID of the server text.
-     @param  system  The system object representing the server with which to connect.
+     @param  ccsid  The CCSID of the i5/OS text.
+     @param  system  The system object representing the system with which to connect.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
      */
     public CharConverter(int ccsid, AS400 system) throws UnsupportedEncodingException
@@ -133,7 +133,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified bytes into a String.
-     @param  system  The system object representing the server with which to connect.
+     @param  system  The system object representing the system with which to connect.
      @param  source  The bytes to convert.
      @return  The resultant String.
      **/
@@ -153,8 +153,8 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified bytes into a String.
-     @param  ccsid   The CCSID of the server text.
-     @param  system  The system object representing the server with which to connect.
+     @param  ccsid   The CCSID of the i5/OS text.
+     @param  system  The system object representing the system with which to connect.
      @param  source  The bytes to convert.
      @return  The resultant String.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
@@ -166,7 +166,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified bytes into a String.  If the Toolbox does not possess a table for the given CCSID, nor does the JVM, an UnsupportedEncodingException is thrown.
-     @param  ccsid   The CCSID of the server text.
+     @param  ccsid   The CCSID of the i5/OS text.
      @param  source  The bytes to convert.
      @return  The resultant String.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
@@ -178,8 +178,8 @@ public class CharConverter implements Serializable
 
     /**
      Converts a QSYS pathname String obtained from the IFS classes into a String suitable for use with other Toolbox services such as CommandCall and DataQueues.
-     <p>This method is meant to handle QSYS pathnames and other string data that was retrieved using the IFS classes.  Object names in QSYS are stored in EBCDIC.  The file server always returns names to the Toolbox IFS classes in Unicode, so the server must convert the name from EBCDIC to Unicode before returning it to the client.  The server does this conversion using CCSID 37, not the file server job CCSID; however, the name may contain variant (but legal) codepoints.  Specifically, the three legal variant EBCDIC codepoints for QSYS object names are 0x5B, 0x7B, and 0x7C.  If the name retrieved using the Toolbox IFS classes is given to another Toolbox component such as CommandCall, the name will be converted to EBCDIC using the job CCSID for that particular component.  If variant characters exist in the name, the resulting name used by the host server job may not be the same as the original name.
-     <p>Here is a typical scenario in which this method will be needed.  The user profile name CASH$FLOW exists on the server.  In EBCDIC CCSID 37, it is comprised of the codepoints:
+     <p>This method is meant to handle QSYS pathnames and other string data that was retrieved using the IFS classes.  Object names in QSYS are stored in EBCDIC.  The file server always returns names to the Toolbox IFS classes in Unicode, so the system must convert the name from EBCDIC to Unicode before returning it to the client.  The system does this conversion using CCSID 37, not the file server job CCSID; however, the name may contain variant (but legal) codepoints.  Specifically, the three legal variant EBCDIC codepoints for QSYS object names are 0x5B, 0x7B, and 0x7C.  If the name retrieved using the Toolbox IFS classes is given to another Toolbox component such as CommandCall, the name will be converted to EBCDIC using the job CCSID for that particular component.  If variant characters exist in the name, the resulting name used by the host server job may not be the same as the original name.
+     <p>Here is a typical scenario in which this method will be needed.  The user profile name CASH$FLOW exists on the system.  In EBCDIC CCSID 37, it is comprised of the codepoints:
      <pre>
      0xC3 0xC1 0xE2 0xC8  <B>0x5B</B>  0xC6 0xD3 0xD6 0xE6
      </pre>
@@ -353,7 +353,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified String into bytes.
-     @param  system  The system object representing the server with which to connect.
+     @param  system  The system object representing the system with which to connect.
      @param  source  The String to convert.
      @return  The destination byte array.
      **/
@@ -373,8 +373,8 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified String into bytes.
-     @param  ccsid  The CCSID of the server text.
-     @param  system  The system object representing the server with which to connect.
+     @param  ccsid  The CCSID of the i5/OS text.
+     @param  system  The system object representing the system with which to connect.
      @param  source  The String to convert.
      @return  The destination byte array.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
@@ -386,7 +386,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified String into bytes.  If the Toolbox does not possess a table for the given CCSID, nor does the JVM, an UnsupportedEncodingException is thrown.
-     @param  ccsid  The CCSID of the server text.
+     @param  ccsid  The CCSID of the i5/OS text.
      @param  source  The String to convert.
      @return  The destination byte array.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.

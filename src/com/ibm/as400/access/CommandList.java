@@ -20,7 +20,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
- *  The CommandList class represents a list of CL command (*CMD) objects on the server. This class allows the user to retrieve
+ *  The CommandList class represents a list of CL command (*CMD) objects on the system. This class allows the user to retrieve
  *  a list of {@link com.ibm.as400.access.Command Command} objects which can then be
  *  used to retrieve information about each individual CL command in the list.
  *
@@ -85,7 +85,7 @@ public class CommandList implements Serializable
     /**
      *  Constructs a CommandList object.
      *
-     *  @param system The server on which the commands resides.
+     *  @param system The system on which the commands resides.
      *  @param library The library in which the commands resides, e.g. "QSYS".
      *  @param command The name of a command or list of commands, e.g. "CRTUSRPRF" or "CRT*".  Wildcards or the {@link #ALL CommandList.ALL} constant can be used.
      **/
@@ -149,9 +149,9 @@ public class CommandList implements Serializable
 
 
     /**
-     *  Returns the server from which to retrieve the command list.
+     *  Returns the system from which to retrieve the command list.
      *
-     *  @return  The server from which to retrieve the commands, or null if no system has been set.
+     *  @return  The system from which to retrieve the commands, or null if no system has been set.
      * @see #setSystem
      **/
     public AS400 getSystem()
@@ -326,9 +326,9 @@ public class CommandList implements Serializable
 
 
     /**
-     *  Sets the server from which to retrieve the command list.
+     *  Sets the system from which to retrieve the command list.
      *
-     *  @param  system  The server from which to retrieve the commands.
+     *  @param  system  The system from which to retrieve the commands.
      * @see #getSystem
      **/
     public void setSystem(AS400 system)

@@ -37,7 +37,7 @@ are replicated to cluster nodes defined in the Clustered Hash Table domain.
 Call {@link #open open()} to obtain the connection. After the open() is complete, entries defined by the
 {@link com.ibm.as400.access.ClusteredHashTableEntry ClusteredHashTableEntry} class can be put into the table or retrieved from the table, using the methods put() or get().
 A key is required to put() an entry in the Clustered Hash Table.
-Use {@link #generateKey generateKey()} to generate a universally unique key. The {@link #elements elements()} method will return a list of all that keys in the clustered hash table. It is recommended to {@link #close close()} the active connection when done to release server resources
+Use {@link #generateKey generateKey()} to generate a universally unique key. The {@link #elements elements()} method will return a list of all that keys in the clustered hash table. It is recommended to {@link #close close()} the active connection when done to release system resources
 that are no longer needed.
 
 <p>This class uses the {@link com.ibm.as400.access.ClusteredHashTableEntry ClusteredHashTableEntry}
@@ -209,9 +209,9 @@ implements java.io.Serializable
     @exception AS400Exception If the system returns an error message.
     @exception AS400SecurityException  If a security or authority error occurs.
     @exception ErrorCompletingRequestException  If an error occurs before the request is completed.
-    @exception IOException  If an error occurs while communicating with the server.
+    @exception IOException  If an error occurs while communicating with the system.
     @exception InterruptedException  If this thread is interrupted.
-    @exception ObjectDoesNotExistException  If the object does not exist on the server.
+    @exception ObjectDoesNotExistException  If the object does not exist on the system.
   **/
   synchronized public void close() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -346,7 +346,7 @@ implements java.io.Serializable
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server must be active on the server.
+    <li>The Clustered Hash table server must be active on the system.
     </ul>
     @param userProfile The owner of the entries to be returned.
                        If null is specified, *ALL will be used and the results will depend upon the <I>lastModifiedProfile</I>.
@@ -364,7 +364,7 @@ implements java.io.Serializable
     @exception AS400Exception If the system returns an error message.
     @exception AS400SecurityException  If a security or authority error occurs.
     @exception ErrorCompletingRequestException  If an error occurs before the request is completed.
-    @exception IOException  If an error occurs while communicating with the server.
+    @exception IOException  If an error occurs while communicating with the system.
     @exception InterruptedException  If this thread is interrupted.
   **/
   public ClusteredHashTableEntry[] elements(String userProfile, String lastModifiedProfile, int status) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException

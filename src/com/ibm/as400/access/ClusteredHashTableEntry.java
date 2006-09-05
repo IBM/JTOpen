@@ -24,7 +24,7 @@ Clustered Hash Table. This class is only intended to be used with the
 {@link com.ibm.as400.access.ClusteredHashTable  ClusteredHashTable} class.
 <p>
 
-Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2M0 or later.<p>
+Note: This class uses APIs that are available only when connecting to systems running OS/400 V5R2M0 or later.<p>
 **/
 public class ClusteredHashTableEntry implements java.io.Serializable
 {

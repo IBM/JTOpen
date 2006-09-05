@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 /**
-*  The ConnectionPool class represents a pool of connections to the server.
+*  The ConnectionPool class represents a pool of connections to the system.
 *
 *  <P>ConnectionPool objects generate the following events:
 *  <ul>

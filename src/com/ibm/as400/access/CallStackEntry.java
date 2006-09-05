@@ -296,7 +296,7 @@ public class CallStackEntry implements java.io.Serializable
 
   /**
    * Returns a String representation of this call stack entry.
-   * @return The String, which includes the server name, the job name, the job user, the job number,
+   * @return The String, which includes the system name, the job name, the job user, the job number,
    * the thread identifier, the request level, the procedure or program name and library, and the
    * MI instruction number.
   **/

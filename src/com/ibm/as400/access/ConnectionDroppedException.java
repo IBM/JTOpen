@@ -17,7 +17,7 @@ import java.io.IOException;
 
 
 /**
-  The ConnectionDroppedException class represents an exception that indicates that the connection to the server was dropped unexpectedly.
+  The ConnectionDroppedException class represents an exception that indicates that the connection to the system was dropped unexpectedly.
 **/
 public class ConnectionDroppedException extends IOException implements ReturnCodeException
 {

@@ -31,7 +31,7 @@ import com.ibm.as400.resource.RJob;
  <P>The following example demonstrates the use of CommandCall:
  <br>
  <pre>
- *    // Work with commands on server named "Hal."
+ *    // Work with commands on system named "Hal."
  *    AS400 system = new AS400("Hal");
  *    CommandCall command = new CommandCall(system);
  *    try
@@ -55,7 +55,7 @@ import com.ibm.as400.resource.RJob;
  *        System.out.println("Command " + command.getCommand() + " issued an exception!");
  *        e.printStackTrace();
  *    }
- *    // Done with the server.
+ *    // Done with the system.
  *    system.disconnectService(AS400.COMMAND);
  </pre>
  <p>NOTE:  When getting the message list from commands, users no longer have to create a <a href="MessageFile.html">MessageFile</a> to obtain the message help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the <a href="AS400Message.html">AS400Message</a> object returned from getMessageList().  Here is an example:
@@ -87,7 +87,7 @@ public class CommandCall implements Serializable
     private static final int BY_SET_METHOD = 2;
     private static final int BY_LOOK_UP = 3;
 
-    // The server where the command is located.
+    // The system where the command is located.
     private AS400 system_ = null;
     // The command to run.
     private String command_ = "";
@@ -100,7 +100,7 @@ public class CommandCall implements Serializable
     // The number of messages to retrieve.
     private int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
 
-    // Implemenation object shared with program call, interacts with server or native methods.
+    // Implemenation object shared with program call, interacts with system or native methods.
     private transient RemoteCommandImpl impl_ = null;
 
     // List of action completed event bean listeners.
@@ -111,7 +111,7 @@ public class CommandCall implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a CommandCall object.  The system and the command properties must be set before using any method requiring a connection to the server.
+     Constructs a CommandCall object.  The system and the command properties must be set before using any method requiring a connection to the system.
      **/
     public CommandCall()
     {
@@ -121,8 +121,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Constructs a CommandCall object.  It uses the specified server.  The command must be set later.
-     @param  system  The server on which to run the command.
+     Constructs a CommandCall object.  It uses the specified system.  The command must be set later.
+     @param  system  The system on which to run the command.
      **/
     public CommandCall(AS400 system)
     {
@@ -138,9 +138,9 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Constructs a CommandCall object.  It uses the specified server and command.
-     @param  system  The server on which to run the command.
-     @param  command  The command to run on the server.  If the command is not library qualified, the library list will be used to find the command.
+     Constructs a CommandCall object.  It uses the specified system and command.
+     @param  system  The system on which to run the command.
+     @param  command  The command to run on the system.  If the command is not library qualified, the library list will be used to find the command.
      **/
     public CommandCall(AS400 system, String command)
     {
@@ -286,7 +286,7 @@ public class CommandCall implements Serializable
      @return  The job in which the command will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @deprecated  Use getServerJob() instead.
      **/
@@ -346,7 +346,7 @@ public class CommandCall implements Serializable
      @return  The job in which the command will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @see #getJob
      **/
@@ -361,8 +361,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns the server on which the command is to be run.
-     @return  The server on which the command is to be run.  If the server has not been set, null is returned.
+     Returns the system on which the command is to be run.
+     @return  The system on which the command is to be run.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -373,12 +373,12 @@ public class CommandCall implements Serializable
     /**
      Returns the thread on which the command would be run, if it were to be called on-thread.  Returns null if either:
      <ul compact>
-     <li> The client is communicating with the server through sockets.
+     <li> The client is communicating with the system through sockets.
      <li> The command has not been marked as thread safe.
      </ul>
      @return  The thread on which the command would be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public Thread getSystemThread() throws AS400SecurityException, IOException
     {
@@ -420,7 +420,7 @@ public class CommandCall implements Serializable
      @return  true if the command will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @see #isThreadSafe
      **/
@@ -445,7 +445,7 @@ public class CommandCall implements Serializable
 
     /**
      Indicates whether or not the command will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.CommandCall.threadSafe</code> property.
-     <br>Note: If the CL command on the server is not actually threadsafe (as indicated by its "threadsafe indicator" attribute), then the results of attempting to run the command on-thread will depend on the command's "multithreaded job action" attribute, in combination with the setting of system value QMLTTHDACN ("Multithreaded job action").  Possible results are:
+     <br>Note: If the CL command on the system is not actually threadsafe (as indicated by its "threadsafe indicator" attribute), then the results of attempting to run the command on-thread will depend on the command's "multithreaded job action" attribute, in combination with the setting of system value QMLTTHDACN ("Multithreaded job action").  Possible results are:
      <ul>
      <li> Run the command. Do not send a message.
      <li> Send an informational message and run the command.
@@ -454,7 +454,7 @@ public class CommandCall implements Serializable
      @return  true if the command will be assumed thread-safe; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public boolean isThreadSafe() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -551,12 +551,12 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Runs the command on the server.  The command must be set prior to this call.
+     Runs the command on the system.  The command must be set prior to this call.
      <br>Note: Interactive (screen-oriented) results are not returned.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -594,13 +594,13 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Sets the command and runs it on the server.
+     Sets the command and runs it on the system.
      <br>Note: Interactive (screen-oriented) results are not returned.
      @param  command  The command to run.  If the command is not library qualified, the library list will be used to find the command.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
@@ -611,14 +611,14 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Runs the command on the server.  This method takes the command to run as a byte array instead of a String.  The most common use of CommandCall is to supply the command to run as a String and let the Toolbox convert the string to server format (EBCDIC) before sending it to the server for processing.  Use this method if the default conversion of the command to EBCDIC is not correct.  In certain cases, especially bi-directional languages, the Toolbox conversion may not be correct.  In this case the application can construct their own command and supply it to CommandCall as a byte array.
-     <p>Unlike the run method that takes a string, this method will not look up the thread safety of the command.  If this command is to be run on-thread when running on the server's JVM, setThreadSafe(true) must be called by the application.
+     Runs the command on the system.  This method takes the command to run as a byte array instead of a String.  The most common use of CommandCall is to supply the command to run as a String and let the Toolbox convert the string to i5/OS format (EBCDIC) before sending it to the system for processing.  Use this method if the default conversion of the command to EBCDIC is not correct.  In certain cases, especially bi-directional languages, the Toolbox conversion may not be correct.  In this case the application can construct their own command and supply it to CommandCall as a byte array.
+     <p>Unlike the run method that takes a string, this method will not look up the thread safety of the command.  If this command is to be run on-thread when running on the system's JVM, setThreadSafe(true) must be called by the application.
      <br>Note: Interactive (screen-oriented) results are not returned.
      @param  command  The command to run.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
@@ -660,7 +660,7 @@ public class CommandCall implements Serializable
 
     /**
      Sets the command to run.
-     @param  command  The command to run on the server.  If the command is not library qualified, the library list will be used to find the command.
+     @param  command  The command to run on the system.  If the command is not library qualified, the library list will be used to find the command.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setCommand(String command) throws PropertyVetoException
@@ -704,7 +704,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the command caller and only up to ten messages are retrieved.  This property will only take affect on servers that support the new option.  
+     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the command caller and only up to ten messages are retrieved.  This property will only take affect on systems that support the new option.  
      @param  messageOption  A constant indicating how many messages to retrieve.  Valid values are:
      <ul>
      <li>AS400Message.MESSAGE_OPTION_UP_TO_10
@@ -725,8 +725,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Sets the server to run the command.  The server cannot be changed once a connection is made to the server.
-     @param  system  The server on which to run the command.
+     Sets the system to run the command.  The system cannot be changed once a connection is made to the system.
+     @param  system  The system on which to run the command.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -765,8 +765,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the server.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
-     <br>Note:  This method does not modify the actual command object on the server.
+     Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the system.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
+     <br>Note:  This method does not modify the actual command object on the system.
      @param  threadSafe  true if the command should be assumed to be thread-safe; false otherwise.
      @see #isThreadSafe
      **/

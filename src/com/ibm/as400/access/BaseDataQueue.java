@@ -32,7 +32,7 @@ public abstract class BaseDataQueue implements Serializable
 
     static final long serialVersionUID = 4L;
 
-    // The server where the data queue is located.
+    // The system where the data queue is located.
     private AS400 system_ = null;
     // The full IFS path name of the data queue.
     private String path_ = "";
@@ -74,7 +74,7 @@ public abstract class BaseDataQueue implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a BaseDataQueue object.  The system and path properties must be set before using any method requiring a connection to the server.
+     Constructs a BaseDataQueue object.  The system and path properties must be set before using any method requiring a connection to the system.
      **/
     public BaseDataQueue()
     {
@@ -84,7 +84,7 @@ public abstract class BaseDataQueue implements Serializable
 
     /**
      Constructs a BaseDataQueue object. It uses the specified system and path.
-     @param  system  The system object representing the server on which the data queue exists.
+     @param  system  The system object representing the system on which the data queue exists.
      @param  path  The fully qualified integrated file system path name of the data queue.
      **/
     public BaseDataQueue(AS400 system, String path)
@@ -204,7 +204,7 @@ public abstract class BaseDataQueue implements Serializable
         }
     }
 
-    // Connects to the server and retrieves queue attributes, if needed.
+    // Connects to the system and retrieves queue attributes, if needed.
     synchronized void open() throws AS400SecurityException, IOException
     {
         // Connect to data queue server.
@@ -213,7 +213,7 @@ public abstract class BaseDataQueue implements Serializable
         if (opened && objectListeners_ != null) fireObjectEvent(ObjectEvent.OBJECT_OPENED);
     }
 
-    // Connects to the server and retrieves client/server attributes.
+    // Connects to the system and retrieves client/server attributes.
     synchronized void chooseImpl() throws AS400SecurityException, IOException
     {
         if (system_ != null) system_.signon(false);
@@ -244,10 +244,10 @@ public abstract class BaseDataQueue implements Serializable
      Removes all entries from the data queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void clear() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -262,10 +262,10 @@ public abstract class BaseDataQueue implements Serializable
      Deletes the data queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void delete() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -285,8 +285,8 @@ public abstract class BaseDataQueue implements Serializable
      @return  true if the data queue exists; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException
@@ -370,10 +370,10 @@ public abstract class BaseDataQueue implements Serializable
      @return  The text description of the data queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public String getDescription() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -392,10 +392,10 @@ public abstract class BaseDataQueue implements Serializable
      @return  true if entries are immediately written to permanent storage; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public boolean getForceToAuxiliaryStorage() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -414,10 +414,10 @@ public abstract class BaseDataQueue implements Serializable
      @return  The maximum entry length of the data queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public int getMaxEntryLength() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -456,10 +456,10 @@ public abstract class BaseDataQueue implements Serializable
      @return  true if sender information is saved; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public boolean getSaveSenderInformation() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -474,8 +474,8 @@ public abstract class BaseDataQueue implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the data queue exists.
-     @return  The system object representing the server on which the data queue exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the data queue exists.
+     @return  The system object representing the system on which the data queue exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -488,10 +488,10 @@ public abstract class BaseDataQueue implements Serializable
      @return  true if entries are read off the data queue in FIFO order; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public boolean isFIFO() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -509,10 +509,10 @@ public abstract class BaseDataQueue implements Serializable
      Refreshes the attributes of the data queue.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  IllegalObjectTypeException  If the object on the server is not the required type.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  IllegalObjectTypeException  If the object on the system is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void refreshAttributes() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
@@ -692,8 +692,8 @@ public abstract class BaseDataQueue implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the data queue exists.
-     @param  system  The system object representing the server on which the data queue exists.
+     Sets the system object representing the system on which the data queue exists.
+     @param  system  The system object representing the system on which the data queue exists.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException

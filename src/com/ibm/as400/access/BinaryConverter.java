@@ -27,10 +27,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified short into server format in the specified byte array.
-    @param  shortValue  The value to be converted to server format.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified short into i5/OS format in the specified byte array.
+    @param  shortValue  The value to be converted to i5/OS format.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void shortToByteArray(short shortValue, byte[] serverValue, int offset)
   {
@@ -39,9 +39,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified short into server format in the specified byte array.
-    @param  shortValue  The value to be converted to server format.
-    @return  The array with the data type in server format.
+    Convert the specified short into i5/OS format in the specified byte array.
+    @param  shortValue  The value to be converted to i5/OS format.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] shortToByteArray(short shortValue)
   {
@@ -51,9 +51,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to a short.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to a short.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  a short corresponding to the data type.
    **/
   public static short byteArrayToShort(byte[] serverValue, int offset)
@@ -63,10 +63,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into server format in the specified byte array.
-    @param  intValue  The value to be converted to server format.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified int into i5/OS format in the specified byte array.
+    @param  intValue  The value to be converted to i5/OS format.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void intToByteArray(int intValue, byte[] serverValue, int offset)
   {
@@ -77,9 +77,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into server format in the specified byte array.
-    @param  intValue  The value to be converted to server format.
-    @return  The array with the data type in server format.
+    Convert the specified int into i5/OS format in the specified byte array.
+    @param  intValue  The value to be converted to i5/OS format.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] intToByteArray(int intValue)
   {
@@ -89,9 +89,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to an int.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to an int.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  an int corresponding to the data type.
    **/
   public static int byteArrayToInt(byte[] serverValue, int offset)
@@ -103,10 +103,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into server format in the specified byte array.
-    @param  floatValue  The value to be converted to server format.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified float into i5/OS format in the specified byte array.
+    @param  floatValue  The value to be converted to i5/OS format.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void floatToByteArray(float floatValue, byte[] serverValue, int offset)
   {
@@ -118,9 +118,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into server format in the specified byte array.
-    @param  floatValue  The value to be converted to server format.
-    @return  The array with the data type in server format.
+    Convert the specified float into i5/OS format in the specified byte array.
+    @param  floatValue  The value to be converted to i5/OS format.
+    @return  The array with the data type in i5/OS format.
     @deprecated  Use floatToByteArray(float) instead.
    **/
   public static byte[] floatToByteArray(int floatValue)
@@ -131,9 +131,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into server format in the specified byte array.
-    @param  floatValue  The value to be converted to server format.
-    @return  The array with the data type in server format.
+    Convert the specified float into i5/OS format in the specified byte array.
+    @param  floatValue  The value to be converted to i5/OS format.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] floatToByteArray(float floatValue)
   {
@@ -143,9 +143,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to a float.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to a float.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  a float corresponding to the data type.
    **/
   public static float byteArrayToFloat(byte[] serverValue, int offset)
@@ -158,10 +158,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified double into server format in the specified byte array.
-    @param  doubleValue  The value to be converted to server format.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified double into i5/OS format in the specified byte array.
+    @param  doubleValue  The value to be converted to i5/OS format.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void doubleToByteArray(double doubleValue, byte[] serverValue, int offset)
   {
@@ -182,9 +182,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified double into server format in the specified byte array.
-    @param  doubleValue  The value to be converted to server format.
-    @return  The array with the data type in server format.
+    Convert the specified double into i5/OS format in the specified byte array.
+    @param  doubleValue  The value to be converted to i5/OS format.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] doubleToByteArray(double doubleValue)
   {
@@ -194,9 +194,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to a double.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to a double.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  a double corresponding to the data type.
    **/
   public static double byteArrayToDouble(byte[] serverValue, int offset)
@@ -215,10 +215,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into server format in the specified byte array.
-    @param  intValue  The value to be converted to server format.  The integer should be greater than or equal to zero and representable in two bytes.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified int into i5/OS format in the specified byte array.
+    @param  intValue  The value to be converted to i5/OS format.  The integer should be greater than or equal to zero and representable in two bytes.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void unsignedShortToByteArray(int intValue, byte[] serverValue, int offset)
   {
@@ -227,9 +227,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into server format in the specified byte array.
-    @param  intValue  The value to be converted to server format.  The integer should be greater than or equal to zero and representable in two bytes.
-    @return  The array with the data type in server format.
+    Convert the specified int into i5/OS format in the specified byte array.
+    @param  intValue  The value to be converted to i5/OS format.  The integer should be greater than or equal to zero and representable in two bytes.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] unsignedShortToByteArray(int intValue)
   {
@@ -239,9 +239,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to an int.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to an int.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  an int corresponding to the data type.
    **/
   public static int byteArrayToUnsignedShort(byte[] serverValue, int offset)
@@ -251,10 +251,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into server format in the specified byte array.
-    @param  longValue  The value to be converted to server format.  The long should be greater than or equal to zero and representable in four bytes.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified long into i5/OS format in the specified byte array.
+    @param  longValue  The value to be converted to i5/OS format.  The long should be greater than or equal to zero and representable in four bytes.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void unsignedIntToByteArray(long longValue, byte[] serverValue, int offset)
   {
@@ -267,9 +267,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into server format in the specified byte array.
-    @param  longValue  The value to be converted to server format.  The long should be greater than or equal to zero and representable in four bytes.
-    @return  The array with the data type in server format.
+    Convert the specified long into i5/OS format in the specified byte array.
+    @param  longValue  The value to be converted to i5/OS format.  The long should be greater than or equal to zero and representable in four bytes.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] unsignedIntToByteArray(long longValue)
   {
@@ -279,9 +279,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to a long.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to a long.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  a long corresponding to the data type.
    **/
   public static long byteArrayToUnsignedInt(byte[] serverValue, int offset)
@@ -293,10 +293,10 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into server format in the specified byte array.
-    @param  longValue  The value to be converted to server format.
-    @param  serverValue  The array to receive the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified long into i5/OS format in the specified byte array.
+    @param  longValue  The value to be converted to i5/OS format.
+    @param  serverValue  The array to receive the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
    **/
   public static void longToByteArray(long longValue, byte[] serverValue, int offset)
   {
@@ -316,9 +316,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into server format in the specified byte array.
-    @param  longValue  The value to be converted to server format.
-    @return  The array with the data type in server format.
+    Convert the specified long into i5/OS format in the specified byte array.
+    @param  longValue  The value to be converted to i5/OS format.
+    @return  The array with the data type in i5/OS format.
    **/
   public static byte[] longToByteArray(long longValue)
   {
@@ -328,9 +328,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified server data type to a long.
-    @param  serverValue  The array containing the data type in server format.
-    @param  offset  The offset into the byte array for the start of the server value.
+    Convert the specified i5/OS data type to a long.
+    @param  serverValue  The array containing the data type in i5/OS format.
+    @param  offset  The offset into the byte array for the start of the i5/OS value.
     @return  a long corresponding to the data type.
    **/
   public static long byteArrayToLong(byte[] serverValue, int offset)

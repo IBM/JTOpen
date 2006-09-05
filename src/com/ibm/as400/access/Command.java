@@ -24,7 +24,7 @@ import javax.xml.parsers.*;
 import org.xml.sax.SAXException;
 
 /**
- * The Command class represents information about a CL command (*CMD) object on the server.
+ * The Command class represents information about a CL command (*CMD) object on the system.
  * <P>
  * To actually execute a CL command, see the
  * {@link com.ibm.as400.access.CommandCall CommandCall} class.
@@ -244,7 +244,7 @@ public class Command implements Serializable
 
   /**
    * Constructs a Command object.
-   * @param system The server on which the command resides.
+   * @param system The system on which the command resides.
    * @param path The fully qualified integrated file system path of the command,
    * e.g. "/QSYS.LIB/CRTUSRPRF.CMD".
    * @see com.ibm.as400.access.QSYSObjectPathName
@@ -746,7 +746,7 @@ public class Command implements Serializable
    * information than {@link #getXML getXML()}.
    * <P>
    * Note: This method uses the CMDD0200 format on the QCDRCMDD API.
-   * If the server does not support this format, an AS400Exception will be
+   * If the system does not support this format, an AS400Exception will be
    * thrown with a message ID of CPF3C21, and you should use the getXML() method instead.
    * @return The XML describing this command.
    * @see #getXML
@@ -1180,7 +1180,7 @@ public class Command implements Serializable
 
   /**
    * Refreshes the information for this Command object.
-   * This method is used to perform the call to the server
+   * This method is used to perform the call to the system
    * that retrieves the command information, XML, and help ID information for this CL command.
    * That information is cached internally until this method is called again. Note that
    * this method does not currently refresh the extended XML information provided by
@@ -1477,9 +1477,9 @@ public class Command implements Serializable
   }
 
   /**
-   *  Sets the server from which to retrieve the command list.
+   *  Sets the system from which to retrieve the command list.
    *
-   *  @param  system  The server from which to retrieve the commands.
+   *  @param  system  The system from which to retrieve the commands.
    * @see #getSystem
    **/
   public void setSystem(AS400 system)
