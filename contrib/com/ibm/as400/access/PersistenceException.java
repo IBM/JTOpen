@@ -4,7 +4,7 @@ package com.ibm.as400.access;
  * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
  **
  * <p>
- * Thrown when an error occurs accessing resources on the server.
+ * Thrown when an error occurs accessing resources on the system.
  *
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
  */
@@ -18,7 +18,7 @@ public PersistenceException() {
 	super();
 }
 /**
- * Constructs an exception based on a list of server messages.
+ * Constructs an exception based on a list of system messages.
  *
  * @param messageList
  *		com.ibm.as400.access.AS400Message[]
@@ -27,7 +27,7 @@ public PersistenceException(AS400Message[] messageList) {
 	this(messageList, "");
 }
 /**
- * Constructs an exception based on a list of server messages
+ * Constructs an exception based on a list of system messages
  * and detail string.
  *
  * @param messageList
@@ -58,7 +58,7 @@ public PersistenceException(Throwable t) {
 	this(t.toString());
 }
 /**
- * Returns the list of associated server messages; null if not available.
+ * Returns the list of associated system messages; null if not available.
  *
  * @return
  *		com.ibm.as400.access.AS400Message[]
@@ -67,7 +67,7 @@ public AS400Message[] getMessageList() {
 	return messageList_;
 }
 /**
- * Sets the list of associated server messages.
+ * Sets the list of associated system messages.
  *
  * @param messageList
  *		com.ibm.as400.access.AS400Message[]
