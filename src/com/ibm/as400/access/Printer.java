@@ -17,7 +17,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 /**
- * The  Printer class represents a server printer.
+ * The  Printer class represents a printer.
  * An instance of this class can be used to manipulate an individual
  * printer.
  *
@@ -70,7 +70,7 @@ implements java.io.Serializable
      * Constructs a Printer object. It uses the specified system name and
      * the printer name that identifies it on that system.
      *
-     * @param system The server on which this printer device exists.
+     * @param system The system on which this printer device exists.
      * @param printerName The name of the printer.  It cannot be greater
      *                    than 10 characters or less than 1 character
      *                    in length.

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.beans.PropertyVetoException;
 
 /**
- * The PrinterFile class represents a server printer file.
+ * The PrinterFile class represents a printer file.
  * An instance of this class can be used to manipulate an individual
  * printer file.
  *
@@ -68,7 +68,7 @@ implements java.io.Serializable
      * Constructs a PrinterFile object. It uses the specified system name and
      * printer file that identify it on the system.
      *
-     * @param system The server on which this printer file exists.
+     * @param system The system on which this printer file exists.
      * @param printerFileName The integrated file system name of the printer file. The format of
      * the printer file string must be in the format of \QSYS.LIB\libname.LIB\printerfilename.FILE.
      **/
@@ -179,10 +179,10 @@ implements java.io.Serializable
      * @param attributes A print parameter list that contains the
      *  attributes to be changed.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      **/
     public void setAttributes(PrintParameterList attributes)

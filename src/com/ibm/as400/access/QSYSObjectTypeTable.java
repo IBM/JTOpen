@@ -21,7 +21,7 @@ import java.util.Vector;
 
 /**
 The QSYSObjectTypeTable class maintains a list of object types
-and extended attributes for objects on the server.
+and extended attributes for objects on the system.
 
 <p>For example, to list all possible extended attributes for
 the "FILE" object type.

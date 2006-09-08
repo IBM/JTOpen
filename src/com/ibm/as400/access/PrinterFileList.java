@@ -52,7 +52,7 @@ implements java.io.Serializable
     /**
      * Constructs a PrinterFileList object. It uses the system name specified.
      *
-     * @param system The server on which the printer files exists.
+     * @param system The system on which the printer files exists.
      *
      **/
     public PrinterFileList(AS400 system)

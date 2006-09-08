@@ -29,11 +29,11 @@ import java.util.Vector;                                        // @A2A
 *   license is no longer needed since the ProductLicense object will release
 *   the license when it is garbage collected.  Licenses are managed on a
 *   per-connection basis.  Each ProductLicense object has a separate connection to
-*   the server.  If the connection ends unexpectedly the server
+*   the system.  If the connection ends unexpectedly the system
 *   releases the license.  To maintain an accurate count, the application should
 *   call release() instead of relying on the license being released when the object
 *   is garbage collected or when the connection ends.  Cleanup during garbage
-*   collection and/or server cleanup is not as reliable as calling release().
+*   collection and/or system cleanup is not as reliable as calling release().
 *
 *  <P>
 *   The ProductLicense class does not enforce the license policy. It is up to the
@@ -208,7 +208,7 @@ public class ProductLicense implements java.io.Serializable
     /**
     *   Constructs a ProductLicense object for a system, product, feature,
     *   and release.
-    *   @param  system  the server from which the license will be requested.
+    *   @param  system  the system from which the license will be requested.
     *   @param  productID the product identifier.  For example, "5769JC1".
     *   @param  featureID the product feature.  For example, "5050".
     *   @param  release the product release.  For example, "V4R5M0".
@@ -446,8 +446,8 @@ public class ProductLicense implements java.io.Serializable
     }  */
 
     /**
-    *   Returns the server object for this license.
-    *   @return The server.
+    *   Returns the system object for this license.
+    *   @return The system.
     **/
     public AS400 getSystem()
     {
@@ -456,7 +456,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Returns the usage count for this license.  The count returned is the number
-    *   of licenses that are in use on the server for that product ID, feature, and
+    *   of licenses that are in use on the system for that product ID, feature, and
     *   release when this license was requested. A license must have been requested
     *   prior to calling this method.
     *   @return The usage count when this license was retrieved.
@@ -525,7 +525,7 @@ public class ProductLicense implements java.io.Serializable
     *   Release this license.  This method must be called to release the license.  Failure
     *   to do so may result in incorrect license usage count. Calling this method will
     *   disconnect from the i5/OS Optimized License Management server.
-    *   @exception  IOException  If an error occurs while communicating with the server.
+    *   @exception  IOException  If an error occurs while communicating with the system.
     *   @exception  InterruptedException  If this thread is interrupted.
     *   @exception  LicenseException  If a license error occurs.
     **/
@@ -614,7 +614,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Request a license.
-    *   @exception  IOException  If an error occurs while communicating with the server.
+    *   @exception  IOException  If an error occurs while communicating with the system.
     *   @exception  AS400SecurityException Unable to connect due to some problem with the user ID or password used to authenticate.
     *   @exception  InterruptedException  If this thread is interrupted.
     *   @exception  LicenseException  If a license error occurs.
@@ -928,8 +928,8 @@ public class ProductLicense implements java.io.Serializable
     }
 
     /**
-    *   Sets the server object for this license.
-    *   @param  system the server from which the license will be requested.
+    *   Sets the system object for this license.
+    *   @param  system the system from which the license will be requested.
     **/
     public void setSystem(AS400 system)                    // @A2C
     {

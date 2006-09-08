@@ -36,7 +36,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
      implementation.
      <p>Subsequent requests may result in a NullPointerException.
      <p>This class will also attempt to remove the associated profile token 
-     from the server.
+     from the system.
      @exception  DestroyFailedException  If errors occur while destroying or 
      clearing credential data.
      **/
@@ -375,7 +375,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     native void nativeRefreshToken(byte[] token, int type,
             int timeoutInterval) throws RefreshFailedException;
 
-    // Removes the token from the server.
+    // Removes the token from the system.
     // Note: The token is actually invalidated instead of being removed to
     // improve performance of the operation.
     // @param  token  The token bytes.

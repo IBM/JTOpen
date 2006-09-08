@@ -21,7 +21,7 @@ import java.util.Locale;
 
 /**
  * Represents a Program Temporary Fix (PTF) for a licensed program
- * product. Call {@link #refresh refresh()} to reload all of the values from the server.
+ * product. Call {@link #refresh refresh()} to reload all of the values from the system.
  * Individual getters will only refresh their own necessary information.
  * @see com.ibm.as400.access.Product#getPTFs
 **/

@@ -18,7 +18,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectInputStream class is used to read data out of a
-server spooled file or AFP resource such as an overlay or page
+system spooled file or AFP resource such as an overlay or page
 segment.
 <p>
 An instance of this class can be created either by using
@@ -39,12 +39,12 @@ public class PrintObjectInputStream extends InputStream
     /**
      * Constructs a  PrintObjectInputStream object. It uses the
      * specified SpooledFile object from which to read and the PrintParameterList.
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception RequestNotSupportedException If the requested function is not supported because the server.
+     * @exception RequestNotSupportedException If the requested function is not supported because the system
      *                                      operating system is not at the correct level.
      **/
     PrintObjectInputStream(SpooledFile sf,
@@ -73,12 +73,12 @@ public class PrintObjectInputStream extends InputStream
      * specified SpooledFile object from which to read, the PrintParameterList.
      * and the int value of PrintObject.ATTR_ACIF which indicates of the ACIF
      * merged data is to be used.
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception RequestNotSupportedException If the requested function is not supported because the server.
+     * @exception RequestNotSupportedException If the requested function is not supported because the system
      *                                      operating system is not at the correct level.
      **/
     PrintObjectInputStream(SpooledFile sf,
@@ -106,12 +106,12 @@ public class PrintObjectInputStream extends InputStream
      * Contructs a PrintObjectInputStream object.
      * It uses the specified  AFP Resource object from which to read and
      * the PrintParameterList.
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception RequestNotSupportedException If the requested function is not supported because the server
+     * @exception RequestNotSupportedException If the requested function is not supported because the system
      *                                      operating system is not at the correct level.
     **/
     PrintObjectInputStream(AFPResource resource,
@@ -168,7 +168,7 @@ public class PrintObjectInputStream extends InputStream
     /**
       * Closes the input stream.
       * It must be called to release any resources associated with the stream.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void close()
        throws IOException
@@ -209,7 +209,7 @@ public class PrintObjectInputStream extends InputStream
 
     /** Reads the next byte of data from this input stream.
       * @return The byte read, or -1 if the end of the stream is reached.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public int read()
         throws IOException
@@ -235,7 +235,7 @@ public class PrintObjectInputStream extends InputStream
       * @return The total number of bytes read into the buffer,
       *          or -1 if there is no more data because the
       *          end of file has been reached.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public int read(byte[] data)
         throws IOException
@@ -255,7 +255,7 @@ public class PrintObjectInputStream extends InputStream
       * @return The total number of bytes read into the buffer,
       *          or -1 if there is no more data because the
       *          end of file has been reached.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public int read(byte data[], int dataOffset, int length)
         throws IOException
@@ -268,7 +268,7 @@ public class PrintObjectInputStream extends InputStream
     /** Repositions the stream to the last marked position.
       * If the stream has not been marked or if the mark has been invalidated,
       * an IOException is thrown.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void reset()
        throws IOException
@@ -283,7 +283,7 @@ public class PrintObjectInputStream extends InputStream
       * file is reached. The actual number of bytes skipped is returned.
       * @param bytesToSkip The number of bytes to be skipped.
       * @return The actual number of bytes skipped.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public long skip(long bytesToSkip) throws IOException
     {

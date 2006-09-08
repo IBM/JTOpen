@@ -29,7 +29,7 @@ values: alter, exist, management, operational, reference.  Use the
 appropriate set methods (<i>setAlter()</i>, <i>setExistence()</i>, 
 <i>setManamagement()</i>, <i>setOperational()</i>, or <i>setReference()</i>) 
 to set the value on or off.  After all values are set, use the <i>commit()</i> 
-method from the Permission class to send the changes to the server.
+method from the Permission class to send the changes to the system.
 
 
 <P>The data authority can be set to one or more of the following values: 
@@ -37,7 +37,7 @@ add, delete, execute, read, or update. Use the appropriate
 set methods (<i>setAdd()</i>, <i>setDelete()</i>, <i>setExecute()</i>, 
 <i>setRead()</i>, or <i>setUpdate()</i>) to set the value on or off. After all 
 the values are set, use the <i>commit()</i> method from the Permission class 
-to send the changes to the server. 
+to send the changes to the system. 
 
 <P>The single authority actually represents a combination of the detailed object
 authorities and the data authorities.  Selecting a single authority will 
@@ -192,10 +192,10 @@ public class QSYSPermission extends UserPermission
 
     // @A2a
     /**
-     * Determines if the user has the given authorities to the object on the server.
+     * Determines if the user has the given authorities to the object on the system.
      * Returns true if the user has <em>at least all</em> of the specified authorities,
      * and false otherwise.
-     * @param system The server.
+     * @param system The system.
      * @param userProfileName The name of the user profile.
      * @param objectPath The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
      * @param authorityList The list of authorities.  At least one authority must be specified.
@@ -218,11 +218,11 @@ public class QSYSPermission extends UserPermission
      * *EXECUTE
      * </pre>
      * @return true if the user has all the specified authorities to the object.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      */
     public static boolean hasObjectAuthorities(AS400 system, String userProfileName, String objectPath, String[] authorityList)
       throws AS400Exception,

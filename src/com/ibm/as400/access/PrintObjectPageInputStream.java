@@ -22,7 +22,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectPageInputStream class is used to read data out of a
-server spooled file one page at a time.  The page of data may be
+system spooled file one page at a time.  The page of data may be
 transformed, depending on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
@@ -54,13 +54,13 @@ Constructs a PrintObjectPageInputStream object.
 @param  spooledFile The SpooledFile.
 @param  openOptions The PrintParameterList options to be used when opening the SpooledFile.
 
-@exception AS400Exception If the server returns an error message.
+@exception AS400Exception If the system returns an error message.
 @exception AS400SecurityException If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 @exception InterruptedException If this thread is interrupted.
 @exception RequestNotSupportedException If the requested function is not supported because the
-           server operating system is not at the correct level.
+           system operating system is not at the correct level.
 **/
     PrintObjectPageInputStream(SpooledFile spooledFile,
                                PrintParameterList openOptions)
@@ -114,7 +114,7 @@ Returns the number of bytes remaining in the current page.
 /**
 Closes the input stream and releases any resources associated with it.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public void close() throws IOException
     {
@@ -197,7 +197,7 @@ Repositions the stream to the next page.
 
 @return True if the stream is positioned to the next page; false otherwise.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public boolean nextPage() throws IOException
     {
@@ -212,7 +212,7 @@ Repositions the stream to the previous page.
 @return True if the stream is positioned to the previous page;
 false otherwise.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public boolean previousPage() throws IOException
     {
@@ -226,7 +226,7 @@ Reads the next byte of data from this input stream.
 
 @return The byte read, or -1 if the end of the page stream is reached.
 
-@exception  IOException If an error occurs while communicating with the server.
+@exception  IOException If an error occurs while communicating with the system.
 **/
     public int read() throws IOException
     {
@@ -251,7 +251,7 @@ stream into <i>data</i>.
 @return The total number of bytes read into the buffer or -1 if there is no more
 data because the end of the page stream has been reached.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public int read(byte[] data) throws IOException
     {
@@ -271,7 +271,7 @@ starting at the array offset <i>dataOffset</i>.
 @return The total number of bytes read into the buffer, or -1 if there is
 no more data because the end of the page stream has been reached.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
@@ -285,7 +285,7 @@ Repositions the stream to the last marked position.
 If the stream has not been marked or if the mark has been invalidated,
 an IOException is thrown.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public void reset() throws IOException
     {
@@ -301,7 +301,7 @@ Repositions the stream to page <i>page</i>.
 
 @return True if the stream is positioned to the specified page; false otherwise.
 
-@exception IOException If an error occurs while communicating with the server,
+@exception IOException If an error occurs while communicating with the system,
 or an error occurs selecting the specified page.
 @exception IllegalArgumentException If <i>page</i> is negative.
 **/
@@ -322,7 +322,7 @@ No action is taken if the number of bytes to skip is not positive.
 
 @return The actual number of bytes skipped.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public long skip(long bytesToSkip) throws IOException
     {

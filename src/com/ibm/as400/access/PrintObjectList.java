@@ -113,7 +113,7 @@ implements java.io.Serializable
       *    the NPDataStream class such as NPDataStream.SPOOLED_FILE.
       * @param selectionCP A selection codepoint that will be used whenever the
       *    the list is built.
-      * @param system The server on which the object(s) exists.
+      * @param system The system on which the object(s) exists.
       **/
     PrintObjectList(int objectType,
                     NPCPSelection selectionCP,
@@ -381,7 +381,7 @@ implements java.io.Serializable
      * Returns the system name. This method is primarily provided for visual
      * application builders that support JavaBeans.
      *
-     * @return The server on which the objects in the list exist.
+     * @return The system on which the objects in the list exist.
      **/
     final public AS400 getSystem()
     {
@@ -415,14 +415,14 @@ implements java.io.Serializable
      * If any exception occurred while the list was being retrieved, it will
      * be thrown here.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception RequestNotSupportedException If the requested function is not supported because
-     *                                         the server operating system is not at the correct level.
+     *                                         the system operating system is not at the correct level.
      * @return true if the list is completely built; false otherwise.
      **/
     public boolean isCompleted()
@@ -499,14 +499,14 @@ implements java.io.Serializable
     * The caller may then call the getObjects() method
     * to get an enumeration of the list.
     *
-    * @exception AS400Exception If the server returns an error message.
+    * @exception AS400Exception If the system returns an error message.
     * @exception AS400SecurityException If a security or authority error occurs.
     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     * @exception InterruptedException If this thread is interrupted.
-    * @exception IOException If an error occurs while communicating with the server.
+    * @exception IOException If an error occurs while communicating with the system.
     * @exception RequestNotSupportedException If the requested function is not supported because the
-    *              server operating system is not at the correct level.
+    *              system operating system is not at the correct level.
     **/
     public void openSynchronously()
      throws  AS400Exception,
@@ -738,7 +738,7 @@ implements java.io.Serializable
      * for the specific network print object list. For example,
      * SpooledFileList myList = new SpooledFileList(mySystem).
      *
-     * @param system The server system name.
+     * @param system The system name.
      *
      * @exception PropertyVetoException If the change is vetoed.
      *
@@ -807,14 +807,14 @@ implements java.io.Serializable
      * @param itemNumber The number of items to wait for before returning.
      *        Must be greater than 0;
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception RequestNotSupportedException If the requested funtion is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public /*synchronized*/ void waitForItem(int itemNumber)
       throws  AS400Exception,
@@ -849,14 +849,14 @@ implements java.io.Serializable
     /**
      * Blocks until the list is done being built.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                    server operating system is not at the correct level.
+     *                                    system operating system is not at the correct level.
      **/
     public /*synchronized*/ void waitForListToComplete()
       throws  AS400Exception,

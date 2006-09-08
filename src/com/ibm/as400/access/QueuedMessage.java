@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.Serializable;
 
 /**
- The QueuedMessage class represents a message on a server message queue or job log.
+ The QueuedMessage class represents a message on a message queue or job log.
  @see  com.ibm.as400.access.MessageQueue
  @see  com.ibm.as400.access.JobLog
  **/

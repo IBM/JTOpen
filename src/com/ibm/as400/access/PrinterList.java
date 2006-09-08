@@ -52,7 +52,7 @@ implements java.io.Serializable
     /**
      * Constructs a PrinterList object. It uses the system name specified.
      *
-     * @param system The server on which the printer devices exist.
+     * @param system The system on which the printer devices exist.
      *
      **/
     public PrinterList(AS400 system)

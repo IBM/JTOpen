@@ -30,7 +30,7 @@ import com.ibm.as400.resource.RJob;
  <P>The following example demonstrates the use of Program Call:
  <br>
  <pre>
- *    // Call programs on server named "Hal."
+ *    // Call programs on system named "Hal."
  *    AS400 system = new AS400("Hal");
  *    ProgramCall program = new ProgramCall(system);
  *    try
@@ -76,7 +76,7 @@ import com.ibm.as400.resource.RJob;
  *        System.out.println("Program " + program.getProgram() + " issued an exception!");
  *        e.printStackTrace();
  *    }
- *    // Done with the server.
+ *    // Done with the system.
  *    system.disconnectAllServices();
  </pre>
  <p>NOTE:  When getting the AS400Message list from programs, users no longer have to create a MessageFile to obtain the program help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the AS400Message object returned from getMessageList().  Here is an example:
@@ -110,7 +110,7 @@ public class ProgramCall implements Serializable
     private static final int BY_PROPERTY = 1;
     private static final int BY_SET_METHOD = 2;
 
-    // The server where the program is located.
+    // The system where the program is located.
     AS400 system_ = null;
     // The full IFS path name of the program.
     String program_ = "";
@@ -140,7 +140,7 @@ public class ProgramCall implements Serializable
     transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a ProgramCall object.  The system, program, and parameters must be set before using any method requiring a connection to the server.
+     Constructs a ProgramCall object.  The system, program, and parameters must be set before using any method requiring a connection to the system.
      **/
     public ProgramCall()
     {
@@ -149,8 +149,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Constructs a ProgramCall object.  It uses the specified server.  The program and parameters must be provided later.
-     @param  system  The server on which to run the program.
+     Constructs a ProgramCall object.  It uses the specified system. The program and parameters must be provided later.
+     @param  system  The system on which to run the program.
      **/
     public ProgramCall(AS400 system)
     {
@@ -166,8 +166,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Constructs a program call object.  It uses the specified server, program name, and parameter list.
-     @param  system  The server on which to run the program.
+     Constructs a program call object.  It uses the specified system, program name, and parameter list.
+     @param  system  The system on which to run the program.
      @param  program  The program name as a fully qualified path name in the library file system.  The library and program name must each be 10 characters or less.
      @param  parameterList  A list of up to 35 parameters with which to run the program.
      **/
@@ -328,7 +328,7 @@ public class ProgramCall implements Serializable
      @return  The job in which the program will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @deprecated  Use getServerJob() instead.
      **/
@@ -397,7 +397,7 @@ public class ProgramCall implements Serializable
      @return  The job in which the program will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      @see #getJob
      **/
@@ -412,8 +412,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Returns the server on which the program is to be run.
-     @return  The server on which the program is to be run.  If the server has not been set, null is returned.
+     Returns the system on which the program is to be run.
+     @return  The system on which the program is to be run.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -424,12 +424,12 @@ public class ProgramCall implements Serializable
     /**
      Returns the thread on which the program would be run, if it were to be called on-thread.  Returns null if either:
      <ul compact>
-     <li> The client is communicating with the server through sockets.
+     <li> The client is communicating with the system through sockets.
      <li> The program has not been marked as thread safe.
      </ul>
      @return  The thread on which the program would be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public Thread getSystemThread() throws AS400SecurityException, IOException
     {
@@ -471,7 +471,7 @@ public class ProgramCall implements Serializable
      @return  true if the program will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public boolean isStayOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -582,13 +582,13 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Runs the program on the server.  The program and parameter list need to be set prior to this call.
+     Runs the program on the system.  The program and parameter list need to be set prior to this call.
      @return  true if program ran successfully; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -647,15 +647,15 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Sets the program name and the parameter list and runs the program on the server.
+     Sets the program name and the parameter list and runs the program on the system.
      @param  program  The fully qualified integrated file system path name to the program.  The library and program name must each be 10 characters or less.
      @param  parameterList  The list of parameters with which to run the program.
      @return  true if program ran successfully, false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @exception  PropertyVetoException  If a change is vetoed.
      **/
     public boolean run(String program, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, PropertyVetoException
@@ -760,7 +760,7 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the program caller and only up to ten messages are retrieved.  This property will only take affect on servers that support the new option.  
+     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the program caller and only up to ten messages are retrieved.  This property will only take affect on systems that support the new option.  
      @param  messageOption  A constant indicating how many messages to retrieve.  Valid values are:
      <ul>
      <li>AS400Message.MESSAGE_OPTION_UP_TO_10
@@ -781,8 +781,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Sets the server to run the program.  The server cannot be changed once a connection is made to the server.
-     @param  system  The server on which to run the program.
+     Sets the system to run the program.  The system cannot be changed once a connection is made to the system.
+     @param  system  The system on which to run the program.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -822,7 +822,7 @@ public class ProgramCall implements Serializable
 
     /**
      Specifies whether or not the program should be assumed thread-safe.  The default is false.
-     <br>Note: This method does not modify the actual program object on the server.
+     <br>Note: This method does not modify the actual program object on the system.
      @param  threadSafe  true if the program should be assumed to be thread-safe; false otherwise.
      **/
     public void setThreadSafe(boolean threadSafe)

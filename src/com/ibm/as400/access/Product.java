@@ -20,7 +20,7 @@ import java.util.Date;
 
 
 /**
- * Represents a licensed product on the server. The {@link #isInstalled isInstalled()}
+ * Represents a licensed product on the system. The {@link #isInstalled isInstalled()}
  * method should be called to verify the
  * product is installed on the system. If it is not, other information returned by getters in this
  * class may not be valid.
@@ -182,7 +182,7 @@ public class Product
 
   /**
    * Constant indicating that this product is an IBM-supplied product and
-   * it is not compatible with the currently installed release level of the server operating system.
+   * it is not compatible with the currently installed release level of the System i operating system.
    * An error occurred when the product was restored or when the operating system was installed.
    * The IBM-supplied product is at a release level earlier than V2R2M0, which
    * is not supported by the Save Licensed Program (SAVLICPGM) command.

@@ -21,7 +21,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectTransformedInputStream class is used to read transformed data
-from a server spooled file.  The type of transform to be performed on the data
+from a system spooled file.  The type of transform to be performed on the data
 is dependent on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
@@ -50,12 +50,12 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
 @param  spooledFile The SpooledFile.
 @param  transformOptions The PrintParameterList options to be used when opening the SpooledFile.
 
-@exception AS400Exception If the server returns an error message.
+@exception AS400Exception If the system returns an error message.
 @exception AS400SecurityException If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 @exception InterruptedException If this thread is interrupted.
-@exception RequestNotSupportedException If the requested function is not supported because the server
+@exception RequestNotSupportedException If the requested function is not supported because the system
            operating system is not at the correct level.
 **/
     PrintObjectTransformedInputStream(SpooledFile spooledFile,
@@ -110,7 +110,7 @@ Returns the number of bytes available (with blocking).
 /**
 Closes the input stream and releases any resources associated with it.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public void close() throws IOException
     {
@@ -136,7 +136,7 @@ Reads the next byte of data from this input stream.
 
 @return The byte read, or -1 if the end of the stream is reached.
 
-@exception  IOException If an error occurs while communicating with the server.
+@exception  IOException If an error occurs while communicating with the system.
 **/
     public int read() throws IOException
     {
@@ -161,7 +161,7 @@ stream into <i>data</i>.
 @return The total number of bytes read into the buffer or -1 if there is no more
 data because the end of file has been reached.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public int read(byte[] data) throws IOException
     {
@@ -181,7 +181,7 @@ starting at the array offset <i>dataOffset</i>.
 @return The total number of bytes read into the buffer, or -1 if there is
 no more data because the end of file has been reached.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
@@ -200,7 +200,7 @@ No action is taken if the number of bytes to skip is not positive.
 
 @return The actual number of bytes skipped.
 
-@exception IOException If an error occurs while communicating with the server.
+@exception IOException If an error occurs while communicating with the system.
 **/
     public long skip(long bytesToSkip) throws IOException
     {

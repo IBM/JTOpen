@@ -820,13 +820,13 @@ abstract public class PrintObject implements java.io.Serializable
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public Integer getIntegerAttribute(int attributeID)
       throws AS400Exception,
@@ -869,13 +869,13 @@ abstract public class PrintObject implements java.io.Serializable
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public Integer getSingleIntegerAttribute(int attributeID)
       throws AS400Exception,
@@ -917,13 +917,13 @@ abstract public class PrintObject implements java.io.Serializable
      * </UL>
      *
      * @return The value of the attribute.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public Float getFloatAttribute(int attributeID)
        throws AS400Exception,
@@ -965,13 +965,13 @@ abstract public class PrintObject implements java.io.Serializable
      * </UL>
      *
      * @return The value of the attribute.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public Float getSingleFloatAttribute(int attributeID)
        throws AS400Exception,
@@ -1014,13 +1014,13 @@ abstract public class PrintObject implements java.io.Serializable
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public String getStringAttribute(int attributeID)
        throws AS400Exception,
@@ -1063,13 +1063,13 @@ abstract public class PrintObject implements java.io.Serializable
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public String getSingleStringAttribute(int attributeID)
        throws AS400Exception,
@@ -1097,8 +1097,8 @@ abstract public class PrintObject implements java.io.Serializable
 
 
     /**
-     * Returns the server on which this object exists.
-     * @return The server on which this object exists.
+     * Returns the system on which this object exists.
+     * @return The system on which this object exists.
      **/
     final public AS400 getSystem()
     {
@@ -1184,12 +1184,12 @@ abstract public class PrintObject implements java.io.Serializable
 
 
     /**
-     * Sets the server on which this object exists. This
+     * Sets the system on which this object exists. This
      * method is primarily provided for visual application builders
      * that support JavaBeans. Application programmers should
-     * specify the server in the constructor for the
+     * specify the system in the constructor for the
      * specific print object.
-     * @param system The server on which this object exists.
+     * @param system The system on which this object exists.
      *
      * @exception PropertyVetoException If the change is vetoed.
      *
@@ -1234,16 +1234,16 @@ abstract public class PrintObject implements java.io.Serializable
 
 
     /**
-     * Updates the attributes of this object by going to the server and
+     * Updates the attributes of this object by going to the system and
      * retrieving the latest attributes for the object.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         the server is not at the correct level.
+     *                                         the system is not at the correct level.
      **/
     public void update()
       throws AS400Exception,
