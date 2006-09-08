@@ -3345,8 +3345,8 @@ implements Connection
                     JDTrace.logInformation (this, "Client functional level = " + CLIENT_FUNCTIONAL_LEVEL_); // @EDC
 
                 // Sort sequence.
-                //@PDD if (! properties_.equals (JDProperties.SORT, JDProperties.SORT_JOB))
-                //@PDD {
+                if (! properties_.equals (JDProperties.SORT, JDProperties.SORT_HEX))  //@pdc only send if not default (hex)
+                {
                     JDSortSequence sortSequence = new JDSortSequence (
                                                                      properties_.getString (JDProperties.SORT),
                                                                      properties_.getString (JDProperties.SORT_LANGUAGE),
@@ -3357,7 +3357,7 @@ implements Connection
                                                 sortSequence.getTableLibrary (),
                                                 sortSequence.getLanguageId (),
                                                 tempConverter);
-                //@PDD }
+                }
 
                 request.setTranslateIndicator (0xF0);                       // @E2C
                 request.setDRDAPackageSize (1);
