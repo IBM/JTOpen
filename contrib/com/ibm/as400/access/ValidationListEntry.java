@@ -4,7 +4,7 @@ package com.ibm.as400.access;
  * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
  **
  * <p>
- * The ValidationListEntry class represents an entry in a server validation list.
+ * The ValidationListEntry class represents an entry in a system validation list.
  *
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
  */
@@ -22,7 +22,7 @@ public ValidationListEntry() {
 	super();
 }
 /**
- * Constructs a ValidationListEntry from a structure stored as server bytes.
+ * Constructs a ValidationListEntry from a structure stored as i5/OS bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure
  * in the given <i>buffer</i>.
@@ -51,7 +51,7 @@ public ValidationListAttributeInfo getAttributeInfo() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to server bytes for use by the validation list APIs.
+ * written to i5/OS bytes for use by the validation list APIs.
  * <p>
  * Note: The length 1724 is dictated by the API definition (i.e. QSYFDVLE).
  *
@@ -71,7 +71,7 @@ public int getByteLength() {
  * <p>
  * If the attribute was set to 1, the data to be encrypted can be used to verify an entry
  * and can potentially be returned on a find operation. The system value QRETSVRSEC
- * (Retain server security data) has the final say in determining if the data can be
+ * (Retain system security data) has the final say in determining if the data can be
  * retrieved from the entry. If the system value is set to 0 (Do not retain data), the
  * entry will be added, but the data to be encrypted will not be stored with the entry
  * and cannot be retrieved. If the system value is set to 1 (Retain data),
@@ -120,7 +120,7 @@ public ValidationListTranslatedData getUnencryptedData() {
 	return unencryptedData_;
 }
 /**
- * Initialize a ValidationListEntry from a structure stored as server bytes.
+ * Initialize a ValidationListEntry from a structure stored as i5/OS bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure
  * in the given <i>buffer</i>.
@@ -165,7 +165,7 @@ public void setAttributeInfo(ValidationListAttributeInfo info) {
  * <p>
  * If the attribute was set to 1, the data to be encrypted can be used to verify an entry
  * and can potentially be returned on a find operation. The system value QRETSVRSEC
- * (Retain server security data) has the final say in determining if the data can be
+ * (Retain system security data) has the final say in determining if the data can be
  * retrieved from the entry. If the system value is set to 0 (Do not retain data), the
  * entry will be added, but the data to be encrypted will not be stored with the entry
  * and cannot be retrieved. If the system value is set to 1 (Retain data),

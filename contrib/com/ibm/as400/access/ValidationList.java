@@ -6,7 +6,7 @@ import java.beans.PropertyVetoException;
  * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
  **
  * <p>
- * The ValidationList class represents a server validation list object.
+ * The ValidationList class represents a system validation list object.
  * <p>
  * Note: The ability to find and modify the list is dependent on
  * the access rights of the signed-on user profile to the
@@ -34,7 +34,7 @@ public ValidationList() {
 	super();
 }
 /**
- * Constructs a validation list for the given server.
+ * Constructs a validation list for the given system.
  * <p>
  * Note: The <i>Path</i> property must be set prior to taking action against
  * the object.
@@ -48,7 +48,7 @@ public ValidationList(AS400 as400) {
 	setAS400(as400);
 }
 /**
- * Constructs a validation list for the given server and path.
+ * Constructs a validation list for the given system and path.
  *
  * @param as400
  *		com.ibm.as400.access.AS400
@@ -62,7 +62,7 @@ public ValidationList(AS400 as400, QSYSObjectPathName path) {
 	setPath(path);
 }
 /**
- * Constructs a validation list for the given server
+ * Constructs a validation list for the given system
  * and object/library names.
  *
  * @param as400
@@ -128,7 +128,7 @@ public void changeEntry(ValidationListEntry entry) throws PersistenceException {
 	runProgram(pgm);
 }
 /**
- * Close the current list of entries maintained on the server.
+ * Close the current list of entries maintained on the system.
  * <p>
  * The list is opened by the initial call to the list API. In doing so, the entire
  * contents of the list is retrieved as a snapshot and stored in a buffer on the

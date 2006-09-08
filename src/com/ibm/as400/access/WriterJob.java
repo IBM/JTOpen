@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The WriterJob class represents a server writer job.
+ * The WriterJob class represents a writer job.
  * An instance of this class can be used to manipulate an individual
  * writer.  Use the start method to obtain a instance of this class.
  *
@@ -66,7 +66,7 @@ public class WriterJob extends PrintObject
 
 
     /**
-     * Ends a writer on the server.
+     * Ends a writer on the system.
      *
      * @param endType When to end the writer.
      *  May be any of the following values:
@@ -78,13 +78,13 @@ public class WriterJob extends PrintObject
      *  <i>endType</i> may be null.  If <i>endType</i> is not specified, the default is
      * *IMMED.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void end(String endType)
       throws AS400Exception,
@@ -120,7 +120,7 @@ public class WriterJob extends PrintObject
 
 
     /**
-     * Starts a writer on the server.
+     * Starts a writer on the system.
      * Use this method to start a new writer job on the given system
      * with the specified parameters.
      * @param system The system on which to start the writer job.
@@ -199,10 +199,10 @@ public class WriterJob extends PrintObject
      *
      * @return A writer job object that was created.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      **/
     public static WriterJob start(AS400 system,

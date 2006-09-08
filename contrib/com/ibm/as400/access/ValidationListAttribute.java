@@ -29,7 +29,7 @@ public ValidationListAttribute() {
  * Constructs a validation list attribute.
  * <p>
  * The <i>as400</i> is used to translate the assigned identifier when converted
- * to server bytes.
+ * to i5/OS bytes.
  *
  * @param as400
  *		com.ibm.as400.access.AS400
@@ -39,9 +39,9 @@ public ValidationListAttribute(AS400 as400) {
 	setAS400(as400);
 }
 /**
- * Returns the server assigned to the attribute.
+ * Returns the system assigned to the attribute.
  * <p>
- * Used to translate the assigned identifier when converted to server bytes.
+ * Used to translate the assigned identifier when converted to i5/OS bytes.
  *
  * @return com.ibm.as400.access.AS400
  */
@@ -49,7 +49,7 @@ public AS400 getAS400() {
 	return as400_;
 }
 /**
- * Returns the attribute's parameter structure when written to server bytes.
+ * Returns the attribute's parameter structure when written to i5/OS bytes.
  * <p>
  * This structure includes only the fixed fields for the parameter.
  *
@@ -69,7 +69,7 @@ private AS400Structure getAttribEntryStruct() {
 }
 /**
  * Returns the total length of the corresponding structure when this object is
- * written to server bytes for use by the validation list APIs.
+ * written to i5/OS bytes for use by the validation list APIs.
  * <p>
  * The size varies based on usage of the receiver. If there is no associated data,
  * it is assumed that the structure being written is to identify an attribute
@@ -124,7 +124,7 @@ public ValidationListAttributeData getData() {
  *   <p>
  *   If the attribute is set to 1, the data to be encrypted can be used to verify an entry
  *   and can potentially be returned on a find operation. The system value QRETSVRSEC
- *   (Retain server security data) has the final say in determining if the data can be
+ *   (Retain system security data) has the final say in determining if the data can be
  *   retrieved from the entry. If the system value is set to 0 (Do not retain data), the
  *   entry will be added, but the data to be encrypted will not be stored with the entry
  *   and cannot be retrieved. If the system value is set to 1 (Retain data),
@@ -171,9 +171,9 @@ public int getType() {
 	return type_;
 }
 /**
- * Sets the server assigned to the attribute.
+ * Sets the system assigned to the attribute.
  * <p>
- * Used to translate the assigned identifier when converted to server bytes.
+ * Used to translate the assigned identifier when converted to i5/OS bytes.
  *
  * @param as400 com.ibm.as400.access.AS400
  */
@@ -205,7 +205,7 @@ public void setData(ValidationListAttributeData data) {
  *   <p>
  *   If the attribute was set to 1, the data to be encrypted can be used to verify an entry
  *   and can potentially be returned on a find operation. The system value QRETSVRSEC
- *   (Retain server security data) has the final say in determining if the data can be
+ *   (Retain system security data) has the final say in determining if the data can be
  *   retrieved from the entry. If the system value is set to 0 (Do not retain data), the
  *   entry will be added, but the data to be encrypted will not be stored with the entry
  *   and cannot be retrieved. If the system value is set to 1 (Retain data),
@@ -253,7 +253,7 @@ public void setType(int type) {
 }
 /**
  * Returns the byte array resulting from converting this object to a structure
- * usable by the server APIs.
+ * usable by the system APIs.
  *
  * @return byte[]
  */
@@ -264,9 +264,9 @@ public byte[] toBytes() {
 	return buffer;
 }
 /**
- * Converts this object to a structure usable by the server APIs.
+ * Converts this object to a structure usable by the system APIs.
  * <p>
- * The server bytes are inserted into the <i>buffer</i> starting at the given
+ * The i5/OS bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  *
  * @param buffer byte[]
@@ -315,9 +315,9 @@ public int toBytes(byte[] buffer, int offset) {
 }
 /**
  * Converts the attribute and any associated data to a structure usable by the
- * server APIs.
+ * system APIs.
  * <p>
- * The server bytes are inserted into the <i>buffer</i> starting at the given
+ * The i5/OS bytes are inserted into the <i>buffer</i> starting at the given
  * <i>offset</i>. The total number of bytes inserted is returned.
  * <p>
  * This method writes the bytes in a format expected when the attribute data is

@@ -18,7 +18,7 @@ public ValidationListDataToEncrypt() {
 	super();
 }
 /**
- * Constructs a ValidationListTranslatedData from a structure stored as server bytes.
+ * Constructs a ValidationListTranslatedData from a structure stored as i5/OS bytes.
  * <p>
  * The <i>offset</i> indicates the starting position of the structure in the
  * given <i>buffer</i>.
@@ -30,7 +30,7 @@ public ValidationListDataToEncrypt(byte[] buffer, int offset) {
 	super(buffer, offset);
 }
 /**
- * Constructs a ValidationListTranslatedData from the specified server <i>bytes</i>
+ * Constructs a ValidationListTranslatedData from the specified i5/OS <i>bytes</i>
  * which are encoded in the given <i>ccsid</i>.
  *
  * @param ccsid int
@@ -42,7 +42,7 @@ public ValidationListDataToEncrypt(int ccsid, byte[] bytes) {
 /**
  * Constructs a ValidationListTranslatedData from the given string.
  * <p>
- * The translated bytes are derived by converting the string to server bytes
+ * The translated bytes are derived by converting the string to i5/OS bytes
  * using the given <i>ccsid</i>. The <i>as400</i> is required to perform the
  * conversion from text to bytes. A ccsid of 0 indicates to use the ccsid
  * of the current user.
@@ -55,7 +55,7 @@ public ValidationListDataToEncrypt(String s, int ccsid, AS400 as400) {
 	super(s, ccsid, as400);
 }
 /**
- * Returns the length to be specified in the written server byte structure
+ * Returns the length to be specified in the written i5/OS byte structure
  * if the assigned data is null.
  * <p>
  * Typically this value is 0. However, there are some cases where
