@@ -33,11 +33,11 @@ import com.ibm.as400.access.ProgramParameter;
 import com.ibm.as400.access.Trace;
 
 /**
- Abstract base class that wraps a list of resources on the server.  OpenList classes are Java wrappers for system API's that are known as "Open List API's" or "QGY API's".
- <p>The way an open list works is that a request is initially sent to the server with selection, filter, and sort information that is to be applied to the list of resources.  The server compiles a list of resources that satisfy the requested set of selection parameters.  The OpenList class can then retrieve the list all at once, or in pieces, depending upon the memory and performance requirements of the application.
- <p>The server can be told explicitly to compile the list of resources by calling {@link #open open()}.  If {@link #open open()} is not called explicitly by the application, an implicit call to {@link #open open()} is made by any of the following methods: {@link #getLength getLength()}, {@link #getItems getItems()}, and {@link #getItems(int,int) getItems(int,int)}.
- <p>Once the list is open, the application can retrieve resources from the list using either {@link #getItems getItems()} or {@link #getItems(int,int) getItems(offset, length)}.  One returns an Enumeration, the other returns an array and allows for arbitrarily indexing into the list on the server.  The type of resource returned is determined by the type of subclass that extends OpenList.  For example, the SpooledFileOpenList class returns SpooledFileListItem objects when getItems() is called.
- <p>When an OpenList object is no longer needed by the application, {@link #close close()} should be called to free up resources on the server.  If {@link #close close()} is not explicitly called, an attempt will be made to automatically close the list when the OpenList object is {@link #finalize garbage collected}.
+ Abstract base class that wraps a list of resources on the system.  OpenList classes are Java wrappers for system API's that are known as "Open List API's" or "QGY API's".
+ <p>The way an open list works is that a request is initially sent to the system with selection, filter, and sort information that is to be applied to the list of resources.  The system compiles a list of resources that satisfy the requested set of selection parameters.  The OpenList class can then retrieve the list all at once, or in pieces, depending upon the memory and performance requirements of the application.
+ <p>The system can be told explicitly to compile the list of resources by calling {@link #open open()}.  If {@link #open open()} is not called explicitly by the application, an implicit call to {@link #open open()} is made by any of the following methods: {@link #getLength getLength()}, {@link #getItems getItems()}, and {@link #getItems(int,int) getItems(int,int)}.
+ <p>Once the list is open, the application can retrieve resources from the list using either {@link #getItems getItems()} or {@link #getItems(int,int) getItems(offset, length)}.  One returns an Enumeration, the other returns an array and allows for arbitrarily indexing into the list on the system.  The type of resource returned is determined by the type of subclass that extends OpenList.  For example, the SpooledFileOpenList class returns SpooledFileListItem objects when getItems() is called.
+ <p>When an OpenList object is no longer needed by the application, {@link #close close()} should be called to free up resources on the system.  If {@link #close close()} is not explicitly called, an attempt will be made to automatically close the list when the OpenList object is {@link #finalize garbage collected}.
  **/
 public abstract class OpenList implements Serializable
 {
@@ -86,7 +86,7 @@ public abstract class OpenList implements Serializable
      **/
     protected AS400 system_;
 
-    // Number of objects in the list on the server, updated when open() is called.
+    // Number of objects in the list on the system, updated when open() is called.
     private int length_;
     // Used by OpenListEnumeration when it calls getItems(int, int).
     private int enumerationBlockSize_ = 1000;
@@ -105,7 +105,7 @@ public abstract class OpenList implements Serializable
 
     /**
      Called by subclasses to construct an OpenList object.
-     @param  system  The system object representing the server on which the list exists.  This cannot be null.
+     @param  system  The system object representing the system on which the list exists.  This cannot be null.
      **/
     protected OpenList(AS400 system)
     {
@@ -125,19 +125,19 @@ public abstract class OpenList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     protected abstract byte[] callOpenListAPI() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
     /**
-     Closes the list on the server.  This releases any system resources previously in use by this OpenList.
+     Closes the list on the system.  This releases any system resources previously in use by this OpenList.
      <p>Any Enumerations created by this OpenList by calling {@link #getItems getItems} will close, so that a call to nextElement() will throw a NoSuchElementException when they reach the end of their {@link #getEnumerationBlockSize enumeration cache block}.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public synchronized void close() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -206,21 +206,21 @@ public abstract class OpenList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     protected abstract Object[] formatOutputData(byte[] data, int recordsReturned, int recordLength) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
     /**
      Returns the initial size in bytes of the receiver variable for a particular implementation of an Open List API.  Subclasses should implement this method to return an appropriate value.  This method is called by getItems(int,int).
-     @param  number  The number of records in the list on the server.  This is useful if the subclass needs to return a receiver size based on how many records are in the list.
+     @param  number  The number of records in the list on the system.  This is useful if the subclass needs to return a receiver size based on how many records are in the list.
      @return  The number of bytes to allocate for the receiver variable when the QGYGTLE (Get List Entries) API is called.  This number does not have to be calculated exactly, as QGYGTLE will be called repeatedly until the correct size is known.  This number is just for the initial call to QGYGTLE.  Too low of a value may result in extra API calls, too high of a value may result in wasted bytes being sent and received.
      **/
     protected abstract int getBestGuessReceiverSize(int number);
 
     // I don't want to expose this yet, as asynchronous list processing may be added in the future, and the creation date getter may need to throw exceptions.
     /*
-     Returns the date and time the list was created on the server.
+     Returns the date and time the list was created on the system.
      @return  The creation date, or null if this list is not open.
      */
     // public Date getCreationDate()
@@ -238,7 +238,7 @@ public abstract class OpenList implements Serializable
     //  }
 
     /**
-     Returns the number of items that Enumerations returned by this OpenList's {@link #getItems getItems()} method will attempt to retrieve from the server and cache.  A larger number will result in fewer calls to the server but will take more memory.
+     Returns the number of items that Enumerations returned by this OpenList's {@link #getItems getItems()} method will attempt to retrieve from the system and cache.  A larger number will result in fewer calls to the system but will take more memory.
      @return  The block size.  The default is 1000 items.
      **/
     public int getEnumerationBlockSize()
@@ -263,14 +263,14 @@ public abstract class OpenList implements Serializable
     // }
 
     /**
-     Returns the number of items in the list the server has built.  This method implicitly calls {@link #open open()} to instruct the server to build the list if it hasn't been built already.
+     Returns the number of items in the list the system has built.  This method implicitly calls {@link #open open()} to instruct the system to build the list if it hasn't been built already.
      @return  The number of items, or 0 if no list was retrieved.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
-     @exception  OpenListException  If the server is unable to correctly generate the list of items.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  OpenListException  If the system is unable to correctly generate the list of items.
      @see  #open
      **/
     public synchronized int getLength() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, OpenListException
@@ -282,16 +282,16 @@ public abstract class OpenList implements Serializable
     }
 
     /**
-     Returns the list of items.  The Enumeration will retrieve the items from the list built on the server in blocks for performance.  The chunk size can be adjusted by using the {@link #setEnumerationBlockSize setEnumerationBlockSize()} method.  This method implicity calls {@link #open open()} to instruct the server to build the list if it hasn't been built already.
+     Returns the list of items.  The Enumeration will retrieve the items from the list built on the system in blocks for performance.  The chunk size can be adjusted by using the {@link #setEnumerationBlockSize setEnumerationBlockSize()} method.  This method implicity calls {@link #open open()} to instruct the system to build the list if it hasn't been built already.
      <p>Note that if this OpenList is closed, the Enumeration returned by this method will also be closed, such that a subsequent call to hasMoreElements() returns false and a subsequent call to nextElement() throws a NoSuchElementException.
      <p>Calling this method in a loop without either (a) closing this OpenList or (b) calling nextElement() on the Enumerations until they are at an end, will result in a memory leak.
      @return  An Enumeration of objects.  The types of objects in the Enumeration are dependent on which particular OpenList subclass is being used.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
-     @exception  OpenListException  If the server is unable to correctly generate the list of items.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  OpenListException  If the system is unable to correctly generate the list of items.
      @see  #close
      @see  #open
      **/
@@ -312,16 +312,16 @@ public abstract class OpenList implements Serializable
     }
 
     /**
-     Returns an array of items, which can be a subset of the entire list built on the server.  This method allows the user to retrieve the item list from the server in pieces.  If a call to {@link #open open()} is made (either implicitly or explicitly), then the items at a given offset will change, so a subsequent call to getItems() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same items as the previous call.
+     Returns an array of items, which can be a subset of the entire list built on the system.  This method allows the user to retrieve the item list from the system in pieces.  If a call to {@link #open open()} is made (either implicitly or explicitly), then the items at a given offset will change, so a subsequent call to getItems() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same items as the previous call.
      @param  listOffset  The offset into the list of items.  This value must be greater than or equal to 0 and less than the list length, or specify -1 to retrieve all of the items.
      @param  number  The number of items to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
-     @return  The array of retrieved items.  The types of items in the array are dependent on which particular OpenList subclass is being used.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the server, and the specified <i>listOffset</i>.
+     @return  The array of retrieved items.  The types of items in the array are dependent on which particular OpenList subclass is being used.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
-     @exception  OpenListException  If the server is unable to correctly generate the list of items.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  OpenListException  If the system is unable to correctly generate the list of items.
      @see  com.ibm.as400.access.Job
      @see  #close
      @see  #open
@@ -428,7 +428,7 @@ public abstract class OpenList implements Serializable
 
     /**
      Returns whether or not this list is open.
-     @return  true if this list has been either implicitly or explictly {@link #open opened}; false if this list has been {@link #close closed}, or was never opened in the first place, or has had its properties changed such that it no longer accurately represents the list that was built on the server.
+     @return  true if this list has been either implicitly or explictly {@link #open opened}; false if this list has been {@link #close closed}, or was never opened in the first place, or has had its properties changed such that it no longer accurately represents the list that was built on the system.
      **/
     public boolean isOpen()
     {
@@ -436,15 +436,15 @@ public abstract class OpenList implements Serializable
     }
 
     /**
-     Loads the list of items on the system.  This method instructs the server to build the list of items.  This method blocks until the system returns the total number of items it has compiled.  A subsequent call to {@link #getItems getItems()} will retrieve the actual object information and attributes for each item in the list from the system.
+     Loads the list of items on the system.  This method instructs the system to build the list of items.  This method blocks until the system returns the total number of items it has compiled.  A subsequent call to {@link #getItems getItems()} will retrieve the actual object information and attributes for each item in the list from the system.
      <p>This method updates the list length returned by {@link #getLength getLength()}.
      <p>If this list is already open, {@link #close close()} is called implicitly.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
-     @exception  OpenListException  If the server is unable to correctly generate the list of items.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  OpenListException  If the system is unable to correctly generate the list of items.
      @see  #getLength
      @see  #close
      **/
@@ -485,7 +485,7 @@ public abstract class OpenList implements Serializable
     }
 
     /**
-     Resets the handle to indicate we should close the list the next time we do something, usually as a result of one of the selection criteria being changed, since that should build a new list on the server.  Subclasses should call this method when their list filtering, selection, and sort criteria are changed in order to discard the stale list data on the server and build a new list when open() is called.
+     Resets the handle to indicate we should close the list the next time we do something, usually as a result of one of the selection criteria being changed, since that should build a new list on the system.  Subclasses should call this method when their list filtering, selection, and sort criteria are changed in order to discard the stale list data on the system and build a new list when open() is called.
      <p>It is better that a subclass not allow any of its selection criteria to be changed while the list is open, but that is not always desirable, which is why this method exists.
      **/
     protected synchronized void resetHandle()
@@ -496,7 +496,7 @@ public abstract class OpenList implements Serializable
     }
 
     /**
-     Sets the number of items that Enumerations returned by this OpenList's {@link #getItems getItems()} method will attempt to retrieve from the server and cache.  A larger number will result in fewer calls to the server but will take more memory.
+     Sets the number of items that Enumerations returned by this OpenList's {@link #getItems getItems()} method will attempt to retrieve from the system and cache.  A larger number will result in fewer calls to the system but will take more memory.
      @param  enumerationBlockSize  The block size.  The default is 1000 items.  If a number less than 1 is specified, the default block size of 1000 is used.
      **/
     public void setEnumerationBlockSize(int enumerationBlockSize)

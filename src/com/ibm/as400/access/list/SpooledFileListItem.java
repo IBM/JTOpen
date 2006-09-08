@@ -293,7 +293,7 @@ public class SpooledFileListItem
 
     /**
      Returns the date and time the spooled file was created.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (server operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (System i operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
      @see  #getDateOpened
      @see  #getTimeOpened
      @return  The date and time formatted into a java.util.Date object.
@@ -324,7 +324,7 @@ public class SpooledFileListItem
 
     /**
      Returns the date the spooled file was created.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (server operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (System i operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
      @see  #getCreationDate
      @return  The date in the format CYYMMDD.
      **/
@@ -393,7 +393,7 @@ public class SpooledFileListItem
     }
 
     /**
-     Returns the Internet Print Protocol (IPP) job identifier assigned by the system based on the output queue to which the file was added or moved.  This value ranges from 1 to 2,147,483,647 and is not guaranteed to be unique for a given output queue.  This value will be 0 when retrieved from servers running server operating system releases V5R2M0 and earlier.
+     Returns the Internet Print Protocol (IPP) job identifier assigned by the system based on the output queue to which the file was added or moved.  This value ranges from 1 to 2,147,483,647 and is not guaranteed to be unique for a given output queue.  This value will be 0 when retrieved from systems running System i operating system releases V5R2M0 and earlier.
      <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300},
      @return  The IPP job identifier.
      **/
@@ -428,7 +428,7 @@ public class SpooledFileListItem
 
     /**
      Returns the name of the system where the job that created the spooled file ran.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (server operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200} (server operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (System i operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200} (System i operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
      @return  The system name.
      **/
     public String getJobSystemName()
@@ -615,7 +615,7 @@ public class SpooledFileListItem
 
     /**
      Returns the time the spooled file was created.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (server operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (System i operating system releases V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
      @see  #getCreationDate
      @return  The time in the format HHMMSS.
      **/

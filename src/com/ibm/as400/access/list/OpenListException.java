@@ -14,7 +14,7 @@
 package com.ibm.as400.access.list;
 
 /**
- Represents an exception that indicates an error has occurred processing an Open List API call on the server.
+ Represents an exception that indicates an error has occurred processing an Open List API call on the system.
  **/
 public class OpenListException extends Exception
 {

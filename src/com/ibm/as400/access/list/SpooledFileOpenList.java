@@ -115,13 +115,13 @@ public class SpooledFileOpenList extends OpenList
     public static final int STATUS = 5;
 
     /**
-     Sorting constant used to sort the list of spooled files by date.  Only servers running server operating system releases V5R2M0 and higher can sort with this value using FORMAT_0100.
+     Sorting constant used to sort the list of spooled files by date.  Only systems running operating system releases V5R2M0 and higher can sort with this value using FORMAT_0100.
      @see  #addSortField
      **/
     public static final int DATE_OPENED = 6;
 
     /**
-     Sorting constant used to sort the list of spooled files by time.  Only servers running server operating system releases V5R2M0 and higher can sort with this value using FORMAT_0100.
+     Sorting constant used to sort the list of spooled files by time.  Only systems running operating system releases V5R2M0 and higher can sort with this value using FORMAT_0100.
      @see  #addSortField
      **/
     public static final int TIME_OPENED = 7;
@@ -133,7 +133,7 @@ public class SpooledFileOpenList extends OpenList
     public static final int SCHEDULE = 8;
 
     /**
-     Sorting constant used to sort the list of spooled files by system.  Only servers running server operating system releases V5R2M0 and higher can sort with this value using FORMAT_0100 or FORMAT_0200.
+     Sorting constant used to sort the list of spooled files by system.  Only systems running operating system releases V5R2M0 and higher can sort with this value using FORMAT_0100 or FORMAT_0200.
      @see  #addSortField
      **/
     public static final int JOB_SYSTEM = 9;
@@ -254,7 +254,7 @@ public class SpooledFileOpenList extends OpenList
 
     /**
      Constructs a SpooledFileOpenList object with the given system.  By default, this list will generate a list of SpooledFileListItem objects for all spooled files on the system using the default format of {@link #FORMAT_0300 FORMAT_0300}.
-     @param  system  The system object representing the server on which the spooled files exist.
+     @param  system  The system object representing the system on which the spooled files exist.
      **/
     public SpooledFileOpenList(AS400 system)
     {
@@ -264,7 +264,7 @@ public class SpooledFileOpenList extends OpenList
 
     /**
      Constructs a SpooledFileOpenList object with the given system and format.  By default, this list will generate a list of SpooledFileListItem objects for all spooled files on the system.
-     @param  system  The system object representing the server on which the spooled files exist.
+     @param  system  The system object representing the system on which the spooled files exist.
      @param  format  The format of the underlying API.
      @see  #setFormat
      **/
@@ -277,7 +277,7 @@ public class SpooledFileOpenList extends OpenList
 
     /**
      Adds a field on which to sort the list when it is built.  Use one of the sort constants on this class.  By default, no sorting is done.
-     @param  field  The field used to sort the list.  Fields which are not applicable to the format used or the server operating system release are silently ignored.
+     @param  field  The field used to sort the list.  Fields which are not applicable to the format used or the operating system release are silently ignored.
      @param  ascending  true to sort in ascending order on this field (e.g. A-Z or 0-9); false for descending.
      **/
     public void addSortField(int field, boolean ascending)
@@ -298,7 +298,7 @@ public class SpooledFileOpenList extends OpenList
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Opening spooled file list.");
 
-        // Retrieve server operating system VRM.
+        // Retrieve operating system VRM.
         int vrm = system_.getVRM();
         // Convert based on server job CCSID.
         CharConverter conv = new CharConverter(system_.getCcsid(), system_);
@@ -864,7 +864,7 @@ public class SpooledFileOpenList extends OpenList
      **/
     protected Object[] formatOutputData(byte[] data, int recordsReturned, int recordLength) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        // Retrieve server operating system VRM.
+        // Retrieve operating system VRM.
         int vrm = system_.getVRM();
         // Convert based on server job CCSID.
         CharConverter conv = new CharConverter(system_.getCcsid(), system_);
@@ -1046,7 +1046,7 @@ public class SpooledFileOpenList extends OpenList
 
     /**
      Returns the job system name used to determine which spooled files belong in the list.
-     @return  The job system name, "*CURRENT" for the current system, or null to indicate the default of "*ALL" meaning the list is not being filtered by job system name.  Note that the job system name filter is only used when connecting to servers running server operating system releases V5R2M0 and higher.
+     @return  The job system name, "*CURRENT" for the current system, or null to indicate the default of "*ALL" meaning the list is not being filtered by job system name.  Note that the job system name filter is only used when connecting to systems running operating system releases V5R2M0 and higher.
      @see  #setFilterJobSystemName
      **/
     public String getFilterJobSystemName()
@@ -1126,7 +1126,7 @@ public class SpooledFileOpenList extends OpenList
     }
 
     /**
-     Sets the creation date range used to filter the list of spooled files.  By default, the list is not filtered by creation date.  Note that the creation date filter is only used when connecting to servers running server operating system releases V5R2M0 and higher.
+     Sets the creation date range used to filter the list of spooled files.  By default, the list is not filtered by creation date.  Note that the creation date filter is only used when connecting to systems running operating system releases V5R2M0 and higher.
      @param  filterCreationDateStart  The start date.  All spooled files with a creation date and time equal to or later than the start date will be selected.  Specify null to indicate that the earliest creation date and later will be selected, up to the specified <i>end</i> date.
      @param  filterCreationDateEnd  The end date.  All spooled files with a creation date and time equal to or earlier than the end date will be selected.  Specify null to indicate that the latest creation date and earlier will be selected, down to the specified <i>start</i> date.
      @see  #getFilterCreationDateStart
@@ -1183,7 +1183,7 @@ public class SpooledFileOpenList extends OpenList
     }
 
     /**
-     Sets the job system name used to filter the list of spooled files.  Specifying null resets it to its default value of "*ALL".  Note that the job system name filter is only used when connecting to servers running server operating system releases V5R2 and higher.
+     Sets the job system name used to filter the list of spooled files.  Specifying null resets it to its default value of "*ALL".  Note that the job system name filter is only used when connecting to systems running operating system releases V5R2 and higher.
      @param  systemName  Only spooled files created on <i>systemName</i>will be included in the list.  Specify "*CURRENT" to return only spooled files created on the current system.
      @see  #getFilterJobSystemName
      **/
