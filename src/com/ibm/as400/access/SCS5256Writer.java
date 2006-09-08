@@ -163,7 +163,7 @@ public class SCS5256Writer extends OutputStreamWriter
       *   width of the page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void absoluteHorizontalPosition(int column)
            throws IOException
@@ -191,7 +191,7 @@ public class SCS5256Writer extends OutputStreamWriter
       *   next logical page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void absoluteVerticalPosition(int line)
            throws IOException
@@ -213,7 +213,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * @param data The bytes to add to the buffer.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       */
     void addToBuffer(byte [] data)
            throws IOException
@@ -236,7 +236,7 @@ public class SCS5256Writer extends OutputStreamWriter
     /** Adds a carriage return control to the stream.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void carriageReturn()
            throws IOException
@@ -248,7 +248,7 @@ public class SCS5256Writer extends OutputStreamWriter
     /** Closes the stream.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void close()
            throws IOException
@@ -264,7 +264,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * to end the current page after the page data has been written.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       *
       **/
     public void endPage()
@@ -278,7 +278,7 @@ public class SCS5256Writer extends OutputStreamWriter
     /** Flushes the stream.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void flush()
            throws IOException
@@ -322,7 +322,7 @@ public class SCS5256Writer extends OutputStreamWriter
      /* Sends out controls to initialize the start of a page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       *
       */
     void initPage()
@@ -345,7 +345,7 @@ public class SCS5256Writer extends OutputStreamWriter
     /** Adds a line feed control to the stream.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void lineFeed()
            throws IOException
@@ -357,7 +357,7 @@ public class SCS5256Writer extends OutputStreamWriter
     /** Adds a new line control to the stream.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void newLine()
            throws IOException
@@ -376,7 +376,7 @@ public class SCS5256Writer extends OutputStreamWriter
       *   no-op.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void relativeHorizontalPosition(int chars)
            throws IOException
@@ -401,7 +401,7 @@ public class SCS5256Writer extends OutputStreamWriter
       *   no-op.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void relativeVerticalPosition(int lines)
            throws IOException
@@ -438,7 +438,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * printer default.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void setHorizontalFormat(int NumOfChars)
             throws IOException
@@ -471,7 +471,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * printer default.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void setVerticalFormat(int NumOfLines)
             throws IOException
@@ -500,7 +500,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * @param length  The number of characters to write.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void write(char databuffer[],
                       int offset,
@@ -518,7 +518,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * @param c  The character to write.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void write(int c)
           throws IOException
@@ -534,7 +534,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * @param str  The string to write.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void write(String str)
            throws IOException
@@ -573,7 +573,7 @@ public class SCS5256Writer extends OutputStreamWriter
       * @param length  The number of characters to write.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void write(String str,
                       int offset,

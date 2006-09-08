@@ -28,10 +28,10 @@ import java.beans.PropertyVetoException;
 /**
  *The RecordFormat class represents the format of data returned from an i5/OS system.
  *It contains FieldDescription objects that describe the
- *data returned from a server.  The RecordFormat class is used to generate a Record
- *object that can be used to access the data returned from the server as Java objects or
- *as byte arrays of server data.
- *For instance, the entries on a server data queue
+ *data returned from a system.  The RecordFormat class is used to generate a Record
+ *object that can be used to access the data returned from the system as Java objects or
+ *as byte arrays of i5/OS data.
+ *For instance, the entries on a data queue
  *may have a specific format.  This format could be represented by a
  *RecordFormat object. The RecordFormat object could be used to generate a Record
  *object containing the data read from the data queue.  Based on the description of the
@@ -59,7 +59,7 @@ import java.beans.PropertyVetoException;
  *<p>
  *The RecordFormat class allows the user to do the following:
  *<ul>
- *<li>Describe the data returned from a server.
+ *<li>Describe the data returned from a system.
  *<li>Retrieve a Record object containing data that is described by the RecordFormat.
  *</ul>
  *RecordFormat objects generate the following events:
@@ -746,7 +746,7 @@ public class RecordFormat implements Serializable
  /**
    * Returns the record format ID.
    * The record format ID corresponds to a record format ID within a page definition
-   * defined on the server.
+   * defined on the system.
    *
    * @return  The record format ID.
   **/
@@ -769,7 +769,7 @@ public class RecordFormat implements Serializable
   //@D0A
   /**
    * This should be called by any class that is running proxified and retrieves
-   * a RecordFormat from the server side.
+   * a RecordFormat from the System i side.
   **/
   void initializeTextObjects(AS400 system)
   {
@@ -1043,7 +1043,7 @@ public class RecordFormat implements Serializable
   /**
    * Sets the record format ID. The length of the record format ID must be 10 characters
    * or less.  The record format ID corresponds to a record format ID within a page
-   * definition on the server.  If the record format ID is less than 10 characters,
+   * definition on the system.  If the record format ID is less than 10 characters,
    * it is padded to 10 characters in length with spaces.
    *
    * @param id  The record format ID.

@@ -217,7 +217,7 @@ public class SCS3812Writer extends SCS5219Writer
     /** Ends current page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void endPage()
            throws IOException
@@ -233,7 +233,7 @@ public class SCS3812Writer extends SCS5219Writer
      /*  Sends out controls to initialize the start of a page.
       *
       * @exception IOException If an error occurs while communicating with the
-      *   server.
+      *   system.
       */
     void initPage()
          throws IOException
@@ -266,7 +266,7 @@ public class SCS3812Writer extends SCS5219Writer
       * @param bold If true, turns bold on; if false, turns bold off.
       *4
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void setBold(boolean bold)
            throws IOException
@@ -310,7 +310,7 @@ public class SCS3812Writer extends SCS5219Writer
       *   valid values.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the server.
+      *   with the system.
       **/
     public void setFont(int font)
            throws IOException

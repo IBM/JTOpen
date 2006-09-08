@@ -9,7 +9,7 @@ import java.util.Date;
 import java.beans.PropertyVetoException;
 
 /**
- Represents a save file on a server.
+ Represents a save file on a system.
 **/
 
 public class SaveFile
@@ -20,12 +20,12 @@ implements Serializable
   private static final boolean DEBUG = false;
 
   /**
-   Value for the "targetRelease" property, indicating "current release".  The object is to be restored to, and used on, the release of the operating system currently running on the server.  The object can also be restored to a server with any subsequent release of the operating system installed.
+   Value for the "targetRelease" property, indicating "current release".  The object is to be restored to, and used on, the release of the operating system currently running on the system.  The object can also be restored to a system with any subsequent release of the operating system installed.
    **/
   public static final String CURRENT_RELEASE = "*CURRENT";
 
   /**
-   Value for the "targetRelease" property, indicating "previous release".  The object is to be restored to the previous release with modification level 0 of the operating system.  The object can also be restored to a server with any subsequent release of the operating system installed.
+   Value for the "targetRelease" property, indicating "previous release".  The object is to be restored to the previous release with modification level 0 of the operating system.  The object can also be restored to a system with any subsequent release of the operating system installed.
    **/
   public static final String PREVIOUS_RELEASE = "*PRV";
 
@@ -51,7 +51,7 @@ implements Serializable
 
   // Values for the existence_ variable:
   private static final int EXISTENCE_UNKNOWN = 0;  // save file existence is unknown
-  private static final int EXISTENCE_YES     = 1;  // save file exists on server
+  private static final int EXISTENCE_YES     = 1;  // save file exists on system
   private static final int EXISTENCE_NO      = 2;  // save file doesn't exist
 
   private static final String USERSPACE_NAME = "JT4USRSPC QTEMP     ";
@@ -60,7 +60,7 @@ implements Serializable
   private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
   // Persistent attributes:
-  private AS400  system_;   // the server where the save file is located
+  private AS400  system_;   // the system where the save file is located
   private String path_;     // fully qualified IFS pathname of the save file
   private String library_;  // library where the save file is located
   private String name_;     // the name of the save file
@@ -83,9 +83,9 @@ implements Serializable
 
   /**
    Constructs a SaveFile object.
-   <br>Note: This method does not create a save file on the server.  To create a save file, use {@link #create() create()} or {@link #create(long,int,int,boolean,String,String) create()}.
-   @param system  The server where the save file is located.
-   @param library  The library (on the server) where the save file is located.  Example: "MYLIB1".  Case is preserved.
+   <br>Note: This method does not create a save file on the system.  To create a save file, use {@link #create() create()} or {@link #create(long,int,int,boolean,String,String) create()}.
+   @param system  The system where the save file is located.
+   @param library  The library (on the system) where the save file is located.  Example: "MYLIB1".  Case is preserved.
    @param name  The name of the save file.  Example: "MYFILE1".  Case is preserved.
    **/
   public SaveFile(AS400 system, String library, String name)
@@ -110,8 +110,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void clear()
     throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
@@ -127,7 +127,7 @@ implements Serializable
 
   /**
    Copies the save file to another save file on the same system.
-   <br>If the target save file doesn't exist on the server, it is created.
+   <br>If the target save file doesn't exist on the system, it is created.
    <br>If the target save file already contains data, the data is replaced.
    <br>If the target exists but is not a save file, this method fails.
    <br>If the target has insufficient capacity, an exception is thrown.
@@ -138,8 +138,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void copyTo(String library, String name)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -156,15 +156,15 @@ implements Serializable
   }
 
   /**
-   Creates a save file on the server.
+   Creates a save file on the system.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws ObjectAlreadyExistsException If the save file already exists on the server.
-   @throws ObjectDoesNotExistException If the server API that queries save file description information is missing.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws ObjectAlreadyExistsException If the save file already exists on the system.
+   @throws ObjectDoesNotExistException If the system API that queries save file description information is missing.
    **/
   public void create()
     throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, ObjectAlreadyExistsException
@@ -174,7 +174,7 @@ implements Serializable
 
 
   /**
-   Creates a save file on the server.
+   Creates a save file on the system.
    @param maxRecords  The maximum number of records the save file can hold.  If {@link #NO_MAX NO_MAX} is specified, the system maximum is used.
    @param asp  The auxiliary storage pool (ASP) in which the system creates the save file.  If {@link #DEFAULT DEFAULT} is specified, the save file is created in the same ASP as the one containing the library holding the file.
    @param waitTime  The number of seconds that the program waits for the file resources and session resources to be allocated when the file is opened, or for the device or session resources to be allocated when an acquire operation is performed to the file.  Special values: {@link #CLS CLS}, {@link #IMMED IMMED}
@@ -186,9 +186,9 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws ObjectAlreadyExistsException If the save file already exists on the server.
-   @throws ObjectDoesNotExistException If the server API that queries save file description information is missing.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws ObjectAlreadyExistsException If the save file already exists on the system.
+   @throws ObjectDoesNotExistException If the system API that queries save file description information is missing.
    **/
   public void create(long maxRecords, int asp, int waitTime, boolean shared, String authority, String description)
     throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, ObjectAlreadyExistsException
@@ -257,7 +257,7 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
+   @throws  IOException  If an error occurs while communicating with the system.
    **/
   public void delete()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -312,8 +312,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws ObjectDoesNotExistException If the server API that queries save file description information is missing.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws ObjectDoesNotExistException If the system API that queries save file description information is missing.
   **/
   public boolean exists()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -326,15 +326,15 @@ implements Serializable
 
   /**
    Returns the auxiliary storage pool ID for the save file.
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
    @return The auxiliary storage pool ID.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public int getASP()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -350,15 +350,15 @@ implements Serializable
 
   /**
    Returns the current number of records in the save file.
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
    @return The current number of records in the save file.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public long getCurrentNumberOfRecords()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -384,8 +384,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public String getDescription()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -402,8 +402,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public long getLength()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -416,7 +416,7 @@ implements Serializable
   }
 
   /**
-   Returns the name of the library where the save file is located on the server.
+   Returns the name of the library where the save file is located on the system.
    @return The name of the library
    **/
   public String getLibrary()
@@ -428,15 +428,15 @@ implements Serializable
   /**
    Returns the capacity (maximum number of records) of the save file.
    Returns {@link #NO_MAX NO_MAX} if there is no maximum.
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
    @return The maximum number of records that the save file can hold.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public long getMaximumNumberOfRecords()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -449,7 +449,7 @@ implements Serializable
   }
 
   /**
-   Returns the name of the save file on the server.
+   Returns the name of the save file on the system.
    @return The name of the save file
    **/
   public String getName()
@@ -466,8 +466,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public ObjectDescription getObjectDescription()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -511,15 +511,15 @@ implements Serializable
   /**
    Returns the wait time for the save file.  This is the number of seconds to wait for the file resources and session resources to be allocated when the save file is opened, or for the device or session resources to be allocated when an acquire operation is performed to the save file.
    <br>Special values: {@link #IMMED IMMED}, {@link #CLS CLS}
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
    @return The wait time.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public int getWaitTime()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -544,14 +544,14 @@ implements Serializable
   /**
    Reports whether the open data path (ODP) for the save file is shared with other programs in the routing step.  When an ODP is shared, the programs accessing the file, share facilities such as the file status and the buffer.
    <br>The default is "not shared".
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public boolean isShared()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -574,8 +574,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public SaveFileEntry[] listEntries()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, UnsupportedEncodingException
@@ -713,8 +713,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public Product[] listProducts()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -832,8 +832,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void refresh()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -857,8 +857,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void renameTo(String name)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -888,8 +888,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void restore(String libraryName)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -921,8 +921,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void restore(String libraryName, String[] objectList, String toLibraryName)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -988,8 +988,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void restore(Product product)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1036,8 +1036,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void save(String libraryName)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1070,8 +1070,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void save(String libraryName, String[] objectList)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1113,8 +1113,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void save(String[] pathList)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1155,8 +1155,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void save(Product product)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1191,7 +1191,7 @@ implements Serializable
 
   /**
    Sets the text description of the save file.
-   If the save file doesn't exist on the server, an exception is thrown.
+   If the save file doesn't exist on the system, an exception is thrown.
    @param description  The description.
    Maximum length is 50 characters.
  
@@ -1199,8 +1199,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
   **/
   public void setDescription(String description)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1220,14 +1220,14 @@ implements Serializable
    Sets the capacity (maximum number of records) of the save file.
    <br>If the current number of records in the save file is greater than the new maximumNumberOfRecords value, an exception is thrown, and the save file is not changed.
    <br>Special value: {@link #NO_MAX NO_MAX}
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void setMaximumNumberOfRecords(long maximumNumberOfRecords)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1260,7 +1260,7 @@ implements Serializable
 
   /**
    Sets whether the open data path (ODP) for the save file is shared with other programs in the routing step.  When an ODP is shared, the programs accessing the file can share facilities such as the file status and the buffer.  For more details refer to the specification of the <tt>CHGSAVF</tt> CL command in the i5/OS reference.
-   If the save file doesn't exist on the server, an exception is thrown.
+   If the save file doesn't exist on the system, an exception is thrown.
    <br>The default is "not shared".
    @param shared Whether ODP is shared.
 
@@ -1268,8 +1268,8 @@ implements Serializable
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void setShared(boolean shared)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1290,7 +1290,7 @@ implements Serializable
   /**
    Sets the target release level of the operating system on which you intend to restore and use the object(s) saved in the save file by a subsequent invocation of one of the <tt>save()</tt> methods.
    The format VxRxMx is used to specify the target release, where Vx is the version, Rx is the release, and Mx is the modification level. For example, V5R2M0 is version 5, release 2, modification level 0.
-   <br>The object(s) in the save file can be restored to a server with the specified release or with any subsequent release of the operating system installed.  Valid values depend on the server's current version, release, and modification level.
+   <br>The object(s) in the save file can be restored to a system with the specified release or with any subsequent release of the operating system installed.  Valid values depend on the system's current version, release, and modification level.
    Special values include {@link #CURRENT_RELEASE CURRENT_RELEASE} and {@link #PREVIOUS_RELEASE PREVIOUS_RELEASE}.  The default is CURRENT_RELEASE.
    @param targetRelease The target release.
    **/
@@ -1304,15 +1304,15 @@ implements Serializable
   /**
    Sets the number of seconds to wait for the file resources and session resources to be allocated when the save file is opened, or for the device or session resources to be allocated when an acquire operation is performed to the save file.
    <br>The default is {@link #IMMED IMMED}.
-   <br>If the save file doesn't exist on the server, an exception is thrown.
+   <br>If the save file doesn't exist on the system, an exception is thrown.
    @param seconds The wait time.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
    @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @throws  InterruptedException  If this thread is interrupted.
-   @throws  IOException  If an error occurs while communicating with the server.
-   @throws  ObjectDoesNotExistException  If the object does not exist on the server.
+   @throws  IOException  If an error occurs while communicating with the system.
+   @throws  ObjectDoesNotExistException  If the object does not exist on the system.
    **/
   public void setWaitTime(int seconds)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1437,7 +1437,7 @@ implements Serializable
 
 
   /**
-   Checks for existence of the save file on the server.
+   Checks for existence of the save file on the system.
    **/
   private ObjectDescription checkExistence()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -1447,7 +1447,7 @@ implements Serializable
       return objectDescription_;
     }
 
-    // Send query to the server.
+    // Send query to the system.
     if (objectDescription_ == null) { objectDescription_ = getObjDesc(); }
     if (objectDescription_.exists()) return objectDescription_;
     else {

@@ -21,7 +21,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.sslight.SSLightKeyRing;
 
 /**
- The SecureAS400 class represents a secure server sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable server at release V4R4 or later.
+ The SecureAS400 class represents a secure system sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable system at release V4R4 or later.
  **/
 public class SecureAS400 extends AS400
 {
@@ -33,12 +33,12 @@ public class SecureAS400 extends AS400
     public static final int CLIENT_TO_PROXY_SERVER = 1;
 
     /**
-     Constant indicating that encryption should only be done on the connection between the proxy server and the server.
+     Constant indicating that encryption should only be done on the connection between the proxy server and the system.
      **/
     public static final int PROXY_SERVER_TO_SERVER = 2;
 
     /**
-     Constant indicating that encryption should be done in both the connection between the client and the proxy server and the connection between the proxy server and the server.
+     Constant indicating that encryption should be done in both the connection between the client and the proxy server and the connection between the proxy server and the system.
      **/
     public static final int CLINT_TO_SERVER = 3;
 
@@ -74,7 +74,7 @@ public class SecureAS400 extends AS400
 
     /**
      Constructs a SecureAS400 object.  It uses the specified system name.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      **/
     public SecureAS400(String systemName)
     {
@@ -85,8 +85,8 @@ public class SecureAS400 extends AS400
 
     /**
      Constructs a SecureAS400 object. It uses the specified system name and user ID.  When the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
-     @param  systemName  The name of the server.
-     @param  userId  The user profile name to use to authenticate to the server.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name to use to authenticate to the system.
      **/
     public SecureAS400(String systemName, String userId)
     {
@@ -97,8 +97,8 @@ public class SecureAS400 extends AS400
 
     /**
      Constructs a SecureAS400 object.  It uses the specified system name and profile token.
-     @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  profileToken  The profile token to use to authenticate to the server.
+     @param  systemName  The name of the system.  Use localhost to access data locally.
+     @param  profileToken  The profile token to use to authenticate to the system.
      **/
     public SecureAS400(String systemName, ProfileTokenCredential profileToken)
     {
@@ -109,9 +109,9 @@ public class SecureAS400 extends AS400
 
     /**
      Constructs a SecureAS400 object. It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the server.
-     @param  userId  The user profile name to use to authenticate to the server.
-     @param  password  The user profile password to use to authenticate to the server.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name to use to authenticate to the system.
+     @param  password  The user profile password to use to authenticate to the system.
      **/
     public SecureAS400(String systemName, String userId, String password)
     {
@@ -122,9 +122,9 @@ public class SecureAS400 extends AS400
 
     /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the server.
-     @param  userId  The user profile name to use to authenticate to the server.
-     @param  password  The user profile password to use to authenticate to the server.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name to use to authenticate to the system.
+     @param  password  The user profile password to use to authenticate to the system.
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      **/
     public SecureAS400(String systemName, String userId, String password, String proxyServer)
@@ -155,11 +155,11 @@ public class SecureAS400 extends AS400
 
     /**
      Validates the user ID and password against the system, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
@@ -169,12 +169,12 @@ public class SecureAS400 extends AS400
 
     /**
      Validates the user ID and password against the system, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the server.
+     @param  systemName  The name of the system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
@@ -183,7 +183,7 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Returns the key ring class name used for SSL communications with the server.  The class <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
+     Returns the key ring class name used for SSL communications with the system.  The class <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
      @return  The key ring class name.
      **/
     public String getKeyRingName()
@@ -203,7 +203,7 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Sets the key ring class name used for SSL communications with the server.  The default class name that will be used if this method is not called is <i>com.ibm.as400.access.KeyRing</i>.
+     Sets the key ring class name used for SSL communications with the system.  The default class name that will be used if this method is not called is <i>com.ibm.as400.access.KeyRing</i>.
      @param  keyRingName  The key ring class name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -236,7 +236,7 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Sets the key ring class name used for SSL communications with the server.  The default class name that will be used if this method is not called is <i>com.ibm.as400.access.KeyRing</i>.
+     Sets the key ring class name used for SSL communications with the system.  The default class name that will be used if this method is not called is <i>com.ibm.as400.access.KeyRing</i>.
      @param  keyRingName  The key ring class name.
      @param  keyRingPassword  The password for the key ring class.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
@@ -271,7 +271,7 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Sets the key ring password used for SSL communications with the server.
+     Sets the key ring password used for SSL communications with the system.
      @param  keyRingPassword  The password for the key ring class.
      **/
     public void setKeyRingPassword(String keyRingPassword)

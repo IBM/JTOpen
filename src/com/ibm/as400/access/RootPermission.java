@@ -21,14 +21,14 @@ authority</B>.  The <B>data authority</B> can be set to one of the following val
 *RW, *RX, *WX, *R, *W, *X, *EXCLUDE, or *AUTL.  Use <i>getDataAuthority()</i> to display
 the current values and the <i>setDataAuthority()</i> to set the data authority to one of
 the valid values.  Use <i>commit()</i> from the Permission class to send the changes
-to the server.
+to the system.
 
 <P>The <B>object authority</B> can be set to one or more of the following values: 
 alter, existence, management, or reference. Use the appropriate
 set methods (<i>setAlter()</i>, <i>setExistence()</i>, <i>setManagement()</i>,
 or <i>setReference()</i>) to turn the value on or off. After all the values 
 are set, use the <i>commit()</i> method from the Permissions class to send the changes 
-to the server. 
+to the system. 
 <P>For more information, refer the i5/OS Advance Series Security Basic Manual (SC41-5301-00).
 **/
 public class RootPermission extends UserPermission
