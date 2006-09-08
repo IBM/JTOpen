@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
-  * The SpooledFileOutputStream class is used to write data into a server spooled file.
+  * The SpooledFileOutputStream class is used to write data into a spooled file.
   **/
 public class SpooledFileOutputStream extends OutputStream
 {
@@ -294,16 +294,16 @@ public class SpooledFileOutputStream extends OutputStream
       *<p>
       * @param printerFile   Optional.  The printer file that should be used
       *                          to create the spooled file.  This printer file
-      *                          must reside on the same server that the
+      *                          must reside on the same system that the
       *                          spooled file is being created on.
       * @param outputQueue   Optional.  The output queue on which to create the
       *                          spooled file.  The output queue must reside on
-      *                          the same server that the spooled file
+      *                          the same system that the spooled file
       *                          is being created on.
-      * @exception AS400Exception If the server system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       **/
 
@@ -368,7 +368,7 @@ public class SpooledFileOutputStream extends OutputStream
     /**
       * Closes the stream.
       * It must be called to release any resources associated with the stream.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void close()
        throws IOException
@@ -379,7 +379,7 @@ public class SpooledFileOutputStream extends OutputStream
 
 
     /** Flushes the stream.  This will write any buffered output bytes.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void flush()
         throws IOException
@@ -413,7 +413,7 @@ public class SpooledFileOutputStream extends OutputStream
 
     /** Writes a byte of data.
       * @param b The byte to be written.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void write(int b)
         throws IOException
@@ -429,7 +429,7 @@ public class SpooledFileOutputStream extends OutputStream
       *  <i>data</i> to the spooled file.
       *
       * @param data The data to be written.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void write(byte[] data)
         throws IOException
@@ -447,7 +447,7 @@ public class SpooledFileOutputStream extends OutputStream
       * @param offset The start offset in the data.
       * @param length The number of bytes that are written.
       *
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       **/
     public void write(byte data[], int offset, int length)
         throws IOException

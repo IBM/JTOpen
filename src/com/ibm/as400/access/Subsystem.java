@@ -19,7 +19,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
- Represents a subsystem on the server.
+ Represents a subsystem on the system.
  Most of the getter methods simply return the cached attribute value obtained by the most recent {@link #refresh() refresh()}.  Other than getObjectDescription(), none of the getters will themselves go to the system to get the current attribute value.  Prior to the first refresh(), many of the getters will return null or zero.
  <br>Example:
  <pre>
@@ -88,7 +88,7 @@ public class Subsystem
 
   /**
    Constructs a Subsystem object.
-   <br>Note: Does not create a subsystem on the server.
+   <br>Note: Does not create a subsystem on the system.
    @param system The system.
    @param library The name of the library where the subsystem resides.
    @param name The simple name of the subsystem.
@@ -108,7 +108,7 @@ public class Subsystem
 
   /**
    Constructs a Subsystem object.
-   <br>Note: Does not create a subsystem on the server.
+   <br>Note: Does not create a subsystem on the system.
    @param system The system.
    @param path The qualified path. For example, "/QSYS.LIB/MYSUBSYS.SBSD".
    @see #create()
@@ -136,12 +136,12 @@ public class Subsystem
    Current pool definitions, other than the one specified, remain unchanged.
    @param sequenceNumber The number of the pool, within the pool list for the subsystem.  Valid values are 1-10.
    @param poolName The name of a shared system storage pool.  Valid values include: *BASE, *NOSTG, *INTERACT, *SPOOL, and *SHRPOOLnn, where nn is an integer from 1 to 60.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void assignPool(int sequenceNumber, String poolName)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -173,12 +173,12 @@ public class Subsystem
    @param sequenceNumber The number of the pool, within the pool list for the subsystem.  Valid values are 1-10.
    @param size The size of the storage pool, in kilobytes.  Must be at least 256 (meaning 256 kilobytes).
    @param activityLevel The activity level of the pool.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void assignPool(int sequenceNumber, int size, int activityLevel)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -205,12 +205,12 @@ public class Subsystem
   /**
    Sets the subsystem description text.  The default is "".
    @param text The subsystem description text.  To clear the description, specify "".
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void changeDescriptionText(String text)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -235,12 +235,12 @@ public class Subsystem
   /**
    Specifies the signon display file that is used when showing signon displays at work stations allocated to the subsystem.  By default, QSYS/QDSIGNON (path /QSYS.LIB/QDSIGNON.FILE) is used.
    @param path The fully qualified pathname of the signon display file.  See {@link com.ibm.as400.access.QSYSObjectPathName#toPath(String,String,String) QSYSObjectPathName.toString()}
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void changeDisplayFilePath(String path)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -265,12 +265,12 @@ public class Subsystem
   /**
    Specifies a library to enter ahead of other libraries in the system portion of the library list. This method allows you to use a secondary language library.
    @param library The name of the library.  Specify "" or "*NONE" to remove the current secondary language library from the system library list.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void changeLanguageLibrary(String library)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -297,12 +297,12 @@ public class Subsystem
   /**
    Sets the maximum number of active jobs that can run or use resources within the subsystem at one time.
    @param maxJobs The maximum number of active jobs. Valid values are 0-1000.  Special value {@link #NO_MAX NO_MAX} is the default, and indicates no maximum.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void changeMaximumActiveJobs(int maxJobs)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -322,15 +322,15 @@ public class Subsystem
   }
 
   /**
-   Creates the subsystem on the server.
-   <br>More precisely, this method creates a subsystem <em>description</em> on the server.
-   @exception AS400Exception If the server returns an error message.
+   Creates the subsystem on the system.
+   <br>More precisely, this method creates a subsystem <em>description</em> on the system.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
-   @exception ObjectAlreadyExistsException If the object already exists on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
+   @exception ObjectAlreadyExistsException If the object already exists on the system.
    **/
   public void create()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ObjectAlreadyExistsException
@@ -339,16 +339,16 @@ public class Subsystem
   }
 
   /**
-   Creates the subsystem on the server.
-   <br>More precisely, this method creates a subsystem <em>description</em> on the server.
+   Creates the subsystem on the system.
+   <br>More precisely, this method creates a subsystem <em>description</em> on the system.
    @param authority The authority to give to users who do not have specific authority for the object, who are not on an authorization list, and whose group profile or supplemental group profiles do not have specific authority for the object.  The default is *LIBCRTAUT.  The "base system pool" (*BASE) is used.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
-   @exception ObjectAlreadyExistsException If the object already exists on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
+   @exception ObjectAlreadyExistsException If the object already exists on the system.
    **/
   public void create(String authority)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ObjectAlreadyExistsException
@@ -370,13 +370,13 @@ public class Subsystem
 
 
   /**
-   Deletes the subsystem from the server.
-   <br>More precisely, this method deletes a subsystem <em>description</em> on the server.
-   @exception AS400Exception If the server returns an error message.
+   Deletes the subsystem from the system.
+   <br>More precisely, this method deletes a subsystem <em>description</em> on the system.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public void delete()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -401,15 +401,15 @@ public class Subsystem
   }
 
   /**
-   Ends the subsystem on the server, in a controlled manner.
+   Ends the subsystem on the system, in a controlled manner.
    This allows the programs that are running in the subsystem, to perform cleanup (end of job processing). When a job being ended has a signal handling procedure for the asynchronous signal SIGTERM, the SIGTERM signal is generated for that job. The application has <tt>timeLimit</tt> seconds to complete cleanup before the job is ended. 
    @param timeLimit The amount of time (in seconds) that is allowed to complete the controlled subsystem end operation. If this amount of time is exceeded and the end operation is not complete, any jobs still being processed in the subsystem are ended immediately.  Special value {@link #NO_TIME_LIMIT NO_TIME_LIMIT} indicates no time limit.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void end(int timeLimit)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -421,14 +421,14 @@ public class Subsystem
   }
 
   /**
-   Ends all active subsystems on the server, in a controlled manner.
+   Ends all active subsystems on the system, in a controlled manner.
    @param system The system.
    @param timeLimit The amount of time (in seconds) that is allowed to complete the controlled subsystem end operation. If this amount of time is exceeded and the end operation is not complete, any jobs still being processed in the subsystem are ended immediately.  Special value {@link #NO_TIME_LIMIT NO_TIME_LIMIT} indicates no time limit.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public static void endAllSubsystems(AS400 system, int timeLimit)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -438,13 +438,13 @@ public class Subsystem
   }
 
   /**
-   Ends all active subsystems on the server, immediately.
+   Ends all active subsystems on the system, immediately.
    @param system The system.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   public static void endAllSubsystemsImmediately(AS400 system)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -454,13 +454,13 @@ public class Subsystem
   }
 
   /**
-   Ends the subsystem on the server, immediately.
-   @exception AS400Exception If the server returns an error message.
+   Ends the subsystem on the system, immediately.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void endImmediately()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -493,14 +493,14 @@ public class Subsystem
 
   /**
    Determines if the subsystem currently exists on the system.
-   <br>More precisely, this method reports if the subsystem <em>description</em> exists on the server.
+   <br>More precisely, this method reports if the subsystem <em>description</em> exists on the system.
    @return true if the subsystem exists; false if the subsystem does not exist.
    @exception  AS400Exception  If the program call returns error messages.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
-   @exception  IOException  If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the server API (that queries subsystem description information) is missing.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the system API (that queries subsystem description information) is missing.
   **/
   public boolean exists()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -546,12 +546,12 @@ public class Subsystem
   /**
    Returns the library that is entered ahead of other libraries in the system portion of the library list. This library typically specifies a secondary language library.
    @return The name of the secondary language library. <tt>null</tt> if refresh() has not been called.  "*NONE" if no secondary language library is set.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public String getLanguageLibrary()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -562,7 +562,7 @@ public class Subsystem
   }
 
   /**
-   Returns the name of the library where the subsystem resides on the server.
+   Returns the name of the library where the subsystem resides on the system.
    @return The name of the library.
    **/
   public String getLibrary()
@@ -679,13 +679,13 @@ public class Subsystem
   /**
    Lists all subsystems on the system.
    @return A list of all defined subsystems, both active and inactive.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
-   @exception RequestNotSupportedException    If the requested function is not supported because the server is not at the correct level.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
+   @exception RequestNotSupportedException    If the requested function is not supported because the system is not at the correct level.
    **/
   public static Subsystem[] listAllSubsystems(AS400 system)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException,
@@ -706,13 +706,13 @@ public class Subsystem
 
 
   /**
-   Refreshes the attributes of this Subsystem object, to reflect the current state of the subsystem on the server.
-   @exception AS400Exception If the server returns an error message.
+   Refreshes the attributes of this Subsystem object, to reflect the current state of the subsystem on the system.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public synchronized void refresh()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -848,12 +848,12 @@ public class Subsystem
    Removes a storage pool from the list of pools defined for the subsystem.
    You should first end the subsystem before removing a pool.
    @param sequenceNumber The number of the pool, within the pool list for the subsystem.  Valid values are 1-10.
-   @exception AS400Exception If the server returns an error message.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void removePool(int sequenceNumber)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -877,13 +877,13 @@ public class Subsystem
   }
 
   /**
-   Starts the subsystem on the server.
-   @exception AS400Exception If the server returns an error message.
+   Starts the subsystem on the system.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
-   @exception ObjectDoesNotExistException If the object does not exist on the server.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
    **/
   public void start()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -913,12 +913,12 @@ public class Subsystem
 
 
   /**
-   Ends the subsystem on the server.
-   @exception AS400Exception If the server returns an error message.
+   Ends the subsystem on the system.
+   @exception AS400Exception If the system returns an error message.
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    @exception InterruptedException If this thread is interrupted.
-   @exception IOException If an error occurs while communicating with the server.
+   @exception IOException If an error occurs while communicating with the system.
    **/
   private static void end(AS400 system, String subsystemName, boolean immediate, int timeLimit)
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException

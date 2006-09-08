@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- The UserSpace class represents a user space object in the server operating system.  By default, when running on a system other than the server that contains the user space, the UserSpace class will make use of two separate host servers.  The file server will be used for read() and write() requests and the remote command server will be used for the other requests.  This behavior can be changed with the setMustUseProgramCall() method.  Although it is not recommended, applications using the QTEMP library might wish to set the mustUseProgramCall property to true. 
+ The UserSpace class represents a user space object in the System i operating system.  By default, when running on a system other than the system that contains the user space, the UserSpace class will make use of two separate host servers.  The file server will be used for read() and write() requests and the remote command server will be used for the other requests.  This behavior can be changed with the setMustUseProgramCall() method.  Although it is not recommended, applications using the QTEMP library might wish to set the mustUseProgramCall property to true. 
  **/
 public class UserSpace implements Serializable
 {
@@ -64,7 +64,7 @@ public class UserSpace implements Serializable
     // Maximum allowed user space size.
     private static final int MAX_USER_SPACE_SIZE = 16776704;
 
-    // The server where the user space is located.
+    // The system where the user space is located.
     private AS400 system_ = null;
     // The full IFS path name of the user space.
     private String path_ = "";
@@ -78,7 +78,7 @@ public class UserSpace implements Serializable
     // Data converter for reads and writes with string objects.
     private transient Converter dataConverter_ = null;
 
-    // Implementation object interacts with server or native methods.
+    // Implementation object interacts with system or native methods.
     private transient UserSpaceImpl impl_ = null;
 
     // List of user space event bean listeners.
@@ -89,7 +89,7 @@ public class UserSpace implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a UserSpace object.  The <i>system</i> and <i>path</i> properties must be set before using any method requiring a connection to the server.
+     Constructs a UserSpace object.  The <i>system</i> and <i>path</i> properties must be set before using any method requiring a connection to the system.
      **/
     public UserSpace()
     {
@@ -99,7 +99,7 @@ public class UserSpace implements Serializable
 
     /**
      Constructs a UserSpace object.  It creates a UserSpace instance that represents the user space <i>path</i> on <i>system</i>.
-     @param  system  The server that contains the user space.
+     @param  system  The system that contains the user space.
      @param  path  The fully qualified integrated file system path name to the user space.
      **/
     public UserSpace(AS400 system, String path)
@@ -249,8 +249,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -283,8 +283,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void create(String domain, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -376,8 +376,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void delete() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -395,7 +395,7 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -444,8 +444,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public byte getInitialValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -460,8 +460,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public int getLength() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -501,13 +501,13 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Indicates if the user space is auto extendible.  When running on a system other than the server that contains the user space, the auto extend attribute is always true and cannot be changed, so the attribute value returned should be ignored.  The auto extend attribute can be used when running on the same system as the user space with the optimizations that are a part of the operating system.
+     Indicates if the user space is auto extendible.  When running on a system other than the system that contains the user space, the auto extend attribute is always true and cannot be changed, so the attribute value returned should be ignored.  The auto extend attribute can be used when running on the same system as the user space with the optimizations that are a part of the operating system.
      @return  true if the user space is auto extendible; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public boolean isAutoExtendible() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -534,8 +534,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public int read(byte[] dataBuffer, int userSpaceOffset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -559,8 +559,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public int read(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -616,8 +616,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public String read(int userSpaceOffset, int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -696,13 +696,13 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Sets the auto extend attribute if possible.  When running on a system other than the server that contains the user space, the auto extend attribute cannot be set, so this method is ignored and auto extend is always true.  Auto extend can be set when running on the same system as the user space with the optimizations that are a part of the operating system.
+     Sets the auto extend attribute if possible.  When running on a system other than the system that contains the user space, the auto extend attribute cannot be set, so this method is ignored and auto extend is always true.  Auto extend can be set when running on the same system as the user space with the optimizations that are a part of the operating system.
      @param  autoExtendibility  The attribute for user space auto extendibility.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setAutoExtendible(boolean autoExtendibility) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -716,8 +716,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setInitialValue(byte initialValue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -731,8 +731,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void setLength(int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -827,7 +827,7 @@ public class UserSpace implements Serializable
 
     /**
      Sets the system object for the user space.  The system can only be set before a connection has been established.
-     @param  system  The server that contains the user space.
+     @param  system  The system that contains the user space.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -873,8 +873,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(byte[] dataBuffer, int userSpaceOffset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -896,8 +896,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -919,8 +919,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -980,8 +980,8 @@ public class UserSpace implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void write(String data, int userSpaceOffset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {

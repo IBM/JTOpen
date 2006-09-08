@@ -18,10 +18,10 @@ import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
 
 /**
- * The SpooledFile class represents a server spooled file.
+ * The SpooledFile class represents a spooled file.
  * You can use an instance of this class to manipulate an individual
  * spooled file (hold, release, delete, send, read, and so on).
- * To create new spooled files on the server, use the
+ * To create new spooled files on the system, use the
  * SpooledFileOutputStream class.
  *
  * See <a href="{@docRoot}/com/ibm/as400/access/doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
@@ -234,14 +234,14 @@ implements java.io.Serializable
      *              which can also be retrieved from the message object returned
      *              on the getMessage() method.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is
      *                                            completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          server is not at the correct level.
+     *                                          system is not at the correct level.
      **/
     public void answerMessage(String reply)
       throws AS400Exception,
@@ -289,13 +289,13 @@ implements java.io.Serializable
      * new spooled file is created on the same output queue and on the same system 
      * as the original spooled file. A reference to the new spooled file is returned.
      *
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public SpooledFile copy()
       throws AS400Exception,
@@ -323,13 +323,13 @@ implements java.io.Serializable
      *       position on this output queue.  The output queue and this spooled
      *       file must reside on the same system.
      *
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server system is not at the correct level.
+     *                                         system is not at the correct level.
      **/
     public SpooledFile copy(OutputQueue outputQueue)
       throws AS400Exception,
@@ -365,12 +365,12 @@ implements java.io.Serializable
 
 
     /**
-      * Deletes the spooled file on the server.
+      * Deletes the spooled file on the system.
       *
-      * @exception AS400Exception If the server returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public void delete()
@@ -394,13 +394,13 @@ implements java.io.Serializable
       *
       * @return The input stream object that can be used to read the contents
       *         of this spooled file.
-      * @exception AS400Exception If server returns an error message.
+      * @exception AS400Exception If system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported
-      *                                         because the server system is not at the
+      *                                         because the system is not at the
       *                                         correct level.
       **/
     public PrintObjectInputStream getInputStream()
@@ -424,13 +424,13 @@ implements java.io.Serializable
       *
       * @return The input stream object that can be used to read the contents
       *         of this spooled file.
-      * @exception AS400Exception If server returns an error message.
+      * @exception AS400Exception If system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported
-      *                                         because the server system is not at the
+      *                                         because the system is not at the
       *                                         correct level.
       **/
     public PrintObjectInputStream getInputStream(PrintParameterList ppl)
@@ -454,13 +454,13 @@ implements java.io.Serializable
       *
       * @return The input stream object that can be used to read the contents
       *         of this spooled file.
-      * @exception AS400Exception If the server returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported
-      *                                         because the server operating system is not
+      *                                         because the system operating system is not
       *                                         at the correct level.
       **/
     public PrintObjectInputStream getInputACIFMergedStream(boolean acifB)
@@ -620,10 +620,10 @@ implements java.io.Serializable
       *
       * @return The AS400Message object that contains the message text,
       *   type, severity, id, date, time, and default reply.
-      * @exception AS400Exception If the server returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public AS400Message getMessage()
@@ -701,14 +701,14 @@ implements java.io.Serializable
      *
      * @return A page input stream object that can be used to read the contents
      *         of this spooled file, one page at a time.
-     * @exception AS400Exception If the server system returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed,
                                                   or the spooled file format is not supported.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported
-     *                                         because the server operating system is not
+     *                                         because the system operating system is not
      *                                         at the correct level.
      **/
     public PrintObjectPageInputStream getPageInputStream(PrintParameterList pageStreamOptions)
@@ -751,14 +751,14 @@ implements java.io.Serializable
      *
      * @return The transformed input stream object that can be used to read the contents
      *         of the transformed spooled file.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed,
      *                                            or the spooled file format is not supported.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported
-     *                                         because the server operating system is not
+     *                                         because the system operating system is not
      *                                         at the correct level.
      **/
     public PrintObjectTransformedInputStream getTransformedInputStream(PrintParameterList transformOptions)
@@ -786,13 +786,13 @@ implements java.io.Serializable
      *  <i>holdType</i> may be null.  If <i>holdType</i> is not specified, the default is
      * *IMMED.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported
-     *                                         because the server operating system is not
+     *                                         because the system operating system is not
      *                                         at the correct level.
      **/
     public void hold(String holdType)
@@ -818,15 +818,15 @@ implements java.io.Serializable
      *
      * @param targetSpooledFile The spooled file to move this
      *       spooled file after.  The targetSpooledFile and this spooled file
-     *       must reside on the same server.
+     *       must reside on the same system.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void move(SpooledFile targetSpooledFile)
       throws AS400Exception,
@@ -854,15 +854,15 @@ implements java.io.Serializable
      * @param targetOutputQueue The output queue to move the
      *       spooled file to.  The spooled file will be moved to the first
      *       position on this output queue.  The output queue and this spooled
-     *       file must reside on the same server.
+     *       file must reside on the same system.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void move(OutputQueue targetOutputQueue)
       throws AS400Exception,
@@ -886,13 +886,13 @@ implements java.io.Serializable
 
     /**
      * Moves the spooled file to the first position on the output queue.
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void moveToTop()
       throws AS400Exception,
@@ -930,14 +930,14 @@ implements java.io.Serializable
 
 
     /**
-     * Releases a held spooled file on the server.
-     * @exception AS400Exception If the server returns an error message.
+     * Releases a held spooled file on the system.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server.
+     * @exception IOException If an error occurs while communicating with the system.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void release()
       throws AS400Exception,
@@ -958,7 +958,7 @@ implements java.io.Serializable
 
     /**
       * Sends the spooled file to another user on the same system or to
-      * a remote system on the network.  The equivalent of the server
+      * a remote system on the network.  The equivalent of the system
       * Send Network Spooled File
       * (SNDNETSPLF) command will be issued against the spooled file.
       *
@@ -981,10 +981,10 @@ implements java.io.Serializable
       *                        *NORMAL or *HIGH.  *NORMAL is the default.
       * </UL>
       *
-      * @exception AS400Exception If the server returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public void sendNet(PrintParameterList sendOptions)
@@ -1005,7 +1005,7 @@ implements java.io.Serializable
       * Sends a spooled file to be printed on a remote system.
       * The equivalent of the Send TCP/IP Spooled File
       * (SNDTCPSPLF) command will be issued against the spooled file.
-      * This is the server's version of the TCP/IP LPR command.
+      * This is the system's version of the TCP/IP LPR command.
       *
       * @param sendOptions A print parameter list that contains the
       *  parameters for the send.  The following attributes MUST be set:
@@ -1039,10 +1039,10 @@ implements java.io.Serializable
       *   <LI> ATTR_USRDTATFM - Specifies the name of the user data transform.
       * </UL>
       *
-      * @exception AS400Exception If the server returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the server.
+      * @exception IOException If an error occurs while communicating with the system.
       * @exception InterruptedException If this thread is interrupted.
       **/
     public void sendTCP(PrintParameterList sendOptions)
@@ -1067,13 +1067,13 @@ implements java.io.Serializable
      * @param attributes A print parameter list that contains the
      *  attributes to be changed.
      *
-     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400Exception If the system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the server
+     * @exception IOException If an error occurs while communicating with the system
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         server operating system is not at the correct level.
+     *                                         system operating system is not at the correct level.
      **/
     public void setAttributes(PrintParameterList attributes)
       throws AS400Exception,
@@ -1093,7 +1093,7 @@ implements java.io.Serializable
             chooseImpl();
         ((SpooledFileImpl) impl_).setAttributes(attributes);
 
-        // we changed the spooled file attributes on the server,
+        // we changed the spooled file attributes on the system,
         // merge those changed attributes into our current attributes
         // here.
         if (attrs == null)

@@ -48,7 +48,7 @@ import java.util.Hashtable;                                         // $W1A
   client and the proxy server.  It is not intended for use by application classes.
   <li>PCML<br>
   This category is used to determine how PCML interprets the data that is 
-  sent to and from the server.    
+  sent to and from the system.    
   <li>JDBC<br>
   This category is used to include JDBC data in the standard Toolbox trace.
   </ul>
@@ -269,7 +269,7 @@ public class Trace
 
   /**
     'PCML' trace category.  This category is used to determine how PCML interprets
-    the data that is sent to and from the server.  
+    the data that is sent to and from the system.  
    **/
   public static final int PCML = 7;                            // @D8A
 

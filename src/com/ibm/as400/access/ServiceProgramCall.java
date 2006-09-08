@@ -26,7 +26,7 @@ import java.io.IOException;
  <li>The return value must be void or numeric.  This class does not support calling service programs that return a pointer.
  <li>Parameters can be "pass by reference" or "pass by value".
  <ul>
- <li>When pass by reference, the data is copied from Java storage to server storage, then a pointer to the server storage is passed to the service program.
+ <li>When pass by reference, the data is copied from Java storage to system storage, then a pointer to the system storage is passed to the service program.
  <li>Up to four bytes can be passed by value.  Parameters longer than four bytes must be passed by reference which may require a change to the service program.
  </ul>
  </ul>
@@ -34,7 +34,7 @@ import java.io.IOException;
  <p>Service program entry point notes:
  <ul>
  <li>The service program entry point to call is supplied by the Java program.  The entry point name is <b>case sensitive</b>.  If the run() method fails with the message "CPF226E - Value for a parameter was not valid.", there is a good chance the entry point name is incorrect.
- <li>The service program entry point name is converted from a Java String to an array of EBCDIC bytes before being sent to the server.  <b>By default this conversion is performed using CCSID 37</b>, not the job CCSID which Toolbox classes usually use for conversion.  This is because the entry point name is set when the service program is built.  CCSID 37 is the default because most IBM supplied service programs set the entry point name based on CCSID 37.  A setProcedureName() method exists which lets you override the default.
+ <li>The service program entry point name is converted from a Java String to an array of EBCDIC bytes before being sent to the system.  <b>By default this conversion is performed using CCSID 37</b>, not the job CCSID which Toolbox classes usually use for conversion.  This is because the entry point name is set when the service program is built.  CCSID 37 is the default because most IBM supplied service programs set the entry point name based on CCSID 37.  A setProcedureName() method exists which lets you override the default.
  </ul>
  <p>The following example calls procedure int_int in service program ENTRYPTS in library MYPGM.  The procedure takes one input parameter, an integer, and returns an integer.
  <pre>
@@ -46,7 +46,7 @@ import java.io.IOException;
  *    byte[] parameter = bin4.toBytes(9);
  *    parameterList[0] = new ProgramParameter(parameter);
  *
- *    // Construct the server object.  The service program is on this server.
+ *    // Construct the system object.  The service program is on this system.
  *    AS400 system = new AS400("mySystem");
  *
  *    // Construct the ServiceProgramCall object.
@@ -121,7 +121,7 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Constructs a ServiceProgramCall object.  A ServiceProgramCall object representing the program on <i>system</i> is created.  The <i>program name</i>, <i>procedure name</i> and <i>parameters</i>, must be set before calling the program.
-     @param  system  The server that contains the program.
+     @param  system  The system that contains the program.
      **/
     public ServiceProgramCall(AS400 system)
     {
@@ -131,7 +131,7 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Constructs a ServiceProgramCall object.  A ServiceProgramCall object representing the program on <i>system</i> with name <i>serviceProgram</i> and parameters <i>parameterList</i> created.  The service program's <i>procedure name</i> must be set before calling the program.
-     @param  system  The server which contains the program.
+     @param  system  The system which contains the program.
      @param  serviceProgram  The service program name as a fully qualified name in the integrated file system.
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      **/
@@ -143,7 +143,7 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Constructs a ServiceProgramCall object.  A ServiceProgramCall object representing the program on <i>system</i> with name <i>serviceProgram</i>, procedure name <i>procedureName</i>, and parameters <i>parameterList</i>, is created.
-     @param  system  The server which contains the program.
+     @param  system  The system which contains the program.
      @param  serviceProgram  The program name as a fully qualified name in the integrated file system.
      @param  procedureName  The procedure in the service program to call.
      @param  parameterList  A list of up to 7 parameters with which to call the program.
@@ -162,7 +162,7 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Constructs a ServiceProgramCall object.  A ServiceProgramCall object representing the program on <i>system</i> with name <i>serviceProgram</i>, procedure name <i>procedureName</i>, parameters <i>parameterList</i>, and returning a value as specified in <i>returnValueFormat</i>, is created.
-     @param  system  The server which contains the program.
+     @param  system  The system which contains the program.
      @param  serviceProgram  The program name as a fully qualified name in the integrated file system.
      @param  procedureName  The procedure in the service program to call.
      @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
@@ -262,9 +262,9 @@ public class ServiceProgramCall extends ProgramCall
      @return  true if the call is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -317,15 +317,15 @@ public class ServiceProgramCall extends ProgramCall
     }
 
     /**
-     Calls the service program.  Calls the specified service program with the specified parameters.  The server and service program procedure name must be set before calling this method.
+     Calls the service program.  Calls the specified service program with the specified parameters.  The system and service program procedure name must be set before calling this method.
      @param  serviceProgram  The program name as a fully qualified name in the integrated file system.
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      @return  true if the call is successful, false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  PropertyVetoException  If a change for a property is vetoed.
      **/
     public boolean run(String serviceProgram, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, PropertyVetoException
@@ -336,7 +336,7 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Calls the service program.
-     @param  system  The server which contains the program.
+     @param  system  The system which contains the program.
      @param  serviceProgram  The program name as a fully qualified name in the integrated file system.
      @param  procedureName  The procedure in the service program to call.
      @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
@@ -347,9 +347,9 @@ public class ServiceProgramCall extends ProgramCall
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  PropertyVetoException  If a change for a property is vetoed.
      **/
     public boolean run(AS400 system, String serviceProgram, String procedureName, int returnValueFormat, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, PropertyVetoException

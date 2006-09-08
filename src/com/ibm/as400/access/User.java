@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.Calendar;
 
 /**
- The User class represents a user profile object on the server.
+ The User class represents a user profile object on the system.
  <p>Note that calling any of the attribute getters for the first time will result in an implicit call to {@link #loadUserInformation loadUserInformation()}.  If any exceptions are thrown by loadUserInformation() during the implicit call, they will be logged to {@link com.ibm.as400.access.Trace#ERROR Trace.ERROR} and ignored.  However, should an exception occur during an explicit call to loadUserInformation(), it will be thrown to the caller.
  <p>Implementation note:  This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that retrieve user profile information.  The caller must have *READ authority to the user profile object in order to retrieve the information.  The class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change user profile information.  The caller must have security administrator (*SECADM) special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
  @see  com.ibm.as400.access.DirectoryEntry
@@ -112,7 +112,7 @@ public class User implements Serializable
     // Shared error code parameter.
     private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
 
-    // The server where the user is located.
+    // The system where the user is located.
     private AS400 system_ = null;
     // User profile name.
     private String name_ = null;
@@ -259,13 +259,13 @@ public class User implements Serializable
 
     /**
      Constructs a User object.  Note that this constructor no longer throws any of the declared exceptions, but they remain for compatibility.
-     @param  system  The system object representing the server on which the user profile exists.
+     @param  system  The system object representing the system on which the user profile exists.
      @param  name  The user profile name.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public User(AS400 system, String name) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -351,13 +351,13 @@ public class User implements Serializable
 
     /**
      Determines if this user profile exists on the system.  This method just calls {@link #loadUserInformation loadUserInformation()} and if no exception is thrown, the user profile exists, if a CPF9801 then the user profile does not exist.  Any other exceptions (e.g. not enough authority) are still thrown.
-     <p>The value returned by this method is not cached.  That is, every time exists() is called, a call to the server is made to determine if the user profile still exists.
+     <p>The value returned by this method is not cached.  That is, every time exists() is called, a call to the system is made to determine if the user profile still exists.
      @return  true if the profile exists, false if it does not.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
     **/
     public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -493,7 +493,7 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the descriptive text for the user profile.  This value is pre-loaded into any User objects generated from a UserList object so that a call to the server is not required to retrieve this value.  In the event that this User object was not constructed by a UserList, the description will need to be retrieved from the system via an implicit call to loadUserInformation().
+     Retrieves the descriptive text for the user profile.  This value is pre-loaded into any User objects generated from a UserList object so that a call to the system is not required to retrieve this value.  In the event that this User object was not constructed by a UserList, the description will need to be retrieved from the system via an implicit call to loadUserInformation().
      @return  The descriptive text for the user profile.
      **/
     public String getDescription()
@@ -508,8 +508,8 @@ public class User implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public DirectoryEntry getDirectoryEntry() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -631,7 +631,7 @@ public class User implements Serializable
 
     /**
      Retrieves the list of independent auxiliary storage pool (IASP) names in use by this user.
-     @return  The list of independent auxiliary storage pool (IASP) names in use by this user.  If no IASP name are in use by this user, a zero length array is returned.  If the server operating system is not release V5R1M0 or higher, null is returned.
+     @return  The list of independent auxiliary storage pool (IASP) names in use by this user.  If no IASP name are in use by this user, a zero length array is returned.  If the system operating system is not release V5R1M0 or higher, null is returned.
      @see  #getIASPStorageAllowed
      @see  #getIASPStorageUsed
      @see  com.ibm.as400.access.AS400#getVRM
@@ -645,7 +645,7 @@ public class User implements Serializable
 
     /**
      Retrieves the maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object owned by this user on the given independant ASP.
-     @return  The maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object owned by this user on the given independant ASP.  If the user does not have a maximum amount of allowed storage on the given independent ASP, -1 for *NOMAX is returned.  If the server operating system is not release V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
+     @return  The maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object owned by this user on the given independant ASP.  If the user does not have a maximum amount of allowed storage on the given independent ASP, -1 for *NOMAX is returned.  If the system operating system is not release V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
      @see  #getIASPNames
      @see  #getIASPStorageUsed
      **/
@@ -670,7 +670,7 @@ public class User implements Serializable
 
     /**
      Retrieves the amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given independent ASP.
-     @return  The amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given independent ASP.  If the server operating system is not release V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
+     @return  The amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given independent ASP.  If the system operating system is not release V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
      @see  #getIASPNames
      @see  #getIASPStorageAllowed
      **/
@@ -1150,8 +1150,8 @@ public class User implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the user profile exists.
-     @return  The system object representing the server on which the user profile exists.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the user profile exists.
+     @return  The system object representing the system on which the user profile exists.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -1269,7 +1269,7 @@ public class User implements Serializable
     };
 
     /**
-     Retrieves the name of the user profile for which the information is returned.  Note this is the name that is returned by the server, not the name that was set into this User object by the constructor or by a call to setUser().
+     Retrieves the name of the user profile for which the information is returned.  Note this is the name that is returned by the system, not the name that was set into this User object by the constructor or by a call to setUser().
      @return  The name of the user profile for which the information is returned.
      **/
     public String getUserProfileName()
@@ -1414,8 +1414,8 @@ public class User implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public void loadUserInformation() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -2519,7 +2519,7 @@ public class User implements Serializable
     }
 
     /**
-     Sets the user profile name.  This does not change the name of the user profile on the server.  Instead, it changes the user profile to which this User object references.  This property cannot be changed if the object has established a connection to the server.
+     Sets the user profile name.  This does not change the name of the user profile on the system.  Instead, it changes the user profile to which this User object references.  This property cannot be changed if the object has established a connection to the system.
      @param  name  The user profile name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      @see  #getName
@@ -2829,8 +2829,8 @@ public class User implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the user profile exists.  This property cannot be changed if the object has established a connection to the server.
-     @param  system  The system object representing the server on which the user profile exists.
+     Sets the system object representing the system on which the user profile exists.  This property cannot be changed if the object has established a connection to the system.
+     @param  system  The system object representing the system on which the user profile exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException

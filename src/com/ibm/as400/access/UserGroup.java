@@ -32,13 +32,13 @@ public class UserGroup extends User
 
     /**
      Constructs a UserGroup object.  Note that this constructor no longer throws any of the declared exceptions, but they remain for compatibility.
-     @param  system  The system object representing the server on which the group profile exists.
+     @param  system  The system object representing the system on which the group profile exists.
      @param  name  The group profile name.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
     public UserGroup(AS400 system, String name) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -57,9 +57,9 @@ public class UserGroup extends User
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
-     @exception  RequestNotSupportedException  If the requested function is not supported because the server is not at the correct level.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  RequestNotSupportedException  If the requested function is not supported because the system is not at the correct level.
      **/
     public Enumeration getMembers() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
     {

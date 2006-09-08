@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.util.Enumeration;
 
 /**
- The UserList class represents a list of user profiles on the server.
+ The UserList class represents a list of user profiles on the system.
  <p>Implementation note:  This class internally uses the Open List APIs (e.g. QGYOLAUS).
  @see  com.ibm.as400.access.User
  @see  com.ibm.as400.access.UserGroup
@@ -67,7 +67,7 @@ public class UserList implements Serializable
     // Shared error code parameter.
     private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
 
-    // The server where the users are located.
+    // The system where the users are located.
     private AS400 system_ = null;
     // The selection criteria for which users are returned.
     private String userInfo_ = ALL;
@@ -89,7 +89,7 @@ public class UserList implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a UserList object.  The {@link #setSystem system} must be set before calling any of the methods that connect to the server.  The <i>userInfo</i> parameter defaults to {@link #ALL ALL}, the <i>groupInfo</i> parameter defaults to {@link #NONE NONE}, and the <i>userProfile</i> parameter defaults to {@link #ALL ALL}.
+     Constructs a UserList object.  The {@link #setSystem system} must be set before calling any of the methods that connect to the system.  The <i>userInfo</i> parameter defaults to {@link #ALL ALL}, the <i>groupInfo</i> parameter defaults to {@link #NONE NONE}, and the <i>userProfile</i> parameter defaults to {@link #ALL ALL}.
      **/
     public UserList()
     {
@@ -99,7 +99,7 @@ public class UserList implements Serializable
 
     /**
      Constructs a UserList object.  The <i>userInfo</i> parameter defaults to {@link #ALL ALL}, the <i>groupInfo</i> parameter defaults to {@link #NONE NONE}, and the <i>userProfile</i> parameter defaults to {@link #ALL ALL}.
-     @param  system  The system object representing the server on which the users exists.
+     @param  system  The system object representing the system on which the users exists.
      **/
     public UserList(AS400 system)
     {
@@ -115,7 +115,7 @@ public class UserList implements Serializable
 
     /**
      Constructs a UserList object.  The <i>userProfile</i> parameter defaults to {@link #ALL ALL}.
-     @param  system  The system object representing the server on which the users exists.
+     @param  system  The system object representing the system on which the users exists.
      @param  userInfo  The users to be returned.  Possible values are:
      <ul>
      <li>{@link #ALL ALL} - All user profiles and group profiles are returned.
@@ -179,7 +179,7 @@ public class UserList implements Serializable
 
     /**
      Constructs a UserList object.
-     @param  system  The system object representing the server on which the users exists.
+     @param  system  The system object representing the system on which the users exists.
      @param  userInfo  The users to be returned.  Possible values are:
      <ul>
      <li>{@link #ALL ALL} - All user profiles and group profiles are returned.
@@ -265,12 +265,12 @@ public class UserList implements Serializable
     }
 
     /**
-     Closes the user list on the server.  This releases any server resources previously in use by this user list.
+     Closes the user list on the system.  This releases any system resources previously in use by this user list.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #load
      **/
     public synchronized void close() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -330,8 +330,8 @@ public class UserList implements Serializable
     }
 
     /**
-     Returns the system object representing the server on which the users exist.
-     @return  The system object representing the server on which the users exist.  If the system has not been set, null is returned.
+     Returns the system object representing the system on which the users exist.
+     @return  The system object representing the system on which the users exist.  If the system has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -375,9 +375,9 @@ public class UserList implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
-     @exception  RequestNotSupportedException  If the requested function is not supported because the server is not at the correct level.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
+     @exception  RequestNotSupportedException  If the requested function is not supported because the system is not at the correct level.
      @see  #close
      @see  #load
      **/
@@ -391,15 +391,15 @@ public class UserList implements Serializable
     }
 
     /**
-     Returns a subset of the list of users.  This method allows the user to retrieve the user list from the server in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the users at a given offset will change, so a subsequent call to getUsers() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Users as the previous call.
+     Returns a subset of the list of users.  This method allows the user to retrieve the user list from the system in pieces.  If a call to {@link #load load()} is made (either implicitly or explicitly), then the users at a given offset will change, so a subsequent call to getUsers() with the same <i>listOffset</i> and <i>number</i> will most likely not return the same Users as the previous call.
      @param  listOffset  The offset into the list of users.  This value must be greater than 0 and less than the list length, or specify -1 to retrieve all of the users.
      @param  number  The number of users to retrieve out of the list, starting at the specified <i>listOffset</i>.  This value must be greater than or equal to 0 and less than or equal to the list length.  If the <i>listOffset</i> is -1, this parameter is ignored.
-     @return  The array of retrieved {@link com.ibm.as400.access.User User} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the server, and the specified <i>listOffset</i>.
+     @return  The array of retrieved {@link com.ibm.as400.access.User User} objects.  The length of this array may not necessarily be equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.Job
      @see  #close
      @see  #load
@@ -478,13 +478,13 @@ public class UserList implements Serializable
     }
 
     /**
-     Loads the list of users on the server.  This method informs the server to build a list of users.  This method blocks until the server returns the total number of users it has compiled.  A subsequent call to {@link #getUsers getUsers()} will retrieve the actual user information and attributes for each user in the list from the server.
+     Loads the list of users on the system.  This method informs the system to build a list of users.  This method blocks until the system returns the total number of users it has compiled.  A subsequent call to {@link #getUsers getUsers()} will retrieve the actual user information and attributes for each user in the list from the system.
      <p>This method updates the list length.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  #getLength
      @see  #close
      **/
@@ -643,8 +643,8 @@ public class UserList implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the users exist.  The system cannot be changed once a connection to the server has been established.
-     @param  system  The system object representing the server on which the users exists.
+     Sets the system object representing the system on which the users exist.  The system cannot be changed once a connection to the system has been established.
+     @param  system  The system object representing the system on which the users exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException

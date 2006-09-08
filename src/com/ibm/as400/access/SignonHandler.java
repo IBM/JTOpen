@@ -18,7 +18,7 @@ import java.net.UnknownHostException;
 /**
  Specifies the methods required for a SignonHandler.
  The application can direct the system object to use a specific SignonHandler by calling {@link AS400#setSignonHandler setSignonHandler()}.
- The AS400 class invokes the SignonHandler at runtime, if additional information (such as userID or password) must be obtained while attempting to connect to the server.
+ The AS400 class invokes the SignonHandler at runtime, if additional information (such as userID or password) must be obtained while attempting to connect to the system.
  By default, the Toolbox uses an internal AWT-based implementation of SignonHandler.
 
  <p>For all methods that return a boolean, a returned value of <tt>true</tt> indicates that the sign-on should proceed; <tt>false</tt> indicates that the sign-on should not proceed, in which case the system object will throw an {@link AS400SecurityException AS400SecurityException} with an error code indicating what information is missing or incorrect.  In the case of {@link #connectionInitiated connectionInitiated()} and {@link #passwordAboutToExpire passwordAboutToExpire()}, the return code will be {@link AS400SecurityException#SIGNON_CANCELED SIGNON_CANCELED}.
