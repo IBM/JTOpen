@@ -171,7 +171,7 @@ implements SQLData
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
 
-        return new Date(calendar.getTime().getTime());
+        return new Date(calendar.getTimeInMillis()); //@pdc
     }
 
     public static String dateToString(java.util.Date d,              // @F5C
@@ -601,7 +601,7 @@ implements SQLData
         if(calendar == null) calendar = Calendar.getInstance();  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        return new Date(calendar.getTime().getTime());
+        return new Date(calendar.getTimeInMillis()); //@pdc
     }
 
     public double getDouble()
@@ -653,7 +653,7 @@ implements SQLData
         Calendar calendar = Calendar.getInstance();  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(calendar.getTime().getTime());
+        Date d = new Date(calendar.getTimeInMillis()); //@pdc
         return dateToString(d, settings_, calendar);
     }
 
@@ -671,7 +671,7 @@ implements SQLData
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        Timestamp ts = new Timestamp(calendar.getTime().getTime());
+        Timestamp ts = new Timestamp(calendar.getTimeInMillis()); //@pdc
         ts.setNanos(0);
         return ts;
     }

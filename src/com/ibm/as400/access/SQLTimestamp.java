@@ -82,7 +82,7 @@ implements SQLData
             calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
             calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
 
-            Timestamp ts = new Timestamp(calendar.getTime().getTime());
+            Timestamp ts = new Timestamp(calendar.getTimeInMillis()); //@pdc
             // @F2A
             // Remember that the value for nanoseconds is optional.  If we don't check the 
             // length of the string before trying to handle nanoseconds for the timestamp, 
@@ -451,7 +451,7 @@ implements SQLData
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);      //@KBA  added per JTOpen Bug 3818.  According to java.sql.Date, the milliseconds also need to be 'normalized' to zero.
-        return new Date(calendar.getTime().getTime());
+        return new Date(calendar.getTimeInMillis()); //@pdc
     }
 
     public double getDouble()
@@ -488,7 +488,7 @@ implements SQLData
         truncated_ = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        Timestamp ts = new Timestamp (calendar.getTimeInMillis()); //@pdc
         ts.setNanos(nanos_);
         return ts;
     }
@@ -506,7 +506,7 @@ implements SQLData
         truncated_ = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        Timestamp ts = new Timestamp (calendar.getTimeInMillis()); //@pdc
         ts.setNanos(nanos_);
         return timestampToString(ts, calendar, hour_);       // @F4C
     }
@@ -517,7 +517,7 @@ implements SQLData
         truncated_ = 18;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.set(0, 0, 0, hour_, minute_, second_);
-        return new Time(calendar.getTime().getTime());
+        return new Time(calendar.getTimeInMillis()); //@pdc
     }
 
     public Timestamp getTimestamp(Calendar calendar)
@@ -526,7 +526,7 @@ implements SQLData
         truncated_ = 0;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.set(year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp(calendar.getTime().getTime());
+        Timestamp ts = new Timestamp(calendar.getTimeInMillis()); //@pdc
         ts.setNanos(nanos_);
         return ts;
     }

@@ -104,7 +104,7 @@ class SystemValueUtility
                 String stringValue = value.toString();
                 Calendar cal = Calendar.getInstance();
                 cal.set(1900 + (100 * Integer.parseInt(stringValue.substring(0, 1))) + Integer.parseInt(stringValue.substring(1, 3)), Integer.parseInt(stringValue.substring(3, 5)) - 1, Integer.parseInt(stringValue.substring(5, 7)));
-                value = new java.sql.Date(cal.getTime().getTime());
+                value = new java.sql.Date(cal.getTimeInMillis()); //@pdc
             }
             else if (obj.name_.equals("QTIME"))
             {
@@ -115,7 +115,7 @@ class SystemValueUtility
                 cal.set(Calendar.MINUTE, Integer.parseInt(stringValue.substring(2, 4)));
                 cal.set(Calendar.SECOND, Integer.parseInt(stringValue.substring(4, 6)));
                 cal.set(Calendar.MILLISECOND, Integer.parseInt(stringValue.substring(6, 9)));
-                value = new Time(cal.getTime().getTime());
+                value = new Time(cal.getTimeInMillis()); //@pdc
             }
 
             // Sometimes hex zeros get returned for the PNDSYSNAME which shows up as square boxes in the visual system value components.  So we replace the hex zeros with Unicode spaces.
