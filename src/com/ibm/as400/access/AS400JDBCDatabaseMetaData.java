@@ -855,7 +855,7 @@ implements DatabaseMetaData
             cstmt.setString(2, schema);
             cstmt.setString(3, table);
             cstmt.setString(4, columnPattern);
-            cstmt.setObject(5, "DataType=jdbc");
+            cstmt.setObject(5, "DATATYPE='JDBC';CURSORHOLD=1");  //@pdc options per db2 common design
             ResultSet rs = cstmt.executeQuery();
             return rs;
         }
