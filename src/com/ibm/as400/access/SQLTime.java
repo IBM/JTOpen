@@ -113,7 +113,7 @@ implements SQLData
           JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
 
-        return new Time(calendar.getTimeInMillis()); //@pdc
+        return new Time(calendar.getTime().getTime());
     }
 
     public static String timeToString(Time t,
@@ -544,7 +544,7 @@ implements SQLData
         Calendar calendar = Calendar.getInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(calendar.MILLISECOND, 0);
-        return new Time(calendar.getTimeInMillis()); //@pdc
+        return new Time(calendar.getTime().getTime());
     }
 
     public short getShort()
@@ -561,7 +561,7 @@ implements SQLData
         Calendar calendar = Calendar.getInstance();
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(calendar.MILLISECOND, 0);
-        Time t = new Time(calendar.getTimeInMillis()); //@pdc
+        Time t = new Time(calendar.getTime().getTime());
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
@@ -582,7 +582,7 @@ implements SQLData
         // SQL Time objects do not track this field.
         calendar.set(calendar.MILLISECOND, 0);  // @F2A
 
-        return new Time(calendar.getTimeInMillis()); //@pdc
+        return new Time(calendar.getTime().getTime());
     }
 
     public Timestamp getTimestamp(Calendar calendar)
@@ -604,7 +604,7 @@ implements SQLData
         if(calendar == null) calendar = Calendar.getInstance();                         //@54A
         calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);               //@54A
         calendar.set(calendar.MILLISECOND, 0);                                          //@54A
-        Timestamp ts = new Timestamp(calendar.getTimeInMillis()); //@pdc                    //@54A
+        Timestamp ts = new Timestamp(calendar.getTime().getTime());                     //@54A
         ts.setNanos(0);                                                                 //@54A
         return ts;                                                                      //@54A
 
