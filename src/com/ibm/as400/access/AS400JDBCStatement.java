@@ -805,6 +805,8 @@ public class AS400JDBCStatement implements Statement
                         //if ResultSet is updateable, then we cannot have a insensitive cursor                           //@K1A
                         if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE) && (resultSetConcurrency_ == ResultSet.CONCUR_READ_ONLY))    //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);    //@K1A        Option 5
+                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))     //@PDA
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);      //@PDA        Option 4
                         else    //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);    //@K1A        Option 0
                     }    //@K1A
