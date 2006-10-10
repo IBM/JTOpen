@@ -3568,7 +3568,7 @@ implements Connection
                 if(vrm_ >= JDUtilities.vrm540){
 
                     //Set the query optimization goal 
-                    // 0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used (default)
+                    // 0 = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used (default) //@PDC update comment to reflect host server default
                     // 1 = Optimize query for first block of data (*FIRSTIO)
                     // 2 = Optimize query for entire result set (*ALLIO)
                     int queryOptimizeGoal = properties_.getInt (JDProperties.QUERY_OPTIMIZE_GOAL);    
