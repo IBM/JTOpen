@@ -44,17 +44,17 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
   public final static int READ_WRITE = 2;
 
   /**
-   Value of the "text conversion enablement" attribute, indicating "text conversion not enabled".
+   Value of the "text conversion enablement" attribute, indicating "text conversion is enabled".
    **/
   public final static int ENABLED = 0;
 
   /**
-   Value of the "text conversion enablement" attribute, indicating "text conversion enabled".
+   Value of the "text conversion enablement" attribute, indicating "text conversion not enabled".
    **/
   public final static int NOT_ENABLED = 1;
 
   /**
-   Value of the "text conversion enablement" attribute, indicating "text conversion enabled, and mixed data is allowed".
+   Value of the "text conversion enablement" attribute, indicating "text conversion is enabled, and mixed data is allowed".
    **/
   public final static int ENABLED_AND_MIXED = 2;
 
@@ -181,9 +181,9 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
   public int getTextConversionEnablement()
   {
     switch (textConversionEnablement_.charAt(0)) {
-      case '0' : return ENABLED;
-      case '1' : return NOT_ENABLED;
-      default  : return ENABLED_AND_MIXED;
+      case '0' : return NOT_ENABLED;       // text conversion is not enabled
+      case '1' : return ENABLED;           // text conversion is enabled
+      default  : return ENABLED_AND_MIXED; // text conversion is enabled, and mixed data is allowed
     }
   }
 
