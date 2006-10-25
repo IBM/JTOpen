@@ -78,6 +78,20 @@ implements Connection //@A5A
     connection_ = connection;
   }
 
+  //@pda handle
+  /**
+   *  Invalidates the connection.
+   *  A AS400JDBCPooledConnection can get expired and moved back to available queue.  So this
+   *  handle class needs a way for AS400JDBCPooledConnection to notify it of this change in state. 
+   *  This way, when finalize() is called by GC we will not try to double-close the connection.
+   *  Without this method, it is possible for two handles to have references to the same pooledConnection.
+   **/
+   public void invalidate()
+   {
+      connection_ = null;
+      pooledConnection_ = null;
+   }
+   
   /**
   *  Checks that the specified SQL statement can be executed.
   *  This decision is based on the access specified by the caller
@@ -466,7 +480,8 @@ implements Connection //@A5A
   {
     // We allow a user to get this object even if the
     // connection is closed.
-
+    //@pdc above comment not true anymore
+    validateConnection();  //@pda since adding invalidate(), connection_ can be null
     return connection_.getMetaData();
   }
 

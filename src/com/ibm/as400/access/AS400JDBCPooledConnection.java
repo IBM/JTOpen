@@ -73,7 +73,15 @@ public class AS400JDBCPooledConnection implements PooledConnection
 // Instead, we are a listener to the handle, so we know when either the user or the
 // garbage collector closes it.  At that point, this PooledConnection is no longer
 // considered "in use" and can hand out a new handle when someone calls getConnection().
-//   private AS400JDBCConnectionHandle handle_;               // The handle to the connection.
+
+//@pda (bug reported) A AS400JDBCPooledConnection can get expired and moved back to available queue.  So this
+// handle class needs a way for AS400JDBCPooledConnection to notify it of this change in state. 
+// This way, when finalize() is called by GC we will not try to double-close the connection.
+// Without this method, it is possible for two handles to have references to the same pooledConnection.
+// After we are done with handle_, we must set it to null, so AS400JDBCConnectionHandle can be GCed.
+// In order for the handle to be GCed, a leaked connection has to be Expired and have handle_ set to null
+// upon returning to available queue.
+  private AS400JDBCConnectionHandle handle_;               // The handle to the connection. //@pdc make use of reference to handle
 
   private PoolItemProperties properties_;                  // The usage properties.
   private AS400JDBCConnectionEventSupport eventManager_;
@@ -243,7 +251,9 @@ public class AS400JDBCPooledConnection implements PooledConnection
     // Start the connection tracking timers.
     setInUse(true);
 
-    return new AS400JDBCConnectionHandle(this, connection_);
+    handle_ = new AS400JDBCConnectionHandle(this, connection_); //@pdc handle
+    return handle_; //@pda handle
+
   }
 
 
@@ -350,6 +360,13 @@ public class AS400JDBCPooledConnection implements PooledConnection
       boolean readOnly = connection_.isReadOnlyAccordingToProperties();  // Get default from props.
       connection_.setReadOnly(readOnly);  // In case the user forgot to reset.
       connection_.setAutoCommit(true);    // Ditto.
+      if (handle_ != null) //@pda handle
+      {
+          handle_.invalidate();      //@pda Invalidate the handle.  so if this pooledConnection gets expired then also need to invalidate (remove reference from handle to pooledConnection) handle.
+                                     //if the handle gets GCed (due to connection leak), then handle.finalize() will not try to close this pooledConnection, which could have been already assigned to a new handle.
+                                     //(ie prevent two handles from pointing to one pooledConnection)
+          handle_ = null;          //remove reference also, so handle is free for GC.
+      }
     }
     catch (SQLException e) {
       JDTrace.logException(this, "Exception while resetting properties of returned connection.", e);
