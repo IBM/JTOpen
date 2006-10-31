@@ -1793,6 +1793,7 @@ public class IFSFile
    include the current directory or the parent directory.  If this object
    does not represent a directory, or the directory is not accessible, null is returned.  If this object represents
    an empty directory, an empty string array is returned.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1820,6 +1821,7 @@ public class IFSFile
    object have cached file attribute information.  Maintaining references to
    these IFSFile objects after the list operation increases the chances that
    their file attribute information will not be valid.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(IFSFileFilter)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1939,6 +1941,7 @@ public class IFSFile
    passed to the filter object have cached file attribute information.
    Maintaining references to these IFSFile objects after the list operation
    increases the chances that their file attribute information will not be valid.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(IFSFileFilter,String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1979,6 +1982,7 @@ public class IFSFile
    If this object does not represent a directory, or the directory is not accessible, null is returned. If
    this object represents an empty directory, or the pattern does not
    match any files, an empty string array is returned.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -2004,6 +2008,7 @@ public class IFSFile
    include the current directory or the parent directory.  If this
    object does not represent a directory,  or the directory is not accessible, null is returned.  If this
    object represents an empty directory, an empty object array is returned.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2030,6 +2035,7 @@ public class IFSFile
    include the current directory or the parent directory.  If this
    object does not represent a directory,  or the directory is not accessible, null is returned.  If this
    object represents an empty directory, an empty object array is returned.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2063,6 +2069,7 @@ public class IFSFile
    passed to the filter object has cached file attribute information.  Maintaining
    references to these IFSFile objects after the list operation increases the
    chances that their file attribute information will not be valid.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
@@ -2105,6 +2112,7 @@ public class IFSFile
    object does not represent a directory,  or the directory is not accessible, null is returned. If this object
    represents an empty directory, or the pattern does not match any files,
    an empty object array is returned.
+   <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
