@@ -1130,7 +1130,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    @return The optimization goal 
    <p>Possible values include:
    <ul>
-   <li>0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used</li>
+   <li>0 = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used</li>
    <li>1 = Optimize query for first block of data (*FIRSTIO)</li>
    <li>2 = Optimize query for entire result set (*ALLIO) </li>
    </ul>
@@ -3002,7 +3002,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    @param goal - the optimization goal 
    <p>Valid values include:
    <ul>
-   <li>0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used</li>
+   <li>0 = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used</li>
    <li>1 = Optimize query for first block of data (*FIRSTIO)</li>
    <li>2 = Optimize query for entire result set (*ALLIO) </li>
    </ul>
