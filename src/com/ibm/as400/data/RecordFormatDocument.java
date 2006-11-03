@@ -376,8 +376,8 @@ public class RecordFormatDocument implements Serializable, Cloneable
               }
             } else
             {
-               Method method = fieldDesc.getClass().getMethod("getCCSID", null);
-               String ccsids = (String)method.invoke(fieldDesc, null);
+               Method method = fieldDesc.getClass().getMethod("getCCSID", (java.lang.Class[]) null); //@pdc cast for jdk1.5
+               String ccsids = (String)method.invoke(fieldDesc, (java.lang.Object[]) null); //@pdc cast for jdk1.5
                if (ccsids != null && ccsids.length() != 0) {
                  addAttribute(attrList, "ccsid", ccsids);
                }

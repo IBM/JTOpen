@@ -127,7 +127,7 @@ public class KeyedFileBeanInfo extends SimpleBeanInfo
 //@B0D      propertySet_[3] = new PropertyDescriptor("recordFormat", beanClass_,
 //@B0D                                               "getRecordFormat",
 //@B0D                                               "setRecordFormat");
-      Method getter = beanClass_.getMethod("getRecordFormat", null); //@B0A
+      Method getter = beanClass_.getMethod("getRecordFormat", (java.lang.Class []) null); //@B0A  //@pdc cast for jdk1.5
       Method setter = beanClass_.getMethod("setRecordFormat", new Class[] { RecordFormat.class }); //@B0A
       propertySet_[3] = new PropertyDescriptor("recordFormat", getter, setter); //@B0A
       propertySet_[3].setBound(true);

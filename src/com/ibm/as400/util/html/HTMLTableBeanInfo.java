@@ -79,7 +79,7 @@ public class HTMLTableBeanInfo extends SimpleBeanInfo
         //                                "getCaption", "setCaption");
         Class[] parameterList = { HTMLTableCaption.class };
         PropertyDescriptor caption = new PropertyDescriptor("caption", 
-                                        beanClass.getMethod("getCaption", null), beanClass.getMethod("setCaption", parameterList));
+                                        beanClass.getMethod("getCaption", (java.lang.Class[]) null), beanClass.getMethod("setCaption", parameterList));  //@pdc cast for jdk1.5
         
         caption.setBound(true);
         caption.setConstrained(true);
