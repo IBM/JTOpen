@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 /**
  Encapsulates a File Server "Object Attributes 2" structure (OA2, OA2s, OA2b, or OA2c).
  OA2* structures are used in several File Server requests and replies.
+ Note: This object does not include the 6 leading LL/CP bytes.
  **/
 final class IFSObjAttrs2 implements Serializable
 {
@@ -49,9 +50,18 @@ final class IFSObjAttrs2 implements Serializable
     System.arraycopy(ccsidBytes, 0, data_, offsetToField, 2);
   }
 
+  // Returns the contents of this OA2 structure.
+  // Does not include the 6 leading LL/CP bytes.
   final byte[] getData()
   {
     return data_;
+  }
+
+  // Returns the number of bytes contained in this OA2 structure.
+  // Does not include the 6 leading LL/CP bytes.
+  final int getLength()
+  {
+    return data_.length;
   }
 
   // Returns the value of the "Owner user ID" field.  (Offset 64)

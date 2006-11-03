@@ -220,14 +220,14 @@ January 1, 1970 00:00:00 GMT)
 Construct a change attributes request.  Use this form to change the file data CCSID.
 @param fileName the name of the file to change
 @param fileNameCCSID file name CCSID
-@param oa2Structure The updated OA2x structure.  This includes the LLCP.
+@param oa2Structure The updated OA2x structure.  This does not include the LLCP.
 **/
   IFSChangeAttrsReq(byte[] fileName,
                     int    fileNameCCSID,
                     IFSObjAttrs2 oa2Structure,
                     int    datastreamLevel)
   {
-    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length + oa2Structure.length());
+    super(HEADER_LENGTH + getTemplateLength(datastreamLevel) + 6 + fileName.length + 6 + oa2Structure.length());
     setLength(data_.length);
     setTemplateLen(getTemplateLength(datastreamLevel));
     setReqRepID(0x000b);
@@ -237,18 +237,24 @@ Construct a change attributes request.  Use this form to change the file data CC
     set16bit(5, ATTR_LIST_LEVEL_OFFSET);   // we're specifying an OA2b or OA2c
     set16bit(0, SET_FLAGS_OFFSET);
 
-    // Set the filename LL.
-    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel));
+    // Set the filename LL.  (4 bytes)
+    set32bit(fileName.length + 6, getFilenameLLOffset(datastreamLevel)); // include length of LLCP (6 bytes)
 
-    // Set the filename code point.
+    // Set the filename code point.  (2 bytes)
     set16bit(0x0002, getFilenameCPOffset(datastreamLevel));
 
     // Set the filename characters.
     System.arraycopy(fileName, 0, data_, getFilenameOffset(datastreamLevel), fileName.length);
 
-    // Set the OA2 structure (includes the LLCP).
+    // Set the OA2 structure's LL.  (4 bytes)
     int offset = getFilenameOffset(datastreamLevel) + fileName.length;
-    System.arraycopy(oa2Structure.getData(), 0, data_, offset, oa2Structure.length());
+    set32bit(oa2Structure.getLength() + 6, offset); // include length of LLCP (6 bytes)
+
+    // Set the OA2 structure's code point.  (2 bytes)
+    set16bit(0x000F, offset + 4);
+
+    // Set the OA2 structure (does not include the leading LLCP bytes).
+    System.arraycopy(oa2Structure.getData(), 0, data_, offset + 6, oa2Structure.length());
   }
 
   private final static int getTemplateLength(int datastreamLevel)
