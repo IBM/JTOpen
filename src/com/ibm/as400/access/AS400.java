@@ -497,6 +497,10 @@ public class AS400 implements Serializable
         bytes_ = system.bytes_;
         byteType_ = system.byteType_;
 
+        gssCredential_ = system.gssCredential_;
+        gssName_ = system.gssName_;
+        gssOption_ = system.gssOption_;
+
         proxyServer_ = system.proxyServer_;
         // proxyClientConnection_ is not copied.
 
@@ -676,21 +680,33 @@ public class AS400 implements Serializable
         return validateSignon(userId, password);
     }
 
-    // Indicates if the native optimizations code can be used.
-    // return true if you are running on this system, the user has not told us specifically to use the host servers, we are not using proxy, and the version of the native code matches the version we expect; false otherwise.
-    boolean canUseNativeOptimizations()
+    // Only load native version once.
+    private static int nativeVersion = -1;
+    private static int getNativeVersion()
     {
         try
         {
-            if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
+            if (AS400.nativeVersion == -1)
             {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
-                return true;
+                AS400.nativeVersion = Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode();
             }
         }
         catch (Exception e)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations, unexpected exception while loading native version:", e);
+            AS400.nativeVersion = 0;
+        }
+        return AS400.nativeVersion;
+    }
+
+    // Indicates if the native optimizations code can be used.
+    // return true if you are running on this system, the user has not told us specifically to use the host servers, we are not using proxy, and the version of the native code matches the version we expect; false otherwise.
+    boolean canUseNativeOptimizations()
+    {
+        if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && getNativeVersion() == 2)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
+            return true;
         }
         return false;
     }
@@ -2725,7 +2741,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the system has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
+     Sets the GSS credential for this object.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
      @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
      **/
     public void setGSSCredential(Object gssCredential)
@@ -2736,12 +2752,6 @@ public class AS400 implements Serializable
         {
             Trace.log(Trace.ERROR, "Parameter 'gssCredential' is null.");
             throw new NullPointerException("gssCredential");
-        }
-
-        if (signonInfo_ != null)
-        {
-            Trace.log(Trace.ERROR, "Cannot set gssCredential after connection has been made.");
-            throw new ExtendedIllegalStateException("gssCredential", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
         synchronized (this)
@@ -2774,7 +2784,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the system has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
+     Sets the GSS name for this object.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
      @param  gssName  The GSS name string.
      **/
     public void setGSSName(String gssName)
@@ -2785,12 +2795,6 @@ public class AS400 implements Serializable
         {
             Trace.log(Trace.ERROR, "Parameter 'gssName' is null.");
             throw new NullPointerException("gssName");
-        }
-
-        if (signonInfo_ != null)
-        {
-            Trace.log(Trace.ERROR, "Cannot set gssName after connection has been made.");
-            throw new ExtendedIllegalStateException("gssName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
         synchronized (this)
