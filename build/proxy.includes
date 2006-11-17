@@ -180,6 +180,7 @@ com/ibm/as400/access/JD*Proxy.class
 com/ibm/as400/access/JDTrace.class
 com/ibm/as400/access/SerializableInputStream.class
 com/ibm/as400/access/SerializableReader.class
+com/ibm/as400/access/ToolboxWrapper.class
 
 #---------------------------------------------------
 # Print
