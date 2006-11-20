@@ -4247,7 +4247,6 @@ implements RowSet, Serializable             // @A3C
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
-    @return                 The parameter value or 0 if the value is SQL NULL.
         
     @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     @since Modification 5
@@ -4268,7 +4267,6 @@ implements RowSet, Serializable             // @A3C
     @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
-    @return                 The parameter value or 0 if the value is SQL NULL.
         
     @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/

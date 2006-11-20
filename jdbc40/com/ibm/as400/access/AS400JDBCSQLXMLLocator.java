@@ -174,7 +174,6 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
     /**
      * Writes the given Java String to the XML value that this <code>SQLXML</code> object designates.
      * @param str the string to be written to the XML value that this <code>SQLXML</code> designates
-     * @return the number of characters written
      * @throws SQLException if there is an error accessing the XML value
      */
     public synchronized void setString(String str) throws SQLException
