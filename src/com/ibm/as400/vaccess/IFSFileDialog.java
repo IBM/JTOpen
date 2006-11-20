@@ -241,7 +241,6 @@ Constructs an IFSFileDialog object.
      @param y the y coordinate of the topmost cell of the component
      @param width the horizontal measurement of the component in cells
      @param height the vertical measurement of the component in cells
-     @return none
      **/
     protected void add(Component          component,
                        GridBagLayout      layout,

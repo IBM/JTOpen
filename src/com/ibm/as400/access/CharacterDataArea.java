@@ -565,7 +565,6 @@ public class CharacterDataArea extends DataArea implements Serializable
      @param type The Data Area bidi string type, as defined by the CDRA (Character
                  Data Representataion Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
-     @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.

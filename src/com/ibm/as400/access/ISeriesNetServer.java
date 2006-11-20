@@ -1310,7 +1310,6 @@ implements Serializable
    Sets the value of the "autostart" attribute.
    This attribute indicates whether or not the NetServer is to be started automatically when TCP is started.
    Note: This is the only NetServer attribute for which changes take effect immediately upon {@link #commitChanges() commitChanges}.  That is, a NetServer restart is not necessary.
-   @return  The pending value of the "autostart" attribute.
    **/
   public void setAutoStart(boolean value)
   {
