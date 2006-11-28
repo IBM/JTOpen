@@ -2653,10 +2653,7 @@ implements DatabaseMetaData
     public int getMaxCursorNameLength ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm550)                  //@550A
-            return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH;
-        else                                                            //@550A
-            return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH_PRE_V5R5;  //@550A
+        return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH;
     }
 
 
