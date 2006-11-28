@@ -69,8 +69,8 @@ implements Statement
 
 
     // Constants.
-    static final int            MAX_CURSOR_NAME_LENGTH_PRE_V5R5 = 18;   //@550C
-    static final int            MAX_CURSOR_NAME_LENGTH          = 128;  //@550A
+    //@550D static final int            MAX_CURSOR_NAME_LENGTH_PRE_V5R5 = 18;   //@550C
+    static final int            MAX_CURSOR_NAME_LENGTH          = 18; //@550C  
 
     // Constants for generated key support
     static final int            RETURN_GENERATED_KEYS = 1;    //@G4A
@@ -3000,7 +3000,8 @@ implements Statement
 
             // Validate the length of the cursor name.
             int cursorNameLength = cursorName.length();    // @EEA
-            int maxLength = (connection_.getVRM() >= JDUtilities.vrm550) ? MAX_CURSOR_NAME_LENGTH : MAX_CURSOR_NAME_LENGTH_PRE_V5R5;    //@550 128 byte cursor name support
+            //@550D int maxLength = (connection_.getVRM() >= JDUtilities.vrm550) ? MAX_CURSOR_NAME_LENGTH : MAX_CURSOR_NAME_LENGTH_PRE_V5R5;    //@550 128 byte cursor name support
+            int maxLength = MAX_CURSOR_NAME_LENGTH;
             if((cursorNameLength > maxLength) || (cursorNameLength == 0))    // @EEC    @550 changed MAX_CURSOR_NAME_LENGTH to maxLength
                 JDError.throwSQLException (JDError.EXC_CURSOR_NAME_INVALID);
 
