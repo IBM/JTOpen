@@ -1501,7 +1501,7 @@ ResultSet.CONCUR_READ_ONLY.
   //@pda jdbc40
   protected String[] getValidWrappedList()
   {
-      return new String[] {  "com.ibm.as400.access.AS400JDBCConnection", "java.sql.Connection" };
+      return new String[] {  "java.sql.Connection" }; //@pdc can't be a as400jdbcconnection wrapper because an attempt to cast as such would fail
   }
   
   
