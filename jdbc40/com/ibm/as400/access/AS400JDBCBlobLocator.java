@@ -423,7 +423,13 @@ Returns the position at which a pattern is found in the BLOB.
    */
   public synchronized void free() throws SQLException
   {
-     locator_.free();
+     if(locator_ != null)
+     {
+         locator_.free();
+     }
+     locator_  = null;  //@pda make objects available for GC
+     savedObject_ = null;
+     cache_ = null;
   }
 
   // @PDA jdbc40

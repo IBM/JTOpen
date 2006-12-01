@@ -49,7 +49,7 @@ public class AS400JDBCClob implements Clob
 
   protected char[] data_;                                 //@pdc jdbc40
   protected int maxLength_;                               //@pdc jdbc40
-  static final int MAX_LOB_SIZE = 2147483647;   //@PDA jdbc40 same as native driver
+  static final int MAX_LOB_SIZE = 2147483647;   //@PDA jdbc40 same as native driver. (if column is a DBCLOB the limit is 1,073,741,823)
 
 /**
 Constructs an AS400JDBCClob object.  The data is contained
@@ -409,7 +409,7 @@ Returns the position at which a pattern is found in the CLOB.
      */
     public synchronized void free() throws SQLException
     {
-        //no-op if not locator
+        data_ = null; //@pda make available for GC
     }
 
     // @PDA jdbc40

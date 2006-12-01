@@ -504,7 +504,7 @@ Returns the handle to this CLOB locator in the database.
   // @PDA jdbc40
   /**
    * This method frees the <code>Clob</code> object and releases the
-   * resources the resources that it holds. The object is invalid once the
+   * resources that it holds. The object is invalid once the
    * <code>free</code> method is called. If <code>free</code> is called
    * multiple times, the subsequent calls to <code>free</code> are treated
    * as a no-op.
@@ -514,7 +514,14 @@ Returns the handle to this CLOB locator in the database.
    */
   public synchronized void free() throws SQLException
   {
-      locator_.free();
+      if(locator_ != null)
+      {
+          locator_.free();
+      }
+      locator_  = null;  //@pda make objects available for GC
+      converter_ = null;
+      savedObject_ = null;
+      cache_ = null;
   }
 
   // @PDA jdbc40
@@ -538,7 +545,7 @@ Returns the handle to this CLOB locator in the database.
    */
   public synchronized Reader getCharacterStream(long pos, long length) throws SQLException
   {
-      if (length < 0 || length > locator_.getMaxLength())
+      if (pos < 1 || (pos - 1 + length) > locator_.getMaxLength() || length < 0 )  //@pdc change parm check like getSubString
       {
         JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }

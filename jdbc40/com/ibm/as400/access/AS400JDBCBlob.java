@@ -364,7 +364,7 @@ Returns the position at which a pattern is found in the BLOB.
      */
     public synchronized void free() throws SQLException
     {
-        //no-op if not locator
+        data_ = null; //@pda make available for GC
     }
 
     // @PDA jdbc40
