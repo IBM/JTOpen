@@ -4453,7 +4453,7 @@ implements Connection
      */
     public Blob createBlob() throws SQLException
     {
-        return new AS400JDBCBlob(new byte[1], AS400JDBCBlob.MAX_LOB_SIZE);
+        return new AS400JDBCBlob(new byte[0], AS400JDBCBlob.MAX_LOB_SIZE);  //@pdc 0 len array
     }
   
     //@PDA jdbc40

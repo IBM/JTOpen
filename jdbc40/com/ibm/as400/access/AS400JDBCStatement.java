@@ -124,7 +124,7 @@ implements Statement
     private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
     private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
     private boolean     useVariableFieldCompression_ = false;    //@K54
-    private boolean     isPoolable_ = true;         //@PDA  jdbc40
+    private boolean     isPoolable_ = false;         //@PDA  jdbc40
     
     /**
     Constructs an AS400JDBCStatement object.
