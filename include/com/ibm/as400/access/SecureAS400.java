@@ -193,7 +193,7 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Returns the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and server are encrypted.
+     Returns the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and i5/OS system are encrypted.
      @return  The proxy encryption mode.
      **/
     public int getProxyEncryptionMode()
@@ -287,10 +287,10 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and server are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
+     Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and i5/OS system are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
      <br>Valid proxy encryption modes are:
      <br>   CLIENT_TO_PROXY_SERVER - encrypt between client and proxy server.
-     <br>   PROXY_SERVER_TO_SERVER - encrypt between proxy server and server.
+     <br>   PROXY_SERVER_TO_SERVER - encrypt between proxy server and i5/OS system.
      <br>   CLINT_TO_SERVER - encrypt both portions of connection.
      @param  proxyEncryptionMode  The proxy encryption mode.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
