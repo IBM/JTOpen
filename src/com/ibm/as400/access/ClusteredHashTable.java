@@ -60,7 +60,7 @@ public class MyFile extends Object<br>
 	try{<br>
 	    AS400 the400 = new AS400();<br><br>
 
-            // CHTSVR01 is the server name<br>
+            // CHTSVR01 is the clustered hash table server name<br>
 	    ClusteredHashTable cht = new ClusteredHashTable(the400,"CHTSVR01");<br><br>
 
 	    cht.open();  // make a connection<br><br>
@@ -85,7 +85,7 @@ public class MyFile extends Object<br>
 }<br>
 }<p>
 
-Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2M0 or later.<p>
+Note: This class uses APIs that are available only when connecting to systems running OS/400 V5R2M0 or later.<p>
 
 **/
 
