@@ -3773,24 +3773,23 @@ implements CallableStatement
 
     //@PDA jdbc40
     /**
-     * Sets the designated parameter to a <code>InputStream</code> object.  The <code>inputstream</code> must contain  the number
+     * Sets the designated parameter to a <code>InputStream</code> object.  The <code>InputStream</code> must contain  the number
      * of characters specified by length, otherwise a <code>SQLException</code> will be
      * generated when the <code>CallableStatement</code> is executed.
      * This method differs from the <code>setBinaryStream (int, InputStream, int)</code>
      * method because it informs the driver that the parameter value should be
-     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * sent to the system as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
      * the driver may have to do extra work to determine whether the parameter
-     * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * data should be sent to the system as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
      * @param parameterName the name of the parameter to be set
-     * the second is 2, ...
      * 
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
      * @throws SQLException  if parameterIndex does not correspond
      * to a parameter marker in the SQL statement,  or if the length specified
-     * is less than zero; if the number of bytes in the inputstream does not match
+     * is less than zero; if the number of bytes in the inputStream does not match
      * the specfied length; if a database access error occurs or 
      * this method is called on a closed <code>CallableStatement</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
@@ -3880,9 +3879,9 @@ implements CallableStatement
      * generated when the <code>CallableStatement</code> is executed.
      * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the system as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * data should be sent to the system as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
      * @param parameterName the name of the parameter to be set
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
@@ -3970,9 +3969,9 @@ implements CallableStatement
      * generated when the <code>CallableStatement</code> is executed.
      * This method differs from the <code>setCharacterStream (int, Reader, int)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the system as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * data should be sent to the system as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
      * 
      * @param parameterName the name of the parameter to be set
      * @param reader An object that contains the data to set the parameter value to.
@@ -4155,9 +4154,9 @@ implements CallableStatement
      * Sets the designated parameter to a <code>InputStream</code> object. 
      * This method differs from the <code>setBinaryStream (int, InputStream)</code>
      * method because it informs the driver that the parameter value should be
-     * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
+     * sent to the system as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
      * the driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * data should be sent to the system as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
      * it might be more efficient to use a version of 
@@ -4225,9 +4224,9 @@ implements CallableStatement
      * Sets the designated parameter to a <code>Reader</code> object. 
      * This method differs from the <code>setCharacterStream (int, Reader)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the server as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the system as a <code>CLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
+     * data should be sent to the system as a <code>LONGVARCHAR</code> or a <code>CLOB</code>
      * 
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
      * it might be more efficient to use a version of 
@@ -4293,9 +4292,9 @@ implements CallableStatement
      * Sets the designated parameter to a <code>Reader</code> object.  
      * This method differs from the <code>setCharacterStream (int, Reader)</code> method
      * because it informs the driver that the parameter value should be sent to
-     * the server as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
+     * the system as a <code>NCLOB</code>.  When the <code>setCharacterStream</code> method is used, the
      * driver may have to do extra work to determine whether the parameter
-     * data should be send to the server as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
+     * data should be sent to the system as a <code>LONGNVARCHAR</code> or a <code>NCLOB</code>
      * <P><B>Note:</B> Consult your JDBC driver documentation to determine if 
      * it might be more efficient to use a version of 
      * <code>setNClob</code> which takes a length parameter.
