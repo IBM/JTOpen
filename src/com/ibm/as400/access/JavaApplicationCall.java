@@ -48,7 +48,7 @@ import java.util.Vector;
  *
  * <P>
  * Sockets are used to send Standard input, output and error between
- * client and server.  The port used can be set via setPort().  The
+ * client and i5/OS system.  The port used can be set via setPort().  The
  * default port sequence is 2850, 2851 and 2852.  If the port is in use,
  * this class searches for available ports if findPort is true.
  * Standard input, output and error are <B>not</B> transported
@@ -60,7 +60,7 @@ import java.util.Vector;
  * opening the necessary additional ports (for stdin, stdout, and stderr).
  * The administrator may need to authenticate the application through
  * the firewall in both directions:
- * From client to server, and from server to client.
+ * From client to i5/OS, and from i5/OS system to client.
  *
  * <P>
  * For example, supposed Java class HelloWorld resides in directory
@@ -314,7 +314,7 @@ public class JavaApplicationCall implements Serializable
      * /dir1:/dir1/dir2/myClasses.jar.
      * <p>Valid values are:
      * <UL>
-     * <li>*ENVVAR No setting is sent from the client to the server so the
+     * <li>*ENVVAR No setting is sent from the client to the i5/OS system so the
      *      i5/OS system's default value of CLASSPATH is used.
      *  <li>string The value that is set before the program is run.
      *  </UL>
@@ -342,7 +342,7 @@ public class JavaApplicationCall implements Serializable
 
     /**
      * Returns the default port used to transfer standard in, standard out
-     * and standard error between the client and the server.  Three
+     * and standard error between the client and the i5/OS system.  Three
      * ports are used.  The port returned by this method is used for
      * standard in, port + 1 is used for standard out and port + 2
      * is used for standard error.  The default port is 2850.
@@ -1107,7 +1107,7 @@ public class JavaApplicationCall implements Serializable
      * /dir1:/dir1/dir2/myClasses.jar.
      * <p>Valid values are:
      * <UL>
-     * <li>*ENVVAR No setting is sent from the client to the server so the
+     * <li>*ENVVAR No setting is sent from the client to the i5/OS system so the
      *      i5/OS system's default value of CLASSPATH is used.
      *  <li>string The value that is set before the program is run.
      *  </UL>

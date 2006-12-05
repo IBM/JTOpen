@@ -143,7 +143,7 @@ implements Serializable
   public final static int MSG_AUTH_NOT_SUPPORTED = 0;
 
   /**
-   Value of the "message authentication" attribute, indicating that the system supports message authentication, and message authentication is negotiated between the client and the server.
+   Value of the "message authentication" attribute, indicating that the system supports message authentication, and message authentication is negotiated between the client and the system.
    **/
   public final static int MSG_AUTH_NEGOTIATED = 1;
 
