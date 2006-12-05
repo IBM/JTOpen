@@ -865,20 +865,29 @@ public class AS400JDBCStatement implements Statement
 
                     // Take note on prefetch if the last block was fetched.
                     boolean lastBlock = false;
+                    boolean bypassExceptionWarning = false;  //@pda (issue 32120) in special errorClass/returnCode cases below, we use sqlca to see if there is a real error
                     if((((errorClass == 1) && (returnCode == 100))
                        || ((errorClass == 2) && (returnCode == 701)))
                        && functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)      // make sure we attempted to prefetch data, otherwise post a warning
                     {
                         lastBlock = true;
+                        returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
+                        if(returnCode == 0)                 //@pda (issue 32120)
+                        	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
                     else if((errorClass == 2) && (returnCode == 700) 
                             && (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)) //@pda perf2 - fetch/close
                     {
                         lastBlock = true;
                         cursor_.setState(true); //closed cursor already on system
-                        
+                        returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
+                        if(returnCode == 0)                 //@pda (issue 32120)
+                        	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
-                    else if(errorClass != 0)
+
+                    
+                    //else //@PDD  check for errors even on cases above (issue 32120)
+                    if(errorClass != 0 && bypassExceptionWarning == false)  //@pdc (issue 32120)
                     {
                         positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A
 

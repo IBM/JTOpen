@@ -172,6 +172,12 @@ class DBReplySQLCA
     }      
 
 
+    // Return SQLCODE from sqlca
+    final public int getSQLCode () throws DBDataStreamException //@PDA
+    {
+    	return BinaryConverter.byteArrayToInt (data_, offset_ + 12);
+    }
+    
     // Returns the SQLState
     // It needs to run thru EbcdicToAscii since it is a string
     final public String getSQLState (ConvTable converter) throws DBDataStreamException //@P0C
