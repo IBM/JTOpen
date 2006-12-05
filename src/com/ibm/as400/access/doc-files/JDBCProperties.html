@@ -8,7 +8,7 @@
 
 <h2>IBM Toolbox for Java JDBC properties</h2>
 
-<P>Many properties can be specified when connecting to a server database using 
+<P>Many properties can be specified when connecting to DB2 for i5/OS using 
   JDBC. All properties are optional and can be specified either as part of the 
   URL or in a java.util.Properties object. If a property is set in both the URL 
   and a Properties object, the value in the URL will be used.</P>
@@ -22,7 +22,7 @@ attributes. The tables organize the properties into the following categories:</P
 
 <UL>
   <LI><A HREF="#general">General properties</A></LI>
-  <LI><A HREF="#server">Server properties</A></LI>
+  <LI><A HREF="#system">System properties</A></LI>
   <LI><A HREF="#format">Format properties</A></LI>
   <LI><A HREF="#performance">Performance properties</A></LI>
   <LI><A HREF="#sort">Sort properties</A></LI>
@@ -33,7 +33,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>General properties</h3>
 
 <p>General properties are system attributes that specify the user, password, and 
-  whether a prompt is necessary to connect to the server.</p>
+  whether a prompt is necessary to connect to the system.</p>
 
 <TABLE BORDER="1">
   <TR VALIGN="bottom" CLASS="hilightbar">
@@ -45,17 +45,17 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat1">&quot;password&quot;</TD>
-    <TD HEADERS="t2">Specifies the password for connecting to the server. If none is specified, 
+    <TD HEADERS="t2">Specifies the password for connecting to the system. If none is specified, 
       then the user will be prompted, unless the &quot;prompt&quot; property is 
       set to &quot;false&quot;, in which case an attempt to connect will fail.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="t4">server password</TD>
+    <TD HEADERS="t4">system password</TD>
     <TD HEADERS="t5">(user will be prompted)</TD>
   </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat1">&quot;prompt&quot;</TD>
     <TD HEADERS="t2">Specifies whether the user should be prompted if a user name or password 
-      is needed to connect to the server. If a connection can not be made without 
+      is needed to connect to the system. If a connection can not be made without 
       prompting the user, and this property is set to &quot;false&quot;, then 
       an attempt to connect will fail.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
@@ -65,22 +65,22 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat1">&quot;user&quot;</TD>
-    <TD HEADERS="t2">Specifies the user name for connecting to the server. If none is specified, 
+    <TD HEADERS="t2">Specifies the user name for connecting to the system. If none is specified, 
       then the user will be prompted, unless the &quot;prompt&quot; property is 
       set to &quot;false&quot;, in which case an attempt to connect will fail.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="t4">server user</TD>
+    <TD HEADERS="t4">system user</TD>
     <TD HEADERS="t5">(user will be prompted)</TD>
   </TR>
 </TABLE>
 
-<A NAME="server"></A>
-<h3>Server properties</h3>
-<p>Server properties specify attributes that govern transactions, libraries, and 
+<A NAME="system"></A>
+<h3>System properties</h3>
+<p>System properties specify attributes that govern transactions, libraries, and 
   databases.</p>
 <TABLE BORDER="1">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
-    <TH ID="cat2">Server property</TH>
+    <TH ID="cat2">System property</TH>
     <TH ID="t2">Description</TH>
     <TH ID="t3">Required</TH>
     <TH ID="t4">Choices</TH>
@@ -122,7 +122,7 @@ attributes. The tables organize the properties into the following categories:</P
         in an independent auxiliary storage pool</a>. This 
         property applies only when connecting to OS/400 V5R2 or i5/OS. 
         When you specify a database name, the name must exist in the relational 
-        database directory on the server. The following criteria determine which 
+        database directory on the system. The following criteria determine which 
         database is accessed:</p>
       <ul>
         <li>When this property is used to specify a database, the specified database 
@@ -149,7 +149,7 @@ attributes. The tables organize the properties into the following categories:</P
         library list of the server job, and optionally sets the default library 
         (default schema).
       <P><strong>Library list</strong><br>
-        The server uses specified libraries to resolve unqualified stored procedure 
+        The system uses specified libraries to resolve unqualified stored procedure 
         names, and stored procedures use them to resolve unqualified names. To 
         specify multiple libraries, use commas or spaces to separate individual 
         entries. You can use *LIBL as a placeholder for the current library list 
@@ -159,9 +159,9 @@ attributes. The tables organize the properties into the following categories:</P
         the specified libraries replace the current library list of the server 
         job
       <P><strong>Default schema</strong><br>
-        The server uses the default schema to resolve unqualified names in SQL 
+        The system uses the default schema to resolve unqualified names in SQL 
         statements. For example, in the statement "SELECT * FROM MYTABLE", the 
-        server looks only in the default schema for MYTABLE. You can specify the 
+        system looks only in the default schema for MYTABLE. You can specify the 
         default schema on the connection URL. When you do not specify the default 
         schema on the connection URL, the following conditions apply, depending 
         on whether you use SQL Naming or System Naming.
@@ -179,17 +179,17 @@ attributes. The tables organize the properties into the following categories:</P
         <li>System Naming<br>
           When you do not specify the default schema on the connection URL:
           <ul>
-            <li>No default schema is set, and the server uses the specified libraries 
+            <li>No default schema is set, and the system uses the specified libraries 
               to search for unqualified names</li>
             <li>When you do not set this property or when it contains only *LIBL, 
-              the server uses the current library list of the server job to search 
+              the system uses the current library list of the server job to search 
               for unqualified names </li>
           </ul>
         </li>
       </ul>
     </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="t4">List of server libraries, separated by commas or spaces</TD>
+    <TD HEADERS="t4">List of system libraries, separated by commas or spaces</TD>
     <TD HEADERS="t5">&quot;*LIBL&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
@@ -228,7 +228,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;package ccsid&quot;</TD>
-    <TD HEADERS="t2">Specifies the character encoding to use for the SQL package and any statements sent to the server.</TD>
+    <TD HEADERS="t2">Specifies the character encoding to use for the SQL package and any statements sent to the system.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;1200&quot; (UCS-2)<BR>
       &quot;13488&quot; (UTF-16)<BR>
@@ -258,7 +258,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;true autocommit&quot;</TD>
     <TD HEADERS="t2">Specifies whether the connection should use true auto commit support.  
 	True autocommit means that autocommit is on and is running under a isolation level other 
-	than *NONE. By default, the driver handles autocommit by running under the server isolation 
+	than *NONE. By default, the driver handles autocommit by running under the system isolation 
 	level of *NONE. </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;true&quot; (Use true autocommit.)<BR>
@@ -389,9 +389,9 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;block criteria&quot;</TD>
-    <TD HEADERS="t2">Specifies the criteria for retrieving data from the server 
+    <TD HEADERS="t2">Specifies the criteria for retrieving data from the system 
       in blocks of records. Specifying a non-zero value for this property will 
-      reduce the frequency of communication to the server, and therefore increase 
+      reduce the frequency of communication to the system, and therefore increase 
       performance. 
       <P>Ensure that record blocking is off if the cursor is going to be used 
         for subsequent UPDATEs, or else the row that is updated will not necessarily 
@@ -406,9 +406,9 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;block size&quot;</TD>
     <TD HEADERS="t2">Specifies the block size (in kilobytes) to retrieve from 
-      the server and cache on the client. This property has no effect unless the 
+      the system and cache on the client. This property has no effect unless the 
       &quot;block criteria&quot; property is non-zero. Larger block sizes reduce 
-      the frequency of communication to the server, and therefore may increase 
+      the frequency of communication to the system, and therefore may increase 
       performance.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;0&quot;<BR>
@@ -437,10 +437,10 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat4"><a name="extendeddynamic">&quot;extended dynamic&quot;</a></TD>
     <TD HEADERS="t2">Specifies whether to use extended dynamic support. Extended 
       dynamic support provides a mechanism for caching dynamic SQL statements 
-      on the server. The 
+      on the system. The 
       first time a particular SQL statement is prepared, it is stored in a SQL 
-      package on the server. If the package does not exist, it is automatically 
-      created. On subsequent prepares of the same SQL statement, the server can 
+      package on the system. If the package does not exist, it is automatically 
+      created. On subsequent prepares of the same SQL statement, the system can 
       skip a significant part of the processing by using information stored in 
       the SQL package. 
       If this is set to &quot;true&quot;, then a package name must be set using 
@@ -465,9 +465,9 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t2">Specifies the maximum LOB (large object) size (in bytes) 
       that can be retrieved as part of a result set. LOBs that are larger than 
       this threshold will be retrieved in pieces using extra communication to 
-      the server. Larger LOB thresholds will reduce the frequency of communication 
-      to the server, but will download more LOB data, even if it is not used. 
-      Smaller LOB thresholds may increase frequency of communication to the server, 
+      the system. Larger LOB thresholds will reduce the frequency of communication 
+      to the system, but will download more LOB data, even if it is not used. 
+      Smaller LOB thresholds may increase frequency of communication to the system, 
       but will only download LOB data as it is needed.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;0&quot; - &quot;16777216&quot;</TD>
@@ -477,7 +477,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat4">&quot;package&quot;</TD>
     <TD HEADERS="t2">Specifies the base name of the SQL package. Note 
       that only the first seven characters are used to generate the name of the 
-      SQL package on the server. 
+      SQL package on the system. 
       This property has no effect unless the &quot;extended dynamic&quot; property 
       is set to &quot;true&quot;. In addition, this property must be set if the 
       &quot;extended dynamic&quot; property is set to &quot;true&quot;.</TD>
@@ -501,7 +501,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t2">Specifies 
       whether to cache a subset of the SQL package information in client memory. 
       Caching SQL packages locally reduces the amount of communication to the 
-      server for prepares and describes. This property has no effect unless the 
+      system for prepares and describes. This property has no effect unless the 
       &quot;extended dynamic&quot; property is set to &quot;true&quot;.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;true&quot;<BR>
@@ -559,11 +559,11 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;QAQQINI library name&quot;<BR>
     </TD>
-    <TD HEADERS="t5">(server default)</TD>
+    <TD HEADERS="t5">(system default)</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;query optimize goal&quot;</TD>
-    <TD HEADERS="t2">Specifies the goal the server should use with optimization of queries.  This setting corresponds with the server's QAQQINI option called OPTIMIZATION_GOAL.  Note, this property is ignored when connecting to systems running to i5/OS V5R3 and earlier.</TD>
+    <TD HEADERS="t2">Specifies the goal the system should use with optimization of queries.  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  Note, this property is ignored when connecting to systems running to i5/OS V5R3 and earlier.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;0&quot; = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used<BR>
     &quot;1&quot; = Optimize query for first block of data (*FIRSTIO)<BR>
@@ -588,7 +588,7 @@ attributes. The tables organize the properties into the following categories:</P
 
 <A NAME="sort"></A>
 <h3>Sort properties</h3>
-<p>Sort properties specify how the server performs stores and performs sorts.</p>
+<p>Sort properties specify how the system performs stores and performs sorts.</p>
 <TABLE BORDER="1">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat5">Sort property</TH>
@@ -599,7 +599,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat5">&quot;sort&quot;</TD>
-    <TD HEADERS="t2">Specifies how the server sorts records before sending them to the client.</TD>
+    <TD HEADERS="t2">Specifies how the system sorts records before sending them to the client.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;hex&quot; (base the sort on hexadecimal values)<BR>
       &quot;language&quot; (base the sort on the language set in the &quot;sort
@@ -620,7 +620,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP">
     <TD HEADERS="cat5">&quot;sort table&quot;</TD>
     <TD HEADERS="t2">Specifies the library and file name of a sort sequence table stored on 
-      the server. This property has no effect unless the &quot;sort&quot; property 
+      the system. This property has no effect unless the &quot;sort&quot; property 
       is set to &quot;table&quot;.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">Qualified sort table name</TD>
@@ -628,7 +628,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat5">&quot;sort weight&quot;</TD>
-    <TD HEADERS="t2">Specifies how the server treats case while sorting records. This property
+    <TD HEADERS="t2">Specifies how the system treats case while sorting records. This property
       has no effect unless the &quot;sort&quot; property is set to &quot;language&quot;.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;shared&quot; (uppercase and lowercase characters sort as
@@ -728,7 +728,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat6"><A NAME="driver">&quot;driver&quot;</A></TD>
     <TD HEADERS="t2">Specifies the JDBC driver implementation. The IBM Toolbox 
       for Java JDBC driver can use different JDBC driver implementations based 
-      on the environment. If the environment is an i5/OS JVM on the same server 
+      on the environment. If the environment is an i5/OS JVM on the same system 
       as the database to which the program is connecting, the native IBM Developer 
       Kit for Java JDBC driver can be used. In any other environment, the IBM 
       Toolbox for Java JDBC driver is used. This property has no effect if the 
@@ -737,13 +737,13 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t4">&quot;toolbox&quot; (use only the IBM Toolbox for Java JDBC 
       driver).<BR>
       &quot;native&quot; (use the IBM Developer Kit for Java JDBC driver if running 
-      on the server, otherwise use the Toolbox for Java JDBC driver). </TD>
+      on the system, otherwise use the Toolbox for Java JDBC driver). </TD>
     <TD HEADERS="t5">&quot;toolbox&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;errors&quot;</TD>
     <TD HEADERS="t2">Specifies the amount of detail to be returned in the message 
-      for errors that occur on the server.</TD>
+      for errors that occur on the system.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;basic&quot;<BR>
       &quot;full&quot;</TD>
@@ -753,7 +753,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat6"><a name="extendedmetadata">&quot;extended 
       metadata&quot;</a></TD>
     <TD HEADERS="t2">Specifies whether the driver should request extended metadata 
-      from the server. Setting this property to true increases the accuracy of 
+      from the system. Setting this property to true increases the accuracy of 
       the information returned from the following ResultSetMetaData methods:
       <ul>
         <li>getColumnLabel(int)</li>
@@ -763,20 +763,20 @@ attributes. The tables organize the properties into the following categories:</P
       </ul>
       <P>Additionally, setting this property to true enables support for the ResultSetMetaData.getSchemaName(int) 
       method. Setting this property to true may slow performance because it requires retrieving more information 
-	  from the server. Leave the property as the default (false) unless you need more specific information from 
+	  from the system. Leave the property as the default (false) unless you need more specific information from 
 	  the listed methods. For example, when this property is off (false), ResultSetMetaData.isSearchable(int) 
       always returns "true" because because the driver does not have enough information 
-      from the server to make a judgment. Turning on this property (true) forces 
-      the driver to get the correct data from the server.</P>
-	  <P>You can use extended metadata only when connecting to a server running OS/400 V5R2 or i5/OS.</P></TD>
+      from the system to make a judgment. Turning on this property (true) forces 
+      the driver to get the correct data from the system.</P>
+	  <P>You can use extended metadata only when connecting to a system running OS/400 V5R2 or i5/OS.</P></TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;true&quot;<br>&quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;false&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;full open&quot;</TD>
-    <TD HEADERS="t2">Specifies whether the server fully opens a file for each 
-      query. By default the server optimizes open requests. This optimization 
+    <TD HEADERS="t2">Specifies whether the system fully opens a file for each 
+      query. By default the system optimizes open requests. This optimization 
       improves performance but may fail if a database monitor is active when a 
       query is run more than once. Set the property to true only when identical 
       queries are issued when monitors are active.</TD>
@@ -816,7 +816,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;key ring name&quot;</TD>
     <TD HEADERS="t2">Specifies the key ring class name used for SSL connections 
-      with the server. This property has no effect unless &quot;secure&quot; is 
+      with the system. This property has no effect unless &quot;secure&quot; is 
       set to true and a key ring password is set using the &quot;key ring password&quot; 
       property.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
@@ -826,7 +826,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;key ring password&quot;</TD>
     <TD HEADERS="t2">Specifies the password for the key ring class used for SSL 
-      communications with the server. This property has no effect unless &quot;secure&quot; 
+      communications with the system. This property has no effect unless &quot;secure&quot; 
       is set to true and a key ring name is set using the &quot;key ring name&quot; 
       property.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
@@ -882,8 +882,8 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;secure&quot;</TD>
     <TD HEADERS="t2">Specifies whether a Secure Sockets Layer (SSL) connection 
-      is used to communicate with the server. SSL connections are only available 
-      when connecting to servers at V4R4 or later.</TD>
+      is used to communicate with the system. SSL connections are only available 
+      when connecting to systems at V4R4 or later.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;true&quot; (encrypt all client/server communication)<BR>
       &quot;false&quot; (encrypt only the password)</TD>
@@ -893,9 +893,9 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat6"><a name="servertrace">&quot;server 
       trace&quot;</a></TD>
     <TD HEADERS="t2">Specifies the level of tracing of the JDBC server job. When 
-      tracing is enabled, tracing starts when the client connects to the server 
+      tracing is enabled, tracing starts when the client connects to the system 
       and ends when the connection is disconnected. You must start tracing before 
-      connecting to the server, because the client enables server tracing only 
+      connecting to the system, because the client enables system tracing only 
       at connect time. </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">
@@ -938,7 +938,7 @@ attributes. The tables organize the properties into the following categories:</P
 	&quot;warning&quot; (log errors that are recoverable)<BR>
 	&quot;conversion&quot; (log character set conversions between Unicode and native code pages)<BR>
 	&quot;proxy&quot; (log data flow between the client and the proxy server)<BR>
-	&quot;pcml&quot; (used to determine how PCML interprets the data that is sent to and from the server)<BR>
+	&quot;pcml&quot; (used to determine how PCML interprets the data that is sent to and from the system)<BR>
 	&quot;jdbc&quot; (log jdbc information)<BR>
 	&quot;all&quot; (log all categories)<BR>
 	&quot;thread&quot; (log thread information)<BR>

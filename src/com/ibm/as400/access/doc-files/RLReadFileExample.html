@@ -13,7 +13,7 @@ for important legal information.
 <PRE>///////////////////////////////////////////////////////////////////////////////
 //
 // Record-Level Access example.  This program uses the record-level
-// access classes to read records from a file on the server.
+// access classes to read records from a file on the system.
 //
 // Command syntax:
 //    java RLReadFile system
@@ -51,7 +51,7 @@ public class RLReadFile extends Object
 
             system = parameters[0];
 
-            // Create an AS400 object for the server that has the file.
+            // Create an AS400 object for the system that has the file.
 
             AS400 as400 = new AS400(system);
 
@@ -113,7 +113,7 @@ public class RLReadFile extends Object
 
 
             // Create the sequential file object that represents the
-            // file on the server.  We use a QSYSObjectPathName object
+            // file on the system.  We use a QSYSObjectPathName object
             // to get the name of the file into the correct format.
 
             QSYSObjectPathName fileName = new QSYSObjectPathName(&quot;QIWS&quot;,
@@ -130,7 +130,7 @@ public class RLReadFile extends Object
 
             // Open the file for read-only access.  Specify a blocking
             // factor of 10 (the file object will get 10 records when
-            // it accesses the server for data).  Do not use commitment
+            // it accesses the system for data).  Do not use commitment
             // control.
 
             file.open(SequentialFile.READ_ONLY,
@@ -153,7 +153,7 @@ public class RLReadFile extends Object
                // zero.  In that case display the customer name and
                // the balance due.  The following code pulls fields out
                // of the record by field name.  As the field is retrieved
-               // from the record it is converted from server format to
+               // from the record it is converted from i5/OS format to
                // Java format.
 
                if (((BigDecimal)data.getField(&quot;BALDUE&quot;)).floatValue() > 0.0)
@@ -169,7 +169,7 @@ public class RLReadFile extends Object
             }
 
 
-            // When there are no more records to read, disconnect from the server.
+            // When there are no more records to read, disconnect from the system.
 
             as400.disconnectAllServices();
          }
