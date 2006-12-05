@@ -980,7 +980,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the name of the AS400 server property.
+    *  Returns the name of the i5/OS system.
     *  @return The system name.
     **/
     public String getServerName()
