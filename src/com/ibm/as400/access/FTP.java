@@ -30,7 +30,7 @@ import java.beans.*;
  * from the system is also available.  getLastMessage() is used
  * to retrieve the message from the previous request.
  * <P>
- * By default, FTP command are sent via server port 21.  The initial
+ * By default, FTP command are sent via port 21.  The initial
  * data transfer type is ASCII.  Passive mode is used.
  * <P>
  * No encryption is provided by this class.  The user and password
