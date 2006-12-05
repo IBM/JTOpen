@@ -54,7 +54,7 @@ import javax.swing.JScrollPane;
  *is not handled by this class.
  *As in JavaApplicationCall, the Java program running on the system
  *receives input via standard.  The output text area displays output
- *the server java program writes to standard out and standard error.
+ *the system java program writes to standard out and standard error.
  *GUI input/output must be handled via another mechanism such as
  *Remote AWT.
  *
@@ -75,7 +75,7 @@ import javax.swing.JScrollPane;
  *see the on-line help for the Java command. Valid commands are:
  *<UL>
  *<li>Classpath - the value of the CLASSPATH environment variable. Directories are separated by colons.
- *<li>DefaultPort - the default port for communicating standard in, standard out and standard error between the client and the server java environment.
+ *<li>DefaultPort - the default port for communicating standard in, standard out and standard error between the client and the system java environment.
  *<li>FindPort - indicates if the client should search for a free port if the default port is in use.
  *<li>Interpret - indicates if all Java class files should be run interpretively.
  *<li>Optimize - the optimization level for classes not yet optimized.
@@ -355,14 +355,14 @@ public class  VJavaApplicationCall extends JComponent
 
     /**
      *  Returns a reference to the JTextArea object. Standard output and
-     *  standard error information from the server Java program are displayed
+     *  standard error information from the system Java program are displayed
      *  in this text area.  The
      *  application can use the reference to the JTextArea to modify
      *  attributes such as the size of the text area
      *  or the font used to display text in the text area.
      *
      *  @return The JTextArea object which displays standard output
-     *          and standard error from the server Java program.
+     *          and standard error from the system Java program.
     **/
     public JTextArea getOutputText()
     {
