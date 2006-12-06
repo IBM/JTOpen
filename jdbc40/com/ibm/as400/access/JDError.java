@@ -15,8 +15,15 @@ package com.ibm.as400.access;
 
 import java.sql.ClientInfoStatus;
 import java.sql.SQLClientInfoException;
+import java.sql.SQLDataException;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLInvalidAuthorizationSpecException;
+import java.sql.SQLNonTransientConnectionException;
+import java.sql.SQLSyntaxErrorException;
+import java.sql.SQLTimeoutException;
+import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLWarning;
 import java.util.Map;
 
@@ -389,13 +396,8 @@ error table.
     // when the driver generates the error.
     //      
     String reason  = getReason(sqlState);       
-    SQLException e; //@PDC jdbc40
-    
-    if (sqlState.equals(EXC_FUNCTION_NOT_SUPPORTED))                        //@PDC jdbc40
-        e = new SQLFeatureNotSupportedException(reason, sqlState, -99999);  //@PDC jdbc40
-    else                                                                    //@PDC jdbc40
-        e = new SQLException (reason, sqlState, -99999);                    //@PDC jdbc40
-    
+
+    SQLException e = createSQLExceptionSubClass(reason, sqlState, -99999); //@PDA jdbc40
     
     if (JDTrace.isTraceOn ())                                           
     {
@@ -478,7 +480,8 @@ trace for debugging purposes.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
-    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);
+    //SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999); //@PDD jdbc40
+    SQLException e2 = createSQLExceptionSubClass(buffer.toString(), sqlState, -99999); //@PDA jdbc40
 
     if (JDTrace.isTraceOn ())
     {                    
@@ -534,7 +537,8 @@ trace for debugging purposes.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
-    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   // @E3C
+    //SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   // @E3C //@pdd jdbc40
+    SQLException e2 = createSQLExceptionSubClass(buffer.toString(), sqlState, -99999); //@PDA jdbc40
 
     if (JDTrace.isTraceOn ())                                           // @J3a
     {                                                                   // @J3a
@@ -583,8 +587,9 @@ trace for debugging purposes.
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
-    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   
-
+    //SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   //@PDD jdbc40
+    SQLException e2 = createSQLExceptionSubClass(buffer.toString(), sqlState, -99999); //@PDA jdbc40
+    
     if (JDTrace.isTraceOn ())                                           
     {                                                                   
       String m2 = "Throwing exception. Original exception: ";          
@@ -656,8 +661,9 @@ retrieved from the system.
     String reason = getReason(connection, id, returnCode);
     String state  = getSQLState(connection, id);
 
-    SQLException e = new SQLException (reason, state, returnCode);      // @E2C
-
+    //SQLException e = new SQLException (reason, state, returnCode);      // @E2C //@PDD jdbc40
+    SQLException e = createSQLExceptionSubClass(reason, state, returnCode); //@PDA jdbc40
+        
     if (JDTrace.isTraceOn ())                                           // @J3a
     {                                                           // @J3a
       String message = "Throwing exception, id: " + id                 // @J3a
@@ -719,6 +725,92 @@ retrieved from the system.
       }                                                                 
       
       throw e2;
+  }
+  
+  //@PDA jdbc40
+  /**
+   Helper class that creates a new sub-class object of SQLException for new jdbc 4.0 SQLException sub-classes.
+   Sub-class is determined based upon sqlState.  
+   Modeled after Native driver SQLException factory.
+   
+   @param  sqlState    The SQL State.
+   **/
+  public static SQLException createSQLExceptionSubClass ( String message, String sqlState, int vendorCode )
+  {
+
+      //
+      // Check the first two digits of the SQL state and create the appropriate
+      // exception
+      // 
+
+      char digit0 = sqlState.charAt(0);
+      char digit1 = sqlState.charAt(1);
+
+      switch (digit0) {
+      case '0': {
+          switch (digit1) {
+          case 'A':
+              return new SQLFeatureNotSupportedException(message, sqlState, vendorCode);
+
+          case '8':
+              if (vendorCode == -30082) {
+                  return new SQLInvalidAuthorizationSpecException(message, sqlState, vendorCode);
+              } else {
+                  // All connection exceptions on iSeries on NonTransient
+                  return new SQLNonTransientConnectionException(message, sqlState, vendorCode);
+              }
+          default:
+              return new SQLException(message, sqlState, vendorCode); 
+
+          }
+      }
+      case '2': {
+          switch (digit1) {
+          case '2':
+              return new SQLDataException(message, sqlState, vendorCode);
+          case '3':
+              return new SQLIntegrityConstraintViolationException(message, sqlState, vendorCode);
+          case '8':
+              return new SQLInvalidAuthorizationSpecException(message, sqlState, vendorCode);
+
+          default :
+              return new SQLException(message, sqlState, vendorCode); 
+
+          }
+      }
+      case '4':
+          switch (digit1) {
+          case '0':
+              return new SQLTransactionRollbackException(message, sqlState, vendorCode);
+          case '2':
+              return new SQLSyntaxErrorException(message, sqlState, vendorCode);
+          default :
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+      case '5':
+          if ( vendorCode == -952) {
+              return new SQLTimeoutException(message, sqlState, vendorCode);
+          } else {
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+      case 'I':
+          if ("IM001".equals(sqlState)) {
+              return new SQLFeatureNotSupportedException(message, sqlState, vendorCode);
+          } else {
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+
+      case 'H' :
+          if ("HY017".equals(sqlState)) {
+              return new SQLNonTransientConnectionException(message, sqlState, vendorCode);
+          } else {
+              return new SQLException(message, sqlState, vendorCode); 
+          }
+
+      default:
+          return new SQLException(message, sqlState, vendorCode); 
+      }
+
   }
 }
 
