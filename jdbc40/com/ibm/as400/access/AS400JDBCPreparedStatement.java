@@ -2961,7 +2961,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * driver converts this to a SQL <code>ROWID</code> value when it sends it
      * to the database
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex 
      * @param x the parameter value
      * @throws SQLException if a database access error occurs
      *
@@ -2989,7 +2989,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * size relative to the driver's limits on <code>NVARCHAR</code> values)
      * when it sends it to the database.
      *
-     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param value the parameter value
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -3015,7 +3015,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * <code>Reader</code> reads the data till end-of-file is reached. The
      * driver does the necessary conversion from Java character format to
      * the national character set in the database.
-     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param value the parameter value
      * @param length the number of characters in the parameter data.
      * @throws SQLException if the driver does not support national
@@ -3038,7 +3038,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     /**
      * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
      * SQL <code>NCLOB</code> value when it sends it to the database.
-     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param value the parameter value
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -3064,7 +3064,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
      * @throws SQLException if parameterIndex does not correspond to a parameter
@@ -3089,8 +3089,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
-     * @param parameterIndex index of the first parameter is 1,
-     * the second is 2, ...
+     * @param parameterIndex
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
@@ -3117,7 +3116,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Sets the designated parameter to a <code>Reader</code> object.  The reader must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
      * @throws SQLException if parameterIndex does not correspond to a parameter
@@ -3143,7 +3142,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      //@PDA jdbc40
      /**
       * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. 
-      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+      * @param parameterIndex
       * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
       * @throws SQLException if a database access error occurs
       */
@@ -3185,7 +3184,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param x the Java input stream that contains the ASCII parameter value
      * @param length the number of bytes in the stream 
      * @exception SQLException if a database access error occurs or 
@@ -3209,7 +3208,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param x the java input stream which contains the binary parameter value
      * @param length the number of bytes in the stream 
      * @exception SQLException if a database access error occurs or 
@@ -3234,7 +3233,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param reader the <code>java.io.Reader</code> object that contains the 
      *        Unicode data
      * @param length the number of characters in the stream 
@@ -3494,7 +3493,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param x the Java input stream that contains the ASCII parameter value
      * @exception SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if a database access error occurs or 
@@ -3524,7 +3523,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param x the java input stream which contains the binary parameter value
      * @exception SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if a database access error occurs or 
@@ -3551,8 +3550,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * the driver may have to do extra work to determine whether the parameter
      * data should be sent to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
      *
-     * @param parameterIndex index of the first parameter is 1,
-     * the second is 2, ...
+     * @param parameterIndex
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @throws SQLException if parameterIndex does not correspond to a parameter
@@ -3652,7 +3650,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * it might be more efficient to use a version of 
      * <code>setCharacterStream</code> which takes a length parameter. 
      *
-     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param reader the <code>java.io.Reader</code> object that contains the 
      *        Unicode data
      * @exception SQLException if parameterIndex does not correspond to a parameter
@@ -3686,7 +3684,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * it might be more efficient to use a version of 
      * <code>setClob</code> which takes a length parameter.
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @throws SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if a database access error occurs; this method is called on
@@ -3722,7 +3720,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * it might be more efficient to use a version of 
      * <code>setNCharacterStream</code> which takes a length parameter.
      *      
-     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param value the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; if the driver does not support national
@@ -3755,7 +3753,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      * it might be more efficient to use a version of 
      * <code>setNClob</code> which takes a length parameter.
      *
-     * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+     * @param parameterIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @throws SQLException if parameterIndex does not correspond to a parameter
      * marker in the SQL statement; 
