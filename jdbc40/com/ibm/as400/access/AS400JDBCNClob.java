@@ -25,8 +25,7 @@ import java.sql.NClob;
 
 public class AS400JDBCNClob extends AS400JDBCClob implements NClob
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+  
 
     /**
      * Constructs an AS400JDBCNClob object. The data is contained in the String.
@@ -42,6 +41,13 @@ public class AS400JDBCNClob extends AS400JDBCClob implements NClob
         super(data, maxLength);
     }
 
+    /**
+     * Constructs an AS400JDBCNClob object. The data is contained in the char array.
+     * No further communication with the i5/OS system is necessary.
+     * 
+     * @param data
+     *            The NClob data.
+     */
     AS400JDBCNClob(char[] data)
     {
         super(data);
