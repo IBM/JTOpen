@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2006 International Business Machines Corporation and     
+// Copyright (C) 2006-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,11 +148,8 @@ implements NClob
     public Writer setCharacterStream (long pos)
     throws SQLException
     {
-        // Avoid dragging in JDError
-        //@K1D throw new SQLException (
-        //@K1D                       AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
-        //@K1D                       EXC_FUNCTION_NOT_SUPPORTED, -99999);
-        try              //@K1A
+     
+        try 
         {
             JDWriterProxy newWriter = new JDWriterProxy ();
             return (JDWriterProxy) connection_.callFactoryMethod (pxId_, "setCharacterStream", 
