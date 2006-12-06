@@ -18,8 +18,7 @@ import java.sql.RowId;
 //@PDA jdbc40 new class
 public class AS400JDBCRowId implements RowId
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+   
     private byte[] data_;
     //put byteToHex conversion here in case BinaryConverter is not in jar.
     private static final char[] c_ = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};

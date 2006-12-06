@@ -403,13 +403,14 @@ public class AS400JDBCPooledConnection implements PooledConnection
      */
   public void addStatementEventListener(StatementEventListener listener)
   {
-      //todo ? my understanding is that a statement wrapper (ie pooledStatement) would need
-      //to notify this pooledConnection object when the pooledStatement is closed.  And then
-      //the pooledConnection would fire StatementEvents to all listeners.  
       //Currently toolbox does not have a pooledStatemnt.
       
       //Method can not throw SQLException in current driver
       //For now just do nothing in this method.
+      if (JDTrace.isTraceOn())                                                    //@G2C
+      {
+        JDTrace.logInformation(this, "AS400JDBCPooledConnection.addStatementEventListener is called, but is N/A."); 
+      }
   }
   
     //@PDA jdbc40 
@@ -426,6 +427,10 @@ public class AS400JDBCPooledConnection implements PooledConnection
   {
       //Method can not throw SQLException
       //For now just do nothing
+      if (JDTrace.isTraceOn())                                                    //@G2C
+      {
+        JDTrace.logInformation(this, "AS400JDBCPooledConnection.removeStatementEventListener is called, but is N/A."); 
+      }
   }
 
 }

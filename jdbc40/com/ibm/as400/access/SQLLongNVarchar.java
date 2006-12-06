@@ -35,8 +35,7 @@ import java.util.Calendar;
 final class SQLLongNVarchar
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+  
     // Private data.
     private SQLConversionSettings   settings_;
     private int                     length_;

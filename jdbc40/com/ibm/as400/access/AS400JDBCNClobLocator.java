@@ -20,8 +20,7 @@ import java.sql.NClob;
 
 public class AS400JDBCNClobLocator extends AS400JDBCClobLocator implements NClob
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+   
     /**
     Constructs an AS400JDBCNClobLocator object.  The data for the
     CLOB will be retrieved as requested, directly from the

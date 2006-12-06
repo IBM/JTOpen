@@ -37,8 +37,7 @@ import java.sql.SQLXML;
 
 final class SQLNClob implements SQLData
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+   
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
     private SQLConversionSettings   settings_;

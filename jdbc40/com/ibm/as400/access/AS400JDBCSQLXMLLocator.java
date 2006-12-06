@@ -41,8 +41,7 @@ import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
 
 public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLXML
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+   
 
     /**
     Constructs an AS400JDBCSQLXMLLocator object.  The data for the

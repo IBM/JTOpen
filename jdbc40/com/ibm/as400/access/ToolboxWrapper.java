@@ -18,8 +18,7 @@ import java.sql.Wrapper;
 
 class ToolboxWrapper implements Wrapper {
 
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+  
     //@PDA jdbc40
     //Copied from JDError.  Needed for proxy classes that extend this class.
     private static final String EXC_PARAMETER_TYPE_INVALID = "HY105";

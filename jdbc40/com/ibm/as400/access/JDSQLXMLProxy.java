@@ -36,7 +36,6 @@ class JDSQLXMLProxy
 extends AbstractProxyImpl
 implements SQLXML
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
     
     
     // Copied from JDError:

@@ -44,8 +44,7 @@ import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
 
 public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
 { 
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+   
     //private char[] data_;
     //private int maxLength_;
     static final int MAX_XML_SIZE = 2147483647;

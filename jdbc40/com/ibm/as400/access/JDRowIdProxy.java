@@ -27,8 +27,7 @@ class JDRowIdProxy
 extends AbstractProxyImpl
 implements RowId
 {
-  private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-  
+ 
   // Copied from JDError:
   private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
 

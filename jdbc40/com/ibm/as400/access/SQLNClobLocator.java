@@ -30,8 +30,7 @@ import java.util.Calendar;
 
 final class SQLNClobLocator implements SQLLocator
 {
-    private static final String copyright = "Copyright (C) 2006-2006 International Business Machines Corporation and others.";
-
+   
     private AS400JDBCConnection     connection_;
     private SQLConversionSettings   settings_;
     private ConvTable               converter_;

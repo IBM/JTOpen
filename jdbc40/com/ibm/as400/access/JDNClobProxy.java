@@ -34,8 +34,7 @@ class JDNClobProxy
 extends AbstractProxyImpl
 implements NClob
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
-
+  
 
   // Copied from JDError:
   private static final String EXC_FUNCTION_NOT_SUPPORTED       = "IM001";
