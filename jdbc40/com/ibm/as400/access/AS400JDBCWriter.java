@@ -168,7 +168,7 @@ class AS400JDBCWriter extends Writer
     {
       if (clob_ != null) clob_.setString(position_, str, off, len);
       else if (locator_ != null) locator_.setString(position_, str, off, len); //@PDC jdbc40
-      else xml_.setString(position_, str, off, len); //@PDA jdbc40
+      else if (xml_ != null ) xml_.setString(position_, str, off, len); //@PDA jdbc40
       position_ += len;
     }
     catch (SQLException e)
