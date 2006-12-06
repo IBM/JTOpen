@@ -778,7 +778,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *@exception IOException If an error occurs while communicating with the
    *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    *@return An array of Strings: { rfName0, contents0, rfName1, contents1, etc... }.
   **/
@@ -1118,7 +1118,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *@exception IOException If an error occurs while communicating with the
    *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
 
   **/

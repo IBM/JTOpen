@@ -60,7 +60,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -475,7 +475,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -501,7 +501,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -528,7 +528,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -555,7 +555,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -584,7 +584,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -637,7 +637,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/
@@ -688,7 +688,7 @@ abstract class PermissionAccess
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the server cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      * @exception UnknownHostException If the server cannot be located.
      *
     **/

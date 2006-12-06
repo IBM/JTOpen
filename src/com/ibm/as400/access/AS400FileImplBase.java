@@ -415,7 +415,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the
    * server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void addPhysicalFileMember(String name, String textDescription)
@@ -1157,7 +1157,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void deleteMember()
@@ -1283,7 +1283,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void startCommitmentControl(int commitLockLevel)
@@ -1429,7 +1429,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void releaseExplicitLocks()
@@ -1602,7 +1602,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void create(int recordLength, String fileType, String textDescription)
@@ -1675,7 +1675,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void create(String ddsSourceFile,
@@ -1775,7 +1775,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
   **/
   public abstract void createDDSSourceFile(RecordFormat recordFormat, //@D0C 7/15/99 @E1C
@@ -1805,7 +1805,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void delete()
@@ -1855,7 +1855,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
-   *@exception ServerStartupException If the server cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the server cannot be located.
    **/
   public void lock(int lockToObtain)

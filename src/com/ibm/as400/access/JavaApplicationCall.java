@@ -870,7 +870,7 @@ public class JavaApplicationCall implements Serializable
        @exception ErrorCompletingRequestException If an error occurs before the request is completed.
        @exception InterruptedException If this thread is interrupted.
       @exception IOException If an error occurs while communicating with the system.
-       @exception ServerStartupException If the system cannot be started.
+       @exception ServerStartupException If the host server cannot be started.
        @exception UnknownHostException If the system cannot be located.
 
     **/

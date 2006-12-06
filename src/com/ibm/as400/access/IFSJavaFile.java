@@ -1732,7 +1732,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public void setPatternMatching(int patternMatching)

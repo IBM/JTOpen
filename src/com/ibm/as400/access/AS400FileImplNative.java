@@ -187,7 +187,7 @@ class AS400FileImplNative extends AS400FileImplBase
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the server cannot be located.
      **/
     public synchronized void createDDSSourceFile(RecordFormat recordFormat,
@@ -653,7 +653,7 @@ class AS400FileImplNative extends AS400FileImplBase
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the server.
-     *@exception ServerStartupException If the server cannot be started..
+     *@exception ServerStartupException If the host server cannot be started..
      *@exception UnknownHostException If the server cannot be located.
      **/
     public DDMS38OpenFeedback openFile(int openType, int bf, String access)

@@ -320,7 +320,7 @@ abstract public class AS400File implements Serializable
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
      * system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void addPhysicalFileMember(String name, String textDescription)
@@ -528,7 +528,7 @@ abstract public class AS400File implements Serializable
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
      *system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void commit()
@@ -563,7 +563,7 @@ abstract public class AS400File implements Serializable
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
      *system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public static void commit(AS400 system)
@@ -635,7 +635,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(int recordLength, String fileType, String textDescription)
@@ -724,7 +724,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(String ddsSourceFile, String textDescription)
@@ -773,7 +773,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(RecordFormat recordFormat, String textDescription)
@@ -828,7 +828,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void create(RecordFormat recordFormat,
@@ -898,7 +898,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void delete()
@@ -963,7 +963,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void deleteMember()
@@ -1430,7 +1430,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void lock(int lockToObtain)
@@ -1469,7 +1469,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void open()
@@ -1535,7 +1535,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public /* @B0C abstract */ void open(int openType,
@@ -1582,7 +1582,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started..
+     *@exception ServerStartupException If the host server cannot be started..
      *@exception UnknownHostException If the system cannot be located.
      **/
     synchronized void openFile(int openType,
@@ -1823,7 +1823,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     abstract public Record[] readAll()
@@ -1986,7 +1986,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void releaseExplicitLocks()
@@ -2059,7 +2059,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void rollback()
@@ -2088,7 +2088,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public static void rollback(AS400 system)
@@ -2389,7 +2389,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public void startCommitmentControl(int commitLockLevel)
@@ -2433,7 +2433,7 @@ abstract public class AS400File implements Serializable
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the system.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public static void startCommitmentControl(AS400 system, int commitLockLevel)

@@ -169,7 +169,7 @@ public class SequentialFile extends AS400File implements Serializable
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the system.
-   *@exception ServerStartupException If the system cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the system cannot be located.
   **/
 /*@C0D  public void open(int openType, int blockingFactor, int commitLockLevel)
@@ -328,7 +328,7 @@ public class SequentialFile extends AS400File implements Serializable
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the system.
-   *@exception ServerStartupException If the system cannot be started.
+   *@exception ServerStartupException If the host server cannot be started.
    *@exception UnknownHostException If the system cannot be located.
   **/
   public Record[] readAll()

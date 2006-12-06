@@ -242,7 +242,7 @@ public class AS400FileRecordDescription implements Serializable
      *@exception IOException If an error occurs while communicating with the
      *system.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public synchronized void createRecordFormatSource(String filePath, String packageName)
@@ -475,7 +475,7 @@ public class AS400FileRecordDescription implements Serializable
      *@exception IOException If an error occurs while communicating with the
      *system.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception ServerStartupException If the system cannot be started.
+     *@exception ServerStartupException If the host server cannot be started.
      *@exception UnknownHostException If the system cannot be located.
      **/
     public synchronized RecordFormat[] retrieveRecordFormat()

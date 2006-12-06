@@ -50,7 +50,7 @@ implements DataAreaImpl
      @exception InterruptedException            If this thread is interrupted.
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void clear()
@@ -86,7 +86,7 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectAlreadyExistsException    If the server object already exists.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void create(int length, String initialValue,
@@ -129,7 +129,7 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectAlreadyExistsException    If the server object already exists.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void create(int length, int decimalPositions,
@@ -174,7 +174,7 @@ implements DataAreaImpl
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectAlreadyExistsException    If the server object already exists.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void create(boolean initialValue, String textDescription,
@@ -207,7 +207,7 @@ implements DataAreaImpl
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
      @exception ObjectDoesNotExistException     If the object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
      @exception IOException                     If an error occurs while communicating with the server.
    **/
@@ -495,7 +495,7 @@ implements DataAreaImpl
      @exception InterruptedException            If this thread is interrupted.
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(String data, int dataAreaOffset)
@@ -532,7 +532,7 @@ implements DataAreaImpl
      @exception InterruptedException            If this thread is interrupted.
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(String data, int dataAreaOffset, int type)      //$A2C
@@ -562,7 +562,7 @@ implements DataAreaImpl
      @exception InterruptedException            If this thread is interrupted.
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(BigDecimal data)
@@ -592,7 +592,7 @@ implements DataAreaImpl
      @exception InterruptedException            If this thread is interrupted.
      @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the server object does not exist.
-     @exception ServerStartupException          If the server cannot be started.
+     @exception ServerStartupException          If the host server cannot be started.
      @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(boolean data)

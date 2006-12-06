@@ -419,7 +419,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public boolean canRead()
@@ -458,7 +458,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -631,7 +631,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -666,7 +666,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    @exception IOException If the user is not authorized to create the file.
    **/
@@ -736,7 +736,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -779,7 +779,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles(IFSFileFilter filter, String pattern)
@@ -819,7 +819,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles(String pattern)
@@ -859,7 +859,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles(IFSFileFilter filter)
@@ -892,7 +892,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public Enumeration enumerateFiles()
@@ -966,7 +966,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1059,7 +1059,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1458,7 +1458,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
   **/
@@ -1512,7 +1512,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1543,7 +1543,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
@@ -1578,7 +1578,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1608,7 +1608,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
@@ -1655,7 +1655,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1719,7 +1719,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1767,7 +1767,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1799,7 +1799,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1827,7 +1827,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1947,7 +1947,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -1988,7 +1988,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2013,7 +2013,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2040,7 +2040,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2074,7 +2074,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2117,7 +2117,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2255,7 +2255,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2295,7 +2295,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
     **/
@@ -2419,7 +2419,7 @@ public class IFSFile
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
    @exception PropertyVetoException If the change is vetoed.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
 
    **/
@@ -2453,7 +2453,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system, or if the file doesn't exist or is a directory.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public boolean setCCSID(int ccsid)
@@ -2505,7 +2505,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
      // @D1 - new method because of changes to java.io.File in Java 2.
@@ -2547,7 +2547,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
@@ -2570,7 +2570,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
@@ -2616,7 +2616,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    @exception PropertyVetoException If the change is vetoed.
    **/
@@ -2673,7 +2673,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public boolean setLength(int length)
@@ -2770,7 +2770,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
   public void setPatternMatching(int patternMatching)
@@ -2871,7 +2871,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
@@ -2895,7 +2895,7 @@ public class IFSFile
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the system cannot be started.
+   @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
 

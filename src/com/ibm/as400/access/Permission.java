@@ -459,7 +459,7 @@ public class Permission
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with the system.
      * @exception ObjectDoesNotExistException If the system object does not exist.
-     * @exception ServerStartupException If the system cannot be started.
+     * @exception ServerStartupException If the host server cannot be started.
      *
     **/
     public synchronized void commit()
