@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- The ServerStartupException class represents an exception that indicates that a server could not be started.
+ The ServerStartupException class represents an exception that indicates that a host server could not be started.
  **/
 public class ServerStartupException extends IOException implements ReturnCodeException
 {
@@ -35,7 +35,7 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
      **/
     public static final int CONNECTION_PORT_CANNOT_CONNECT_TO = 2;
     /**
-     The return code indicating that it was unable to start the server.
+     The return code indicating that it was unable to start the host server.
      **/
     public static final int SERVER_NOT_STARTED = 3;
     /**
@@ -59,23 +59,23 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
      **/
     public static final int RANDOM_SEED_REQUIRED = 8;
     /**
-     The return code indicating that it was password encryption indicator is not valid.
+     The return code indicating that the password encryption indicator is not valid.
      **/
     public static final int PASSWORD_ENCRYPT_INVALID = 9;
     /**
-     The return code indicating that it was user ID length is not valid.
+     The return code indicating that the user ID length is not valid.
      **/
     public static final int USERID_LENGTH_NOT_VALID = 10;
     /**
-     The return code indicating that it was password length is not valid.
+     The return code indicating that the password length is not valid.
      **/
     public static final int PASSWORD_LENGTH_NOT_VALID = 11;
     /**
-     The return code indicating that it was send reply indicator is not valid.
+     The return code indicating that the send reply indicator is not valid.
      **/
     public static final int SEND_REPLY_INVALID = 12;
     /**
-     The return code indicating that it was start server request is not valid.
+     The return code indicating that the start host server request is not valid.
      **/
     public static final int START_SERVER_REQUEST_NOT_VALID = 13;
     /**
@@ -83,11 +83,11 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
      **/
     public static final int REQUEST_DATA_ERROR = 14;
     /**
-     The return code indicating that it was an unknown error starting server.
+     The return code indicating that there was an unknown error when starting the host server.
      **/
     public static final int START_SERVER_UNKNOWN_ERROR = 15;
     /**
-     The return code indicating that it was a server ID not valid.
+     The return code indicating that a host server ID is not valid.
      **/
     public static final int SERVER_ID_NOT_VALID = 16;
     /**
@@ -143,7 +143,7 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
      **/
     public static final int CONNECTION_NOT_PASSED_PROGRAM_AUTHORITY = 29;
 
-    // Constructs a ServerStartupException object.  It indicates that the server can not be started.  Exception message will look like this: Unable to connect to the port.
+    // Constructs a ServerStartupException object.  It indicates that the host server can not be started.  Exception message will look like this: Unable to connect to the port.
     // @param  returnCode  The return code which identifies the message to be returned.
     ServerStartupException(int returnCode)
     {
