@@ -6813,7 +6813,7 @@ implements DatabaseMetaData
 
     //@PDA jdbc40
     /**
-     * Retrieves whether a <code>SQLException</code> while autoCommit is <code>true</code> inidcates 
+     * Retrieves whether a <code>SQLException</code> thrown while autoCommit is <code>true</code> indicates 
      * that all open ResultSets are closed, even ones that are holdable.  When a <code>SQLException</code> occurs while
      * autocommit is <code>true</code>, it is vendor specific whether the JDBC driver responds with a commit operation, a 
      * rollback operation, or by doing neither a commit nor a rollback.  A potential result of this difference
@@ -6842,10 +6842,10 @@ implements DatabaseMetaData
      *                      stored in the database.
      * </ol>
          * <p>
-     * The <code>ResultSet</code> is sorted by the NAME column
+     * The <code>ResultSet</code> is sorted by the NAME column in ascending order
      * <p>
      * @return  A <code>ResultSet</code> object; each row is a supported client info
-         * property
+     * property
      * <p>
      *  @exception SQLException if a database access error occurs
      * <p>
@@ -6933,19 +6933,6 @@ implements DatabaseMetaData
         return rs;
     }
 
-    // @PDA jdbc40
-    /**
-     * Retrieves whether this JDBC driver provides its own
-     * <code>QueryObjectGenerator</code>.
-     * 
-     * @return <code>true</code> if so; <code>false</code> otherwise
-     * @exception SQLException
-     *                if a database access error occurs
-     */
-    public boolean providesQueryObjectGenerator() throws SQLException
-    {
-        return false; //toolbox uses shipped QOG with java
-    }
 
     //@PDA jdbc40
     /**
@@ -7046,7 +7033,15 @@ implements DatabaseMetaData
     {
         connection_.checkOpen();
 
-        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONPARAMETERS (?, ?, ?, ?, ?)");
+        /* 
+         SYSIBM.SQLFunctionParms(
+         CatalogName     varchar(128),
+         SchemaName      varchar(128),
+         FunctionName        varchar(128),
+         ParmName         varchar(128),
+         Options         varchar(4000))
+         */
+        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONPARMS (?, ?, ?, ?, ?)");
         
         cstmt.setString(1, catalog);
         cstmt.setString(2, schemaPattern);
@@ -7098,6 +7093,14 @@ implements DatabaseMetaData
     {
         connection_.checkOpen();
 
+        /*
+         SYSIBM.SQLFunctions(
+         CatalogName     varchar(128),
+         SchemaName      varchar(128),
+         FunctionName        varchar(128),
+         Options         varchar(4000))
+        */
+        
         CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONS  ( ?, ?, ?, ?)");
         
         cstmt.setString(1, catalog);
