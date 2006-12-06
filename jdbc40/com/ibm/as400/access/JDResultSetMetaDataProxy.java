@@ -255,7 +255,7 @@ implements ResultSetMetaData
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] { "com.ibm.as400.access.AS400JDBCResultSet", "java.sql.ResultSet" };
+        return new String[] { "java.sql.ResultSetMetaData" }; //@pdc user cannot cast to AS400JDBCResultSetMetaData
     } 
   
 }

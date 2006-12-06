@@ -2062,7 +2062,7 @@ implements ResultSet
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] { "com.ibm.as400.access.AS400JDBCResultSet", "java.sql.ResultSet" };
+        return new String[] {  "java.sql.ResultSet" }; //@pdc user cannot cast to AS400JDBCResultSet
     } 
     
     //@PDA jdbc40
