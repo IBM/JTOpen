@@ -1506,7 +1506,7 @@ implements java.sql.DatabaseMetaData
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] { "com.ibm.as400.access.AS400JDBCDatabaseMetaData", "java.sql.DatabaseMetaData" };
+        return new String[] { "java.sql.DatabaseMetaData" };
     } 
   
 

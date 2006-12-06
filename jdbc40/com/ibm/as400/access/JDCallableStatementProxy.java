@@ -1167,7 +1167,7 @@ implements CallableStatement
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] {  "com.ibm.as400.access.AS400JDBCCallableStatement", "java.sql.CallableStatement" };
+        return new String[] { "java.sql.CallableStatement" };
     } 
     
    

@@ -755,7 +755,7 @@ implements PreparedStatement
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] { "com.ibm.as400.access.AS400JDBCPreparedStatement",  "java.sql.PreparedStatement" };
+        return new String[] {  "java.sql.PreparedStatement" };
     } 
    
     

@@ -565,7 +565,7 @@ implements Connection
   //@pda jdbc40
   protected String[] getValidWrappedList()
   {
-      return new String[] { "com.ibm.as400.access.JDGenericConnection" };
+      return new String[] { "java.sql.Connection" };
   } 
   
   

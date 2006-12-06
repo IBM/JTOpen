@@ -541,7 +541,7 @@ implements java.sql.Statement
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
-        return new String[] {  "com.ibm.as400.access.AS400JDBCStatement", "java.sql.Statement" };
+        return new String[] {  "java.sql.Statement" };
     } 
     
     //@PDA jdbc40

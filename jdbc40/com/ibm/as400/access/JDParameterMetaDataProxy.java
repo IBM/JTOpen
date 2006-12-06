@@ -141,7 +141,7 @@ implements ParameterMetaData
   //@pda jdbc40
   protected String[] getValidWrappedList()
   {
-      return new String[] {  "com.ibm.as400.access.AS400JDBCParameterMetaData", "java.sql.ParameterMetaData" };
+      return new String[] { "java.sql.ParameterMetaData" };
   }
 
 }
