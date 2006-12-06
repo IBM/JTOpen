@@ -38,7 +38,7 @@ implements RowId
       return (byte[]) connection_.callMethod (pxId_, "getBytes").getReturnValue();
     }
     catch (InvocationTargetException e) {
-      //throw JDConnectionProxy.rethrow1 (e);
+    
         return null;  //interface does not throw SQLException as of current version
     }
   }
@@ -50,7 +50,7 @@ implements RowId
             return (String) connection_.callMethod (pxId_, "toString").getReturnValue();
           }
           catch (InvocationTargetException e) {
-            //throw JDConnectionProxy.rethrow1 (e);
+             
               return null;  //interface does not throw SQLException as of current version
           }
     }
@@ -63,7 +63,7 @@ implements RowId
                     new Object[] { obj }, false).getReturnValueBoolean();
           }
           catch (InvocationTargetException e) {
-              //throw JDConnectionProxy.rethrow1 (e);
+             
               return false;  //interface does not throw SQLException as of current version
           }
     }
@@ -74,7 +74,7 @@ implements RowId
             return connection_.callMethod(pxId_, "hashCode").getReturnValueInt();
           }
           catch (InvocationTargetException e) {
-              //throw JDConnectionProxy.rethrow1 (e);
+               
               return 0;  //interface does not throw SQLException as of current version
           }
     }
