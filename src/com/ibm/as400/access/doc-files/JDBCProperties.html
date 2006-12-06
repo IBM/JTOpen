@@ -571,6 +571,14 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t5">&quot;0&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;query storage limit&quot;</TD>
+    <TD HEADERS="t2">Specifies the query storage limit to be used when statements in a connection are executed.  
+    Valid values are -1 to 2147352578 megabytes.  Note, this property is ignored when connecting to systems running i5/OS V5R4 and earlier.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;-1 (no limit)&quot; - &quot;2147352578&quot;</TD>
+    <TD HEADERS="t5">&quot;-1&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
     <TD HEADERS="t2">Specifies the buffer size used to receive data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
