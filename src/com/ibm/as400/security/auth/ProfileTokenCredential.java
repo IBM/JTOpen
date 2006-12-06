@@ -47,7 +47,7 @@ import java.util.Random;
  * <p> Another application of this support might be in a two tier
  * application, with authentication of a user profile and password being
  * performed by a graphical user interface on the first tier (i.e. a PC) and
- * work being performed for that user on the second tier (the server).
+ * work being performed for that user on the second tier (the i5/OS system).
  * By utilizing ProfileTokenCredentials, the application can avoid directly
  * passing the user ID and password over the network. The profile token can
  * be distributed as required to the program on the second tier, which can

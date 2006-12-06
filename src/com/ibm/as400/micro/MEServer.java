@@ -90,7 +90,7 @@ import com.ibm.as400.access.*;
  *  
  *  <p>Example usage:
  *  
- *  <p>Start the server from the command line as follows:
+ *  <p>Start the MEServer from the command line as follows:
  *  <pre>
  *  java com.ibm.as400.micro.MEServer
  *  </pre>
