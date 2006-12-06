@@ -4598,7 +4598,7 @@ implements RowSet, Serializable             // @A3C
 
     //@pda jdbc40
     /**
-     * Sets the designated paramter to the given <code>String</code> object.
+     * Sets the designated parameter to the given <code>String</code> object.
      * The driver converts this to a SQL <code>NCHAR</code> or
      * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code> value
      * (depending on the argument's
@@ -4619,7 +4619,7 @@ implements RowSet, Serializable             // @A3C
 
     //@pda jdbc40
     /**
-     * Sets the designated paramter to the given <code>String</code> object.
+     * Sets the designated parameter to the given <code>String</code> object.
      * The driver converts this to a SQL <code>NCHAR</code> or
      * <code>NVARCHAR</code> or <code>LONGNVARCHAR</code>
      * @param parameterName the name of the column to be set
@@ -4674,7 +4674,6 @@ implements RowSet, Serializable             // @A3C
       * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
       * @throws SQLException if a database access error occurs, this method
       *  is called on a closed result set,
-      * the <code>java.xml.transform.Result</code>,
       *  <code>Writer</code> or <code>OutputStream</code> has not been closed
       * for the <code>SQLXML</code> object  or
       *  if there is an error processing the XML value.  The <code>getCause</code> method 
@@ -4695,7 +4694,6 @@ implements RowSet, Serializable             // @A3C
      * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs, this method
      *  is called on a closed result set,
-     * the <code>java.xml.transform.Result</code>,
      *  <code>Writer</code> or <code>OutputStream</code> has not been closed
      * for the <code>SQLXML</code> object  or
      *  if there is an error processing the XML value.  The <code>getCause</code> method 
@@ -4710,7 +4708,7 @@ implements RowSet, Serializable             // @A3C
 
     //@pda jdbc40
     /**
-     * Retrieves the holdability of this <code>ResultSet</code> object
+     * Retrieves the holdability of this <code>RowSet</code> object
      * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
      * The holdability is derived in this order of precedence:
        <ul>
