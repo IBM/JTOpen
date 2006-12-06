@@ -38,6 +38,12 @@ import com.sun.org.apache.xerces.internal.impl.PropertyManager;
 import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
 
 //@PDA jdbc40 new class
+/**
+<p>The AS400JDBCSQLXMLLocator class provides the object interface for usin XML data through JDBC.
+The mapping in the JavaTM programming language for the SQL XML type. 
+XML is a built-in type that stores an XML value as a column value in a row of a database table. 
+The SQLXML interface provides methods for accessing the XML value as a String, a Reader or Writer, or as a Stream. 
+**/
 
 public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLXML
 {
@@ -59,6 +65,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
     }
 
     /**
+     * Retrieves the XML value designated by this SQLXML instance as a stream of ASCII characters. 
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
@@ -194,6 +201,16 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
         }
     }
 
+    /**
+     * Retrieves a Writer to be used to write the XML value that this SQLXML instance represents. 
+     * @return a stream to which data can be written.
+     * @throws SQLException if there is an error processing the XML value.
+     *   The getCause() method of the exception may provide a more detailed exception, for example,
+     *   if the stream does not contain valid characters. 
+     *   An exception is thrown if the state is not writable.
+     * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
+     * this method
+     */
     public Writer setCharacterStream() throws SQLException
     {
         return new AS400JDBCWriter(this, 1);  

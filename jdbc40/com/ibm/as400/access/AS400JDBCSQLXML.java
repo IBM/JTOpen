@@ -41,12 +41,15 @@ import com.sun.org.apache.xerces.internal.impl.PropertyManager;
 import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
 
 //@PDA jdbc40 new class
-
+/**
+<p>The AS400JDBCSQLXML class provides the object interface for usin XML data through JDBC.
+The mapping in the JavaTM programming language for the SQL XML type. 
+XML is a built-in type that stores an XML value as a column value in a row of a database table. 
+The SQLXML interface provides methods for accessing the XML value as a String, a Reader or Writer, or as a Stream. 
+**/
 public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
 { 
    
-    //private char[] data_;
-    //private int maxLength_;
     static final int MAX_XML_SIZE = 2147483647;
 
     /**
@@ -166,6 +169,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
     }*/
  
     /**
+     * Retrieves the XML value designated by this SQLXML instance as a stream of ASCII characters. 
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
@@ -238,6 +242,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
     }
 
     /**
+     * Retrieves a stream that can be used to write the XML value that this SQLXML instance represents.
      * @return a stream to which data can be written.
      * @throws SQLException
      *             if there is an error processing the XML value. An exception
@@ -260,7 +265,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
     }
 
     /**
-     * 
+     * Retrieves a Writer to be used to write the XML value that this SQLXML instance represents. 
      * @return a stream to which data can be written.
      * @throws SQLException if there is an error processing the XML value.
      *   The getCause() method of the exception may provide a more detailed exception, for example,
