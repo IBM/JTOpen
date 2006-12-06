@@ -5646,7 +5646,7 @@ implements ResultSet
      * @return a <code>java.io.Reader</code> object that contains the column
      * value; if the value is SQL <code>NULL</code>, the value returned is
      * <code>null</code> in the Java programming language.
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @exception SQLException if a database access error occurs
      */
     public Reader getNCharacterStream(int columnIndex) throws SQLException
@@ -5689,7 +5689,7 @@ implements ResultSet
      * of this <code>ResultSet</code> object as a <code>NClob</code> object
      * in the Java programming language.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @return a <code>NClob</code> object representing the SQL 
      *         <code>NCLOB</code> value in the specified column
      * @exception SQLException if the driver does not support national
@@ -5736,7 +5736,7 @@ implements ResultSet
      * accessing  <code>NCHAR</code>,<code>NVARCHAR</code>
      * and <code>LONGNVARCHAR</code> columns.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>null</code>
      * @exception SQLException if a database access error occurs 
@@ -5818,7 +5818,7 @@ implements ResultSet
      * Retrieves the value of the designated column in  the current row of
      *  this <code>ResultSet</code> as a
      * <code>java.sql.SQLXML</code> object in the Java programming language.
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
      * @throws SQLException if a database access error occurs
      */
@@ -5858,7 +5858,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second 2, ...
+     * @param columnIndex
      * @param nClob the value for the column to be updated
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -5899,7 +5899,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second 2, ...
+     * @param columnIndex
      * @param nString the value for the column to be updated
      * @throws SQLException if the driver does not support national
      *         character sets;  if the driver can detect that a data conversion
@@ -5939,7 +5939,7 @@ implements ResultSet
      * the <code>updateRow</code> or <code>insertRow</code> methods are called 
      * to update the database.
      * 
-     * @param columnIndex the first column is 1, the second 2, ...
+     * @param columnIndex
      * @param x the column value
      * @throws SQLException if a database access occurs 
      */
@@ -5974,7 +5974,7 @@ implements ResultSet
      * row. The updater methods do not update the underlying database; instead 
      * the <code>updateRow</code> or <code>insertRow</code> methods are called 
      * to update the database.
-     * @param columnIndex the first column is 1, the second 2, ...
+     * @param columnIndex
      * @param xmlObject the value for the column to be updated
      * @throws SQLException if a database access error occurs
      */
@@ -6017,7 +6017,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
@@ -6069,7 +6069,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value     
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
@@ -6129,7 +6129,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @param length the number of bytes in the parameter data.
@@ -6191,7 +6191,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs,
@@ -6251,7 +6251,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @param length the number of characters in the parameter data.
      * @exception SQLException if a database access error occurs,
@@ -6318,7 +6318,7 @@ implements ResultSet
      * update the underlying database; instead the <code>updateRow</code> or
      * <code>insertRow</code> methods are called to update the database.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value
      * @param length the length of the stream
      * @exception SQLException if a database access error occurs, 
@@ -6385,7 +6385,7 @@ implements ResultSet
       * update the underlying database; instead the <code>updateRow</code> or
       * <code>insertRow</code> methods are called to update the database.
       *
-      * @param columnIndex the first column is 1, the second 2, ...
+      * @param columnIndex
       * @param reader An object that contains the data to set the parameter value to.
       * @param length the number of characters in the parameter data.
       * @throws SQLException if the driver does not support national
@@ -6455,7 +6455,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateAsciiStream</code> which takes a length parameter.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6516,7 +6516,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateBinaryStream</code> which takes a length parameter.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value     
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6576,7 +6576,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateBlob</code> which takes a length parameter.     
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param inputStream An object that contains the data to set the parameter
      * value to.
      * @exception SQLException if the columnIndex is not valid; if a database access error occurs;
@@ -6636,7 +6636,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateCharacterStream</code> which takes a length parameter.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6700,7 +6700,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateClob</code> which takes a length parameter.
      *     
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs;
@@ -6768,7 +6768,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateNCharacterStream</code> which takes a length parameter.
      *
-     * @param columnIndex the first column is 1, the second is 2, ...
+     * @param columnIndex
      * @param x the new column value
      * @exception SQLException if the columnIndex is not valid; 
      * if a database access error occurs; 
@@ -6837,7 +6837,7 @@ implements ResultSet
      * it might be more efficient to use a version of 
      * <code>updateNClob</code> which takes a length parameter.
      *
-     * @param columnIndex the first column is 1, the second 2, ...
+     * @param columnIndex
      * @param reader An object that contains the data to set the parameter value to.
      * @throws SQLException if the columnIndex is not valid; 
     * if the driver does not support national

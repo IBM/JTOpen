@@ -3086,7 +3086,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
      //@PDA jdbc40
     /**
-     * Sets the designated parameter to a <code>InputStream</code> object.  The inputstream must contain  the number
+     * Sets the designated parameter to an <code>InputStream</code> object.  The inputStream must contain  the number
      * of characters specified by length otherwise a <code>SQLException</code> will be
      * generated when the <code>PreparedStatement</code> is executed.
      * @param parameterIndex
