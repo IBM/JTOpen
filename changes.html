@@ -9,8 +9,8 @@ Copyright (C) 1997-2006 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: August 14, 2006
-<!-- cvs log -rJTOpen_5_1_1:JTOpen_5_2 -N -d >2006-04-26 -->
+Last updated: December 6, 2006
+<!-- cvs log -rJTOpen_5_2:JTOpen_5_3 -N -d >2006-08-21 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#53">Fixes and enhancements in JTOpen 5.3</A><BR>
 <A HREF="#52">Fixes and enhancements in JTOpen 5.2</A><BR>
 <A HREF="#51_1">Fixes and enhancements in JTOpen 5.1.1</A><BR>
 <A HREF="#51">Fixes and enhancements in JTOpen 5.1</A><BR>
@@ -44,6 +45,30 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="53">Fixes and enhancements in JTOpen 5.3</A> <i>(released 2006-12-18)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated iSeries and server references in comments, text.
+- <i>Various:</i>  Javadoc updates.
+- Build:  Fixed various build warnings for JDK 1.5.
+- Connection:  Allow GSS credential to change.
+- Data Area: Provide more useful exception information, especially when PCML source document not found.
+- IFS:  Fixed bug that made IFSFile.setCCSID() a no-op.
+- JDBC:  Only send/update sort sequence if not set to default (hex).
+- JDBC:  Added query storage limit support.
+- JDBC:  Fixed JTOpen 1292204 - Garbage Collector impacts JDBC connection pool activity.
+- JDBC:  Added default column value support.
+- JDBC:  Updated max columns in group by support.
+- JDBC:  Updated query optimize goal documentation.
+- JDBC:  Fixed batch update support to use the correct information in a BatchUpdateException.
+- JDBC:  Various performance improvements.
+- JDBC:  Fix to allow a forward-only sensitive cursor.
+- NetServer:  Corrected behavior of getTextConversionEnablement()
+- Program Call:  Provide more useful exception information, especially when PCML source document not found.
+- System Resource:  Provide more useful exception information, especially when PCML source document not found.
+- UDFS:  Added new classes IFSIoctlRep, IFSIoctlReq, and UDFS for user-defined file system support.
+</PRE>
 
 <HR>
 <H3><A NAME="52">Fixes and enhancements in JTOpen 5.2</A> <i>(released 2006-08-28)</i></H3>
