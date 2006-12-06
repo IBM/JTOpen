@@ -50,11 +50,11 @@ cannot be established.
 The return code indicating that a connection to the proxy server
 was dropped.  If the connection is via HTTP tunneling
 this return code indicates the client tried
-to use a session that was previously cleaned up by the server.
-The server cleaned up the session because it was idle long
+to use a session that was previously cleaned up by the system.
+The system cleaned up the session because it was idle long
 enough to indicate the client is no longer active.  If
 the client was still active
-increase the timeout property so the server
+increase the timeout property so the system
 waits longer before cleaning up sessions.
 **/
     public static final int CONNECTION_DROPPED = 2;
