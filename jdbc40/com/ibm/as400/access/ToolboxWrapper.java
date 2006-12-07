@@ -16,6 +16,17 @@ package com.ibm.as400.access;
 import java.sql.SQLException;
 import java.sql.Wrapper;
 
+/* 
+ * This class provides a single point where we implement java.sql.Wrapper.
+ * Any of the other classes (ie Connection, Statement, ResultSet, etc) that
+ * implement java.sql.Wrapper are done so by extending this class. 
+ * The original purpose of this class was so that we could have a single code base
+ * for both pre jdk 1.6 and post jdk 1.6.  Then this class (containing Generics), could
+ * be in a jdk 1.6 only release, and a stub could be in the pre jdk 1.6 release.  But 
+ * because of so many issues with security and class loading, we did not pursue the
+ * "stub" infrastructure.  But since this class design was a nice way to keep the
+ * wrapper code in one class, we decided to keep it. 
+ */
 class ToolboxWrapper implements Wrapper {
 
   
