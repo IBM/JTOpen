@@ -523,7 +523,7 @@ implements SQLData
     //@PDA jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        // This is written in terms of toBytes(), since it will
+        // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
@@ -547,10 +547,9 @@ implements SQLData
     //@PDA jdbc40
     public RowId getRowId() throws SQLException
     {
-        // This is written in terms of getBytes(), since it will
-        // handle truncating to the max field size if needed.
-        //return new AS400JDBCRowId(getBytes());  
-        //decided this is of no use
+        //Decided this is of no use because rowid is so specific to the dbms internals.
+        //And there are issues in length and difficulties in converting a binary to a
+        //valid rowid that is useful.
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
