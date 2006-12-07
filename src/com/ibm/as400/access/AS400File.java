@@ -424,6 +424,8 @@ abstract public class AS400File implements Serializable
 
             //      system_.connectService(AS400.RECORDACCESS); //@B5A
 
+            system_.signon(false);
+
             // This line replaces the following 4 lines.
             impl_.doItNoExceptions("setAll",
                                    new Class[] { AS400Impl.class, //@B5C
@@ -447,7 +449,6 @@ abstract public class AS400File implements Serializable
             // if it is a keyed file or a sequential file.
             //      impl_.doItNoExceptions("setIsKeyed", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(this instanceof KeyedFile) }); //@B0A
         }
-        system_.signon(false);
     }
 
 
