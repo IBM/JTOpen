@@ -556,7 +556,7 @@ implements SQLData
     {
         truncated_ = 0;
 
-        // This is written in terms of toBytes(), since it will
+        // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
@@ -566,7 +566,7 @@ implements SQLData
     {        
         truncated_ = 0;
 
-        // This is written in terms of getString(), since it will
+        // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new AS400JDBCNClob(BinaryConverter.bytesToString(getBytes()), maxLength_);
     }
@@ -576,7 +576,7 @@ implements SQLData
     {
         truncated_ = 0;
 
-        // This is written in terms of toBytes(), since it will
+        // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return BinaryConverter.bytesToString(getBytes()); 
     }
