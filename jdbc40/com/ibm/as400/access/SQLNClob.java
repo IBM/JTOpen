@@ -306,8 +306,7 @@ final class SQLNClob implements SQLData
 
     public int getType()
     {
-        //return java.sql.Types.NCLOB;
-        return 2011;  //@PDA jdbc40 merge.  Types.NCLOB not in pre-1.6. 
+        return java.sql.Types.NCLOB;
     }
 
     public String getTypeName()
@@ -565,7 +564,9 @@ final class SQLNClob implements SQLData
             return null;
         }
         */
-        //decided this is of no use
+        //Decided this is of no use because rowid is so specific to the dbms internals.
+        //And there are issues in length and difficulties in converting to a
+        //valid rowid that is useful.
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }

@@ -318,8 +318,7 @@ final class SQLRowID implements SQLData
 
     public int getType()
     {
-        //return java.sql.Types.ROWID;  //BINARY; //@pdc jdbc40
-        return -8;  //@PDA jdbc40 merge.  Types.ROWID not in pre-1.6.  
+        return java.sql.Types.ROWID;  //BINARY; //@pdc jdbc40
     }
 
     public String getTypeName()

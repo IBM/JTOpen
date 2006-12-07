@@ -253,8 +253,7 @@ implements SQLData
 
     public int getType()
     {
-        //return java.sql.Types.NCHAR;
-        return -15;  //@PDC jdbc40 merge.  Types.NCHAR not in pre-1.6.  
+        return java.sql.Types.NCHAR;
     }
 
     public String getTypeName()
@@ -625,7 +624,9 @@ implements SQLData
             return null;
         }
         */
-        //decided this is of no use
+        //Decided this is of no use because rowid is so specific to the dbms internals.
+        //And there are issues in length and difficulties in converting to a
+        //valid rowid that is useful.
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }

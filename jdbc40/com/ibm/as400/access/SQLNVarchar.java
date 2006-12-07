@@ -60,7 +60,6 @@ implements SQLData
         return new SQLNVarchar(maxLength_, settings_);
     }
 
-    // @A2A
     // Added method trim() to trim the string.
     public void trim()                                // @A2A
     {                                                 // @A2A
@@ -83,11 +82,11 @@ implements SQLData
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
             
-        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
-        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
-        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());  
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());  
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiConversionProperties);   //changed to use bidiConversionProperties instead of bidiStringType
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -100,12 +99,12 @@ implements SQLData
             if(bidiStringType == -1)
                 bidiStringType = ccsidConverter.bidiStringType_;
                 
-            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
-            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
-            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  
+            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         
+            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());    
 
             // The length in the first 2 bytes is actually the length in characters.
-            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
+            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //changed to used bidiConversionProperties instead of bidiStringType
             BinaryConverter.unsignedShortToByteArray(temp.length, rawBytes, offset);
             if(temp.length > maxLength_)
             {
@@ -145,17 +144,17 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        String value = null;                                                        // @C1A
+        String value = null;                               
 
         if(object instanceof String)
-            value = (String) object;                                                // @C1C
+            value = (String) object;                       
 
         else if(object instanceof Number)
-            value = object.toString();                                              // @C1C
+            value = object.toString();                     
 
         else if(object instanceof Boolean)
         { 
-            // @PDC
+           
             // if "translate boolean" == false, then use "0" and "1" values to match native driver
             if(settings_.getTranslateBoolean() == true)
                 value = object.toString();  //"true" or "false"     
@@ -163,41 +162,41 @@ implements SQLData
                 value = ((Boolean)object).booleanValue() == true ? "1" : "0";
         }
         else if(object instanceof Time)
-            value = SQLTime.timeToString((Time) object, settings_, calendar);      // @C1C
+            value = SQLTime.timeToString((Time) object, settings_, calendar);  
 
         else if(object instanceof Timestamp)
-            value = SQLTimestamp.timestampToString((Timestamp) object, calendar);  // @C1C
+            value = SQLTimestamp.timestampToString((Timestamp) object, calendar);  
 
-        else if(object instanceof java.util.Date)                                  // @F5M @F5C
-            value = SQLDate.dateToString((java.util.Date) object, settings_, calendar); // @C1C @F5C
+        else if(object instanceof java.util.Date)                                 
+            value = SQLDate.dateToString((java.util.Date) object, settings_, calendar); 
 
         else if(object instanceof URL)
             value = object.toString();
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
-        {                                                                          // @C1C
-            Clob clob = (Clob)object;                                              // @C1C
-            value = clob.getSubString(1, (int)clob.length());                      // @C1C  @D1
-        }                                                                          // @C1C
+        {                                                                        
+            Clob clob = (Clob)object;                                            
+            value = clob.getSubString(1, (int)clob.length());                
+        }                                                                       
         else if(object instanceof SQLXML) //@PDA jdbc40 
         {    
             SQLXML xml = (SQLXML)object;
             value = xml.getString();
         }         
 
-        if(value == null)                                                          // @C1C
+        if(value == null)                                                        
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        value_ = value;                                                            // @C1A
+        value_ = value;                                                        
 
         // Truncate if necessary.
         int valueLength = value_.length();
 
-        int truncLimit = maxLength_;              // @F2a
+        int truncLimit = maxLength_;           
 
-        if(valueLength > truncLimit)             // @F2c
+        if(valueLength > truncLimit)           
         {
-            value_ = value_.substring(0, truncLimit); // @F2c
-            truncated_ = valueLength - truncLimit;     // @F2c
+            value_ = value_.substring(0, truncLimit); 
+            truncated_ = valueLength - truncLimit;    
         }
         else
             truncated_ = 0;
@@ -284,8 +283,7 @@ implements SQLData
 
     public int getType()
     {
-        //return java.sql.Types.NVARCHAR;
-    	return -9;  //@PDC jdbc40 merge.  Types.NVARCHAR not in pre-1.6.  
+        return java.sql.Types.NVARCHAR;
     }
 
     public String getTypeName()
@@ -340,7 +338,7 @@ implements SQLData
         truncated_ = 0;
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString())); // @F3C
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString()));  
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())
@@ -649,7 +647,9 @@ implements SQLData
             return null;
         }
         */
-        //decided this is of no use
+        //Decided this is of no use because rowid is so specific to the dbms internals.
+        //And there are issues in length and difficulties in converting to a
+        //valid rowid that is useful.
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }

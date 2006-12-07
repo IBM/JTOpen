@@ -277,8 +277,8 @@ implements SQLData
 
     public int getType()
     {
-        //return java.sql.Types.LONGNVARCHAR;
-    	return -16;  //@PDC jdbc40 merge.  Types.LONGNVARCHAR not in pre-1.6.  
+        return java.sql.Types.LONGNVARCHAR;
+    	 
     }
 
     public String getTypeName()
