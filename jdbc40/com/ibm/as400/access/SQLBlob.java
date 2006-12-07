@@ -537,26 +537,22 @@ final class SQLBlob implements SQLData
     //@PDA jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0;
-        return new StringReader(BinaryConverter.bytesToString(value_));
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@PDA jdbc40
     public NClob getNClob() throws SQLException
     {        
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0;
-        String string = BinaryConverter.bytesToString(value_);
-        return new AS400JDBCNClob(string, string.length());
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
-        if(savedObject_ != null) doConversion();
-        truncated_ = 0;
-        return BinaryConverter.bytesToString(value_);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@PDA jdbc40

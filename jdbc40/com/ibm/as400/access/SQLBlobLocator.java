@@ -595,23 +595,22 @@ final class SQLBlobLocator implements SQLLocator
     //@PDA jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        truncated_ = 0;
-        return new StringReader(BinaryConverter.bytesToString(getBytes()));
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@PDA jdbc40
     public NClob getNClob() throws SQLException
     {        
-        truncated_ = 0;
-        String string = BinaryConverter.bytesToString(getBytes());
-        return new AS400JDBCNClob(string, string.length());
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
-        truncated_ = 0;
-        return BinaryConverter.bytesToString(getBytes());
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 
     //@PDA jdbc40
