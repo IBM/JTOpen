@@ -195,7 +195,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
    **/
   public void setTextConversionEnablement(int enablement)
   {
-    if (enablement < ENABLED || enablement > ENABLED_AND_MIXED) {
+    if (enablement < NOT_ENABLED || enablement > ENABLED_AND_MIXED) {
       throw new ExtendedIllegalArgumentException(Integer.toString(enablement), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     char[] charArray = new char[1];
