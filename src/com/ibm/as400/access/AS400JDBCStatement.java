@@ -872,7 +872,7 @@ public class AS400JDBCStatement implements Statement
                     {
                         lastBlock = true;
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
-                        if(returnCode == 0)                 //@pda (issue 32120)
+                        if(returnCode == 0 || returnCode == 100)                 //@pda (issue 32120)
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
                     else if((errorClass == 2) && (returnCode == 700) 
