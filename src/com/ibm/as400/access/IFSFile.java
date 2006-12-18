@@ -20,6 +20,7 @@ import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 import java.io.InterruptedIOException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException; //@A6A
 import java.net.UnknownHostException;
 import java.util.Enumeration;
@@ -28,7 +29,7 @@ import java.util.Vector;
 
 /**
   * The IFSFile class represents
-  * an object in the integrated file system.
+  * an object in the integrated file system of OS/400 or i5/OS.
   * As in java.io.File, IFSFile is designed to work
   * with the object as a whole.  For example, use IFSFile
   * to delete or rename a file, to access the
@@ -40,8 +41,8 @@ import java.util.Vector;
   * data from the file, and {@link IFSFileOutputStream IFSFileOutputStream} or
   * {@link IFSRandomAccessFile IFSRandomAccessFile}
   * to write data to the file.
-  * Note that both {@link #isFile() isFile} and {@link #isDirectory() isDirectory}
-  * will return false for invalid symbolic links.
+  * Note that for invalid symbolic links, both {@link #isFile() isFile} and
+  * {@link #isDirectory() isDirectory} will return false.
   *
   * <p>
   * IFSFile objects are capable of generating file events that call the
@@ -75,8 +76,10 @@ import java.util.Vector;
   * </pre>
   * </UL>
   *
-  *<P>Note: Because of a host server restriction, you cannot access files in QTEMP.LIB.
+  *<P>Note: Because of a host server restriction, you cannot use this class to
+  * access files in <tt>QTEMP.LIB</tt>.
   *
+  * @see IFSJavaFile
   * @see com.ibm.as400.access.FileEvent
   * @see #addFileListener(com.ibm.as400.access.FileListener)
   * @see #removeFileListener(com.ibm.as400.access.FileListener)
@@ -86,7 +89,7 @@ import java.util.Vector;
  **/
 
 public class IFSFile
-  implements java.io.Serializable, Comparable            // @B9c
+  implements Serializable, Comparable            // @B9c
 {
   static final long serialVersionUID = 4L;
 
@@ -161,7 +164,7 @@ public class IFSFile
    It creates an IFSFile instance that represents the integrated file system
    object on <i>system</i> that has a path name of <i>directory</i>,  that is
    followed by the separator character and <i>name</i>.
-   @param system The AS400 that contains the file.
+   @param system The system that contains the file.
    @param directory The directory.
    @param name The file name.
    **/
@@ -199,8 +202,8 @@ public class IFSFile
    Constructs an IFSFile object.
    It creates an IFSFile instance that represents the integrated file system
    object on <i>system</i>  that has a  path name of <i>path</i>.
-   @param system The AS400 that contains the file.
-   @param path The file path name.
+   @param system The system that contains the file.
+   @param path The absolute path name of the file.
    **/
   public IFSFile(AS400  system,
                  String path)
@@ -234,7 +237,7 @@ public class IFSFile
    object on <i>system</i> that has a
    path name is of <i>directory</i>, followed by the separator character
    and <i>name</i>.
-   @param system The AS400 that contains the file.
+   @param system The system that contains the file.
    @param directory The directory path name.
    @param name The file name.
    **/
@@ -278,7 +281,7 @@ public class IFSFile
    It creates an IFSFile instance that represents the integrated file system
    object on <i>system</i> that has a path name of <i>directory</i>,  that is
    followed by the separator character and <i>name</i>.
-   @param system The AS400 that contains the file.
+   @param system The system that contains the file.
    @param directory The directory.
    @param name The file name.
    **/
@@ -317,7 +320,7 @@ public class IFSFile
    separator character and <i>name</i>.
    {@link #isDirectory() isDirectory} and {@link #isFile() isFile} will both return false
    for invalid symbolic links.
-   @param system The AS400 that contains the file.
+   @param system The system that contains the file.
    @param attributes The attributes of the file.
    **/
   IFSFile(AS400 system, IFSCachedAttributes attributes)   //@D2C - Use IFSCachedAttributes
