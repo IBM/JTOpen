@@ -127,6 +127,10 @@ implements PrintObjectImpl
                       aValue = attrs.getIntValue(attributeID);
                    }
                }
+               else
+               {
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+               }
             }
         }
 
@@ -196,6 +200,10 @@ implements PrintObjectImpl
                       aValue = attrs.getIntValue(attributeID);
                    }
                }
+               else
+               {
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+               }
             }
         }
 
@@ -263,6 +271,10 @@ implements PrintObjectImpl
                    {
                       aValue = attrs.getFloatValue(attributeID);
                    }
+               }
+               else
+               {
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
                }
             }
         }
@@ -332,6 +344,10 @@ implements PrintObjectImpl
                       str = attrs.getStringValue(attributeID);
                    }
                }
+               else
+               {
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+               }
             }
         }
 
@@ -400,6 +416,10 @@ implements PrintObjectImpl
                       aValue = attrs.getFloatValue(attributeID);
                    }
                }
+               else
+               {
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+               }
             }
         }
 
@@ -465,9 +485,14 @@ implements PrintObjectImpl
                if (attrIDsToRetreive.containsID(attributeID))
                {
                    updateAttrs(attrIDsToRetreive);
-                   if (attrs != null) {
+                   if (attrs != null)
+                   {
                       str = attrs.getStringValue(attributeID);
                    }
+               }
+               else
+               {
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
                }
             }
         }
