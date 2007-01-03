@@ -247,6 +247,8 @@ public class User implements Serializable
     private int[] iaspStorageUsed_;
     // Local password management.
     private boolean localPasswordManagement_;
+    // Password change block
+    private String pwdChangeBlock_;		// @550
 
     /**
      Constructs a User object.
@@ -781,11 +783,15 @@ public class User implements Serializable
 
     /**
      Retrieves whether the user is limited to one device session.
+     NOTE:  Values "0-9" are only valid when running to the i5/OS release after V5R4.
      @return  Whether the user is limited to one device session.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN determines if the user is limited to one device session.
      <li>"*YES" - The user is limited to one session.
      <li>"*NO" - The user is not limited to one device session.
+     <li>"0" - The user is not limited to a specific number of device session.  The value has the same meaning as *NO.
+     <li>"1" - The user is limited to a single device session.  The value has the same meaning as *YES.
+     <li>"2-9" - The user is limited to the specified number of device sessions.
      </ul>
      **/
     public String getLimitDeviceSessions()
@@ -975,6 +981,25 @@ public class User implements Serializable
         return passwordExpireDate_;
     }
 
+    // @550
+    /**
+     * Retrieves the time period during which a password is blocked from being changed
+     * following the prior successful password change operation.
+     * <p><b>NOTE:  This method should not be used when running to i5/OS V5R4 or earlier releases.</b>
+     * @return The time perioud during which a password is blocked from being changed.  Possible values are:
+     * <ul>
+     * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
+     * <li>"*NONE" - The password can be changed at any time.</li>
+     * <li>"1-99" - Indicates the number of hours a user must wait after the prior successful password change operation
+     * before they are able to change the password again.</li>
+     * </ul>
+     */
+    public String getPasswordChangeBlock()
+    {
+    	if(!loaded_) refresh();
+    	return pwdChangeBlock_;
+    }
+    
     /**
      Retrieves the number of days the user's password can remain active before it must be changed.
      @return  The number of days the user's password can remain active before it must be changed.  Possible values are:
@@ -1706,6 +1731,11 @@ public class User implements Serializable
             {
                 // EBCDIC 'Y' indicates the password is managed locally.
                 localPasswordManagement_ = data[660] == (byte)0xE8;
+                
+                if(vrm >= 0x00050500)	// @550 added password change block
+                {
+                	pwdChangeBlock_ = conv.byteArrayToString(data, 661, 10).trim();
+                }
             }
         }
         loaded_ = true;
@@ -2335,11 +2365,15 @@ public class User implements Serializable
 
     /**
      Sets if the number of device sessions allowed for a user is limited to 1.  This does not limit SYSREQ and second sign-on.
+     NOTE:  Values "0-9" are only valid when running to the i5/OS release after V5R4.
      @param limitDeviceSessions If the number of device sessions allowed for a user is limited to 1.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN is used to determine whether the user is limited to a single device session.
      <li>"*NO" - The user is not limited to one device session.
      <li>"*YES" - The user is limited to one session.
+     <li>"0" - The user is not limited to a specific number of device session.  The value has the same meaning as *NO.
+     <li>"1" - The user is limited to a single device session.  The value has the same meaning as *YES.
+     <li>"2-9" - The user is limited to the specified number of device sessions.
      </ul>
      **/
     public void setLimitDeviceSessions(String limitDeviceSessions) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -2631,6 +2665,29 @@ public class User implements Serializable
         runCommand("OWNER(" + owner + ")");
     }
 
+    // @550
+    /**
+     * Sets the time period during which a password is blocked from being changed
+     * following the prior successful password change operation.
+     * <p><b>NOTE:  This method should not be used when running to i5/OS V5R4 or earlier releases.</b>
+     * @param pwdChangeBlock The time period during which a password is blocked from being changed.  Possible values are:
+     * <ul>
+     * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
+     * <li>"*NONE" - The password can be changed at any time.</li>
+     * <li>"1-99" - Indicates the number of hours a user must wait after the prior successful password change operation
+     * before they are able to change the password again.</li>
+     * </ul> 
+     */
+    public void setPasswordChangeBlock(String pwdChangeBlock) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
+    {
+        if (pwdChangeBlock == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'pwdChangeBlock' is null.");
+            throw new NullPointerException("pwdChangeBlock");
+        }
+        runCommand("PWDCHGBLK(" + pwdChangeBlock + ")");
+    }
+    
     /**
      Sets the password expiration interval (in days).
      @param passwordExpirationInterval The number of days the user's password can remain active before it must be changed.  Possible values are:
