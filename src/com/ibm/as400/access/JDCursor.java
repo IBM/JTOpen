@@ -339,6 +339,10 @@ Opens the cursor and describes the data format.
 
       processConcurrencyOverride(openAttributes, reply);                            // @E1A @E4C
       dataFormat = reply.getDataFormat ();
+      // @550A  NOTE:  openDescribe() currently is only called for a result set returned from a CallableStatement
+      // if that were to change, this method needs to be modified so that it correctly indicates to the data format
+      // when the data is from a stored procedure result set.
+      dataFormat.setCSRSData(true);		// @550A  indicate to the data format that this data is associated with a stored procedure result set
       }
       finally
       {

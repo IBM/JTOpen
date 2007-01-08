@@ -29,6 +29,20 @@ extends DBOverlay
 
     public abstract int getConsistencyToken ()
         throws DBDataStreamException;
+    
+    public abstract int getDateFormat()			// @550A
+    	throws DBDataStreamException;			// @550A
+    
+    public abstract int getTimeFormat()			// @550A
+		throws DBDataStreamException;			// @550A
+    
+    public abstract int getDateSeparator()		// @550A
+		throws DBDataStreamException;			// @550A
+    
+    public abstract int getTimeSeparator()		// @550A
+		throws DBDataStreamException;			// @550A
+    
+    public abstract boolean getCSRSData();		// @550A
 
     public abstract int getNumberOfFields ()
         throws DBDataStreamException;
@@ -73,7 +87,9 @@ extends DBOverlay
 
     public abstract void setConsistencyToken (int consistencyToken)
         throws DBDataStreamException;
-
+    
+    public abstract void setCSRSData(boolean csRsData);
+    
     public abstract void setNumberOfFields (int numberOfFields)
         throws DBDataStreamException;
 

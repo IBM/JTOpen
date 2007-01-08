@@ -154,6 +154,8 @@ implements JDRow
         rowIndex_           = -1;
         serverData_         = null;
         serverFormat_       = serverFormat;
+        int dateFormat = -1;	// @550A
+        int timeFormat = -1;	// @550A
 
         try
         {
@@ -181,6 +183,11 @@ implements JDRow
             {
                 int offset = 0;
                 boolean translateBinary = connection.getProperties().getBoolean (JDProperties.TRANSLATE_BINARY);
+                if(connection_.getVRM() >= JDUtilities.vrm550 && serverFormat_.getCSRSData())	// @550A retrieve date/time formats if the data is from a stored procedure result set
+                {
+                	dateFormat = serverFormat_.getDateFormat();
+                	timeFormat = serverFormat_.getTimeFormat();
+                }
                 for(int i = 0; i < count; ++i)
                 {
                     ccsids_[i] = serverFormat_.getFieldCCSID (i);
@@ -196,7 +203,7 @@ implements JDRow
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
                                                           sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
                                                           scales_[i], ccsids_[i], translateBinary, settings,
-                                                          maxLobSize, (i+1));    //@F1C                                               // @C2C
+                                                          maxLobSize, (i+1), dateFormat, timeFormat);    //@F1C                                               // @C2C @550C
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);

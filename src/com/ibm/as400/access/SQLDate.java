@@ -35,23 +35,25 @@ implements SQLData
 
     // Private data.
     private SQLConversionSettings   settings_;
+    private int			    dateFormat_;	// @550A
     private int                     truncated_;
     private int                     year_;
     private int                     month_;
     private int                     day_;
 
-    SQLDate(SQLConversionSettings settings)
+    SQLDate(SQLConversionSettings settings, int dateFormat)
     {
         settings_   = settings;
         truncated_  = 0;
         year_       = 0;
         month_      = 0;
         day_        = 0;
+        dateFormat_ = dateFormat;	// @550A
     }
 
     public Object clone()
     {
-        return new SQLDate(settings_);
+        return new SQLDate(settings_, dateFormat_);	// @550C
     }
 
     public static Date stringToDate(String s,
@@ -267,7 +269,9 @@ implements SQLData
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        switch(settings_.getDateFormat())
+    	int connectionDateFormat = settings_.getDateFormat();	// @550A
+    	// @550 If the date is in a stored procedure result set, it could have a different date format than the format of the connection
+        switch(((dateFormat_ != -1) && (dateFormat_ != connectionDateFormat)) ? dateFormat_ : connectionDateFormat)	// @550C
         {
             
             case SQLConversionSettings.DATE_FORMAT_JULIAN:                      // yy/ddd

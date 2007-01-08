@@ -32,23 +32,25 @@ implements SQLData
 
     // Private data.
     private SQLConversionSettings   settings_;
+    private int			    timeFormat_;
     private int                     hour_;
     private int                     minute_;
     private int                     second_;
     private int                     truncated_;
 
-    SQLTime(SQLConversionSettings settings)
+    SQLTime(SQLConversionSettings settings, int timeFormat)	// @550C
     {
         settings_   = settings;
         hour_       = 0;
         minute_     = 0;
         second_     = 0;
         truncated_  = 0;
+        timeFormat_	= timeFormat;	// @550A
     }
 
     public Object clone()
     {
-        return new SQLTime(settings_);
+        return new SQLTime(settings_, timeFormat_);	// @550C
     }
 
     public static Time stringToTime(String s,
@@ -236,7 +238,9 @@ implements SQLData
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        switch(settings_.getTimeFormat())
+    	int connectionTimeFormat = settings_.getTimeFormat();	// @550A
+    	// @550 If the time is from a stored procedure result set, it could be in a different time format than the connection's format
+    	switch(((timeFormat_ != -1) && (timeFormat_ != connectionTimeFormat)) ? timeFormat_ : connectionTimeFormat)	// @550C
         {
             
             case SQLConversionSettings.TIME_FORMAT_USA:                      // hh:mm AM or PM

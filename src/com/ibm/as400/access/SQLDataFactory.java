@@ -320,7 +320,7 @@ class SQLDataFactory
                 //return new SQLClob(maxLength - 4, false, settings);    // @D1C @E1C
 
             case Types.DATE:
-                return new SQLDate(settings);
+                return new SQLDate(settings, -1);	// @550C
 
             case Types.DECIMAL:
                 if(settings != null)                                           // @E0A
@@ -352,7 +352,7 @@ class SQLDataFactory
                 return new SQLSmallint();
 
             case Types.TIME:
-                return new SQLTime(settings);
+                return new SQLTime(settings, -1);	// @550C
 
             case Types.TIMESTAMP:
                 return new SQLTimestamp(settings);
@@ -416,17 +416,19 @@ class SQLDataFactory
                            boolean translateBinary,
                            SQLConversionSettings settings,
                            int lobMaxSize,                                 // @C3A
-                           int columnIndex)     //@F2A
+                           int columnIndex,     //@F2A
+                           int dateFormat,		// @550A
+                           int timeFormat) 		// @550A
     throws SQLException
     {
         switch(nativeType)
         {
             
             case 384:                           // Date.
-                return new SQLDate(settings);
+                return new SQLDate(settings, dateFormat);	// @550
 
             case 388:                           // Time.
-                return new SQLTime(settings);
+                return new SQLTime(settings, timeFormat);
 
             case 392:                           // Timestamp.
                 return new SQLTimestamp(settings);
@@ -628,7 +630,7 @@ class SQLDataFactory
             return new SQLDBClob(length, settings);                         //@KKB
 
         else if(nativeType.equals("DATE"))
-            return new SQLDate(settings);
+            return new SQLDate(settings, -1);	// @550 
 
         else if(nativeType.equals("DECIMAL"))
         {
@@ -682,7 +684,7 @@ class SQLDataFactory
             return new SQLSmallint();
 
         else if(nativeType.equals("TIME"))
-            return new SQLTime(settings);
+            return new SQLTime(settings, -1);	// @550C
 
         else if(nativeType.equals("TIMESTAM"))
             return new SQLTimestamp(settings);

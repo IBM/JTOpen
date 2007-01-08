@@ -21,6 +21,11 @@ Super Extended Data Format
 consistency token - 4 bytes                 0
 # of fields - 4 bytes                       4
 RESERVED - 4 bytes                          8
+	In V5R5 and later, the above reserved bytes are replaced with
+	Date Format - 1 byte
+	Time Format - 1 byte
+	Date Separator - 1 byte
+	Time Separator - 1 byte
 record size - 4 bytes                       12
 
 //following is repeated for each field
@@ -62,6 +67,7 @@ implements DBDataFormat
   private byte[]              rawBytes_           = null;
   private int                 offset_             = -1;
   private int                 numberOfFields_     = -1;
+  private boolean			  csRsData_			  = false;	// @550A indicates whether or not the data associated with this format is from a stored procedure result set
 
 /**
 Constructs a DBSuperExtendedDataFormat object.  Use this when overlaying
@@ -109,6 +115,30 @@ when it was not previously set by the constructor.
   public int getNumberOfFields ()
   {
     return numberOfFields_;
+  }
+  
+  // @550
+  public int getDateFormat()
+  {
+	  return (new Byte(rawBytes_[offset_+ 8])).intValue();
+  }
+  
+  // @550
+  public int getTimeFormat()
+  {
+	  return (new Byte(rawBytes_[offset_+ 9])).intValue();
+  }
+  
+  // @550
+  public int getDateSeparator()
+  {
+	  return (new Byte(rawBytes_[offset_+ 10])).intValue();
+  }
+  
+  // @550 
+  public int getTimeSeparator()
+  {
+	  return (new Byte(rawBytes_[offset_+ 11])).intValue();
   }
 
   public int getRecordSize ()
@@ -249,7 +279,7 @@ when it was not previously set by the constructor.
     BinaryConverter.intToByteArray (numberOfFields, rawBytes_,
                                     offset_ + 4);
   }
-
+  
   public void setRecordSize (int recordSize)
   {
     // not applicable - only called by AS400JDBCPreparedStatement.changeDescriptor()
@@ -333,4 +363,15 @@ when it was not previously set by the constructor.
     return 0;
   }
 
+  //@550A - returns whether or not this data is associated with a stored procedure result set 
+  public boolean getCSRSData()
+  {
+	  return csRsData_;
+  }
+  
+  //@550A - sets whether or not this data is associated with a stored procedure result set 
+  public void setCSRSData(boolean csRsData)
+  {
+	  csRsData_ = csRsData;
+  }
 }
