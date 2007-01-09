@@ -4470,7 +4470,7 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLChar(32765, settings_));              // @D0C
         if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX
             typeSamples.addElement(new SQLCharForBitData(32765, settings_));           // @M0A
-        typeSamples.addElement(new SQLDate(settings_));                            // @D0C
+        typeSamples.addElement(new SQLDate(settings_, -1));                            // @D0C @550C
         typeSamples.addElement(new SQLDecimal(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                           // @D0C
@@ -4479,7 +4479,7 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLReal(settings_));                            // @D0C
         typeSamples.addElement(new SQLSmallint());                                 // @D0C
-        typeSamples.addElement(new SQLTime(settings_));                            // @D0C
+        typeSamples.addElement(new SQLTime(settings_, -1));                            // @D0C @550C
         typeSamples.addElement(new SQLTimestamp(settings_));                       // @D0C
         //typeSamples.addElement(new SQLLongVarchar(32739, settings_));        //Change to report LONG VARCHAR as VARCHAR to be consistent with other clients.
         typeSamples.addElement(new SQLLongVargraphic(16369, settings_));

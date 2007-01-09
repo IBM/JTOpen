@@ -38,6 +38,7 @@ implements DBDataFormat
 
     private int                 jobCCSID_;    // @D1A
     private int                 length_             = -1;
+    private boolean             csRsData_           = false;    // @550A Indicates if the data associated with this format is from a stored procedure result set.
 
 
 
@@ -358,6 +359,37 @@ implements DBDataFormat
     }
 
 
+    // @550A - This isn't included in the SQLDA Data Stream Format
+  public int getDateFormat() throws DBDataStreamException {
+	  return -1;
+  }
+
+  // @550A - This isn't included in the SQLDA Data Stream Format
+  public int getTimeFormat() throws DBDataStreamException {
+	return -1;
+  }
+
+  // @550A - This isn't included in the SQLDA Data Stream Format
+  public int getDateSeparator() throws DBDataStreamException {
+	return -1;
+  }
+
+  // @550A - This isn't included in the SQLDA Data Stream Format
+  public int getTimeSeparator() throws DBDataStreamException {
+	return -1;
+  }
+  
+  // @550A - returns whether or not this data is associated with a stored procedure result set 
+  public boolean getCSRSData()
+  {
+	  return csRsData_;
+  }
+  
+  //@550A - sets whether or not this data is associated with a stored procedure result set 
+  public void setCSRSData(boolean csRsData)
+  {
+	  csRsData_ = csRsData;
+  }
 
 }
 

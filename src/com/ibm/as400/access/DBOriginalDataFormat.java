@@ -40,6 +40,8 @@ implements DBDataFormat
 
     private int                 length_             = -1;
 
+    private boolean             csRsData_           = false;    // @550A Indicates if the data associated with this format is from a stored procedure result set.
+
 
 
 /**
@@ -310,5 +312,36 @@ when it was not previously set by the constructor.
     }
 
 
+    // @550A - This isn't included in the Original Data Stream Format
+  public int getDateFormat() throws DBDataStreamException {
+	  return -1;
+  }
+
+  // @550A - This isn't included in the Original Data Stream Format
+  public int getTimeFormat() throws DBDataStreamException {
+	return -1;
+  }
+
+  // @550A - This isn't included in the Original Data Stream Format
+  public int getDateSeparator() throws DBDataStreamException {
+	return -1;
+  }
+
+  // @550A - This isn't included in the Original Data Stream Format
+  public int getTimeSeparator() throws DBDataStreamException {
+	return -1;
+  }
+  
+  // @550A - returns whether or not this data is associated with a stored procedure result set 
+  public boolean getCSRSData()
+  {
+	  return csRsData_;
+  }
+  
+  //@550A - sets whether or not this data is associated with a stored procedure result set 
+  public void setCSRSData(boolean csRsData)
+  {
+	  csRsData_ = csRsData;
+  }
 
 }
