@@ -469,7 +469,7 @@ public class QSYSObjectPathName implements Serializable
     private void parse(String path)
     {
         // Uppercase to simplify parsing.
-        String upperCasePath = path.toUpperCase();
+        String upperCasePath = toQSYSName(path);
 
         //------------------------------------------------------
         // Process the prefix.
