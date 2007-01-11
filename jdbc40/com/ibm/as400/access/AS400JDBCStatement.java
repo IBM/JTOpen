@@ -2473,6 +2473,8 @@ implements Statement
                     // Gather information from the reply.
                     DBReplySQLCA sqlca = reply.getSQLCA ();
                     DBDataFormat dataFormat = reply.getDataFormat ();
+                    if(this instanceof AS400JDBCCallableStatement)	// @550A
+                    	dataFormat.setCSRSData(true);				// @550A
 
                     // Check for system errors.
                     int errorClass = reply.getErrorClass();
