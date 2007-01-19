@@ -3384,6 +3384,7 @@ implements Statement
      */
     public void setPoolable(boolean poolable) throws SQLException
     {
+        checkOpen();//@pda do same as native
         isPoolable_ = poolable;   
     }
     
@@ -3400,6 +3401,7 @@ implements Statement
      */
     public boolean isPoolable() throws SQLException
     {
+        checkOpen();//@pda do same as native
         return isPoolable_;
     }
  
