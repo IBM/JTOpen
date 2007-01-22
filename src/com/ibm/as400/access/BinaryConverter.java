@@ -470,7 +470,7 @@ public class BinaryConverter
   public static final byte[] stringToBytes(String s)
   {
       int stringLength = s.length();                                                        //@KBA  check for empty string
-      if(stringLength > 0)                                                                  //@KBA
+      if(stringLength > 2)                                                                  //@KBA //@pdc allow for input single digit input like "X" so NumberFormatException is thrown instead of array bounds error
       {                                                                                     //@KBA
           if(s.charAt(0) == '0' && (s.charAt(1) == 'x' || s.charAt(1) == 'X'))              //@KBA
               s = s.substring(2);                                                           //@KBA
