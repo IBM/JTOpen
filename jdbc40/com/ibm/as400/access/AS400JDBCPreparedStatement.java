@@ -2909,7 +2909,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             if(truncated > 0)
             {
                 int actualSize = data.getActualSize ();
-                boolean isRead = sqlStatement_.isSelect() ||  sqlStatement_.isProcedureCall(); //@pda jdbc40
+                boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read)
                 DataTruncation dt = new DataTruncation(parameterIndex, true, isRead, actualSize + truncated, actualSize); //@pdc jdbc40
 
                 if((sqlStatement_ != null) && (sqlStatement_.isSelect()))
