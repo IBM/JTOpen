@@ -76,6 +76,18 @@ public class QueuedMessage extends AS400Message implements Serializable
         setSystem(system);
         key_ = messageKey;
     }
+    
+    //@HLA
+    //  Constructs a QueuedMessage object. Called from HistoryLog.getMessages().
+    QueuedMessage(AS400 system, int messageSeverity, String messageIdentifier, int messageType, String messageFileName, String messageLibraryName, String dateSent, String timeSent, String sendingJob, String sendingUserProfile, String sendingJobNumber, String currentUser, String messageData, byte[] replacementData)
+    {
+        super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, null, dateSent, timeSent, null);
+        setSystem(system);
+        sendingJobName_ = sendingJob;
+        sendingJobNumber_ = sendingJobNumber;
+        sendingUser_ = sendingUserProfile;
+        currentUser_ = currentUser;
+    }
 
     // Constructs a QueuedMessage object. Used by MessageQueue.receive().
     QueuedMessage(MessageQueue messageQueue, int messageSeverity, String messageIdentifier, int messageType, byte[] messageKey, String messageFileName, String messageLibraryName, String sendingJob, String sendingUserProfile, String sendingJobNumber, String sendingProgramName, String dateSent, String timeSent, byte[] replacementData, String messageData, String messageHelp, String alertOption)

@@ -22,6 +22,7 @@ class QueuedMessageEnumeration implements Enumeration
     private QueuedMessage[] messageCache_;
     private MessageQueue mq_;
     private JobLog jl_;
+    private HistoryLog hl_;		//@HLA
     private int counter_;
     private int numMessages_;
     private int listOffset_ = 0;
@@ -37,6 +38,13 @@ class QueuedMessageEnumeration implements Enumeration
     {
         jl_ = jl;
         numMessages_ = length;
+    }
+    
+    //@HLA
+    QueuedMessageEnumeration(HistoryLog hl, int length)
+    {
+    	hl_ = hl;
+    	numMessages_ = length;
     }
 
     public final boolean hasMoreElements()
@@ -59,6 +67,10 @@ class QueuedMessageEnumeration implements Enumeration
                 {
                     messageCache_ = mq_.getMessages(listOffset_, 1000);
                 }
+                else if(hl_ != null)										//@HLA
+                {															//@HLA
+                	messageCache_ = hl_.getMessages(listOffset_, 1000);		//@HLA
+                }															//@HLA
                 else
                 {
                     messageCache_ = jl_.getMessages(listOffset_, 1000);
