@@ -7104,6 +7104,11 @@ implements DatabaseMetaData
     {
         connection_.checkOpen();
 
+        if(connection_.getVRM() < JDUtilities.vrm550) //@pda HSTSRVR support not PTFing support to v5r4
+        {
+            JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+            return null;
+        }
         /*
          SYSIBM.SQLFunctions(
          CatalogName     varchar(128),
@@ -7219,10 +7224,32 @@ implements DatabaseMetaData
      */
     public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException
     { 
-        //todo  new method added in b99 driver (sept 15ish)
-        //if stored procs support it, call them, if not, throw not supported exception
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
-        return null;
+        //@PDA add support to call stored procedure
+        connection_.checkOpen();
+
+        if(connection_.getVRM() < JDUtilities.vrm550) //@pda HSTSRVR support not PTFing support to v5r4
+        {
+            JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+            return null;
+        }
+        /*
+         SQLFunctionCols(
+          CatalogName     varchar(128),
+          SchemaName      varchar(128),
+          FuncName        varchar(128),
+          ParamName         varchar(128),
+          Options         varchar(4000))
+        */
+        
+        CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONCOLS  ( ?, ?, ?, ?, ?)");
+        
+        cstmt.setString(1, catalog);
+        cstmt.setString(2, schemaPattern);
+        cstmt.setString(3, functionNamePattern);
+        cstmt.setString(4, columnNamePattern);
+        cstmt.setObject(5, "DATATYPE='JDBC';CURSORHOLD=1");
+        ResultSet rs = cstmt.executeQuery();
+        return rs;
     }
   
       
