@@ -102,7 +102,7 @@ implements DatabaseMetaData
   private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
-    static final int    JDBC_MAJOR_VERSION          = 3;        // @G4A
+    static final int    JDBC_MAJOR_VERSION          = 4;        // @G4A //@pdc
     static final int    JDBC_MINOR_VERSION          = 0;        // @G4A
 
     //New constants for JDBC 3.0.
