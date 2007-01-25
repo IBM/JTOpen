@@ -7056,20 +7056,31 @@ implements DatabaseMetaData
     /**
      * Retrieves a description of the user functions available in the given
      * catalog.
-     * <P>
-     * Only user function descriptions matching the schema and
+      * <P>
+     * Only system and user function descriptions matching the schema and
      * function name criteria are returned.  They are ordered by
-     * <code>FUNCTION_SCHEM</code>, <code>FUNCTION_NAME</code> and 
+     * <code>FUNCTION_CAT</code>, <code>FUNCTION_SCHEM</code>,
+     * <code>FUNCTION_NAME</code> and 
      * <code>SPECIFIC_ NAME</code>.
      *
      * <P>Each function description has the the following columns:
      *  <OL>
      *  <LI><B>FUNCTION_CAT</B> String => function catalog (may be <code>null</code>)
      *  <LI><B>FUNCTION_SCHEM</B> String => function schema (may be <code>null</code>)
-     *  <LI><B>FUNCTION_NAME</B> String => function name
+     *  <LI><B>FUNCTION_NAME</B> String => function name.  This is the name 
+     * used to invoke the function
      *  <LI><B>REMARKS</B> String => explanatory comment on the function
+     * <LI><B>FUNCTION_TYPE</B> short => kind of function:
+     *      <UL>
+     *      <LI>functionResultUnknown - Cannot determine if a return value
+     *       or table will be returned
+     *      <LI> functionNoTable- Does not return a table
+     *      <LI> functionReturnsTable - Returns a table
+     *      </UL>
      *  <LI><B>SPECIFIC_NAME</B> String  => the name which uniquely identifies 
-     *  this function within its schema
+     *  this function within its schema.  This is a user specified, or DBMS
+     * generated, name that may be different then the <code>FUNCTION_NAME</code> 
+     * for example with overload functions
      *  </OL>
      * <p>
      * A user may not have permissions to execute any of the functions that are
