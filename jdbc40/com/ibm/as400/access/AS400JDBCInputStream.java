@@ -243,8 +243,7 @@ exception is thrown.
     {
       throw new ExtendedIllegalArgumentException("start", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-
-    if ((length < 0) || (start + length > data.length) || (start + length > length_)) //@pdc jdbc40
+    if ((length < 0) || (start + length > data.length))//@pdc locator_.retrieveData(,len) does not fail if len is greater that available length
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
