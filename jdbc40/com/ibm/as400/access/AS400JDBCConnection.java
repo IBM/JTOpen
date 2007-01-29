@@ -3653,7 +3653,7 @@ implements Connection
                 {
                     //these strings are not mri translated for future diagnostic tools, searching etc on host server
                     request.setInterfaceType( "JDBC", tempConverter); 
-                    request.setInterfaceName( "Toolbox for Java", tempConverter); 
+                    request.setInterfaceName( "IBM Toolbox for Java", tempConverter); 
                     request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, tempConverter);
                 }
 
