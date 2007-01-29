@@ -2249,6 +2249,51 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
 
+        //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --start
+        if(connection_.getVRM() >= JDUtilities.vrm550)          
+        {  
+        	short iUnique;
+        	short reserved = 0;
+
+        	if (unique)
+        		iUnique = 0;
+        	else
+        		iUnique = 1;
+
+            //Set the library name
+        	if(schema != null)
+                schema = normalize(schema);
+
+            // Set the table name
+        	if(table != null)
+                table = normalize(table);
+
+        	/*
+        	  sysibm.SQLStatistics(
+               CatalogName     varchar(128),
+               SchemaName      varchar(128),
+               TableName       varchar(128),
+               Unique          Smallint,
+               Reserved        Smallint,
+               Options         varchar(4000))
+        	 */
+        	CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSTATISTICS(?,?,?,?,?,?)");
+
+        	cstmt.setString(1, catalog);
+        	cstmt.setString(2, schema);
+        	cstmt.setString(3, table);
+        	cstmt.setShort(4,  iUnique);
+        	cstmt.setShort(5,  reserved);
+        	cstmt.setString(6, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+        	cstmt.execute();
+
+        	ResultSet rs = cstmt.getResultSet();
+
+        	return rs;
+
+        }
+        //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --end
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
