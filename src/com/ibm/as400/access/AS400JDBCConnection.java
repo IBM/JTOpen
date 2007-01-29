@@ -203,7 +203,19 @@ implements Connection
     // If "true autocommit" connection property is true - run with specified isolation (2)
     int newAutoCommitSupport_ = 1;                                      //@KBA  
 
-
+    //@pda 550 client info
+    //Names for clientInfo identifiers.  DatabaseMetadata also will use these names
+    static final String applicationNamePropertyName_ = "ApplicationName";
+    static final String clientUserPropertyName_ = "ClientUser";
+    static final String clientHostnamePropertyName_ = "ClientHostname";
+    static final String clientAccountingPropertyName_ = "ClientAccounting";
+    
+    //@pda 550 client info values
+    private String applicationName_ = null;  
+    private String clientUser_ = null;
+    private String clientHostname_ = null;
+    private String clientAccounting_ = null; 
+    
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -3624,7 +3636,16 @@ implements Connection
                     }                                                                                             // @J2a
                 }                                                                                                 // @J2a
 
-
+                //@PDA 550 client interface info settings
+                //These three settings cannot be updated by user apps.
+                //This gives driver information to host server for any logging or future diagnostics.
+                if (vrm_ >= JDUtilities.vrm550)
+                {
+                    //these strings are not mri translated for future diagnostic tools, searching etc on host server
+                    request.setInterfaceType( "JDBC", tempConverter); 
+                    request.setInterfaceName( "IBM Toolbox for Java", tempConverter); 
+                    request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, tempConverter);
+                }
 
                 // Send the request and process the reply.
                 reply = sendAndReceive (request);
@@ -3970,7 +3991,264 @@ implements Connection
         return extendedFormats_;
     }
 
+    //@PDA 550 client info
+    /**
+     * Sets the value of the client info property specified by name to the 
+     * value specified by value.  
+     * <p>
+     * The following are client info properties.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   The accounting information about the client.</li>
+     *                          
+     * </ul>
+     * <p>
+     * @param name      The name of the client info property to set 
+     * @param value     The value to set the client info property to.  If the 
+     *                  value is null, the current value of the specified
+     *                  property is cleared.
+     * <p>
+     * @throws  SQLException if the database returns an error while 
+     *          setting the client info value on the database.
+     * <p>
+     */
+    public void setClientInfo(String name, String value) throws SQLException
+    {
 
+        DBSQLAttributesDS request = null;
+        DBReplyRequestedDS reply = null;
+        ConvTable tempConverter = null;
+
+        String oldValue = null;  //save in case we get error from host db
+        
+        // in order to reset if null value is passed in, use empty string
+        if (value == null)
+            value = "";
+        
+        try
+        {
+            if (getVRM() >= JDUtilities.vrm550)
+            {
+                request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
+                tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
+            }
+
+            if (name.equals(applicationNamePropertyName_))
+            {
+                oldValue = applicationName_;
+                applicationName_ = value;
+                if (getVRM() >= JDUtilities.vrm550)
+                    request.setClientInfoApplicationName(value, tempConverter);
+
+            } else if (name.equals(clientUserPropertyName_))
+            {
+                oldValue = clientUser_;
+                clientUser_ = value;
+                if (getVRM() >= JDUtilities.vrm550)
+                    request.setClientInfoClientUser(value, tempConverter);
+
+            } else if (name.equals(clientAccountingPropertyName_))
+            {
+                oldValue = clientAccounting_;
+                clientAccounting_ = value;
+                if (getVRM() >= JDUtilities.vrm550)
+                    request.setClientInfoClientAccounting(value, tempConverter);
+
+            } else if (name.equals(clientHostnamePropertyName_))
+            {
+                oldValue = clientHostname_;
+                clientHostname_ = value;
+                if (getVRM() >= JDUtilities.vrm550)
+                    request.setClientInfoClientHostname(value, tempConverter);
+
+            } else
+            {
+                oldValue = null;
+                // post generic syntax error for invalid clientInfo name
+                postWarning(JDError.getSQLWarning(JDError.EXC_SYNTAX_ERROR));
+            }
+
+            if ((getVRM() >= JDUtilities.vrm550) && (oldValue != null))
+            {
+                reply = sendAndReceive(request);
+                int errorClass = reply.getErrorClass();
+                //throw SQLException  
+                if (errorClass != 0)     
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+                
+            }
+        } catch (Exception e)
+        {
+            //reset old value
+            if (name.equals(applicationNamePropertyName_))
+                applicationName_ = oldValue;
+            else if (name.equals(clientUserPropertyName_))
+                clientUser_ = oldValue;
+            else if (name.equals(clientAccountingPropertyName_))
+                clientAccounting_ = oldValue;
+            else if (name.equals(clientHostnamePropertyName_))
+                clientHostname_ = oldValue;
+
+            JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+        } finally
+        {
+            if (request != null)
+                request.inUse_ = false;
+            if (reply != null)
+                reply.inUse_ = false;
+        }
+    }
+
+    //@PDA 550 client info
+    /**
+     * Sets the value of the connection's client info properties. The
+     * <code>Properties</code> object contains the names and values of the
+     * client info properties to be set. The set of client info properties
+     * contained in the properties list replaces the current set of client info
+     * properties on the connection. If a property that is currently set on the
+     * connection is not present in the properties list, that property is
+     * cleared. Specifying an empty properties list will clear all of the
+     * properties on the connection. See
+     * <code>setClientInfo (String, String)</code> for more information.
+     * <p>
+     * If an error occurs in setting any of the client info properties, a
+     * <code>SQLException</code> is thrown. 
+     * <p>
+     * 
+     * @param properties
+     *            the list of client info properties to set
+     *            <p>
+     * @throws SQLException
+     *             if the database returns an error while setting the
+     *             clientInfo values on the database
+     *             <p>
+     */
+    public void setClientInfo(Properties properties) throws SQLException
+    {
+        String newApplicationName = properties.getProperty(applicationNamePropertyName_);
+        String newClientHostname = properties.getProperty(clientHostnamePropertyName_);
+        String newClientUser = properties.getProperty(clientUserPropertyName_);
+        String newClientAccounting = properties.getProperty(clientAccountingPropertyName_);
+        
+        //In order to reset if null value is passed in, use empty string
+        //per javadoc, clear its value if not specified in properties 
+        if (newApplicationName == null)
+            newApplicationName = "";
+        if (newClientHostname == null)
+            newClientHostname = "";
+        if (newClientUser == null)
+            newClientUser = "";
+        if (newClientAccounting == null)
+            newClientAccounting = "";
+        
+        DBSQLAttributesDS request = null;
+        DBReplyRequestedDS reply = null;
+        ConvTable tempConverter = null;
+        try
+        {
+            if (getVRM() >= JDUtilities.vrm550)
+            {
+                request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
+                tempConverter = ConvTable.getTable(as400_.getCcsid(), null);
+                
+                request.setClientInfoApplicationName(newApplicationName, tempConverter);
+                
+                request.setClientInfoClientUser(newClientUser, tempConverter);
+                
+                request.setClientInfoClientAccounting(newClientAccounting, tempConverter);
+                
+                request.setClientInfoClientHostname(newClientHostname, tempConverter);
+                
+                reply = sendAndReceive(request);
+                int errorClass = reply.getErrorClass();
+                if (errorClass != 0)
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+            }
+            
+            //update local values after request/reply in case of exception
+            applicationName_ = newApplicationName;
+            clientHostname_ = newClientHostname;
+            clientUser_ = newClientUser;
+            clientAccounting_ = newClientAccounting;
+            
+        } catch( Exception e)
+        {
+        	JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+        } finally
+        {
+            if (request != null)
+                request.inUse_ = false;
+            if (reply != null)
+                reply.inUse_ = false;
+        }
+        
+    }
+
+    //@PDA 550 client info
+    /**
+     * Returns the value of the client info property specified by name.  This 
+     * method may return null if the specified client info property has not 
+     * been set and does not have a default value.  This method will also 
+     * return null if the specified client info property name is not supported 
+     * by the driver.
+     * <p>
+     * @param name      The name of the client info property to retrieve
+     * <p>
+     * @return          The value of the client info property specified
+     * <p>
+     * @throws SQLException     if the database returns an error when 
+     *                          fetching the client info value from the database.
+     */
+    public String getClientInfo(String name) throws SQLException
+    {
+        if (name.equals(applicationNamePropertyName_))
+            return applicationName_;
+        else if (name.equals(clientUserPropertyName_))
+            return clientUser_;
+        else if (name.equals(clientAccountingPropertyName_))
+            return clientAccounting_;
+        else if (name.equals(clientHostnamePropertyName_))
+            return clientHostname_;
+        else
+        {
+            //post generic syntax error for invalid clientInfo name
+            //since javadoc for setClientInfo(String,String) says to generate warning, we will do same here and return null
+            postWarning(JDError.getSQLWarning(JDError.EXC_SYNTAX_ERROR));
+            return null;
+        }
+    }
+
+    //@PDA 550 client info
+    /**
+     * Returns a list containing the name and current value of each client info 
+     * property supported by the driver.  The value of a client info property 
+     * may be null if the property has not been set and does not have a 
+     * default value.
+     * <p>
+     * @return  A <code>Properties</code> object that contains the name and current value of 
+     *          each of the client info properties supported by the driver.  
+     * <p>
+     * @throws  SQLException if the database returns an error when 
+     *          fetching the client info values from the database
+     */
+    public Properties getClientInfo() throws SQLException
+    {
+        Properties props = new Properties();
+        props.setProperty(applicationNamePropertyName_, applicationName_);
+        props.setProperty(clientAccountingPropertyName_, clientAccounting_);
+        props.setProperty(clientHostnamePropertyName_, clientHostname_);
+        props.setProperty(clientUserPropertyName_, clientUser_);
+        return props;
+    }
+    
 
 }
 

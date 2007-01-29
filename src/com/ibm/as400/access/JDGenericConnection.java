@@ -553,5 +553,30 @@ implements Connection
   {
     return actualConnection_.toString ();
   }
+   
+        
+  //@PDA 550 client info
+  public void setClientInfo(String name, String value) throws SQLException
+  {
+	  ((AS400JDBCConnection)actualConnection_).setClientInfo(name, value);
+  }
 
+  //@PDA 550 client info
+  public void setClientInfo(Properties properties) throws SQLException
+  {
+	  ((AS400JDBCConnection)actualConnection_).setClientInfo(properties);
+  }
+
+  //@PDA 550 client info
+  public String getClientInfo(String name) throws SQLException
+  {
+      return ((AS400JDBCConnection)actualConnection_).getClientInfo(name);
+  }
+
+  //@PDA 550 client info
+  public Properties getClientInfo() throws SQLException
+  {
+      return ((AS400JDBCConnection)actualConnection_).getClientInfo();
+  }
+  
 }

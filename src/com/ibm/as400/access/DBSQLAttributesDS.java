@@ -334,6 +334,91 @@ extends DBBaseRequestDS
         addParameter(0x3826, converter, value, value.length());
     }
 
+
+    //@PDA 550 client info methods
+    /**
+       Sets the client info for the application name for this connection. 
+       This has a 255 byte length.
+    **/
+    void setClientInfoApplicationName(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x3838, converter, value, value.length());
+    }
+    
+    //@PDA 550 client info methods
+    /**
+       Sets the client info for the account for this connection. 
+       This has a 255 byte length.
+    **/
+    void setClientInfoClientAccounting(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x3837, converter, value, value.length());
+    }
+
+    
+    //@PDA 550 client info methods
+    /**
+       Sets the client info for the user name for this connection. 
+       This has a 255 byte length.
+    **/
+    void setClientInfoClientUser(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x3839, converter, value, value.length());
+    }
+    
+    
+    //@PDA 550 client info methods
+    /**
+       Sets the client info for the computer name for this connection. 
+       This has a 255 byte length.
+    **/
+    void setClientInfoClientHostname(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x383A, converter, value, value.length());
+    }
+    
+    
+    //@PDA 550 - middleware type
+    /**
+       Sets the middleware type for this connection. 
+       This setting is designed to be set by driver only.
+       This gives driver information to host for any logging or future diagnostics.
+    **/
+    void setInterfaceType(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x383C, converter, value, value.length());
+    }
+    
+    //@PDA 550 - product name
+    /**
+       Sets the product name for this connection. 
+       This setting is designed to be set by driver only.
+       This gives driver information to host for any logging or future diagnostics.
+    **/
+    void setInterfaceName(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x383D, converter, value, value.length());
+    }
+    
+    //@PDA 550 - client version
+    /**
+       Sets the client version for this connection. 
+       This setting is designed to be set by driver only.  
+       This gives driver information to host for any logging or future diagnostics.
+       Note:  Viewable in iNav display.
+    **/
+    void setInterfaceLevel(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x383E, converter, value, value.length());
+    }
+    
     // @J1 - added support for ROWID data type
     /**
        Sets client support information such as whether we
