@@ -69,7 +69,12 @@ extends Cloneable
     public static final int VARCHAR = 30;
     public static final int VARCHAR_FOR_BIT_DATA = 31;
     public static final int VARGRAPHIC = 32;
-
+    public static final int NCLOB = 33;         //@PDA jdbc40 (jdbc40 just added here for info)
+    public static final int NCLOB_LOCATOR = 34; //@PDA jdbc40
+    public static final int NCHAR = 35;         //@PDA jdbc40
+    public static final int NVARCHAR = 36;      //@PDA jdbc40
+    public static final int LONG_NVARCHAR = 37; //@pda jdbc40
+    public static final int DECFLOAT = 37;      //@DFA 
     /**
     Returns a clone of the SQLData object.  Use this sparingly
     so that we minimize the number of copies.

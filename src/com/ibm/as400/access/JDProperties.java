@@ -148,12 +148,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              TRANSLATE_BOOLEAN          = 71; //@PDA
     static final int              METADATA_SOURCE            = 72; //@PDA
     static final int              QUERY_STORAGE_LIMIT        = 73; //@550
+    static final int              DECFLOAT_ROUNDING_MODE     = 74; //@DFA
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 74;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 75;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550  
+                                                               // @PDC @550 @DFA 
 
 
     // Property names.
@@ -233,6 +234,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String TRANSLATE_BOOLEAN_ = "translate boolean";       //@PDA
     private static final String METADATA_SOURCE_ = "metadata source";       //@PDA
     private static final String QUERY_STORAGE_LIMIT_ = "query storage limit";   //@550
+    private static final String DECFLOAT_ROUNDING_MODE_ = "decfloat rounding mode"; //@DFA
 
 
 
@@ -423,6 +425,15 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     
     static final String         QUERY_STORAGE_LIMIT_NOMAX               = "-1"; //@550
 
+    static final String         DECFLOAT_ROUNDING_MODE_HALF_EVEN    = "half even"; //@DFA
+    static final String         DECFLOAT_ROUNDING_MODE_HALF_UP      = "half up"; //@DFA
+    static final String         DECFLOAT_ROUNDING_MODE_DOWN         = "down"; //@DFA
+    static final String         DECFLOAT_ROUNDING_MODE_CEILING      = "ceiling"; //@DFA
+    static final String         DECFLOAT_ROUNDING_MODE_FLOOR        = "floor"; //@DFA
+    static final String         DECFLOAT_ROUNDING_MODE_HALF_DOWN    = "half down"; //@DFA
+    static final String         DECFLOAT_ROUNDING_MODE_UP           = "up"; //@DFA
+
+    
     // Static data.
     private static DriverPropertyInfo[] dpi_;
     private static String[]             defaults_;
@@ -1241,6 +1252,21 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = QUERY_STORAGE_LIMIT_NOMAX;
+        
+        // Decfloat Rounding Mode  //@DFA
+        i = DECFLOAT_ROUNDING_MODE;
+        dpi_[i] = new DriverPropertyInfo (DECFLOAT_ROUNDING_MODE_, "");
+        dpi_[i].description = "DECFLOAT_ROUNDING_MODE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[7];
+        dpi_[i].choices[0]  = DECFLOAT_ROUNDING_MODE_HALF_EVEN;
+        dpi_[i].choices[1]  = DECFLOAT_ROUNDING_MODE_HALF_UP;
+        dpi_[i].choices[2]  = DECFLOAT_ROUNDING_MODE_DOWN;
+        dpi_[i].choices[3]  = DECFLOAT_ROUNDING_MODE_CEILING;
+        dpi_[i].choices[4]  = DECFLOAT_ROUNDING_MODE_FLOOR;
+        dpi_[i].choices[5]  = DECFLOAT_ROUNDING_MODE_HALF_DOWN;
+        dpi_[i].choices[6]  = DECFLOAT_ROUNDING_MODE_UP;
+        defaults_[i]        = DECFLOAT_ROUNDING_MODE_HALF_EVEN;
     }
 
 

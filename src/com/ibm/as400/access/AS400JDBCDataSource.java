@@ -25,9 +25,7 @@ import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.MissingResourceException;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.Random;                          // @J3a
 import javax.sql.DataSource;                      // JDBC2.0 std-ext
 import javax.naming.NamingException;              // JNDI
@@ -712,6 +710,26 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getString(JDProperties.DATE_SEPARATOR);
     }
 
+    //@DFA
+    /**
+    *  Returns the decfloat rounding mode.
+    *  @return The decfloat rounding mode.
+    *   <p>Valid values include:
+    *   <ul>
+    *   <li>"half even" - default
+    *   <li>"half up" 
+    *   <li>"down" 
+    *   <li>"ceiling" 
+    *   <li>"floor" 
+    *   <li>"half down" 
+    *   <li>"up" 
+    *   </ul>
+    **/
+    public String getDecfloatRoundingMode()
+    {
+        return properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
+    }
+     
     /**
     *  Returns the i5/OS decimal separator used in numeric literals within SQL statements.
     *  @return The decimal separator.
@@ -2134,6 +2152,38 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + dateSeparator);   //@A8C
     }
 
+    //@DFA
+    /**
+    *  Sets the decfloat rounding mode.
+    *  @param decfloatRoundingMode The decfloat rounding mode.
+    *   <p>Valid values include:
+    *   <ul>
+    *   <li>"half even" - default
+    *   <li>"half up" 
+    *   <li>"down" 
+    *   <li>"ceiling" 
+    *   <li>"floor" 
+    *   <li>"half down" 
+    *   <li>"up" 
+    *   </ul>
+    **/
+    public void setDecfloatRoundingMode(String decfloatRoundingMode)
+    {
+        String property = "decfloatRoundingMode";
+        if (decfloatRoundingMode == null)
+            throw new NullPointerException(property);
+        validateProperty(property, decfloatRoundingMode, JDProperties.DECFLOAT_ROUNDING_MODE);
+
+        String old = getDecfloatRoundingMode();
+
+        properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
+
+        changes_.firePropertyChange(property, old, decfloatRoundingMode);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + decfloatRoundingMode);
+    }
+     
     /**
     *  Sets the decimal separator used in numeric literals within SQL 
     *  statements.

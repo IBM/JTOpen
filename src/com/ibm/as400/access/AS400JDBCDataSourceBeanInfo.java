@@ -550,13 +550,20 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             queryStorageLimit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_STORAGE_LIMIT")); //@550
             queryStorageLimit.setShortDescription(AS400JDBCDriver.getResource("QUERY_STORAGE_LIMIT_DESC")); //@550
 
+            //@DFA - added support for decfloat rounding mode
+            PropertyDescriptor decfloatRoundingMode = new PropertyDescriptor("decfloatRoundingMode", beanClass, "getDecfloatRoundingMode", "setDecfloatRoundingMode");  //@DFA
+            decfloatRoundingMode.setBound(true);   //@DFA
+            decfloatRoundingMode.setConstrained(false);    //@DFA
+            decfloatRoundingMode.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_DECFLOAT_ROUNDING_MODE")); //@DFA
+            decfloatRoundingMode.setShortDescription(AS400JDBCDriver.getResource("DECFLOAT_ROUNDING_MODE_DESC")); //@DFA
+
             
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit}; //@540 @550
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit}; //@540 @550 //@DFA
         }
         catch(Exception e)
         {

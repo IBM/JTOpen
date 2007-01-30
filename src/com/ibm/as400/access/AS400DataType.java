@@ -91,6 +91,12 @@ public interface AS400DataType extends Cloneable, Serializable
      * @see #getInstanceType
     **/
     public static final int TYPE_ZONED = 12;
+    //@DFA
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400DecFloat AS400DecFloat} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_DECFLOAT = 13;
 
     /**
      * Creates a new AS400DataType object that is identical to the current instance.
