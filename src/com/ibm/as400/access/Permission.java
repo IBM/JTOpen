@@ -810,7 +810,7 @@ public class Permission
         {
             return TYPE_QSYS;
         }
-        if(objectName.toUpperCase().startsWith("/QDLS/"))
+        if(objectName.toUpperCase().startsWith("/QDLS/") || objectName.toUpperCase().equals("/QDLS"))   // @1JUC check to see if it is the qdls root folder
         {
             return TYPE_DLO;
         }

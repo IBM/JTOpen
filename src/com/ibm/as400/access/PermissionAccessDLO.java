@@ -173,6 +173,8 @@ class PermissionAccessDLO extends PermissionAccess
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
         String name=objName.substring(index2+1);
+        if(name.equals("QDLS"))     // @1JUA
+            name = "*ROOT";         // @1JUA - we are changing the public authority for the QDLS ROOT folder
         String folder;
         if (index1+1<index2)
             folder = objName.substring(index1+1,index2);

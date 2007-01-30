@@ -176,7 +176,11 @@ public class DLOPermission extends UserPermission
         if (authority == null)
             throw new NullPointerException("authority");
         String aut = authority.trim().toUpperCase();
-        changeAuthority();
+        
+        if(aut.equals("*AUTL"))             // @1JU - if *AUTL, then setFromAuthorizationList
+            setFromAuthorizationList(true); // @1JU
+        else                                // @1JU - do what we always have
+            changeAuthority();
         if (getDataAuthority().equals(aut) == true)
             return;
         if (aut.equals("*ALL"))
