@@ -43,6 +43,54 @@ public class ObjectList implements Serializable
    * Selection value representing *ALLUSR.
   **/
   public static final String ALL_USER = "*ALLUSR";
+  
+  /**
+   * Constant indicating that the auxiliary storage pools that are currently
+   * part of the the thread's library name space will be searched to locate
+   * the library.  This includes the system ASP (ASP 1), all defined basic
+   * user ASPs (ASPs 2-32), and, if the thread has an ASP group, the primary
+   * and secondary ASPs in the thread's ASP group.
+   */
+  public static final String ASP_NAME_ALL = "*";		// @550A
+  
+  /**
+   * Constant indicating that the system ASP (ASP 1) and all defined basic user ASPs (ASPs 2-32)
+   * will be searched to locate the library.  No primary or secondary ASPs will be
+   * searched, even if the thread has an ASP group. 
+   */
+  public static final String ASP_NAME_SYSBAS = "*SYSBAS";	// @550A
+  
+  /**
+   * Constant indicating if the thread has an ASP group, the primary and secondary ASPs
+   * in the ASP group will be searched to locate the library.  The system ASP (ASP 1) and
+   * defined basic user ASPs (ASPs 2-32) will not be searched.
+   */
+  public static final String ASP_NAME_CURASPGRP = "*CURASPGRP";	// @550A
+  
+  /**
+   * Constant indicating that all available ASPs will be searched.  This includes the system
+   * ASP (ASP 1), all defined basic user ASPs (ASPs 2-32), and all available primary and
+   * secondary ASPs (ASPs 33-255 with a status of 'Available').  The ASP groups are searched
+   * in alphabetical order by the primary ASP.  The system ASP and all defined basic user
+   * ASPs are searched after the ASP groups.  ASPs and libraries to which the user is not authorized
+   * are bypassed and no authority error messages are sent.  The search ends when the first object
+   * is found of the specified object name, library name, and object type.  If the user is
+   * not authorized to the object, an authority error message is sent.
+   */
+  public static final String ASP_NAME_ALLAVL = "*ALLAVL";	// @550A
+  
+  /**
+   * Constant indicating that only the single ASP named in the auxiliary storage
+   * pool device name field will be searched.
+   */
+  public static final String ASP_SEARCH_TYPE_ASP = "*ASP";	// @550A
+  
+  /**
+   * Constant indicating that all ASPs in the auxiliary storage pool group named
+   * in the auxiliary storage pool device name field will be searched.  The device
+   * name must be the name of the primary auxiliary storage pool in the group.
+   */
+  public static final String ASP_SEARCH_TYPE_ASPGRP = "*ASPGRP"; // @550A
 
   /**
    * Selection value representing an authority of *ALL.
@@ -186,6 +234,8 @@ public class ObjectList implements Serializable
   private String objectName_;
   private String objectLibrary_;
   private String objectType_;
+  private String aspDeviceName_;		// @550A
+  private String aspSearchType_ = ASP_SEARCH_TYPE_ASP;	// @550A
 
 
   /**
@@ -244,6 +294,57 @@ public class ObjectList implements Serializable
     objectType_ = objectType;
   }
 
+  //@550A
+  /** 
+   * Constructs an ObjectList with the specified selection criteria.
+   * @param system The system.
+   * @param objectLibrary The library or set of libraries that are searched for objects.
+   * Valid values are a specific name, a generic name, or one of the following
+   * special values:
+   * <UL>
+   * <LI>{@link #ALL ALL} - All libraries are searched.
+   * <LI>{@link #ALL_USER ALL_USER} - All user libraries are searched.
+   * <LI>{@link #CURRENT_LIBRARY CURRENT_LIBRARY} - The current library is searched.
+   * <LI>{@link #LIBRARY_LIST LIBRARY_LIST} - The library list is searched.
+   * <LI>{@link #USER_LIBRARY_LIST USER_LIBRARY_LIST} - The user portion of the library list is searched.
+   * </UL>
+   * @param objectName The object name. Valid values are a specific name, a generic
+   * name, or one of the following special values:
+   * <UL>
+   * <LI>{@link #ALL ALL} - All object names are searched.
+   * <LI>{@link #ALL_USER ALL_USER} - All objects that are libraries in QSYS or the
+   * library list are searched. The object library 
+   * must either be {@link #LIBRARY_LIST LIBRARY_LIST} or QSYS. The object type
+   * must be *LIB. A list of user libraries is returned.
+   * <LI>{@link #IBM IBM} - All objects that are libraries in QSYS or the library
+   * list are searched. The object library must either be {@link #LIBRARY_LIST LIBRARY_LIST}
+   * or QSYS. The object type must be *LIB. A list of saved (SAVLIB) and restored (RSTLIB)
+   * libraries is returned.
+   * </UL>
+   * @param objectType The type of objects that are searched. Valid values include
+   * a specific object type (*LIB, *FILE, *OUTQ, etc) or {@link #ALL ALL}.
+   * @param aspDeviceName The name of an auxiliary storage pool (ASP) device in which storage is 
+   * allocated for the library that contains the object or one of the following special values:
+   * <ul>
+   * <li>{@link #ASP_NAME_ALL ASP_NAME_ALL} - The ASPs in the thread's library name space.</li>
+   * <li>{@link #ASP_NAME_ALLAVL ASP_NAME_ALLAVL} - The system ASP (ASP 1) and defined basic user ASPs (ASPs 2-32).</li>
+   * <li>{@link #ASP_NAME_CURASPGRP ASP_NAME_CURASPGRP} - The ASPs in the current thread's ASP group.</li>
+   * <li>{@link #ASP_NAME_SYSBAS ASP_NAME_SYSBAS} - All available ASPs.</li>
+   * </ul>
+  **/
+  public ObjectList(AS400 system, String objectLibrary, String objectName, String objectType, String aspDeviceName)
+  {
+    if (system == null) throw new NullPointerException("system");
+    if (objectLibrary == null) throw new NullPointerException("objectLibrary");
+    if (objectName == null) throw new NullPointerException("objectName");
+    if (objectType == null) throw new NullPointerException("objectType");
+    system_ = system;
+    objectLibrary_ = objectLibrary;
+    objectName_ = objectName;
+    objectType_ = objectType;
+    aspDeviceName_ = aspDeviceName;
+  }
+  
 
   /**
    * Adds a library authority as part of the selection criteria for generating
@@ -740,6 +841,26 @@ public class ObjectList implements Serializable
     }
   }
 
+  //@550A
+  /**
+   * Returns the name of an auxiliary storage pool (ASP) device in which storage is 
+   * allocated for the library that contains the object.
+   * @return The auxiliary storage pool (ASP) device name or null if no ASP device name has been set.
+   */
+  public String getAspDeviceName()
+  {
+	  return aspDeviceName_;
+  }
+
+  //@550A
+  /**
+   * Returns the type of search to be used withn a specific auxiliary storage pool
+   * device name is specified.
+   * @return The search type.
+   */
+  public String getAspSearchType(){
+	  return aspSearchType_;
+  }
 
   /**
    * Returns the number of objects in the object list. This method implicitly calls {@link #load load()}.
@@ -935,7 +1056,10 @@ public class ObjectList implements Serializable
       String objectType = conv.byteArrayToString(data, offset+20, 10).trim().substring(1); // strip off leading *
       byte infoStatus = data[offset+30];
       int numFields = BinaryConverter.byteArrayToInt(data, offset+32);
-      objects[i] = new ObjectDescription(system_, objectLibrary, objectName, objectType, infoStatus);
+      if(aspDeviceName_ != null)	// @550A
+    	  objects[i] = new ObjectDescription(system_, objectLibrary, objectName, objectType, infoStatus, aspDeviceName_, aspSearchType_);	// @550A
+      else	// @550A do what we always have
+    	  objects[i] = new ObjectDescription(system_, objectLibrary, objectName, objectType, infoStatus);
       if (infoStatus != ObjectDescription.STATUS_NO_AUTHORITY &&
           infoStatus != ObjectDescription.STATUS_LOCKED)
       {
@@ -1100,7 +1224,7 @@ public class ObjectList implements Serializable
     AS400Text text10 = new AS400Text(10, ccsid, system_);
 
     // Setup program parameters
-    ProgramParameter[] parms = new ProgramParameter[12];
+    ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 12 : 15];	// @550C changed to allow asp control
     parms[0] = new ProgramParameter(1); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // length of receiver variable
     parms[2] = new ProgramParameter(80); // list information
@@ -1219,6 +1343,25 @@ public class ObjectList implements Serializable
     }
     parms[10] = new ProgramParameter(keyInfo); // key fields to return;
     parms[11] = errorCode_;
+    
+    if(parms.length == 15)	// @550A add job identification info, format of job identification info, and asp control
+    {
+    	parms[12] = new ProgramParameter(text10.toBytes("*"));	// @550A
+    	parms[13] = new ProgramParameter(conv.stringToByteArray("JIDF0000"));	// @550A
+    	//Construct the ASP Control Format
+    	byte[] controlFormat = new byte[24];			// @550A
+    	System.arraycopy(BinaryConverter.intToByteArray(24), 0, controlFormat, 0, 4);	// @550A
+    	for(int i=4; i<controlFormat.length; i++) controlFormat[i] = 0x40;	// @550A blank pad characters
+    	conv.stringToByteArray(aspDeviceName_, controlFormat, 4);			// @550A
+    	if(!aspDeviceName_.equals(ASP_NAME_ALL) &&
+    	   !aspDeviceName_.equals(ASP_NAME_SYSBAS) &&
+    	   !aspDeviceName_.equals(ASP_NAME_CURASPGRP) &&
+    	   !aspDeviceName_.equals(ASP_NAME_ALLAVL))	// @550A  if the device name is one of the special values, then blanks should be used for the search type
+    	{
+    		conv.stringToByteArray(aspSearchType_, controlFormat, 14);	// @550A specify the search type if device name is not a special value
+    	}
+    	parms[14] = new ProgramParameter(controlFormat);		// @550A
+    }
 
     // Call the program
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLOBJ.PGM", parms);
@@ -1271,6 +1414,28 @@ public class ObjectList implements Serializable
     handle_ = null;
   }
 
+  //@550A
+  /**
+   * Specifies the type of the search when a specific auxiliary storage pool device name
+   * is specified for the ASP device name.  
+   * @param aspSearchType The type of search to be used.  One of the following values may be specified:
+   * <ul>
+   * <li>{@link #ASP_SEARCH_TYPE_ASP ASP_SEARCH_TYPE_ASP} - Only the single ASP named will be searched.</li>
+   * <li>{@link #ASP_SEARCH_TYPE_ASPGRP ASP_SEARCH_TYPE_ASPGRP} - All ASPs in the auxiliary storage pool
+   * group named will be searched.</li>
+   * </ul>
+   * The default value is {@link #ASP_SEARCH_TYPE_ASP ASP_SEARCH_TYPE_ASP}. 
+   * @exception ExtendedIllegalArgumentExceptiion if an invalid search type is specified.  
+   */
+  public void setAspSearchType(String aspSearchType) throws ExtendedIllegalArgumentException{
+	  if (aspSearchType == null) throw new NullPointerException("aspSearchType");
+	  if (!aspSearchType.equals(ASP_SEARCH_TYPE_ASP) &&
+	        !aspSearchType.equals(ASP_SEARCH_TYPE_ASPGRP))
+	  {
+		  throw new ExtendedIllegalArgumentException("aspSearchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+	  }
+	  aspSearchType_ = aspSearchType;
+  }
 
   /**
    * Sets whether or not the object selection criteria are used to include

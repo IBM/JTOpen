@@ -50,12 +50,60 @@ public class ObjectDescription
   public static final int APAR = 413;
   
   /**
+   * Constant indicating that the auxiliary storage pools that are currently
+   * part of the the thread's library name space will be searched to locate
+   * the library.  This includes the system ASP (ASP 1), all defined basic
+   * user ASPs (ASPs 2-32), and, if the thread has an ASP group, the primary
+   * and secondary ASPs in the thread's ASP group.
+   */
+  public static final String ASP_NAME_ALL = "*";		// @550A
+  
+  /**
+   * Constant indicating that the system ASP (ASP 1) and all defined basic user ASPs (ASPs 2-32)
+   * will be searched to locate the library.  No primary or secondary ASPs will be
+   * searched, even if the thread has an ASP group. 
+   */
+  public static final String ASP_NAME_SYSBAS = "*SYSBAS";	// @550A
+  
+  /**
+   * Constant indicating if the thread has an ASP group, the primary and secondary ASPs
+   * in the ASP group will be searched to locate the library.  The system ASP (ASP 1) and
+   * defined basic user ASPs (ASPs 2-32) will not be searched.
+   */
+  public static final String ASP_NAME_CURASPGRP = "*CURASPGRP";	// @550A
+  
+  /**
+   * Constant indicating that all available ASPs will be searched.  This includes the system
+   * ASP (ASP 1), all defined basic user ASPs (ASPs 2-32), and all available primary and
+   * secondary ASPs (ASPs 33-255 with a status of 'Available').  The ASP groups are searched
+   * in alphabetical order by the primary ASP.  The system ASP and all defined basic user
+   * ASPs are searched after the ASP groups.  ASPs and libraries to which the user is not authorized
+   * are bypassed and no authority error messages are sent.  The search ends when the first object
+   * is found of the specified object name, library name, and object type.  If the user is
+   * not authorized to the object, an authority error message is sent.
+   */
+  public static final String ASP_NAME_ALLAVL = "*ALLAVL";	// @550A
+  
+  /**
    * Constant indicating the name of the auxiliary storage pool
    * device is not known.
    * @see #LIBRARY_ASP_DEVICE_NAME
    * @see #OBJECT_ASP_DEVICE_NAME
   **/
   public static final String ASP_NAME_UNKNOWN = "*N";
+  
+  /**
+   * Constant indicating that only the single ASP named in the auxiliary storage
+   * pool device name field will be searched.
+   */
+  public static final String ASP_SEARCH_TYPE_ASP = "*ASP";	// @550A
+  
+  /**
+   * Constant indicating that all ASPs in the auxiliary storage pool group named
+   * in the auxiliary storage pool device name field will be searched.  The device
+   * name must be the name of the primary auxiliary storage pool in the group.
+   */
+  public static final String ASP_SEARCH_TYPE_ASPGRP = "*ASPGRP"; // @550A
   
   /**
    * Object attribute representing the type of auditing for the object.
@@ -874,6 +922,8 @@ public class ObjectDescription
   private String library_;
   private String name_;
   private String type_;
+  private String aspDeviceName_;	// @550A
+  private String aspSearchType_ = ASP_SEARCH_TYPE_ASP;	// @550A
   private byte status_;
 
   private final JobHashtable values_ = new JobHashtable();
@@ -892,6 +942,19 @@ public class ObjectDescription
     if (system == null) throw new NullPointerException("system");
     if (path == null) throw new NullPointerException("path");
     system_ = system;
+    String objectPath = path.toUpperCase();	// @550A
+    String aspName = null;					// @550A
+    int locationOfQSYS = objectPath.indexOf("/QSYS.LIB");	// @550A
+    if(locationOfQSYS > 0)	// @550A If name starts with an ASP
+    {						// @550A
+    	aspName = objectPath.substring(0, locationOfQSYS);	// @550A
+    	path = path.substring(locationOfQSYS);				// @550A
+    	// remove starting / from the aspName if it exists
+    	int location = aspName.indexOf("/");				// @550A
+    	if(location == 0)									// @550A
+    		aspName = aspName.substring(1);					// @550A
+    	aspDeviceName_ = aspName;							// @550A
+    }														// @550A
     QSYSObjectPathName parse = new QSYSObjectPathName(path);
     library_ = parse.getLibraryName();
     name_ = parse.getObjectName();
@@ -921,6 +984,40 @@ public class ObjectDescription
     name_ = pn.getObjectName();
     type_ = pn.getObjectType();
   }
+  
+  // @550A
+  /**
+   * Constructs an ObjectDescription given the object's library, name, and type.
+   * @param system The system.
+   * @param objectLibrary The library. Special values include:
+   * <UL>
+   * <LI>{@link #CURRENT_LIBRARY CURRENT_LIBRARY} - The current library is searched for the object.
+   * <LI>{@link #LIBRARY_LIST LIBRARY_LIST} - The library list is searched for the object.
+   * </UL>
+   * @param objectName The name of the object. Wildcards are not allowed.
+   * @param objectType The type of the object, e.g. "FILE". Only external object types are allowed.
+   * @param aspDeviceName The name of an auxiliary storage pool (ASP) device in which storage is 
+   * allocated for the library that contains the object or one of the following special values:
+   * <ul>
+   * <li>{@link #ASP_NAME_ALL ASP_NAME_ALL} - The ASPs in the thread's library name space.</li>
+   * <li>{@link #ASP_NAME_ALLAVL ASP_NAME_ALLAVL} - The system ASP (ASP 1) and defined basic user ASPs (ASPs 2-32).</li>
+   * <li>{@link #ASP_NAME_CURASPGRP ASP_NAME_CURASPGRP} - The ASPs in the current thread's ASP group.</li>
+   * <li>{@link #ASP_NAME_SYSBAS ASP_NAME_SYSBAS} - All available ASPs.</li>
+   * </ul>
+  **/
+  public ObjectDescription(AS400 system, String objectLibrary, String objectName, String objectType, String aspDeviceName)
+  {
+    if (system == null) throw new NullPointerException("system");
+    if (objectLibrary == null) throw new NullPointerException("library");
+    if (objectName == null) throw new NullPointerException("name");
+    if (objectType == null) throw new NullPointerException("type");
+    system_ = system;
+    QSYSObjectPathName pn = new QSYSObjectPathName(objectLibrary, objectName, objectType); // Verify valid values.
+    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
+    name_ = pn.getObjectName();
+    type_ = pn.getObjectType();
+    aspDeviceName_ = aspDeviceName;
+  }
 
   /**
    * Package scope constructor used by ObjectList.
@@ -933,6 +1030,22 @@ public class ObjectDescription
     name_ = pn.getObjectName();
     type_ = pn.getObjectType();
     status_ = status;
+  }
+  
+  // @550A
+  /**
+   * Package scope constructor used by ObjectList.
+  **/
+  ObjectDescription(AS400 sys, String lib, String name, String type, byte status, String aspDeviceName, String aspSearchType)
+  {
+    system_ = sys;
+    QSYSObjectPathName pn = new QSYSObjectPathName(lib, name, type); // Verify valid values.
+    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
+    name_ = pn.getObjectName();
+    type_ = pn.getObjectType();
+    status_ = status;
+    aspDeviceName_ = aspDeviceName;
+    aspSearchType_ = aspSearchType;
   }
 
   /**
@@ -1040,7 +1153,27 @@ public class ObjectDescription
   {
     return name_;
   }
+  
+  //@550A
+  /**
+   * Returns the name of an auxiliary storage pool (ASP) device in which storage is 
+   * allocated for the library that contains the object.
+   * @return The auxiliary storage pool (ASP) device name or null if no ASP device name has been set.
+   */
+  public String getAspDeviceName()
+  {
+	  return aspDeviceName_;
+  }
 
+  //@550A
+  /**
+   * Returns the type of search to be used withn a specific auxiliary storage pool
+   * device name is specified.
+   * @return The search type.
+   */
+  public String getAspSearchType(){
+	  return aspSearchType_;
+  }
 
   /**
    * Returns the fully-qualified integrated file system path name of this object.
@@ -1380,7 +1513,7 @@ public class ObjectDescription
 
     int format = lookupFormat(attribute);
     int size = lookupSize(format);
-    ProgramParameter[] parms = new ProgramParameter[5];
+    ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 5 : 7];	// @550C changed to allow seven parameters if asp device name is specified
     parms[0] = new ProgramParameter(size); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(size)); // length of receiver variable
     parms[2] = new ProgramParameter(conv.stringToByteArray("OBJD0"+format));
@@ -1390,6 +1523,23 @@ public class ObjectDescription
     text10.toBytes(library_, objectNameAndLibrary, 10);
     parms[3] = new ProgramParameter(objectNameAndLibrary); // object and library name
     parms[4] = new ProgramParameter(text10.toBytes("*"+type_)); // object type
+    if(parms.length == 7)	// @550A  add error code and asp control parameters
+    {													// @550A
+    	parms[5] = new ProgramParameter(new byte[8]);	// @550A Error Code
+    	// Construct the ASP Control Format
+    	byte[] controlFormat = new byte[24];			// @550A
+    	System.arraycopy(BinaryConverter.intToByteArray(24), 0, controlFormat, 0, 4);	// @550A
+    	for(int i=4; i<controlFormat.length; i++) controlFormat[i] = 0x40;	// @550A blank pad characters
+    	conv.stringToByteArray(aspDeviceName_, controlFormat, 4);			// @550A
+    	if(!aspDeviceName_.equals(ASP_NAME_ALL) &&
+    	   !aspDeviceName_.equals(ASP_NAME_SYSBAS) &&
+    	   !aspDeviceName_.equals(ASP_NAME_CURASPGRP) &&
+    	   !aspDeviceName_.equals(ASP_NAME_ALLAVL))	// @550A  if the device name is one of the special values, then blanks should be used for the search type
+    	{
+    		conv.stringToByteArray(aspSearchType_, controlFormat, 14);	// @550A specify the search type if device name is not a special value
+    	}
+    	parms[6] = new ProgramParameter(controlFormat);		// @550A
+    }													// @550A
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSROBJD.PGM", parms); // retrieve object description
     // QUSROBJD is thread safe.
@@ -1512,8 +1662,30 @@ public class ObjectDescription
   {
     values_.put(attribute, value);
   }
-
-
+  
+  // @550A
+  /**
+   * Specifies the type of the search when a specific auxiliary storage pool device name
+   * is specified for the ASP device name.  
+   * @param aspSearchType The type of search to be used.  One of the following values may be specified:
+   * <ul>
+   * <li>{@link #ASP_SEARCH_TYPE_ASP ASP_SEARCH_TYPE_ASP} - Only the single ASP named will be searched.</li>
+   * <li>{@link #ASP_SEARCH_TYPE_ASPGRP ASP_SEARCH_TYPE_ASPGRP} - All ASPs in the auxiliary storage pool
+   * group named will be searched.</li>
+   * </ul>
+   * The default value is {@link #ASP_SEARCH_TYPE_ASP ASP_SEARCH_TYPE_ASP}. 
+   * @exception ExtendedIllegalArgumentExceptiion if an invalid search type is specified.  
+   */
+  public void setAspSearchType(String aspSearchType) throws ExtendedIllegalArgumentException{
+	  if (aspSearchType == null) throw new NullPointerException("aspSearchType");
+	  if (!aspSearchType.equals(ASP_SEARCH_TYPE_ASP) &&
+	        !aspSearchType.equals(ASP_SEARCH_TYPE_ASPGRP))
+	  {
+		  throw new ExtendedIllegalArgumentException("aspSearchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+	  }
+	  aspSearchType_ = aspSearchType;
+  }
+  
   /** 
    * Returns a String representation of this ObjectDescription.
    * @return The object path name.
