@@ -77,7 +77,7 @@ extends Cloneable
     public static final int NCHAR = 35;         //@PDA jdbc40
     public static final int NVARCHAR = 36;      //@PDA jdbc40
     public static final int LONG_NVARCHAR = 37; //@pda jdbc40
-
+    public static final int DECFLOAT = 38;      //@DFA 
     /**
     Returns a clone of the SQLData object.  Use this sparingly
     so that we minimize the number of copies.

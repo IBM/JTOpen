@@ -920,6 +920,26 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     return properties_.getString(JDProperties.DATE_SEPARATOR);
   }
 
+  //@DFA
+  /**
+     Returns the decfloat rounding mode.
+     @return The decfloat rounding mode.
+    <p>Valid values include:
+    <ul>
+    <li>"half even" - default
+    <li>"half up" 
+    <li>"down" 
+    <li>"ceiling" 
+    <li>"floor" 
+    <li>"half down" 
+    <li>"up" 
+    </ul>
+   **/
+   public String getDecfloatRoundingMode()
+   {
+       return properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);
+   }
+   
   /**
    Returns the decimal separator used in numeric literals within SQL statements.
    @return The decimal separator.
@@ -2303,6 +2323,33 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     properties_.setString(JDProperties.DATE_SEPARATOR, dateSeparator);
   }
 
+  //@DFA
+  /**
+    Sets the decfloat rounding mode.
+    @param decfloatRoundingMode The decfloat rounding mode.
+     <p>Valid values include:
+     <ul>
+     <li>"half even" - default
+     <li>"half up" 
+     <li>"down" 
+     <li>"ceiling" 
+     <li>"floor" 
+     <li>"half down" 
+     <li>"up" 
+     </ul>
+  **/
+  public void setDecfloatRoundingMode(String decfloatRoundingMode)
+  {
+      String property = "decfloatRoundingMode";
+      if (decfloatRoundingMode == null)
+          throw new NullPointerException(property);
+      validateProperty(property, decfloatRoundingMode, JDProperties.DECFLOAT_ROUNDING_MODE);
+
+      String old = getDecfloatRoundingMode();
+
+      properties_.setString(JDProperties.DECFLOAT_ROUNDING_MODE, decfloatRoundingMode);
+  }
+  
   /**
    Sets the decimal separator used in numeric literals within SQL
    statements.
