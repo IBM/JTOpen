@@ -119,7 +119,7 @@ attributes. The tables organize the properties into the following categories:</P
       name&quot;</a></TD>
     <TD HEADERS="t2"> 
       <p>Specifies the database to use for the connection, including one stored 
-        in an independent auxiliary storage pool</a>. This 
+        in an independent auxiliary storage pool. This 
         property applies only when connecting to OS/400 V5R2 or i5/OS. 
         When you specify a database name, the name must exist in the relational 
         database directory on the system. The following criteria determine which 
@@ -141,6 +141,22 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t5">The database name specified in the job description for the 
       user profile is used. When the job description does not specify a database 
       name, the system default database is used.</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat2">&quot;decfloat rounding mode&quot;</TD>
+    <TD HEADERS="t2"> 
+      <p>Specifies the rounding mode to use when working with decfloat data type. 
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;half even&quot;<BR>
+       &quot;half up&quot;<BR>
+       &quot;down&quot;<BR>
+       &quot;ceiling&quot;<BR>
+       &quot;floor&quot;<BR>
+       &quot;half down&quot;<BR>
+       &quot;up&quot;<BR>
+    </TD>
+    <TD HEADERS="t5">&quot;half even&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;libraries&quot;</TD>
