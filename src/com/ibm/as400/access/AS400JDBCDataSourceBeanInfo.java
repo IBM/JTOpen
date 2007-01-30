@@ -563,7 +563,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit}; //@540 @550 //@DFA
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode}; //@540 @550 //@DFA
         }
         catch(Exception e)
         {
