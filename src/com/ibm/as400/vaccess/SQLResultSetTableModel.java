@@ -445,7 +445,24 @@ public class SQLResultSetTableModel
 
       try
       {
-        return resultSetMetaData_.getColumnLabel(columnIndex+1);
+        String col = resultSetMetaData_.getColumnLabel(columnIndex+1);        //@pdc extended metadata
+        //columnLabel is a concatonation of up to three columns (each 20 length) with the 20 length padded with spaces
+        int colLength = col.length();          //@pda extended metadata
+        if( colLength > 20)                    //@pda  
+        {                                      //@pda  
+            
+            if( colLength > 40)                        //@pda  
+            {                                          //@pda  
+                //contains three column concats
+                col = col.substring(0, 20).trim() + " " + col.substring(20, 40).trim() + " " + col.substring(40).trim();    //@pda  
+            }                                          //@pda  
+            else                                       //@pda  
+            {                                          //@pda  
+                //contains two column concats
+                col = col.substring(0, 20).trim() + " " + col.substring(20).trim();  //@pda  
+            }                                         //@pda  
+        }                                             //@pda  
+        return col;                                   //@pda  
       }
       catch(SQLException e)
       {
