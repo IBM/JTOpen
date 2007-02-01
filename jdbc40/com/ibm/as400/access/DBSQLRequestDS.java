@@ -54,7 +54,7 @@ extends DBBaseRequestDS
     public static final int	FUNCTIONID_WRITE_LOB_DATA   	 = 0x1817;
     public static final int	FUNCTIONID_CANCEL   	         = 0x1818;      // @E2A
     public static final int FUNCTIONID_TEST_CONNECTION       = 0x0000;      //@pda jdbc40 used for Connection.isValid
-    public static final int FUNCTIONID_FREE_LOB              = 0x0019;      //@pda jdbc40 lob.free()
+    public static final int FUNCTIONID_FREE_LOB              = 0x3819;      //@pda jdbc40 lob.free() //@pdc
 
 
 

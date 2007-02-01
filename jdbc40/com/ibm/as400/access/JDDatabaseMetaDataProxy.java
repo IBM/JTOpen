@@ -1549,14 +1549,7 @@ implements java.sql.DatabaseMetaData
         return callMethodRtnBool("supportsStoredFunctionsUsingCallSyntax");
     }
 
-
-    //@PDA jdbc40
-    public ResultSet getFunctionParameters(String catalog, String schemaPattern, String functionNamePattern, String parameterNamePattern) throws SQLException
-    {
-        return callMethodRtnRSet ("getFunctionParameters",
-                new Class[] { String.class, String.class, String.class, String.class },
-                new Object[] { catalog, schemaPattern, functionNamePattern, parameterNamePattern });
-    }
+    //@pdd removde getFunctionParameters.  It was renamed to getFunctionColumns()
 
     //@PDA jdbc40
     public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException
