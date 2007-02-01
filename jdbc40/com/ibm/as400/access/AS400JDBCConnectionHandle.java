@@ -1799,7 +1799,7 @@ ResultSet.CONCUR_READ_ONLY.
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.
      */
-    public void setDBHostServerTrace(boolean trace){
+    public void setDBHostServerTrace(boolean trace)throws SQLException { //@pdc
         validateConnection();
         connection_.setDBHostServerTrace(trace);
     }
