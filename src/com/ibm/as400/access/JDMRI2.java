@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2006 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ Locale-specific objects for the IBM Toolbox for Java.
 
 public class JDMRI2 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
    public Object[][] getContents()
@@ -103,6 +103,10 @@ public class JDMRI2 extends ListResourceBundle
       { "CATALOG_TERM", "System" },
       { "PROCEDURE_TERM", "Procedure" },
       { "SCHEMA_TERM", "Library" },
+      { "CLIENT_INFO_DESC_APPLICATIONNAME", "The name of the application currently utilizing the connection." }, //@PDA jdbc40
+      { "CLIENT_INFO_DESC_CLIENTUSER", "The name of the user that the application using the connection is performing work for.  This may not be the same as the user name that was used in establishing the connection." }, //@PDA jdbc40
+      { "CLIENT_INFO_DESC_CLIENTHOSTNAME", "The hostname of the computer the application using the connection is running on." }, //@PDA jdbc40
+      { "CLIENT_INFO_DESC_CLIENTACCOUNTING", "Accounting information." }, //@PDA jdbc40
 
 
    };
