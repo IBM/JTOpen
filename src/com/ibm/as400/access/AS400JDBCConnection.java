@@ -189,6 +189,9 @@ implements Connection
     // the definition of each bit in the bit map are defined in Trace.java
     private int                         traceServer_ = 0;               // @j1a
 
+    // set to true if database host server tracing is started via the setDBHostServerTrace method
+    private boolean databaseHostServerTrace_ = false;       // @2KR
+
     private boolean mustSpecifyForUpdate_ = true;                       // @j31
 
     //counter to keep track of number of open statements
@@ -2060,7 +2063,7 @@ implements Connection
 
         // @j1a clean up any i5/OS debug that is going on.  This entire block
         //      is new for @J1
-        if (traceServer_ > 0)
+        if (traceServer_ > 0 || databaseHostServerTrace_)                             // @2KRC
         {
             // Get the job identifier because we need the id (it is part of some
             // of our trace files).  I know I could have saved it from
@@ -2113,7 +2116,7 @@ implements Connection
             if(getVRM() >= JDUtilities.vrm530  && !endedTraceJob)
             {
                 // Only issue ENDTRC if not already done.
-                if((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)
+                if(((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0) || databaseHostServerTrace_)        // @2KRC
                 {
                     // end database host server trace
                     try{
@@ -4248,7 +4251,75 @@ implements Connection
         props.setProperty(clientUserPropertyName_, clientUser_);
         return props;
     }
-    
+
+    //@2KRA
+    /**
+     * Starts or stops the Database Host Server trace for this connection.
+     * Note:  This method is only supported when running to i5/OS V5R3 or later 
+     * and is ignored if you specified to turn on database host server tracing
+     * using the 'server trace' connection property.
+     * @param trace true to start database host server tracing, false to end it.
+     */
+    public void setDBHostServerTrace(boolean trace){
+        try{
+            if(getVRM() >= JDUtilities.vrm530){
+                // See if tracing was specified by server trace property
+                // Server Job Trace
+                boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  
+                // Database Host Server Trace
+                boolean traceDatabaseHostServer = (((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)); 
+                String serverJobIdentifier = getServerJobIdentifier();
+                boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
+
+                if(!traceDatabaseHostServer){   // database host server trace was not already started
+                    if(trace)   // user requested tracing be turned on
+                    {
+                        try{
+                            if(getVRM() == JDUtilities.vrm530){  // run command for V5R3
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                
+                                                       serverJobIdentifier.substring(20) +                    
+                                                       ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +
+                                                       "TRCTYPE((TESTA *INFO))", SQLNaming);                 
+                            }
+                            else{   // run command for V5R4 and higher                                    
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                 
+                                                       serverJobIdentifier.substring(20) +                     
+                                                       ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +       
+                                                       "TRCTYPE((*DBHSVR *INFO))", SQLNaming);
+                            }
+                            databaseHostServerTrace_ = true;
+                        }catch(Exception e){
+                            JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start database host server tracing failed, could not trace server job");    
+                        }
+                    }
+                    else // user requested tracing be turned off
+                    {
+                        // Only issue ENDTRC if not already done.
+                        if(!traceServerJob)     // turn off it we don't have to wait to turn off server job tracing
+                        {
+                            try{
+                                JDUtilities.runCommand(this, "QSYS/ENDTRC SSNID(QJT" +
+                                                       serverJobIdentifier.substring(20) +
+                                                       ") DTAOPT(*LIB) DTALIB(QUSRSYS) RPLDTA(*YES) PRTTRC(*YES)", SQLNaming );
+
+                                JDUtilities.runCommand(this, "QSYS/DLTTRC DTAMBR(QJT" +
+                                                       serverJobIdentifier.substring(20) +
+                                                       ") DTALIB(QUSRSYS)", SQLNaming );
+                                databaseHostServerTrace_ = false;
+                            }
+                            catch(Exception e){
+                                JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end database host server tracing failed.");
+                            }
+                        }
+                    }
+                }
+            }
+        }catch(SQLException e){
+            if(JDTrace.isTraceOn())
+                JDTrace.logInformation(this, "Attempt to start/stop database host server tracing failed.");
+        }
+
+    }
 
 }
 
