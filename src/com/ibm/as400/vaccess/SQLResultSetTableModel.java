@@ -454,12 +454,15 @@ public class SQLResultSetTableModel
             if( colLength > 40)                        //@pda  
             {                                          //@pda  
                 //contains three column concats
-                col = col.substring(0, 20).trim() + " " + col.substring(20, 40).trim() + " " + col.substring(40).trim();    //@pda  
+                String space1 = col.substring(19,20).equals(" ") ? " " : "";  //column separator
+                String space2 = col.substring(39,40).equals(" ") ? " " : "";  //column separator
+                col = col.substring(0, 20).trim() + space1 + col.substring(20, 40).trim() + space2 + col.substring(40).trim();    //@pda  
             }                                          //@pda  
             else                                       //@pda  
             {                                          //@pda  
                 //contains two column concats
-                col = col.substring(0, 20).trim() + " " + col.substring(20).trim();  //@pda  
+                String space1 = col.substring(19,20).equals(" ") ? " " : "";  //column separator
+                col = col.substring(0, 20).trim() + space1 + col.substring(20).trim();  //@pda  
             }                                         //@pda  
         }                                             //@pda  
         return col;                                   //@pda  
