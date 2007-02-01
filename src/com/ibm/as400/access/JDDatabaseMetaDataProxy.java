@@ -1480,5 +1480,36 @@ implements java.sql.DatabaseMetaData
     }
 
 
+    
+    //@PDA 550
+    public ResultSet getClientInfoProperties() throws SQLException
+    {
+        return callMethodRtnRSet("getClientInfoProperties");
+    }
+
+
+    //@PDA 550
+    public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException
+    {
+        return callMethodRtnRSet("getSchemas", new Class[] {String.class, String.class}, new Object[] {catalog, schemaPattern});
+    }
+
+
+    //@PDA 550
+    public ResultSet getFunctions(String catalog, String schemaPattern, String functionNamePattern) throws SQLException
+    {
+        return callMethodRtnRSet ("getFunctions",
+                new Class[] { String.class, String.class, String.class },
+                new Object[] { catalog, schemaPattern, functionNamePattern });
+    }
+    
+    //@pda 550
+    public ResultSet getFunctionColumns(String catalog, String schemaPattern, String functionNamePattern, String columnNamePattern) throws SQLException
+    { 
+        return callMethodRtnRSet ("getFunctionColumns",
+                new Class[] { String.class, String.class, String.class, String.class },
+                new Object[] { catalog, schemaPattern, functionNamePattern, columnNamePattern });
+    }
+
 
 }
