@@ -53,6 +53,7 @@ extends DBBaseRequestDS
     public static final int	FUNCTIONID_STREAM_FETCH     	 = 0x180C;
     public static final int	FUNCTIONID_WRITE_LOB_DATA   	 = 0x1817;
     public static final int	FUNCTIONID_CANCEL   	         = 0x1818;      // @E2A
+    public static final int FUNCTIONID_FREE_LOB              = 0x1819;      //@pda 550 lob.free()
 
 
 

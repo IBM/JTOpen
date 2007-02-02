@@ -80,7 +80,30 @@ public class AS400JDBCClobLocator implements Clob
     maxLength_ = locator_.getMaxLength();
   }
 
+  //@PDA 550
+  /**
+   * This method frees the <code>Clob</code> object and releases the
+   * resources that it holds. The object is invalid once the
+   * <code>free</code> method is called. If <code>free</code> is called
+   * multiple times, the subsequent calls to <code>free</code> are treated
+   * as a no-op.
+   * 
+   * @throws SQLException
+   *             if an error occurs releasing the Clob's resources
+   */
+  public synchronized void free() throws SQLException
+  {
+      if(locator_ != null)
+      {
+          locator_.free();
+      }
+      locator_  = null;  //@pda make objects available for GC
+      converter_ = null;
+      savedObject_ = null;
+      cache_ = null;
+  }
 
+  
 
   /**
   Returns the entire CLOB as a stream of ASCII characters.

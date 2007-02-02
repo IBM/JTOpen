@@ -346,4 +346,44 @@ Writes part of the contents of the lob.
   {
     return graphic_;
   }
+  
+
+  //@pda 550
+  /**
+   * Free up resource for this lob locator on host server.
+  **/
+  synchronized void free() throws SQLException
+  {
+      
+      DBSQLRequestDS request = null;
+      DBReplyRequestedDS reply = null;
+      try
+      {
+          request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_FREE_LOB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+          request.setLOBLocatorHandle(handle_);
+          request.setRequestedSize(0);
+          request.setStartOffset(0);
+          request.setCompressionIndicator(dataCompression_ ? 0xF1 : 0xF0);
+          if (columnIndex_ != -1)
+          {
+              request.setColumnIndex(columnIndex_);
+          }
+          reply = connection_.sendAndReceive(request, id_);
+          int errorClass = reply.getErrorClass();
+          int returnCode = reply.getReturnCode();
+          
+          if (errorClass != 0)
+              JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
+          
+      }  catch (DBDataStreamException e)
+      {
+          JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+      }finally
+      {
+          if (request != null)
+              request.inUse_ = false;
+          if (reply != null)
+              reply.inUse_ = false;
+      }   
+  }
 }

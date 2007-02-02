@@ -61,6 +61,23 @@ is necessary.
 
 
 
+  //@PDA 550
+  /**
+   * This method frees the <code>Blob</code> object and releases the
+   * resources that it holds. The object is invalid once the <code>free</code>
+   * method is called. If <code>free</code> is called multiple times, the
+   * subsequent calls to <code>free</code> are treated as a no-op.
+   * 
+   * @throws SQLException
+   *             if an error occurs releasing the Blob's resources
+   */
+  public synchronized void free() throws SQLException
+  {
+      data_ = null; //@pda make available for GC
+  }
+  
+  
+  
 /**
 Returns the entire BLOB as a stream of uninterpreted bytes.
 

@@ -70,6 +70,24 @@ in the String.  No further communication with the i5/OS system is necessary.
   }
 
 
+
+  //@PDA 550
+  /**
+   * This method frees the <code>Clob</code> object and releases the
+   * resources the resources that it holds. The object is invalid once the
+   * <code>free</code> method is called. If <code>free</code> is called
+   * multiple times, the subsequent calls to <code>free</code> are treated
+   * as a no-op.
+   * 
+   * @throws SQLException
+   *             if an error occurs releasing the Clob's resources
+   */
+  public synchronized void free() throws SQLException
+  {
+      data_ = null; //@pda make available for GC
+  }
+  
+  
 /**
 Returns the entire CLOB as a stream of ASCII characters.
 
