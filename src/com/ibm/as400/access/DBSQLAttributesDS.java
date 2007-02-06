@@ -196,6 +196,17 @@ extends DBBaseRequestDS
         addParameter(0x380B, (short)value);
     }
 
+    //@DFA 550 decfloat rounding
+    /**
+       Sets the decfloat rounding mode for this connection. 
+    **/
+    void setDecfloatRoundingMode(short value) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x3835, value);
+    }
+    
+    
     /**
        Sets the Default SQL Library Name parameter in the data stream.
        @param value	the qualified library name to use on the

@@ -3648,6 +3648,29 @@ implements Connection
                     request.setInterfaceType( "JDBC", tempConverter); 
                     request.setInterfaceName( "IBM Toolbox for Java", tempConverter); 
                     request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, tempConverter);
+                    
+                    //@DFA 550 decfloat rounding mode
+                    short roundingMode = 0;                                                               //@DFA
+                    String roundingModeStr = properties_.getString(JDProperties.DECFLOAT_ROUNDING_MODE);  //@DFA
+                    if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_EVEN))    //@DFA
+                        roundingMode = 0;                                                          //@DFA
+                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_UP))      //@DFA
+                        roundingMode = 6;                                                          //@DFA
+                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_DOWN))    //@DFA
+                        roundingMode = 2;                                                          //@DFA
+                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_CEILING)) //@DFA
+                        roundingMode = 3;                                                          //@DFA
+                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_FLOOR))   //@DFA
+                        roundingMode = 4;                                                          //@DFA
+                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_UP)) //@DFA
+                        roundingMode = 1;                                                          //@DFA
+                    else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_DOWN))  //@DFA
+                        roundingMode = 5;                                                             //@DFA
+                   
+                    //only need to send request if not default 0 (half even)
+                    if(roundingMode != 0)                                                             //@DFA
+                        request.setDecfloatRoundingMode(roundingMode);                                //@DFA
+                    
                 }
 
                 // Send the request and process the reply.
