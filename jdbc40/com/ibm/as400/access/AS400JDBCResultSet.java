@@ -1182,6 +1182,7 @@ implements ResultSet
         {
             first();
             previous();
+            positionFromLast_ = -1;//@GRA for returning correct value from getRow() after a select and insertRow()
         }
     }
 
