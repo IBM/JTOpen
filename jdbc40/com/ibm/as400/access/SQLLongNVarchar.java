@@ -56,7 +56,7 @@ implements SQLData
 
     public Object clone()
     {
-        return new SQLVarchar(maxLength_, settings_);
+        return new SQLLongNVarchar(maxLength_, settings_);  //@pdc
     }
  
     public void trim()                               

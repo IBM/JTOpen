@@ -52,7 +52,7 @@ implements SQLData
 
     public Object clone()
     {
-        return new SQLVarchar(maxLength_, settings_);
+        return new SQLLongVarchar(maxLength_, settings_); //@pdc
     }
 
     // @A2A
