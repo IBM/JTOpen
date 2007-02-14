@@ -5959,7 +5959,10 @@ implements DatabaseMetaData
     public boolean supportsFullOuterJoins ()
     throws SQLException
     {
-        return false;
+        if(connection_.getVRM() >= JDUtilities.vrm550)  //@550
+            return true;                                //@550
+        else                                            //@550
+            return false;
     }
 
 
