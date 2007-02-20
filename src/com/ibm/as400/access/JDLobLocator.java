@@ -372,7 +372,8 @@ Writes part of the contents of the lob.
           int errorClass = reply.getErrorClass();
           int returnCode = reply.getReturnCode();
           
-          if (errorClass != 0)
+          //7,-401 signals already free
+          if (errorClass != 0 && !(errorClass == 7 && returnCode == -401))
               JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
           
       }  catch (DBDataStreamException e)
