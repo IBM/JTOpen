@@ -361,13 +361,13 @@ Writes part of the contents of the lob.
       {
           request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_FREE_LOB, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
           request.setLOBLocatorHandle(handle_);
-          request.setRequestedSize(0);
-          request.setStartOffset(0);
-          request.setCompressionIndicator(dataCompression_ ? 0xF1 : 0xF0);
-          if (columnIndex_ != -1)
-          {
-              request.setColumnIndex(columnIndex_);
-          }
+         // request.setRequestedSize(0);         //@pdd
+         // request.setStartOffset(0);           //@pdd
+         // request.setCompressionIndicator(dataCompression_ ? 0xF1 : 0xF0); //@pdd
+         //if (columnIndex_ != -1)               //@pdd
+         // {                                    //@pdd
+           //   request.setColumnIndex(columnIndex_); //@pdd
+         // }                                    //@pdd
           reply = connection_.sendAndReceive(request, id_);
           int errorClass = reply.getErrorClass();
           int returnCode = reply.getReturnCode();
