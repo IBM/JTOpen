@@ -209,6 +209,8 @@ public class RootPermission extends UserPermission
             authorities_[OBJECT_MANAGEMENT] = false;
             authorities_[OBJECT_REFERENCE] = false; 
         }
+        if(dataAuthority_.equals("*AUTL"))  // @1JU - if *AUTL, then setFromAuthorizationList
+            setFromAuthorizationList(true); // @1JU
         return;
     }
 
