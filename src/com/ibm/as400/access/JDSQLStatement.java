@@ -342,7 +342,9 @@ class JDSQLStatement
 
         // @C3A if the statement is long remove the comments, otherwise keep them
         //@PDC 2M for commentStrip in v5r4
-        int commentStripLength = (((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm540) ? 2097151 : 32767;    //@PDC 2M for commentStrip in v5r4
+        int commentStripLength = 32767;  //@PDA
+        if(connection != null)           //@PDC
+            commentStripLength = (((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm540) ? 2097151 : 32767;    //@PDC 2M for commentStrip in v5r4
         if(length > commentStripLength)//@PDC 2M for commentStrip
         { // @C3A
             JDSQLTokenizer commentStripper = new JDSQLTokenizer(sql, JDSQLTokenizer.DEFAULT_DELIMITERS, true, false); // @C3A
