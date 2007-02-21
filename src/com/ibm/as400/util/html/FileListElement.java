@@ -14,6 +14,7 @@
 package com.ibm.as400.util.html;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.Collator;                                 // @A2A
 import java.beans.PropertyVetoException;
 import java.beans.PropertyChangeSupport;
@@ -25,6 +26,8 @@ import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.IFSJavaFile;
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.ExtendedIllegalStateException;
+import com.ibm.as400.access.IFSFile;
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 
 
 import com.ibm.as400.util.servlet.ListRowData;
@@ -329,6 +332,8 @@ public class FileListElement implements java.io.Serializable
   transient private Collator  collator_ = null;                            // @A2A        @B3C
 
   transient private PropertyChangeSupport changes_; //@P2C
+
+  private int patternMatching_ = -1;    //@KKB
 
 
   /**
@@ -664,6 +669,18 @@ public class FileListElement implements java.io.Serializable
       if (system_ != null)                                                        // @A7A
       {
         rootFile = new IFSJavaFile(system_, path.replace('\\','/'));
+        if(patternMatching_ != -1)   //@KKB specify the pattern matching to be used
+        {
+            try{
+                ((IFSJavaFile)rootFile).setPatternMatching(patternMatching_);
+            }
+            catch(IOException e)
+            { 
+                // error occured setting pattern matching for the file, default value will be used
+                if(Trace.isTraceOn())
+                    Trace.log(Trace.ERROR, e);
+            }
+        }
       }
       else                                                                            // @A7A
       {
@@ -902,5 +919,17 @@ public class FileListElement implements java.io.Serializable
   public void sort(boolean sort)                         // @A2A
   {
     sort_ = sort;
+  }
+
+  // @KKB give users a way to specify what pattern should be used when listing files
+  /**
+  * Sets the pattern-matching behavior used when files are listed.  The default is PATTERN_POSIX.
+  * @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
+  */
+  public void setPatternMatching(int patternMatching){
+      if(patternMatching < IFSFile.PATTERN_POSIX || patternMatching > IFSFile.PATTERN_OS2)
+          throw new ExtendedIllegalArgumentException("patternMatching",
+                         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      patternMatching_ = patternMatching;
   }
 }

@@ -14,6 +14,7 @@
 package com.ibm.as400.util.html;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 import java.util.Properties;
 import java.beans.PropertyVetoException;
@@ -21,6 +22,8 @@ import java.beans.PropertyChangeSupport;
 
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.IFSJavaFile;
+import com.ibm.as400.access.IFSFile;
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.util.servlet.ServletHyperlink;
 
 
@@ -140,6 +143,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
   private String shareName_;             // @B1A @CRS
   private String sharePath_;             // @B1A @CRS
+  private int patternMatching_ = -1;     // @KKB
 
 
   /**
@@ -376,6 +380,19 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
         if (file_ instanceof IFSJavaFile)                                   //$A1A
         {
+            if(patternMatching_ != -1)   //@KKB specify the pattern matching to be used
+            {
+                try{
+                    ((IFSJavaFile)file_).setPatternMatching(patternMatching_);
+                }
+                catch(IOException e)
+                { 
+                    // error occured setting pattern matching for the file, default value will be used
+                    if(Trace.isTraceOn())
+                        Trace.log(Trace.ERROR, e);
+                }
+            }
+
           // @B6A
           // When we are using IFSJavaFile objects, we can use
           // the listFiles() method becuase it is not dependant on any
@@ -447,6 +464,9 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
                                        parameter_);              // @B1C @CRS
           else
             node = new FileTreeElement(files[i], parameter_); //@CRS
+                                                              // 
+          if(patternMatching_ != -1)    // @KKB set file pattern matching for new node
+              node.setPatternMatching(patternMatching_);
 
           if (getTextUrl() != null)
           {
@@ -574,6 +594,19 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 //@CRS      Trace.log(Trace.INFORMATION, "FileTree sharePath: " + sharePath_);                                // @B1A
                                                                                                         // @B1A
     if (changes_ != null) changes_.firePropertyChange("sharePath", old, sharePath_);   // @B1A @P2C @CRS
+  }
+
+
+  // @KKB give users a way to specify what pattern should be used when listing files
+  /**
+  * Sets the pattern-matching behavior used when files are listed.  The default is PATTERN_POSIX.
+  * @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
+  */
+  public void setPatternMatching(int patternMatching){
+      if(patternMatching < IFSFile.PATTERN_POSIX || patternMatching > IFSFile.PATTERN_OS2)
+          throw new ExtendedIllegalArgumentException("patternMatching",
+                         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      patternMatching_ = patternMatching;
   }
 
 
