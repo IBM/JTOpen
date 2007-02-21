@@ -3102,7 +3102,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the ports in the service port table for all the services for this system name to their default values.
+     Sets the ports in the service port table for all the services for this system name to their default values.  This causes the connections to this system name to use the default ports for those services rather than querying the port number through a port mapper connection.  The use of this method can reduce the number of connections made to the system.
      **/
     public void setServicePortsToDefault()
     {
