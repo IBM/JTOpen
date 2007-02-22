@@ -622,6 +622,7 @@ implements Serializable
       try
       {
         space.setMustUseProgramCall(true);
+        space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
         space.create(256*1024, true, "", (byte)0, "User space for SaveFile", "*EXCLUDE");
 
         if (!pc.run()) {
@@ -754,6 +755,7 @@ implements Serializable
       try
       {
         space.setMustUseProgramCall(true);
+        space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
         space.create(256*1024, true, "", (byte)0, "User space for SaveFile", "*EXCLUDE");
 
         if (!pc.run())

@@ -1065,10 +1065,10 @@ public class Product
     {
       UserSpace us = new UserSpace(system_, "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC");
       us.setMustUseProgramCall(true);
+      us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
       us.create(256*1024, true, "", (byte)0, "User space for PTF list", "*EXCLUDE");
       try
       {
-        pc.setThreadSafe(true); // We have to do it this way since UserSpace will make a native ProgramCall.
         if (!pc.run())
         {
           AS400Message[] messages = pc.getMessageList();

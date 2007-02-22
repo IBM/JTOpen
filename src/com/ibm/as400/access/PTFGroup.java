@@ -162,10 +162,10 @@ public class PTFGroup
         {
             UserSpace us = new UserSpace(system_, USER_SPACE_PATH);
             us.setMustUseProgramCall(true);
+            us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
             try
             {
-                pc.setThreadSafe(true); // We have to do it this way since UserSpace will make a native ProgramCall.
                 if (!pc.run())
                 {
                     throw new AS400Exception(pc.getMessageList());
@@ -330,10 +330,10 @@ public class PTFGroup
         {
             UserSpace us = new UserSpace(system_, USER_SPACE_PATH);
             us.setMustUseProgramCall(true);
+            us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
             try
             {
-                pc.setThreadSafe(true); // We have to do it this way since UserSpace will make a native ProgramCall.
                 if (!pc.run())
                 {
                     throw new AS400Exception(pc.getMessageList());

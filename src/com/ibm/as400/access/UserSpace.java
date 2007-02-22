@@ -74,6 +74,8 @@ public class UserSpace implements Serializable
     private String name_ = "";
     // Use ProgramCall instead of IFS.
     private boolean mustUseProgramCall_ = false;
+    // Use sockets instead of native methods when running natively
+    private boolean mustUseSockets_ = false;
 
     // Data converter for reads and writes with string objects.
     private transient Converter dataConverter_ = null;
@@ -214,7 +216,10 @@ public class UserSpace implements Serializable
                 throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
 
-            impl_ = (com.ibm.as400.access.UserSpaceImpl)system_.loadImpl3("com.ibm.as400.access.UserSpaceImplNative", "com.ibm.as400.access.UserSpaceImplRemote", "com.ibm.as400.access.UserSpaceImplProxy");
+            if(mustUseSockets_)
+                impl_ = (com.ibm.as400.access.UserSpaceImpl)system_.loadImpl2("com.ibm.as400.access.UserSpaceImplRemote", "com.ibm.as400.access.UserSpaceImplProxy");
+            else
+                impl_ = (com.ibm.as400.access.UserSpaceImpl)system_.loadImpl3("com.ibm.as400.access.UserSpaceImplNative", "com.ibm.as400.access.UserSpaceImplRemote", "com.ibm.as400.access.UserSpaceImplProxy");
 
             // Set the fixed properties in the implementation object.
             impl_.setProperties(system_.getImpl(), path_, name_, library_, mustUseProgramCall_);
@@ -1003,5 +1008,47 @@ public class UserSpace implements Serializable
             if (dataConverter_ == null) dataConverter_ = new Converter(system_.getCcsid(), system_);
         }
         write(dataConverter_.stringToByteArray(data), userSpaceOffset);
+    }
+
+    /**
+     * Sets this object to using sockets.  When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  
+     * There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. 
+     * The must use sockets property cannot be changed once a connection to the system has been established.
+     * This method is useful for non-thread safe APIs that use user spaces. 
+     * @param  mustUseSockets  true to use sockets; false otherwise.
+    **/
+    public void setMustUseSockets(boolean mustUseSockets)
+    {
+        // Verify that connection has not been made.
+        if (impl_ != null)
+        {
+            Trace.log(Trace.ERROR, "Cannot set property 'mustUseSockets' after connect.");
+            throw new ExtendedIllegalStateException("mustUseSockets", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        if (propertyChangeListeners_ == null)
+        {
+            mustUseSockets_ = mustUseSockets;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(mustUseSockets_);
+            Boolean newValue = new Boolean(mustUseSockets);
+
+            mustUseSockets_ = mustUseSockets;
+
+            // Fire the property change event.
+            propertyChangeListeners_.firePropertyChange("mustUseSockets", oldValue, newValue);
+        }
+    }
+
+    /**
+     When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
+     @return  true if you have indicated that the user space must use sockets; false otherwise.
+     **/
+    public boolean isMustUseSockets()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if must use sockets:", mustUseSockets_);
+        return mustUseSockets_;
     }
 }
