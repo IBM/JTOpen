@@ -501,8 +501,8 @@ implements Serializable
 
     text10.toBytes(outqLib, outqBytes, 10);
     text10.toBytes(outqName, outqBytes, 0);
-    text10.toBytes(prtFileLib, prtFileBytes, 0);
-    text10.toBytes(prtFileName, prtFileBytes, 10);
+    text10.toBytes(prtFileLib, prtFileBytes, 10);
+    text10.toBytes(prtFileName, prtFileBytes, 0);
     if (publish) {
       pubBytes[0] = (byte)0xF1;
     }
@@ -516,7 +516,7 @@ implements Serializable
     parms[1] = new ProgramParameter(outqBytes);
     parms[2] = new ProgramParameter(text50.toBytes(desc));
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(splfType));
-    parms[4] = new ProgramParameter(text50.toBytes(desc));
+    parms[4] = new ProgramParameter(text50.toBytes(prtDriver));
     parms[5] = errorCode_;
     parms[6] = new ProgramParameter(prtFileBytes);
     parms[7] = new ProgramParameter(pubBytes);
