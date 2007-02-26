@@ -109,6 +109,7 @@ public class JDMRI2 extends ListResourceBundle
       { "CLIENT_INFO_DESC_CLIENTUSER", "The name of the user that the application using the connection is performing work for.  This may not be the same as the user name that was used in establishing the connection." }, //@PDA jdbc40
       { "CLIENT_INFO_DESC_CLIENTHOSTNAME", "The hostname of the system the application using the connection is running on." }, //@PDA jdbc40
       { "CLIENT_INFO_DESC_CLIENTACCOUNTING", "Accounting information." }, //@PDA jdbc40
+      { "CLIENT_INFO_DESC_CLIENTPROGRAMID", "Program identification information." }, //@PDA 550
 
 
    };

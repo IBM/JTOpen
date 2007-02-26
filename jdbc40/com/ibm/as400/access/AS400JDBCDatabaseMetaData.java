@@ -6908,7 +6908,8 @@ implements DatabaseMetaData
         Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME") }, 
                 { "ClientUser", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTUSER")},
                 { "ClientHostname", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTHOSTNAME")},
-                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING")}};
+                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING")},
+                { "ClientProgramID", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTPROGRAMID")}};  //@pdc programID
      
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
