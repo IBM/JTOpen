@@ -1560,10 +1560,8 @@ ResultSet.CONCUR_READ_ONLY.
    * generates a <code>SQLException</code>, the value specified was not set on the 
    * connection.
    * <p>
-   * The following are standard client info properties.  Drivers are not 
-   * required to support these properties however if the driver supports a 
-   * client info property that can be described by one of the standard 
-   * properties, the standard property name should be used.
+   * 
+   * The following client info properties are supported in Toobox for Java.  
    * <p>
    * <ul>
    * <li>ApplicationName  -   The name of the application currently utilizing 
@@ -1574,6 +1572,8 @@ ResultSet.CONCUR_READ_ONLY.
    *                          in establishing the connection.</li>
    * <li>ClientHostname   -   The hostname of the computer the application 
    *                          using the connection is running on.</li>
+   * <li>ClientAccounting -   Client accounting information.</li>
+   * <li>ClientProgramID  -   The client program identification.</li>
    * </ul>
    * <p>
    * @param name      The name of the client info property to set 
@@ -1619,6 +1619,22 @@ ResultSet.CONCUR_READ_ONLY.
    * properties may have been set before the error occurred.
    * <p>
    * 
+   * The following client info properties are supported in Toobox for Java.  
+   * <p>
+   * <ul>
+   * <li>ApplicationName  -   The name of the application currently utilizing 
+   *                          the connection</li>
+   * <li>ClientUser       -   The name of the user that the application using 
+   *                          the connection is performing work for.  This may 
+   *                          not be the same as the user name that was used 
+   *                          in establishing the connection.</li>
+   * <li>ClientHostname   -   The hostname of the computer the application 
+   *                          using the connection is running on.</li>
+   * <li>ClientAccounting -   Client accounting information.</li>
+   * <li>ClientProgramID  -   The client program identification.</li>
+   * </ul>
+   * <p>
+   * 
    * @param properties
    *            the list of client info properties to set
    *            <p>
@@ -1653,6 +1669,22 @@ ResultSet.CONCUR_READ_ONLY.
    * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
    * method to determine the client info properties supported by the driver.
    * <p>
+   * 
+   * The following client info properties are supported in Toobox for Java.  
+   * <p>
+   * <ul>
+   * <li>ApplicationName  -   The name of the application currently utilizing 
+   *                          the connection</li>
+   * <li>ClientUser       -   The name of the user that the application using 
+   *                          the connection is performing work for.  This may 
+   *                          not be the same as the user name that was used 
+   *                          in establishing the connection.</li>
+   * <li>ClientHostname   -   The hostname of the computer the application 
+   *                          using the connection is running on.</li>
+   * <li>ClientAccounting -   Client accounting information.</li>
+   * <li>ClientProgramID  -   The client program identification.</li>
+   * </ul>
+   * <p>
    * @param name      The name of the client info property to retrieve
    * <p>
    * @return          The value of the client info property specified
@@ -1674,6 +1706,22 @@ ResultSet.CONCUR_READ_ONLY.
    * property supported by the driver.  The value of a client info property 
    * may be null if the property has not been set and does not have a 
    * default value.
+   * <p>
+   * 
+   * The following client info properties are supported in Toobox for Java.  
+   * <p>
+   * <ul>
+   * <li>ApplicationName  -   The name of the application currently utilizing 
+   *                          the connection</li>
+   * <li>ClientUser       -   The name of the user that the application using 
+   *                          the connection is performing work for.  This may 
+   *                          not be the same as the user name that was used 
+   *                          in establishing the connection.</li>
+   * <li>ClientHostname   -   The hostname of the computer the application 
+   *                          using the connection is running on.</li>
+   * <li>ClientAccounting -   Client accounting information.</li>
+   * <li>ClientProgramID  -   The client program identification.</li>
+   * </ul>
    * <p>
    * @return  A <code>Properties</code> object that contains the name and current value of 
    *          each of the client info properties supported by the driver.  

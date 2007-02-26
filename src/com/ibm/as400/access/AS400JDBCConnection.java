@@ -212,13 +212,15 @@ implements Connection
     static final String clientUserPropertyName_ = "ClientUser";
     static final String clientHostnamePropertyName_ = "ClientHostname";
     static final String clientAccountingPropertyName_ = "ClientAccounting";
+    static final String clientProgramIDPropertyName_ = "ClientProgramID"; //@pda
     
     //@pda 550 client info values
-    private String applicationName_ = null;  
-    private String clientUser_ = null;
-    private String clientHostname_ = null;
-    private String clientAccounting_ = null; 
-    
+    private String applicationName_ = "";   //@pdc so can be added to Properties object in getClientInfo()
+    private String clientUser_ = ""; //@pdc
+    private String clientHostname_ = ""; //@pdc
+    private String clientAccounting_ = ""; //@pdc
+    private String clientProgramID_ = ""; //@pdc
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -4033,8 +4035,8 @@ implements Connection
      *                          in establishing the connection.</li>
      * <li>ClientHostname   -   The hostname of the computer the application 
      *                          using the connection is running on.</li>
-     * <li>ClientAccounting -   The accounting information about the client.</li>
-     *                          
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
      * </ul>
      * <p>
      * @param name      The name of the client info property to set 
@@ -4095,6 +4097,13 @@ implements Connection
                 if (getVRM() >= JDUtilities.vrm550)
                     request.setClientInfoClientHostname(value, tempConverter);
 
+            } else if (name.equals(clientProgramIDPropertyName_))  //@PDA add block for ProgramID
+            {
+                oldValue = clientProgramID_;
+                clientProgramID_ = value;
+                if (getVRM() >= JDUtilities.vrm550)
+                    request.setClientInfoProgramID(value, tempConverter);
+
             } else
             {
                 oldValue = null;
@@ -4122,6 +4131,8 @@ implements Connection
                 clientAccounting_ = oldValue;
             else if (name.equals(clientHostnamePropertyName_))
                 clientHostname_ = oldValue;
+            else if (name.equals(clientProgramIDPropertyName_)) //@pda
+                clientProgramID_ = oldValue;
 
             JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
         } finally
@@ -4146,7 +4157,28 @@ implements Connection
      * <code>setClientInfo (String, String)</code> for more information.
      * <p>
      * If an error occurs in setting any of the client info properties, a
-     * <code>SQLException</code> is thrown. 
+     * <code>ClientInfoException</code> is thrown. The
+     * <code>ClientInfoException</code> contains information indicating which
+     * client info properties were not set. The state of the client information
+     * is unknown because some databases do not allow multiple client info
+     * properties to be set atomically. For those databases, one or more
+     * properties may have been set before the error occurred.
+     * <p>
+     * 
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
      * <p>
      * 
      * @param properties
@@ -4163,6 +4195,7 @@ implements Connection
         String newClientHostname = properties.getProperty(clientHostnamePropertyName_);
         String newClientUser = properties.getProperty(clientUserPropertyName_);
         String newClientAccounting = properties.getProperty(clientAccountingPropertyName_);
+        String newClientProgramID = properties.getProperty(clientProgramIDPropertyName_); //@pda
         
         //In order to reset if null value is passed in, use empty string
         //per javadoc, clear its value if not specified in properties 
@@ -4174,6 +4207,8 @@ implements Connection
             newClientUser = "";
         if (newClientAccounting == null)
             newClientAccounting = "";
+        if (newClientProgramID == null)  //@PDA
+            newClientProgramID = "";
         
         DBSQLAttributesDS request = null;
         DBReplyRequestedDS reply = null;
@@ -4193,6 +4228,8 @@ implements Connection
                 
                 request.setClientInfoClientHostname(newClientHostname, tempConverter);
                 
+                request.setClientInfoProgramID(newClientProgramID, tempConverter); //@pda
+                
                 reply = sendAndReceive(request);
                 int errorClass = reply.getErrorClass();
                 if (errorClass != 0)
@@ -4204,6 +4241,7 @@ implements Connection
             clientHostname_ = newClientHostname;
             clientUser_ = newClientUser;
             clientAccounting_ = newClientAccounting;
+            clientProgramID_ = newClientProgramID;
             
         } catch( Exception e)
         {
@@ -4226,6 +4264,25 @@ implements Connection
      * return null if the specified client info property name is not supported 
      * by the driver.
      * <p>
+     * Applications may use the <code>DatabaseMetaData.getClientInfoProperties</code>
+     * method to determine the client info properties supported by the driver.
+     * <p>
+     * 
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
+     * <p>
      * @param name      The name of the client info property to retrieve
      * <p>
      * @return          The value of the client info property specified
@@ -4243,6 +4300,8 @@ implements Connection
             return clientAccounting_;
         else if (name.equals(clientHostnamePropertyName_))
             return clientHostname_;
+        else if (name.equals(clientProgramIDPropertyName_))  //@pda
+            return clientProgramID_;
         else
         {
             //post generic syntax error for invalid clientInfo name
@@ -4259,6 +4318,22 @@ implements Connection
      * may be null if the property has not been set and does not have a 
      * default value.
      * <p>
+     * 
+     * The following client info properties are supported in Toobox for Java.  
+     * <p>
+     * <ul>
+     * <li>ApplicationName  -   The name of the application currently utilizing 
+     *                          the connection</li>
+     * <li>ClientUser       -   The name of the user that the application using 
+     *                          the connection is performing work for.  This may 
+     *                          not be the same as the user name that was used 
+     *                          in establishing the connection.</li>
+     * <li>ClientHostname   -   The hostname of the computer the application 
+     *                          using the connection is running on.</li>
+     * <li>ClientAccounting -   Client accounting information.</li>
+     * <li>ClientProgramID  -   The client program identification.</li>
+     * </ul>
+     * <p>
      * @return  A <code>Properties</code> object that contains the name and current value of 
      *          each of the client info properties supported by the driver.  
      * <p>
@@ -4272,6 +4347,7 @@ implements Connection
         props.setProperty(clientAccountingPropertyName_, clientAccounting_);
         props.setProperty(clientHostnamePropertyName_, clientHostname_);
         props.setProperty(clientUserPropertyName_, clientUser_);
+        props.setProperty(clientProgramIDPropertyName_, clientProgramID_); //@pda
         return props;
     }
 
@@ -4343,6 +4419,45 @@ implements Connection
         }
 
     }
+
+    /////////////////////////////////
+    
+    public void swap( AS400Credential newCredential ) throws SQLException {
+        
+        if ( newCredential instanceof ProfileTokenCredential ) {
+            swapToToken( ((ProfileTokenCredential) newCredential ).getToken() );
+        }
+    }
+
+
+    public void swapToToken( byte[] token ) throws SQLException {
+        
+        StringBuffer sql = new StringBuffer( 80 );
+        sql.append( "Call QSys" );
+        sql.append( getMetaData().getCatalogSeparator() );
+        sql.append( "QSYSETPT ( X'" );
+        for ( int i=0; i<token.length; i++ ) {
+            int unsignedByte = token[ i ];
+            if ( unsignedByte < 0 ) {
+                unsignedByte = 256 + unsignedByte;
+            } else if ( unsignedByte < 16 ) {
+                sql.append( '0' );
+            }
+            sql.append( Integer.toHexString( unsignedByte ).toUpperCase() );
+        }
+        sql.append( "', X'0000')" );
+        Statement stmt = null;
+        try {
+            stmt = createStatement();
+            stmt.execute( sql.toString() );
+        } finally {
+            if ( stmt != null ) {
+                try { stmt.close(); } catch ( Exception e ) {}
+            }
+        }
+    }
+
+
 
 }
 

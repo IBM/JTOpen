@@ -393,6 +393,19 @@ extends DBBaseRequestDS
     }
     
     
+    //@PDA 550 client info methods
+    /**
+       Sets the client info for the program ID. 
+       This has a 255 byte length.
+    **/
+    void setClientInfoProgramID(String value, ConvTable converter) 
+    throws DBDataStreamException, SQLException   
+    {
+        addParameter(0x383B, converter, value, value.length());
+    }
+    
+    
+    
     //@PDA 550 - middleware type
     /**
        Sets the middleware type for this connection. 
