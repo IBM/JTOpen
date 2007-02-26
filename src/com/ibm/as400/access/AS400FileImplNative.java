@@ -1079,6 +1079,12 @@ class AS400FileImplNative extends AS400FileImplBase
     public Record positionCursorToIndex(int index)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
     {
+        if (cacheRecords_ && !cache_.setPosition(index)) //@G0A
+        {
+            // Invalidate the cache
+            cache_.setIsEmpty(); //@G0A
+        }
+
         // OPTL
         // byte share = (as400File_.openType_ == AS400File.READ_ONLY ?  // @A2D
         //               SHR_READ_NORM : SHR_UPD_NORM);                 // @A2D
@@ -1184,6 +1190,12 @@ class AS400FileImplNative extends AS400FileImplBase
         // OPTL
         // byte share = (as400File_.openType_ == AS400File.READ_ONLY ?  // @A2D
         //               SHR_READ_NORM : SHR_UPD_NORM);                 // @A2D
+
+        if (cacheRecords_)          //@G0A
+        {
+            // Invalidate the cache
+            cache_.setIsEmpty();    //@G0A
+        }
 
         // Start of @A2A
         byte share;
@@ -1393,6 +1405,12 @@ class AS400FileImplNative extends AS400FileImplBase
         // OPTL
         // byte share = (as400File_.openType_ == AS400File.READ_ONLY ?
         //              SHR_READ_NORM : SHR_UPD_NORM);
+
+        if (cacheRecords_)       //@G0A
+        {
+            // Invalidate the cache
+            cache_.setIsEmpty(); //@G0A
+        }
 
         // Start of @A2A
         byte share;
