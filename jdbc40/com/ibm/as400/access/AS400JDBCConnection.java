@@ -3683,6 +3683,9 @@ implements Connection
                     if(roundingMode != 0)                                                             //@DFA
                         request.setDecfloatRoundingMode(roundingMode);                                //@DFA
                     
+                    //@eof Close on EOF
+                    request.setCloseEOF( 0xE8) ;
+                    
                 }
 
                 // Send the request and process the reply.

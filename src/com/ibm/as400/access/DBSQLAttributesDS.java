@@ -552,6 +552,22 @@ extends DBBaseRequestDS
     {
         addParameter(0x3831, value);
     }
+    
+    
+    //@eof Close on EOF support for 550
+    /**
+    Turns on Close on EOF support.
+    By default, this is turned off.
+    @parm value 
+        'E8'x -- Implicitly close cursors which qualify and pass a return code/return class pair that indicates the cursor was closed.
+        'D5'x -- Do not implicitly close cursors. 
+    @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void setCloseEOF(int value)                                         
+    throws DBDataStreamException                                  
+    {                                                              
+        addParameter(0x383F, (short)value);                               
+    }     
 }
 
 
