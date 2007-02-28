@@ -4423,43 +4423,6 @@ implements Connection
 
     }
 
-    /////////////////////////////////
-    
-    public void swap( AS400Credential newCredential ) throws SQLException {
-        
-        if ( newCredential instanceof ProfileTokenCredential ) {
-            swapToToken( ((ProfileTokenCredential) newCredential ).getToken() );
-        }
-    }
-
-
-    public void swapToToken( byte[] token ) throws SQLException {
-        
-        StringBuffer sql = new StringBuffer( 80 );
-        sql.append( "Call QSys" );
-        sql.append( getMetaData().getCatalogSeparator() );
-        sql.append( "QSYSETPT ( X'" );
-        for ( int i=0; i<token.length; i++ ) {
-            int unsignedByte = token[ i ];
-            if ( unsignedByte < 0 ) {
-                unsignedByte = 256 + unsignedByte;
-            } else if ( unsignedByte < 16 ) {
-                sql.append( '0' );
-            }
-            sql.append( Integer.toHexString( unsignedByte ).toUpperCase() );
-        }
-        sql.append( "', X'0000')" );
-        Statement stmt = null;
-        try {
-            stmt = createStatement();
-            stmt.execute( sql.toString() );
-        } finally {
-            if ( stmt != null ) {
-                try { stmt.close(); } catch ( Exception e ) {}
-            }
-        }
-    }
-
 
 
 }
