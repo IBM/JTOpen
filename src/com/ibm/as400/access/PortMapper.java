@@ -107,12 +107,22 @@ class PortMapper
 
     static boolean unixSocketAvailable = true;
 
+    private static boolean canUseUnixSocket(String systemName, int service, boolean mustUseNetSockets)
+    {
+        if (AS400.onAS400 && unixSocketAvailable && !mustUseNetSockets && service != AS400.FILE && systemName.equalsIgnoreCase("localhost"))
+        {
+            if (service == AS400.DATABASE && AS400.nativeVRM.vrm_ < 0x00050500) return false;
+            return true;
+        }
+        return false;
+    }
+
     static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL, SocketProperties socketProperties, boolean mustUseNetSockets) throws IOException
     {
         SocketContainer sc = null;
         String serviceName = AS400.getServerName(service);
         // If we're running on a native vm, we're requesting a service that supports a unix domain socket connection, and the unix domain socket code is accessable.
-        if (AS400.onAS400 && systemName.equalsIgnoreCase("localhost") && service != AS400.DATABASE && service != AS400.FILE && unixSocketAvailable && !mustUseNetSockets)
+        if (canUseUnixSocket(systemName, service, mustUseNetSockets))
         {
             try
             {

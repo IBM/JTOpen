@@ -48,6 +48,10 @@ class SocketContainerUnix2 extends SocketContainer
         {
             serverNumber = 4;
         }
+        else if (serviceName.equalsIgnoreCase("as-database"))
+        {
+            serverNumber = 6;
+        }
         else if (serviceName.equalsIgnoreCase("as-ddm"))
         {
             serverNumber = 8;
