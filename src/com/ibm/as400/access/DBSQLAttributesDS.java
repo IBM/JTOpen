@@ -354,7 +354,7 @@ extends DBBaseRequestDS
     void setClientInfoApplicationName(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x3838, converter, value, value.length());
+        addParameter(0x3838, converter, value);   //@pdc length
     }
     
     //@PDA 550 client info methods
@@ -365,7 +365,7 @@ extends DBBaseRequestDS
     void setClientInfoClientAccounting(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x3837, converter, value, value.length());
+        addParameter(0x3837, converter, value);   //@pdc length
     }
 
     
@@ -377,7 +377,7 @@ extends DBBaseRequestDS
     void setClientInfoClientUser(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x3839, converter, value, value.length());
+        addParameter(0x3839, converter, value); //@pdc length
     }
     
     
@@ -389,7 +389,7 @@ extends DBBaseRequestDS
     void setClientInfoClientHostname(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x383A, converter, value, value.length());
+        addParameter(0x383A, converter, value);   //@pdc length
     }
     
     
@@ -401,7 +401,7 @@ extends DBBaseRequestDS
     void setClientInfoProgramID(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x383B, converter, value, value.length());
+        addParameter(0x383B, converter, value);   //@pdc length
     }
     
     
@@ -415,7 +415,7 @@ extends DBBaseRequestDS
     void setInterfaceType(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x383C, converter, value, value.length());
+        addParameter(0x383C, converter, value);   //@pdc length
     }
     
     //@PDA 550 - product name
@@ -427,7 +427,7 @@ extends DBBaseRequestDS
     void setInterfaceName(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x383D, converter, value, value.length());
+        addParameter(0x383D, converter, value);   //@pdc length
     }
     
     //@PDA 550 - client version
@@ -440,7 +440,7 @@ extends DBBaseRequestDS
     void setInterfaceLevel(String value, ConvTable converter) 
     throws DBDataStreamException, SQLException   
     {
-        addParameter(0x383E, converter, value, value.length());
+        addParameter(0x383E, converter, value);   //@pdc length
     }
     
     // @J1 - added support for ROWID data type
