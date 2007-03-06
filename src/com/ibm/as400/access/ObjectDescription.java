@@ -1181,7 +1181,15 @@ public class ObjectDescription
   **/
   public String getPath()
   {
-    return QSYSObjectPathName.toPath(library_, name_, type_);
+	if(aspDeviceName_ != null)
+	{
+		StringBuffer path = new StringBuffer("/");
+		path.append(aspDeviceName_);
+		path.append(QSYSObjectPathName.toPath(library_, name_, type_));
+		return path.toString();
+	}
+	else
+		return QSYSObjectPathName.toPath(library_, name_, type_);
   }
 
 
