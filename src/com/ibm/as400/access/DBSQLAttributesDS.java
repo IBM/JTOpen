@@ -566,7 +566,7 @@ extends DBBaseRequestDS
     void setCloseEOF(int value)                                         
     throws DBDataStreamException                                  
     {                                                              
-        addParameter(0x383F, (short)value);                               
+        addParameter(0x383F, (byte)value);                               
     }     
 }
 
