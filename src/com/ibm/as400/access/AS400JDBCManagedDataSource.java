@@ -2402,6 +2402,14 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     if (sort == null)
       throw new NullPointerException(property);
 
+    //@JOB fix to allow "sort=job" but use default value
+    if(sort.equals("job"))                 //@JOB
+    {                                      //@JOB
+        if (JDTrace.isTraceOn())           //@JOB
+            JDTrace.logInformation (this, property + ": " + getSort() + " (warning: " + getSort() + " will be used since sort=job is not valid)");  //@JOB 
+        return; //return and allow default setting to be used                                                  //@JOB
+    }                                     //@JOB
+    
     validateProperty(property, sort, JDProperties.SORT);
 
     properties_.setString(JDProperties.SORT, sort);
