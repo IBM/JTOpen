@@ -4981,7 +4981,7 @@ public class AS400JDBCResultSet implements ResultSet
     //@EIA 550 extended indicator defaults
     /**
     Updates a column in the current row to the SQL Default.
-    @param  parameterIndex  The column index (1-based).
+    @param  columnIndex  The column index (1-based).
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter.
@@ -5009,7 +5009,7 @@ public class AS400JDBCResultSet implements ResultSet
     //@EIA 550 extended indicator defaults
     /**
     Updates a column in the current row to the SQL Unassigned.
-    @param  parameterIndex  The column index (1-based).
+    @param  columnIndex  The column index (1-based).
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
                                 is not an input parameter.
@@ -5708,6 +5708,7 @@ public class AS400JDBCResultSet implements ResultSet
 
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.
+           
             int columnIndex0 = columnIndex - 1;
             
             updateNulls_[columnIndex0] = false;
