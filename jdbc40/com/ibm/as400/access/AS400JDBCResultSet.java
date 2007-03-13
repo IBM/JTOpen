@@ -7020,7 +7020,7 @@ implements ResultSet
 
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.
-            SQLData sqlData = updateRow_.getSQLType(columnIndex); //@P0C
+           
             int columnIndex0 = columnIndex - 1;
             
             updateNulls_[columnIndex0] = false;
