@@ -340,6 +340,17 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+        if(value_ > Byte.MAX_VALUE || value_ < Byte.MIN_VALUE)      //@trunc
+        {                                                           //@trunc
+            if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)//@trunc
+            {                                                       //@trunc
+                truncated_ = 3;                                     //@trunc
+            }                                                       //@trunc
+            else                                                    //@trunc
+            {                                                       //@trunc
+                truncated_ = 1;                                     //@trunc
+            }                                                       //@trunc
+        }                                                           //@trunc
         return(byte) value_;
     }
 
@@ -389,6 +400,12 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+
+        if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)              //@trunc
+        {                                                                         //@trunc
+            truncated_ = 4;                                                       //@trunc
+        }                                                                         //@trunc
+               
         return(int) value_;
     }
 
@@ -396,6 +413,10 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+        if(value_ > Long.MAX_VALUE || value_ < Long.MIN_VALUE)                    //@trunc
+        {                                                                         //@trunc
+            truncated_ = 8;                                                       //@trunc
+        }                                                                         //@trunc  
         return(long) value_;
     }
 
@@ -410,6 +431,10 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+        if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)    //@trunc
+        {                                                           //@trunc
+            truncated_ = 2;                                         //@trunc
+        }                                                           //@trunc
         return(short) value_;
     }
 

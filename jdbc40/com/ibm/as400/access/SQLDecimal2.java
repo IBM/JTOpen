@@ -348,7 +348,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(value_ > Float.MAX_VALUE || value_ < Float.MIN_VALUE)
+        if(value_ > Float.MAX_VALUE || value_ < -Float.MAX_VALUE)  //@trunc min_val is a posative number. //Float.MIN_VALUE)
         {
             truncated_ = 4;
         }

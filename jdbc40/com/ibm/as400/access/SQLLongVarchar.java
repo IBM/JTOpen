@@ -401,7 +401,13 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).byteValue();
+            //return(new Double(value_.trim())).byteValue();  //@trunc
+            Double doubleValue  = new Double (value_.trim ());              //@trunc
+            double d = doubleValue.doubleValue();                           //@trunc
+            if(d > Byte.MAX_VALUE || d < Byte.MIN_VALUE)                    //@trunc
+                truncated_ = 1;                                             //@trunc
+            
+            return doubleValue.byteValue ();                                //@trunc
         }
         catch(NumberFormatException e)
         {
@@ -490,7 +496,14 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).intValue();
+            //return(new Double(value_.trim())).intValue();  //@trunc
+            Double doubleValue  = new Double (value_.trim ());     //@trunc
+            double d = doubleValue.doubleValue();                  //@trunc 
+
+            if( d > Integer.MAX_VALUE || d < Integer.MIN_VALUE)    //@trunc    
+                truncated_ = 1;                                    //@trunc
+                
+            return doubleValue.intValue ();                        //@trunc
         }
         catch(NumberFormatException e)
         {
@@ -506,7 +519,14 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).longValue();
+            //return(new Double(value_.trim())).longValue();  //@trunc
+            Double doubleValue  = new Double (value_.trim ()); //@trunc
+            double d = doubleValue.doubleValue();              //@trunc
+
+            if( d > Long.MAX_VALUE || d < Long.MIN_VALUE)      //@trunc
+                truncated_ = 1;                                //@trunc
+                
+            return doubleValue.longValue ();                   //@trunc
         }
         catch(NumberFormatException e)
         {
@@ -531,7 +551,14 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).shortValue();
+            //return(new Double(value_.trim())).shortValue();            //@trunc
+            Double doubleValue  = new Double (value_.trim ());               //@trunc
+            double d = doubleValue.doubleValue();                            //@trunc
+
+            if( d > Short.MAX_VALUE || d < Short.MIN_VALUE)                  //@trunc      
+                truncated_ = 1;                                              //@trunc
+        
+            return doubleValue.shortValue ();                                //@trunc
         }
         catch(NumberFormatException e)
         {
