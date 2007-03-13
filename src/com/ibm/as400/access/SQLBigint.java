@@ -360,7 +360,7 @@ implements SQLData
     public float getFloat()
     throws SQLException
     {
-        if(value_ > Float.MAX_VALUE || value_ < Float.MIN_VALUE)
+        if(value_ > Float.MAX_VALUE || value_ < -Float.MAX_VALUE)  //@trunc min_val is a positive number. //Float.MIN_VALUE)
         {
             truncated_ = 4;
         }

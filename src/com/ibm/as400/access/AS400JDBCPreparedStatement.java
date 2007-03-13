@@ -36,7 +36,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 
@@ -92,6 +91,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private int[]               parameterLengths_;
     private int[]               parameterOffsets_;
     private boolean[]           parameterNulls_;
+    private boolean[]           parameterDefaults_;    //@EIA
+    private boolean[]           parameterUnassigned_;  //@EIA
     JDServerRow         parameterRow_;          // private protected
     Vector              batchParameterRows_;    // private protected            @G9A
     private int                 parameterTotalSize_;
@@ -107,6 +108,10 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private static final int LOCATOR_UNKNOWN = -1;
     private static final int LOCATOR_NOT_FOUND = 0;
     private static final int LOCATOR_FOUND = 1;
+    
+    private static final short INDICATOR_NULL = -1;        //@EIA
+    private static final short INDICATOR_DEFAULT = -5;     //@EIA
+    private static final short INDICATOR_UNASSIGNED = -7;  //@EIA
 
     static final int LOB_BLOCK_SIZE = 262144;
 
@@ -157,6 +162,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         parameterCount_             = sqlStatement.countParameters();
         parameterLengths_           = new int[parameterCount_];
         parameterNulls_             = new boolean[parameterCount_];
+        parameterDefaults_          = new boolean[parameterCount_];          //@EIA
+        parameterUnassigned_        = new boolean[parameterCount_];          //@EIA
         parameterOffsets_           = new int[parameterCount_];
         parameterSet_               = new boolean[parameterCount_];
         sqlStatement_               = sqlStatement;
@@ -226,7 +233,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 if(!parameterNulls_[i])
                 {
                   //@KBD  SQLData sqlData = parameterRow_.getSQLData(i+1);
-                  parameters[i] = sqlData.getObject();
+                  //For default and unassigned extended indicator values, we use Byte to contain the indicator flag
+                  if(parameterDefaults_[i])                          //@EIA
+                      parameters[i] = new Byte("1");  //default      //@EIA
+                  else if(parameterUnassigned_[i])                   //@EIA
+                      parameters[i] = new Byte("2");  //unassigned   //@EIA
+                  else                                               //@EIA
+                      parameters[i] = sqlData.getObject();
                   //@KBD  if(containsLocator_ == LOCATOR_UNKNOWN)
                   //@KBD  { 
                   //@KBD    int sqlType = sqlData.getSQLType();
@@ -376,6 +389,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             {
                 // @E1D parameterLengths_[i]    = 0;
                 parameterNulls_[i]      = false;
+                parameterDefaults_[i]      = false;   //@EIA
+                parameterUnassigned_[i]    = false;   //@EIA
                 // @E1D parameterOffsets_[i]    = 0;
                 parameterSet_[i]        = false;
             }
@@ -598,10 +613,29 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                 // @G1 -- zero out the comm buffer if the parameter marker is null.
                                 //        If the buffer is not zero'ed out old data will be sent to
                                 //        the system possibily messing up a future request.
-                                if((batchExecute_ && parameters[i] == null) ||               // @G9A
-                                   (!batchExecute_ && parameterNulls_[i]))             // @B9C @G9C
+                                if((batchExecute_ && (parameters[i] == null || parameters[i] instanceof Byte)) ||               // @G9A //@EIC
+                                   (!batchExecute_ && (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])))              // @B9C @G9C  //@EIC
                                 {
-                                    parameterMarkerData.setIndicator(rowLoop, i, (short) -1);    // @G1a @G9C
+                                    short indicatorValue = INDICATOR_NULL;                  //@EIA
+                                    if( batchExecute_ )                                     //@EIA
+                                    {                                                       //@EIA
+                                        if( parameters[i] == null )                         //@EIA
+                                            indicatorValue = INDICATOR_NULL;                //@EIA
+                                        else if( ((Byte)parameters[i]).byteValue() == 1 )   //@EIA
+                                            indicatorValue = INDICATOR_DEFAULT;             //@EIA
+                                        else if( ((Byte)parameters[i]).byteValue() == 2 )   //@EIA
+                                            indicatorValue = INDICATOR_UNASSIGNED;          //@EIA
+                                    }                                                       //@EIA
+                                    else                                                    //@EIA
+                                    {                                                       //@EIA
+                                        if( parameterNulls_[i] )                            //@EIA
+                                            indicatorValue = INDICATOR_NULL;                //@EIA
+                                        else if( parameterDefaults_[i] )                    //@EIA
+                                            indicatorValue = INDICATOR_DEFAULT;             //@EIA
+                                        else if ( parameterUnassigned_[i] )                 //@EIA
+                                            indicatorValue = INDICATOR_UNASSIGNED;          //@EIA
+                                    }                                                       //@EIA
+                                    parameterMarkerData.setIndicator(rowLoop, i, indicatorValue);    // @G1a @G9C @EIC
                                     byte[] parameterData = parameterMarkerData.getRawBytes();           // @G1a
                                     int parameterDataOffset = rowDataOffset + parameterOffsets_[i];   // @G1a
                                     int parameterDataLength = parameterLengths_[i] + parameterDataOffset;
@@ -1660,6 +1694,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
+            parameterDefaults_[parameterIndex-1] = false;   //@EIA
+            parameterUnassigned_[parameterIndex-1] = false; //@EIA
             parameterSet_[parameterIndex-1] = true;
 
         }
@@ -1781,6 +1817,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
               // Parameters can be null; you can call one of the set methods to null out a
               // field of the database.
               parameterNulls_[parameterIndex-1] = (parameterValue == null);
+              parameterDefaults_[parameterIndex-1] = false;   //@EIA
+              parameterUnassigned_[parameterIndex-1] = false; //@EIA
               parameterSet_[parameterIndex-1] = true;
         
             }
@@ -2011,6 +2049,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
+            parameterDefaults_[parameterIndex-1] = false;   //@EIA
+            parameterUnassigned_[parameterIndex-1] = false; //@EIA
             parameterSet_[parameterIndex-1] = true;
 
         }
@@ -2128,7 +2168,45 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         setValue (parameterIndex, parameterValue, calendar, -1);
     }
 
+    //@EIA 550 extended indicator defaults
+    /**
+    Sets an input parameter to the default value
+    @param  parameterIndex  The parameter index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void setDB2Default(int parameterIndex) throws SQLException
+    {
+    	 if(JDTrace.isTraceOn())
+         {                                         
+             JDTrace.logInformation (this, "setDB2Default()");            
+             JDTrace.logInformation (this, "parameter index: " + parameterIndex);
+         }                                                                 
 
+         setValueExtendedIndicator(parameterIndex, 1); //1 is default
+         
+    }
+    
+    //@EIA 550 extended indicator defaults
+    /**
+    Sets an input parameter to unassigned
+    @param  parameterIndex  The parameter index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void setDB2Unassigned(int parameterIndex) throws SQLException
+    {
+        if(JDTrace.isTraceOn())
+        {                                         
+            JDTrace.logInformation (this, "setDB2Unassigned()");            
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex);
+        }                                                                 
+
+        setValueExtendedIndicator(parameterIndex, 2); //2 is unassigned
+    	
+    }
 
     /**
     Sets an input parameter to a Java double value.  The driver
@@ -2764,6 +2842,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
+            parameterDefaults_[parameterIndex-1] = false;   //@EIA
+            parameterUnassigned_[parameterIndex-1] = false; //@EIA
             parameterSet_[parameterIndex-1] = true;
 
         }
@@ -2873,10 +2953,64 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.                                                                                            // @B6A
             parameterNulls_[parameterIndex-1] = (parameterValue == null);
+            parameterDefaults_[parameterIndex-1] = false;    //@EIA 
+            parameterUnassigned_[parameterIndex-1] = false;  //@EIA 
             parameterSet_[parameterIndex-1] = true;
         }
     }
 
+    //@EIA new method
+    /**
+    Sets an input parameter value for the specified index,
+    and performs all appropriate validation when the value is one of the
+    valid Extended Indicator values: default or unassigned.
+    
+    Note: this is the same type of method as setValue() above, but we
+    have no way to pass in the special values without hacking some sort
+    of flag string for the value, and that seemed to be a messy and slow
+    way to do this.
+  
+    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterValue  The parameter 1="default" or 2="unassigned".
+  
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid or
+                                the parameter is not an input
+                                parameter.
+    **/
+    void setValueExtendedIndicator(int parameterIndex, int parameterValue) throws SQLException
+    {
+        synchronized(internalLock_)
+        {                                          
+            checkOpen();
+
+            // Check if the parameter index refers to the return value parameter.          
+            // This is an OUT parameter, so sets are not allowed.  If its not              
+            // parameter index 1, then decrement the parameter index, since we             
+            // are "faking" the return value parameter.                                   
+            if(useReturnValueParameter_)
+            {                                             
+                if(parameterIndex == 1)                                                 
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID); 
+                else                                                                   
+                    --parameterIndex;                                                   
+            }
+
+            // Validate the parameter index.
+            if((parameterIndex < 1) || (parameterIndex > parameterCount_))
+            {
+                JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+            }
+
+            // Check that the parameter is an input parameter.
+            if(!parameterRow_.isInput(parameterIndex)) JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+            parameterNulls_[parameterIndex-1] = false;
+            parameterDefaults_[parameterIndex-1] = parameterValue == 1 ? true: false;     
+            parameterUnassigned_[parameterIndex-1] =  parameterValue == 2 ? true: false;   
+            parameterSet_[parameterIndex-1] = true;
+        }
+    }
 
 
     /**
@@ -2892,7 +3026,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     @param  index   The index (1-based).
     @param  data    The data that was written or null for SQL NULL.
     **/
-    private void testDataTruncation(int parameterIndex, SQLData data) throws DataTruncation
+    private void testDataTruncation(int parameterIndex, SQLData data) throws SQLException //@trunc
     {
         if(data != null && (dataTruncation_ || !data.isText()))
         {
@@ -2900,8 +3034,16 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
+                //if 550 and number data type, then throw SQLException
+                //if text, then use old code path and post/throw DataTruncation
+                if((connection_.getVRM() >= JDUtilities.vrm550) && (data.isText() == false))   //@trunc
+                {                                                                    //@trunc
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+                }                                                                    //@trunc
+                
                 int actualSize = data.getActualSize ();
-                DataTruncation dt = new DataTruncation(parameterIndex, true, false, actualSize + truncated, actualSize);
+                boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read)
+                DataTruncation dt = new DataTruncation(parameterIndex, true, isRead, actualSize + truncated, actualSize); //@pdc jdbc40
 
                 if((sqlStatement_ != null) && (sqlStatement_.isSelect()))
                 {

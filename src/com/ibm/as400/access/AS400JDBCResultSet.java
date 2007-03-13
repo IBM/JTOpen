@@ -199,6 +199,8 @@ public class AS400JDBCResultSet implements ResultSet
     private AS400JDBCStatement          statement_;
     private int                         type_;
     private boolean[]                   updateNulls_;
+    private boolean[]                   updateDefaults_;    //@EIA
+    private boolean[]                   updateUnassigned_;  //@EIA
     private JDRow                       updateRow_;
     private boolean[]                   updateSet_;
     private boolean                     wasNull_;
@@ -296,10 +298,12 @@ public class AS400JDBCResultSet implements ResultSet
             updateRow_              = new JDSimpleRow (row_, true);
             updateSet_              = new boolean[columnCount_];
             updateNulls_            = new boolean[columnCount_];
+            updateDefaults_         = new boolean[columnCount_];    //@EIA
+            updateUnassigned_       = new boolean[columnCount_];    //@EIA
             for(int i = 0; i < columnCount_; ++i)
             {
                 updateSet_[i]       = false;
-                updateNulls_[i]     = true;
+                //updateNulls_[i]     = true;                       //@EIC not needed since updateSet[] is checked first
             }
         }
 
@@ -377,7 +381,9 @@ public class AS400JDBCResultSet implements ResultSet
         {
             for(int i = 0; i < columnCount_; ++i)
             {
-                updateNulls_[i]  = true;
+                updateNulls_[i]  = false;        //@IEC 
+                updateDefaults_[i] = false;      //@EIA
+                updateUnassigned_[i] = false;    //@EIA
                 updateSet_[i]    = false;
             }
         }
@@ -2053,7 +2059,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getAsciiStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2110,7 +2116,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.getBigDecimal (-1);
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, false); //@trunc getBigDecimal(int) can set truncation_!=0, but we should not throw an SQLEception
             return value;
         }
     }
@@ -2175,7 +2181,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.getBigDecimal (scale);
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, false); //@trunc getBigDecimal(int) can set truncation_!=0, but we should not throw an SQLEception
             return value;
         }
     }
@@ -2237,7 +2243,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getBinaryStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2292,7 +2298,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Blob value = (data == null) ? null : data.getBlob ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2346,7 +2352,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             boolean value = (data == null) ? false : data.getBoolean ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2401,7 +2407,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             byte value = (data == null) ? 0 : data.getByte ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2478,7 +2484,7 @@ public class AS400JDBCResultSet implements ResultSet
             else
             {                                                                      // @C1A
                 value = (data == null) ? null : data.getBytes ();                        // @C1C
-                testDataTruncation (columnIndex, data);
+                testDataTruncation (columnIndex, data, true); //@trunc
             }                                                                           // @C1A
             return value;
         }
@@ -2540,7 +2546,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getCharacterStream ();
             openReader_ = value;
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2596,7 +2602,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Clob value = (data == null) ? null : data.getClob ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2681,7 +2687,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Date value = (data == null) ? null : data.getDate (calendar);
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, false); //@trunc getDate() can set truncation_!=0, but we should not throw an SQLEception
             return value;
         }
     }
@@ -2771,7 +2777,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             double value = (data == null) ? 0 : data.getDouble ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2826,7 +2832,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             float value = (data == null) ? 0 : data.getFloat ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2881,7 +2887,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             int value = (data == null) ? 0 : data.getInt ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -2936,7 +2942,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             long value = (data == null) ? 0 : data.getLong ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -3026,7 +3032,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Object value = (data == null) ? null : data.getObject ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -3173,7 +3179,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             short value = (data == null) ? 0 : data.getShort ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -3226,7 +3232,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getString ();
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -3309,7 +3315,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Time value = (data == null) ? null : data.getTime (calendar);
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, false); //@trunc getTime() can set truncation_!=0, but we should not throw an SQLEception
             return value;
         }
     }
@@ -3429,7 +3435,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -3526,7 +3532,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getUnicodeStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data);
+            testDataTruncation (columnIndex, data, true); //@trunc
             return value;
         }
     }
@@ -3593,8 +3599,8 @@ public class AS400JDBCResultSet implements ResultSet
         // row.
         if(concurrency_ == CONCUR_UPDATABLE)
         {
-            if((updateSet_[columnIndex-1] == true)
-               || (positionInsert_ == true))
+            if(updateSet_[columnIndex-1] == true)                        //@EIC
+               //|| (positionInsert_ == true))                           //@EIC
             {
                 wasNull_ = updateNulls_[columnIndex-1];
                 wasDataMappingError_ = false;
@@ -3603,6 +3609,10 @@ public class AS400JDBCResultSet implements ResultSet
                 else
                     return updateRow_.getSQLData (columnIndex);
             }
+            else if( positionInsert_ == true )                           //@EIA has not been set and is insert
+            {                                                            //@EIA
+                return null;                                             //@EIA here null means value has not been set
+            }                                                            //@EIA
         }
 
         // Get the data and check for SQL NULL.   @A1C
@@ -3630,8 +3640,9 @@ public class AS400JDBCResultSet implements ResultSet
     
     @param  columnIndex   The column index (1-based).
     @param  data         The data that was read, or null for SQL NULL.
+    @param  exceptionOnTrunc Flag to notify method whether or not to throw an SQLException when there is truncation.
     **/
-    private void testDataTruncation (int columnIndex, SQLData data)
+    private void testDataTruncation (int columnIndex, SQLData data, boolean exceptionOnTrunc) throws SQLException //@trunc
     {
         if(wasDataMappingError_)
         {
@@ -3643,6 +3654,12 @@ public class AS400JDBCResultSet implements ResultSet
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
+                //if 550 and number data type and called on certain getX() methods, then throw SQLException
+                //if text, then use old code path and post DataTruncation
+                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm550) && (data.isText() == false) && (exceptionOnTrunc == true))   //@trunc
+                {                                                                    //@trunc
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+                }                                                                    //@trunc
                 int actualSize = data.getActualSize ();
                 postWarning (new DataTruncation (columnIndex, false, true,
                                                  actualSize, actualSize - truncated));
@@ -3847,6 +3864,10 @@ public class AS400JDBCResultSet implements ResultSet
                     Object columnValue = updateRow_.getSQLData (i+1).getObject ();
                     if(updateNulls_[i])
                         insertStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
+                    else if(updateDefaults_[i])                                                         //@EIA
+                        ((AS400JDBCPreparedStatement)insertStatement).setDB2Default(++columnsSet2);     //@EIA
+                    else if(updateUnassigned_[i])                                                       //@EIA
+                        ((AS400JDBCPreparedStatement)insertStatement).setDB2Unassigned(++columnsSet2);  //@EIA
                     else
                         insertStatement.setObject (++columnsSet2, columnValue);                
                     updateSet_[i] = false;
@@ -3954,13 +3975,19 @@ public class AS400JDBCResultSet implements ResultSet
     @since Modification 5
     **/
     private void testDataTruncation2 (int columnIndex, SQLData data)
-    throws DataTruncation                                                               // @D5A
+    throws SQLException                                                               // @D5A //@trunc
     {
         if(data != null)
         {
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
+                //if 550 and number data type, then throw SQLException
+                //if text, then use old code path and post/throw DataTruncation
+                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm550) && (data.isText() == false))   //@trunc
+                {                                                                    //@trunc
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
+                }                                                                    //@trunc
                 int actualSize = data.getActualSize ();
                 throw new DataTruncation (columnIndex, false, false,                        // @D5C
                                           actualSize + truncated, actualSize);       // @D5C
@@ -4951,6 +4978,64 @@ public class AS400JDBCResultSet implements ResultSet
 
 
 
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Default.
+    @param  parameterIndex  The column index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDB2Default(int columnIndex) throws SQLException
+    {
+         updateValueExtendedIndicator (columnIndex, 1);  //1 is default    
+    }
+    
+    
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Default.
+    @param  columnName  The column name.
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDB2Default(String columnName) throws SQLException
+    {
+        updateDB2Default (findColumn (columnName));  
+    }
+    
+    
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Unassigned.
+    @param  parameterIndex  The column index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDB2Unassigned(int columnIndex) throws SQLException
+    {                                          
+        updateValueExtendedIndicator (columnIndex, 2);  //2 is unassigned
+    }
+
+    
+
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Unassigned.
+    @param  columnName  The column name.
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDB2Unassigned(String columnName) throws SQLException
+    {                                          
+        updateDB2Unassigned (findColumn (columnName));  
+    }
+
+    
+    
     // JDBC 2.0
     /**
     Updates a column in the current row using an Object value.
@@ -5248,6 +5333,10 @@ public class AS400JDBCResultSet implements ResultSet
                         Object columnValue = updateRow_.getSQLData (i+1).getObject ();
                         if(updateNulls_[i] == true)
                             updateStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
+                        else if(updateDefaults_[i])                                                         //@EIA
+                            ((AS400JDBCPreparedStatement)updateStatement).setDB2Default(++columnsSet2);     //@EIA
+                        else if(updateUnassigned_[i])                                                       //@EIA
+                            ((AS400JDBCPreparedStatement)updateStatement).setDB2Unassigned(++columnsSet2);  //@EIA
                         else
                             updateStatement.setObject (++columnsSet2, columnValue);                    
                     }
@@ -5572,6 +5661,8 @@ public class AS400JDBCResultSet implements ResultSet
             if(columnValue != null)
                 sqlData.set (columnValue, calendar, scale);
             updateNulls_[columnIndex0] = (columnValue == null);
+            updateDefaults_[columnIndex0] = false;    //@EIA
+            updateUnassigned_[columnIndex0] = false;  //@EIA
             updateSet_[columnIndex0] = true;
 
             if(dataTruncation_)                                    // @B2A
@@ -5579,6 +5670,54 @@ public class AS400JDBCResultSet implements ResultSet
         }
     }
 
+
+    //@EIA new method
+    /**
+    Updates a column for the specified index, and performs all
+    appropriate validation.
+    
+    Note: this is the same type of method as updateValue() above, but we
+    have no way to pass in the special values without hacking some sort
+    of flag string for the value, and that seemed to be a messy and slow
+    way to do this.
+    
+    @param  columnIndex   The column index (1-based).
+    @param  columnValue   The parameter 1="default" or 2="unassigned".
+                      
+    
+    @exception  SQLException    If the result set is not open,
+                                the result set is not updatable,
+                                the cursor is not positioned on a row,
+                                the column index is not valid, or the
+                                requested conversion is not valid.
+    **/
+    private void updateValueExtendedIndicator (int columnIndex, int columnValue)
+    throws SQLException
+    {
+        synchronized(internalLock_)
+        {                                          
+            beforeUpdate ();
+
+            // Check that there is a current row.
+            if((positionValid_ == false) && (positionInsert_ == false))
+                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
+
+            // Validate The column index.
+            if((columnIndex < 1) || (columnIndex > columnCount_))
+                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+
+            // Set the update value.  If there is a type mismatch,
+            // set() with throw an exception.
+            int columnIndex0 = columnIndex - 1;
+            
+            updateNulls_[columnIndex0] = false;
+            updateDefaults_[columnIndex0] = columnValue == 1 ? true: false;     
+            updateUnassigned_[columnIndex0] =  columnValue == 2 ? true: false;   
+            updateSet_[columnIndex0] = true;
+
+                 
+        }
+    }
 
 
 }

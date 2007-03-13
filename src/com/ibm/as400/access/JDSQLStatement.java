@@ -434,7 +434,7 @@ class JDSQLStatement
         //@F2D    }
 
         // Handle the statement based on the first word
-        if((firstWord.startsWith(SELECT_)) || (firstWord.equals(WITH_))) // @F5C
+        if((firstWord.startsWith(SELECT_)) || (firstWord.equals(WITH_)) || (firstWord.equals(VALUES_))) // @F5C //@VALc
         {
             // @B3C
             isSelect_ = true;
