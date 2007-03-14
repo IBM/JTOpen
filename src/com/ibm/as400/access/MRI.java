@@ -249,6 +249,7 @@ public class MRI extends ListResourceBundle
 
         { "EXC_PARAMETER_NOT_SUPPORTED", "Parameter is not supported." },
         { "EXC_PARAMETER_VALUE_NOT_SUPPORTED", "Parameter value is not supported." },
+        { "EXC_PASSWORD_CHANGE_NOT_ALLOWED", "Password change is not allowed at this time." },  // @G1A
         { "EXC_PASSWORD_CHANGE_REQUEST_NOT_VALID", "Password change request is not valid." },
         { "EXC_PASSWORD_ERROR", "Password error." },
         { "EXC_PASSWORD_ENCRYPT_INVALID", "Password encryption indicator is not valid." },
@@ -276,6 +277,7 @@ public class MRI extends ListResourceBundle
         { "EXC_PASSWORD_NOT_SET", "Password is not set." },
         { "EXC_PASSWORD_OLD_NOT_VALID", "Old password is not valid." },
         { "EXC_PASSWORD_PRE_V2R2", "Password has pre-V2R2 encryption." },  // @F1A
+        { "EXC_PASSWORD_VALUE_NOT_VALID", "Password value is not valid." },  // @G1A
         { "EXC_PATH_NOT_FOUND", "Path name was not found." },
         { "EXC_PROFILE_TOKEN_NOT_VALID", "Profile token or identity token is not valid." },  // @F1A @F5C
         { "EXC_PROFILE_TOKEN_NOT_VALID_MAXIMUM", "Profile token is not valid.  Maximum number of profile tokens for the system already generated." },  // @F1A

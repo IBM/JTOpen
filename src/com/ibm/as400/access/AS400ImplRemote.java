@@ -1484,6 +1484,12 @@ class AS400ImplRemote implements AS400Impl
             case 0x00030011:
                 // Password errors: Password validation program failed the request.
                 return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_VALIDATION_PROGRAM);
+            case 0x00030012:
+                // Password errors: Password change allowed at this time.
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_CHANGE_NOT_ALLOWED);
+            case 0x00030013:
+                // Password errors: Password value is not valid.
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_VALUE_NOT_VALID);
             case 0x00040000:
                 // General security errors, function not performed: No meaning.  Reasons for getting this return code include:
                 // - QUSER's password expired.

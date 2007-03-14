@@ -328,6 +328,14 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      The return code indicating that the system could not find the public key.
      **/
     public static final int SERVER_KEY_NOT_FOUND = 76;
+    /**
+      The return code indicating that the password change is not allowed at this time.
+     **/
+    public static final int PASSWORD_CHANGE_NOT_ALLOWED = 77;
+    /**
+      The return code indicating that the password value is not valid.
+     **/
+    public static final int PASSWORD_VALUE_NOT_VALID = 78;
 
 
     /**
@@ -511,6 +519,10 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
                 return "EXC_SERVER_TOKEN_VERSION";
             case SERVER_KEY_NOT_FOUND:
                 return "EXC_SERVER_KEY_NOT_FOUND";
+            case PASSWORD_CHANGE_NOT_ALLOWED:
+                return "EXC_PASSWORD_CHANGE_NOT_ALLOWED";
+            case PASSWORD_VALUE_NOT_VALID:
+                return "EXC_PASSWORD_VALUE_NOT_VALID";
             default:
                 return "EXC_UNKNOWN";   // Bad return code was provided.
         }
