@@ -61,7 +61,7 @@ implements Enumeration
         // "Restart by name" only works for QSYS.LIB and QDLS.       @A1a
         String path = file_.getPath().toUpperCase();
         if (path.startsWith("/QSYS.LIB") || path.startsWith("/QDLS.LIB") ||
-            path.startsWith("/QDLS/") ) {  // @C3a
+            path.startsWith("/QDLS/") || (path.indexOf("/QSYS.LIB") <= 11)) {  // @C3a  //@D1C - added support to look for /IASPNAME../QSYS.LIB
           isRestartByNameSupported_ = true;
           contentsPending_ = loadPendingBlock((String)null);// "Prime the pump" with the first block.  @A1a @C3c
           if (contentsPending_ != null) {                          // @C3a

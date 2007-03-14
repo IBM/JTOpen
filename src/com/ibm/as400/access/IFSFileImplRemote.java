@@ -1289,6 +1289,7 @@ implements IFSFileImpl
     catch (AS400SecurityException e)
     {
       fileAttributes = null;
+      throw e;
     }
     return fileAttributes;
   }

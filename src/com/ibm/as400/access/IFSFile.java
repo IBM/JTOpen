@@ -775,12 +775,12 @@ public class IFSFile
    @return An Enumeration of IFSFile objects which represent the contents of the directory that satisfy the filter
    and pattern. This Enumeration does not include the current directory or the parent
    directory.  If this object does not represent a directory, 
-   this object represents an empty directory, the filter or pattern does
-   not match any files,  or the directory is not accessible, then an empty Enumeration is returned. The IFSFile object
+   this object represents an empty directory, or the filter or pattern does
+   not match any files, then an empty Enumeration is returned. The IFSFile object
    passed to the filter object has cached file attribute information. 
    
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -816,11 +816,11 @@ public class IFSFile
    @return An Enumeration of IFSFile objects which represent the contents of the directory.
    This Enumeration does not include the current directory or the parent
    directory.  If this object does not represent a directory,
-   this object represents an empty directory, the pattern does
-   not match any files, or the directory is not accessible, then an empty Enumeration is returned. 
+   this object represents an empty directory, or the pattern does
+   not match any files, then an empty Enumeration is returned. 
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -855,12 +855,12 @@ public class IFSFile
    @return An Enumeration of IFSFile objects which represent the contents of the directory.
    This Enumeration does not include the current directory or the parent
    directory.  If this object does not represent a directory, 
-   this object represents an empty directory, the filter does
-   not match any files, or the directory is not accessible, then an empty Enumeration is returned. The IFSFile object
+   this object represents an empty directory, or the filter does
+   not match any files, then an empty Enumeration is returned. The IFSFile object
    passed to the filter object has cached file attribute information. 
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -889,11 +889,11 @@ public class IFSFile
    @return An Enumeration of IFSFile objects which represent the contents of the directory.
    This Enumeration does not include the current directory or the parent
    directory.  If this object does not represent a directory,
-   this object represents an empty directory, the filter or pattern does
-   not match any files,  or the directory not accessible, then an empty Enumeration is returned.  
+   this object represents an empty directory, or the filter or pattern does
+   not match any files, then an empty Enumeration is returned.  
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -1794,13 +1794,13 @@ public class IFSFile
 
    @return An array of object names in the directory. This list does not
    include the current directory or the parent directory.  If this object
-   does not represent a directory, or the directory is not accessible, null is returned.  If this object represents
+   does not represent a directory, null is returned.  If this object represents
    an empty directory, an empty string array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -1818,7 +1818,7 @@ public class IFSFile
    @param filter A file object filter.  If null, then no filtering is done.
    @return An array of object names in the directory that satisfy the filter. This
    list does not include the current directory or the parent directory.  If this
-   object does not represent a directory,  or the directory is not accessible, null is returned. If this object
+   object does not represent a directory, null is returned. If this object
    represents an empty directory, or the filter does not match any files,
    an empty string array is returned. The IFSFile object passed to the filter
    object have cached file attribute information.  Maintaining references to
@@ -1828,7 +1828,7 @@ public class IFSFile
 
    @see #listFiles(IFSFileFilter)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -1938,7 +1938,7 @@ public class IFSFile
    question marks (?).
    @return An array of object names in the directory that satisfy the filter
    and pattern. This list does not include the current directory or the parent
-   directory.  If this object does not represent a directory,  or the directory is not accessible, null is returned.
+   directory.  If this object does not represent a directory, null is returned.
    If this object represents an empty directory, or the filter or pattern does
    not match any files, an empty string array is returned. The IFSFile object
    passed to the filter object have cached file attribute information.
@@ -1948,7 +1948,7 @@ public class IFSFile
 
    @see #listFiles(IFSFileFilter,String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -1982,14 +1982,14 @@ public class IFSFile
    question marks (?).
    @return An array of object names in the directory that match the pattern.
    This list does not include the current directory or the parent directory.
-   If this object does not represent a directory, or the directory is not accessible, null is returned. If
+   If this object does not represent a directory, null is returned. If
    this object represents an empty directory, or the pattern does not
    match any files, an empty string array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @see #listFiles(String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -2009,12 +2009,12 @@ public class IFSFile
 
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
-   object does not represent a directory,  or the directory is not accessible, null is returned.  If this
-   object represents an empty directory, an empty object array is returned.
+   object does not represent a directory, or this object represents 
+   an empty directory, an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -2036,12 +2036,12 @@ public class IFSFile
    @param filter A file object filter.
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
-   object does not represent a directory,  or the directory is not accessible, null is returned.  If this
+   object does not represent a directory, or this
    object represents an empty directory, an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -2066,8 +2066,7 @@ public class IFSFile
    question marks (?).
    @return An array of object names in the directory that satisfy the filter
    and pattern. This list does not include the current directory or the parent
-   directory.  If this object does not represent a directory,  or the directory is not accessible, null is returned.
-   If this object represents an empty directory, or the filter or pattern does
+   directory.  If this object does not represent a directory, this object represents an empty directory, or the filter or pattern does
    not match any files, an empty object array is returned. The IFSFile object
    passed to the filter object has cached file attribute information.  Maintaining
    references to these IFSFile objects after the list operation increases the
@@ -2075,7 +2074,7 @@ public class IFSFile
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
@@ -2112,13 +2111,13 @@ public class IFSFile
    question marks (?).
    @return An array of object names in the directory that match the pattern. This
    list does not include the current directory or the parent directory.  If this
-   object does not represent a directory,  or the directory is not accessible, null is returned. If this object
+   object does not represent a directory, this object
    represents an empty directory, or the pattern does not match any files,
    an empty object array is returned.
    <br>Note: Due to a limitation in the File Server, at most 65,535 files will be listed.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception ExtendedIOException If an error occurs while communicating with the system, or the directory is not accessible.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
