@@ -307,7 +307,7 @@ implements ResultSet
             for(int i = 0; i < columnCount_; ++i)
             {
                 updateSet_[i]       = false;
-                //updateNulls_[i]     = true;                       //@EIC not needed since updateSet[] is checked first
+                updateNulls_[i]     = true;                       //@EIC not needed since updateSet[] is checked first //@EIC2 initialize all to null for insert row logic 
             }
         }
 
@@ -385,7 +385,7 @@ implements ResultSet
         {
             for(int i = 0; i < columnCount_; ++i)
             {
-                updateNulls_[i]  = false;        //@IEC 
+                updateNulls_[i]  = true;        //@IEC  //@EIC2 
                 updateDefaults_[i] = false;      //@EIA
                 updateUnassigned_[i] = false;    //@EIA
                 updateSet_[i]    = false;
@@ -3604,8 +3604,8 @@ implements ResultSet
         // row.
         if(concurrency_ == CONCUR_UPDATABLE)
         {
-            if(updateSet_[columnIndex-1] == true)                        //@EIC
-               //|| (positionInsert_ == true))                           //@EIC
+            if((updateSet_[columnIndex-1] == true)                       //@EIC2 changed back to original logic.  For case of after insertrow is inserted, the updateSet[] is reset, but can still have non-null data.
+               || (positionInsert_ == true))                          
             {
                 wasNull_ = updateNulls_[columnIndex-1];
                 wasDataMappingError_ = false;
@@ -3614,10 +3614,6 @@ implements ResultSet
                 else
                     return updateRow_.getSQLData (columnIndex);
             }
-            else if( positionInsert_ == true )                           //@EIA has not been set and is insert
-            {                                                            //@EIA
-                return null;                                             //@EIA here null means value has not been set
-            }                                                            //@EIA
         }
 
         // Get the data and check for SQL NULL.   @A1C
@@ -7020,7 +7016,7 @@ implements ResultSet
 
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.
-           
+          
             int columnIndex0 = columnIndex - 1;
             
             updateNulls_[columnIndex0] = false;
