@@ -986,7 +986,7 @@ public class User implements Serializable
      * Retrieves the time period during which a password is blocked from being changed
      * following the prior successful password change operation.
      * <p><b>NOTE:  This method should not be used when running to i5/OS V5R4 or earlier releases.</b>
-     * @return The time perioud during which a password is blocked from being changed.  Possible values are:
+     * @return The time period during which a password is blocked from being changed.  Possible values are:
      * <ul>
      * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
      * <li>"*NONE" - The password can be changed at any time.</li>
