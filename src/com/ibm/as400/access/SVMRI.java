@@ -178,6 +178,9 @@ public class SVMRI extends ListResourceBundle
         { "QSRLNBR_DES" , "System serial number" },
         { "QSRTSEQ_DES" , "Sort sequence" },
         { "QSRVDMP_DES" , "Service dump control" },
+        { "QSSLPCL_DES" , "Secure sockets layer protocols" },  //@H2A
+        { "QSSLCSLCTL_DES" , "Secure sockets layer cipher control" },  //@H2A
+        { "QSSLCSL_DES" , "Secure sockets layer cipher specification list" },  //@H2A
         { "QSTGLOWACN_DES" , "Auxiliary storage lower limit action" },
         { "QSTGLOWLMT_DES" , "Auxiliary storage lower limit" },
         { "QSTRPRTWTR_DES" , "Start print writers at IPL" },
