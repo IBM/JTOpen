@@ -463,8 +463,8 @@ implements SQLData
     //@pda jdbc40
     public Reader getNCharacterStream() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;  //@pdc
+        return new StringReader(Long.toString(value_));  //@pdc
     }
     
     //@pda jdbc40
