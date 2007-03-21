@@ -436,7 +436,7 @@ public class UDFS
 
         /**
          Returns whether the the path is mounted.
-         @return  true if the object is Mounted; false otherwise.
+         @return  true if the object is mounted; false otherwise.
          **/
         public boolean isMounted()
         {

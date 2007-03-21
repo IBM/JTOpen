@@ -243,7 +243,7 @@ public class FileAttributes
         return storageFree_;
     }
 
-    // Indicates if object is check out.
+    // Indicates if object is checked out.
     boolean checkedOut_;
     /**
      Returns whether the object is checked out or not.  When an object is checked out, other users can read and copy the object.  Only the user who has the object checked out can change the object.
@@ -1458,7 +1458,7 @@ public class FileAttributes
     boolean rollbackWasEnded_;
     /**
      Returns whether the object had rollback ended prior to completion of a request to roll back a transaction.
-     @return  true if the object had a rollback operation ended using the "End Rollback" option on the Work with Commitment Definition (WRKCMTDFN) screnn.  It is recommended that the object be restored as it can not be used.  As a last resort, the Change Journaled Object (CHGJRNOBJ) command can be used to allow the object to be used.  Doing this, however, may leave the object in an inconsistent state.  false if the object did not have a rollback operation ended prior to completion of a request to roll back a transaction.
+     @return  true if the object had a rollback operation ended using the "End Rollback" option on the Work with Commitment Definition (WRKCMTDFN) screen.  It is recommended that the object be restored as it can not be used.  As a last resort, the Change Journaled Object (CHGJRNOBJ) command can be used to allow the object to be used.  Doing this, however, may leave the object in an inconsistent state.  false if the object did not have a rollback operation ended prior to completion of a request to roll back a transaction.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
