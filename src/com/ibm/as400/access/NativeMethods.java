@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2005 International Business Machines Corporation and
+// Copyright (C) 2005, 2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,10 @@ public class NativeMethods
     static
     {
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");
+    }
+
+    static void load()
+    {
     }
 
     static boolean loadSCK()
@@ -42,4 +46,6 @@ public class NativeMethods
     static native void socketWrite(int sd, byte b[], int off, int len) throws NativeException;
     static native byte[] getUserId() throws NativeException;
     static native byte[] getUserInfo(byte[] cSeed, byte[] sSeed) throws NativeException;
+    static native byte[] runCommand(byte[] command, int ccsid, int messageOption) throws NativeException;
+    static native byte[] runProgram(byte[] name, byte[] library, int numberParameters, byte[] offsetArray, byte[] programParameters, int messageOption) throws NativeException;
 }

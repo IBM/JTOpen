@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1999-2003 International Business Machines Corporation and
+// Copyright (C) 1999-2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,6 @@ import java.util.StringTokenizer;
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
 class RemoteCommandImplNative extends RemoteCommandImplRemote
 {
-    private static final String copyright = "Copyright (C) 1999-2003 International Business Machines Corporation and others.";
-
-    // Load the service program.
     static
     {
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");
@@ -41,7 +38,18 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
             converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
         }
-        if (AS400.nativeVRM.vrm_ >= 0x00050300) serverDataStreamLevel_ = 6;
+        if (AS400.nativeVRM.vrm_ >= 0x00050300)
+        {
+            if (AS400.nativeVRM.vrm_ >= 0x00050500)
+            {
+                serverDataStreamLevel_ = 10;
+                unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
+            }
+            else
+            {
+                serverDataStreamLevel_ = 7;
+            }
+        }
     }
 
     // Indicates whether or not the command will be considered thread-safe.
@@ -181,7 +189,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             return super.runCommand(command, false, messageOption);
         }
         open(true);
-        return runCommand(converter_.stringToByteArray(command), messageOption);
+
+        if (AS400.nativeVRM.vrm_ >= 0x00050500)
+        {
+            return runCommand(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
+        }
+        return runCommand(converter_.stringToByteArray(command), messageOption, 0);
     }
 
     // Runs the command.
@@ -197,10 +210,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
         open(true);
 
-        return runCommand(command, messageOption);
+        return runCommand(command, messageOption, 0);
     }
 
-    private boolean runCommand(byte[] commandBytes, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommand(byte[] commandBytes, int messageOption, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
@@ -231,7 +244,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 try
                 {
-                    byte[] replyBytes = runCommandNativeV5R3(commandBytes, messageOption);
+                    byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00050500 ? runCommandNativeV5R3(commandBytes, messageOption) : NativeMethods.runCommand(commandBytes, ccsid, messageOption);
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                     // Get info from reply.
@@ -424,7 +437,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 // Call native method.
                 if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
-                byte[] replyBytes = runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
+                byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00050500 ? runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption) : NativeMethods.runProgram(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                 // Reset the message list.
@@ -516,12 +529,15 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
             int substitutionDataLength = BinaryConverter.byteArrayToInt(data, offset + 80);
             int textLength = BinaryConverter.byteArrayToInt(data, offset + 88);
+            int helpLength = BinaryConverter.byteArrayToInt(data, offset + 96);
 
             byte[] substitutionData = new byte[substitutionDataLength];
             System.arraycopy(data, offset + 112, substitutionData, 0, substitutionDataLength);
             messageList[i].setSubstitutionData(substitutionData);
 
             messageList[i].setText(converter.byteArrayToString(data, offset + 112 + substitutionDataLength, textLength));
+            messageList[i].setHelp(converter.byteArrayToString(data, offset + 112 + substitutionDataLength + textLength, helpLength));
+
             offset += BinaryConverter.byteArrayToInt(data, offset);
             offset += BinaryConverter.byteArrayToInt(data, offset);
         }

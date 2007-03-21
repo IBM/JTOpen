@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2000-2003 International Business Machines Corporation and
+// Copyright (C) 2000-2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,10 +18,9 @@ import java.io.IOException;
 // The RemoteCommandImplRemote class is the remote implementation of CommandCall and ProgramCall.
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
-    private static final String copyright = "Copyright (C) 2000-2003 International Business Machines Corporation and others.";
-
     AS400ImplRemote system_;
     ConverterImplRemote converter_;
+    ConverterImplRemote unicodeConverter_;
     boolean ccsidIsUserOveride_ = false;  // Flag to say don't override ccsid in open().
     private AS400Server server_;
     AS400Message[] messageList_ = new AS400Message[0];
@@ -173,6 +172,10 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 converter_ = ConverterImplRemote.getConverter(reply.getCCSID(), system_);
             }
             serverDataStreamLevel_ = reply.getDSLevel();
+            if (serverDataStreamLevel_ >= 10)
+            {
+                unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
+            }
         }
     }
 
@@ -183,9 +186,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         // Connect to server.
         open(threadSafety);
 
-        byte[] data = converter_.stringToByteArray(command);
-
-        return runCommand(data, messageCount);
+        if (serverDataStreamLevel_ >= 10)
+        {
+            return runCommand(unicodeConverter_.stringToByteArray(command), messageCount, 1200);
+        }
+        return runCommand(converter_.stringToByteArray(command), messageCount, 0);
     }
 
     public boolean runCommand(byte[] command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -195,15 +200,15 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         // Connect to server.
         open(threadSafety);
 
-        return runCommand(command, messageCount);
+        return runCommand(command, messageCount, 0);
     }
 
-    private boolean runCommand(byte[] command, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommand(byte[] command, int messageCount, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         try
         {
             // Create and send request.
-            DataStream baseReply = server_.sendAndReceive(new RCRunCommandRequestDataStream(command, serverDataStreamLevel_, messageCount));
+            DataStream baseReply = server_.sendAndReceive(new RCRunCommandRequestDataStream(command, serverDataStreamLevel_, messageCount, ccsid));
 
             // Punt if unknown data stream.
             if (!(baseReply instanceof RCRunCommandReplyDataStream))
@@ -422,7 +427,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             case 0x0205:  // Invalid request ID.
                 Trace.log(Trace.ERROR, "Datastream not valid.");
                 system_.disconnectServer(server_);
-                throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR );
+                throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
             case 0x0204:  // Host resource error.
                 Trace.log(Trace.ERROR, "Host Resource error.");
                 system_.disconnectServer(server_);
@@ -454,6 +459,9 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             case 0x0400:  // Command failed.  Messages returned.
                 if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Error calling the command.");
                 return;
+            case 0x0401:  // Invalid CCSID value.
+                Trace.log(Trace.ERROR, "CCSID not valid.");
+                throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
 
             // RMTPGMCALL specific return codes:
             case 0x0500:  // An error occured when resolving to the program to call.
@@ -470,29 +478,35 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
-    static AS400Message[] parseMessages(byte[] data, ConverterImplRemote converter)
+    static AS400Message[] parseMessages(byte[] data, ConverterImplRemote converter) throws IOException
     {
         int messageNumber = BinaryConverter.byteArrayToUnsignedShort(data, 22);
         AS400Message[] messageList = new AS400Message[messageNumber];
 
         for (int offset = 24, i = 0; i < messageNumber; ++i)
         {
-            messageList[i] = new AS400Message();
-            messageList[i].setID(converter.byteArrayToString(data, offset + 6, 7));
-            messageList[i].setType((data[offset + 13] & 0x0F) * 10 + (data[offset + 14] & 0x0F));
-            messageList[i].setSeverity(BinaryConverter.byteArrayToUnsignedShort(data, offset + 15));
-            messageList[i].setFileName(converter.byteArrayToString(data, offset + 17, 10).trim());
-            messageList[i].setLibraryName(converter.byteArrayToString(data, offset + 27, 10).trim());
+            if (data[offset + 5] == 0x06)
+            {
+                messageList[i] = AS400ImplRemote.parseMessage(data, offset + 6, converter);
+            }
+            else
+            {
+                messageList[i] = new AS400Message();
+                messageList[i].setID(converter.byteArrayToString(data, offset + 6, 7));
+                messageList[i].setType((data[offset + 13] & 0x0F) * 10 + (data[offset + 14] & 0x0F));
+                messageList[i].setSeverity(BinaryConverter.byteArrayToUnsignedShort(data, offset + 15));
+                messageList[i].setFileName(converter.byteArrayToString(data, offset + 17, 10).trim());
+                messageList[i].setLibraryName(converter.byteArrayToString(data, offset + 27, 10).trim());
 
-            int substitutionDataLength = BinaryConverter.byteArrayToUnsignedShort(data, offset + 37);
-            int textLength = BinaryConverter.byteArrayToUnsignedShort(data, offset + 39);
+                int substitutionDataLength = BinaryConverter.byteArrayToUnsignedShort(data, offset + 37);
+                int textLength = BinaryConverter.byteArrayToUnsignedShort(data, offset + 39);
 
-            byte[] substitutionData = new byte[substitutionDataLength];
-            System.arraycopy(data, offset + 41, substitutionData, 0, substitutionDataLength);
-            messageList[i].setSubstitutionData(substitutionData);
+                byte[] substitutionData = new byte[substitutionDataLength];
+                System.arraycopy(data, offset + 41, substitutionData, 0, substitutionDataLength);
+                messageList[i].setSubstitutionData(substitutionData);
 
-            messageList[i].setText(converter.byteArrayToString(data, offset + 41 + substitutionDataLength, textLength));
-
+                messageList[i].setText(converter.byteArrayToString(data, offset + 41 + substitutionDataLength, textLength));
+            }
             offset += BinaryConverter.byteArrayToInt(data, offset);
         }
 

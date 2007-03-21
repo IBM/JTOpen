@@ -6,8 +6,8 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2000 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 1997-2007 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ import com.ibm.as400.resource.RJob;
  *    system.disconnectService(AS400.COMMAND);
  </pre>
  <p>NOTE:  When getting the message list from commands, users no longer have to create a <a href="MessageFile.html">MessageFile</a> to obtain the message help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the <a href="AS400Message.html">AS400Message</a> object returned from getMessageList().  Here is an example:
- <PRE>
+ <pre>
  *    if (command.run("myCmd") != true)
  *    {
  *        // Show messages.
@@ -74,7 +74,7 @@ import com.ibm.as400.resource.RJob;
  *            System.out.println(messageList[i].getHelp());
  *        }
  *    }
- </PRE>
+ </pre>
  @see Command
  **/
 public class CommandCall implements Serializable
@@ -100,7 +100,7 @@ public class CommandCall implements Serializable
     // The number of messages to retrieve.
     private int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
 
-    // Implemenation object shared with program call, interacts with system or native methods.
+    // Implemenation object shared with program call, interacts with host server or native methods.
     private transient RemoteCommandImpl impl_ = null;
 
     // List of action completed event bean listeners.
@@ -278,7 +278,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns an RJob object which represents the server job in which the command will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
+     Returns an RJob object which represents the system job in which the command will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
      <br>Typical uses include:
      <br>(1) before run() to identify the job before calling the command;
      <br>(2) after run() to see what job the command ran under (to identify the job log, for example).
@@ -337,7 +337,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns a Job object which represents the server job in which the command will be run.
+     Returns a Job object which represents the system job in which the command will be run.
      The information contained in the Job object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
      <br>Typical uses include:
      <br>(1) before run() to identify the job before calling the command;
@@ -704,7 +704,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the command caller and only up to ten messages are retrieved.  This property will only take affect on systems that support the new option.  
+     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the command caller and only up to ten messages are retrieved.  This property will only take affect on systems that support the new option.
      @param  messageOption  A constant indicating how many messages to retrieve.  Valid values are:
      <ul>
      <li>AS400Message.MESSAGE_OPTION_UP_TO_10
