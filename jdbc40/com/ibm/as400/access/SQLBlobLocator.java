@@ -609,8 +609,8 @@ final class SQLBlobLocator implements SQLLocator
     //@PDA jdbc40
     public String getNString() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;                                       //@pdc
+        return BinaryConverter.bytesToString(getBytes());     //@pdc
     }
 
     //@PDA jdbc40
