@@ -709,8 +709,9 @@ implements SQLData
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;                                     //@pda
+        String string = getString();                        //@pda
+        return new AS400JDBCNClob(string, string.length()); //@pda
     }
 
     //@pda jdbc40
