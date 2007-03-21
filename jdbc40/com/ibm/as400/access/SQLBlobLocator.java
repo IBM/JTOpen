@@ -602,8 +602,9 @@ final class SQLBlobLocator implements SQLLocator
     //@PDA jdbc40
     public NClob getNClob() throws SQLException
     {        
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;
+        String string = BinaryConverter.bytesToString(getBytes());//@pdc
+        return new AS400JDBCNClob(string, string.length()); //@pdc
     }
 
     //@PDA jdbc40
@@ -623,8 +624,9 @@ final class SQLBlobLocator implements SQLLocator
     //@PDA jdbc40
     public SQLXML getSQLXML() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;  //@pdc
+        String string = BinaryConverter.bytesToString(getBytes());  //@pdc
+        return new AS400JDBCSQLXML(string, string.length()); //@pdc
     }
 }
 

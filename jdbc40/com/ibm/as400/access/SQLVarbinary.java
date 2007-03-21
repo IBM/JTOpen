@@ -570,8 +570,11 @@ implements SQLData
     //@PDA jdbc40
     public SQLXML getSQLXML() throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0; //@pda
+        // This is written in terms of getBytes(), since it will
+        // handle truncating to the max field size if needed.
+        String string = BinaryConverter.bytesToString(getBytes()); //@pda
+        return new AS400JDBCSQLXML(string, maxLength_); //@pda
     }
 }
 
