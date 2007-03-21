@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: SignonGenAuthTokenRequestDS.java
+// Filename:  SignonGenAuthTokenRequestDS.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2003 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 2003-2007 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -19,11 +19,9 @@ import java.io.OutputStream;
 // The SignonGenAuthTokenRequestDS class represents the data stream for the 'Generate authentication token on behalf of another user' request.
 class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-    SignonGenAuthTokenRequestDS(byte[] userIdentity, int profileTokenType, int profileTokenTimeout)
+    SignonGenAuthTokenRequestDS(byte[] userIdentity, int profileTokenType, int profileTokenTimeout, int serverLevel)
     {
-        super(new byte[51 + userIdentity.length]);
+        super(new byte[51 + userIdentity.length + (serverLevel < 5 ? 0 : 7)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -58,6 +56,18 @@ class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
         set16bit(0x1127, 49);
         //   Data.
         System.arraycopy(userIdentity, 0, data_, 51, userIdentity.length);
+
+        if (serverLevel >= 5)
+        {
+            int offset = 51 + userIdentity.length;
+            // Set return error messages.
+            //   LL
+            set32bit(7, offset);
+            //   CP
+            set16bit(0x1128, offset + 4);
+            //   Data.
+            data_[offset + 6] = 0x01;
+        }
     }
 
     void write(OutputStream out) throws IOException

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: AS400GenAuthTknReplyDS.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  AS400GenAuthTknReplyDS.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,8 +19,6 @@ import java.io.InputStream;
 // The AS400GenAuthTknReplyDS class represents the data stream for the 'Generate authentication token' reply.
 class AS400GenAuthTknReplyDS extends ClientAccessDataStream
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     int getRC()
     {
         return get32bit(20);
@@ -31,6 +29,11 @@ class AS400GenAuthTknReplyDS extends ClientAccessDataStream
         byte[] token = new byte[32];
         System.arraycopy(data_, 30, token, 0, 32);
         return token;
+    }
+
+    AS400Message[] getErrorMessages(ConverterImplRemote converter) throws IOException
+    {
+        return AS400ImplRemote.parseMessages(data_, 24, converter);
     }
 
     void read(InputStream in) throws IOException

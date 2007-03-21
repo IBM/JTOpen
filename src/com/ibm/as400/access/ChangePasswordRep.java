@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ChangePasswordRep.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ChangePasswordRep.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2007 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,16 +18,19 @@ import java.io.InputStream;
 
 class ChangePasswordRep extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     int getRC()
     {
         return get32bit(20);
     }
 
+    AS400Message[] getErrorMessages(ConverterImplRemote converter) throws IOException
+    {
+        return AS400ImplRemote.parseMessages(data_, 24, converter);
+    }
+
     void read(InputStream in) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Receiving change password reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving change password reply...");
 
         // Receive the header.
         byte[] header = new byte[20];

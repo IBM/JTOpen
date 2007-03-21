@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: AS400GenAuthTknDS.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  AS400GenAuthTknDS.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2007 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,11 +19,9 @@ import java.io.OutputStream;
 // The AS400GenAuthTknDS class represents the data stream for the 'Generate authentication token' request.
 class AS400GenAuthTknDS extends ClientAccessDataStream
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-    AS400GenAuthTknDS(byte[] userIDbytes, byte[] authenticationBytes, int byteType, int profileTokenType, int profileTokenTimeout)
+    AS400GenAuthTknDS(byte[] userIDbytes, byte[] authenticationBytes, int byteType, int profileTokenType, int profileTokenTimeout, int serverLevel)
     {
-        super(new byte[(userIDbytes == null) ? 45 + authenticationBytes.length : 61 + authenticationBytes.length]);
+        super(new byte[45 + authenticationBytes.length + (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -72,6 +70,17 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
             set16bit(0x1104, 49 + authenticationBytes.length);
             //   EBCDIC user ID.
             System.arraycopy(userIDbytes, 0, data_, 51 + authenticationBytes.length, 10);
+        }
+        if (serverLevel >= 5)
+        {
+            int offset = 45 + authenticationBytes.length + (userIDbytes == null ? 0 : 16);
+            // Set return error messages.
+            //   LL
+            set32bit(7, offset);
+            //   CP
+            set16bit(0x1128, offset + 4);
+            //   Data.
+            data_[offset + 6] = 0x01;
         }
     }
 

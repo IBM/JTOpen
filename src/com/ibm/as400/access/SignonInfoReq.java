@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,11 +18,9 @@ import java.io.OutputStream;
 
 class SignonInfoReq extends ClientAccessDataStream
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int byteType)
+    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int byteType, int serverLevel)
     {
-        super(new byte[(userIDbytes == null) ? 37 + authenticationBytes.length : 53 + authenticationBytes.length]);
+        super(new byte[37 + authenticationBytes.length + (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -41,7 +39,7 @@ class SignonInfoReq extends ClientAccessDataStream
         //   CP
         set16bit(0x1113, 25);
         //   CCSID
-        set32bit(13488, 27);    // Client CCSID.
+        set32bit(1200, 27);    // Client CCSID.
 
         // Set password or authentication token.
         //   LL
@@ -68,11 +66,23 @@ class SignonInfoReq extends ClientAccessDataStream
             //   EBCDIC user ID.
             System.arraycopy(userIDbytes, 0, data_, 43 + authenticationBytes.length, 10);
         }
+
+        if (serverLevel >= 5)
+        {
+            int offset = 37 + authenticationBytes.length + (userIDbytes == null ? 0 : 16);
+            // Set return error messages.
+            //   LL
+            set32bit(7, offset);
+            //   CP
+            set16bit(0x1128, offset + 4);
+            //   Data.
+            data_[offset + 6] = 0x01;
+        }
     }
 
     void write(OutputStream out) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending retrieve signon information request..."); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending retrieve signon information request...");
         super.write(out);
     }
 }

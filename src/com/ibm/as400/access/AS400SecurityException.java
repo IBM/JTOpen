@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: AS400SecurityException.java
+// Filename:  AS400SecurityException.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 1997-2007 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -18,11 +18,12 @@ package com.ibm.as400.access;
  **/
 public class AS400SecurityException extends Exception implements ReturnCodeException
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
-    private int rc_;  // Return code associated with this exception.
+    // Return code associated with this exception.
+    private int rc_;
+    // Messages, if any, associated with this exception.
+    private AS400Message[] messageList_;
 
     /**
      The return code indicating that the user of this program does not have enough authority to access the directory entry.
@@ -359,6 +360,13 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
         rc_ =  returnCode;
     }
 
+    AS400SecurityException(int returnCode, AS400Message[] messageList)
+    {
+        super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
+        rc_ =  returnCode;
+        messageList_ = messageList;
+    }
+
     // Returns the text associated with the return code.
     // @param  returnCode  The return code associated with this exception.
     // @return  The text string which describes the error.
@@ -535,5 +543,14 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
     public int getReturnCode()
     {
         return rc_;
+    }
+
+    /**
+      Returns the list of messages associated with this exception.
+      @return  The list of AS400Messages associated with this exception.  If no messages are available null will be returned.
+    */
+    public AS400Message[] getMessageList()
+    {
+        return messageList_;
     }
 }

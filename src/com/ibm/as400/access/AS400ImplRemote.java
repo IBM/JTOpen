@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1999-2006 International Business Machines Corporation and
+// Copyright (C) 1999-2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -320,7 +320,7 @@ class AS400ImplRemote implements AS400Impl
                 Trace.log(Trace.DIAGNOSTIC, "  Protected new password:", newProtected);
             }
 
-            ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic, encryptedPassword, oldProtected, oldPassword.length * 2, newProtected, newPassword.length * 2);
+            ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic, encryptedPassword, oldProtected, oldPassword.length * 2, newProtected, newPassword.length * 2, serverLevel_);
             chgReq.write(outStream);
 
             ChangePasswordRep chgRep = new ChangePasswordRep();
@@ -345,7 +345,7 @@ class AS400ImplRemote implements AS400Impl
                 BinaryConverter.intToByteArray(rc, rcBytes, 0);
                 Trace.log(Trace.ERROR, "Change password implementation failed with return code:", rcBytes);
 
-                throw AS400ImplRemote.returnSecurityException(rc);
+                throw AS400ImplRemote.returnSecurityException(rc, chgRep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)));
             }
         }
         catch (IOException e)
@@ -555,7 +555,7 @@ class AS400ImplRemote implements AS400Impl
                 throw AS400ImplRemote.returnSecurityException(reply.getRC());
             }
 
-            SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(), profileToken.getTimeoutInterval());
+            SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(), profileToken.getTimeoutInterval(), serverLevel_);
             req2.write(out);
 
             SignonGenAuthTokenReplyDS rep = new SignonGenAuthTokenReplyDS();
@@ -567,7 +567,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] rcBytes = new byte[4];
                 BinaryConverter.intToByteArray(rc, rcBytes, 0);
                 Trace.log(Trace.ERROR, "Generate profile token failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(rc);
+                throw AS400ImplRemote.returnSecurityException(rc, rep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)));
             }
             try
             {
@@ -700,7 +700,7 @@ class AS400ImplRemote implements AS400Impl
                     }
             }
 
-            AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic, authenticationBytes, byteType, profileToken.getTokenType(), profileToken.getTimeoutInterval());
+            AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic, authenticationBytes, byteType, profileToken.getTokenType(), profileToken.getTimeoutInterval(), serverLevel_);
             req.write(out);
 
             AS400GenAuthTknReplyDS rep = new AS400GenAuthTknReplyDS();
@@ -712,7 +712,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] rcBytes = new byte[4];
                 BinaryConverter.intToByteArray(rc, rcBytes, 0);
                 Trace.log(Trace.ERROR, "Generate profile token failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(rc);
+                throw AS400ImplRemote.returnSecurityException(rc, rep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)));
             }
             try
             {
@@ -1337,6 +1337,10 @@ class AS400ImplRemote implements AS400Impl
     // Throw or return proper exception if exchange of random seeds or start server request fail.
     static AS400SecurityException returnSecurityException(int rc) throws ServerStartupException
     {
+        return returnSecurityException(rc, null);
+    }
+    static AS400SecurityException returnSecurityException(int rc, AS400Message[] messageList) throws ServerStartupException
+    {
         switch (rc)
         {
             case 0x00010001:
@@ -1362,10 +1366,10 @@ class AS400ImplRemote implements AS400Impl
                 throw new ServerStartupException(ServerStartupException.PASSWORD_ENCRYPT_INVALID);
             case 0x00010007:
                 // Error on request data: invalid user ID (length).
-                return new AS400SecurityException(AS400SecurityException.USERID_LENGTH_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.USERID_LENGTH_NOT_VALID, messageList);
             case 0x00010008:
                 // Error on request data: invalid password or passphrase (length).
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID, messageList);
             case 0x00010009:
                 // Error on request data: invalid client version.
                 // Error on request data: invalid send reply indicator.
@@ -1386,7 +1390,7 @@ class AS400ImplRemote implements AS400Impl
                 // - missing authentication token.
                 // - user ID / password (or user ID / passphrase) and authentication token both specified.
                 // - problems with length fields in the request.
-                return new AS400SecurityException(AS400SecurityException.SIGNON_REQUEST_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.SIGNON_REQUEST_NOT_VALID, messageList);
             case 0x0001000C:
                 // Error on request data: invalid change password request:
                 // - missing user ID.
@@ -1397,16 +1401,16 @@ class AS400ImplRemote implements AS400Impl
                 // - missing old protected password / passphrase length.
                 // - missing new protected password / passphrase length.
                 // - missing protected password / passphrase CCSID value.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_CHANGE_REQUEST_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_CHANGE_REQUEST_NOT_VALID, messageList);
             case 0x0001000D:
                 // Error on request data: invalid protected old password or passphrase.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_OLD_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_OLD_NOT_VALID, messageList);
             case 0x0001000E:
                 // Error on request data: invalid protected new or clear text password or passphrase.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_NOT_VALID, messageList);
             case 0x0001000F:
                 // Error on request data: invalid token type on generate authentication token request.
-                return new AS400SecurityException(AS400SecurityException.TOKEN_TYPE_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.TOKEN_TYPE_NOT_VALID, messageList);
             case 0x00010010:
                 // Error on request data: invalid generate authentication token request:
                 // - missing authentication token.
@@ -1414,82 +1418,82 @@ class AS400ImplRemote implements AS400Impl
                 // - missing password or passphrase.
                 // - user ID / password (or user ID / passphrase) and authentication token both specified.
                 // - problems with length fields in the request.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_REQUEST_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_REQUEST_NOT_VALID, messageList);
             case 0x00010011:
                 // Error on request data: invalid authentication token (length).
-                return new AS400SecurityException(AS400SecurityException.TOKEN_LENGTH_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.TOKEN_LENGTH_NOT_VALID, messageList);
             case 0x00010012:
                 // Invalid generate authentication token for another user.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_REQUEST_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_REQUEST_NOT_VALID, messageList);
             case 0x00020001:
                 // User ID errors: user ID unknown:
                 // - user ID not found on system.
                 // - EIM doesn't map Kerberos principal to a user profile.
                 // - EIM maps the Kerberos principal to a user profile, but the profile doesn't exist on this system.
-                return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN);
+                return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN, messageList);
             case 0x00020002:
                 // User ID errors: user ID valid, but revoked.
-                return new AS400SecurityException(AS400SecurityException.USERID_DISABLE);
+                return new AS400SecurityException(AS400SecurityException.USERID_DISABLE, messageList);
             case 0x00020003:
                 // User profile mismatch.
-                return new AS400SecurityException(AS400SecurityException.USERID_MISMATCH);
+                return new AS400SecurityException(AS400SecurityException.USERID_MISMATCH, messageList);
             case 0x00030001:
                 // Password errors: new password or passphase longer than maximum accepted length.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_TOO_LONG);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_TOO_LONG, messageList);
             case 0x00030002:
                 // Password errors: new password or passphase shorter than minimum accepted length.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_TOO_SHORT);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_TOO_SHORT, messageList);
             case 0x00030003:
                 // Password errors: new password or passphase contains character used more than once.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_REPEAT_CHARACTER);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_REPEAT_CHARACTER, messageList);
             case 0x00030004:
                 // Password errors: new password or passphase has adjacent digits.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_ADJACENT_DIGITS);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_ADJACENT_DIGITS, messageList);
             case 0x00030005:
                 // Password errors: new password or passphase contains a character repeated consecutively.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_CONSECUTIVE_REPEAT_CHARACTER);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_CONSECUTIVE_REPEAT_CHARACTER, messageList);
             case 0x00030006:
                 // Password errors: new password or passphase was previously used.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_PREVIOUSLY_USED);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_PREVIOUSLY_USED, messageList);
             case 0x00030007:
                 // Password errors: new password or passphase must contain at least one numeric.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_NO_NUMERIC);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_NO_NUMERIC, messageList);
             case 0x00030008:
                 // Password errors: new password or passphase contains an invalid character.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_CHARACTER_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_CHARACTER_NOT_VALID, messageList);
             case 0x00030009:
                 // Password errors: new password or passphase exists in a dictionary of disallowed passwords or passphrases.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_DISALLOWED);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_DISALLOWED, messageList);
             case 0x0003000A:
                 // Password errors: new password or passphase contains user ID as part of the password or passphrase.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_USERID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_USERID, messageList);
             case 0x0003000B:
                 // Password errors: password or passphrase incorrect.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT, messageList);
             case 0x0003000C:
                 // Password errors: profile will be disabled on the next invalid password or passphrase.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT_USERID_DISABLE);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT_USERID_DISABLE, messageList);
             case 0x0003000D:
                 // Password errors: password or passphrase correct, but expired.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED, messageList);
             case 0x0003000E:
                 // Password errors: pre-V2R2 encrypted password.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_PRE_V2R2);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_PRE_V2R2, messageList);
             case 0x0003000F:
                 // Password errors: new password or passphrase contains a character in the same position as the last password or passphrase.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_SAME_POSITION);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_SAME_POSITION, messageList);
             case 0x00030010:
                 // Password errors: Password is *NONE.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NONE);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NONE, messageList);
             case 0x00030011:
                 // Password errors: Password validation program failed the request.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_VALIDATION_PROGRAM);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_VALIDATION_PROGRAM, messageList);
             case 0x00030012:
-                // Password errors: Password change allowed at this time.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_CHANGE_NOT_ALLOWED);
+                // Password errors: Password change not allowed at this time.
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_CHANGE_NOT_ALLOWED, messageList);
             case 0x00030013:
                 // Password errors: Password value is not valid.
-                return new AS400SecurityException(AS400SecurityException.PASSWORD_VALUE_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PASSWORD_VALUE_NOT_VALID, messageList);
             case 0x00040000:
                 // General security errors, function not performed: No meaning.  Reasons for getting this return code include:
                 // - QUSER's password expired.
@@ -1504,7 +1508,7 @@ class AS400ImplRemote implements AS400Impl
                 // - input to Kerberos validation routine is not properly formatted or is not valid.
                 // Check the QZSOSIGN jobs for possible messages.
                 // Check the daemon jobs for possible messages.
-                return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL);
+                return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL, messageList);
             case 0x00040001:
                 // General security errors, function not performed: QYSMPUT error due to incorrect program data length.
                 throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_PASSED_LENGTH);
@@ -1546,98 +1550,179 @@ class AS400ImplRemote implements AS400Impl
                 throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_PASSED_PROGRAM_AUTHORITY);
             case 0x0004000E:
                 // General security errors, function not performed: user not authorized to generate token for another user.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_AUTHORITY_INSUFFICIENT);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_AUTHORITY_INSUFFICIENT, messageList);
             case 0x0004000F:
                 // General security errors, function not performed: no memory is available to allocate space needed for authorization.
-                return new AS400SecurityException(AS400SecurityException.SERVER_NO_MEMORY);
+                return new AS400SecurityException(AS400SecurityException.SERVER_NO_MEMORY, messageList);
             case 0x00040010:
                 // General security errors, function not performed: error occurred when converting data between code pages.
-                return new AS400SecurityException(AS400SecurityException.SERVER_CONVERSION_ERROR);
+                return new AS400SecurityException(AS400SecurityException.SERVER_CONVERSION_ERROR, messageList);
             case 0x00040011:
                 // General security errors, function not performed: error occurred using EIM interfaces.
-                return new AS400SecurityException(AS400SecurityException.SERVER_EIM_ERROR);
+                return new AS400SecurityException(AS400SecurityException.SERVER_EIM_ERROR, messageList);
             case 0x00040012:
                 // General security errors, function not performed: error occurred using cryptographic interfaces.
-                return new AS400SecurityException(AS400SecurityException.SERVER_CRYPTO_ERROR);
+                return new AS400SecurityException(AS400SecurityException.SERVER_CRYPTO_ERROR, messageList);
             case 0x00040013:
                 // General security errors, function not performed: this version of token is not supported by this version of code.
-                return new AS400SecurityException(AS400SecurityException.SERVER_TOKEN_VERSION);
+                return new AS400SecurityException(AS400SecurityException.SERVER_TOKEN_VERSION, messageList);
             case 0x00040014:
                 // General security errors, function not performed: public key not found.
-                return new AS400SecurityException(AS400SecurityException.SERVER_KEY_NOT_FOUND);
+                return new AS400SecurityException(AS400SecurityException.SERVER_KEY_NOT_FOUND, messageList);
             case 0x00050001:
                 // Exit program errors: error processing exit point.
-                return new AS400SecurityException(AS400SecurityException.EXIT_POINT_PROCESSING_ERROR);
+                return new AS400SecurityException(AS400SecurityException.EXIT_POINT_PROCESSING_ERROR, messageList);
             case 0x00050002:
                 // Exit program errors: resolving to exit program.
-                return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_RESOLVE_ERROR);
+                return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_RESOLVE_ERROR, messageList);
             case 0x00050003:
                 // Exit program errors: user exit program call error.
-                return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_CALL_ERROR);
+                return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_CALL_ERROR, messageList);
             case 0x00050004:
                 // Exit program errors: user exit program denied request.
-                return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_DENIED_REQUEST);
+                return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_DENIED_REQUEST, messageList);
             case 0x00060001:
                 // Authentication token errors: profile token or identity token not valid.
-                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID, messageList);
             case 0x00060002:
                 // Authentication token errors: maximum number of profile tokens for the system already generated.
-                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_MAXIMUM);
+                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_MAXIMUM, messageList);
             case 0x00060003:
                 // Authentication token errors: invalid value sent for timeout interval.
-                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID, messageList);
             case 0x00060004:
                 // Authentication token errors: invalid type of profile token request.
-                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_TYPE_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_TYPE_NOT_VALID, messageList);
             case 0x00060005:
                 // Authentication token errors: existing profile token isn't regenerable, can't be used to generate a new profile token.
-                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE);
+                return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE, messageList);
             case 0x00060006:
                 // Authentication token errors: Kerberos ticket not valid - consistency checks failed.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CONSISTENCY);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CONSISTENCY, messageList);
             case 0x00060007:
                 // Authentication token errors: requested mechanisms not supported by local system.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_MECHANISM);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_MECHANISM, messageList);
             case 0x00060008:
                 // Authentication token errors: credentials not available or not valid for this context.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID, messageList);
             case 0x00060009:
                 // Authentication token errors: Kerberos token or identity token contains incorrect signature.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_SIGNATURE);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_SIGNATURE, messageList);
             case 0x0006000A:
                 // Authentication token errors: credentials no longer valid.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID, messageList);
             case 0x0006000B:
                 // Authentication token errors: consistency checks on the credantial structure failed, or a mismatch exists between an authentication token and information provided to the identity token functions.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CONSISTENCY);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CONSISTENCY, messageList);
             case 0x0006000C:
                 // Authentication token errors: failure of verification routine.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_VERIFICATION);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_VERIFICATION, messageList);
             case 0x0006000D:
                 // Authentication token errors: EIM configuration error, or an EIM identifier was not found, or an application identifier was not found.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_EIM);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_EIM, messageList);
             case 0x0006000E:
                 // Authentication token errors: Kerberos principal maps to a system profile which can not be used to sign on.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE, messageList);
             case 0x0006000F:
                 // Authentication token errors: Kerberos principal maps to multiple user profile names, or more than one EIM entry was found for an identity token.
-                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES);
+                return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES, messageList);
             case 0x00070001:
                 // Generate token errors: can not connect to the system EIM domain.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_CONNECT);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_CONNECT, messageList);
             case 0x00070002:
                 // Generate token errors: can not change the CCSID to use for EIM requests to 13488.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_CHANGE_CCSID);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_CHANGE_CCSID, messageList);
             case 0x00070003:
                 // Generate token errors: can not obtain the EIM registry name.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME, messageList);
             case 0x00070004:
                 // Generate token errors: no mapping exists between the WebSphere Portal user identity and an i5/OS user profile.
-                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_NO_MAPPING);
+                return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_NO_MAPPING, messageList);
             default:
                 // Internal errors or unexpected return codes.
-                return new AS400SecurityException(AS400SecurityException.UNKNOWN);
+                return new AS400SecurityException(AS400SecurityException.UNKNOWN, messageList);
         }
+    }
+
+    static AS400Message[] parseMessages(byte[] data, int offset, ConverterImplRemote converter) throws IOException
+    {
+        int originalOffset = offset;
+        int messageNumber = 0;
+        while (offset < data.length - 1)
+        {
+            if (BinaryConverter.byteArrayToShort(data, offset + 4) != 0x112A)
+            {
+                offset += BinaryConverter.byteArrayToInt(data, offset);
+            }
+            else
+            {
+                messageNumber = BinaryConverter.byteArrayToShort(data, offset + 6);
+                break;
+            }
+        }
+        if (messageNumber == 0) return null;
+        AS400Message[] messageList = new AS400Message[messageNumber];
+
+        offset = originalOffset;
+        for (int i = 0; i < messageNumber; ++i)
+        {
+            while (offset < data.length - 1)
+            {
+                if (BinaryConverter.byteArrayToShort(data, offset + 4) != 0x112B)
+                {
+                    offset += BinaryConverter.byteArrayToInt(data, offset);
+                }
+                else
+                {
+                    messageList[i] = parseMessage(data, offset + 6, converter);
+                    break;
+                }
+            }
+            offset += BinaryConverter.byteArrayToInt(data, offset);
+        }
+
+        return messageList;
+    }
+
+    static AS400Message parseMessage(byte[] data, int offset, ConverterImplRemote converter) throws IOException
+    {
+        AS400Message message = new AS400Message();
+        int textCcsid = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        int substitutionCcsid = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setSeverity(BinaryConverter.byteArrayToUnsignedShort(data, offset));
+        offset += 2;
+        int messageTypeLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setType((data[offset] & 0x0F) * 10 + (data[offset +1] & 0x0F));
+        offset += messageTypeLength;
+        int messageIdLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setID(converter.byteArrayToString(data, offset, messageIdLength));
+        offset += messageIdLength;
+        int messageFileNameLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setFileName(converter.byteArrayToString(data, offset, messageFileNameLength).trim());
+        offset += messageFileNameLength;
+        int messageFileLibraryNameLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setLibraryName(converter.byteArrayToString(data, offset, messageFileLibraryNameLength).trim());
+        offset += messageFileLibraryNameLength;
+        int messageTextLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setText(converter.byteArrayToString(data, offset, messageTextLength));
+        offset += messageTextLength;
+        int messageSubstitutionTextLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        byte[] substitutionData = new byte[messageSubstitutionTextLength];
+        System.arraycopy(data, offset, substitutionData, 0, messageSubstitutionTextLength);
+        message.setSubstitutionData(substitutionData);
+        offset += messageSubstitutionTextLength;
+        int messageHelpLength = BinaryConverter.byteArrayToInt(data, offset);
+        offset += 4;
+        message.setHelp(converter.byteArrayToString(data, offset, messageHelpLength));
+        return message;
     }
 
     void setGSSCredential(Object gssCredential)
@@ -1777,7 +1862,7 @@ class AS400ImplRemote implements AS400Impl
                     Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
                 }
 
-                SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, byteType_);
+                SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, byteType_, serverLevel_);
                 signonReq.write(outStream);
 
                 SignonInfoRep signonRep = new SignonInfoRep();
@@ -1791,7 +1876,7 @@ class AS400ImplRemote implements AS400Impl
                     byte[] rcBytes = new byte[4];
                     BinaryConverter.intToByteArray(rc, rcBytes, 0);
                     Trace.log(Trace.ERROR, "Security validation failed with return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(rc);
+                    throw AS400ImplRemote.returnSecurityException(rc, signonRep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)));
                 }
 
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");

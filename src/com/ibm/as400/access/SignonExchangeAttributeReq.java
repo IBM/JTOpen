@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: SignonExchangeAttributeReq.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SignonExchangeAttributeReq.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2007 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,8 +18,6 @@ import java.io.OutputStream;
 
 class SignonExchangeAttributeReq extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     SignonExchangeAttributeReq(byte[] seed)
     {
         super(new byte[seed != null ? 52 : 38]);
@@ -62,7 +60,7 @@ class SignonExchangeAttributeReq extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending signon server exchange client/server attributes request..."); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending signon server exchange client/server attributes request...");
         super.write(out);
     }
 }

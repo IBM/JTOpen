@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: SignonGenAuthTokenReplyDS.java
+// Filename:  SignonGenAuthTokenReplyDS.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 2003 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 2003-2007 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -19,8 +19,6 @@ import java.io.InputStream;
 // The SignonGenAuthTokenReplyDS class represents the data stream for the 'Generate authentication token on behalf of another user' reply.
 class SignonGenAuthTokenReplyDS extends ClientAccessDataStream
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     int getRC()
     {
         return get32bit(20);
@@ -31,6 +29,11 @@ class SignonGenAuthTokenReplyDS extends ClientAccessDataStream
         byte[] token = new byte[32];
         System.arraycopy(data_, 30, token, 0, 32);
         return token;
+    }
+
+    AS400Message[] getErrorMessages(ConverterImplRemote converter) throws IOException
+    {
+        return AS400ImplRemote.parseMessages(data_, 24, converter);
     }
 
     void read(InputStream in) throws IOException
