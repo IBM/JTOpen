@@ -2059,7 +2059,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getAsciiStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
         }
     }
@@ -2243,7 +2243,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getBinaryStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2298,7 +2298,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Blob value = (data == null) ? null : data.getBlob ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2352,7 +2352,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             boolean value = (data == null) ? false : data.getBoolean ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2484,7 +2484,7 @@ public class AS400JDBCResultSet implements ResultSet
             else
             {                                                                      // @C1A
                 value = (data == null) ? null : data.getBytes ();                        // @C1C
-                testDataTruncation (columnIndex, data, true); //@trunc
+                testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             }                                                                           // @C1A
             return value;
         }
@@ -2546,7 +2546,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getCharacterStream ();
             openReader_ = value;
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -2602,7 +2602,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Clob value = (data == null) ? null : data.getClob ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3032,7 +3032,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Object value = (data == null) ? null : data.getObject ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3232,7 +3232,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getString ();
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3435,7 +3435,7 @@ public class AS400JDBCResultSet implements ResultSet
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3532,7 +3532,7 @@ public class AS400JDBCResultSet implements ResultSet
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getUnicodeStream ();
             openInputStream_ = value;
-            testDataTruncation (columnIndex, data, true); //@trunc
+            testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         }
     }
@@ -3651,8 +3651,8 @@ public class AS400JDBCResultSet implements ResultSet
             if(truncated > 0)
             {
                 //if 550 and number data type and called on certain getX() methods, then throw SQLException
-                //if text, then use old code path and post DataTruncation
-                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm550) && (data.isText() == false) && (exceptionOnTrunc == true))   //@trunc
+                //if 550, follow Native driver to thow exc if data is text and getX() is a number type getter method.
+                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm550)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
                 {                                                                    //@trunc
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
                 }                                                                    //@trunc
@@ -3978,12 +3978,6 @@ public class AS400JDBCResultSet implements ResultSet
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
-                //if 550 and number data type, then throw SQLException
-                //if text, then use old code path and post/throw DataTruncation
-                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm550) && (data.isText() == false))   //@trunc
-                {                                                                    //@trunc
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
-                }                                                                    //@trunc
                 int actualSize = data.getActualSize ();
                 throw new DataTruncation (columnIndex, false, false,                        // @D5C
                                           actualSize + truncated, actualSize);       // @D5C

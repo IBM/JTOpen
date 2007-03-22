@@ -3043,18 +3043,17 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
-                //if 550 and number data type, then throw SQLException
-                //if text, then use old code path and post/throw DataTruncation
-                if((connection_.getVRM() >= JDUtilities.vrm550) && (data.isText() == false))   //@trunc
-                {                                                                    //@trunc
-                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
-                }                                                                    //@trunc
-                
                 int actualSize = data.getActualSize ();
                 boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read)
                 DataTruncation dt = new DataTruncation(parameterIndex, true, isRead, actualSize + truncated, actualSize); //@pdc jdbc40
-
-                if((sqlStatement_ != null) && (sqlStatement_.isSelect()))
+              
+                //if 550 and number data type, then throw DataTruncation
+                //if text, then use old code path and post/throw DataTruncation
+                if((connection_.getVRM() >= JDUtilities.vrm550) && (data.isText() == false))   //@trunc2
+                {                                                                    //@trunc2
+                    throw dt;                                                        //@trunc2
+                }                                                                    //@trunc2
+                else if((sqlStatement_ != null) && (sqlStatement_.isSelect()))       //@trunc2
                 {
                     postWarning(dt);
                 }
