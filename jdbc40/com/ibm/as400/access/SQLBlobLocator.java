@@ -624,9 +624,8 @@ final class SQLBlobLocator implements SQLLocator
     //@PDA jdbc40
     public SQLXML getSQLXML() throws SQLException
     {
-        truncated_ = 0;  //@pdc
-        String string = BinaryConverter.bytesToString(getBytes());  //@pdc
-        return new AS400JDBCSQLXML(string, string.length()); //@pdc
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 

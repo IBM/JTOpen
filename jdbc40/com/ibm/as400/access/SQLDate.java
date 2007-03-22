@@ -735,9 +735,8 @@ implements SQLData
     //@pda jdbc40
     public SQLXML getSQLXML() throws SQLException
     {
-        truncated_ = 0;                                     //@pda
-        String string = getString();                        //@pda
-        return new AS400JDBCSQLXML(string, string.length()); //@pda
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 

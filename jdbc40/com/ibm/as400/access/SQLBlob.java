@@ -569,10 +569,8 @@ final class SQLBlob implements SQLData
     //@PDA jdbc40
     public SQLXML getSQLXML() throws SQLException
     {
-        if(savedObject_ != null) doConversion();  //@pda
-        truncated_ = 0; //@pda
-        String string = BinaryConverter.bytesToString(value_); //@pda
-        return new AS400JDBCSQLXML(string, string.length()); //@pda
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 
