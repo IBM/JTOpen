@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
+//                                                                            
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400JDBCClob.java
@@ -97,6 +97,10 @@ Returns the entire CLOB as a stream of ASCII characters.
 **/
   public synchronized InputStream getAsciiStream() throws SQLException
   {
+    //Following Native, throw HY010 after free() has been called
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     try
     {
       return new ByteArrayInputStream((new String(data_)).getBytes("ISO8859_1"));
@@ -119,6 +123,9 @@ Returns the entire CLOB as a character stream.
 **/
   public synchronized Reader getCharacterStream() throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     return new CharArrayReader(data_);
   }
 
@@ -137,6 +144,9 @@ Returns part of the contents of the CLOB.
 **/
   public synchronized String getSubString(long position, int length) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
     if (offset < 0 || length < 0 || (offset + length) > data_.length)
     {
@@ -163,6 +173,9 @@ Returns the length of the CLOB.
 **/
   public long length() throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     return data_.length;
   }
 
@@ -184,6 +197,9 @@ Returns the position at which a pattern is found in the CLOB.
 **/
   public synchronized long position(String pattern, long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
@@ -221,6 +237,9 @@ Returns the position at which a pattern is found in the CLOB.
 **/
   public synchronized long position(Clob pattern, long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
@@ -323,6 +342,8 @@ Returns the position at which a pattern is found in the CLOB.
     char[] charsToWrite = stringToWrite.toCharArray();
     int newSize = offset + charsToWrite.length;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+    if(data_ == null)//@free
+        data_ = new char[newSize]; //@free
     if (newSize > data_.length)
     {
       char[] temp = data_;
@@ -372,6 +393,8 @@ Returns the position at which a pattern is found in the CLOB.
     char[] charsToWrite = string.toCharArray();
     int newSize = clobOffset + lengthOfWrite;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+    if(data_ == null)//@free
+        data_ = new char[newSize]; //@free
     if (newSize > data_.length)
     {
       char[] temp = data_;
@@ -401,6 +424,9 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public synchronized void truncate(long lengthOfCLOB) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int length = (int)lengthOfCLOB;
     if (length < 0 || length > maxLength_)
     {

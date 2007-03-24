@@ -87,6 +87,10 @@ Returns the entire BLOB as a stream of uninterpreted bytes.
 **/
   public synchronized InputStream getBinaryStream() throws SQLException
   {
+    //Following Native, throw HY010 after free() has been called
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+    
     return new ByteArrayInputStream(data_);
   }
 
@@ -105,6 +109,9 @@ Returns part of the contents of the BLOB.
 **/
   public synchronized byte[] getBytes(long position, int length) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
     if (offset < 0 || length < 0 || (offset + length) > data_.length)
     {
@@ -131,6 +138,8 @@ Returns the length of the BLOB.
 **/
   public synchronized long length() throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
     return data_.length;
   }
 
@@ -151,6 +160,8 @@ Returns the position at which a pattern is found in the BLOB.
 **/
   public synchronized long position(byte[] pattern, long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
     int offset = (int)position-1;
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
@@ -186,6 +197,9 @@ Returns the position at which a pattern is found in the BLOB.
 **/
   public synchronized long position(Blob pattern, long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
     if (pattern == null || offset < 0 || offset >= data_.length)
     {
@@ -244,6 +258,8 @@ Returns the position at which a pattern is found in the BLOB.
 
     int newSize = offset + 1;
     if (newSize < 0) newSize = 0x7FFFFFFF;
+    if(data_ == null)//@free
+        data_ =  new byte[newSize]; //@free
     if (newSize > data_.length)
     {
       byte[] temp = data_;
@@ -286,6 +302,8 @@ Returns the position at which a pattern is found in the BLOB.
     // return the number of bytes that were set.
     int newSize = offset + bytesToWrite.length;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+    if(data_ == null)//@free
+        data_ =  new byte[newSize]; //@free
     if (newSize > data_.length)
     {
       byte[] temp = data_;
@@ -331,6 +349,8 @@ Returns the position at which a pattern is found in the BLOB.
     // return the number of bytes that were set.
     int newSize = blobOffset + lengthOfWrite;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+    if(data_ == null)//@free
+        data_ =  new byte[newSize]; //@free
     if (newSize > data_.length)
     {
       byte[] temp = data_;
@@ -355,6 +375,9 @@ Returns the position at which a pattern is found in the BLOB.
   **/
   public synchronized void truncate(long lengthOfBLOB) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+    
     int length = (int)lengthOfBLOB;
     if (length < 0 || length > maxLength_)
     {
