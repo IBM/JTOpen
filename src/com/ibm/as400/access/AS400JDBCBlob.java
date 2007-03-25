@@ -236,6 +236,9 @@ Returns the position at which a pattern is found in the BLOB.
   **/
   public OutputStream setBinaryStream(long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -249,6 +252,9 @@ Returns the position at which a pattern is found in the BLOB.
   **/
   synchronized int setByte(long position, byte data) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
 
     if (offset < 0 || offset >= maxLength_)
@@ -258,8 +264,6 @@ Returns the position at which a pattern is found in the BLOB.
 
     int newSize = offset + 1;
     if (newSize < 0) newSize = 0x7FFFFFFF;
-    if(data_ == null)//@free
-        data_ =  new byte[newSize]; //@free
     if (newSize > data_.length)
     {
       byte[] temp = data_;
@@ -290,6 +294,9 @@ Returns the position at which a pattern is found in the BLOB.
   **/
   public synchronized int setBytes(long position, byte[] bytesToWrite) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
 
     if (offset < 0 || offset >= maxLength_ || bytesToWrite == null)
@@ -302,8 +309,6 @@ Returns the position at which a pattern is found in the BLOB.
     // return the number of bytes that were set.
     int newSize = offset + bytesToWrite.length;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
-    if(data_ == null)//@free
-        data_ =  new byte[newSize]; //@free
     if (newSize > data_.length)
     {
       byte[] temp = data_;
@@ -336,6 +341,9 @@ Returns the position at which a pattern is found in the BLOB.
   **/
   public synchronized int setBytes(long position, byte[] bytesToWrite, int offset, int lengthOfWrite) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int blobOffset = (int)position-1;
     if (blobOffset < 0 || blobOffset >= maxLength_ ||
         bytesToWrite == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > bytesToWrite.length ||
@@ -349,8 +357,6 @@ Returns the position at which a pattern is found in the BLOB.
     // return the number of bytes that were set.
     int newSize = blobOffset + lengthOfWrite;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
-    if(data_ == null)//@free
-        data_ =  new byte[newSize]; //@free
     if (newSize > data_.length)
     {
       byte[] temp = data_;

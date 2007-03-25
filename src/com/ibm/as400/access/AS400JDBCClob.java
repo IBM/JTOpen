@@ -275,6 +275,9 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public OutputStream setAsciiStream(long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -306,6 +309,9 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public Writer setCharacterStream(long position) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -329,6 +335,9 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public synchronized int setString(long position, String stringToWrite) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int offset = (int)position-1;
 
     if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
@@ -342,8 +351,6 @@ Returns the position at which a pattern is found in the CLOB.
     char[] charsToWrite = stringToWrite.toCharArray();
     int newSize = offset + charsToWrite.length;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
-    if(data_ == null)//@free
-        data_ = new char[newSize]; //@free
     if (newSize > data_.length)
     {
       char[] temp = data_;
@@ -379,6 +386,9 @@ Returns the position at which a pattern is found in the CLOB.
   **/
   public synchronized int setString(long position, String string, int offset, int lengthOfWrite) throws SQLException
   {
+    if(data_ == null)//@free
+        JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
+      
     int clobOffset = (int)position-1;
     if (clobOffset < 0 || clobOffset >= maxLength_ ||
         string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
@@ -393,8 +403,6 @@ Returns the position at which a pattern is found in the CLOB.
     char[] charsToWrite = string.toCharArray();
     int newSize = clobOffset + lengthOfWrite;
     if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
-    if(data_ == null)//@free
-        data_ = new char[newSize]; //@free
     if (newSize > data_.length)
     {
       char[] temp = data_;
