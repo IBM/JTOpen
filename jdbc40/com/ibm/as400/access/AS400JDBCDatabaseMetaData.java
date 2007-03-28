@@ -4559,6 +4559,11 @@ implements DatabaseMetaData
                 typeSamples.addElement(new SQLVarbinary(32739, settings_));
             }
         }
+        if(connection_.getVRM() >= JDUtilities.vrm550)                                                                //@dfa
+        {                                                                                                             //@dfa
+            //note that on hostserver both 16 and 34 are one type (stored proc returns one type)
+            typeSamples.addElement(new SQLDecFloat34( settings_, connection_.getVRM(), connection_.getProperties())); //@dfa
+        }                                                                                                             //@dfa
         // @M0A - end new support
 
         int numberOfTypes = typeSamples.size();                                 // @D0C
