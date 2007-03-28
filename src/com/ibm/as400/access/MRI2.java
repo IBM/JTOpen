@@ -552,6 +552,7 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_CTLD_RTL",                    "Retail" },
       { "TYPE_CTLD_RWS",                    "Remote workstation" },
       { "TYPE_CTLD_TAP",                    "Tape" },
+      { "TYPE_CTLD_VNM",                    "Virtual network media" },  // @550A
       { "TYPE_CTLD_VWS",                    "Virtual workstation" },
       { "TYPE_DDIR",                        "Distributed directory" },
       { "TYPE_DEVD",                        "Device description" },
@@ -685,6 +686,8 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_NWID_ISDN",                   "ISDN" },
       { "TYPE_NWSCFG",                      "Network server configuration" }, //@K2A
       { "TYPE_NWSD",                        "Network server description" },
+      { "TYPE_NWSD_GUEST",                  "Logical partition network server" },   // @550A
+      { "TYPE_NWSD_IXSVR",                  "Integrated network server" },    // @550A
       { "TYPE_NWSD_WINDOWSNT",              "Windows" },
       { "TYPE_OUTQ",                        "Output queue" },
       { "TYPE_OVL",                         "Overlay" },

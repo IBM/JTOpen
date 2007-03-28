@@ -87,7 +87,7 @@ public class QSYSObjectTypeTable
         add("CSI");
         add("CSPMAP");
         add("CSPTBL");
-        add("CTLD", new String[] { "", "APPC", "ASC", "BSC", "FNC", "HOST", "LWS", "NET", "RTL", "RWS", "TAP", "VWS" });
+        add("CTLD", new String[] { "", "APPC", "ASC", "BSC", "FNC", "HOST", "LWS", "NET", "RTL", "RWS", "TAP", "VNM", "VWS" });   //@550C
         add("DDIR");  // this type does not occur in QSYS
         add("DEVD", new String[] { "", "APPC", "ASC", "ASP", "BSC", "CRP", "DKT", "DSPLCL", "DSPRMT", "DSPSNP", "DSPVRT", "FNC", "HOST", "INTR", "MLB", "NET", "OPT", "PRTLCL", "PRTLAN", "PRTRMT", "PRTSNP", "PRTVRT", "RTL", "SNPTUP", "SNPTDN", "SNUF", "TAP" });
         add("DIR");  // this type does not occur in QSYS
@@ -134,7 +134,7 @@ public class QSYSObjectTypeTable
         add("NTBD");
         add("NWID", new String[] { "", "ATM", "FR", "ISDN" });
         add("NWSCFG");
-        add("NWSD", new String[] { "", "WINDOWSNT" });
+        add("NWSD", new String[] { "", "GUEST", "IXSVR", "WINDOWSNT" });    //@550C
         add("OUTQ");
         add("OVL");
         add("PAGDFN");
