@@ -5,12 +5,12 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2006 International Business Machines Corporation and
+Copyright (C) 1997-2007 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: December 6, 2006
-<!-- cvs log -rJTOpen_5_2:JTOpen_5_3 -N -d >2006-08-21 -->
+Last updated: April 2, 2007
+<!-- cvs log -rJTOpen_5_3:JTOpen_5_4 -N -d >2006-12-06 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#54">Fixes and enhancements in JTOpen 5.4</A><BR>
 <A HREF="#53">Fixes and enhancements in JTOpen 5.3</A><BR>
 <A HREF="#52">Fixes and enhancements in JTOpen 5.2</A><BR>
 <A HREF="#51_1">Fixes and enhancements in JTOpen 5.1.1</A><BR>
@@ -45,6 +46,46 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="54">Fixes and enhancements in JTOpen 5.4</A> <i>(released 2007-04-18)</i></H3>
+<PRE>
+- <i>Various:</i>  Updated iSeries and server references in comments, text.
+- <i>Various:</i>  Javadoc updates.
+- Connection: Support new messages from sign-on server.
+- Connection: Added additional change password return codes.
+- Data Conversion:  Fix array out of bounds error so we throw SQLException back with single character input.
+- File:  Fixed record cache so that positionCursor() works regardless of the blocking factor.   
+- IFS:  Updatated javadoc for list, listFiles and enumerateFiles methods.
+- IFS:  Updated to throw an exception if access is denied to a directory and to search by restart name if accessing QSYS.LIB in an IASP.
+- JDBC:  Added Close on EOF support.
+- JDBC:  Added support for setting client information. 
+- JDBC:  Added support to turn on/off database host server tracing.
+- JDBC:  Allow sort=job to not throw exception, but use default.
+- JDBC:  Added stored procedure support for getIndexInfo. 
+- JDBC:  Added support for stored procedure result sets date and time format.
+- JDBC:  Updated miner version for JTOpen 5.3 and 5.4.0.4
+- JDBC:  ResultSet.getRow() fix to return correct number after inserting new rows.
+- JDBC:  Updated data truncation exception support.
+- JDBC:  Strip out comments in statements greater than 2M in V5R4.
+- JDBC:  Added query storage limit connection property.
+- NetServer:  Fix to createPrintShare().
+- NetServer:  Fixed bug in parameter validation in setTextConversionEnablement()
+- ObjectDescription:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
+- ObjectDescription:  Added support for returning the asp device name on the path.
+- ObjectList:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
+- Permissions:  Updated setDataAuthority() for *AUTL.
+- Permissions:  Changes to allow DLOPermission to work with the QDLS root folder.
+- Print:  Retrieving invalid spooled file attributes.
+- Product:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- PTF:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- QSYSObjectPathName:  Fix parsing of eszett and other 1 to N uppercasing characters.
+- SaveFile:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- Security: Support new messages from sign-on server.
+- Security: Added additional change password return codes.
+- SpooledFile:  Retrieving invalid spooled file attributes.
+- UserSpace:  Changes so that when running natively user space will use sockets instead of native method calls to avoid error indicating that JT4PTF and JT4USRSPC user space could not be found.
+</PRE>
 
 <HR>
 <H3><A NAME="53">Fixes and enhancements in JTOpen 5.3</A> <i>(released 2006-12-18)</i></H3>
