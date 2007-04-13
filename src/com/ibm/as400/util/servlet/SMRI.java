@@ -21,6 +21,9 @@ Locale-specific objects for the IBM Toolbox for Java.
 public class SMRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+   // NLS_MESSAGEFORMAT_NONE
+   // Each string is assumed NOT to be processed by the MessageFormat class.
+   // This means that a single quote must be coded as 1 single quote.
 
    public Object[][] getContents()
    {

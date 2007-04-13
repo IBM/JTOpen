@@ -20,6 +20,10 @@ Locale-specific objects for the CommTrace Utility.
 **/
 public class CTMRI extends ListResourceBundle
 {
+   // NLS_MESSAGEFORMAT_NONE
+   // Each string is assumed NOT to be processed by the MessageFormat class.
+   // This means that a single quote must be coded as 1 single quote.
+
   private static final String copyright = "Copyright (C) 2002 International Business Machines Corporation and others.";
 
    public Object[][] getContents()

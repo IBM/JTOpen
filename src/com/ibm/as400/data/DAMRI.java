@@ -18,6 +18,9 @@ import java.util.ListResourceBundle;
 public class DAMRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    // NLS_MESSAGEFORMAT_ALL
+    // Each string is assumed to be processed by the MessageFormat class.
+    // This means that a single quote must be coded as 2 consecutive single quotes ''. 
 
     
     // Define constants so compiler can catch invalid keys
@@ -115,7 +118,7 @@ public class DAMRI extends ListResourceBundle
     { PCML_EXCEPTION_TITLE,        "Error" },
     { MISSING_KEY,                 "Text not available for error message key ''{0}''" },
     { INPUT_VALUE_NOT_SET,         "Value is not set. Processing <data> element ''{0}''." },
-    { NULL_VALUE,                  "Cannot set a value to 'null'. Processing <data> element ''{0}''." },
+    { NULL_VALUE,                  "Cannot set a value to ''null''. Processing <data> element ''{0}''." },  //@D1C
     { STRING_OR_NUMBER,            "Invalid data type ''{0}''. String or Number expected. Processing <data> element ''{1}''." },
     { BYTE_ARRAY,                  "Invalid data type ''{0}''. byte[] expected. Processing <data> element ''{1}''." },
     { UNSUPPORTED_CCSID,           "Unsupported CCSID {0} for system {1}. Processing <data> element ''{2}''." },          //@550
@@ -169,7 +172,7 @@ public class DAMRI extends ListResourceBundle
 	{ DOCUMENT_NOT_SET,            "Document has not been set." }, // @C2A
 	{ DATATYPE_NOT_SUPPORTED,      "Data type {0} is not supported by RFML." }, // @C2A
 	{ MULTI_ARRAY_NOT_SUPPORTED,   "Multidimensional AS400Array is not supported by RFML." }, // @C2A
-	{ NO_STRUCT,                   "The struct= attribute is required when type='struct'.  Processing {1} element \"{2}\"." }, // @C2A
+	{ NO_STRUCT,                   "The struct= attribute is required when type=''struct''.  Processing {1} element \"{2}\"." }, // @C2A @D1C
 	{ NO_LENGTH,                   "The length= attribute is required when the type= attribute has a value other than 'struct'.  Processing {1} element \"{2}\"." }, // @C2A
 	{ INSUFFICIENT_INPUT_DATA,     "Insufficient input data available for this document element. Bytes required: {0}\tBytes provided: {1}\tProcessing {2} element \"{3}\"." }, // @C2A
 	{ EXCESS_INPUT_DATA,           "Excess input data was provided for this document element. Bytes required: {0}\tBytes provided: {1}\tProcessing {2} element \"{3}\"." }, // @C2A
