@@ -393,7 +393,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
 
       switch (getColumnType(columnIndex))
       {
-         case Types.BIGINT:
+      case Types.BIGINT:
       case Types.DECIMAL:
       case Types.DOUBLE:
       case Types.FLOAT:
@@ -402,9 +402,14 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       case Types.REAL:
       case Types.SMALLINT:
       case Types.TINYINT:
-            return true;
+          return true;
+      case Types.OTHER:     //determine if we are a DECFLOAT
+          if(getColumnTypeName(columnIndex).equals("DECFLOAT"))
+              return true;
+          else
+              return false;
       default:
-            return false;
+          return false;
       }
    }
 
