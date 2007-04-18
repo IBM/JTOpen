@@ -1418,7 +1418,8 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    **/
   public String getUser()
   {
-    return properties_.getString(JDProperties.USER);
+    //return properties_.getString(JDProperties.USER);  //PDD
+      return as400_.getUserId();  //@PDA if running on host, could be default id
   }
 
   /**                                                               

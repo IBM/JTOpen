@@ -1419,7 +1419,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
    **/
   public String getUser()
   {
-    return properties_.getString(JDProperties.USER);
+    //return properties_.getString(JDProperties.USER);  //PDD
+      return as400_.getUserId();  //@PDA if running on host, could be default id
   }
 
   /**                                                               
