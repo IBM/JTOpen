@@ -856,4 +856,30 @@ implements Connection
       return (Properties) callMethodRtnObj("getClientInfo");
   }
   
+  //@pd2 add missing proxy method.  This is needed for various testcases that use jobid.
+  /**
+  Returns the job identifier of the host server job corresponding to this connection.
+  Every JDBC connection is associated with a host server job on the i5/OS system.  The
+  format is:
+  <ul>
+    <li>10 character job name
+    <li>10 character user name
+    <li>6 character job number
+  </ul>
+  
+  <p>Note: Since this method is not defined in the JDBC Connection interface,
+  you typically need to cast a Connection object to JDConnectionProxy in order
+  to call this method:
+  <blockquote><pre>
+  String serverJobIdentifier = ((JDConnectionProxy)connection).getServerJobIdentifier();
+  </pre></blockquote>
+  
+  @return The server job identifier, or null if not known.
+  **/
+  public String getServerJobIdentifier() throws SQLException          // @pd2
+  {                                                                   // @pd2
+      return (String) callMethodRtnObj("getServerJobIdentifier");     // @pd2
+  }                                                                   // @pd2
+
+  
 }
