@@ -553,7 +553,7 @@ implements java.sql.Statement
     //@PDA jdbc40
     public void setPoolable(boolean poolable) throws SQLException
     {
-        callMethod ("setEscapeProcessing",
+        callMethod ("setPoolable",
                 new Class[] { Boolean.TYPE },
                 new Object[] { new Boolean (poolable) });  
     }
