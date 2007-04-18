@@ -3342,7 +3342,7 @@ implements DatabaseMetaData
             else
             {  // Parameters are valid, build request and send
                 StringBuffer selectStmt = new StringBuffer();
-                selectStmt.append ("SELECT SPECIFIC_SCHEMA, SPECIFIC_NAME, REMARKS, RESULTS ");
+                selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS ");//@PROC
                 selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPROCS "); // use . or /
 
 
@@ -3350,7 +3350,7 @@ implements DatabaseMetaData
                 if (schemaPattern !=null)
                 {
                     JDSearchPattern schema = new JDSearchPattern (schemaPattern);
-                    String schemaWhereClause = schema.getSQLWhereClause("SPECIFIC_SCHEMA");
+                    String schemaWhereClause = schema.getSQLWhereClause("ROUTINE_SCHEMA");//@PROC
                     selectStmt.append("WHERE " + schemaWhereClause);
                 }
 
@@ -3368,14 +3368,14 @@ implements DatabaseMetaData
                         selectStmt.append (" WHERE ");
                     }
 
-                    String procedureWhereClause = procedure.getSQLWhereClause("SPECIFIC_NAME");
+                    String procedureWhereClause = procedure.getSQLWhereClause("ROUTINE_NAME");//@PROC
                     selectStmt.append(procedureWhereClause);
                 }
 
 
 
                 // Add order by
-                selectStmt.append (" ORDER BY SPECIFIC_SCHEMA, SPECIFIC_NAME");
+                selectStmt.append (" ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME");//@PROC
 
 
                 // Create statement object and do Execute Query
