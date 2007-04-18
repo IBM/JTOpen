@@ -788,7 +788,7 @@ Rolls back a transaction branch.
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
       //Spec does not specify exactly which return codes are valid to throw in XAException, 
       //other when "an error occurred".  So just throw back for < 0 return codes until future spec specifies otherwise.
-      if(returnCode < 0)
+      if(returnCode != 0) //@pxc
           throw new XAException(returnCode);
 
     }
