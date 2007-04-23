@@ -828,10 +828,16 @@ implements IFSFileDescriptorImpl
 
     // Design note: In order to get an OA* structure back in the "List File Attributes" reply, we must specify the file by handle rather than by name.
 
+    boolean usedGlobalHandle = false;     //@KKBA
     try
     {
       // Open the file, and obtain a file handle.
-      fileHandle = createFileHandle();
+      if (fileHandle_ != UNINITIALIZED)     //@KKBA
+      {                                     //@KKBA
+          fileHandle = fileHandle_;         //@KKBA
+          usedGlobalHandle = true;          //@KKBA
+      }                                     //@KKBA
+      else fileHandle = createFileHandle(); //@KKBC
       if (fileHandle != UNINITIALIZED)
       {
         // Send a 'list attributes' request, specifying the file handle we just created,
@@ -859,7 +865,8 @@ implements IFSFileDescriptorImpl
       }
     }
     finally {
-      close(fileHandle);
+        if(!usedGlobalHandle)   //@KKBA
+            close(fileHandle);
     }
 
     return reply;
