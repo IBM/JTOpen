@@ -36,6 +36,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 
@@ -3086,6 +3087,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         }
     }
 
-
+    //@GKA
+    // Returns the JDServerRow object associated with this statement.
+    JDServerRow getResultRow()
+    {
+        return resultRow_;
+    }
 
 }

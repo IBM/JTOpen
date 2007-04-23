@@ -119,6 +119,7 @@ class JDSQLStatement
     private String          value_;
     private String          valueForServer_             = null;     // @E1A
     private boolean         selectTableNotSet_          = true;     //@K1A boolean to determine if selectTable_ has been set, if so, then selectTableNotSet_ is false
+    private boolean         selectFromInsert_           = false;    // @GKA
 
 
 
@@ -141,6 +142,7 @@ class JDSQLStatement
         // be changed if this constructor were used for a CALL statement with named
         // parameters
         this(sql, "", false, JDProperties.PACKAGE_CRITERIA_DEFAULT, null);      // @A1C //@G1C
+
     }
 
 
@@ -1146,6 +1148,16 @@ class JDSQLStatement
     }                                                                      // @G5A
 
 
+    // @GKA
+    public void setSelectFromInsert(boolean selectFromInsert){
+        selectFromInsert_ = selectFromInsert;
+    }
+
+    // @GKA
+    public boolean isSelectFromInsert()
+    {
+        return selectFromInsert_;
+    }
 
 
     /**
