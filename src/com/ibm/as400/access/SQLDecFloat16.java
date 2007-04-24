@@ -48,11 +48,11 @@ final class SQLDecFloat16 implements SQLData {
 
     private static final BigDecimal FLOAT_MAX_VALUE = new BigDecimal(Float.MAX_VALUE);
 
-    private static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(Float.MIN_VALUE);
+    private static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(-Float.MAX_VALUE); //@PDC MIN_VALUE is positive
 
     private static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
 
-    private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
+    private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(-Double.MAX_VALUE); //@PDC MIN_VALUE is positive
     
     private static final int DECFLOAT16_MIN_EXP = -383;  
 
