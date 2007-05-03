@@ -354,6 +354,11 @@ public class SystemValueList implements Serializable
         // V5R3 system values.
         SystemValueList.list.put("QAUDLVL2",   new SystemValueInfo("QAUDLVL2", SERVER_TYPE_CHAR, 10, 99, TYPE_ARRAY, GROUP_SEC, VRM530, ResourceBundleLoader.getSystemValueText("QAUDLVL2_DES")));
         SystemValueList.list.put("QDATETIME",   new SystemValueInfo("QDATETIME", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_DATTIM, VRM530, ResourceBundleLoader.getSystemValueText("QDATETIME_DES")));
+        // The format of the QDATETIME field is YYYYMMDDHHNNSSXXXXXX
+        // where YYYY is the year, MM is the month, DD is the day,
+        // HH is the hours, NN is the minutes, SS is the seconds,
+        // and XXXXXX is the microseconds.
+
         SystemValueList.list.put("QENDJOBLMT",   new SystemValueInfo("QENDJOBLMT", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QENDJOBLMT_DES")));
         SystemValueList.list.put("QSAVACCPTH",   new SystemValueInfo("QSAVACCPTH", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QSAVACCPTH_DES")));
         SystemValueList.list.put("QSCANFS",   new SystemValueInfo("QSCANFS", SERVER_TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, VRM530, ResourceBundleLoader.getSystemValueText("QSCANFS_DES")));
