@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2005 International Business Machines Corporation and
+// Copyright (C) 1997-2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Enumeration;
-
+import java.util.Vector;
 /**
  Represents a job log on the system.  This class is used to get a list of messages in a job log or to write messages to a job log.
  <p>QueuedMessage objects have many attributes.  Only some of theses attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values are set on QueuedMessage objects returned in a list of job log messages:
@@ -48,6 +48,10 @@ public class JobLog implements Serializable
     // We don't currently allow the user to specify a direction or any other attributes, so we just hardcode these.
     private static final int maxMessageLength_ = 511;
     private static final int maxMessageHelpLength_ = 3000;
+    
+    // Header size for the api qgygtle 80 bytes for Message Selection
+    // Information and 1 byte for the message queue name 
+    private final int qgygtleHeaderLength_ = 81;
 
     // Shared error code parameter.
     private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
@@ -72,6 +76,46 @@ public class JobLog implements Serializable
     private boolean listDirection_ = true;
     // The starting message key.
     private byte[] startingMessageKey_;
+ 
+    // The list of field identifiers that are received 
+    private Vector numberOfFieldIdentifiers_ = new Vector();
+
+    // Valid Field Identifiers. Default identifiers are 101, 302, 404, 603, 501, and 1001.
+    // The default identifiers are set in the load() method. 
+    //DEFAULT VALUE
+    public static final int ALERT_OPTION = 101;
+    public static final int REPLACEMENT_DATA = 201;
+    public static final int MESSAGE = 301;
+    //DEFAULT VALUE
+    public static final int MESSAGE_WITH_REPLACEMENT_DATA = 302;
+    public static final int MESSAGE_HELP = 401;
+    public static final int MESSAGE_HELP_WITH_REPLACEMENT_DATA = 402;
+    public static final int MESSAGE_HELP_WITH_FORMATTING_CHARACTERS = 403;
+    //DEFAULT VALUE
+    public static final int MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS = 404;
+    //DEFAULT VALUE
+    public static final int DEFAULT_REPLY = 501;
+    public static final int SENDER_TYPE = 602;
+    //DEFAULT VALUE
+    public static final int SENDING_PROGRAM_NAME = 603;
+    public static final int SENDING_MODULE_NAME = 604;
+    public static final int SENDING_PROCEDURE_NAME = 605;
+    public static final int SENDING_STATEMENT_NUMBERS= 606;
+    public static final int SENDING_USER_PROFILE = 607;
+    public static final int RECEIVING_TYPE = 702;
+    public static final int RECEIVING_PROGRAM_NAME = 703;
+    public static final int RECEIVING_MODULE_NAME = 704;
+    public static final int RECEIVING_PROCEDURE_NAME = 705;
+    public static final int RECEIVING_STATEMENT_NUMBERS = 706;
+    public static final int MESSAGE_FILE_LIBRARY_USED = 801;
+    //DEFAULT VALUE
+    public static final int REPLY_STATUS = 1001;
+    public static final int REQUEST_STATUS = 1101;
+    public static final int REQUEST_LEVEL = 1201;
+    public static final int CCSID_FOR_TEXT = 1301;
+    public static final int CCSID_CONVERSION_STATUS_TEXT = 1302;
+    public static final int CCSID_FOR_DATA = 1303;
+    public static final int CCSID_CONVERSION_STATUS_DATA = 1304;
 
     // List of property change event bean listeners.
     private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
@@ -84,6 +128,10 @@ public class JobLog implements Serializable
     public JobLog()
     {
         super();
+	if (Trace.traceOn_) 
+	    Trace.log(Trace.DIAGNOSTIC, "Adding default list information: REPLY_STATUS, SENDING_PROGRAM_NAME, DEFAULT_REPLY, MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS, MESSAGE_WITH_REPLACEMENT_DATA, ALERT_OPTION ");
+	// Add the default list information
+	addDefaultListInformation();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing JobLog object.");
     }
 
@@ -100,6 +148,10 @@ public class JobLog implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'system' is null.");
             throw new NullPointerException("system");
         }
+	if (Trace.traceOn_) 
+	    Trace.log(Trace.DIAGNOSTIC, "Adding default list information: REPLY_STATUS, SENDING_PROGRAM_NAME, DEFAULT_REPLY, MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS, MESSAGE_WITH_REPLACEMENT_DATA, ALERT_OPTION ");
+	// Add the default list information
+	addDefaultListInformation();
         system_ = system;
     }
 
@@ -133,10 +185,131 @@ public class JobLog implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'number' is null.");
             throw new NullPointerException("number");
         }
+        
+	if (Trace.traceOn_) 
+	    Trace.log(Trace.DIAGNOSTIC, "Adding default list information: REPLY_STATUS, SENDING_PROGRAM_NAME, DEFAULT_REPLY, MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS, MESSAGE_WITH_REPLACEMENT_DATA, ALERT_OPTION ");
+	// Add the default list information
+	addDefaultListInformation();
         system_ = system;
         name_ = name;
         user_ = user;
         number_ = number;
+    }
+
+
+    /**
+     Adds a message attribute that will be retrieved for each joblog.  This method allows 
+     the Joblog objects that are retrieved from this Joblog list to have some of their message attributes choosen by
+     the caller.
+     <p>The list of message attributes is maintained internally even when this JobList is closed and re-used.  
+     To start over with a new set of job attributes to retrieve, 
+     call {@link #clearAttributesToRetrieve clearAttributesToRetrieve()}. This will set all attributes to null including the default attributes. 
+     @param  attribute  The message attribute to retrieve.  Possible values are all joblog attributes in the api document for the Open List of Job Log Messages (QGYOLJBL) API.
+     **/
+    public void addAttributeToRetrieve(int attribute) throws IOException 
+    {
+        if( !numberOfFieldIdentifiers_.contains(new Integer(attribute)) ) 
+	{
+            switch (attribute)
+            {  
+	        case 1001:  //REPLY_STATUS:
+                    numberOfFieldIdentifiers_.add( new Integer(REPLY_STATUS));
+                    break;
+	        case 603:   //SENDING_PROGRAM_NAME:
+                    numberOfFieldIdentifiers_.add( new Integer(SENDING_PROGRAM_NAME));
+                    break;
+	        case 501:   //DEFAULT_REPLY:
+                    numberOfFieldIdentifiers_.add( new Integer(DEFAULT_REPLY));
+                    break;
+	        case 404:   //MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS:
+                    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS));
+                    break;
+	        case 302:   //MESSAGE_WITH_REPLACEMENT_DATA:
+                    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_WITH_REPLACEMENT_DATA));
+                    break;
+                case 101:   //ALERT_OPTION:
+                    numberOfFieldIdentifiers_.add( new Integer(ALERT_OPTION));
+                    break;
+                case 201: //REPLACEMENT_DATA:
+                    numberOfFieldIdentifiers_.add( new Integer(REPLACEMENT_DATA));
+                    break;
+                case 301: //MESSAGE:
+            	    numberOfFieldIdentifiers_.add( new Integer(MESSAGE));	
+                    break;
+                case 401: //MESSAGE_HELP:
+            	    numberOfFieldIdentifiers_.add( new Integer (MESSAGE_HELP));	
+                    break;
+                case 402: //MESSAGE_HELP_WITH_REPLACEMENT_DATA:
+            	    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_HELP_WITH_REPLACEMENT_DATA));	
+                    break;
+                case 403: //MESSAGE_HELP_WITH_FORMATTING_CHARACTERS:
+                    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_HELP_WITH_FORMATTING_CHARACTERS));		
+                    break;
+                case 602: //SENDER_TYPE:
+            	    numberOfFieldIdentifiers_.add( new Integer(SENDER_TYPE)); 	
+                    break;
+                case 604: //SENDING_MODULE_NAME:
+            	    numberOfFieldIdentifiers_.add( new Integer(SENDING_MODULE_NAME)); 	
+                    break;
+                case 605: //SENDING_PROCEDURE_NAME:
+            	    numberOfFieldIdentifiers_.add( new Integer(SENDING_PROCEDURE_NAME));	
+                    break;
+                case 606: //SENDING_STATEMENT_NUMBERS:
+                    numberOfFieldIdentifiers_.add( new Integer(SENDING_STATEMENT_NUMBERS));		
+                    break;
+                case 607: //SENDING_USER_PROFILE:
+            	    numberOfFieldIdentifiers_.add( new Integer(SENDING_USER_PROFILE));	
+                    break;
+                case 702: //RECEIVING_TYPE:
+            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_TYPE)); 	
+                    break;
+                case 703: //RECEIVING_PROGRAM_NAME:
+            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_PROGRAM_NAME)); 	
+                    break;
+                case 704: //RECEIVING_MODULE_NAME:
+            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_MODULE_NAME));	
+                    break;
+                case 705: //RECEIVING_PROCEDURE_NAME:
+            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_PROCEDURE_NAME)); 	
+                    break;
+                case 706: //RECEIVING_STATEMENT_NUMBERS:
+            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_STATEMENT_NUMBERS)); 	
+                    break;
+                case 801: //MESSAGE_FILE_LIBRARY_USED:
+            	    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_FILE_LIBRARY_USED)); 	
+                    break;
+                case 1101: //REQUEST_STATUS:
+                    numberOfFieldIdentifiers_.add( new Integer(REQUEST_STATUS)); 		
+                    break;
+                case 1201: //REQUEST_LEVEL:
+            	    numberOfFieldIdentifiers_.add( new Integer(REQUEST_LEVEL)); 	
+                    break;
+                case 1301: //CCSID_FOR_TEXT:
+            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_FOR_TEXT)); 	
+                    break;
+                case 1302: //CCSID_CONVERSION_STATUS_TEXT:
+            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_CONVERSION_STATUS_TEXT));	
+                    break;
+                case 1303: //CCSID_FOR_DATA:
+            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_FOR_DATA)); 	
+                    break;
+                case 1304: //CCSID_CONVERSION_STATUS_DATA:
+            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_CONVERSION_STATUS_DATA)); 	
+                    break;
+                default:
+                    Trace.log(Trace.ERROR, "Value of parameter 'attribute' is not valid: " + attribute);
+                    throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
+	}    
+    }    
+    
+    /**
+     Clears the message attributes to be retrieved for a given Joblog.  This removes all of the joblog attributes that would be retrieved including the default message attributes. If all message attributes are cleared a call to addAttributeToRetrieve must be called or an exception will be thrown.
+     @see  #addAttributeToRetrieve
+     **/
+    public void clearAttributesToRetrieve()
+    {
+        numberOfFieldIdentifiers_.clear();
     }
 
     /**
@@ -246,7 +419,7 @@ public class JobLog implements Serializable
     }
 
     /**
-     Returns the list of messages in the job log.  The messages are listed from oldest to newest.
+     Returns the list of messages in the job log.
      @return  An Enumeration of <a href="QueuedMessage.html">QueuedMessage</a> objects.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -382,7 +555,6 @@ public class JobLog implements Serializable
 
             messages[i] = new QueuedMessage(system_, messageSeverity, messageIdentifier, messageType, messageKey, messageFileName, messageFileLibrarySpecified, dateSent, timeSent);
 
-            // Our 6 fields should've come back.
             for (int j = 0; j < numFields; ++j)
             {
                 int offsetToNextField = BinaryConverter.byteArrayToInt(data, fieldOffset);
@@ -391,38 +563,43 @@ public class JobLog implements Serializable
                 int dataLen = BinaryConverter.byteArrayToInt(data, fieldOffset + 28);
                 if (type == (byte)0xC3) // 'C'
                 {
-                    messages[i].setValueInternal(fieldID, conv.byteArrayToString(data, fieldOffset + 32, dataLen));
+		    if ( fieldID == 201 )
+		    {
+			byte[] substitutionData = new byte[dataLen];
+                        System.arraycopy(data, fieldOffset +32, substitutionData, 0, dataLen);
+                        messages[i].setValueInternal(fieldID, substitutionData);
+	            }
+		    else 
+		    {
+                        messages[i].setValueInternal(fieldID, conv.byteArrayToString(data, fieldOffset + 32, dataLen));
+	            }
                 }
                 else if (type == (byte)0xC2) // 'B'
                 {
-                    // We should never get here using our standard 6 keys.
-                    if (dataLen > 4)
-                    {
-                        messages[i].setAsLong(fieldID, BinaryConverter.byteArrayToLong(data, fieldOffset + 32));
-                    }
-                    else
-                    {
-                        messages[i].setAsInt(fieldID, BinaryConverter.byteArrayToInt(data, fieldOffset + 32));
-                    }
+                  if (dataLen > 4)
+                  {
+                       messages[i].setAsLong(fieldID, BinaryConverter.byteArrayToLong(data, fieldOffset + 32));
+                  }
+                  else
+                  {
+                       messages[i].setAsInt(fieldID, BinaryConverter.byteArrayToInt(data, fieldOffset + 32));
+                  }
                 }
                 else
                 {
-                    // We should never get here using our standard 6 keys.
-                    // Type = 'M'.  Used for fields 606 and 706
-                    int numStatements = BinaryConverter.byteArrayToInt(data, fieldOffset + 32);
-                    String[] statements = new String[numStatements];
-                    for (int k = 0; k < numStatements; ++k)
-                    {
-                        statements[k] = conv.byteArrayToString(data, fieldOffset + 36 + (k * 10), 10);
-                    }
-                    messages[i].setValueInternal(fieldID, statements);
+                  int numStatements = BinaryConverter.byteArrayToInt(data, fieldOffset + 32);
+                  String[] statements = new String[numStatements];
+                  for (int k = 0; k < numStatements; ++k)
+                  {
+                      statements[k] = conv.byteArrayToString(data, fieldOffset + 36 + (k * 10), 10);
+                  }
+                  messages[i].setValueInternal(fieldID, statements);
                 }
                 fieldOffset = offsetToNextField;
             }
 
             offset = entryOffset;
         }
-
         return messages;
     }
 
@@ -493,6 +670,7 @@ public class JobLog implements Serializable
      **/
     public synchronized void load() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading job log message list.");
         if (system_ == null)
         {
@@ -516,55 +694,10 @@ public class JobLog implements Serializable
         // Close the previous list.
         if (closeHandle_) close();
 
-        // Generate text objects based on system CCSID.
-        Converter conv = new Converter(system_.getCcsid(), system_);
-
         // Create the message selection information.
-        byte[] messageSelectionInformation = new byte[105];
-        if (listDirection_)
-        {
-            // EBCDIC '*NEXT'.
-            System.arraycopy(new byte[] { 0x5C, (byte)0xD5, (byte)0xC5, (byte)0xE7, (byte)0xE3 }, 0, messageSelectionInformation, 0, 5);
-        }
-        else
-        {
-            // EBCDIC '*PRV '.
-            System.arraycopy(new byte[] { 0x5C, (byte)0xD7, (byte)0xD9, (byte)0xE5, 0x40 }, 0, messageSelectionInformation, 0, 5);
-        }
-        // Blank pad from end of List direction through Internal job identifier.
-        for (int i = 5; i < 52; ++i) messageSelectionInformation[i] = 0x40;
-        conv.stringToByteArray(name_.toUpperCase().trim(), messageSelectionInformation, 10);
-        conv.stringToByteArray(user_.toUpperCase().trim(), messageSelectionInformation, 20);
-        conv.stringToByteArray(number_, messageSelectionInformation, 30);
-        byte[] startingMessageKey = (startingMessageKey_ != null ? startingMessageKey_ : (listDirection_ ? MessageQueue.OLDEST : MessageQueue.NEWEST));
-        System.arraycopy(startingMessageKey, 0, messageSelectionInformation, 52, 4);
-        // Only used for fields 401, 402, 403, or 404.
-        BinaryConverter.intToByteArray(maxMessageLength_, messageSelectionInformation, 56);
-        // Only used for fields 301 or 302.
-        BinaryConverter.intToByteArray(maxMessageHelpLength_, messageSelectionInformation, 60);
-        // Offset of identifiers.
-        BinaryConverter.intToByteArray(80, messageSelectionInformation, 64);
-        // Number of identifiers to return.
-        BinaryConverter.intToByteArray(6, messageSelectionInformation, 68);
-        // Offset of call message queue name.
-        BinaryConverter.intToByteArray(104, messageSelectionInformation, 72);
-        // Size of call message queue name.
-        BinaryConverter.intToByteArray(1, messageSelectionInformation, 76);
-        // Message with replacement data.
-        BinaryConverter.intToByteArray(302, messageSelectionInformation, 80);
-        // Sending program name.
-        BinaryConverter.intToByteArray(603, messageSelectionInformation, 84);
-        // Reply status.
-        BinaryConverter.intToByteArray(1001, messageSelectionInformation, 88);
-        // Default reply.
-        BinaryConverter.intToByteArray(501, messageSelectionInformation, 92);
-        // Message help with replacement data and formatting characters.
-        BinaryConverter.intToByteArray(404, messageSelectionInformation, 96);
-        // Alert option.
-        BinaryConverter.intToByteArray(101, messageSelectionInformation, 100);
-        // Call message queue name, EBCDIC '*', Messages from every call of the job are listed.
-        messageSelectionInformation[104] = 0x5C;
-
+        byte[] messageSelectionInformation = listInformationArray();
+  
+      
         // Setup program parameters.
         ProgramParameter[] parameters = new ProgramParameter[]
         {
@@ -584,7 +717,7 @@ public class JobLog implements Serializable
             ERROR_CODE,
         };
 
-        // Call the program.
+        // Call the program. This API is not thread safe. 
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLJBL.PGM", parameters);
         if (!pc.run())
         {
@@ -1094,6 +1227,74 @@ public class JobLog implements Serializable
     private static final byte[] typeInformational_ = new byte[] { 0x5C, (byte)0xC9, (byte)0xD5, (byte)0xC6, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40 }; // "*INFO     "
 
     private static final byte[] callStackEntry_ = new byte[] { 0x5C, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 }; // "*         "
+    
+    private void addDefaultListInformation()
+    {
+        numberOfFieldIdentifiers_.add(new Integer(REPLY_STATUS));
+        numberOfFieldIdentifiers_.add(new Integer(SENDING_PROGRAM_NAME));
+        numberOfFieldIdentifiers_.add(new Integer(DEFAULT_REPLY));
+        numberOfFieldIdentifiers_.add(new Integer(MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS));
+        numberOfFieldIdentifiers_.add(new Integer(MESSAGE_WITH_REPLACEMENT_DATA));
+        numberOfFieldIdentifiers_.add(new Integer(ALERT_OPTION));
+    }
+
+    private byte[] listInformationArray() throws IOException
+    {
+	byte [] messageSelectionInformation = new byte[ qgygtleHeaderLength_ + (numberOfFieldIdentifiers_.size() * 4) ];
+  
+        // Generate text objects based on system CCSID.
+        Converter conv = new Converter(system_.getCcsid(), system_);
+       
+        // List direction. The direction to list messages can be *NEXT or *PRV. 
+	if (listDirection_)
+            System.arraycopy(new byte[] { 0x5C, (byte)0xD5, (byte)0xC5, (byte)0xE7, (byte)0xE3 }, 0, messageSelectionInformation, 0, 5);
+        else
+            System.arraycopy(new byte[] { 0x5C, (byte)0xD7, (byte)0xD9, (byte)0xE5, 0x40 }, 0, messageSelectionInformation, 0, 5);
+
+        // Blank pad from end of List direction through Internal job identifier.
+        for (int i = 5; i < 52; ++i) messageSelectionInformation[i] = 0x40;
+        
+	// Job name, user, and number 
+        conv.stringToByteArray(name_.toUpperCase().trim(), messageSelectionInformation, 10);
+        conv.stringToByteArray(user_.toUpperCase().trim(), messageSelectionInformation, 20);
+        conv.stringToByteArray(number_, messageSelectionInformation, 30);
+        
+	byte[] startingMessageKey = (startingMessageKey_ != null ? startingMessageKey_ : (listDirection_ ? MessageQueue.OLDEST : MessageQueue.NEWEST));
+        
+	System.arraycopy(startingMessageKey, 0, messageSelectionInformation, 52, 4);
+        // Only used for fields 401, 402, 403, or 404.
+        BinaryConverter.intToByteArray(maxMessageLength_, messageSelectionInformation, 56);
+        // Only used for fields 301 or 302.
+        BinaryConverter.intToByteArray(maxMessageHelpLength_, messageSelectionInformation, 60);
+        // Offset of identifiers.
+        BinaryConverter.intToByteArray(80, messageSelectionInformation, 64);
+
+	// Number of identifiers to return, which should be the amount of
+	// objects in the vector numberOfFieldIdentifiers_
+        BinaryConverter.intToByteArray(numberOfFieldIdentifiers_.size(), messageSelectionInformation, 68);
+        
+	// Offset of call message queue name. The size of the header + number of
+	// fields * 4 bytes - 1, which puts us at the end of the byte array - 1
+        BinaryConverter.intToByteArray((qgygtleHeaderLength_ + (numberOfFieldIdentifiers_.size() * 4) -1), messageSelectionInformation, 72);
+        
+	// Size of call message queue name.
+        BinaryConverter.intToByteArray(1, messageSelectionInformation, 76);
+      
+        // Add the fields to the byte array 
+        Enumeration  fields = numberOfFieldIdentifiers_.elements();
+        int offset = qgygtleHeaderLength_ - 1; 	
+        while (fields.hasMoreElements())
+	{
+	    BinaryConverter.intToByteArray(((Integer)(fields.nextElement())).intValue(), messageSelectionInformation, offset);
+	    offset += 4;         	                        
+        }
+
+        // Call message queue name, EBCDIC '*', Messages from every call of the job are listed.
+        messageSelectionInformation[  (qgygtleHeaderLength_ - 1 )+ (numberOfFieldIdentifiers_.size() * 4) ] = 0x5C;
+
+        return messageSelectionInformation; 
+    } 
+
 
     private static void sendProgramMessage(AS400 system, String messageID, String messageFile, byte[] replacementData, int messageType, boolean onThread) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
