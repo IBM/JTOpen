@@ -261,7 +261,7 @@ public class QueuedMessage extends AS400Message implements Serializable
     
     /**
      Returns the level of the request-processing program that received the request message. If the message being listed is not a request, this field is set to 0.
-     @returns The level of the request-processing program that received the request message or an empty string if not set.
+     @return The level of the request-processing program that received the request message or an empty string if not set.
      **/
     public Integer getRequestLevel()
     {
