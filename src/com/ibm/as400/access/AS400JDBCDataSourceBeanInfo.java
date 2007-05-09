@@ -557,7 +557,14 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             decfloatRoundingMode.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_DECFLOAT_ROUNDING_MODE")); //@DFA
             decfloatRoundingMode.setShortDescription(AS400JDBCDriver.getResource("DECFLOAT_ROUNDING_MODE_DESC")); //@DFA
 
-            
+            //@CE1 - added support for throwing sqlException when commit is called if autocommit is on
+            PropertyDescriptor autocommitException = new PropertyDescriptor("autocommitException", beanClass, "getAutocommitException", "setAutocommitException");  //@CE1
+            autocommitException.setBound(true);   //@CE1
+            autocommitException.setConstrained(false);    //@CE1
+            autocommitException.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTOCOMMIT_EXCEPTION")); //@CE1
+            autocommitException.setShortDescription(AS400JDBCDriver.getResource("AUTOCOMMIT_EXCEPTION_DESC")); //@CE1
+
+          
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,

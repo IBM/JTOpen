@@ -149,12 +149,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              METADATA_SOURCE            = 72; //@PDA
     static final int              QUERY_STORAGE_LIMIT        = 73; //@550
     static final int              DECFLOAT_ROUNDING_MODE     = 74; //@DFA
+    static final int              AUTOCOMMIT_EXCEPTION       = 75; //@CE1
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 75;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 76;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550 @DFA 
+                                                               // @PDC @550 @DFA @CE1
 
 
     // Property names.
@@ -235,6 +236,8 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String METADATA_SOURCE_ = "metadata source";       //@PDA
     private static final String QUERY_STORAGE_LIMIT_ = "query storage limit";   //@550
     private static final String DECFLOAT_ROUNDING_MODE_ = "decfloat rounding mode"; //@DFA
+    private static final String AUTOCOMMIT_EXCEPTION_ = "autocommit exception"; //@CE1
+    
 
 
 
@@ -1267,6 +1270,17 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[5]  = DECFLOAT_ROUNDING_MODE_HALF_DOWN;
         dpi_[i].choices[6]  = DECFLOAT_ROUNDING_MODE_UP;
         defaults_[i]        = DECFLOAT_ROUNDING_MODE_HALF_EVEN;
+        
+        // Autocommit Exception  //@CE1
+        i = AUTOCOMMIT_EXCEPTION;
+        dpi_[i] = new DriverPropertyInfo (AUTOCOMMIT_EXCEPTION_, "");
+        dpi_[i].description = "AUTOCOMMIT_EXCEPTION_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = TRUE_;
+        dpi_[i].choices[1]  = FALSE_;
+        defaults_[i]  = FALSE_;
+        
     }
 
 

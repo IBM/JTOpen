@@ -529,6 +529,10 @@ implements Connection
         if (!transactionManager_.isLocalTransaction())                      // @E4A
             JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
+        // Note: CPS 72CSHT support
+        if (transactionManager_.getAutoCommit () && properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION))  //@CE1
+            JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);    //@CE1
+        
         // Note:  Intuitively, it seems like if we are in
         //        auto-commit mode, that we should not need to
         //        do anything for an explicit commit.  However,

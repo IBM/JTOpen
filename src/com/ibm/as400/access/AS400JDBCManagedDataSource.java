@@ -1580,6 +1580,17 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
 
+  //@CE1
+  /**
+   *  Returns whether commit throws SQLException when autocommit is enabled.
+   *  @return Autocommit Exception.
+   *  The default value is false.
+   **/
+   public boolean isAutocommitException()
+   {
+       return properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION);
+   }
+
   /**
    Indicates whether bidi implicit reordering is used.
    @return true if bidi implicit reordering is used; false otherwise.
@@ -2000,6 +2011,21 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     // Note: The JDProperties.setString() logs the property change.
   }
 
+  //@CE1
+  /**
+   *  Sets whether commit throws SQLException when autocommit is enabled.
+   *  @param value
+   *  The default value is false.
+   **/
+   public void setAutocommitException(boolean value)
+   {
+       if (value)
+           properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, TRUE_);
+       else
+           properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, FALSE_);
+
+   }
+   
   /**
    Sets whether true auto commit support is used.
    @param value true if true auto commit support should be used; false otherwise.
