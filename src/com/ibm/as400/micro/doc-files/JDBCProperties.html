@@ -609,6 +609,14 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="t5">(platform dependent)</TD>
   </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;variable field compression&quot;</TD>
+    <TD HEADERS="t2">Specifies whether variable-length fields should be compressed.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
 </TABLE>
 
 <A NAME="sort"></A>
@@ -685,6 +693,16 @@ attributes. The tables organize the properties into the following categories:</P
       &quot;read call&quot; (SELECT and CALL statements allowed)<BR>
       &quot;read only&quot; (SELECT statements only)</TD>
     <TD HEADERS="t5">&quot;all&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;autocommit exception&quot;</TD>
+    <TD HEADERS="t2">Specifies whether to throw an SQLException when Connection.commit() is called if autocommit is enabled.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> 
+      <P>"true"<BR>
+	   "false"<BR></P>
+    </TD>
+     <TD HEADERS="t5">&quot;false&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;bidi string type&quot;</TD>
