@@ -1308,6 +1308,17 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION);
     }
 
+    //@CE1
+    /**
+     *  Returns whether commit throws SQLException when autocommit is enabled.
+     *  @return Autocommit Exception.
+     *  The default value is false.
+     **/
+     public boolean isAutocommitException()
+     {
+         return properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION);
+     }
+     
     //@K24
     /**
     *  Indicates whether bidi implicit reordering is used.
@@ -1709,6 +1720,29 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + access);  //@A8C
     }
 
+    //@CE1
+    /**
+     *  Sets whether commit throws SQLException when autocommit is enabled.
+     *  @param value
+     *  The default value is false.
+     **/
+     public void setAutocommitException(boolean value)
+     {
+         String property = "autocommitException";
+         Boolean oldValue = new Boolean(isAutocommitException());
+         Boolean newValue = new Boolean(value);
+
+         if (value)
+             properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, TRUE_);
+         else
+             properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, FALSE_);
+
+         changes_.firePropertyChange(property, oldValue, newValue);
+
+         if (JDTrace.isTraceOn()) 
+             JDTrace.logInformation (this, property + ": " + value);   
+     }
+     
     //@KBA
     /**
     *  Sets whether true auto commit support is used.
