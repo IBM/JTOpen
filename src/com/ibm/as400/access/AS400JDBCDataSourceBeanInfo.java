@@ -558,7 +558,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             decfloatRoundingMode.setShortDescription(AS400JDBCDriver.getResource("DECFLOAT_ROUNDING_MODE_DESC")); //@DFA
 
             //@CE1 - added support for throwing sqlException when commit is called if autocommit is on
-            PropertyDescriptor autocommitException = new PropertyDescriptor("autocommitException", beanClass, "getAutocommitException", "setAutocommitException");  //@CE1
+            PropertyDescriptor autocommitException = new PropertyDescriptor("autocommitException", beanClass, "isAutocommitException", "setAutocommitException");  //@CE1
             autocommitException.setBound(true);   //@CE1
             autocommitException.setConstrained(false);    //@CE1
             autocommitException.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTOCOMMIT_EXCEPTION")); //@CE1
