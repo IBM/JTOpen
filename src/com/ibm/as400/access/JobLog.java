@@ -24,20 +24,36 @@ import java.util.Enumeration;
 import java.util.Vector;
 /**
  Represents a job log on the system.  This class is used to get a list of messages in a job log or to write messages to a job log.
- <p>QueuedMessage objects have many attributes.  Only some of theses attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values are set on QueuedMessage objects returned in a list of job log messages:
+ <p>QueuedMessage objects have many attributes.  Only some of theses attribute values are set, depending on how a QueuedMessage object is created.  The following is a list of attributes whose values can be set on QueuedMessage objects returned in a list of job log messages:
  <ul>
- <li>alert option
- <li>date sent
- <li>default reply
- <li>message file
- <li>message help
- <li>message ID
- <li>message key
- <li>message severity
- <li>message text
- <li>message type
- <li>reply status
- <li>sending program name
+ <li>0101 Alert option
+ <li>0201 Replacement data or impromptu message text
+ <li>0301 Message
+ <li>0302 Message with replacement data
+ <li>0401 Message help
+ <li>0402 Message help with replacement data
+ <li>0403 Message help with formatting characters
+ <li>0404 Message help with replacement data and formatting characters
+ <li>0501 Default reply
+ <li>0602 Sender type
+ <li>0603 Sending program name
+ <li>0604 Sending module name
+ <li>0605 Sending procedure name
+ <li>0606 Number of sending statement numbers 
+ <li>0607 Sending user profile
+ <li>0702 Receiving type
+ <li>0703 Receiving program name
+ <li>0704 Receiving module name
+ <li>0705 Receiving procedure name
+ <li>0706 Number of receiving statement numbers
+ <li>0801 Message file library used
+ <li>1001 Reply status
+ <li>1101 Request status
+ <li>1201 Request level
+ <li>1301 Coded character set identifier (CCSID) for text
+ <li>1302 CCSID conversion status indicator for text
+ <li>1303 Coded character set identifier (CCSID) for data
+ <li>1304 CCSID conversion status indicator for data
  </ul>
  @see  com.ibm.as400.access.QueuedMessage
  **/
