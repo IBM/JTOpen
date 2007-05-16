@@ -554,8 +554,8 @@ final class ConnectionList
               poolListeners.fireConnectionExpiredEvent(poolEvent);  
             }
           }
-          if ((properties_.getMaxLifetime() >= 0) &&
-              (p.getLifeSpan() >= properties_.getMaxLifetime()))
+	  if ( (properties_.getMaxLifetime() >= 0) && 
+	  (p.getLifeSpan() >= properties_.getMaxLifetime()) && (!p.isInUse()))
           {
             //@B4C remove any item that has lived past expected lifetime
             if (log_ != null)
