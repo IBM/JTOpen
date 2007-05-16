@@ -528,7 +528,10 @@ Sets the fetch size.
     // for the wrong row was given to the app. 
     if (rowNumber > 0)
     {
-      first (true);                                                // @G1c
+      if(cursor_.isClosed())  //@CU1
+          first(false);       //@CU1
+      else                    //@CU1
+          first (true);                                                // @G1c
       relative (rowNumber - 1);
     }
     else
