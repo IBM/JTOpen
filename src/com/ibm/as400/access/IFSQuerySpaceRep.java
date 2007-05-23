@@ -52,10 +52,16 @@ Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *N
 **/
   long getFreeSpace()
   {
-    long totalSpace = (long)get32bit(TOTAL_SPACE_OFFSET);
+    // Previously used get32bit(), but get32bit() incorrectly treated the 4 byte field 
+    // as a 4-byte signed value.  On large systems, where the most significant bit was
+    // set (in the IFSQuerySpaceRep response), we were returning a negative value.
+    // BinaryConverter.byteArrayToUnsignedInt() treats the data as unsigned.
+    long totalSpace = BinaryConverter.byteArrayToUnsignedInt(data_, TOTAL_SPACE_OFFSET);
+    long spaceAvail = BinaryConverter.byteArrayToUnsignedInt(data_, SPACE_AVAILABLE_OFFSET);
+    long unitSize = BinaryConverter.byteArrayToUnsignedInt(data_, UNIT_SIZE_OFFSET);
+
     if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // special value indicates no maximum storage limit
-    else return ((long) get32bit( UNIT_SIZE_OFFSET) *
-            (long) get32bit( SPACE_AVAILABLE_OFFSET));
+    else return (unitSize * spaceAvail);
   }
 
 /**
