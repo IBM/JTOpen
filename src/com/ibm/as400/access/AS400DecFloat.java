@@ -153,6 +153,7 @@ public class AS400DecFloat implements AS400DataType
     {
         //verify input
         long specialCombination = 0L; //ieee algorithm says: Combination G (11111-> NaN, 11110-> (-1)^sign Infinity)
+        int signalingNaN = -1;  //@sig1 for now, only support non-signaling until decfloat/double etc support it
         if(javaValue instanceof String)
         {
             //special value "NaN", "Infinity", or "-Infinity"
@@ -161,11 +162,13 @@ public class AS400DecFloat implements AS400DataType
             {
                 javaValue = new BigDecimal("1");
                 specialCombination = 0x1fL;
+                signalingNaN = 0;  //@sig1 non signaling
             }
             else if ( javaValue.equals("-NaN") )
             {
                 javaValue = new BigDecimal("-1");
                 specialCombination = 0x1fL;
+                signalingNaN = 0;  //@sig1 non signaling
             }
             else if ( javaValue.equals("Infinity") )
             {
@@ -243,8 +246,9 @@ public class AS400DecFloat implements AS400DataType
                 combination |= ((exponent & 0x300) >> 5);
                 combination |= coefficientDigits[0];
             }
-            decFloat16Bits |= (combination << 58);
 
+            decFloat16Bits |= (combination << 58);
+ 
             // mask the sign bit.
             if (sign == -1)
             {
@@ -259,7 +263,12 @@ public class AS400DecFloat implements AS400DataType
             as400Value[offset + 5] = (byte) ((decFloat16Bits >> 16) & 0xFF);
             as400Value[offset + 6] = (byte) ((decFloat16Bits >> 8) & 0xFF);
             as400Value[offset + 7] = (byte) (decFloat16Bits & 0xFF);
-        
+            
+            if(signalingNaN == 0)                                                            //@sig1
+                as400Value[offset] &= 0xFD;  //non signaling (switch off 7th bit)            //@sig1
+            else if (signalingNaN == 1)                                                      //@sig1
+                as400Value[offset] |= 0x02;  //signaling (switch on 7th bit)                 //@sig1
+            
             return 8;  //always 8 bytes  for DECFLOAT16
         }
         else  //DECFLOAT34
@@ -359,6 +368,11 @@ public class AS400DecFloat implements AS400DataType
             as400Value[offset + 13] = (byte) ((decFloat34BitsLo >> 16) & 0xFF);
             as400Value[offset + 14] = (byte) ((decFloat34BitsLo >> 8) & 0xFF);
             as400Value[offset + 15] = (byte) (decFloat34BitsLo & 0xFF);
+            
+            if(signalingNaN == 0)                                                            //@sig1
+                as400Value[offset] &= 0xFD;  //non signaling (switch off 7th bit)            //@sig1
+            else if (signalingNaN == 1)                                                      //@sig1
+                as400Value[offset] |= 0x02;  //signaling (switch on 7th bit)                 //@sig1
             
             return 16;  //always 16 bytes for DECFLOAT34
 
