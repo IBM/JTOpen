@@ -127,7 +127,7 @@ public class SystemPool
          poolName_ = poolName;
          isSharedPool_ = true;
      }
-
+     
      /**
       * Constructs a SystemPool object, to represent a subsystem (private) pool.
       *
@@ -162,6 +162,31 @@ public class SystemPool
      SystemPool(AS400 system, byte[] poolInformation) throws AS400SecurityException, IOException
      {
          this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 44, 10));
+     }
+
+     SystemPool(AS400 system, byte[] poolInformation, int poolIdentifier) throws AS400SecurityException, IOException
+     {
+         this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 44, 10), poolIdentifier);
+     }
+
+     /**
+      * Constructs a SystemPool object, to represent a shared system pool.
+      *
+      * @param system The system.
+      * @param poolName The name of the shared system pool.
+      * @param poolIdentifier The system-related pool identifier.
+      **/
+     public SystemPool(AS400 system, String poolName, int poolIdentifier)
+     {
+         if (system == null)
+            throw new NullPointerException ("system");
+         if (poolName == null)
+            throw new NullPointerException ("poolName");
+
+         system_ = system;
+         poolName_ = poolName;
+         poolIdentifier_ = new Integer(poolIdentifier);
+         isSharedPool_ = true;
      }
 
      /**
@@ -1278,13 +1303,33 @@ public class SystemPool
         Trace.log(Trace.DIAGNOSTIC, "Parsed pool at offset "+offset+": "+pool.toString());
       }
       String ret = ((String)pool.getField("poolName")).trim();
+      Integer poolIdentifier = ((Integer)pool.getField("poolIdentifier"));
 
-      if (isSharedPool_)
+      if ((isSharedPool_) && (poolIdentifier_ == null))
       { // It's a shared system pool, so it's uniquely identified by the pool name.
         if (DEBUG) {
           System.out.println("Looking for poolName=="+poolName+", got: " + ret);
         }
-        if (ret.equals(poolName))
+        if (ret.equals(poolName)) 
+        {
+          if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+          {
+            Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
+          }
+
+          poolRecord_ = pool;
+          return;
+        }
+      }
+      else if ((isSharedPool_) && (poolIdentifier_ != null))
+      { // It's a shared system pool and poolIdentifier_ is set, so
+        // we can identifier the pool by name and identifier. This is in cass
+	// there are two isSharedPooled pools with same name. 
+        if (DEBUG) {
+          System.out.println("Looking for poolName=="+poolName+", got: " + ret);
+        }
+        if ( (ret.equals(poolName)) && 
+	     (poolIdentifier_.equals(poolIdentifier)) )
         {
           if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
           {
