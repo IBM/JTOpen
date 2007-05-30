@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException; //@A6A
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.StringTokenizer;            //@D4A
 
 
 /**
@@ -112,6 +113,10 @@ public class IFSFile
    directory/file components in a path.
    **/
   public final static char separatorChar = '/';
+
+  private final static String DOT = ".";    // @D4A
+  private final static String DOTDOT = "..";// @D4A
+
   /**
    Value for indicating that "POSIX" pattern-matching is used by the various <tt>list()</tt> and <tt>listFiles()</tt> methods.
    <br>Using POSIX semantics, all files are listed that match the pattern and do not begin with a period (unless the pattern begins with a period).  In that case, names beginning with a period are also listed.  Note that when no pattern is specified, the default pattern is "*".
@@ -1004,13 +1009,77 @@ public class IFSFile
 
 
   /**
-   Returns the path name of the integrated file system object represented by
-   this object.  This is the full path starting at the root directory.
+   Returns the canonical pathname string of the integrated file system 
+   object represented by this object.  This is the full path starting 
+   at the root directory.  This typically involves removing redundant 
+   names such as "." and ".." from the pathname.
+   Symbolic links are not resolved.
    @return The canonical path name of this integrated file system object.
    **/
   public String getCanonicalPath()
   {
-    return path_;
+    // Numerous changes added to remove DOT, DOTDOT, and multiple @D4A
+    // separator characters.  Previously, this method simply      @D4A
+    // returned path_                                             @D4A
+    StringBuffer pathBuffer = new StringBuffer("");
+    String pathElem;
+
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, " path_='"+path_+"'");
+
+    StringTokenizer st = new StringTokenizer(path_, separator);
+
+    // Process each path element.
+    while (st.hasMoreTokens())
+    {
+      pathElem = st.nextToken();
+
+      if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, " pathElem='"+pathElem+"'");
+
+      if (pathElem.length() == 0)
+      {
+        // pathElem is empty... or is only the separator
+        // Nothing to add to pathBuffer...
+      }
+      else if (pathElem.equals(DOT))
+      {
+        // Remove the "." from the path... copy nothing to pathBuffer.
+      }
+      else if (pathElem.equals(DOTDOT))
+      {
+        // Remove last element of current canPath
+        int lastSepIndex = pathBuffer.lastIndexOf(separator);
+        if (lastSepIndex == -1)
+        {
+          // Can get here if too many DOT-DOTs which would result
+          // in trying to preceed the root directory....
+          // Ignore this path element
+        }
+        else
+        {
+          // This will remove the last element of canPath
+          //(e.g. "/abc/xyz" will become "/abc")
+          pathBuffer.delete(lastSepIndex, pathBuffer.length());
+        }
+      }
+      else
+      {
+        // Normal path element... so append it
+        pathBuffer.append(separator);
+        pathBuffer.append(pathElem);
+      }
+    }
+
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, " pathBuffer.toString()='"+pathBuffer.toString()+"'");
+
+    if (pathBuffer.length() == 0)
+    {
+      // This is possible if original path_ contains nothing but DOTs and DOTDOTs
+      return(separator);
+    }
+    else
+    {
+      return(pathBuffer.toString());
+    }
   }
 
 
