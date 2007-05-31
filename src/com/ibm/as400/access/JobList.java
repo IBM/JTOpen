@@ -731,7 +731,7 @@ public class JobList implements Serializable
                 break;
             case SELECTION_ACTIVE_JOB_STATUS:
                 String status = ((String)selectionValue).toUpperCase();
-                if (currentActiveStatus_ > activeStatuses_.length)
+                if (currentActiveStatus_ >= activeStatuses_.length)         //JTOpen Bug 1728765
                 {
                     String[] temp = activeStatuses_;
                     activeStatuses_ = new String[temp.length * 2];
@@ -761,7 +761,7 @@ public class JobList implements Serializable
                 String lib = path.getLibraryName();
                 buf.append(lib);
 
-                if (currentJobQueue_ > jobQueues_.length)
+                if (currentJobQueue_ >= jobQueues_.length)      //JTOpen Bug 1728765
                 {
                     String[] temp = jobQueues_;
                     jobQueues_ = new String[temp.length * 2];
@@ -771,7 +771,7 @@ public class JobList implements Serializable
                 break;
             case SELECTION_INITIAL_USER:
                 String profile = ((String)selectionValue).toUpperCase();
-                if (currentInitialUser_ > initialUsers_.length)
+                if (currentInitialUser_ >= initialUsers_.length)        //JTOpen Bug 1728765
                 {
                     String[] temp = initialUsers_;
                     initialUsers_ = new String[temp.length * 2];
@@ -781,7 +781,7 @@ public class JobList implements Serializable
                 break;
             case SELECTION_SERVER_TYPE:
                 String type = ((String)selectionValue).toUpperCase();
-                if (currentServerType_ > serverTypes_.length)
+                if (currentServerType_ >= serverTypes_.length)      //JTOpen Bug 1728765
                 {
                     String[] temp = serverTypes_;
                     serverTypes_ = new String[temp.length * 2];
@@ -791,7 +791,7 @@ public class JobList implements Serializable
                 break;
             case SELECTION_JOB_TYPE_ENHANCED:
                 int val = ((Integer)selectionValue).intValue();
-                if (currentEnhancedJobType_ > enhancedJobTypes_.length)
+                if (currentEnhancedJobType_ >= enhancedJobTypes_.length)        //JTOpen Bug 1728765
                 {
                     int[] temp = enhancedJobTypes_;
                     enhancedJobTypes_ = new int[temp.length * 2];
