@@ -57,7 +57,8 @@ import java.io.PrintStream;
 //                        Bit 14: RLE compression reply desired                     @E2A
 //                        Bit 15: Extended column descriptors                       @K54
 //                        Bit 16: Varying Character Column Compression              @K54
-//                        Bit 17-32: Reserved                                       @E2C @K54
+//                        Bit 17: Cursor Attributes                                 @cur
+//                        Bit 18-32: Reserved                                       @E2C @K54
 //                Reserved Area:
 //                        Bit 1: Are indicators and data compressed?            // @D1A
 //                        Bit 2-32: Reserved                                    // @D1A
@@ -226,6 +227,11 @@ extends ClientAccessDataStream
 
 
   private final DBStorage storage_ = DBDSPool.storagePool_.getUnusedStorage(); //@P0A
+  
+  private int holdable = -1;      //@cur
+  private int scrollable = -1;    //@cur
+  private int updatable = -1;     //@cur
+  private int sensitive = -1;     //@cur 
 
   
   //@P0A - Call this in place of constructing a new reply datastream.
@@ -248,6 +254,11 @@ extends ClientAccessDataStream
     serverAttributes_ = null;
     sqlca_ = null;
     xids_ = null;
+    holdable = -1;      //@cur
+    scrollable = -1;    //@cur
+    updatable = -1;     //@cur
+    sensitive = -1;     //@cur 
+    
   }
 
                          
@@ -277,6 +288,46 @@ four bytes, and sixteen bytes per line.
   }                                                               // @E1A
 
 
+    //@cur new method
+    /**
+    Returns the cursor attribute holdable.
+    @return The server attribute holdable. (1 is holdable, 0 is not holdable, -1 if unknown (pre-550))
+    **/
+    public int getCursorAttributeHoldable()
+    {
+            return holdable;
+    }
+    
+    //@cur new method
+    /**
+    Returns the cursor attribute Scrollable.
+    @return The server attribute Scrollable. (1 is Scrollable, 0 is not Scrollable, -1 if unknown (pre-550))
+    **/
+    public int getCursorAttributeScrollable()
+    {
+            return scrollable;
+    }
+    
+    //@cur new method
+    /**
+    Returns the cursor attribute Updatable.
+    @return The server attribute Updatable. (1 is Updatable, 0 is not Updatable, -1 if unknown (pre-550))
+    **/
+    public int getCursorAttributeUpdatable()
+    {
+            return updatable;
+    }
+    
+    //@cur new method
+    /**
+    Returns the cursor attribute Sensitive.
+    @return The server attribute Sensitive. (1 is Sensitive, 0 is not Sensitive, -1 if unknown (pre-550))
+    **/
+    public int getCursorAttributeSensitive()
+    {
+            return sensitive;
+    }
+    
 
 /**
 Returns the data format.
@@ -754,6 +805,18 @@ Parses the datastream.
               //System.out.println("extended parameter marker format");
             parameterMarkerFormat_ = new DBSuperExtendedDataFormat ();
             parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          break;
+          
+          // Cursor attributes    //@cur
+        case 0x3814:
+          if (parmLength != 6)
+          {
+              int attrs = get32bit(offset + 6);    //4 bytes, 1 per byte
+              holdable = (attrs >> 24) & 0x0001;
+              scrollable = (attrs >> 16) & 0x0001;
+              updatable = (attrs >> 8) & 0x0001;
+              sensitive = ((attrs >> 0) & 0x0001) == 1 ? 0 : 1; //attr from zda is INsensitive          
           }
           break;
       }            

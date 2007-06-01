@@ -49,7 +49,10 @@ class JDCursor
   private boolean             lazyClose_;                         // @E2A
   private String              name_;
   private int                 concurrency_;                       // @E4A
-
+  private int                 holdable_ = -1;            //@cur
+  private int                 scrollable_ = -1;          //@cur
+  private int                 updatable_ = -1;           //@cur (if on 550 hostserver, can use this instead of concurrency_)
+  private int                 sensitive_ = -1;           //@cur
 
 
 /**
@@ -405,6 +408,64 @@ bitmap in the request.
     }
   }
 
+
+  
+//@cur new method
+/**
+Processes a cursor attributes from a reply.
+
+@param reply            The reply.
+**/
+ void processCursorAttributes(DBBaseReplyDS reply)
+ throws SQLException
+ {
+     holdable_ = reply.getCursorAttributeHoldable();
+     scrollable_ = reply.getCursorAttributeScrollable();
+     updatable_ = reply.getCursorAttributeUpdatable();
+     sensitive_ = reply.getCursorAttributeSensitive();
+ }
+
+
+ //@cur new method
+ /**
+ Returns the cursor attribute holdable.
+ @return The server attribute holdable. (1 is holdable, 0 is not holdable)
+ **/
+ public int getCursorAttributeHoldable()
+ {
+     return holdable_;     
+ }
+ 
+ //@cur new method
+ /**
+ Returns the cursor attribute Scrollable.
+ @return The server attribute Scrollable. (1 is Scrollable, 0 is not Scrollable)
+ **/
+ public int getCursorAttributeScrollable()
+ {
+     return scrollable_;
+ }
+ 
+ //@cur new method
+ /**
+ Returns the cursor attribute Updatable.
+ @return The server attribute Updatable. (1 is Updatable, 0 is not Updatable)
+ **/
+ public int getCursorAttributeUpdatable()
+ {
+     return updatable_;
+ }
+ 
+ //@cur new method
+ /**
+ Returns the cursor attribute Sensitive.
+ @return The server attribute Sensitive. (1 is Sensitive, 0 is not Sensitive)
+ **/
+ public int getCursorAttributeSensitive()
+ {
+     return sensitive_;
+ }
+ 
 
 
 /**

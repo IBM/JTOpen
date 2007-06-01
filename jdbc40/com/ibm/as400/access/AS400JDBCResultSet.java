@@ -546,7 +546,19 @@ implements ResultSet
         synchronized(internalLock_)
         {                                            // @D1A
             checkOpen ();
-            return concurrency_;
+            
+            //@cur return value from cursor attribues if exists else return value as done in pre 550
+            if ( statement_ != null )                                            //@cur
+            {                                                                    //@cur
+                if( statement_.cursor_.getCursorAttributeUpdatable() == 0)       //@cur
+                    return ResultSet.CONCUR_READ_ONLY;                           //@cur
+                else if( statement_.cursor_.getCursorAttributeUpdatable() == 1)  //@cur
+                    return ResultSet.CONCUR_UPDATABLE;                           //@cur
+                else                                                             //@cur
+                    return concurrency_;                                         //@cur
+            }                                                                    //@cur
+            else                                                                 //@cur
+                return concurrency_;
         }
     }
 
@@ -688,7 +700,21 @@ implements ResultSet
         synchronized(internalLock_)
         {                                            // @D1A
             checkOpen ();
-            return type_;
+
+            //@cur return value from cursor attribues if exists else return value as done in pre 550                                                               
+            if( statement_ != null )                                                     //@cur
+            {                                                                            //@cur
+                if(statement_.cursor_.getCursorAttributeScrollable() == 0)               //@cur
+                    return ResultSet.TYPE_FORWARD_ONLY;                                  //@cur
+                else if(statement_.cursor_.getCursorAttributeSensitive() == 0)           //@cur
+                    return ResultSet.TYPE_SCROLL_INSENSITIVE;                            //@cur
+                else if(statement_.cursor_.getCursorAttributeSensitive() == 1)           //@cur
+                    return ResultSet.TYPE_SCROLL_SENSITIVE;                              //@cur
+                else                                                                     //@cur
+                    return type_;                                                        //@cur
+            }                                                                            //@cur
+            else                                                                         //@cur
+                return type_;
         }
     }
 
@@ -5677,7 +5703,6 @@ implements ResultSet
         }
     }
 
-
     //@PDA jdbc40
     /**
      * Retrieves the holdability of this <code>ResultSet</code> object
@@ -5700,18 +5725,33 @@ implements ResultSet
      */
     public int getHoldability() throws SQLException
     {
-        //use host server functionality later when support is added
         synchronized(internalLock_)
         {
             checkOpen ();
-    
-            if((statement_.resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
-               (statement_.resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
-            {
- 
-                return statement_.resultSetHoldability_;    
-            }  
-            return connection_.getHoldability();
+            
+            //@cur return value from cursor attribues if exists else return value as done in pre 550                                                               
+            if( statement_ != null )                                                     //@cur
+            {                                                                            //@cur
+                if(statement_.cursor_.getCursorAttributeHoldable() == 0)                 //@cur
+                    return ResultSet.CLOSE_CURSORS_AT_COMMIT;                            //@cur
+                else if(statement_.cursor_.getCursorAttributeHoldable() == 1)            //@cur
+                    return ResultSet.HOLD_CURSORS_OVER_COMMIT;                           //@cur
+                else                                                                     //@cur
+                {                                                                        //@cur
+                    //not able to get from cursor attrs from hostserver
+                    if((statement_.resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||
+                            (statement_.resultSetHoldability_ == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT))
+                    {
+                        return statement_.resultSetHoldability_;    
+                    } 
+                }
+            }                                                                            //@cur
+            
+            //if above cannot determine holdability, then do best guess
+            if(connection_ != null)                                                      //@cur
+                return connection_.getHoldability();                                     //@cur
+            else                                                                         //@cur
+                return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
         }
     }
 

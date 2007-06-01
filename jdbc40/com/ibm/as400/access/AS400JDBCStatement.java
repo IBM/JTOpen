@@ -715,6 +715,8 @@ implements Statement
                             requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    //@F3A  //@541C  undeleted
                          }                                                                                          //@F3A  //@541C  undeleted
                     }                                                                                              //@F3A   //@541C  undeleted
+                    if(connection_.getVRM() >= JDUtilities.vrm550 && isCall)     //@cur request cursor attributes
+                        requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES; //@cur
                     //@P0A
                     request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C 
 
@@ -855,6 +857,9 @@ implements Statement
 
                     // Gather information from the reply.
                     cursor_.processConcurrencyOverride(openAttributes, reply);    // @E1A @EAC
+                    
+                    cursor_.processCursorAttributes(reply);                  //@cur
+                    
                     transactionManager_.processCommitOnReturn(reply);    // @E2A
                     DBReplySQLCA sqlca = reply.getSQLCA();
                     DBData resultData = null;
@@ -1303,6 +1308,9 @@ implements Statement
                 try
                 {
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A
+                    boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);      //@cur
+                    if(connection_.getVRM() >= JDUtilities.vrm550 && isCall)                           //@cur
+                        requestedORS += DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES;                   //@cur
                     //@F5A If we are on a system that supports extended column descriptors and if the              //@F5A
                     //@F5A user asked for them, send the extended column descriptors code point.                   //@F5A
                     boolean extendedMetaData = false;    //@F5A
@@ -1372,6 +1380,8 @@ implements Statement
 
                     transactionManager_.processCommitOnReturn(reply);    // @E2A
 
+                    cursor_.processCursorAttributes(reply);                   //@cur
+                    
                     // Compute the update count.
                     //@F10M DBReplySQLCA sqlca = reply.getSQLCA ();
                     updateCount_ = sqlca.getErrd (3);    //@F1C
@@ -1397,7 +1407,7 @@ implements Statement
                     } 
 
                     // Compute the number of results.
-                    boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);
+                    //boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL); //@cur moved above
                     if(    /*(numberOfResults_ == 0) && */(isCall))
                         numberOfResults_ = sqlca.getErrd (2);    //@F1C
                     else
@@ -2761,8 +2771,10 @@ implements Statement
                 DBReplyRequestedDS reply = null;    //@P0A
                 try
                 {
-
-                    request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
+                    if((connection_.getVRM() >= JDUtilities.vrm550) && (this instanceof AS400JDBCCallableStatement))                           //@cur
+                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES, 0);    //@cur
+                    else
+                        request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
 
                     int openAttributes = cursor_.getOpenAttributes(null, blockCriteria_);    // @E1A
                     request.setOpenAttributes(openAttributes);    // @E1C
@@ -2818,6 +2830,8 @@ implements Statement
                     // Process a potential cursor conecurrency override.                             @E1A @EAC
                     cursor_.processConcurrencyOverride(openAttributes, reply);    // @E1A @EAC
 
+                    cursor_.processCursorAttributes(reply);                   //@cur
+                    
                     // Note that the cursor was opened.
                     cursor_.setState (false);
 

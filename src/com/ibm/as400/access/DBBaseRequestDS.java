@@ -220,6 +220,7 @@ extends ClientAccessDataStream
   public static final int       ORS_BITMAP_REPLY_RLE_COMPRESSION       = 0x00040000;    // Bit 14       @E3A
   public static final int       ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS = 0x00020000;    // Bit 15       @F1A    
   public static final int       ORS_BITMAP_VARIABLE_LENGTH_FIELD_COMPRESSION = 0x00010000;  //Bit 16    @K54
+  public static final int       ORS_BITMAP_CURSOR_ATTRIBUTES           = 0x00008000;   //Bit 17        @CUR
 
 
 
