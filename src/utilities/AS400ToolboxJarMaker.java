@@ -368,7 +368,7 @@ will not be put in the JAR unless explicitly specified.
 //                    we can take advantage of the java.util.jar support.
 //
 
-public class AS400ToolboxJarMaker extends JarMaker
+public class AS400ToolboxJarMaker extends ToolboxJarMaker
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
@@ -456,7 +456,6 @@ public class AS400ToolboxJarMaker extends JarMaker
   public static final Integer NETSERVER = ToolboxJarMaker.NETSERVER;  // @A3a
 
 
-  private ToolboxJarMaker jarMaker_;
 
 
   /**
@@ -464,7 +463,6 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public AS400ToolboxJarMaker()
   {
-    jarMaker_ = new ToolboxJarMaker();
   }
 
 
@@ -475,7 +473,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>Integer</code> objects.
    **/
-  public Vector getCCSIDs() { return jarMaker_.getCCSIDs(); }
+  public Vector getCCSIDs() { return super.getCCSIDs(); }
 
 
   /**
@@ -485,8 +483,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>Integer</code> objects.
    **/
-  public Vector getCCSIDsExcluded() { return jarMaker_.getCCSIDsExcluded(); }
-
+  public Vector getCCSIDsExcluded() { return super.getCCSIDsExcluded(); }
 
 
   /**
@@ -498,7 +495,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    See <a href="doc-files/componentList.html">component list</a> for
    a list of integer values and associated components.
    **/
-  public Vector getComponents() { return jarMaker_.getComponents(); }
+  public Vector getComponents() { return super.getComponents(); }
 
 
   /**
@@ -507,7 +504,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    This value is set by <code>setLanguageDirectory()</code>.
    @return The base directory for the language files.
    **/
-  public File getLanguageDirectory() { return jarMaker_.getLanguageDirectory(); }
+  public File getLanguageDirectory() { return super.getLanguageDirectory(); }
 
 
   /**
@@ -520,7 +517,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>String</code> objects.
    **/
-  public Vector getLanguages() { return jarMaker_.getLanguages(); }
+  public Vector getLanguages() { return super.getLanguages(); }
 
 
 
@@ -530,7 +527,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void reset()
   {
-    jarMaker_.reset();
+    super.reset();
   }
 
 
@@ -549,7 +546,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setCCSIDs(Vector ccsidList)
   {
-    jarMaker_.setCCSIDs(ccsidList);
+    super.setCCSIDs(ccsidList);
   }
 
   /**
@@ -563,7 +560,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setCCSIDsExcluded(Vector ccsidList)
   {
-    jarMaker_.setCCSIDsExcluded(ccsidList);
+    super.setCCSIDsExcluded(ccsidList);
   }
 
 
@@ -581,7 +578,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setComponents(Vector components)
   {
-    jarMaker_.setComponents(components);
+    super.setComponents(components);
   }
 
 
@@ -599,7 +596,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setComponents(Vector components, boolean includeBeans)
   {
-    jarMaker_.setComponents(components, includeBeans);
+    super.setComponents(components, includeBeans);
   }
 
 
@@ -619,7 +616,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setLanguageDirectory(File baseDirectory)
   {
-    jarMaker_.setLanguageDirectory(baseDirectory);
+    super.setLanguageDirectory(baseDirectory);
   }
 
 
@@ -643,7 +640,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setLanguages(Vector languages)
   {
-    jarMaker_.setLanguages(languages);
+    super.setLanguages(languages);
   }
 
 
@@ -658,7 +655,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setProxyFilesExcluded(boolean excludeProxies)
   {
-    jarMaker_.setProxyFilesExcluded(excludeProxies);
+    super.setProxyFilesExcluded(excludeProxies);
   }
 
 
@@ -681,7 +678,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    **/
   public void setExcludeSomeDependencies(boolean excludeSomeDependencies)
   {
-    jarMaker_.setExcludeSomeDependencies(excludeSomeDependencies);
+    super.setExcludeSomeDependencies(excludeSomeDependencies);
   }
 
 
