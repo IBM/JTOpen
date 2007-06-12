@@ -123,7 +123,7 @@ Constructor.
       boolean includesLibl = (list.toUpperCase().indexOf (LIBL_) != -1);
 
       // Parse the list into tokens.
-      StringTokenizer tokenizer = new StringTokenizer (list, " ,:;");
+      StringTokenizer tokenizer = new StringTokenizer (list, " ,:;", true);  //@delim2
       String token;
       int count = tokenizer.countTokens ();
       if (includesLibl)
@@ -133,7 +133,29 @@ Constructor.
       int i = 0;
       while (tokenizer.hasMoreTokens ())
       {
-        token = tokenizer.nextToken().toUpperCase();
+        token = tokenizer.nextToken(); //.toUpperCase();            //@delim2
+        
+        if((token.compareTo(" ") == 0) || (token.compareTo(",") == 0) || (token.compareTo(":") == 0) || (token.compareTo(";") == 0))      //@delim2
+            continue;                                               //@delim2
+
+        if(token.startsWith("\""))                                  //@delim2
+        {                                                           //@delim2
+
+            //check if ending quote is in current token
+            int nextQuote = token.indexOf("\"", 1);                 //@delim2
+
+            //get next token and search for ending quote
+            while(tokenizer.hasMoreTokens() && (nextQuote == -1))   //@delim2
+            {                                                       //@delim2
+                token += tokenizer.nextToken();                     //@delim2
+                nextQuote = token.indexOf("\"", 1);                 //@delim2
+            }                                                       //@delim2
+        }                                                           //@delim2
+        else                                                        //@delim2
+        {                                                           //@delim2
+            token = token.toUpperCase();                            //@delim2
+        }                                                           //@delim2
+            
 
         // Mark the position of *LIBL.  Only mark
         // the first occurence.  The system will
@@ -156,6 +178,13 @@ Constructor.
           ++i;
         }
       }
+      
+      if(i != count)                                            //@delim2
+      {                                                         //@delim2
+          String[] tmpList = list_;                             //@delim2
+          list_ = new String[i];                                //@delim2
+          System.arraycopy(tmpList, 0, list_, 0, i);            //@delim2
+      }                                                         //@delim2
 
       // If no default schema was specified, then
       // derive it from the list.
