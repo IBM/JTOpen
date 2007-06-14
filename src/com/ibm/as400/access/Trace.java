@@ -546,8 +546,16 @@ public class Trace
     String categories = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORY);
     if (categories != null)
     {
-      setTraceOn (true);
+      //setTraceOn (true);  //@pdd
       StringTokenizer tokenizer = new StringTokenizer (categories, ", ;");
+      if(!tokenizer.hasMoreTokens ())                       //@pda
+      {                                                     //@pda
+          //-Dcom.ibm.as400.access.Trace.category=""        //@pda
+          setTraceOn(false);                                //@pda
+      }                                                     //@pda
+      else                                                  //@pda
+          setTraceOn (true);                                //@pda
+      
       while (tokenizer.hasMoreTokens ())
       {
         String category = tokenizer.nextToken ();
@@ -573,6 +581,8 @@ public class Trace
           setTracePCMLOn (true);   // @D5A
         else if (category.equalsIgnoreCase ("all")) //@D2A
           setTraceAllOn (true); //@D2A
+        else if (category.equalsIgnoreCase ("none"))                                   //@pda
+            setTraceOn(false);  //fix for -Dcom.ibm.as400.access.Trace.category="none" //@pda 
         else
         {
           if (isTraceOn ())
