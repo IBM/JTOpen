@@ -1064,6 +1064,22 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       return properties_.getInt(JDProperties.METADATA_SOURCE);
   }
   
+  //@dup
+  /**                                                               
+   *  Indicates how to retrieve DatabaseMetaData.
+   *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+   *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+   *  The methods that currently are available through stored procedures are:
+   *  getColumnPrivileges
+   *  @return the metadata setting.
+   *  The default value is 1.
+   *  Note:  this method is the same as getMetaDataSource() so that it corresponds to the connection property name
+   **/
+  public int getMetaDatasource()
+  {
+      return getMetaDataSource();
+  }
+  
 
   /**
    Returns the naming convention used when referring to tables.
@@ -1248,6 +1264,19 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     return properties_.getString(JDProperties.SECONDARY_URL);
   }
+  
+  
+  //@dup
+  /**
+   *  Returns the secondary URL.
+   *  @return The secondary URL.
+   *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
+   **/
+  public String getSecondaryURL()
+  {
+      return getSecondaryUrl();
+  }
+   
 
   /**
    Returns the value of the serverName property.
@@ -1411,6 +1440,18 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     return properties_.getString(JDProperties.QAQQINILIB);
   }
+  
+  //@dup
+  /**
+   *  Returns the QAQQINI library name.
+   *  @return The QAQQINI library name.
+   *  Note:  this method is the same as getQaqqiniLibrary() so that it corresponds to the connection property name
+   **/
+  public String getQaqqinilib()
+  {
+      return getQaqqiniLibrary();
+  }
+   
 
   /**
    Returns the value of the 'user' property.
@@ -1693,6 +1734,33 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
 
+  //@dup
+  /**
+   *  Indicates whether the driver should request extended metadata from the
+   *  i5/OS system.  If this property is set to true, the accuracy of the information 
+   *  that is returned from ResultSetMetaData methods getColumnLabel(int),
+   *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
+   *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
+   *  property set to true.  However, performance will be slower with this 
+   *  property on.  Leave this property set to its default (false) unless you
+   *  need more specific information from those methods.
+   *
+   *  For example, without this property turned on, isSearchable(int) will 
+   *  always return true even though the correct answer may be false because 
+   *  the driver does not have enough information from the system to make a judgment.  Setting 
+   *  this property to true forces the driver to get the correct data from the i5/OS system.
+   *
+   *  @return true if extended metadata will be requested; false otherwise.
+   *  The default value is false.
+   *  Note:  this method is the same as isExtendedMetaData() so that it corresponds to the connection property name
+   **/
+
+  public boolean isExtendedMetadata()
+  {
+      return isExtendedMetaData();
+  }
+
+
   /**
    Indicates whether the i5/OS system fully opens a file when performing a query.
    By default the system optimizes opens so they perform better.  In
@@ -1914,6 +1982,18 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     return properties_.getBoolean(JDProperties.AUTO_COMMIT);
   }
 
+  //@dup
+  /**
+   *  Indicates whether true auto commit support is used.
+   *  @return true if true auto commit support is used; false otherwise.
+   *  The default value is false.
+   *  Note:  this method is the same as isTrueAutoCommit() so that it corresponds to the connection property name
+   **/
+  public boolean isTrueAutocommit()
+  {
+      return isTrueAutoCommit();
+  }
+  
 
   /**
    Logs an exception and message to the event log.
@@ -2037,6 +2117,19 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
     else
       properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
+  }
+  
+
+  //@dup
+  /**
+   *  Sets whether true auto commit support is used.
+   *  @param value true if true auto commit support should be used; false otherwise.
+   *  The default value is false.
+   *  Note:  this method is the same as setTrueAutoCommit() so that it corresponds to the connection property nameproperty name
+   **/
+  public void setTrueAutocommit(boolean value)
+  {
+      setTrueAutoCommit(value); 
   }
 
 
@@ -2510,6 +2603,36 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   }
 
 
+
+  //@dup
+  /**
+   *  Sets whether the driver should request extended metadata from the
+   *  i5/OS system.  This property is ignored when connecting to systems
+   *  running OS/400 V5R1 and earlier. 
+   *  If this property is set to true and connecting to a system running
+   *  OS/400 V5R2 or i5/OS, the accuracy of the information 
+   *  that is returned from ResultSetMetaData methods getColumnLabel(int),
+   *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
+   *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
+   *  property set to true.  However, performance will be slower with this 
+   *  property on.  Leave this property set to its default (false) unless you
+   *  need more specific information from those methods.
+   *
+   *  For example, without this property turned on, isSearchable(int) will 
+   *  always return true even though the correct answer may be false because 
+   *  the driver does not have enough information from the system to make a judgment.  Setting 
+   *  this property to true forces the driver to get the correct data from the system.
+   *
+   *  @param extendedMetaData True to request extended metadata from the system, false otherwise.
+   *  The default value is false.
+   *  Note:  this method is the same as setExtendedMetaData() so that it corresponds to the connection property name
+   **/
+  public void setExtendedMetadata(boolean extendedMetaData)
+  {
+      setExtendedMetaData(extendedMetaData);
+  }
+
+
   /**
    Sets whether to fully open a file when performing a query.
    By default the i5/OS system optimizes opens so they perform better.
@@ -2670,7 +2793,23 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   }
   
+  //@dup
+  /**                                                               
+   *  Sets how to retrieve DatabaseMetaData.
+   *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+   *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+   *  The methods that currently are available through stored procedures are:
+   *  getColumnPrivileges
+   *  @param mds The setting for metadata source
+   *  The default value is 1.
+   *  Note:  this method is the same as setMetadataSource() so that it corresponds to the connection property name
+   **/
+  public void setMetadataSource(int mds)
+  {
+      setMetaDataSource(mds);
+  }
 
+  
   /**
    Sets the naming convention used when referring to tables.
    @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
@@ -3160,6 +3299,22 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
     properties_.setString(JDProperties.SECONDARY_URL, url);
   }
+  
+  //@dup
+  /**
+   *  Sets the secondary URL to be used for a connection on the middle-tier's
+   *  DriverManager in a multiple tier environment, if it is different than
+   *  already specified.  This property allows you to use this driver to connect
+   *  to databases other than DB2 for i5/OS. Use a backslash as an escape character
+   *  before backslashes and semicolons in the URL.
+   *  @param url The secondary URL.
+   *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
+   **/
+  public void setSecondaryURL(String url)
+  {
+      setSecondaryUrl(url);
+  }
+  
 
   /**
    Sets whether a Secure Socket Layer (SSL) connection is used to communicate
@@ -3706,6 +3861,23 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     return properties_.getInt(JDProperties.PACKAGE_CCSID);
   }
+  
+
+  //@dup
+  /**
+   * Gets the package CCSID property, which indicates the
+   * CCSID in which statements are sent to the i5/OS system and
+   * also the CCSID of the package they are stored in.
+   * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+   * Default value: 13488
+   * @return The value of the package CCSID property.
+   * Note:  this method is the same as getPackageCCSID() so that it corresponds to the connection property name
+   **/
+  public int getPackageCcsid()
+  {
+      return getPackageCCSID();
+  }
+
 
   /**
    Sets the package CCSID property, which indicates the
@@ -3723,6 +3895,22 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     properties_.setString(JDProperties.PACKAGE_CCSID, Integer.toString(ccsid));
   }
 
+  //@dup
+  /**
+   * Sets the package CCSID property, which indicates the
+   * CCSID in which statements are sent to the i5/OS system and
+   * also the CCSID of the package they are stored in.
+   * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+   * Default value: 13488
+   * @param ccsid The package CCSID.
+   * Note:  this method is the same as setPackageCCSID() so that it corresponds to the connection property name
+   **/
+  public void setPackageCcsid(int ccsid)
+  {
+      setPackageCCSID(ccsid);
+  }
+  
+  
   /**
    Gets the minimum divide scale property.  This property ensures the scale
    of the result of decimal division is never less than its specified value.
@@ -3850,6 +4038,17 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
     properties_.setString(JDProperties.QAQQINILIB, libraryName);
   }
+  
+  //@dup
+  /**
+   *  Sets the QAQQINI library name.  
+   *  @param libraryName The QAQQINI library name.
+   *  Note:  this method is the same as setQaqqiniLibrary() so that it corresponds to the connection property name
+   **/
+  public void setQaqqinilib(String libraryName)
+  {
+      setQaqqiniLibrary(libraryName);
+  }
 
   /**
    Returns the toolbox trace category.
@@ -3874,6 +4073,34 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   {
     return properties_.getString(JDProperties.TRACE_TOOLBOX);
   }
+  
+
+  //@dup
+  /**
+   *  Returns the toolbox trace category.
+   *  @return The toolbox trace category.
+   *  <p>Valid values include:
+   *  <ul>
+   *    <li> "none" - The default value.
+   *    <li> "datastream"
+   *    <li> "diagnostic"
+   *    <li> "error"
+   *    <li> "information"
+   *    <li> "warning"
+   *    <li> "conversion"
+   *    <li> "proxy"
+   *    <li> "pcml"
+   *    <li> "jdbc"
+   *    <li> "all"
+   *    <li> "thread"
+   *  </ul>
+   *  Note:  this method is the same as getToolboxTraceCategory() so that it corresponds to the connection property name
+   **/
+  public String getToolboxTrace()
+  {
+      return getToolboxTraceCategory();
+  }
+
 
   /**
    Sets the toolbox trace category, which indicates
@@ -3905,6 +4132,35 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     properties_.setString(JDProperties.TRACE_TOOLBOX, traceCategory);
   }
 
+
+  //@dup
+  /**
+   * Sets the toolbox trace category, which indicates 
+   * what trace points and diagnostic messages should be logged.
+   * @param traceCategory The category option.
+   * <p>Valid values include:
+   * <ul>
+   *    <li> "none" 
+   *    <li> "datastream"
+   *    <li> "diagnostic"
+   *    <li> "error"
+   *    <li> "information"
+   *    <li> "warning"
+   *    <li> "conversion"
+   *    <li> "proxy"
+   *    <li> "pcml"
+   *    <li> "jdbc"
+   *    <li> "all"
+   *    <li> "thread"    
+   * </ul>
+   * The default value is "none".
+   * Note:  this method is the same as setToolboxTraceCategory() so that it corresponds to the connection property name
+   **/
+  public void setToolboxTrace(String traceCategory)
+  {
+      setToolboxTraceCategory(traceCategory);
+  }
+  
   /**
    Validates the property value.
    @param property The property name.

@@ -855,6 +855,22 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getInt(JDProperties.METADATA_SOURCE);
     }
     
+    //@dup
+    /**                                                               
+     *  Indicates how to retrieve DatabaseMetaData.
+     *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+     *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+     *  The methods that currently are available through stored procedures are:
+     *  getColumnPrivileges
+     *  @return the metadata setting.
+     *  The default value is 1.
+     *  Note:  this method is the same as getMetaDataSource() so that it corresponds to the connection property name
+     **/
+    public int getMetaDatasource()
+    {
+        return getMetaDataSource();
+    }
+    
     /**
     *  Returns the naming convention used when referring to tables.
     *  @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
@@ -997,6 +1013,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.SECONDARY_URL);
     }
+    
+    //@dup
+    /**
+     *  Returns the secondary URL.
+     *  @return The secondary URL.
+     *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
+     **/
+    public String getSecondaryURL()
+    {
+        return getSecondaryUrl();
+    }
+     
 
     /**
     *  Returns the name of the i5/OS system.
@@ -1173,6 +1201,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.QAQQINILIB);
     }
+    
+    
+    //@dup
+    /**
+     *  Returns the QAQQINI library name.
+     *  @return The QAQQINI library name.
+     *  Note:  this method is the same as getQaqqiniLibrary() so that it corresponds to the connection property name
+     **/
+    public String getQaqqinilib()
+    {
+        return getQaqqiniLibrary();
+    }
+     
 
     //@540
     /**                                                               
@@ -1295,6 +1336,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public boolean isTrueAutoCommit()
     {
         return properties_.getBoolean(JDProperties.AUTO_COMMIT);
+    }
+    
+
+    //@dup
+    /**
+     *  Indicates whether true auto commit support is used.
+     *  @return true if true auto commit support is used; false otherwise.
+     *  The default value is false.
+     *  Note:  this method is the same as isTrueAutoCommit() so that it corresponds to the connection property name
+     **/
+    public boolean isTrueAutocommit()
+    {
+        return isTrueAutoCommit();
     }
 
     //@K54
@@ -1422,6 +1476,33 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public boolean isExtendedMetaData()
     {
         return properties_.getBoolean(JDProperties.EXTENDED_METADATA);
+    }
+
+    
+    //@dup
+    /**
+     *  Indicates whether the driver should request extended metadata from the
+     *  i5/OS system.  If this property is set to true, the accuracy of the information 
+     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
+     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
+     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
+     *  property set to true.  However, performance will be slower with this 
+     *  property on.  Leave this property set to its default (false) unless you
+     *  need more specific information from those methods.
+     *
+     *  For example, without this property turned on, isSearchable(int) will 
+     *  always return true even though the correct answer may be false because 
+     *  the driver does not have enough information from the system to make a judgment.  Setting 
+     *  this property to true forces the driver to get the correct data from the i5/OS system.
+     *
+     *  @return true if extended metadata will be requested; false otherwise.
+     *  The default value is false.
+     *  Note:  this method is the same as isExtendedMetaData() so that it corresponds to the connection property name
+     **/
+
+    public boolean isExtendedMetadata()
+    {
+        return isExtendedMetaData();
     }
 
 
@@ -1764,6 +1845,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + value);      
+    }
+
+
+    //@dup
+    /**
+     *  Sets whether true auto commit support is used.
+     *  @param value true if true auto commit support should be used; false otherwise.
+     *  The default value is false.
+     *  Note:  this method is the same as setTrueAutoCommit() so that it corresponds to the connection property nameproperty name
+     **/
+    public void setTrueAutocommit(boolean value)
+    {
+        setTrueAutoCommit(value); 
     }
 
 
@@ -2394,6 +2488,36 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "extendedMetaData: " + extendedMetaData);
     }
+    
+
+    //@dup
+    /**
+     *  Sets whether the driver should request extended metadata from the
+     *  i5/OS system.  This property is ignored when connecting to systems
+     *  running OS/400 V5R1 and earlier. 
+     *  If this property is set to true and connecting to a system running
+     *  OS/400 V5R2 or i5/OS, the accuracy of the information 
+     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
+     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
+     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
+     *  property set to true.  However, performance will be slower with this 
+     *  property on.  Leave this property set to its default (false) unless you
+     *  need more specific information from those methods.
+     *
+     *  For example, without this property turned on, isSearchable(int) will 
+     *  always return true even though the correct answer may be false because 
+     *  the driver does not have enough information from the system to make a judgment.  Setting 
+     *  this property to true forces the driver to get the correct data from the system.
+     *
+     *  @param extendedMetaData True to request extended metadata from the system, false otherwise.
+     *  The default value is false.
+     *  Note:  this method is the same as setExtendedMetaData() so that it corresponds to the connection property name
+     **/
+    public void setExtendedMetadata(boolean extendedMetaData)
+    {
+        setExtendedMetaData(extendedMetaData);
+    }
+
 
 
     // @W1a new method
@@ -2625,6 +2749,22 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + mds);
+    }
+    
+    //@dup
+    /**                                                               
+     *  Sets how to retrieve DatabaseMetaData.
+     *  If set to 0, database metadata will be retrieved through the ROI data flow.  
+     *  If set to 1, database metadata will be retrieved by calling system stored procedures. 
+     *  The methods that currently are available through stored procedures are:
+     *  getColumnPrivileges
+     *  @param mds The setting for metadata source
+     *  The default value is 1.
+     *  Note:  this method is the same as setMetadataSource() so that it corresponds to the connection property name
+     **/
+    public void setMetadataSource(int mds)
+    {
+        setMetaDataSource(mds);
     }
     
     /**
@@ -3261,6 +3401,23 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, "secondaryUrl: " + url); //@A8C
     }
 
+    
+    //@dup
+    /**
+     *  Sets the secondary URL to be used for a connection on the middle-tier's
+     *  DriverManager in a multiple tier environment, if it is different than
+     *  already specified.  This property allows you to use this driver to connect
+     *  to databases other than DB2 for i5/OS. Use a backslash as an escape character
+     *  before backslashes and semicolons in the URL.
+     *  @param url The secondary URL.
+     *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
+     **/
+    public void setSecondaryURL(String url)
+    {
+        setSecondaryUrl(url);
+    }
+    
+    
     /**
     *  Sets whether a Secure Socket Layer (SSL) connection is used to communicate
     *  with the i5/OS system.  SSL connections are only available when connecting to systems
@@ -3910,6 +4067,21 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getInt(JDProperties.PACKAGE_CCSID);
     }
+    
+    //@dup
+    /**
+     * Gets the package CCSID property, which indicates the
+     * CCSID in which statements are sent to the i5/OS system and
+     * also the CCSID of the package they are stored in.
+     * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+     * Default value: 13488
+     * @return The value of the package CCSID property.
+     * Note:  this method is the same as getPackageCCSID() so that it corresponds to the connection property name
+     **/
+    public int getPackageCcsid()
+    {
+        return getPackageCCSID();
+    }
 
     // @M0A
     /**
@@ -3937,6 +4109,21 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + ccsid);
     }
 
+    //@dup
+    /**
+     * Sets the package CCSID property, which indicates the
+     * CCSID in which statements are sent to the i5/OS system and
+     * also the CCSID of the package they are stored in.
+     * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
+     * Default value: 13488
+     * @param ccsid The package CCSID.
+     * Note:  this method is the same as setPackageCCSID() so that it corresponds to the connection property name
+     **/
+    public void setPackageCcsid(int ccsid)
+    {
+        setPackageCCSID(ccsid);
+    }
+    
     // @M0A - added support for 63 digit decimal precision
     /**
     * Gets the minimum divide scale property.  This property ensures the scale
@@ -4111,6 +4298,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + libraryName);  
     }
+    
+    //@dup
+    /**
+     *  Sets the QAQQINI library name.  
+     *  @param libraryName The QAQQINI library name.
+     *  Note:  this method is the same as setQaqqiniLibrary() so that it corresponds to the connection property name
+     **/
+    public void setQaqqinilib(String libraryName)
+    {
+        setQaqqiniLibrary(libraryName);
+    }
+    
 
     /**                                                               
     *  Sets the goal the i5/OS system should use with optimization of queries.  
@@ -4217,6 +4416,34 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.TRACE_TOOLBOX);
     }
+    
+
+    //@dup
+    /**
+     *  Returns the toolbox trace category.
+     *  @return The toolbox trace category.
+     *  <p>Valid values include:
+     *  <ul>
+     *    <li> "none" - The default value.
+     *    <li> "datastream"
+     *    <li> "diagnostic"
+     *    <li> "error"
+     *    <li> "information"
+     *    <li> "warning"
+     *    <li> "conversion"
+     *    <li> "proxy"
+     *    <li> "pcml"
+     *    <li> "jdbc"
+     *    <li> "all"
+     *    <li> "thread"
+     *  </ul>
+     *  Note:  this method is the same as getToolboxTraceCategory() so that it corresponds to the connection property name
+     **/
+    public String getToolboxTrace()
+    {
+        return getToolboxTraceCategory();
+    }
+
 
     // @K2A
     /**
@@ -4285,6 +4512,34 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, property + ": " + traceCategory);
+    }
+    
+    //@dup
+    /**
+     * Sets the toolbox trace category, which indicates 
+     * what trace points and diagnostic messages should be logged.
+     * @param traceCategory The category option.
+     * <p>Valid values include:
+     * <ul>
+     *    <li> "none" 
+     *    <li> "datastream"
+     *    <li> "diagnostic"
+     *    <li> "error"
+     *    <li> "information"
+     *    <li> "warning"
+     *    <li> "conversion"
+     *    <li> "proxy"
+     *    <li> "pcml"
+     *    <li> "jdbc"
+     *    <li> "all"
+     *    <li> "thread"    
+     * </ul>
+     * The default value is "none".
+     * Note:  this method is the same as setToolboxTraceCategory() so that it corresponds to the connection property name
+     **/
+    public void setToolboxTrace(String traceCategory)
+    {
+        setToolboxTraceCategory(traceCategory);
     }
 
     /**
