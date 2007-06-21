@@ -10,7 +10,12 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
-
+//                                                                             
+// @D5 - 06/18/2007 - Changes to enumerateFiles() processing to better handle
+//                    when objects are filtered from the list returned by the 
+//                    IFS File Server.
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.beans.PropertyChangeSupport;
@@ -153,6 +158,14 @@ public class IFSFile
   private boolean isSymbolicLink_;
   private int patternMatching_;  // type of pattern matching to use when listing files
   private boolean sortLists_;    // whether file-lists are returned from the File Server in sorted order
+
+
+  // Several pieces of member data set by listFiles0() for IFSFileEnumeration @D5A
+  // to indicate the number of objects returned from the IFS File Server and  @D5A
+  // also the restartName and restartID info of the last object returned.     @D5A
+  private int     listFiles0LastNumObjsReturned_;                           //@D5A
+  private String  listFiles0LastRestartName_=null;                          //@D5A
+  private byte[]  listFiles0LastRestartID_;                                 //@D5A
 
   /**
    Constructs an IFSFile object.
@@ -1159,6 +1172,25 @@ public class IFSFile
       chooseImpl();
     return impl_;
   }
+
+  // Package scope getter methods to return data set by listFiles0()          @D5A
+  // Number of objects returned  by the File Server to listFiles0() and       @D5A
+  // also the restartName and restartID info of the last object returned.     @D5A
+  int getListFiles0LastNumObjsReturned()                                    //@D5A
+  {                                                                         //@D5A
+    return listFiles0LastNumObjsReturned_;                                  //@D5A
+  }                                                                         //@D5A
+  String getListFiles0LastRestartName()                                     //@D5A
+  {                                                                         //@D5A
+    if (listFiles0LastRestartName_ == null)                                 //@D5A
+      return "";                                                            //@D5A
+    else                                                                    //@D5A
+      return listFiles0LastRestartName_;                                    //@D5A
+  }                                                                         //@D5A
+  byte[] getListFiles0LastRestartID()                                       //@D5A
+  {                                                                         //@D5A
+    return listFiles0LastRestartID_;                                        //@D5A
+  }                                                                         //@D5A
 
 
   /**
@@ -2261,12 +2293,28 @@ public class IFSFile
     // Add the name for each reply that matches the filter to the array
     // of files.
 
-    if (fileAttributeList == null) {
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IFSFile::listFile0(): returned ("+listFiles0LastNumObjsReturned_+") pre objects");
+    if (fileAttributeList == null)
+    {
        return new IFSFile[0];
     }
     else
     {
+      // Save number of objects read, restartname, and restartID      @D5A
+      listFiles0LastNumObjsReturned_ = fileAttributeList.length;   // @D5A
+
       IFSFile[] files = new IFSFile[fileAttributeList.length];
+
+      if (fileAttributeList.length > 0)
+      {
+        IFSFile lastFile = new IFSFile(system_, fileAttributeList[fileAttributeList.length - 1]);            //DDPDEBUG
+    
+        // Save the last restartName and restartID from the files     @D5A
+        // returned from the server (to be used for subsequent reads) @D5A
+        listFiles0LastRestartName_ = lastFile.getName();           // @D5A
+        listFiles0LastRestartID_   = lastFile.getRestartID();      // @D5A
+      }
+
       int j = 0;
       for (int i = 0; i < fileAttributeList.length; i++) {
          IFSFile file = new IFSFile(system_, fileAttributeList[i]); //@D2C
@@ -2287,6 +2335,8 @@ public class IFSFile
          System.arraycopy(files, 0, newFiles, 0, j);
          files = newFiles;
       }
+
+      if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IFSFile::listFile0(): returned ("+files.length+") post objects");
       return files;
     }
   }
