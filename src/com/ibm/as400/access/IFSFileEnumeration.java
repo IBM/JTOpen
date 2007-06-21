@@ -10,6 +10,11 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// @D5 - 06/18/2007 - Changes to better handle when objects are filtered from 
+//                    the list returned by the IFS File Server.
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -62,21 +67,21 @@ implements Enumeration
         String path = file_.getPath().toUpperCase();
         int indexOfQSYS = path.indexOf("/QSYS.LIB");    // @D1A - added support to look for /IASPNAME../QSYS.LIB
         if (path.startsWith("/QSYS.LIB") || path.startsWith("/QDLS.LIB") ||
-            path.startsWith("/QDLS/") || ((indexOfQSYS != -1) && (indexOfQSYS <= 11))) {  // @C3a  //@D1C - added support to look for /IASPNAME../QSYS.LIB
+            path.startsWith("/QDLS") || ((indexOfQSYS != -1) && (indexOfQSYS <= 11))) {  // @C3a  //@D1C - added support to look for /IASPNAME../QSYS.LIB
           isRestartByNameSupported_ = true;
           contentsPending_ = loadPendingBlock((String)null);// "Prime the pump" with the first block.  @A1a @C3c
-          if (contentsPending_ != null) {                          // @C3a
+          /*if (contentsPending_ != null) {                          // @C3a
             restartName_ = contentsPending_[contentsPending_.length - 1].getName();
-          }
+          } */
         }
         else { // Use "restart by ID".
           isRestartByNameSupported_ = false;
 //@C3d    if (Trace.traceOn_) Trace.log(Trace.WARNING,
 //@C3d        "Restart-by-name is not supported for directory " + path);
           contentsPending_ = loadPendingBlock((byte[])null);// "Prime the pump" with the first block.  @C3a
-          if (contentsPending_ != null) {                          // @C3a
+          /*if (contentsPending_ != null) {                          // @C3a
             restartID_ = contentsPending_[contentsPending_.length - 1].getRestartID();
-          }
+          } */
         }
 
         getNextBlock();
@@ -94,8 +99,17 @@ implements Enumeration
     private IFSFile[] loadPendingBlock(String restartName)
     throws AS400SecurityException, IOException
     {
+      IFSFile[] block =  new IFSFile[0];
       // Design note: Using contents_ and contentsPending_ allows us to "look ahead" and detect end-of-list in all situations, including when the number of matching files in the directory is an exact multiple of MAXIMUM_GET_COUNT.
-      IFSFile[] block = file_.listFiles0(filter_, pattern_, MAXIMUM_GET_COUNT_, restartName);
+      // Continue reading/loading until we have something to return (that         @D5A
+      // didn't all get filtered out)                                             @D5A
+      do                                                                        //@D5A 
+      {                                                                         //@D5A
+        block = file_.listFiles0(filter_, pattern_, MAXIMUM_GET_COUNT_, restartName);
+        restartName = file_.getListFiles0LastRestartName();                     //@D5A
+      }                                                                         //@D5A
+      while ((block.length == 0) && (file_.getListFiles0LastNumObjsReturned() > 0)); //@D5A
+
       if (block.length == 0) block = null;  // Never return an empty list.
       return block;
     }
@@ -105,8 +119,16 @@ implements Enumeration
     private IFSFile[] loadPendingBlock(byte[] restartID)
     throws AS400SecurityException, IOException
     {
+      IFSFile[] block =  new IFSFile[0];
       // Design note: Using contents_ and contentsPending_ allows us to "look ahead" and detect end-of-list in all situations, including when the number of matching files in the directory is an exact multiple of MAXIMUM_GET_COUNT.
-      IFSFile[] block = file_.listFiles0(filter_, pattern_, MAXIMUM_GET_COUNT_, restartID);
+      // Continue reading/loading until we have something to return (that         @D5A
+      // didn't all get filtered out)                                             @D5A
+      do                                                                        //@D5A
+      {                                                                         //@D5A
+        block = file_.listFiles0(filter_, pattern_, MAXIMUM_GET_COUNT_, restartID);
+        restartID =  file_.getListFiles0LastRestartID();                        //@D5A
+      }                                                                         //@D5A
+      while ((block.length == 0) && (file_.getListFiles0LastNumObjsReturned() > 0)); //@D5A
       if (block.length == 0) block = null;  // Never return an empty list.
       return block;
     }
@@ -131,37 +153,22 @@ implements Enumeration
 
       // If contentsPending held fewer than max_get_count entries, we know that there are no more entries remaining to be read from the server.
 
+      
       // Note: Prior to V5R2, the file list returned by the "List Contents of Directory" request included "." and "..", which get weeded out by IFSFileImplRemote, so we need to check for (max_get_count - 2).     @C3A
-      if (contents_.length < MAXIMUM_GET_COUNT_-2) {                      // @C3C
+      if (file_.getListFiles0LastNumObjsReturned() == 0) { // No objects last time.  @D5C
         // We're done.                                                    // @C3C
       }
-      else // length == max_get_count
+      else // previous listFiles0 returned 1 to max_get_count number of objects
       {
         if (isRestartByNameSupported_)
         {
-          if (restartName_ == null) {                                     // @C3A
-            if (Trace.traceOn_) Trace.log(Trace.ERROR,
-                                          "getNextBlock() was called when restartName_==null.");
-            return;
-          }
           // Load the next block from the system.
-          contentsPending_ = loadPendingBlock(restartName_);              // @C3c
-          if (contentsPending_ != null) {                                 // @C3a
-            restartName_ = contentsPending_[contentsPending_.length - 1].getName();
-          }
+          contentsPending_ = loadPendingBlock(file_.getListFiles0LastRestartName());// @C3c @D5C
         }
         else
         {
-          if (restartID_ == null) {                                       // @C3a
-            if (Trace.traceOn_) Trace.log(Trace.ERROR,
-                                          "getNextBlock() was called when restartID_==null.");
-            return;
-          }
           // Load the next block from the system.
-          contentsPending_ = loadPendingBlock(restartID_);                // @C3c
-          if (contentsPending_ != null) {                                 // @C3a
-            restartID_ = contentsPending_[contentsPending_.length - 1].getRestartID();
-          }
+          contentsPending_ = loadPendingBlock(file_.getListFiles0LastRestartID());// @C3c @D5C
         }
       }
     }
