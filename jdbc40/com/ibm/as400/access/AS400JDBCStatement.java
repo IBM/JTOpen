@@ -395,10 +395,10 @@ implements Statement
             // effect if the user explicitly closed the result set
             // before closing the statement.
             //@PDA perf2 comment:  if we get back 700,2 from fetch, then cursor is already closed, but resultSet_ is still usable
-            if(! cursor_.isClosed())
-            {    // @B3A
+            //if(! cursor_.isClosed())    //@perf3 cursor can be closed, but resultset still needs to be closed.  closeResultSet checks for closed cursor before closing cursor.
+            //{    // @B3A                //@perf3
                 closeResultSet (JDCursor.REUSE_NO);
-            }    // @B3A
+            //}    // @B3A                //@perf3
 
             // If, even after closing the current result set,
             // there are more result sets that were returned, we
