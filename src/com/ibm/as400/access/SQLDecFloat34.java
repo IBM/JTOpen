@@ -207,14 +207,15 @@ final class SQLDecFloat34 implements SQLData {
         //get precision from bigDecimal without 0's on right side      
         int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 34);
         
-        if(otherPrecision > precision_)
-        {
-            int digits = otherPrecision - precision_;
-            truncated_ += digits;
-        }
-        else                                                             
-            truncated_ = 0;  // No left side truncation, report nothing       
-                             // (even if there was right side truncation).     
+        //follow native and allow rounding mode to handle
+        //@pdd if(otherPrecision > precision_)
+        //@pdd {
+        //@pdd    int digits = otherPrecision - precision_;
+        //@pdd     truncated_ += digits;
+        //@pdd }
+        //@pdd else                                                             
+        //@pdd     truncated_ = 0;  // No left side truncation, report nothing       
+        //@pdd                      // (even if there was right side truncation).     
  
         value_ = AS400DecFloat.roundByMode(bigDecimal, 34, roundingModeStr);
     }
