@@ -205,10 +205,10 @@ final class SQLDecFloat16 implements SQLData {
             return;
         }
   
-        
-        int otherScale = bigDecimal.scale();
-        if(otherScale > ((-1) * DECFLOAT16_MIN_EXP)) //absolute of min_exp is max scale
-            truncated_ += otherScale + DECFLOAT16_MIN_EXP; //diff in scales
+        //follow native and allow rounding mode to handle
+        //@pdd int otherScale = bigDecimal.scale();
+        //@pdd if(otherScale > ((-1) * DECFLOAT16_MIN_EXP)) //absolute of min_exp is max scale
+        //@pdd truncated_ += otherScale + DECFLOAT16_MIN_EXP; //diff in scales
         
         //get precision from bigDecimal without 0's on right side   
         int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 16);
