@@ -888,7 +888,7 @@ public class AS400DecFloat implements AS400DataType
             Constructor ct = cls.getConstructor(new Class[] { Integer.TYPE, Class.forName("java.math.RoundingMode") }); 
             Object arglist[] = new Object[2]; 
             arglist[0] = new Integer(precision); //MathContext.DECIMAL64 (16 or 34 char decfloat precision)
-            arglist[1] = Class.forName("java.math.RoundingMode").getDeclaredField(roundingMode).get(null);
+            arglist[1] = Class.forName("java.math.RoundingMode").getDeclaredField(roundingMode.substring(6)).get(null); //@pdc remove "ROUND_"
          
             Object mathContextRounded = ct.newInstance(arglist);  //ie. new MathContext(16or34, RoundingMode.x);
             Object[] arglist2 = new Object[]{mathContextRounded};
