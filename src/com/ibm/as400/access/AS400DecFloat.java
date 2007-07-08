@@ -194,7 +194,7 @@ public class AS400DecFloat implements AS400DataType
         if (this.digits == 16) //DECFLOAT16
         {
             //get precision of the BigDecimal.
-            int bdPrecision = SQLDataFactory.getPrecisionForTruncation(inValue, 16); //bdUnscaledStr.length ();
+            int bdPrecision = SQLDataFactory.getPrecisionForTruncation(inValue, 16)[0]; //bdUnscaledStr.length (); //@rnd1
 
             if(bdUnscaledStr.length() > bdPrecision)
                 exponent = bdUnscaledStr.length() - bdPrecision; //get exponent in terms of precisionForTruncation
@@ -275,7 +275,7 @@ public class AS400DecFloat implements AS400DataType
         {
            
             //get precision of the BigDecimal.
-            int bdPrecision = SQLDataFactory.getPrecisionForTruncation(inValue, 34); //bdUnscaledStr.length ();
+            int bdPrecision = SQLDataFactory.getPrecisionForTruncation(inValue, 34)[0]; //bdUnscaledStr.length (); //@rnd1
 
             if(bdUnscaledStr.length() > bdPrecision)
                 exponent = bdUnscaledStr.length() - bdPrecision; //get exponent in terms of precisionForTruncation
@@ -800,17 +800,28 @@ public class AS400DecFloat implements AS400DataType
                 && intVal.compareTo(roundingMin) > 0)
             return getNewBigDecimal(intVal, scale); //rounding not needed
         //get precision from intVal without 0's on right side
-        int precisionNormalized =  SQLDataFactory.getPrecisionForTruncation(getNewBigDecimal(intVal, scale), mcPrecision); //=precisionStr.length() - trimCount;
-
+        int[] values = SQLDataFactory.getPrecisionForTruncation(getNewBigDecimal(intVal, scale), mcPrecision); //=precisionStr.length() - trimCount; //@rnd1
+        int precisionNormalized = values[0]; //@rnd1
+        int droppedZeros = values[1];  //@rnd1 decrease scale by number of zeros removed from precision                                       //@rnd1
+        if(droppedZeros != 0)                                                 //@rnd1
+        {                                                                     //@rnd1
+            //adjust intVal number of zeros removed off end                   //@rnd1
+            intVal = intVal.divide( new BigInteger("10").pow(droppedZeros));  //@rnd1
+        }                                                                     //@rnd1
+        
         //get number of digits to round off
         int drop = precisionNormalized - mcPrecision;
-        if (drop <= 0)
-            return getNewBigDecimal(intVal, scale);
+        //@rnd1 if (drop <= 0)
+          //@rnd1  return getNewBigDecimal(intVal, scale);
         BigDecimal rounded = roundOffDigits(intVal, scale, mcRoundingMode, drop);
-        // next call roundByMode again and no rounding will be needed unless
-        // special case 999->1000
-        return roundByModePreJDK5(rounded.unscaledValue(), rounded.scale(),
-                mcPrecision, mcRoundingMode);
+        
+        if(droppedZeros != 0)                                  //@rnd1
+        {                                                      //@rnd1
+            //adjust rounded bigdecimal by dropped zero count  //@rnd1
+            rounded = rounded.movePointRight(droppedZeros);    //@rnd1
+        }                                                      //@rnd1
+        
+        return rounded;                                        //@rnd1
     }
 
     /**

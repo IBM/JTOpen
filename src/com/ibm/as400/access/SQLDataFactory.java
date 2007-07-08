@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -278,14 +279,14 @@ class SQLDataFactory
     @param  maxSize     max size of precision (16 or 34 for decfloats)
     @return             the precision.
     **/
-    static int getPrecisionForTruncation(BigDecimal value, int maxSize)
+    static int[] getPrecisionForTruncation(BigDecimal value, int maxSize)  //@rnd1
     {
         int precision = 0;
 
         String toString = value.unscaledValue().toString(); //value.toString(); 1.6 returns "123E+4", 1.4 returns "1230000"
 
-        int pointIndex = toString.indexOf('.');     
-        
+        int pointIndex = value.scale();//@rnd1 toString.indexOf('.');     
+
         if(toString.charAt(0) == '-')
             toString = toString.substring(1); 
 
@@ -297,25 +298,33 @@ class SQLDataFactory
                   
         int endIndex = length;                     
                 
-        if(pointIndex != -1)
-            maxSize++;  //allow for extra '.' char
-        while((toString.charAt(--endIndex) == '0')  &&  (endIndex > maxSize) );  
+        //@rnd1 if(pointIndex != 0)
+        //@rnd1     maxSize++;  //allow for extra '.' char
+        while((toString.charAt(--endIndex) == '0')  &&  (endIndex > maxSize) );
+     
+        int numberZeros = length - endIndex - 1; //@rnd1
        
         if(endIndex == maxSize)
         {
             if(toString.charAt(endIndex) == '0')
+            {//@rnd1
                 precision = endIndex;
+                numberZeros++; //@rnd1
+            }//@rnd1
             else
                 precision = endIndex + 1;
         }
         else
             precision = endIndex + 1;
         
-        if(pointIndex != -1)
-            precision--;
+        //@rnd1 if(pointIndex != -1)
+        //@rnd1     precision--;
         
 
-        return precision;
+        int[] retVal = new int[2];  //@rnd1
+        retVal[0] = precision;      //@rnd1
+        retVal[1] = numberZeros;    //@rnd1
+        return retVal;              //@rnd1
     }
     
 

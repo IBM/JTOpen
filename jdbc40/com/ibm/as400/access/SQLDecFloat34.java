@@ -209,7 +209,7 @@ final class SQLDecFloat34 implements SQLData {
         //@pdd     truncated_ += otherScale + DECFLOAT34_MIN_EXP; //diff in scales
     
         //get precision from bigDecimal without 0's on right side      
-        int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 34);
+        //@pdd int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 34);
         
         //follow native and allow rounding mode to handle
         //@pdd if(otherPrecision > precision_)

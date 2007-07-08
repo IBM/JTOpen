@@ -207,7 +207,7 @@ final class SQLDecFloat16 implements SQLData {
         //@pdd truncated_ += otherScale + DECFLOAT16_MIN_EXP; //diff in scales
         
         //get precision from bigDecimal without 0's on right side   
-        int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 16);
+        //@pdd int otherPrecision =  SQLDataFactory.getPrecisionForTruncation(bigDecimal, 16);
         
         //follow native and allow rounding mode to handle
         //@pddif(otherPrecision > precision_)
