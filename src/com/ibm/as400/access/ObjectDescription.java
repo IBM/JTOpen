@@ -10,6 +10,10 @@
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+// Changes: 
+// @A1 - 07/09/2007 - Change exists() to handle CPF9811
+//
+///////////////////////////////////////////////////////////////////////////////
 
 
 package com.ibm.as400.access;
@@ -1085,6 +1089,7 @@ public class ObjectDescription
       String id = e.getAS400Message().getID().trim();
       if (id.equalsIgnoreCase("CPF9801") ||  // Object &2 in library &3 not found.
           id.equalsIgnoreCase("CPF9810") ||  // Library &1 not found.
+          id.equalsIgnoreCase("CPF9811") ||  // Program &1 in library &2 not found.  @A1A
           id.equalsIgnoreCase("CPF9812"))    // File &1 in library &2 not found.
       {
         return false;
