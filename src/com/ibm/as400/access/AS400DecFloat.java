@@ -189,13 +189,27 @@ public class AS400DecFloat implements AS400DataType
                     
         //get the exponent.
         long exponent = inValue.scale () * (-1);
+        
         //get the unscaled value as string.
         String bdUnscaledStr = inValue.abs().unscaledValue().toString ();
+        
         if (this.digits == 16) //DECFLOAT16
         {
             //get precision of the BigDecimal.
             int bdPrecision = SQLDataFactory.getPrecisionForTruncation(inValue, 16)[0]; //bdUnscaledStr.length (); //@rnd1
 
+            //bug in jdk1.5 (need to pad with 0z if exp is greater than (maxexp - (maxprecision - precision)) (ie. 9.99E380 since 380>384-(16-3))   //@max
+            //so if among the top 16 exponent values, then need to have the precision digits padded with zeros
+            int zeros = 0;                                                         //@max
+            if((exponent > 368 ) && bdUnscaledStr.length() < 16){ //maxexp-16      //@max
+                //pad 0s                                                           //@max
+                zeros = 16 - bdUnscaledStr.length();                               //@max
+                bdUnscaledStr += "0000000000000000";                               //@max
+                bdUnscaledStr = bdUnscaledStr.substring(0, 16);                    //@max
+                bdPrecision += zeros;                                              //@max
+                exponent -= zeros;                                                 //@max
+            }                                                                      //@max
+            
             if(bdUnscaledStr.length() > bdPrecision)
                 exponent = bdUnscaledStr.length() - bdPrecision; //get exponent in terms of precisionForTruncation
             
@@ -276,7 +290,18 @@ public class AS400DecFloat implements AS400DataType
            
             //get precision of the BigDecimal.
             int bdPrecision = SQLDataFactory.getPrecisionForTruncation(inValue, 34)[0]; //bdUnscaledStr.length (); //@rnd1
-
+            
+            //bug in jdk1.5                                                        //@max
+            int zeros = 0;                                                         //@max
+            if((exponent > 6110 ) && bdUnscaledStr.length() < 34){ //maxexp-34     //@max
+                //pad 0s                                                           //@max
+                zeros = 34 - bdUnscaledStr.length();                               //@max
+                bdUnscaledStr += "00000000000000000000000000000000";               //@max
+                bdUnscaledStr = bdUnscaledStr.substring(0, 34);                    //@max
+                bdPrecision += zeros;                                              //@max
+                exponent -= zeros;                                                 //@max
+            }                                                                      //@max
+            
             if(bdUnscaledStr.length() > bdPrecision)
                 exponent = bdUnscaledStr.length() - bdPrecision; //get exponent in terms of precisionForTruncation
             
