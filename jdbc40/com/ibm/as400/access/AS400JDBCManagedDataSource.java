@@ -1327,6 +1327,47 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
   {
     return properties_.getInt(JDProperties.TRACE_SERVER);
   }
+  
+  //@dup
+  /**
+   Returns the level of tracing started on the JDBC server job.
+   If tracing is enabled, tracing is started when
+   the client connects to the i5/OS system and ends when the connection
+   is disconnected.  Tracing must be started before connecting to
+   the system since the client enables tracing only at connect time.
+   Trace data is collected in spooled files on the system.  Multiple
+   levels of tracing can be turned on in combination by adding
+   the constants and passing that sum on the set method.  For example,
+   <pre>
+   dataSource.setServerTraceCategories(AS400JDBCManagedDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCManagedDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
+   </pre>
+   @return The tracing level.
+   <p>The value is a combination of the following:
+   <ul>
+   <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
+   The numeric value of this constant is 2.
+   <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
+   The numeric value of this constant is 4.
+   <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
+   The numeric value of this constant is 8.
+   <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
+   The numeric value of this constant is 16.
+   <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
+   The numeric value of this constant is 32.
+   </ul>
+   *
+   <P>
+   Tracing the JDBC server job will use significant amounts of system resources.
+   Additional processor resource is used to collect the data, and additional
+   storage is used to save the data.  Turn on tracing only to debug
+   a problem as directed by IBM service.
+   *
+   *  Note:  this method is the same as getServerTraceCategories() so that it corresponds to the connection property name
+   **/
+   public int getServerTrace()
+   {
+       return getServerTraceCategories();
+   }
 
   /**
    Returns how the i5/OS system sorts records before sending them to the
@@ -3416,6 +3457,46 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     properties_.setString(JDProperties.TRACE_SERVER, Integer.toString(traceCategories));
   }
 
+  /**
+   Enables tracing of the JDBC server job.
+   If tracing is enabled, tracing is started when
+   the client connects to the i5/OS system, and ends when the connection
+   is disconnected.  Tracing must be started before connecting to
+   the system since the client enables tracing only at connect time.
+   *
+   <P>
+   Trace data is collected in spooled files on the system.  Multiple
+   levels of tracing can be turned on in combination by adding
+   the constants and passing that sum on the set method.  For example,
+   <pre>
+   dataSource.setServerTraceCategories(AS400JDBCManagedDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCManagedDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
+   </pre>
+   @param traceCategories level of tracing to start.
+   <p>Valid values include:
+   <ul>
+   <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
+   The numeric value of this constant is 2.
+   <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
+   The numeric value of this constant is 4.
+   <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
+   The numeric value of this constant is 8.
+   <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
+   The numeric value of this constant is 16.
+   <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
+   The numeric value of this constant is 32.
+   </ul>
+   <P>
+   Tracing the JDBC server job will use significant amounts of system resources.
+   Additional processor resource is used to collect the data, and additional
+   storage is used to save the data.  Turn on tracing only to debug
+   a problem as directed by IBM service.
+   * Note:  this method is the same as setServerTraceCategories() so that it corresponds to the connection property name
+   **/
+  public void setServerTrace(int traceCategories)
+  {
+    setServerTraceCategories(traceCategories);
+  }
+ 
   /**
    Sets the JDBC driver implementation.
    This property has no
