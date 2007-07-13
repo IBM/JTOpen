@@ -866,7 +866,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      *  The default value is 1.
      *  Note:  this method is the same as getMetaDataSource() so that it corresponds to the connection property name
      **/
-    public int getMetaDatasource()
+    public int getMetadataSource()
     {
         return getMetaDataSource();
     }
@@ -2760,7 +2760,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      *  getColumnPrivileges
      *  @param mds The setting for metadata source
      *  The default value is 1.
-     *  Note:  this method is the same as setMetadataSource() so that it corresponds to the connection property name
+     *  Note:  this method is the same as setMetaDataSource() so that it corresponds to the connection property name
      **/
     public void setMetadataSource(int mds)
     {

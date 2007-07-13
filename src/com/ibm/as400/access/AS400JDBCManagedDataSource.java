@@ -1075,7 +1075,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    *  The default value is 1.
    *  Note:  this method is the same as getMetaDataSource() so that it corresponds to the connection property name
    **/
-  public int getMetaDatasource()
+  public int getMetadataSource()
   {
       return getMetaDataSource();
   }
@@ -2802,7 +2802,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
    *  getColumnPrivileges
    *  @param mds The setting for metadata source
    *  The default value is 1.
-   *  Note:  this method is the same as setMetadataSource() so that it corresponds to the connection property name
+   *  Note:  this method is the same as setMetaDataSource() so that it corresponds to the connection property name
    **/
   public void setMetadataSource(int mds)
   {
