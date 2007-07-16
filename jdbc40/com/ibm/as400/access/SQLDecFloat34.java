@@ -239,7 +239,7 @@ final class SQLDecFloat34 implements SQLData {
     }
 
     public int getDisplaySize() {
-        return precision_ + 2;
+        return 42; //@pdc same as native
     }
 
     
