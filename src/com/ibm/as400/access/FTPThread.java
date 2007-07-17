@@ -79,7 +79,12 @@ class FTPThread implements Runnable
 
   public void issuePortCommand() throws IOException
   {
-    String addr = localAddress_.getHostAddress();
+      String addr = localAddress_.getHostAddress();
+      // Try the extended port command.
+      String response = ftp_.issueCommand("EPRT |" + (addr.indexOf(':') == -1 ? "1" : "2") + "|" + addr + "|" + port_ + "|");
+      if (ftp_.lastMessage_.startsWith("200")) return;
+
+      // System may not support EPRT, fallback to the port command.
     StringTokenizer st = new StringTokenizer(addr, ".");
     StringBuffer cmd = new StringBuffer("PORT ");
     while (st.hasMoreTokens())
@@ -90,7 +95,7 @@ class FTPThread implements Runnable
     cmd.append(port_/256);
     cmd.append(",");
     cmd.append(port_ % 256);
-    String response = ftp_.issueCommand(cmd.toString());
+    response = ftp_.issueCommand(cmd.toString());
     // A "successful" response will begin with 200.
     if (!ftp_.lastMessage_.startsWith("200"))
     {

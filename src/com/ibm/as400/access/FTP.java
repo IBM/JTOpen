@@ -2363,9 +2363,20 @@ public class FTP implements java.io.Serializable
     final Socket getDataSocket()
       throws IOException
     {
-      String response = issueCommand("PASV");
-      int p = extractPortAddress(response);
-      return new Socket(server_, p);
+        // Try the extended passive command.
+        String response = issueCommand("EPSV");
+        if (response.startsWith("229"))
+        {
+            // System supports EPSV.
+            int end = response.lastIndexOf('|');
+            int begin = response.lastIndexOf('|', end - 1);
+            int port = Integer.parseInt(response.substring(begin + 1, end));
+            return new Socket(server_, port);
+        }
+        // System may not support EPSV, fallback to the passive command.
+        response = issueCommand("PASV");
+        int p = extractPortAddress(response);
+        return new Socket(server_, p);
     }
 
 
