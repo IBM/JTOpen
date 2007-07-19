@@ -2970,7 +2970,7 @@ implements DatabaseMetaData
                     request.setPrimaryKeyFileName(normalize(table), connection_.converter_);        // @E4C
 
                     // Set the primary key Information to Return Bitmap
-                    request.setPrimaryKeyReturnInfoBitmap(0xB8000000);
+                    request.setPrimaryKeyReturnInfoBitmap(0xBC000000);  //@pdc
 
                     // This is not documented in the LIPI, but it happens to work!           @E2A
                     request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
@@ -3010,8 +3010,9 @@ implements DatabaseMetaData
                         maps[2] = new JDSimpleFieldMap (2); // pk table
                         maps[3] = new JDSimpleFieldMap (3); // pk column
                         maps[4] = new JDCharToShortFieldMap (4);    // key seq
-                        maps[5] = new JDHardcodedFieldMap (new SQLVarchar (0, settings_), true, false);
-
+                        //maps[5] = new JDHardcodedFieldMap (new SQLVarchar (0, settings_), true, false); //@pdd
+                        maps[5] = new JDSimpleFieldMap (5);  //@pda
+                        
                         // Create the mapped row cache that is returned in the
                         // result set
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
