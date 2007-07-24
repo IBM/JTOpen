@@ -951,7 +951,7 @@ public class ObjectList implements Serializable
    * then the objects at a given offset will change, so a subsequent call to
    * getObjects() with the same <i>listOffset</i> and <i>number</i>
    * will most likely not return the same ObjectDescriptions as the previous call.
-   * @param listOffset The offset into the list of objects. This value must be greater than 0 and
+   * @param listOffset The offset into the list of objects. This value must be greater than or equal to 0 and
    * less than the list length, or specify -1 to retrieve all of the objects.
    * @param number The number of objects to retrieve out of the list, starting at the specified
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
