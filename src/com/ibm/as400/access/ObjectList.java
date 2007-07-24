@@ -10,6 +10,9 @@
 // others.  All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @A1 - 07/24/2007 - Changes to addObjectAuthorityCriteria() to enforce 
+//                    documented interface restriction related to AUTH_ANY
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -550,6 +553,26 @@ public class ObjectList implements Serializable
       if (Trace.traceOn_) Trace.log(Trace.ERROR, "Too many authorities added to ObjectList.");
       throw new ExtendedIllegalArgumentException("authority", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
+
+    // Start of changes for change flag --------------------------- @A1A
+    // Following code is to enforce Javadoc which states:
+    //   If this value [AUTH_ANY] is specified, no other values can be specified.
+    if ((authority.equals(AUTH_ANY)) && (currentObjectAuthKey_ != 0))
+    {
+      // If AUTH_ANY is specified, then it must be the first/only entry
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Attempt to add AUTH_ANY auth after other auth was added.");
+      throw new ExtendedIllegalArgumentException("authority", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    
+    if ((currentObjectAuthKey_ > 0) &&         // Adding auth beyond 1st auth in list -AND-
+	(objectAuthKeys_[0].equals(AUTH_ANY))) // first auth in list is AUTH_ANY
+    {
+      // If AUTH_ANY was already specified, cannot add another auth to the list.
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Attempt to add auth after AUTH_ANY auth was added.");
+      throw new ExtendedIllegalArgumentException("authority", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    // End of changes for change flag ----------------------------- @A1A
+
     objectAuthKeys_[currentObjectAuthKey_++] = authority;
     resetHandle();
   }
