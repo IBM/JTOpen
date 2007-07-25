@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.sql.Connection;          // @G4A
 import java.sql.SQLException;
 import java.util.StringTokenizer;
+import java.util.Vector;
 import java.io.IOException;
 
 
@@ -119,9 +120,52 @@ class JDSQLStatement
     private String          value_;
     private String          valueForServer_             = null;     // @E1A
     private boolean         selectTableNotSet_          = true;     //@K1A boolean to determine if selectTable_ has been set, if so, then selectTableNotSet_ is false
-    private boolean         selectFromInsert_           = false;    // @GKA
+  private boolean         selectFromInsert_           = false;    // @GKA
 
 
+    // Contains a list of AS400JDBCStatementListener objects to be invoked when events occur
+    // related to a JDSQLStatement.
+    private static final Vector statementListeners_ = new Vector();
+
+    // Load any statement listeners that are specified in a runtime property.
+    static
+    {
+      String classNames = SystemProperties.getProperty(SystemProperties.JDBC_STATEMENT_LISTENERS);
+      if (classNames != null)
+      {
+        StringTokenizer st = new StringTokenizer(classNames, ",");
+        while (st.hasMoreTokens())
+        {
+          try
+          {
+            String clazz = st.nextToken();
+            addStatementListener((AS400JDBCStatementListener)Class.forName(clazz).newInstance());
+            Trace.log(Trace.INFORMATION, "Successfully loaded JDBC statement listener "+clazz);
+          }
+          catch (Throwable t)
+          {
+            Trace.log(Trace.WARNING, "Error instantiating JDBC statement listener: ", t);
+          }
+        }
+      }
+    }
+
+
+    /**
+     * Adds an AS400JDBCStatementListener.
+    **/
+    static void addStatementListener(AS400JDBCStatementListener listener)
+    {
+      if (listener != null) statementListeners_.add(listener);
+    }
+
+    /**
+     * Removes an AS400JDBCStatementListener.
+    **/
+    static void removeStatementListener(AS400JDBCStatementListener listener)
+    {
+      if (listener != null) statementListeners_.remove(listener);
+    }
 
     /**
     Constructs a JDSQLStatement object.  Use this constructor
@@ -342,6 +386,20 @@ class JDSQLStatement
         // @C3D }
         // @C3D }
 
+        for (int i=0; i<statementListeners_.size(); ++i)
+        {
+          AS400JDBCStatementListener listener = (AS400JDBCStatementListener)statementListeners_.elementAt(i);
+          String sql2 = listener.modifySQL(connection, sql);
+          if (sql2 != null)
+          {
+            sql = sql2;
+            if (JDTrace.isTraceOn())
+            {
+              JDTrace.logInformation(this, "SQL statement modified. Result: "+sql);
+            }
+          }
+        }
+
         // @C3A if the statement is long remove the comments, otherwise keep them
         //@PDC 2M for commentStrip in v5r4
         int commentStripLength = 32767;  //@PDA
@@ -349,8 +407,18 @@ class JDSQLStatement
             commentStripLength = (((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm540) ? 2097151 : 32767;    //@PDC 2M for commentStrip in v5r4
         if(length > commentStripLength)//@PDC 2M for commentStrip
         { // @C3A
+            String old = sql;
             JDSQLTokenizer commentStripper = new JDSQLTokenizer(sql, JDSQLTokenizer.DEFAULT_DELIMITERS, true, false); // @C3A
             sql = commentStripper.toString(); // @C3M
+            // Notify our listeners that we stripped comments.
+            if (old.length() != sql.length())
+            {
+              for (int i=0; i<statementListeners_.size(); ++i)
+              {
+                AS400JDBCStatementListener listener = (AS400JDBCStatementListener)statementListeners_.elementAt(i);
+                listener.commentsStripped(connection, old, sql);
+              }
+            }
         } // @C3A
         //@F6A end new code
         //@C3D} //@G7A

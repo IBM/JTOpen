@@ -41,6 +41,7 @@ class SystemProperties
     public static final String TUNNELPROXYSERVER_CLIENTLIFETIME	= ACCESS_PREFIX + "TunnelProxyServer.clientLifetime"; //@A2A
     public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
     public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
+    public static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
     //  *** Note: ***
     //
     // If you add a new system property, remember to add them to the following other files:
