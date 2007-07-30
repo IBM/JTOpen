@@ -6,12 +6,14 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2007 International Business Machines Corporation and     
 // others.  All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 // @A1 - 07/24/2007 - Changes to addObjectAuthorityCriteria() to enforce 
 //                    documented interface restriction related to AUTH_ANY
+// @A2 - 07/25/2007 - Changes to load() and getObjects() to obtain and use
+//                    the correct recordLength for the records returned.
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -206,6 +208,7 @@ public class ObjectList implements Serializable
   private AS400 system_;
 
   private int length_;
+  private int recLen_;	  // Length of a single record; should never be zero for this API @A2A
   private byte[] handle_; // handle that references the user space used by the open list APIs
   private byte[] handleToClose_; // used to close a previously opened list
   private boolean isConnected_;
@@ -1025,7 +1028,10 @@ public class ObjectList implements Serializable
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
     ProgramParameter[] parms2 = new ProgramParameter[7];
-    int len = number*60; // best guess
+    
+    // Use recLen_ from load()'s list information to calculate receiver length needed @A2A
+    int len = number*recLen_; //@A2C
+
     parms2[0] = new ProgramParameter(len); // receiver variable
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
@@ -1045,6 +1051,10 @@ public class ObjectList implements Serializable
     int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
     int recordLength = BinaryConverter.byteArrayToInt(listInfo, 12);
+    
+    // Deleting following code, because there will not be a need to call a second  @A2A
+    // time as we should always have enough room for the receiver now.             @A2A
+    /*  Start of deleted code which calls QGYGTLE a second time -----------------  @A2D
     while (listOffset == -1 && totalRecords > recordsReturned)
     {
       len = len*(1+(totalRecords/(recordsReturned+1)));
@@ -1066,6 +1076,8 @@ public class ObjectList implements Serializable
       recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
       recordLength = BinaryConverter.byteArrayToInt(listInfo, 12);
     }
+
+    End of deleted code which calls QGYGTLE a second time -----------------  @A2D */
 
     ListUtilities.checkListStatus(listInfo[30]);  // check the list status indicator
     byte[] data = parms2[0].getOutputData();
@@ -1420,6 +1432,14 @@ public class ObjectList implements Serializable
     byte[] listInfo2 = parms2[3].getOutputData();
     ListUtilities.checkListStatus(listInfo2[30]);  // check the list status indicator
     length_ = BinaryConverter.byteArrayToInt(listInfo2, 0);
+
+    // Obtain the recordLength from the QGYGTLE() listinfo output  @A2A
+    recLen_ = BinaryConverter.byteArrayToInt(listInfo2, 12);     //@A2A
+    if (recLen_ <= 0)                                            //@A2A
+    {                                                            //@A2A
+        throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, 
+                                         "invalid record length", recLen_);
+    }                                                            //@A2A
 
     if (Trace.traceOn_)
     {
