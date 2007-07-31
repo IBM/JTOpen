@@ -6,11 +6,20 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2007 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
-
+//
+// @A1 - 07/25/2007 - Allow users to write data containing single quote 
+//                    characters.  User needs to specify a pair of single-quote 
+//                    characters to be interpretted as a single quote character.
+//                    This would have resulted in potential length errors
+//                    being reported by toolbox code.  Therefore, some toolbox
+//                    length verification has been removed.  The server code 
+//                    will report an error if the data length is invalid.
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.io.Serializable;
@@ -49,7 +58,7 @@ dataArea.delete();
 
 public class CharacterDataArea extends DataArea implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2007 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -481,7 +490,8 @@ public class CharacterDataArea extends DataArea implements Serializable
      // Validate the data parameter.
      if (data == null)
        throw new NullPointerException("data");
-     if (data.length() < 1 || data.length() > length_)
+     //if (data.length() < 1 || data.length() > length_)      //@A1D
+     if (data.length() < 1)                                   //@A1C
        throw new ExtendedIllegalArgumentException("data",
          ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
@@ -532,7 +542,8 @@ public class CharacterDataArea extends DataArea implements Serializable
       if (data == null)
          throw new NullPointerException("data");
       // Validate the data length.
-      if (data.length() < 1 || data.length() > length_)
+      //if (data.length() < 1 || data.length() > length_)      //@A1D
+      if (data.length() < 1)                                   //@A1C
          throw new ExtendedIllegalArgumentException("data",
                                                     ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
       // Validate the dataAreaOffset parameter.
@@ -540,10 +551,11 @@ public class CharacterDataArea extends DataArea implements Serializable
          throw new ExtendedIllegalArgumentException("dataAreaOffset",
                                                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       // Validate the (dataAreaOffset, dataLength) combination.
-      if (dataAreaOffset+data.length() > length_)
+      /*             
+      if (dataAreaOffset+data.length() > length_)               //@A1D
          throw new ExtendedIllegalArgumentException("data",
                                                     ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-      
+        */
       if (impl_ == null)
          chooseImpl();
       
@@ -594,7 +606,8 @@ public class CharacterDataArea extends DataArea implements Serializable
      if (data == null)
        throw new NullPointerException("data");
      // Validate the data length.
-     if (data.length() < 1 || data.length() > length_)
+     //if (data.length() < 1 || data.length() > length_)       //@A1D
+     if (data.length() < 1)                                    //@A1C
        throw new ExtendedIllegalArgumentException("data",
          ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
      // Validate the dataAreaOffset parameter.
@@ -602,10 +615,11 @@ public class CharacterDataArea extends DataArea implements Serializable
        throw new ExtendedIllegalArgumentException("dataAreaOffset",
          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
      // Validate the (dataAreaOffset, dataLength) combination.
-     if (dataAreaOffset+data.length() > length_)
+     /*                                                        
+     if (dataAreaOffset+data.length() > length_)               //@A1D
        throw new ExtendedIllegalArgumentException("data",
          ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-
+           */
      if (impl_ == null)
        chooseImpl();
 

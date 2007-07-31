@@ -6,11 +6,18 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2007 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
-
+// @A2 - 07/27/2007 - Allow users to write data containing single quote 
+//                    characters.  User needs to specify two single quote 
+//                    characters to be interpretted as a single character.
+//                    This would have resulted in potential length errors
+//                    being reported by toolbox code.  Therefore, some toolbox
+//                    length verification has been removed.  The server code 
+//                    will report an error if the data length is invalid.
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.io.CharConversionException;
@@ -31,7 +38,7 @@ import java.net.UnknownHostException;
  **/
 class DataAreaImplRemote implements DataAreaImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2007 International Business Machines Corporation and others.";
 
     private AS400ImplRemote system_;  // The server where the data area is located.
     private String library_;  // The library that contains the data area.
@@ -1129,12 +1136,34 @@ class DataAreaImplRemote implements DataAreaImpl
         byte[] part2 = ir.stringToByteArray(data, type);                                          //@D1a  //$D2C
         byte[] part3 = ir.stringToByteArray("')");                                                        //@D2A
         int dataLength = part2.length;                                                                    //@D2C
+        int countSingleQuotePairs = 0;                       //@A2A
 
         switch (dataAreaType_)
         {
             case DataArea.CHARACTER_DATA_AREA:
+                // Start Changes ----------------------------------------- @A2A
+                // Search/count the number of single-quote pairs in "data" parm.
+                // Single-quote pairs are treated as a single-quote for 
+                // the "Substring length" parameter of the CHGDTAARA command.
+                // For example, the following is valid:
+                // QSYS/CHGDTAARA DTAARA(DPRIGGE/CHAR1 (1 5)) VALUE('AB''''E') 
+                // Notice that we need to specify (1 5) rather than (1 7)
+
+                int searchIndex = 0, foundIndex;
+                while(searchIndex < data.length())
+                {
+                  foundIndex = data.indexOf("''", searchIndex);
+                  if (foundIndex != -1)
+                  {
+                    ++countSingleQuotePairs;
+                    searchIndex = foundIndex+2; // Skip search past this double-quote pair
+                  }
+                  else searchIndex = data.length();
+                }
+                // End Changes ------------------------------------------- @A2A
+
                 //wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('" + data + "')"; //@D1c
-                part1 = ir.stringToByteArray("QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('");  //@D2C
+                part1 = ir.stringToByteArray("QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + (dataLength-countSingleQuotePairs)+ ")" + ") VALUE('");  //@D2C //@A2A
                 break;
             case DataArea.LOCAL_DATA_AREA:
                 //wrtcmd = "QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('" + data + "')";                                //@D1c
@@ -1159,6 +1188,11 @@ class DataAreaImplRemote implements DataAreaImpl
             rmtCmd_.setSystem(system_);                         //$D2A
         }                                                       //$D2A
 
+        if (Trace.isTraceOn())                                    //@A2A
+        {                                                         //@A2A
+            String wrtcmd2 = ir.byteArrayToString(wrtcmd);        //@A2A
+            Trace.log(Trace.DIAGNOSTIC, "wrtcmd2=["+wrtcmd2+"]"); //@A2A
+        }                                                         //@A2A
         // Run the command as bytes
         boolean result = rmtCmd_.runCommand(wrtcmd, false, AS400Message.MESSAGE_OPTION_UP_TO_10);     //@D2C
         messageList_ = rmtCmd_.getMessageList();                //$D2A
