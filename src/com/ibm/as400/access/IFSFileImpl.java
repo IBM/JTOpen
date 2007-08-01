@@ -6,11 +6,15 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2007 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
-
+// @D7 - 07/25/2007 - Add allowSortedRequests to the listDirectoryDetails()
+//                    method to resolve problem of issuing PWFS List Attributes 
+//                    request with both "Sort" indication and "RestartByID" 
+//                    which is documented to be an invalid combination.
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.io.IOException;
@@ -56,7 +60,8 @@ interface IFSFileImpl
   IFSCachedAttributes[] listDirectoryDetails(String directoryPattern,
                                              String directoryPath, 
                                              int maximumGetCount,
-                                             byte[] restartID)
+                                             byte[] restartID,            //@D7C
+                                             boolean allowSortedRequests) //@D7A
     throws IOException, AS400SecurityException;
   int mkdir(String directory) throws IOException, AS400SecurityException;
   int mkdirs() throws IOException, AS400SecurityException;

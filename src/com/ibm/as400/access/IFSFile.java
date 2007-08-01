@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2007 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,10 @@
 // @D5 - 06/18/2007 - Changes to enumerateFiles() processing to better handle
 //                    when objects are filtered from the list returned by the 
 //                    IFS File Server.
+// @D7 - 07/25/2007 - Add allowSortedRequest parameter to listFiles0() method 
+//                    to resolve problem of issuing PWFS List Attributes request
+//                    with both "Sort" indication and "RestartByID" 
+//                    which is documented to be an invalid combination.
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -2190,7 +2194,7 @@ public class IFSFile
 
     try
     {
-      return listFiles0(filter, pattern, -1, (String)null, (byte[])null);                             // @D4C @C3C
+      return listFiles0(filter, pattern, -1, (String)null, (byte[])null, true);                             // @D4C @C3C @D7C
     }
     catch (AS400SecurityException e)
     {
@@ -2248,7 +2252,7 @@ public class IFSFile
   IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, String restartName)   // @D4C
     throws IOException, AS400SecurityException
   {
-    return listFiles0(filter, pattern, maxGetCount, restartName, null);
+    return listFiles0(filter, pattern, maxGetCount, restartName, null, true); //@D7C
   }
 
   //@C3a Relocated logic from original listFiles0 method.
@@ -2261,7 +2265,8 @@ public class IFSFile
    @param pattern The pattern that all filenames must match.
    Acceptable characters are wildcards (*) and question marks (?).
    **/
-  private IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, String restartName, byte[] restartID)   // @D4C
+  private IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, String restartName, 
+                               byte[] restartID, boolean allowSortedRequests)   // @D4C @D7C
     throws IOException, AS400SecurityException
   {
     // Do not specify both restartName and restartID.  Specify one or the other.
@@ -2287,7 +2292,7 @@ public class IFSFile
       fileAttributeList = impl_.listDirectoryDetails(directory + pattern, directory, maxGetCount, restartName); //@D2C @D4C
     }
     else {
-      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, directory, maxGetCount, restartID); //@C3a
+      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, directory, maxGetCount, restartID,allowSortedRequests); //@C3a @D7C
     }
 
     // Add the name for each reply that matches the filter to the array
@@ -2307,7 +2312,7 @@ public class IFSFile
 
       if (fileAttributeList.length > 0)
       {
-        IFSFile lastFile = new IFSFile(system_, fileAttributeList[fileAttributeList.length - 1]);            //DDPDEBUG
+        IFSFile lastFile = new IFSFile(system_, fileAttributeList[fileAttributeList.length - 1]);
     
         // Save the last restartName and restartID from the files     @D5A
         // returned from the server (to be used for subsequent reads) @D5A
@@ -2345,14 +2350,19 @@ public class IFSFile
   IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, byte[] restartID)
     throws IOException, AS400SecurityException
   {
-    return listFiles0(filter, pattern, maxGetCount, null, restartID);
+    // This method is only called by IFSEnumeration() which reads 128 objects at a time. @D7A
+    // The IFS file server does not allow "sort" and "restart ID" to be set in the same server request.
+    // Therefore, since the user may have previously called setSorted(), we need to inform 
+    // IFSFileImplRemote to not allow sorting on this server request.  The last parameter
+    // indicates "allowSortedRequests" and is set to "false"
+    return listFiles0(filter, pattern, maxGetCount, null, restartID, false); //@D7C
   }
 
   //@C3a
   IFSFile[] listFiles0(IFSFileFilter filter, String pattern)
     throws IOException, AS400SecurityException
   {
-    return listFiles0(filter, pattern, -1, null, null);
+    return listFiles0(filter, pattern, -1, null, null, true); //@D7C
   }
 
 

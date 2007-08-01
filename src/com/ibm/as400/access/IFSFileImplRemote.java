@@ -6,9 +6,14 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2007 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
+///////////////////////////////////////////////////////////////////////////////
+// @D7 - 07/25/2007 - Add allowSortedRequests to the listDirectoryDetails()
+//                    method to resolve problem of issuing PWFS List Attributes 
+//                    request with both "Sort" indication and "RestartByID" 
+//                    which is documented to be an invalid combination.
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -53,8 +58,6 @@ implements IFSFileImpl
   private boolean isSymbolicLink_;
   private boolean determinedIsSymbolicLink_;
   private boolean sortLists_;  // whether file-lists are returned from the File Server in sorted order
-
-
 
   /**
    Determines if the applet or application can read from the integrated file system object represented by this object.
@@ -1157,6 +1160,7 @@ implements IFSFileImpl
                                               restartNameOrID,                                       // @D4A @C3c
                                               isRestartName, // @C3a
                                               null, false, fd_.patternMatching_);
+    
     if (sortList) req.setSorted(true);
     return fd_.listAttributes(req);  // Note: This does setFD() on each returned IFSListAttrsRep..
   }
@@ -1306,7 +1310,7 @@ implements IFSFileImpl
      throws IOException, AS400SecurityException
   {
     byte[] restartNameBytes = fd_.converter_.stringToByteArray(restartName);                     // @C3M
-    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartNameBytes, IS_RESTART_NAME, sortLists_);
+    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartNameBytes, IS_RESTART_NAME, sortLists_);                                        //@D7C
   }
 
   // @C3a
@@ -1315,10 +1319,12 @@ implements IFSFileImpl
   public IFSCachedAttributes[] listDirectoryDetails(String pathPattern,
                                                     String directoryPath,
                                                     int maxGetCount,
-                                                    byte[] restartID)
+                                                    byte[] restartID,
+                                                    boolean allowSortedRequests) //@D7C
      throws IOException, AS400SecurityException
   {
-    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartID, !IS_RESTART_NAME, sortLists_);
+    boolean sortParameter = (allowSortedRequests ? sortLists_ : false); //@D7A
+    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartID, !IS_RESTART_NAME, sortParameter); //@D7C
   }
 
 

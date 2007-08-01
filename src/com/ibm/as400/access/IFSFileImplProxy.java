@@ -6,11 +6,15 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2007 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
-
+// @D7 - 07/25/2007 - Add allowSortedRequests to the listDirectoryDetails()
+//                    method to resolve problem of issuing PWFS List Attributes 
+//                    request with both "Sort" indication and "RestartByID" 
+//                    which is documented to be an invalid combination.
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.io.IOException;
@@ -307,13 +311,14 @@ implements IFSFileImpl
   public IFSCachedAttributes[] listDirectoryDetails(String directoryPattern,
                                                     String directoryPath,
                                                     int maxGetCount,
-                                                    byte[] restartID)
+                                                    byte[] restartID, 
+                                                    boolean allowSortedRequests) //@D7C
     throws IOException, AS400SecurityException
   {
     try {
       return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
-                              new Class[] { String.class, Integer.TYPE, byte[].class },
-                              new Object[] { directoryPath, new Integer(maxGetCount), restartID })
+                              new Class[] { String.class, Integer.TYPE, byte[].class, Boolean.class },
+                              new Object[] { directoryPath, new Integer(maxGetCount), restartID, new Boolean(allowSortedRequests) })//@D7C
         .getReturnValue();
     }
     catch (InvocationTargetException e) {
