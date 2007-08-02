@@ -183,7 +183,7 @@ implements JDRow
             {
                 int offset = 0;
                 boolean translateBinary = connection.getProperties().getBoolean (JDProperties.TRANSLATE_BINARY);
-                if(connection_.getVRM() >= JDUtilities.vrm550 && serverFormat_.getCSRSData())	// @550A retrieve date/time formats if the data is from a stored procedure result set
+                if(connection_.getVRM() >= JDUtilities.vrm610 && serverFormat_.getCSRSData())	// @550A retrieve date/time formats if the data is from a stored procedure result set
                 {
                 	dateFormat = serverFormat_.getDateFormat();
                 	timeFormat = serverFormat_.getTimeFormat();

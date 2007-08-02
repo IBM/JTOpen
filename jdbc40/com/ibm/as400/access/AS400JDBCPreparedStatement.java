@@ -3048,9 +3048,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 //boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same as native (only select is read) //@pdc match native
                 DataTruncation dt = new DataTruncation(parameterIndex, true, false, actualSize + truncated, actualSize); //@pdc jdbc40 //@pdc match native
               
-                //if 550 and number data type, then throw DataTruncation
+                //if 610 and number data type, then throw DataTruncation
                 //if text, then use old code path and post/throw DataTruncation
-                if((connection_.getVRM() >= JDUtilities.vrm550) && (data.isText() == false))   //@trunc2
+                if((connection_.getVRM() >= JDUtilities.vrm610) && (data.isText() == false))   //@trunc2
                 {                                                                    //@trunc2
                     throw dt;                                                        //@trunc2
                 }                                                                    //@trunc2

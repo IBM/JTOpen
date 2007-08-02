@@ -111,7 +111,7 @@ class PortMapper
     {
         if (AS400.onAS400 && unixSocketAvailable && !mustUseNetSockets && service != AS400.FILE && systemName.equalsIgnoreCase("localhost"))
         {
-            if (service == AS400.DATABASE && AS400.nativeVRM.vrm_ < 0x00050500) return false;
+            if (service == AS400.DATABASE && AS400.nativeVRM.vrm_ < 0x00060100) return false;
             return true;
         }
         return false;

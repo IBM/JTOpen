@@ -104,7 +104,7 @@ public class SystemValueList implements Serializable
     private static final int VRM520 = 0x00050200;
     private static final int VRM530 = 0x00050300;
     private static final int VRM540 = 0x00050400;
-    private static final int VRM550 = 0x00050500;
+    private static final int VRM610 = 0x00060100;
 
     // The total number of groups.
     private static final int GROUP_COUNT = 10;
@@ -147,7 +147,7 @@ public class SystemValueList implements Serializable
     // For V5R2, there are 2 additional system values.
     // For V5R3, there are 10 additional system values.
     // For V5R4, there are 2 additional system values.
-    // For V5R5, there are 6 additional system values.
+    // For V6R1, there are 6 additional system values.
     // There are at least 195 system values.
     // The optimal hash size is 195/0.75 = 260.
     private static Hashtable list = new Hashtable(260);
@@ -372,13 +372,13 @@ public class SystemValueList implements Serializable
         SystemValueList.list.put("QALWJOBITP", new SystemValueInfo("QALWJOBITP", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM540, ResourceBundleLoader.getSystemValueText("QALWJOBITP_DES")));
         SystemValueList.list.put("QLOGOUTPUT", new SystemValueInfo("QLOGOUTPUT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM540, ResourceBundleLoader.getSystemValueText("QLOGOUTPUT_DES")));
 
-        // V5R5 system values.
-        SystemValueList.list.put("QPWDRULES", new SystemValueInfo("QPWDRULES", SERVER_TYPE_CHAR, 15, 50, TYPE_ARRAY, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QPWDRULES_DES")));
-        SystemValueList.list.put("QPWDCHGBLK", new SystemValueInfo("QPWDCHGBLK", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QPWDCHGBLK_DES")));
-        SystemValueList.list.put("QPWDEXPWRN", new SystemValueInfo("QPWDEXPWRN", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QPWDEXPWRN_DES")));
-        SystemValueList.list.put("QSSLPCL", new SystemValueInfo("QSSLPCL", SERVER_TYPE_CHAR, 10, 10, TYPE_ARRAY, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QSSLPCL_DES")));
-        SystemValueList.list.put("QSSLCSLCTL", new SystemValueInfo("QSSLCSLCTL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QSSLCSLCTL_DES")));
-        SystemValueList.list.put("QSSLCSL", new SystemValueInfo("QSSLCSL", SERVER_TYPE_CHAR, 40, 32, TYPE_ARRAY, GROUP_SEC, VRM550, ResourceBundleLoader.getSystemValueText("QSSLCSL_DES")));
+        // V6R1 system values.
+        SystemValueList.list.put("QPWDRULES", new SystemValueInfo("QPWDRULES", SERVER_TYPE_CHAR, 15, 50, TYPE_ARRAY, GROUP_SEC, VRM610, ResourceBundleLoader.getSystemValueText("QPWDRULES_DES")));
+        SystemValueList.list.put("QPWDCHGBLK", new SystemValueInfo("QPWDCHGBLK", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM610, ResourceBundleLoader.getSystemValueText("QPWDCHGBLK_DES")));
+        SystemValueList.list.put("QPWDEXPWRN", new SystemValueInfo("QPWDEXPWRN", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, VRM610, ResourceBundleLoader.getSystemValueText("QPWDEXPWRN_DES")));
+        SystemValueList.list.put("QSSLPCL", new SystemValueInfo("QSSLPCL", SERVER_TYPE_CHAR, 10, 10, TYPE_ARRAY, GROUP_SEC, VRM610, ResourceBundleLoader.getSystemValueText("QSSLPCL_DES")));
+        SystemValueList.list.put("QSSLCSLCTL", new SystemValueInfo("QSSLCSLCTL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM610, ResourceBundleLoader.getSystemValueText("QSSLCSLCTL_DES")));
+        SystemValueList.list.put("QSSLCSL", new SystemValueInfo("QSSLCSL", SERVER_TYPE_CHAR, 40, 32, TYPE_ARRAY, GROUP_SEC, VRM610, ResourceBundleLoader.getSystemValueText("QSSLCSL_DES")));
 
         // Populate the group vectors.
         Enumeration elements = SystemValueList.list.elements();

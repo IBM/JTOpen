@@ -377,7 +377,7 @@ implements IFSFileDescriptorImpl
           // for V5R3 thru V5R4, we ask for Datastream Level 8;
           // for V4R5 thru V5R2, we ask for Datastream Level 2;
           // for earlier systems, we ask for Datastream Level 0.    // @B6c
-          if (getSystemVRM() >= 0x00050500)
+          if (getSystemVRM() >= 0x00060100)
             requestedDatastreamLevel_ = 16;
           else if (getSystemVRM() >= 0x00050300)
             requestedDatastreamLevel_ = 8;

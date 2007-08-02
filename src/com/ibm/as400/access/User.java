@@ -248,7 +248,7 @@ public class User implements Serializable
     // Local password management.
     private boolean localPasswordManagement_;
     // Password change block
-    private String pwdChangeBlock_;		// @550
+    private String pwdChangeBlock_;		// @610
 
     /**
      Constructs a User object.
@@ -981,7 +981,7 @@ public class User implements Serializable
         return passwordExpireDate_;
     }
 
-    // @550
+    // @610
     /**
      * Retrieves the time period during which a password is blocked from being changed
      * following the prior successful password change operation.
@@ -1732,7 +1732,7 @@ public class User implements Serializable
                 // EBCDIC 'Y' indicates the password is managed locally.
                 localPasswordManagement_ = data[660] == (byte)0xE8;
                 
-                if(vrm >= 0x00050500)	// @550 added password change block
+                if(vrm >= 0x00060100)	// @550 added password change block
                 {
                 	pwdChangeBlock_ = conv.byteArrayToString(data, 661, 10).trim();
                 }
@@ -2665,7 +2665,7 @@ public class User implements Serializable
         runCommand("OWNER(" + owner + ")");
     }
 
-    // @550
+    // @610
     /**
      * Sets the time period during which a password is blocked from being changed
      * following the prior successful password change operation.

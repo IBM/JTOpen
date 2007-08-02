@@ -3676,9 +3676,9 @@ public class AS400JDBCResultSet implements ResultSet
             int truncated = data.getTruncated ();
             if(truncated > 0)
             {
-                //if 550 and number data type and called on certain getX() methods, then throw SQLException
-                //if 550, follow Native driver to thow exc if data is text and getX() is a number type getter method.
-                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm550)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
+                //if 610 and number data type and called on certain getX() methods, then throw SQLException
+                //if 610, follow Native driver to thow exc if data is text and getX() is a number type getter method.
+                if((((AS400JDBCConnection)connection_).getVRM() >= JDUtilities.vrm610)  && (exceptionOnTrunc == true))   //@trunc //@trunc2 only use exceptionOnTrunc as flag
                 {                                                                    //@trunc
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc
                 }                                                                    //@trunc

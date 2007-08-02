@@ -172,7 +172,7 @@ public class UDFS
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
         int vrm = system_.getVRM();
-        runCommand("CRTUDFS UDFS('" + path_ + "') DTAAUT(" + publicDataAuthority + ") OBJAUT(" + setArrayToString(publicObjectAuthority) + ") CRTOBJAUD(" + auditingValue + ") " + (vrm < 0x00050300 ? "" : "CRTOBJSCAN(" + scanningOption + ") RSTDRNMUNL(" + (specialRestrictions ? "*YES" : "*NO") + ")") + (vrm < 0x00050500 ? "" : " DFTDISKSTG(" + defaultDiskStorageOption + ") DFTMAINSTG(" + defaultMainStorageOption + ")") + " CASE(" + caseSensitivity + ") DFTFILEFMT(" + defaultFileFormat + ") TEXT('" + description + "')");
+        runCommand("CRTUDFS UDFS('" + path_ + "') DTAAUT(" + publicDataAuthority + ") OBJAUT(" + setArrayToString(publicObjectAuthority) + ") CRTOBJAUD(" + auditingValue + ") " + (vrm < 0x00050300 ? "" : "CRTOBJSCAN(" + scanningOption + ") RSTDRNMUNL(" + (specialRestrictions ? "*YES" : "*NO") + ")") + (vrm < 0x00060100 ? "" : " DFTDISKSTG(" + defaultDiskStorageOption + ") DFTMAINSTG(" + defaultMainStorageOption + ")") + " CASE(" + caseSensitivity + ") DFTFILEFMT(" + defaultFileFormat + ") TEXT('" + description + "')");
     }
 
     /**

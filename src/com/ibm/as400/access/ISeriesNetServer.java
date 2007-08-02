@@ -754,16 +754,16 @@ implements Serializable
 
     
     int vrm = getSystemVRM();	// @IPv6
-    int recordLength = (vrm < 0x00050500) ? 64 : 192;	// @IPv6
+    int recordLength = (vrm < 0x00060100) ? 64 : 192;	// @IPv6
     int len = 20*recordLength; // Expect about 20 records, each one 64 bytes in length if V5R4 or earlier, else 192 bytes in length. @IPv6C
     
-    ProgramParameter[] parms = new ProgramParameter[(vrm < 0x00050500) ? 6 : 8];	// @IPv6 V5R5 and later has two addional possible parameters for expanded workstation name info
+    ProgramParameter[] parms = new ProgramParameter[(vrm < 0x00060100) ? 6 : 8];	// @IPv6 two addional possible parameters for expanded workstation name info
 
     parms[0] = new ProgramParameter(len);                                // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(len));// length of receiver variable
     parms[2] = new ProgramParameter(64);                      // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0300"));
-    if(vrm < 0x00050500)		// @IPv6
+    if(vrm < 0x00060100)		// @IPv6
     	parms[4] = new ProgramParameter(text15.toBytes(name));  // information qualifier
     else												// @IPv6
     {													// @IPv6
@@ -786,10 +786,10 @@ implements Serializable
     {
       ISeriesNetServerSession sess = parseZLSL0300(data, offset, conv, null);
       sessions[i] = sess;
-      if(getSystemVRM() < 0x00050500) 	// @IPv6
+      if(getSystemVRM() < 0x00060100) 	// @IPv6
     	  offset += 64;					// increment by length of a ZLSL0300 entry
       else								// @IPv6 increment by length of a ZLSL0300 entry, 
-    	  offset += 192;  				// @IPv6 V5R5 and later has a Binary(4) for expanded workstation type and a Char(124) for expanded workstation name
+    	  offset += 192;  				// @IPv6 Binary(4) for expanded workstation type and a Char(124) for expanded workstation name
     }
     return sessions;
   }
@@ -865,13 +865,13 @@ implements Serializable
     int len = 20*64; // Expect about 20 records, each one 64 bytes in length.
 
     int vrm = getSystemVRM();	// @IPv6
-    ProgramParameter[] parms = new ProgramParameter[(vrm < 0x00050500) ? 6 : 8];	// @IPv6 V5R5 and later has two additional parameters for expanded workstation name
+    ProgramParameter[] parms = new ProgramParameter[(vrm < 0x00060100) ? 6 : 8];	// @IPv6 two additional parameters for expanded workstation name
 
     parms[0] = new ProgramParameter(len);                                // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(len));// length of receiver variable
     parms[2] = new ProgramParameter(64);                           // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray("ZLSL0600"));
-    if(vrm < 0x00050500)		// @IPv6
+    if(vrm < 0x00060100)		// @IPv6
     	parms[4] = new ProgramParameter(text15.toBytes(workstationName));  // information qualifier
     else									// @IPv6
     {										// @IPv6
@@ -1045,7 +1045,7 @@ implements Serializable
    **/
   private ISeriesNetServerSession parseZLSL0300(byte[] data, int offset, CharConverter conv, ISeriesNetServerSession sess) throws AS400SecurityException, IOException  // @IPv6 added throws declaration, removed static qualifier
   {
-    String workstationName = (getSystemVRM() < 0x00050500) ? conv.byteArrayToString(data,offset+0,15).trim() : conv.byteArrayToString(data, offset+68, 124).trim();	// @IPv6 
+    String workstationName = (getSystemVRM() < 0x00060100) ? conv.byteArrayToString(data,offset+0,15).trim() : conv.byteArrayToString(data, offset+68, 124).trim();	// @IPv6 
     String userProfileName = conv.byteArrayToString(data,offset+15,10).trim();
     int numberOfConnections = BinaryConverter.byteArrayToInt(data, offset+28);
     int numberOfFilesOpen = BinaryConverter.byteArrayToInt(data, offset+32);
@@ -1099,7 +1099,7 @@ implements Serializable
       resourceType = ISeriesNetServerConnection.SHARE;
     }
     else {
-      resourceName = (getSystemVRM() < 0x00050500) ? conv.byteArrayToString(data,offset+30,15).trim() : conv.byteArrayToString(data, offset+68, 124).trim(); // workstation name @IPv6
+      resourceName = (getSystemVRM() < 0x00060100) ? conv.byteArrayToString(data,offset+30,15).trim() : conv.byteArrayToString(data, offset+68, 124).trim(); // workstation name @IPv6
       resourceType = ISeriesNetServerConnection.WORKSTATION;
     }
 
@@ -1141,7 +1141,7 @@ implements Serializable
     final AS400Text text15 = new AS400Text(15, ccsid);
 
     
-    int recordLength = (getSystemVRM() < 0x00050500) ? 64 : 192;	// @IPv6
+    int recordLength = (getSystemVRM() < 0x00060100) ? 64 : 192;	// @IPv6
     int len = 20*recordLength; // Expect about 20 records, each one 64 bytes in length if V5R4 and earlier, else 192 bytes
 
     ProgramParameter[] parms = new ProgramParameter[6];
@@ -1163,10 +1163,10 @@ implements Serializable
     {
       ISeriesNetServerConnection conn = parseZLSL0600or0700(data, offset, conv, false, null);
       connections[i] = conn;
-      if(getSystemVRM() < 0x00050500)	// @IPv6
+      if(getSystemVRM() < 0x00060100)	// @IPv6
     	  offset += 64;  // increment by length of a ZLSL0700 entry
       else								// @IPv6 increment by length of ZLSL0700 entry
-    	  offset += 192;				// @IPv6 V5R5 and later has an additional Binary(4) for expanded workstation name type and a Char(45) for expanded workstation name
+    	  offset += 192;				// @IPv6 additional Binary(4) for expanded workstation name type and a Char(45) for expanded workstation name
     }
     return connections;
   }
@@ -2639,7 +2639,7 @@ implements Serializable
     	parms[2] = new ProgramParameter(BinaryConverter.longToByteArray(sessionID));
     }
     else {
-    	if(getSystemVRM() < 0x00050500)	// @IPv6 - specify to end all sessions for the specified workstation like we always have
+    	if(getSystemVRM() < 0x00060100)	// @IPv6 - specify to end all sessions for the specified workstation like we always have
     	{								
     		parms[0] = new ProgramParameter(text15.toBytes(workstationName));
     		parms[2] = new ProgramParameter(BinaryConverter.longToByteArray(0L));
@@ -2832,17 +2832,17 @@ implements Serializable
     else {  // SHARE
       format = "ZLSL0700";
       is0600 = false;
-      if(vrm >= 0x00050500)	// @IPv6 - we can have two additional fields returned with an extra length of 128
+      if(vrm >= 0x00060100)	// @IPv6 - we can have two additional fields returned with an extra length of 128
     	  len = 192;
     }
     
-    ProgramParameter[] parms = new ProgramParameter[(is0600 && vrm >= 0x00050500) ? 8 : 6];	// @IPv6 if we are requesting format 600 and we are V5R5 and later than we can have 2 additional parameters
+    ProgramParameter[] parms = new ProgramParameter[(is0600 && vrm >= 0x00060100) ? 8 : 6];	// @IPv6 if we are requesting format 600 than we can have 2 additional parameters
 
     parms[0] = new ProgramParameter(len);                                // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(len));// length of receiver variable
     parms[2] = new ProgramParameter(64);                           // list information
     parms[3] = new ProgramParameter(conv.stringToByteArray(format));
-    if((is0600) && (vrm >= 0x00050500))	// @IPv6
+    if((is0600) && (vrm >= 0x00060100))	// @IPv6
     {													// @IPv6
     	AS400Text text10 = new AS400Text(10, ccsid);	// @IPv6 Session user
     	AS400Text text50 = new AS400Text(50, ccsid);	// @IPv6 Expanded Information Qualifier
@@ -2891,7 +2891,7 @@ implements Serializable
     final AS400Text text10 = new AS400Text(10, ccsid);
     final AS400Text text15 = new AS400Text(15, ccsid);
 
-    int len = (getSystemVRM() < 0x00050500) ? 64 : 113; // Expect 1 record, 64 bytes in length if V5R4 or earlier, else 113 bytes
+    int len = (getSystemVRM() < 0x00060100) ? 64 : 113; // Expect 1 record, 64 bytes in length if V5R4 or earlier, else 113 bytes
 
     ProgramParameter[] parms = new ProgramParameter[8];
 

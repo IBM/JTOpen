@@ -34,7 +34,7 @@ class JDUtilities
     private static final byte escape        = (byte)0x1B;           // @D0A
 
     // @j4 the following two constants are now final
-    static final int vrm550 = AS400.generateVRM(5, 5, 0);           // @550
+    static final int vrm610 = AS400.generateVRM(6, 1, 0);           // @610
     static final int vrm540 = AS400.generateVRM(5, 4, 0);           // @540
     static final int vrm530 = AS400.generateVRM(5, 3, 0);           // @G0A
     static final int vrm520 = AS400.generateVRM(5, 2, 0);           // @J2a @J3a   

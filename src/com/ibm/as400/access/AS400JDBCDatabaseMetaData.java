@@ -942,7 +942,7 @@ implements DatabaseMetaData
                 new SQLInteger (), // radix
                 new SQLInteger (), // nullable
                 new SQLVarchar (254, settings_),  // remarks
-                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm550) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
+                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
                 new SQLInteger (),  // sql data type
                 new SQLInteger (),  // datetime sub
                 new SQLInteger (),  // octet length
@@ -1009,7 +1009,7 @@ implements DatabaseMetaData
                 new SQLInteger (), // radix
                 new SQLInteger (), // nullable
                 new SQLVarchar (254, settings_),  // remarks
-                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm550) ? 2000 : 254, settings_),  // column def
+                new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def
                 new SQLInteger (),  // sql data type
                 new SQLInteger (),  // datetime sub
                 new SQLInteger (),  // octet length
@@ -1130,7 +1130,7 @@ implements DatabaseMetaData
 
                     // Set the Field Information to Return Bitmap
                     // Return everything but the reserved fields
-                    if(connection_.getVRM() >= JDUtilities.vrm550)  //@550 column default value support
+                    if(connection_.getVRM() >= JDUtilities.vrm610)  //@550 column default value support
                         request.setFieldReturnInfoBitmap(0xEFF70000);   //@550 request column default, 16th bit
                     else                                                //@550
                         request.setFieldReturnInfoBitmap(0xEFF60000);   // @E3C   //@KKB changed from EFF20000 inorder to request CCSID
@@ -2250,7 +2250,7 @@ implements DatabaseMetaData
         connection_.checkOpen ();
 
         //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --start
-        if(connection_.getVRM() >= JDUtilities.vrm550)          
+        if(connection_.getVRM() >= JDUtilities.vrm610)          
         {  
         	short iUnique;
         	short reserved = 0;
@@ -2598,7 +2598,7 @@ implements DatabaseMetaData
     public int getMaxColumnsInGroupBy ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm550)          //@550  max columns in group by support
+        if(connection_.getVRM() >= JDUtilities.vrm610)          //@550  max columns in group by support
             return 8000;                                        //@550
         else                                                    //@550
             return 120;
@@ -2697,10 +2697,10 @@ implements DatabaseMetaData
     public int getMaxCursorNameLength ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm550)                  //@550A
+        if(connection_.getVRM() >= JDUtilities.vrm610)                  //@550A
             return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH;
         else                                                            //@550A
-            return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH_PRE_V5R5;  //@550A
+            return AS400JDBCStatement.MAX_CURSOR_NAME_LENGTH_PRE_V6R1;  //@550A
     }
 
 
@@ -4561,7 +4561,7 @@ implements DatabaseMetaData
                 typeSamples.addElement(new SQLVarbinary(32739, settings_));
             }
         }
-        if(connection_.getVRM() >= JDUtilities.vrm550)                                                                //@dfa
+        if(connection_.getVRM() >= JDUtilities.vrm610)                                                                //@dfa
         {                                                                                                             //@dfa
             //note that on hostserver both 16 and 34 are one type (stored proc returns one type)
             typeSamples.addElement(new SQLDecFloat34( settings_, connection_.getVRM(), connection_.getProperties())); //@dfa
@@ -5967,7 +5967,7 @@ implements DatabaseMetaData
     public boolean supportsFullOuterJoins ()
     throws SQLException
     {
-        if(connection_.getVRM() >= JDUtilities.vrm550)  //@550
+        if(connection_.getVRM() >= JDUtilities.vrm610)  //@550
             return true;                                //@550
         else                                            //@550
             return false;
@@ -6995,7 +6995,7 @@ implements DatabaseMetaData
     {
         connection_.checkOpen();
 
-        if(connection_.getVRM() < JDUtilities.vrm550) //@pda HSTSRVR support not PTFing support to v5r4
+        if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
         {
             JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
             return null;
@@ -7118,7 +7118,7 @@ implements DatabaseMetaData
         //@PDA add support to call stored procedure
         connection_.checkOpen();
 
-        if(connection_.getVRM() < JDUtilities.vrm550) //@pda HSTSRVR support not PTFing support to v5r4
+        if(connection_.getVRM() < JDUtilities.vrm610) //@pda HSTSRVR support not PTFing support to v5r4
         {
             JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
             return null;

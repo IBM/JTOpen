@@ -40,7 +40,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         if (AS400.nativeVRM.vrm_ >= 0x00050300)
         {
-            if (AS400.nativeVRM.vrm_ >= 0x00050500)
+            if (AS400.nativeVRM.vrm_ >= 0x00060100)
             {
                 serverDataStreamLevel_ = 10;
                 unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
@@ -190,7 +190,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         open(true);
 
-        if (AS400.nativeVRM.vrm_ >= 0x00050500)
+        if (AS400.nativeVRM.vrm_ >= 0x00060100)
         {
             return runCommand(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
         }
@@ -244,7 +244,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 try
                 {
-                    byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00050500 ? runCommandNativeV5R3(commandBytes, messageOption) : NativeMethods.runCommand(commandBytes, ccsid, messageOption);
+                    byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00060100 ? runCommandNativeV5R3(commandBytes, messageOption) : NativeMethods.runCommand(commandBytes, ccsid, messageOption);
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                     // Get info from reply.
@@ -437,7 +437,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 // Call native method.
                 if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
-                byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00050500 ? runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption) : NativeMethods.runProgram(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
+                byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00060100 ? runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption) : NativeMethods.runProgram(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                 // Reset the message list.

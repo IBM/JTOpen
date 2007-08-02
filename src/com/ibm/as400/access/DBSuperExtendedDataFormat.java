@@ -21,7 +21,7 @@ Super Extended Data Format
 consistency token - 4 bytes                 0
 # of fields - 4 bytes                       4
 RESERVED - 4 bytes                          8
-	In V5R5 and later, the above reserved bytes are replaced with
+	In the release(s) after V5R4, the above reserved bytes are replaced with
 	Date Format - 1 byte
 	Time Format - 1 byte
 	Date Separator - 1 byte

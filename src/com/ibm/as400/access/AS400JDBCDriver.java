@@ -112,7 +112,7 @@ implements java.sql.Driver
 	static final int    MINOR_VERSION_          = 4; //comment: for customer usage, minor will correspond to integer after the decimal in M#.#
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
-    static final String DRIVER_LEVEL_           = "05050000"; //(ex: 05050102->V5R5M1.2) (needed for hidden clientInfo) (each # is 2 digits in length), should match version in Copyright.java  //@PDA 550
+        static final String DRIVER_LEVEL_           = "06010000"; //(ex: 05040102->V5R4M1.2) (needed for hidden clientInfo) (each # is 2 digits in length), should match version in Copyright.java  //@PDA 550
 
 
 	// This string "9999:9999" is returned when resource
