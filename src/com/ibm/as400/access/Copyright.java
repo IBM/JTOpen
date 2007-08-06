@@ -20,5 +20,5 @@ public interface Copyright
 {
     /** @deprecated This field is reserved for use within the Toolbox product. **/
     public static final String copyright = "Copyright (C) 1997-2007 International Business Machines Corporation and others.";
-    public static final String version   = "Open Source Software, JTOpen 5.4, codebase 5722-JC1 V5R4M0.4";
+    public static final String version   = "Open Source Software, JTOpen 6.0, codebase 5722-JC1 V5R4M0.6";
 }
