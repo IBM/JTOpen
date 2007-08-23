@@ -3164,7 +3164,7 @@ implements DatabaseMetaData
 
                 if (schemaPattern !=null)
                 {
-                    JDSearchPattern schema = new JDSearchPattern (schemaPattern);
+                    JDSearchPattern schema = new JDSearchPattern (normalize(schemaPattern)); //@pdc normalize
                     String schemaWhereClause = schema.getSQLWhereClause("SPECIFIC_SCHEMA");
                     selectStmt.append("WHERE " + schemaWhereClause);
                 }
