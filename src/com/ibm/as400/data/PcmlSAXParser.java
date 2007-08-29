@@ -325,6 +325,7 @@ class PcmlSAXParser extends DefaultHandler
 
     xsdStreamName="";
 
+    this.isXPCML = isXPCML;         // Fix for JTOpen Bug 1778759 - set the global isXPCML variable
 
     // initialize parsing vectors
     curAttrs.add(0,new AttributesImpl());
@@ -345,7 +346,7 @@ class PcmlSAXParser extends DefaultHandler
 
     // @E1A -- Changes for XPCML.  First find out if document is XPCML.  Then setup SequenceInputStream
     // for PCML doc and BufferedInputStream for XPCML docs.
-//    isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
+    //    isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
     InputStream isHeader=null, isPCML=null;                       //@E1A
     SequenceInputStream sis=null;                               //@E1A
     BufferedInputStream bis=null;                               //@E1A
