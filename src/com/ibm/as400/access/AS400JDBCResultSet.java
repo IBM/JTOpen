@@ -856,11 +856,11 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         synchronized(internalLock_)
-        {                                            // @D1A
+        {                                            // @D1A //@cur
             if(((fetchDirection != FETCH_FORWARD)
                 && (fetchDirection != FETCH_REVERSE)
                 && (fetchDirection != FETCH_UNKNOWN))
-               || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
+               || ((getType() == ResultSet.TYPE_FORWARD_ONLY)
                    && (fetchDirection != ResultSet.FETCH_FORWARD)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
@@ -1229,8 +1229,8 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         checkOpen ();
-
-        if((scrollable) && (type_ == TYPE_FORWARD_ONLY))
+        
+        if((scrollable) && (getType() == TYPE_FORWARD_ONLY))  //@cur
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
         clearCurrentRow ();
