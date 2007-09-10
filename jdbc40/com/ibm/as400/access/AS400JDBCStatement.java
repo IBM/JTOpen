@@ -3023,6 +3023,10 @@ implements Statement
         synchronized(internalLock_)
         {
             checkOpen ();
+            //if we can get info from resultSet (post 540), that will be more accurate, since it can be from stored-proc cursor
+            if(resultSet_ != null)                    //@cur
+            	return resultSet_.getHoldability();   //@cur
+            
             //@F4 If resultSetHoldability_ was set by the user, then return it.  Otherwise,
             //@F4 return the connection's holdability.
             if((resultSetHoldability_ == AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT) ||    //@F4A
