@@ -3300,7 +3300,8 @@ implements DatabaseMetaData
             "RESERVED2",
             "RESERVED3",
             "REMARKS",
-            "PROCEDURE_TYPE"
+            "PROCEDURE_TYPE",
+            "SPECIFIC_NAME" //@JDBC40
         };
 
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // catalog
@@ -3310,7 +3311,8 @@ implements DatabaseMetaData
             new SQLInteger (),     // reserved
             new SQLInteger (),     // reserved
             new SQLVarchar (2000, settings_),  // remarks
-            new SQLSmallint ()     // procedure type
+            new SQLSmallint (),     // procedure type
+            new SQLVarchar (128, settings_)  // specific name //@JDBC40
         };
 
         int[] fieldNullables = {
@@ -3321,7 +3323,8 @@ implements DatabaseMetaData
             columnNullable,  // Reserved 2
             columnNullable,  // Reserved 3
             columnNoNulls,   // Remarks
-            columnNoNulls    // Procedure type
+            columnNoNulls,   // Procedure type
+            columnNoNulls    // Specific name //@JDBC40
         };
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
@@ -3346,7 +3349,7 @@ implements DatabaseMetaData
             else
             {  // Parameters are valid, build request and send
                 StringBuffer selectStmt = new StringBuffer();
-                selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS ");//@PROC
+                selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS, SPECIFIC_NAME ");//@PROC //@JDBC40
                 selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPROCS "); // use . or /
 
 
@@ -3391,7 +3394,7 @@ implements DatabaseMetaData
                 JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
                 statement_.close ();
 
-                JDFieldMap[] maps = new JDFieldMap[8];
+                JDFieldMap[] maps = new JDFieldMap[9];
                 maps[0] = new JDHardcodedFieldMap (connection_.getCatalog());
                 maps[1] = new JDSimpleFieldMap (1); // schema
                 maps[2] = new JDSimpleFieldMap (2); // procedure
@@ -3400,6 +3403,7 @@ implements DatabaseMetaData
                 maps[5] = new JDHardcodedFieldMap (new Integer (0));
                 maps[6] = new JDHandleNullFieldMap (3, ""); // remarks
                 maps[7] = new JDProcTypeFieldMap (4);
+                maps[8] = new JDSimpleFieldMap (5); //@jdbc40
 
                 JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                 rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
