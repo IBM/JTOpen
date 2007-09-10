@@ -891,7 +891,7 @@ implements Statement
                         lastBlock = true;
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
                         String sqlState = sqlca.getSQLState (connection_.converter_);              //@issue 34500
-                        if(sqlState.compareTo("00000") == 0)                    //@pda (issue 32120)  //@issue 34500
+                        if(sqlState.startsWith("00") || sqlState.startsWith("02"))                    //@pda (issue 32120)  //@issue 34500 //@35199
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
                     else if((errorClass == 2) && (returnCode == 700) 
@@ -901,7 +901,7 @@ implements Statement
                         cursor_.setState(true); //closed cursor already on system
                         returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
                         String sqlState = sqlca.getSQLState (connection_.converter_);              //@issue 34500
-                        if(sqlState.compareTo("00000") == 0)                 //@pda (issue 32120)  //@issue 34500
+                        if(sqlState.startsWith("00") || sqlState.startsWith("02"))                 //@pda (issue 32120)  //@issue 34500 //@35199
                         	bypassExceptionWarning = true;  //@pda (issue 32120)
                     }
 
