@@ -908,6 +908,7 @@ implements DatabaseMetaData
         SQLData[] sqlData = null;                 //@F2C
         int[] fieldNullables = null;              //@F2C
         //@F2A Result sets must be different depending on whether we are running under JDBC 3.0
+        //@pda jdbc40 is also contained in same block as jdbc30, since this file is jdbc40 only compiled.
         if (!isJDBC3)                             //@F2A
         {
             // Set up the result set in the format required by JDBC
@@ -992,10 +993,11 @@ implements DatabaseMetaData
                 "CHAR_OCTET_LENGTH",
                 "ORDINAL_POSITION",
                 "IS_NULLABLE",
-                "SCOPE_CATALOG",    //@G4A
+                "SCOPE_CATLOG",    //@G4A
                 "SCOPE_SCHEMA",     //@G4A
                 "SCOPE_TABLE",      //@G4A
-                "SOURCE_DATA_TYPE"  //@G4A
+                "SOURCE_DATA_TYPE", //@G4A
+                "IS_AUTOINCREMENT"  //jdbc40
             };
 
             sqlData = new SQLData[] { new SQLVarchar (128, settings_), // catalog
@@ -1006,13 +1008,13 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // type name
                 new SQLInteger (),  // column size
                 new SQLInteger (),  // buffer length
-                new SQLInteger (), // decimal digits
-                new SQLInteger (), // radix
-                new SQLInteger (), // nullable
+                new SQLSmallint (), // decimal digits //jdbc40
+                new SQLSmallint (), // radix          //jdbc40
+                new SQLSmallint (), // nullable       //jdbc40
                 new SQLVarchar (254, settings_),  // remarks
                 new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def
-                new SQLInteger (),  // sql data type
-                new SQLInteger (),  // datetime sub
+                new SQLSmallint (),  // sql data type //jdbc40
+                new SQLSmallint (),  // datetime sub  //jdbc40
                 new SQLInteger (),  // octet length
                 new SQLInteger (),  // ordinal
                 new SQLVarchar (254, settings_),  // is nullable
@@ -1020,6 +1022,7 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // scope schema        //@G4A
                 new SQLVarchar (128, settings_),  // scope table         //@G4A
                 new SQLSmallint (), // source data type    //@G4A
+                new SQLVarchar (128, settings_),  // is autoincrement    //jdbc40
             };
 
             fieldNullables = new int[] {columnNullable, // catalog
@@ -1044,6 +1047,7 @@ implements DatabaseMetaData
                 columnNullable, // scope schema     //@G4A
                 columnNullable, // scope table      //@G4A
                 columnNullable, // source data type //@G4A
+                columnNoNulls,  // is autoincrement //jdbc40
             };
         }
 
@@ -1176,7 +1180,7 @@ implements DatabaseMetaData
                     if (!isJDBC3)                  //@F2A
                         maps = new JDFieldMap[18];
                     else
-                        maps = new JDFieldMap[22]; //@G4A
+                        maps = new JDFieldMap[23]; //@G4A //jdbc40
 
                     maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                     maps[1] = new JDSimpleFieldMap (1); // library
@@ -1226,6 +1230,7 @@ implements DatabaseMetaData
                         maps[19] = new JDHardcodedFieldMap ("", true, false);  // scope schema     //@G4A
                         maps[20] = new JDHardcodedFieldMap ("", true, false);  // scope table      //@G4A
                         maps[21] = new JDHardcodedFieldMap (new Short((short) 0)); // source data type //@G4A
+                        maps[22] = new JDHardcodedFieldMap ("");  // is autoincrement "" till switch to sysibm //jdbc40
                     }
 
                     // Create the mapped row cache that is returned in the
