@@ -10,6 +10,10 @@
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+//
+// @A1 - 09/10/2007 - Change to ignore *NONE keys in addKeyFieldDescription()
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 import java.util.Hashtable;
@@ -234,7 +238,15 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("name");
     }
-    addKeyFieldDescription(getIndexOfFieldName(name));
+    // Do not add this key if the key is *NONE
+    if (!(name.equals("*NONE")))                       //@A1A 
+    {
+      // Key(s) of *NONE are just place holders for DB code for multi-format
+      // logical files.  Key(s) of *NONE allows DB to build a search index  
+      // for a multi-format logical file.  The toolbox code does not use the
+      // *NONE key(s) in any way.
+      addKeyFieldDescription(getIndexOfFieldName(name));
+    }
   }
 
   /**
