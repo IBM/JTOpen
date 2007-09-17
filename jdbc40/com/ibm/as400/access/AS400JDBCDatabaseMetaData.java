@@ -345,6 +345,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
+        int vrm = connection_.getVRM();  //@trunc3
 
         // Initialize the format of the result set.
         String[] fieldNames = { "SCOPE",
@@ -357,14 +358,14 @@ implements DatabaseMetaData
             "PSEUDO_COLUMN",
         };
 
-        SQLData[] sqlData = { new SQLSmallint (), // scope
+        SQLData[] sqlData = { new SQLSmallint (vrm), // scope //@trunc3
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (),    // data type
+            new SQLSmallint (vrm),    // data type   //@trunc3
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (),     // column size
-            new SQLInteger (),     // buffer length
-            new SQLSmallint (),    // decimal digits
-            new SQLSmallint (),    // pseudo column
+            new SQLInteger (vrm),     // column size    //@trunc3
+            new SQLInteger (vrm),     // buffer length  //@trunc3
+            new SQLSmallint (vrm),    // decimal digits //@trunc3
+            new SQLSmallint (vrm),    // pseudo column  //@trunc3
         };
 
         int[] fieldNullables = { columnNoNulls,  // scope
@@ -667,7 +668,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -909,6 +911,7 @@ implements DatabaseMetaData
         int[] fieldNullables = null;              //@F2C
         //@F2A Result sets must be different depending on whether we are running under JDBC 3.0
         //@pda jdbc40 is also contained in same block as jdbc30, since this file is jdbc40 only compiled.
+        int vrm = connection_.getVRM();  //@trunc3
         if (!isJDBC3)                             //@F2A
         {
             // Set up the result set in the format required by JDBC
@@ -936,19 +939,19 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // library
                 new SQLVarchar (128, settings_),  // table
                 new SQLVarchar (128, settings_),  // column
-                new SQLSmallint (), // data type
+                new SQLSmallint (vrm), // data type  //@trunc3
                 new SQLVarchar (128, settings_),  // type name
-                new SQLInteger (),  // column size
-                new SQLInteger (),  // buffer length
-                new SQLInteger (), // decimal digits
-                new SQLInteger (), // radix
-                new SQLInteger (), // nullable
+                new SQLInteger (vrm),  // column size  //@trunc3
+                new SQLInteger (vrm),  // buffer length //@trunc3
+                new SQLInteger (vrm), // decimal digits //@trunc3
+                new SQLInteger (vrm), // radix //@trunc3
+                new SQLInteger (vrm), // nullable //@trunc3
                 new SQLVarchar (254, settings_),  // remarks
                 new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def   //@550 Column default value support
-                new SQLInteger (),  // sql data type
-                new SQLInteger (),  // datetime sub
-                new SQLInteger (),  // octet length
-                new SQLInteger (),  // ordinal
+                new SQLInteger (vrm),  // sql data type //@trunc3
+                new SQLInteger (vrm),  // datetime sub //@trunc3
+                new SQLInteger (vrm),  // octet length //@trunc3
+                new SQLInteger (vrm),  // ordinal  //@trunc3
                 new SQLVarchar (254, settings_),  // is nullable
             };
 
@@ -1004,24 +1007,24 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // library
                 new SQLVarchar (128, settings_),  // table
                 new SQLVarchar (128, settings_),  // column
-                new SQLSmallint (), // data type
+                new SQLSmallint (vrm), // data type //@trunc3
                 new SQLVarchar (128, settings_),  // type name
-                new SQLInteger (),  // column size
-                new SQLInteger (),  // buffer length
-                new SQLSmallint (), // decimal digits //jdbc40
-                new SQLSmallint (), // radix          //jdbc40
-                new SQLSmallint (), // nullable       //jdbc40
+                new SQLInteger (vrm),  // column size //@trunc3
+                new SQLInteger (vrm),  // buffer length //@trunc3
+                new SQLSmallint (vrm), // decimal digits //jdbc40 //@trunc3
+                new SQLSmallint (vrm), // radix          //jdbc40 //@trunc3
+                new SQLSmallint (vrm), // nullable       //jdbc40 //@trunc3
                 new SQLVarchar (254, settings_),  // remarks
                 new SQLVarchar ((connection_.getVRM() >= JDUtilities.vrm610) ? 2000 : 254, settings_),  // column def
-                new SQLSmallint (),  // sql data type //jdbc40
-                new SQLSmallint (),  // datetime sub  //jdbc40
-                new SQLInteger (),  // octet length
-                new SQLInteger (),  // ordinal
+                new SQLSmallint (vrm),  // sql data type //jdbc40 //@trunc3
+                new SQLSmallint (vrm),  // datetime sub  //jdbc40 //@trunc3
+                new SQLInteger (vrm),  // octet length //@trunc3
+                new SQLInteger (vrm),  // ordinal //@trunc3
                 new SQLVarchar (254, settings_),  // is nullable
                 new SQLVarchar (128, settings_),  // scope catalog       //@G4A
                 new SQLVarchar (128, settings_),  // scope schema        //@G4A
                 new SQLVarchar (128, settings_),  // scope table         //@G4A
-                new SQLSmallint (), // source data type    //@G4A
+                new SQLSmallint (vrm), // source data type    //@G4A //@trunc3
                 new SQLVarchar (128, settings_),  // is autoincrement    //jdbc40
             };
 
@@ -1376,7 +1379,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -1405,12 +1409,12 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (),    // key seq
-            new SQLSmallint (),    // update rule
-            new SQLSmallint (),    // delete rule
+            new SQLSmallint (vrm),    // key seq //@trunc3
+            new SQLSmallint (vrm),    // update rule //@trunc3
+            new SQLSmallint (vrm),    // delete rule //@trunc3
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (),    // deferrability
+            new SQLSmallint (vrm),    // deferrability //@trunc3
         };
 
         int[] fieldNullables = {columnNullable,  // pk catalog
@@ -1773,7 +1777,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -1803,12 +1807,12 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (),    // key seq
-            new SQLSmallint (),    // update rule
-            new SQLSmallint (),    // delete rule
+            new SQLSmallint (vrm),    // key seq  //@trunc3
+            new SQLSmallint (vrm),    // update rule //@trunc3
+            new SQLSmallint (vrm),    // delete rule //@trunc3
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (),    // deferrability
+            new SQLSmallint (vrm),    // deferrability //@trunc3
         };
         int[] fieldNullables = {columnNullable,  // pk catalog
             columnNullable,  // pk schema
@@ -2029,7 +2033,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2058,12 +2063,12 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // fk schema
             new SQLVarchar (128, settings_),  // fk table
             new SQLVarchar (128, settings_),  // fk column
-            new SQLSmallint (),    // key seq
-            new SQLSmallint (),    // update rule
-            new SQLSmallint (),    // delete rule
+            new SQLSmallint (vrm),    // key seq //@trunc3
+            new SQLSmallint (vrm),    // update rule //@trunc3
+            new SQLSmallint (vrm),    // delete rule //@trunc3
             new SQLVarchar (128, settings_),  // fk name
             new SQLVarchar (128, settings_),  // pk name
-            new SQLSmallint (),    // deferrability
+            new SQLSmallint (vrm),    // deferrability //@trunc3
         };
 
         int[] fieldNullables = {columnNullable,  // pk catalog
@@ -2254,6 +2259,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
+        int vrm = connection_.getVRM();  //@trunc3
 
         //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --start
         if(connection_.getVRM() >= JDUtilities.vrm610)          
@@ -2325,15 +2331,15 @@ implements DatabaseMetaData
             // when instantiating the non-unique small int
             // pass in a boolean and it will give it the
             // right value
-            new SQLSmallint (),    // non-unique - boolean
+            new SQLSmallint (vrm),    // non-unique - boolean //@trunc3
             new SQLVarchar (128, settings_),  // index qualifier
             new SQLVarchar (128, settings_),  // index name
-            new SQLSmallint (),    // type
-            new SQLSmallint (),    // ordinal position
+            new SQLSmallint (vrm),    // type //@trunc3
+            new SQLSmallint (vrm),    // ordinal position //@trunc3
             new SQLVarchar (128, settings_),  // column name
             new SQLVarchar (1, settings_),    // sort sequence
-            new SQLInteger  (),    // cardinality
-            new SQLInteger  (),    // pages
+            new SQLInteger  (vrm),    // cardinality
+            new SQLInteger  (vrm),    // pages //@trunc3
             new SQLVarchar (128, settings_),  // filter condition
         };
 
@@ -2900,7 +2906,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2917,7 +2924,7 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // pk schema
             new SQLVarchar (128, settings_),  // pk table
             new SQLVarchar (128, settings_),  // pk column
-            new SQLSmallint (),    // key seq
+            new SQLSmallint (vrm),    // key seq  //@trunc3
             new SQLVarchar (128, settings_),  // pk name
         };
 
@@ -3082,7 +3089,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3106,14 +3114,14 @@ implements DatabaseMetaData
             new SQLVarchar (128, settings_),  // schema
             new SQLVarchar (128, settings_),  // procedure
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (),    // column type
-            new SQLSmallint (),    // data type
+            new SQLSmallint (vrm),    // column type //@trunc3
+            new SQLSmallint (vrm),    // data type //@trunc3
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (),     // precision
-            new SQLInteger (),     // length
-            new SQLSmallint (),    // scale
-            new SQLInteger (),    // radix
-            new SQLSmallint (),    // nullable
+            new SQLInteger (vrm),     // precision //@trunc3
+            new SQLInteger (vrm),     // length //@trunc3
+            new SQLSmallint (vrm),    // scale //@trunc3
+            new SQLInteger (vrm),    // radix //@trunc3
+            new SQLSmallint (vrm),    // nullable //@trunc3
             new SQLVarchar (2000, settings_)  // remarks
         };
 
@@ -3293,7 +3301,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3312,11 +3321,11 @@ implements DatabaseMetaData
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // catalog
             new SQLVarchar (128, settings_),  // schema
             new SQLVarchar (128, settings_),  // procedure
-            new SQLInteger (),     // reserved
-            new SQLInteger (),     // reserved
-            new SQLInteger (),     // reserved
+            new SQLInteger (vrm),     // reserved //@trunc3
+            new SQLInteger (vrm),     // reserved //@trunc3
+            new SQLInteger (vrm),     // reserved //@trunc3
             new SQLVarchar (2000, settings_),  // remarks
-            new SQLSmallint (),     // procedure type
+            new SQLSmallint (vrm),     // procedure type //@trunc3
             new SQLVarchar (128, settings_)  // specific name //@JDBC40
         };
 
@@ -3719,7 +3728,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //-----------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3918,6 +3928,8 @@ implements DatabaseMetaData
         // is available for use. Exception
         // is thrown if not available
 
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //-----------------------------------------------------
         // Set up the result set in the format required by JDBC
         //-----------------------------------------------------
@@ -4449,6 +4461,8 @@ implements DatabaseMetaData
     public ResultSet getTypeInfo ()
     throws SQLException
     {
+        int vrm = connection_.getVRM();  //@trunc3
+        
         // Initialize a row to describe the format of the result set.
         String[] fieldNames = { "TYPE_NAME",
             "DATA_TYPE",
@@ -4471,23 +4485,23 @@ implements DatabaseMetaData
         };
 
         SQLData[] sqlData = { new SQLVarchar (128, settings_),  // Table name.
-            new SQLSmallint (),               // Data type.
-            new SQLInteger (),                // Precision.
+            new SQLSmallint (vrm),               // Data type. //@trunc3
+            new SQLInteger (vrm),                // Precision. //@trunc3
             new SQLVarchar (128, settings_),  // Literal prefix.
             new SQLVarchar (128, settings_),  // Literal suffix.
             new SQLVarchar (128, settings_),  // Create parameters.
-            new SQLSmallint (),               // Nullable.
-            new SQLSmallint (),               // Case sensitive.
-            new SQLSmallint (),               // Searchable.
-            new SQLSmallint (),               // Unsigned.
-            new SQLSmallint (),               // Currency.
-            new SQLSmallint (),               // Auto increment.
+            new SQLSmallint (vrm),               // Nullable. //@trunc3
+            new SQLSmallint (vrm),               // Case sensitive. //@trunc3
+            new SQLSmallint (vrm),               // Searchable. //@trunc3
+            new SQLSmallint (vrm),               // Unsigned. //@trunc3
+            new SQLSmallint (vrm),               // Currency. //@trunc3
+            new SQLSmallint (vrm),               // Auto increment. //@trunc3
             new SQLVarchar (128, settings_),  // Local type name.
-            new SQLSmallint (),               // Minimum scale.
-            new SQLSmallint (),               // Maximum scale.
-            new SQLInteger (),                // Unused.
-            new SQLInteger (),                // Unused.
-            new SQLInteger ()                 // Radix.
+            new SQLSmallint (vrm),               // Minimum scale. //@trunc3
+            new SQLSmallint (vrm),               // Maximum scale. //@trunc3
+            new SQLInteger (vrm),                // Unused. //@trunc3
+            new SQLInteger (vrm),                // Unused. //@trunc3
+            new SQLInteger (vrm)                 // Radix. //@trunc3
         };
 
 
@@ -4533,10 +4547,10 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                           // @D0C
         typeSamples.addElement(new SQLGraphic(16382, settings_));
-        typeSamples.addElement(new SQLInteger());                                  // @D0C
+        typeSamples.addElement(new SQLInteger(vrm));    //@trunc3                               // @D0C
         typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLReal(settings_));                            // @D0C
-        typeSamples.addElement(new SQLSmallint());                                 // @D0C
+        typeSamples.addElement(new SQLSmallint(vrm));   //@trunc3                               // @D0C
         typeSamples.addElement(new SQLTime(settings_, -1));                            // @D0C @550C
         typeSamples.addElement(new SQLTimestamp(settings_));                       // @D0C
         //typeSamples.addElement(new SQLLongVarchar(32739, settings_));        //Change to report LONG VARCHAR as VARCHAR to be consistent with other clients.
@@ -4556,7 +4570,7 @@ implements DatabaseMetaData
         }                                                                       // @B4D B5A 
         
         if (connection_.getVRM() >= JDUtilities.vrm450)         // @D0A
-            typeSamples.addElement(new SQLBigint());                               // @D0A
+            typeSamples.addElement(new SQLBigint(vrm));  //@trunc3                              // @D0A
         
         // @M0A - added support for binary, varbinary, and rowid data types
         if(connection_.getVRM() >= JDUtilities.vrm520)
@@ -4707,6 +4721,7 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
 
+        int vrm = connection_.getVRM();  //@trunc3
         boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
@@ -4727,7 +4742,7 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // type schema
                 new SQLVarchar (128, settings_),  // type name
                 new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (),               // data type
+                new SQLSmallint (vrm),               // data type //@trunc3
                 new SQLVarchar (2000, settings_), // remarks
             };
 
@@ -4755,9 +4770,9 @@ implements DatabaseMetaData
                 new SQLVarchar (128, settings_),  // type schema
                 new SQLVarchar (128, settings_),  // type name
                 new SQLVarchar (128, settings_),  // class name
-                new SQLSmallint (),               // data type
+                new SQLSmallint (vrm),               // data type //@trunc3
                 new SQLVarchar (2000, settings_), // remarks
-                new SQLSmallint (),               // base type  //@G4A
+                new SQLSmallint (vrm),               // base type  //@G4A //@trunc3
             };
 
             fieldNullables = new int[] {  columnNullable,  // type catalog
@@ -4981,7 +4996,8 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
-
+        int vrm = connection_.getVRM();  //@trunc3
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -4996,14 +5012,14 @@ implements DatabaseMetaData
             "PSEUDO_COLUMN",
         };
 
-        SQLData[] sqlData = { new SQLSmallint (), // scope
+        SQLData[] sqlData = { new SQLSmallint (vrm), // scope //@trunc3
             new SQLVarchar (128, settings_),  // column name
-            new SQLSmallint (),    // data type
+            new SQLSmallint (vrm),    // data type //@trunc3
             new SQLVarchar (128, settings_),  // type name
-            new SQLInteger (),     // column size
-            new SQLInteger (),     // buffer length
-            new SQLSmallint (),    // decimal digits
-            new SQLSmallint (),    // pseudo column
+            new SQLInteger (vrm),     // column size //@trunc3
+            new SQLInteger (vrm),     // buffer length //@trunc3
+            new SQLSmallint (vrm),    // decimal digits //@trunc3
+            new SQLSmallint (vrm),    // pseudo column //@trunc3
         };
 
         int[] fieldNullables = {columnNoNulls,  // scope
@@ -6919,8 +6935,9 @@ implements DatabaseMetaData
     public ResultSet getClientInfoProperties() throws SQLException
     {
         // Set up the result set.
+        int vrm = connection_.getVRM();  //@trunc3
         String[] fieldNames = { "NAME", "MAX_LEN", "DEFAULT_VALUE", "DESCRIPTION" };
-        SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) };
+        SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(vrm), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) }; //trunc3
         int[] fieldNullables = {columnNoNulls, columnNoNulls, columnNoNulls, columnNoNulls}; // table types can not be null
         
         Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME") }, 

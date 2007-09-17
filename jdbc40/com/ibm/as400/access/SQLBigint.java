@@ -42,10 +42,16 @@ implements SQLData
     // Private data.
     private int  truncated_ = 0;
     private long value_     = 0;
+    private int vrm_;            //@trunc3
 
+    SQLBigint(int vrm)           //@trunc3
+    {                            //@trunc3
+        vrm_ = vrm;              //@trunc3
+    }                            //@trunc3
+    
     public Object clone()
     {
-        return new SQLBigint();
+        return new SQLBigint(vrm_);  //@trunc3
     }
 
     //---------------------------------------------------------//
@@ -97,6 +103,11 @@ implements SQLData
                     if((bigInteger.compareTo(LONG_MAX_VALUE) > 0) || (bigInteger.compareTo(LONG_MIN_VALUE) < 0))
                     {
                         truncated_ = bigInteger.toByteArray().length - 8;
+                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
+                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
+                        {                                                                    //@trunc3
+                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
+                        }                                                                    //@trunc3
                     }
                     value_ = bigInteger.longValue();
                 }

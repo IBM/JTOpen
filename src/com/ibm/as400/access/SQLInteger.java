@@ -34,24 +34,26 @@ implements SQLData
     private int                 value_;
     private int                 scale_;                              // @A0A
     private BigDecimal          bigDecimalValue_ = null;             // @A0A
+    private int                 vrm_;                                //trunc3
 
-    SQLInteger()
+    SQLInteger(int vrm)          //@trunc3
     {
-        this(0);
+        this(0, vrm);            //@trunc3
     }
 
-    SQLInteger(int scale)                     // @A0A
+    SQLInteger(int scale, int vrm)                      // @A0A //@trunc3
     {
         truncated_          = 0;
         value_              = 0;
         scale_              = scale;                                      // @A0A
         if(scale_ > 0)                                                   // @C0A
             bigDecimalValue_    = new BigDecimal(Integer.toString(value_)); // @A0A
+        vrm_                = vrm;  //@trunc3
     }
 
     public Object clone()
     {
-        return new SQLInteger(scale_);
+        return new SQLInteger(scale_, vrm_);  //@trunc3
     }
 
     //---------------------------------------------------------//
@@ -121,6 +123,11 @@ implements SQLData
                 if(( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
                 {
                     truncated_ = 4;                                                           // @D9c
+                    //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
+                    if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
+                    {                                                                    //@trunc3
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
+                    }                                                                    //@trunc3
                 }
                 value_ = (int) longValue;
             }
@@ -142,6 +149,11 @@ implements SQLData
                     {
                         // @P1a
                         truncated_ = 4;                                                    // @P1a
+                        //@trunc3 match native for ps.setString() to throw mismatch instead of truncation
+                        if(vrm_ >= JDUtilities.vrm610)                                       //@trunc3
+                        {                                                                    //@trunc3
+                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH); //@trunc3
+                        }                                                                    //@trunc3
                     }                                                                      // @P1a
                     value_ = (int) doubleValue;                                          // @P1a  
                 }                                                                         // @P1a

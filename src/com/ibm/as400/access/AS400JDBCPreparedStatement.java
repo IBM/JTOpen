@@ -171,7 +171,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         useReturnValueParameter_    = sqlStatement.hasReturnValueParameter();       // @F2A
 
         if(useReturnValueParameter_)                                               // @F2A
-            returnValueParameter_   = new SQLInteger();                             // @F2A
+            returnValueParameter_   = new SQLInteger(connection_.getVRM());                             // @F2A  //@trunc3
 
         if(JDTrace.isTraceOn())
         {                                                  // @D1A @F2C

@@ -361,9 +361,9 @@ class SQLDataFactory
             
             case Types.BIGINT:                                      // @D0A
                 if(vrm >= JDUtilities.vrm450)   // @D0A
-                    return new SQLBigint();                         // @D0A
+                    return new SQLBigint(vrm);    //trunc3                         // @D0A
                 else
-                    return new SQLInteger();
+                    return new SQLInteger(vrm);    //trunc3
 
             case Types.BINARY:
             {                                                            // @M0C - changed the code to return a      
@@ -399,7 +399,7 @@ class SQLDataFactory
                 return new SQLFloat(settings);
 
             case Types.INTEGER:
-                return new SQLInteger();
+                return new SQLInteger(vrm);    //trunc3
 
             case Types.NUMERIC:
                 if(settings != null)                                           // @E0A
@@ -413,7 +413,7 @@ class SQLDataFactory
             case Types.SMALLINT:
             case Types.TINYINT:                                     // @D0A
             case Types.BIT:                                         // @D0A
-                return new SQLSmallint();
+                return new SQLSmallint(vrm);    //trunc3
 
             case Types.TIME:
                 return new SQLTime(settings, -1);	// @550C
@@ -560,13 +560,13 @@ class SQLDataFactory
                 return new SQLNumeric(precision, scale, settings, connection.getVRM(), connection.getProperties());          // @M0C  // @E0A   
 
             case 492:                           // Bigint.   // @D0A
-                return new SQLBigint();                      // @D0A
+                return new SQLBigint(connection.getVRM());                      // @D0A //trunc3
 
             case 496:                           // Integer.
-                return new SQLInteger(scale);               // @A0C
+                return new SQLInteger(scale, connection.getVRM());               // @A0C //trunc3
 
             case 500:                           // Smallint.
-                return new SQLSmallint(scale);              // @A0C
+                return new SQLSmallint(scale, connection.getVRM());              // @A0C //trunc3
 
             case 904:                          // Rowid.     // @M0A - Added support for the ROWID data type
                 return new SQLRowID(settings);               // @M0A
@@ -642,7 +642,7 @@ class SQLDataFactory
         }                                                           // @M0C - to add support for real BINARY
 
         else if(nativeType.equals("BIGINT"))                   // @D0A
-            return new SQLBigint();                             // @D0A
+            return new SQLBigint(vrm);                             // @D0A //trunc3
 
         else if(nativeType.equals("BLOB"))
             return new SQLBlob(length, settings);          // @D1C @G1C Remove length-4
@@ -741,7 +741,7 @@ class SQLDataFactory
             return new SQLVargraphic(length, settings); // @C1C @C4C @E1C
 
         else if(nativeType.equals("INTEGER"))
-            return new SQLInteger();
+            return new SQLInteger(vrm);    //trunc3
 
         else if(nativeType.equals("NUMERIC"))
         {
@@ -758,7 +758,7 @@ class SQLDataFactory
             return new SQLRowID(settings);   // @M0A
 
         else if(nativeType.equals("SMALLINT"))
-            return new SQLSmallint();
+            return new SQLSmallint(vrm);    //trunc3
 
         else if(nativeType.equals("TIME"))
             return new SQLTime(settings, -1);	// @550C
