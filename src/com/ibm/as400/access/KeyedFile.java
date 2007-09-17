@@ -833,6 +833,15 @@ public class KeyedFile extends AS400File implements Serializable
    *Reads the next record whose key matches the full key of the current record.
    *The file must be open when invoking this method.  The file must be
    *positioned on an active record when invoking this method.
+   *<br>Note: If the application has previously called setReadNoUpdate(false), 
+   *then this method issues a request to the server which locks the record
+   *returned to the client.  The key comparison occurs on the client side.
+   *Therefore, even though the record may not match the key (and null
+   *is returned by readNextEqual), the server side will lock the most 
+   *recent record which may have been read from the file.
+   *A subsequent call to any of the positionCursor() methods will unlock 
+   *the last (i.e. most recent) record locked.  In addition, the close() 
+   *method will also unlock the last (i.e. most recent) record locked.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -856,6 +865,15 @@ public class KeyedFile extends AS400File implements Serializable
    *Reads the next record whose key matches the specified key.  The search does
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
+   *<br>Note: If the application has previously called setReadNoUpdate(false), 
+   *then this method issues a request to the server which locks the record
+   *returned to the client.  The key comparison occurs on the client side.
+   *Therefore, even though the record may not match the key (and null
+   *is returned by readNextEqual), the server side will lock the most 
+   *recent record which may have been read from the file.
+   *A subsequent call to any of the positionCursor() methods will unlock 
+   *the last (i.e. most recent) record locked.  In addition, the close() 
+   *method will also unlock the last (i.e. most recent) record locked.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -884,6 +902,15 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
+   *<br>Note: If the application has previously called setReadNoUpdate(false), 
+   *then this method issues a request to the server which locks the record
+   *returned to the client.  The key comparison occurs on the client side.
+   *Therefore, even though the record may not match the key (and null
+   *is returned by readNextEqual), the server side will lock the most 
+   *recent record which may have been read from the file.
+   *A subsequent call to any of the positionCursor() methods will unlock 
+   *the last (i.e. most recent) record locked.  In addition, the close() 
+   *method will also unlock the last (i.e. most recent) record locked.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the system returns an error message.
