@@ -10,7 +10,10 @@
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
-
+//
+// @A1 - 9/18/2007 - Changes to follow proxy command chain
+//
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.io.*;
@@ -1212,8 +1215,9 @@ public class Command implements Serializable
     if (path_ == null) throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
     // Call the QCDRCMDI API to get all of the information.
-    ProgramParameter[] parms = new ProgramParameter[5];
-    parms[0] = new ProgramParameter(335); // receiver variable
+    int vrm = system_.getVRM();		// @A1A
+	ProgramParameter[] parms = new ProgramParameter[vrm >= 0x00060100 ? 6 : 5];	// @A1C - added support for proxy commands
+	    parms[0] = new ProgramParameter(335); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(335)); // length of receiver variable
     parms[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "CMDI0100")); // format name
     byte[] cmdBytes = new byte[20];
@@ -1225,6 +1229,11 @@ public class Command implements Serializable
     text10.toBytes(library, cmdBytes, 10);
     parms[3] = new ProgramParameter(cmdBytes); // qualified command name
     parms[4] = errorCode_;
+    
+    // @A1A - Add support for proxy commands
+	if (vrm >= 0x00060100)		// @A1A
+		parms[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });	// @A1A Follow proxy chain, input CHAR(1)
+
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDI.PGM", parms);
     pc.setThreadSafe(true);

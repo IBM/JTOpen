@@ -10,11 +10,16 @@
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+//
+// @A1 - 9/18/2007 - Changes to follow proxy command chain.
+//
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
+
 
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
 class RemoteCommandImplNative extends RemoteCommandImplRemote
@@ -93,14 +98,18 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         // Fifth parameter:  error code - input/output - char(*).
         // Eight bytes of zero's indicates to throw exceptions.
         // Send as input because we are not interested in the output.
-        ProgramParameter[] parameterList = new ProgramParameter[]
-        {
-            new ProgramParameter(350),
-            new ProgramParameter(new byte[] { 0x00, 0x00, 0x01, 0x5e }),
-            new ProgramParameter(new byte[] { (byte)0xC3, (byte)0xD4, (byte)0xC4, (byte)0xC9, (byte)0xF0, (byte)0xF1, (byte)0xF0, (byte)0xF0 } ),
-            new ProgramParameter(commandName),
-            new ProgramParameter(new byte[8])
-        };
+        // Sixth parameter:  optional - follow proxy chain - input - char(1)							//@A1A
+		// Set to 1 - If the specified command is a proxy command, follow the proxy command 			//@A1A
+		// chain to the target non-proxy command and retrieve information for the target command. 		//@A1A
+		// If the command is not a proxy command, retrieve information for the specified command. 		//@A1A
+		ProgramParameter[] parameterList = new ProgramParameter[AS400.nativeVRM.vrm_ >= 0x00060100 ? 6 : 5];
+		parameterList[0] = new ProgramParameter(350);
+		parameterList[1] = new ProgramParameter(new byte[] { 0x00, 0x00, 0x01, 0x5e });
+		parameterList[2] = new ProgramParameter(new byte[] { (byte) 0xC3, (byte) 0xD4, (byte) 0xC4, (byte) 0xC9, (byte) 0xF0, (byte) 0xF1, (byte) 0xF0, (byte) 0xF0 });
+		parameterList[3] = new ProgramParameter(commandName);
+		parameterList[4] = new ProgramParameter(new byte[8]);
+		if (AS400.nativeVRM.vrm_ >= 0x00060100)											//@A1A
+			parameterList[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });		//@A1A
 
         try
         {
