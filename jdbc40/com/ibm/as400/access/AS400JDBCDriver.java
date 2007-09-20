@@ -106,8 +106,8 @@ implements java.sql.Driver
 
 	// Constants.
         // Update each release.  Was 4 for v5r1.
-	static final int    MAJOR_VERSION_          = 7; // @B1C @C5C @D1C @540 
-	static final int    MINOR_VERSION_          = 6;
+	static final int    MAJOR_VERSION_          = 8; // @B1C @C5C @D1C @540 @610
+	static final int    MINOR_VERSION_          = 0; // @610
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
         //todo is driver_level info in code anywhere else that we could use? 

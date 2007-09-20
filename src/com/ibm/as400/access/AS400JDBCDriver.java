@@ -108,8 +108,8 @@ implements java.sql.Driver
 
 	// Constants.
         // Update each release.  Was 4 for v5r1.
-	static final int    MAJOR_VERSION_          = 7; // @B1C @C5C @D1C @540 
-	static final int    MINOR_VERSION_          = 6; //comment: for customer usage, minor will correspond to integer after the decimal in M#.#
+	static final int    MAJOR_VERSION_          = 8; // @B1C @C5C @D1C @540 @610
+	static final int    MINOR_VERSION_          = 0; //comment: for customer usage, minor will correspond to integer after the decimal in M#.#  @610
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
         static final String DRIVER_LEVEL_           = "06010000"; //(ex: 05040102->V5R4M1.2) (needed for hidden clientInfo) (each # is 2 digits in length), should match version in Copyright.java  //@PDA 550
