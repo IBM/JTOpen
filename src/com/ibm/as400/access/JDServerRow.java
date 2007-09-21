@@ -366,7 +366,7 @@ implements JDRow
                 insensitiveColumnNames_ = new Hashtable(sqlData_.length);
                 
                 // cache all the column names and numbers.
-                for (int i = 1; i <= sqlData_.length; i++)
+                for (int i = sqlData_.length; i >= 1; i--)//@pdc 776N6J (int i = 1; i <= sqlData_.length; i++)
                 {
                     String cName = getFieldName(i);
 
