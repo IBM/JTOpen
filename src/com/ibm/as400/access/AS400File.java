@@ -2299,6 +2299,10 @@ abstract public class AS400File implements Serializable
     /**
      *Sets the record format to be used for this file.
      *The record format must be set prior to invoking open() or readAll().
+     *<p><b>Note:</b> This method is not supported for multi-format logical files.  
+     *Multi-format logical files must use one of the other setRecordFormat() methods.
+     *@see #setRecordFormat(int)
+     *@see #setRecordFormat(java.lang.String)
      *@param recordFormat The record format for this file.
      *@exception PropertyVetoException If a change is vetoed.
      **/
