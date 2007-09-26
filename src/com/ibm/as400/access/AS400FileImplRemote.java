@@ -10,6 +10,13 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+//
+// @A2 - 09/19/2007 - The NULL Field Byte Map array must be set based on the 
+//       maximum number of fields for any format in a given file.  Refer to 
+//       more detailed explanation for the corresponding changes in 
+//       DDMObjectDataStream.java (@A1)
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -20,6 +27,7 @@ import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Vector;
 import java.math.BigDecimal; //@D0A 7/15/99
+import java.lang.Math;                                                //@A2A
 
 class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C0C
 {
@@ -1999,10 +2007,32 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     req.setIsChained(true);  // Indicate we are chaining an object to the request
     req.setHasSameRequestCorrelation(true); // Indicate that they have the same
                                             // correlation ids
+    // Start of changes for -----------------------------------------    @A2A
+    // Determine the maxNumberOfFieldsPerFormatInFile for the file
+    // remembering that multi-format logical files may have a different
+    // number of getNumberOfFields() per record format.
+    // DDMObjectDataStream.getObjectS38BUF() needs maxNumberOfFieldsPerFormatInFile
+    int maxNumberOfFieldsPerFormatInFile = -1;
+    if (rfCache_ == null)
+    {
+      // Use default maxNumberOfFieldsPerFormatInFile == -1
+    }
+    else
+    {
+      int numberOfRecordFormats = rfCache_.length;
+      for(int i = 0; i < numberOfRecordFormats; ++i)
+      {
+        maxNumberOfFieldsPerFormatInFile = 
+          Math.max(maxNumberOfFieldsPerFormatInFile, rfCache_[i].getNumberOfFields());
+      }
+    }
+    // End of changes for -------------------------------------------    @A2A
+    
     // Get the S38BUF object(s) to send after the request
     // Because we are updating, there will only be one item in dataToSend
     DDMObjectDataStream[] dataToSend =
-    DDMObjectDataStream.getObjectS38BUF(records, openFeedback_, ssp_);    // #SSPDDM1 - add ssp_ parm
+    DDMObjectDataStream.getObjectS38BUF(records, openFeedback_, ssp_,    // #SSPDDM1 - add ssp_ parm
+        maxNumberOfFieldsPerFormatInFile);                             //@A2C
 
     Vector replys = null; //@F1A
 
@@ -2119,9 +2149,32 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     DDMRequestDataStream req = DDMRequestDataStream.getRequestS38PUTM(dclName_);
     req.setIsChained(true);  // Indicate that the request is chained
     req.setHasSameRequestCorrelation(true); // Indicate hat the ids will match
+
+    // Start of changes for -----------------------------------------    @A2A
+    // Determine the maxNumberOfFieldsPerFormatInFile for the file
+    // remembering that multi-format logical files may have a different
+    // number of getNumberOfFields() per record format.
+    // DDMObjectDataStream.getObjectS38BUF() needs maxNumberOfFieldsPerFormatInFile
+    int maxNumberOfFieldsPerFormatInFile = -1;
+    if (rfCache_ == null)
+    {
+      // Use default maxNumberOfFieldsPerFormatInFile == -1
+    }
+    else
+    {
+      int numberOfRecordFormats = rfCache_.length;
+      for(int i = 0; i < numberOfRecordFormats; ++i)
+      {
+        maxNumberOfFieldsPerFormatInFile = 
+          Math.max(maxNumberOfFieldsPerFormatInFile, rfCache_[i].getNumberOfFields());
+      }
+    }
+    // End of changes for -------------------------------------------    @A2A
+    
     // Get the S38BUF object(s) containing the records to write.
     DDMObjectDataStream[] dataToSend =
-    DDMObjectDataStream.getObjectS38BUF(records, openFeedback_, ssp_);    // #SSPDDM1 - add ssp_ parm
+    DDMObjectDataStream.getObjectS38BUF(records, openFeedback_, ssp_,    // #SSPDDM1 - add ssp_ parm
+        maxNumberOfFieldsPerFormatInFile);                             //@A2A
 
     // It is possible that we will have more than one S38BUF to send.  This case
     // occurs when the blocking factor is less than the number records to be written.

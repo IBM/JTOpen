@@ -10,6 +10,12 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+//
+// @A1 - 09/19/2007 - The NULL Field Byte Map array must be set based on the 
+//       maximum number of fields for any format in a given file.  See further 
+//       detailed explaination below for the getObjectS38BUF() method.
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -84,6 +90,16 @@ class DDMObjectDataStream extends DDMDataStream
    *Returns the S38BUF object data stream.
    *@param records the data in the buffer.
    *@param recordIncrement the bytes between the start of each record.
+   *@param maxNumberOfFieldsPerFormatInFile indicates the largest of the  @A1A
+   * record.getNumberOfFields() values for this file.  A physical file 
+   * has only one record format so maxNumberOfFieldsPerFormatInFile would
+   * be the same as getNumberOfFields().  However, a multi-format logical
+   * file may have multiple record formats.  maxNumberOfFieldsPerFormatInFile
+   * should be set to the largest getNumberOfFields() value for the various
+   * record formats in a multi-format logical file.  In some cases, 
+   * getObjectS38BUF() may be called before the recordFormat's are known. In
+   * that case, maxNumberOfFieldsPerFormatInFile may be set to -1 to obtain
+   * equivalent behavior prior to the addition of this new parameter.
    *@return S38BUF data stream
    * Term = S38BUF
    * Size = 6 --> Header (0-5)
@@ -97,7 +113,8 @@ class DDMObjectDataStream extends DDMDataStream
   **/
   static DDMObjectDataStream[] getObjectS38BUF(Record[] records,
                                                DDMS38OpenFeedback openFeedback,
-                                               boolean isSSPFile)         // #SSPDDM1
+                                               boolean isSSPFile,         // #SSPDDM1
+                                               int maxNumberOfFieldsPerFormatInFile) //@A1C
   throws CharConversionException,
   UnsupportedEncodingException
   {
@@ -181,9 +198,34 @@ class DDMObjectDataStream extends DDMDataStream
         // Skip writing the null field map for SSP files					    	// #SSPDDM1
         if (!isSSPFile)                                 // #SSPDDM1
         {
+          // The NULL byte field map is left justified and has as many bytes as there @A1A 
+          // are fields in the file.  In the case of a multi-format logical file, some
+          // formats may have more/less getNumberOfFields() than others.  In that case,
+          // the NULL byte field map has entries for the format with the largest 
+          // getNumberOfFields().
+          // The parameter maxNumberOfFieldsPerFormatInFile is the largest of the 
+          // record format's getNumberOfFields() values.
+          // Therefore, if we are writing a    
+          // record to a format that has 2 fields we need to set two entries into the NULL
+          // byte field map.  However, since the file could be a multi-format logical file
+          // there may be other recordFormats in the file that have more fields than the one
+          // currently being written to.  So, for example if maxNumberOfFieldsPerFormatInFile
+          // is 3 then we need to start writing the 0xf1 or 0xf0 values at an offset as if 
+          // there were 3 fields, but only need to set 2 values (if there are 2 fields in 
+          // this particular record's recordFormat)
+          // Previously, the code was setting the 0xf0 and 0xf1 values in the NULL byte 
+          // field map right-justified because we did not know/care about  
+          // maxNumberOfFieldsPerFormatInFile. This would work for physical files, single 
+          // format logical files, and multi-format logical files only if each of the formats 
+          // in the multi-format logical file had the exact same number of fields.
           // #SSPDDM1
-          for (int f = 0, fieldOffset = recordOffset +
-               (recordIncrement - numFields); f < numFields; fieldOffset++, f++)
+          // If maxNumberOfFieldsPerFormatInFile
+          if (maxNumberOfFieldsPerFormatInFile == -1)                                      //@A1A
+          {
+            maxNumberOfFieldsPerFormatInFile = numFields;                                  //@A1A
+          }
+          for (int f = 0, fieldOffset = recordOffset +                                     //@A1C
+               (recordIncrement - maxNumberOfFieldsPerFormatInFile); f < numFields; fieldOffset++, f++)
           {
             dataStreams[dataStreamIndex].data_[fieldOffset] =
             (records[recordIndex].isNullField(f) ? (byte) 0xf1 : (byte) 0xf0);
@@ -195,7 +237,7 @@ class DDMObjectDataStream extends DDMDataStream
     return dataStreams;
   }
 
-
+/* COMMENT OUT UNUSED METHOD                                                                @A1D
   // #SSPDDM1 - method changed to all overloaded method with isSSP parameter
   static DDMObjectDataStream[] getObjectS38BUF(Record[] records,
                                                DDMS38OpenFeedback openFeedback)
@@ -204,5 +246,5 @@ class DDMObjectDataStream extends DDMDataStream
   {
     return getObjectS38BUF(records, openFeedback, false);  // #SSPDDM1 - Call with isSSP default to false
   }    
-
+*/
 }
