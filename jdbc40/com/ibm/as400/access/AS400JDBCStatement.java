@@ -3024,7 +3024,7 @@ implements Statement
         {
             checkOpen ();
             //if we can get info from resultSet (post 540), that will be more accurate, since it can be from stored-proc cursor
-            if(resultSet_ != null)                    //@cur
+            if((resultSet_ != null) && (!resultSet_.isClosed()))  //@cur //@cur2
             	return resultSet_.getHoldability();   //@cur
             
             //@F4 If resultSetHoldability_ was set by the user, then return it.  Otherwise,
