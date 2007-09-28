@@ -354,6 +354,11 @@ Writes part of the contents of the lob.
   **/
   synchronized void free() throws SQLException
   {
+      if(connection_.getVRM() < JDUtilities.vrm610 )                             //@ns1
+      {                                                                          //@ns1
+    	  JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);  //@ns1
+          return;                                                                //@ns1
+      }                                                                          //@ns1
       
       DBSQLRequestDS request = null;
       DBReplyRequestedDS reply = null;
