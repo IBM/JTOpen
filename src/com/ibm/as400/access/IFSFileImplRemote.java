@@ -14,6 +14,14 @@
 //                    method to resolve problem of issuing PWFS List Attributes 
 //                    request with both "Sort" indication and "RestartByID" 
 //                    which is documented to be an invalid combination.
+// @D8 - 10/04/2007 - Remove obsolete code for determining whether QSYS objects
+//                    are to be treated as a "directory" or a "file".
+//                    For QSYS objects, those which may be treated as directories
+//                    have the attribute IFSListAttrsRep.DIRECTORY.
+//                    For QSYS objects, those which may be treated as files
+//                    have the attribute IFSListAttrsRep.FILE.
+//                    All other QSYS objects are neither dirs/files (e.g OUTQ, 
+//                    DSPF, TAPF, or PRTF objects).
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -244,16 +252,20 @@ implements IFSFileImpl
       case IFSListAttrsRep.FILE:
          answer = ((attributeList.getFixedAttributes() & IFSListAttrsRep.FA_DIRECTORY) != 0);
          break;
-      case IFSListAttrsRep.AS400_OBJECT:
-         // Server libraries and database files look like directories
-         String nameUpper = name.toUpperCase();         // @C2a
-         answer = (nameUpper.endsWith(".LIB") ||
-                   nameUpper.endsWith(".FILE")); //B1C Changed path_ to name
-                   //@C2c
-                   //@B1D Removed code that checked for file separators
-                   //|| path_.endsWith(".LIB" + IFSFile.separator) ||
-                   //path_.endsWith(".FILE" + IFSFile.separator));
-         break;
+//         /* Deleted the following case... treat as default (false)               @D8A
+//          * For example, OUTQ, DSPF, PRTF, and TAPF objects are NOT directories  @D8A
+//          * LIB, PF, LF, SRCPF are returned as IFSListAttrsRep.DIRECTORY         @D8A
+//          * SAVF is returned as IFSListAttrsRep.FILE                             @D8A
+//      case IFSListAttrsRep.AS400_OBJECT:                                         @D8D
+//         // Server libraries and database files look like directories            @D8D
+//         String nameUpper = name.toUpperCase();         // @C2a                  @D8D
+//         answer = (nameUpper.endsWith(".LIB") ||                                 @D8D
+//                   nameUpper.endsWith(".FILE")); //B1C Changed path_ to name     @D8D
+//                   //@C2c
+//                   //@B1D Removed code that checked for file separators
+//                   //|| path_.endsWith(".LIB" + IFSFile.separator) ||
+//                   //path_.endsWith(".FILE" + IFSFile.separator));
+//         break;                                                                  @D8D*/
       default:
          answer = false;
     }
@@ -279,16 +291,20 @@ implements IFSFileImpl
       case IFSListAttrsRep.FILE:
          answer = ((attributeList.getFixedAttributes() & IFSListAttrsRep.FA_DIRECTORY) == 0);
          break;
-      case IFSListAttrsRep.AS400_OBJECT:
-         //Server libraries and database files look like directories.
-         String nameUpper = name.toUpperCase();         // @C2a
-         answer = !(nameUpper.endsWith(".LIB") ||
-                    nameUpper.endsWith(".FILE")); //B1C Changed path_ to name
-                  //@C2c
-                  //@B1D Removed code that checked for file separators
-                  //|| path_.endsWith(".LIB" + IFSFile.separator) ||
-                  //path_.endsWith(".FILE" + IFSFile.separator));
-         break;
+//         /* Deleted the following case... treat as default (false)               @D8A
+//          * For example, OUTQ, DSPF, PRTF, and TAPF objects are NOT files        @D8A
+//          * LIB, PF, LF, SRCPF are returned as IFSListAttrsRep.DIRECTORY         @D8A
+//          * SAVF is returned as IFSListAttrsRep.FILE                             @D8A
+//      case IFSListAttrsRep.AS400_OBJECT:                                         @D8D
+//         //Server libraries and database files look like directories.
+//         String nameUpper = name.toUpperCase();         // @C2a                  @D8D
+//         answer = !(nameUpper.endsWith(".LIB") ||                                @D8D 
+//                    nameUpper.endsWith(".FILE")); //B1C Changed path_ to name    @D8D
+//                  //@C2c
+//                  //@B1D Removed code that checked for file separators
+//                  //|| path_.endsWith(".LIB" + IFSFile.separator) ||
+//                  //path_.endsWith(".FILE" + IFSFile.separator));
+//         break;                                                                  @D8D*/
       default:
          answer = false;
     }
