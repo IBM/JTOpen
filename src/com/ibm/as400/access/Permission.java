@@ -10,6 +10,21 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// @A1 - 10/04/2007 - Update commit() method to make two commit attempts for 
+//                    permission changes that are pending.  This is necessary 
+//                    because some changes are order dependent.  The commit()
+//                    method allows for multiple changes to be pending at one
+//                    time.  The specific problem encountered was for a DLO 
+//                    object when going from Sensitivity/PublicAuth == None/*ALL
+//                    to Sensitivity/PublicAuth == Private/*EXCLUDE.
+//                    In this example, the PublicAuth must be changed before 
+//                    the Sensitivity.  There are other examples where the 
+//                    Sensitivity would need to be changed first.  A loop was
+//                    added to the commit() method to accomodate either order.
+// @A2 - 10/09/2007 - Update parseType() to process '/QSYS.LIB' correctly.  Add
+//                    check to account for missing ending delimiter.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -472,74 +487,98 @@ public class Permission
                    ObjectDoesNotExistException,
                    ServerStartupException
     {
-        if (isCommitted())
-            return;
+      if (isCommitted())
+        return;
+      // Add loop to allow for the fact that there are cases where UserPermission @A1A
+      // changes must occur before the sensitivityLevel_ changes.                 @A1A
+      for (int numberOfCommitAttempts=1; numberOfCommitAttempts <= 2; numberOfCommitAttempts++) // @A1A
+      {                                                                        // @A1A
         try 
         {
-           if (autListChanged_)
-           {
+          try                                                                  // @A1A
+          {                                                                    // @A1A
+            if (autListChanged_)
+            {
               access_.setAuthorizationList(path_,authorizationList_,autListBackup_);
               autListChanged_ = false;
-           }
-           if (sensitivityChanged_)
-           {
+            }
+            if (sensitivityChanged_)
+            {
               access_.setSensitivity(path_,sensitivityLevel_);
               sensitivityChanged_ = false;
-           }
-           if (ownerChanged_)               // @B2a
-           {
+            }
+            if (ownerChanged_)               // @B2a
+            {
               String path = path_;                          // @B6a
               if (asp_ != null)                             // @B6a
-                 path = asp_ + path;                        // @B6a
-           
+                path = asp_ + path;                        // @B6a
+
               access_.setOwner(path, owner_, revokeOldAuthority_); // @B6c
               ownerChanged_ = false;
-           }
-           if (primaryGroupChanged_)
-           {
+            }
+            if (primaryGroupChanged_)
+            {
               access_.setPrimaryGroup(path_,primaryGroup_,revokeOldGroupAuthority_);
               primaryGroupChanged_ = false;
-           }
+            }
+          }                                               // End try-block @A1A
+          catch (AS400Exception e)                                      // @A1A
+          {                                                             // @A1A
+            Trace.log (Trace.ERROR, "unexpected exception, " + e.toString(), e);
+            if (numberOfCommitAttempts == 2)                            // @A1A
+            {
+              // Failure on second attempt... throw error.
+              throw e;                                                  // @A1A
+            }
+            else                                                        // @A1A
+            {
+              // Failure on first attempt... ignore error...
+              // Let's keep going and try to perform potential userPermission 
+              // changes, and then reattempt the above changes.  Some changes
+              // require the UserPermission change to occur first.
+            }
+          }                                                   // end-catch @A1A
 
-           int count = userPermissionsBuffer_.size();
-           for (int i=count-1;i>=0;i--)
-           {
-              UserPermission userPermission = (UserPermission)
-                             userPermissionsBuffer_.elementAt(i);
-              switch(userPermission.getCommitted())
-              {
-                 case UserPermission.COMMIT_FROM_AUTL :
-                    access_.setFromAuthorizationList(path_,userPermission.isFromAuthorizationList());
-                    userPermission.setCommitted(UserPermission.COMMIT_NONE);
-                    break;
-                 case UserPermission.COMMIT_ADD :
-                    access_.addUser(path_,userPermission);
-                    userPermission.setCommitted(UserPermission.COMMIT_NONE);
-                    break;
-                 case UserPermission.COMMIT_CHANGE :
-                    access_.setAuthority(path_,userPermission);
-                    userPermission.setCommitted(UserPermission.COMMIT_NONE);
-                    break;
-                 case UserPermission.COMMIT_REMOVE :
-                    String path = path_;                                     // @B6a
-                    if (asp_ != null)                                        // @B6a
-                       path = asp_ + path;                                   // @B6a
-                    access_.removeUser(path,userPermission.getUserID());     // @B6c
-                    userPermission.setCommitted(UserPermission.COMMIT_NONE);
-                    userPermissionsBuffer_.removeElement(userPermission);
-                    break;
-                 case UserPermission.COMMIT_NONE :
-                 default :
-                    break;
-              }
-           }
+          int count = userPermissionsBuffer_.size();
+          for (int i=count-1;i>=0;i--)
+          {
+            UserPermission userPermission = (UserPermission)
+            userPermissionsBuffer_.elementAt(i);
+            switch(userPermission.getCommitted())
+            {
+            case UserPermission.COMMIT_FROM_AUTL :
+              access_.setFromAuthorizationList(path_,userPermission.isFromAuthorizationList());
+              userPermission.setCommitted(UserPermission.COMMIT_NONE);
+              break;
+            case UserPermission.COMMIT_ADD :
+              access_.addUser(path_,userPermission);
+              userPermission.setCommitted(UserPermission.COMMIT_NONE);
+              break;
+            case UserPermission.COMMIT_CHANGE :
+              access_.setAuthority(path_,userPermission);
+              userPermission.setCommitted(UserPermission.COMMIT_NONE);
+              break;
+            case UserPermission.COMMIT_REMOVE :
+              String path = path_;                                     // @B6a
+              if (asp_ != null)                                        // @B6a
+                path = asp_ + path;                                   // @B6a
+              access_.removeUser(path,userPermission.getUserID());     // @B6c
+              userPermission.setCommitted(UserPermission.COMMIT_NONE);
+              userPermissionsBuffer_.removeElement(userPermission);
+              break;
+            case UserPermission.COMMIT_NONE :
+            default :
+              break;
+            }
+          }
         }
         catch (PropertyVetoException e)
         {
-           Trace.log (Trace.ERROR, "unexpected exception, " + e.toString(), e);
+          Trace.log (Trace.ERROR, "unexpected exception, " + e.toString(), e);
         }
-        
-        changes_.firePropertyChange("permission",null,this);
+      }                                 //end numberOfCommitAttempts loop @A1A
+
+      changes_.firePropertyChange("permission",null,this);
     }
 
     /**
@@ -806,11 +845,13 @@ public class Permission
        }                                                                        // @B6a
        else                                                                     // @B6a
        {                                                                        // @B6a
-        if(objectName.toUpperCase().startsWith("/QSYS.LIB/"))
+         String name = objectName.toUpperCase();                                // @A2A
+        if(name.startsWith("/QSYS.LIB/") || name.equals("/QSYS.LIB"))           // @A2C
         {
             return TYPE_QSYS;
         }
-        if(objectName.toUpperCase().startsWith("/QDLS/") || objectName.toUpperCase().equals("/QDLS"))   // @1JUC check to see if it is the qdls root folder
+//      if(objectName.toUpperCase().startsWith("/QDLS/") || objectName.toUpperCase().equals("/QDLS"))   // @1JUC check to see if it is the qdls root folder
+        if(name.startsWith("/QDLS/") || name.equals("/QDLS"))   // @A2C @1JUC check to see if it is the qdls root folder
         {
             return TYPE_DLO;
         }
