@@ -4546,7 +4546,7 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLDecimal(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                           // @D0C
-        typeSamples.addElement(new SQLGraphic(16382, settings_));
+        typeSamples.addElement(new SQLGraphic(16382, settings_, -1)); //@cca1
         typeSamples.addElement(new SQLInteger(vrm));    //@trunc3                               // @D0C
         typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLReal(settings_));                            // @D0C
@@ -4559,7 +4559,7 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C
         if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX
             typeSamples.addElement(new SQLVarcharForBitData(32739, settings_));        // @M0A
-        typeSamples.addElement(new SQLVargraphic(16369, settings_));
+        typeSamples.addElement(new SQLVargraphic(16369, settings_, -1)); //@cca1
         
         if (connection_.getVRM() >= JDUtilities.vrm440)
         {       // @B4D B5A @D0C

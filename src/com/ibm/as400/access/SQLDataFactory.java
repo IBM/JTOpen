@@ -533,13 +533,13 @@ class SQLDataFactory
                     return new SQLChar(length, settings);
 
             case 464:                           // Graphic (pure DBCS).
-                return new SQLVargraphic(length - 2, settings); // @C1C @C4C
+                return new SQLVargraphic(length - 2, settings, ccsid); // @C1C @C4C @cca1
 
             case 472:                           // Graphic long (pure DBCS).
                 return new SQLLongVargraphic(length - 2, settings); // @C1C @C4C
 
             case 468:                           // Graphic fix (pure DBCS).
-                return new SQLGraphic(length, settings); // @C1C @C4C
+                return new SQLGraphic(length, settings, ccsid); // @C1C @C4C @cca1
 
             case 480:                           // Float.
                 if(length == 4)
@@ -735,10 +735,10 @@ class SQLDataFactory
         }
 
         else if(nativeType.equals("GRAPHIC"))
-            return new SQLGraphic(length, settings); // @C1C @C4C
+            return new SQLGraphic(length, settings, ccsid); // @C1C @C4C @cca1
 
         else if(nativeType.equals("GRAPHIC VARYING"))
-            return new SQLVargraphic(length, settings); // @C1C @C4C @E1C
+            return new SQLVargraphic(length, settings, ccsid); // @C1C @C4C @E1C @cca1
 
         else if(nativeType.equals("INTEGER"))
             return new SQLInteger(vrm);    //trunc3
@@ -805,13 +805,13 @@ class SQLDataFactory
         }
 
         else if(nativeType.equals("VARG"))
-            return new SQLVargraphic(length, settings);      // @E1C
+            return new SQLVargraphic(length, settings, ccsid);      // @E1C @cca1
 
         else if(nativeType.equals("VARGRAPH"))
-            return new SQLVargraphic(length, settings);      // @E1C
+            return new SQLVargraphic(length, settings, ccsid);      // @E1C @cca1
 
         else if(nativeType.equals("VARGRAPHIC"))
-            return new SQLVargraphic(length, settings); //@KKB
+            return new SQLVargraphic(length, settings, ccsid); //@KKB @cca1
 
         else
         {

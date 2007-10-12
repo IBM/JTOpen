@@ -42,21 +42,23 @@ implements SQLData
     private int                     maxLength_;
     private int                     truncated_;
     private String                  value_;
+    private int                     ccsid_; //@cca1
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
-    SQLVargraphic(int maxLength, SQLConversionSettings settings)
+    SQLVargraphic(int maxLength, SQLConversionSettings settings, int ccsid)  //@cca1
     {
         settings_       = settings;
         length_         = 0;
         maxLength_      = maxLength;
         truncated_      = 0;
         value_          = "";
+        ccsid_          = ccsid;  //@cca1
     }
 
     public Object clone()
     {
-        return new SQLVargraphic(maxLength_, settings_);
+        return new SQLVargraphic(maxLength_, settings_, ccsid_); //@cca1
     }
 
     // Added method trim() to trim the string.
@@ -293,7 +295,10 @@ implements SQLData
 
     public String getTypeName()
     {
-        return "VARGRAPHIC";
+        if( ccsid_ == 13488 || ccsid_ == 1200)  //@cca1
+        	return "NVARCHAR";  //@cca1 same as native
+
+    	return "VARGRAPHIC";
     }
 
     public boolean isSigned()

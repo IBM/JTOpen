@@ -40,19 +40,21 @@ implements SQLData
     private int                     truncated_;
     private String                  value_;
     private String                  originalValue_;
+    private int                     ccsid_; //@cca1
 
-    SQLGraphic(int maxLength, SQLConversionSettings settings)
+    SQLGraphic(int maxLength, SQLConversionSettings settings, int ccsid)  //@cca1
     {
         settings_       = settings;
         maxLength_      = maxLength;
         truncated_      = 0;
         value_          = "";
         originalValue_  = "";
+        ccsid_          = ccsid;  //@cca1
     }
 
     public Object clone()
     {
-        return new SQLGraphic(maxLength_, settings_);
+        return new SQLGraphic(maxLength_, settings_, ccsid_); //@cca1
     }
 
     //---------------------------------------------------------//
@@ -275,6 +277,8 @@ implements SQLData
 
     public String getTypeName()
     {
+        if( ccsid_ == 13488 || ccsid_ == 1200)  //@cca1
+            return "NCHAR";  //@cca1 same as native
         return "GRAPHIC";
     }
 
