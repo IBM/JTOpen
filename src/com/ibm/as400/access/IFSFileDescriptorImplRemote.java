@@ -10,6 +10,20 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @A3 - 10/18/2007 - Update finalize0() method to not send TWO close requests
+//                    to the server.  When garbage collection finds a descriptor
+//                    that has not been closed, it calls the finalize method on 
+//                    one of the various IFSFilexxx classes which calls the 
+//                    finalize0() method of this class.
+//                    This class was sending TWO close requests to the server 
+//                    for the same fileHandle_.  Normally, the second close would
+//                    silently fail.  However, in some cases another thread might
+//                    issue an open request for another file BETWEEN the two close
+//                    requests sent by the garbage collection thread.  This 
+//                    results in the newly opened file being incorrectly closed.
+//                    Fix to finalize0() is to issue ONE close request to the 
+//                    File server.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -513,7 +527,10 @@ implements IFSFileDescriptorImpl
         }
         finally
         {
-          close0();
+          // Reset isOpen_ and fileHandle_ to reflect that it is closed @A3A
+          isOpen_ = false;                                            //@A3A
+          fileHandle_ = UNINITIALIZED;                                //@A3A
+          //close0();                                                 //@A3D
         }
       }
     }
