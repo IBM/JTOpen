@@ -1582,7 +1582,25 @@ implements DatabaseMetaData
     **/
     public int getDatabaseMajorVersion ()
     {
-        return 5;
+        //return 5;   //@610 
+
+        //@610 get this dynamically since we can now have version 5 or 6
+        int defaultVersion = 0; //since we do not want to change signature to throw exception, have default as 0
+        try
+        {
+            String v = getDatabaseProductVersion();
+            int dotIndex = v.indexOf('.');
+            if (dotIndex > 0) 
+            {
+                v = v.substring(0,dotIndex);
+                defaultVersion = Integer.parseInt(v); 
+            } 
+        }catch(Exception e)
+        {   
+            //should not happen 
+        }
+
+        return defaultVersion;
     }
 
 
@@ -1594,7 +1612,32 @@ implements DatabaseMetaData
     **/
     public int getDatabaseMinorVersion ()
     {
-        return 0;
+        //return 0;   //@610 
+
+        //@610 get this dynamically since we can now as Native driver does
+        int defaultVersion = 0; 
+        try
+        {
+            String v = getDatabaseProductVersion();
+            int dotIndex = v.indexOf('.');
+            if (dotIndex > 0) 
+            {
+                v = v.substring(dotIndex+1);
+                dotIndex = v.indexOf('.');
+                if (dotIndex > 0)
+                {
+                    v = v.substring(0,dotIndex);
+                } 
+
+                defaultVersion = Integer.parseInt(v); 
+
+            } 
+        }catch(Exception e)
+        {   
+            //should not happen 
+        }
+        return defaultVersion;  
+
     }
 
 
