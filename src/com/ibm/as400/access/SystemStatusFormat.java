@@ -24,6 +24,7 @@ class SystemStatusFormat extends RecordFormat
   static final long serialVersionUID = 4L;
 
   static AS400Bin4 bin4 = new AS400Bin4();
+  static AS400Bin8 bin8;
   AS400 system_;
   
   SystemStatusFormat(AS400 sys)
@@ -42,7 +43,16 @@ class SystemStatusFormat extends RecordFormat
   {
     addFieldDescription(new BinaryFieldDescription(bin4, name));
   }
-  
+
+  /**
+   * Adds a binary field description to this format.
+   **/
+  void addBin8(String name)
+  {
+    if (bin8 == null) bin8 = new AS400Bin8();
+    addFieldDescription(new BinaryFieldDescription(bin8, name));
+  }
+
   /**
    * Adds a character field description to this format.
   **/

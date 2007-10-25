@@ -27,15 +27,20 @@ class PoolInformationFormat extends RecordFormat
 
     static final long serialVersionUID = 4L;
 
+    protected AS400Bin4 bin4;
+    protected AS400Text text10;
 
 
   PoolInformationFormat(AS400 sys)
   {
     super();
-    AS400Bin4 bin4 = new AS400Bin4();
-    AS400Text text10 = new AS400Text(10, sys.getCcsid(), sys);
+    bin4 = new AS400Bin4();
+    text10 = new AS400Text(10, sys.getCcsid(), sys);
+
     addFieldDescription(new BinaryFieldDescription(bin4, "poolIdentifier"));  // system-related pool ID
     addFieldDescription(new BinaryFieldDescription(bin4, "poolSize"));
+       // The amount of main storage, in kilobytes, allocated to the pool.
+       // Note that this may be less than the requested ("defined") size.
     addFieldDescription(new BinaryFieldDescription(bin4, "reservedSize"));
     addFieldDescription(new BinaryFieldDescription(bin4, "activityLevel"));  // maximum active threads
     addFieldDescription(new BinaryFieldDescription(bin4, "databaseFaults"));

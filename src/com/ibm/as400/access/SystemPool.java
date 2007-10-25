@@ -67,12 +67,6 @@ public class SystemPool
      // Private variable representing the system.
      private AS400 system_;
 
-     // Private variable representing the array of the system pool attribute.
-//     private SystemPoolAttribute[] attributes_;
-
-     // Private variable representing the object of the SystemPoolAccess.
-//@B0D     private SystemPoolAccess access_;
-
      // Private variable representing the pool's name.  In the case of a private (subsystem) pool, this field will contain a number from 1-10.
      private String poolName_;
 
@@ -87,16 +81,17 @@ public class SystemPool
      private int poolSequenceNumber_;  // pool ID (sequence number) of private pool (1-10)
 
      private transient boolean connected_;
-     private /*transient*/ boolean cacheChanges_;
+     private boolean cacheChanges_;
 
      // Private variables representing event support.
      private transient PropertyChangeSupport changes_;
      private transient VetoableChangeSupport vetos_;
 
      // This format maps the API getter.
-     private SSTS0300Format format0300_;
-     // This format maps the pool information portion of the 0300 format.
+     private SystemStatusFormat systemStatusFormat_;
+     // This format maps the pool information portion of the format.
      private PoolInformationFormat poolFormat_;
+
      // This record holds the data for one system pool -- us.
      private Record poolRecord_;
 
@@ -272,10 +267,12 @@ public class SystemPool
 
       String messageLogging_pending = null;  // We might need to leave this change uncommitted, if we end up calling CHGSHRPOOL.
 
-      // Note: "Shared" pools that are not currently in use by any subsystem, do _not_ have a system pool identifier assigned, and therefore are beyond the reach of QUSCHGPA.  To modify such pools, we must use CHGSHRPOOL.
+      // Note: "Shared" pools that are not currently in use by any subsystem, do _not_ have a system pool identifier assigned, and therefore are beyond the reach of QUSCHGPA.
+      // QUSCHGPA works only on active pools that have been allocated by system pood ID.
+      // To modify such pools, we must use CHGSHRPOOL.
 
-      if (!gotPoolIdentifier && isSharedPool_)
-      { // We need to use the CL command, since the API requires a (unique) pool ID.
+      if (!gotPoolIdentifier || isSharedPool_)
+      { // We need to use the CL command, since the QUSCHGPA API requires a (unique) pool ID.
 
         StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+poolName_+")");
         Object obj;  // attribute value
@@ -926,9 +923,11 @@ public class SystemPool
      }
 
      /**
-      * Returns the amount of main storage, in kilobytes, in the pool.
+      * Returns the amount of main storage, in kilobytes, currently allocated to the pool.
+      * Note: Depending on system storage availability, this may be less than
+      * the pool's requested ("defined") size.
       *
-      * @return The pool size.
+      * @return The pool size, in kilobytes.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
       * @exception ErrorCompletingRequestException If an error occurs before
@@ -953,9 +952,11 @@ public class SystemPool
      }
 
      /**
-      * Returns the amount of main storage, in kilobytes, in the pool.
+      * Returns the amount of main storage, in kilobytes, currently allocated to the pool.
+      * Note: Depending on system storage availability, this may be less than
+      * the pool's requested ("defined") size.
       *
-      * @return The pool size.
+      * @return The pool size, in kilobytes.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
       * @exception ErrorCompletingRequestException If an error occurs before
@@ -1199,9 +1200,89 @@ public class SystemPool
         if (vetos_ != null) vetos_.removeVetoableChangeListener(listener);
      }
 
+
   /**
-   * Loads system pool data from the system using the SSTS0300 format.
-   * If the information is cached, this method does nothing.
+   * Creates a parameter list for the call to QWCRSSTS.
+  **/
+  private ProgramParameter[] buildParameterList()
+  {
+    AS400Bin4 bin4 = new AS400Bin4();
+    AS400Text text;
+
+    // Note: If we have a pool identifier, or if the pool is a "shared" pool, we can use the 7-parameter call.
+    // Otherwise we must use the 5-parameter call.
+
+    int numParms;
+    if (isSharedPool_ || poolIdentifier_ != null) {
+      numParms = 7;
+      if (systemStatusFormat_ == null) systemStatusFormat_ = new SSTS0400Format(system_);
+      if (poolFormat_ == null) poolFormat_ = new PoolInformationFormat0400(system_);
+    }
+    else {
+      numParms = 5;
+      if (systemStatusFormat_ == null) systemStatusFormat_ = new SSTS0300Format(system_);
+      if (poolFormat_ == null) poolFormat_ = new PoolInformationFormat(system_);
+    }
+    ProgramParameter[] parmList = new ProgramParameter[numParms];
+
+    // Required parameters:
+
+    // Receiver variable
+    int receiverLength = systemStatusFormat_.getNewRecord().getRecordLength();
+    parmList[0] = new ProgramParameter(receiverLength);
+
+    // Length of receiver variable
+    parmList[1] = new ProgramParameter(bin4.toBytes(receiverLength));
+
+    // Format name
+    text = new AS400Text(8, system_.getCcsid(), system_);
+    parmList[2] = new ProgramParameter(text.toBytes(systemStatusFormat_.getName()));
+
+    // Reset status statistics
+    text = new AS400Text(10, system_.getCcsid(), system_);
+    parmList[3] = new ProgramParameter(text.toBytes("*NO"));
+    // Note that this parm is ignored for formats SSTS0100 and SSTS0500.
+
+    // Error code
+    byte[] errorInfo = new byte[32];
+    parmList[4] = new ProgramParameter(errorInfo, 0);
+
+    if (numParms > 5)
+    {
+      // Optional parameters:
+
+      // Pool selection information
+      // 3 subfields:
+      // typeOfPool (CHAR10) - Possible values are:  *SHARED, *SYSTEM.
+      // sharedPoolName (CHAR10) - Possible values are:  *ALL, *MACHINE, *BASE, *INTERACT, *SPOOL, *SHRPOOL1-60.  If type of pool is *SYSTEM, then this field must be blank.
+      // systemPoolIdentifier (BIN4) - If typeOfPool is *SHARED, must be zero.  Otherwise: -1 for "all active pools"; 1-64 to specify an active pool.  If the pool is not active, CPF186B is sent.
+      String typeOfPool = (isSharedPool_ ? "*SHARED   " : "*SYSTEM   ");
+      StringBuffer sharedPoolName = new StringBuffer(isSharedPool_ ? poolName_ : "");
+      if (sharedPoolName.length() < 10) {
+        int numPadBytes = 10 - sharedPoolName.length();
+        sharedPoolName.append(new String("          ").substring(10-numPadBytes));  // pad to 10 chars
+      }
+      int systemPoolIdentifier = ((isSharedPool_ || poolIdentifier_==null)? 0 : poolIdentifier_.intValue());
+      byte[] poolType = text.toBytes(typeOfPool);
+      byte[] poolNam  = text.toBytes(sharedPoolName.toString());
+      byte[] poolId = BinaryConverter.intToByteArray(systemPoolIdentifier);
+      byte[] poolSelectionInformation = new byte[24];
+      System.arraycopy(poolType, 0, poolSelectionInformation,  0, 10);
+      System.arraycopy(poolNam,  0, poolSelectionInformation, 10, 10);
+      System.arraycopy(poolId,   0, poolSelectionInformation, 20,  4);
+      parmList[5] = new ProgramParameter(poolSelectionInformation);
+
+      // Size of pool selection information.
+      // Valid values are 0, 20, or 24
+      parmList[6] = new ProgramParameter(bin4.toBytes(24));  // size is 24 bytes
+    }
+
+    return parmList;
+  }
+
+  /**
+   * Loads pool data from the system using the SSTS0300 or SSTS0400 format.
+   * If the information is already cached, this method does nothing.
   **/
   private void retrieveInformation()
             throws AS400Exception,
@@ -1219,30 +1300,10 @@ public class SystemPool
     if (!connected_) connect();
 
     QSYSObjectPathName prgName = new QSYSObjectPathName("QSYS","QWCRSSTS","PGM");
-    AS400Bin4 bin4 = new AS400Bin4();
-    AS400Text text;
-
-    ProgramParameter[] parmList = new ProgramParameter[5];
-
-    if (format0300_ == null) format0300_ = new SSTS0300Format(system_);
-
-    int receiverLength = format0300_.getNewRecord().getRecordLength();
-    parmList[0] = new ProgramParameter(receiverLength);
-    parmList[1] = new ProgramParameter(bin4.toBytes(receiverLength));
-
-    text = new AS400Text(8, system_.getCcsid(), system_);
-    parmList[2] = new ProgramParameter(text.toBytes(format0300_.getName()));
-
-    // Reset statistics parm
-    text = new AS400Text(10, system_.getCcsid(), system_);
-    parmList[3] = new ProgramParameter(text.toBytes("*NO")); // this parm is ignored for SSTS0100
-
-    byte[] errorInfo = new byte[32];
-    parmList[4] = new ProgramParameter(errorInfo, 0);
+    ProgramParameter[] parmList = buildParameterList();
 
     ProgramCall pgm = new ProgramCall(system_);
     // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
-    //pgm.setThreadSafe(false);  // QWCRSSTS isn't threadsafe.
     try
     {
       pgm.setProgram(prgName.getPath(), parmList);
@@ -1267,7 +1328,7 @@ public class SystemPool
       throw new AS400Exception(msgList);
     }
     byte[] retrievedData = parmList[0].getOutputData();
-    Record rec = format0300_.getNewRecord(retrievedData);
+    Record rec = systemStatusFormat_.getNewRecord(retrievedData);
     // It's possible we didn't retrieve all of the pools.
     // We may need to increase the fields in the record format to
     // hold more pool information and then do the API call again.
@@ -1279,7 +1340,7 @@ public class SystemPool
       return;
     }
 
-    // Now determine which system pool we are out of the list
+    // Now determine which system pool we are out of the list.
     // This is the data returned on the API.
     int offsetToInfo = ((Integer)rec.getField("offsetToPoolInformation")).intValue();
     int numPools = ((Integer)rec.getField("numberOfPools")).intValue();
@@ -1290,9 +1351,7 @@ public class SystemPool
       Trace.log(Trace.DIAGNOSTIC, "Parsing out "+numPools+" system pools with "+entryLength+" bytes each starting at offset "+offsetToInfo+" for a maximum length of "+data.length+".");
     }
 
-    if (poolFormat_ == null) poolFormat_ = new PoolInformationFormat(system_);
-
-    // Get each of the pools out of the data and check to see which one is us.
+    // Get each of the pools out of the data and check to see which one is me.
     String poolName = ( poolName_ == null ? null : poolName_.trim() );
     for (int i=0; i<numPools; ++i)
     {
@@ -1305,42 +1364,45 @@ public class SystemPool
       String ret = ((String)pool.getField("poolName")).trim();
       Integer poolIdentifier = ((Integer)pool.getField("poolIdentifier"));
 
-      if ((isSharedPool_) && (poolIdentifier_ == null))
-      { // It's a shared system pool, so it's uniquely identified by the pool name.
-        if (DEBUG) {
-          System.out.println("Looking for poolName=="+poolName+", got: " + ret);
-        }
-        if (ret.equals(poolName)) 
-        {
-          if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
-          {
-            Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
+      if (isSharedPool_)
+      {
+        if (poolIdentifier_ == null)
+        { // It's a shared system pool, so it's uniquely identified by the pool name.
+          if (DEBUG) {
+            System.out.println("Looking for poolName=="+poolName+", got: " + ret);
           }
+          if (ret.equals(poolName)) 
+          {
+            if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+            {
+              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
+            }
 
-          poolRecord_ = pool;
-          return;
+            poolRecord_ = pool;
+            return;
+          }
+        }
+        else   // poolIdentifier_ != null
+        { // It's a shared system pool and poolIdentifier_ is set, so
+          // we can identify the pool by name and identifier. This is in case
+          // there are two isSharedPooled pools with same name. 
+          if (DEBUG) {
+            System.out.println("Looking for poolName=="+poolName+", got: " + ret);
+          }
+          if ( (ret.equals(poolName)) && 
+               (poolIdentifier_.equals(poolIdentifier)) )
+          {
+            if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+            {
+              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
+            }
+
+            poolRecord_ = pool;
+            return;
+          }
         }
       }
-      else if ((isSharedPool_) && (poolIdentifier_ != null))
-      { // It's a shared system pool and poolIdentifier_ is set, so
-        // we can identifier the pool by name and identifier. This is in cass
-	// there are two isSharedPooled pools with same name. 
-        if (DEBUG) {
-          System.out.println("Looking for poolName=="+poolName+", got: " + ret);
-        }
-        if ( (ret.equals(poolName)) && 
-	     (poolIdentifier_.equals(poolIdentifier)) )
-        {
-          if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
-          {
-            Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
-          }
-
-          poolRecord_ = pool;
-          return;
-        }
-      }
-      else
+      else   // not a shared pool
       { // It's a subsystem pool, so poolName is actually just a sequence number (1-10).
         // Need to match subsystem library and name, and poolName.
         String subsysName = ((String)pool.getField("subsystemName")).trim();
@@ -1370,7 +1432,7 @@ public class SystemPool
   }
 
   /**
-   * Adjusts the 0300 format to be large enough to hold all of the
+   * Adjusts the 0300 or 0400 format to be large enough to hold all of the
    * information returned on the API call.
    * @return true if the format was resized.
   **/
@@ -1388,7 +1450,7 @@ public class SystemPool
     int returned = ((Integer)rec.getField("numberOfBytesReturned")).intValue();
     if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
     {
-      Trace.log(Trace.DIAGNOSTIC, "Size check of SSTS0300 format: "+available+", "+returned);
+      Trace.log(Trace.DIAGNOSTIC, "Size check of System Status format: "+available+", "+returned);
       int numPools = ((Integer)rec.getField("numberOfPools")).intValue();
       int offset = ((Integer)rec.getField("offsetToPoolInformation")).intValue();
       int entryLength = ((Integer)rec.getField("lengthOfPoolInformationEntry")).intValue();
@@ -1401,15 +1463,14 @@ public class SystemPool
       int numPools = ((Integer)rec.getField("numberOfPools")).intValue();
       int offset = ((Integer)rec.getField("offsetToPoolInformation")).intValue();
       int entryLength = ((Integer)rec.getField("lengthOfPoolInformationEntry")).intValue();
-      if (format0300_ == null) format0300_ = new SSTS0300Format(system_);
       // Make the byte array big enough to hold the pool information.
-      int baseLength = format0300_.getNewRecord().getRecordLength();
+      int baseLength = systemStatusFormat_.getNewRecord().getRecordLength();
       int newLength = numPools*entryLength + (offset-baseLength);
-      format0300_.addFieldDescription(new HexFieldDescription(new AS400ByteArray(newLength), "poolInformation"));
+      systemStatusFormat_.addFieldDescription(new HexFieldDescription(new AS400ByteArray(newLength), "poolInformation"));
       if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
       {
-        Trace.log(Trace.DIAGNOSTIC, "Resizing SSTS0300 format to hold more system pool information.");
-        Trace.log(Trace.DIAGNOSTIC, "  New pool information: "+baseLength+", "+newLength+", "+format0300_.getNewRecord().getRecordLength());
+        Trace.log(Trace.DIAGNOSTIC, "Resizing System Status format to hold more system pool information.");
+        Trace.log(Trace.DIAGNOSTIC, "  New pool information: "+baseLength+", "+newLength+", "+systemStatusFormat_.getNewRecord().getRecordLength());
       }
       return true;
     }
@@ -2023,7 +2084,9 @@ public class SystemPool
 
      /**
       * Sets the size of the system pool in kilobytes, where one kilobyte is
-      * 1024 bytes.  The minimum value is 32 kilobytes.  For V4R3 and later, the
+      * 1024 bytes.
+      * For shared pools, this specifies the requested ("defined") size.
+      * The minimum value is 32 kilobytes.  For V4R3 and later, the
       * minimum is 256.  To indicate that no storage or activity level is defined
       * for the pool, specify 0.
       *
@@ -2061,7 +2124,9 @@ public class SystemPool
 
      /**
       * Sets the size of the system pool in kilobytes, where one kilobyte is
-      * 1024 bytes.  The minimum value is 32 kilobytes.  For V4R3 and later, the
+      * 1024 bytes.
+      * For shared pools, this specifies the requested ("defined") size.
+      * The minimum value is 32 kilobytes.  For V4R3 and later, the
       * minimum is 256.  To indicate that no storage or activity level is defined
       * for the pool, specify 0.
       *
