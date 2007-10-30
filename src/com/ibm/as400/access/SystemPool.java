@@ -52,17 +52,21 @@ public class SystemPool
      /**
       * Indicates that the system should calculate
       * a system pool attribute.
+      * @deprecated
      **/
      public static final float CALCULATE = -2;
+     private static final Float CALCULATE_FLOAT = new Float(-2);
 
      /**
       * Indicates that the system should calculate
       * a system pool attribute.
+      * @deprecated
      **/
      public static final int CALCULATE_INT = -2;
 
-     private static final Integer CALCULATE_OBJ = new Integer(-2);
+     private static final Integer CALCULATE_INTEGER = new Integer(-2);
      private static final Integer NO_CHANGE = new Integer(-1);
+     private static final String DEFAULT = "*DFT";
 
      // Private variable representing the system.
      private AS400 system_;
@@ -216,6 +220,23 @@ public class SystemPool
        vetos_.addVetoableChangeListener(listener);
      }
 
+
+     // Converts a Float value to hundredths, and returns it as an Integer.
+     // Assumes that obj is never null.
+     private static final Integer convertToHundredths(Object obj)
+     {
+       float floatVal = ((Float)obj).floatValue();
+       Integer obj1;
+
+       // For some fields, negative values have special meanings.
+       // It never makes sense to convert a negative value to hundredths.
+       if (floatVal <= 0) obj1 = new Integer((int)floatVal);
+       else obj1 = new Integer((int)(floatVal*100));
+
+       return obj1;
+     }
+
+
     /**
      * Commits any cached system pool information changes to the system.
      * If caching is not enabled, this method does nothing.
@@ -271,7 +292,7 @@ public class SystemPool
       // QUSCHGPA works only on active pools that have been allocated by system pood ID.
       // To modify such pools, we must use CHGSHRPOOL.
 
-      if (!gotPoolIdentifier || isSharedPool_)
+      if (isSharedPool_ || !gotPoolIdentifier)
       { // We need to use the CL command, since the QUSCHGPA API requires a (unique) pool ID.
 
         StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+poolName_+")");
@@ -279,47 +300,89 @@ public class SystemPool
 
         obj = changesTable_.get("poolSize");
         if (obj != null) {
-          cmdBuf.append(" SIZE("+obj+")");
+          cmdBuf.append(" SIZE("+obj.toString()+")");
         }
 
         obj = changesTable_.get("activityLevel");
         if (obj != null) {
-          cmdBuf.append(" ACTLVL("+obj+")");
+          if (obj.equals(CALCULATE_INTEGER)) { // this constant has been deprecated
+            obj = "*SAME";
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting activityLevel to SAME.");
+            }
+          }
+          cmdBuf.append(" ACTLVL("+obj.toString()+")");
         }
 
         obj = changesTable_.get("pagingOption");
         if (obj != null) {
-          cmdBuf.append(" PAGING("+obj+")");
+          cmdBuf.append(" PAGING("+obj.toString()+")");
         }
 
         obj = changesTable_.get("priority");
         if (obj != null) {
-          cmdBuf.append(" PTY("+obj+")");
+          if (obj.equals(CALCULATE_INTEGER)) {
+            obj = DEFAULT;
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting priority to DEFAULT.");
+            }
+          }
+          cmdBuf.append(" PTY("+obj.toString()+")");
         }
 
         obj = changesTable_.get("minimumPoolSize");
         if (obj != null) {
-          cmdBuf.append(" MINPCT("+obj+")");
+          if (obj.equals(CALCULATE_FLOAT)) { // this constant has been deprecated
+            obj = DEFAULT;
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting minimumPoolSize to DEFAULT.");
+            }
+          }
+          cmdBuf.append(" MINPCT("+obj.toString()+")");
         }
 
         obj = changesTable_.get("maximumPoolSize");
         if (obj != null) {
-          cmdBuf.append(" MAXPCT("+obj+")");
+          if (obj.equals(CALCULATE_FLOAT)) {
+            obj = DEFAULT;
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting maximumPoolSize to DEFAULT.");
+            }
+          }
+          cmdBuf.append(" MAXPCT("+obj.toString()+")");
         }
 
         obj = changesTable_.get("minimumFaults");
         if (obj != null) {
-          cmdBuf.append(" MINFAULT("+obj+")");
+          if (obj.equals(CALCULATE_FLOAT)) {
+            obj = DEFAULT;
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting minimumFaults to DEFAULT.");
+            }
+          }
+          cmdBuf.append(" MINFAULT("+obj.toString()+")");
         }
 
         obj = changesTable_.get("perThreadFaults");
         if (obj != null) {
-          cmdBuf.append(" JOBFAULT("+obj+")");
+          if (obj.equals(CALCULATE_FLOAT)) {
+            obj = DEFAULT;
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting perThreadFaults to DEFAULT.");
+            }
+          }
+          cmdBuf.append(" JOBFAULT("+obj.toString()+")");
         }
 
         obj = changesTable_.get("maximumFaults");
         if (obj != null) {
-          cmdBuf.append(" MAXFAULT("+obj+")");
+          if (obj.equals(CALCULATE_FLOAT)) {
+            obj = DEFAULT;
+            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+              Trace.log(Trace.WARNING, "Setting maximumFaults to DEFAULT.");
+            }
+          }
+          cmdBuf.append(" MAXFAULT("+obj.toString()+")");
         }
 
         if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
@@ -374,27 +437,36 @@ public class SystemPool
 
         obj = changesTable_.get("minimumPoolSize");
         if (obj == null) obj = NO_CHANGE;
+        else if (obj.equals(CALCULATE_FLOAT)) obj = CALCULATE_INTEGER;
+        else obj = convertToHundredths(obj); // the API expect units of hundredths
         parmList[7] = new ProgramParameter(bin4.toBytes(obj));
 
         obj = changesTable_.get("maximumPoolSize");
         if (obj == null) obj = NO_CHANGE;
+        else if (obj.equals(CALCULATE_FLOAT)) obj = CALCULATE_INTEGER;
+        else obj = convertToHundredths(obj);
         parmList[8] = new ProgramParameter(bin4.toBytes(obj));
 
         obj = changesTable_.get("minimumFaults");
         if (obj == null) obj = NO_CHANGE;
+        else if (obj.equals(CALCULATE_FLOAT)) obj = CALCULATE_INTEGER;
+        else obj = convertToHundredths(obj);
         parmList[9] = new ProgramParameter(bin4.toBytes(obj));
 
         obj = changesTable_.get("perThreadFaults");
         if (obj == null) obj = NO_CHANGE;
+        else if (obj.equals(CALCULATE_FLOAT)) obj = CALCULATE_INTEGER;
+        else obj = convertToHundredths(obj);
         parmList[10] = new ProgramParameter(bin4.toBytes(obj));
 
         obj = changesTable_.get("maximumFaults");
         if (obj == null) obj = NO_CHANGE;
+        else if (obj.equals(CALCULATE_FLOAT)) obj = CALCULATE_INTEGER;
+        else obj = convertToHundredths(obj);
         parmList[11] = new ProgramParameter(bin4.toBytes(obj));
 
         ProgramCall pgm = new ProgramCall(system_);
         // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
-        //pgm.setThreadSafe(false);  // QUSCHGPA isn't threadsafe.
 
         try
         {
@@ -1233,19 +1305,23 @@ public class SystemPool
 
     // Length of receiver variable
     parmList[1] = new ProgramParameter(bin4.toBytes(receiverLength));
+    if (DEBUG) System.out.println("QWCRSSTS parm 2: " + receiverLength);
 
     // Format name
     text = new AS400Text(8, system_.getCcsid(), system_);
     parmList[2] = new ProgramParameter(text.toBytes(systemStatusFormat_.getName()));
+    if (DEBUG) System.out.println("QWCRSSTS parm 3: " + systemStatusFormat_.getName());
 
     // Reset status statistics
     text = new AS400Text(10, system_.getCcsid(), system_);
     parmList[3] = new ProgramParameter(text.toBytes("*NO"));
     // Note that this parm is ignored for formats SSTS0100 and SSTS0500.
+    if (DEBUG) System.out.println("QWCRSSTS parm 4: " + "*NO");
 
     // Error code
     byte[] errorInfo = new byte[32];
     parmList[4] = new ProgramParameter(errorInfo, 0);
+    if (DEBUG) System.out.println("QWCRSSTS parm 5: " + "0");
 
     if (numParms > 5)
     {
@@ -1271,13 +1347,28 @@ public class SystemPool
       System.arraycopy(poolNam,  0, poolSelectionInformation, 10, 10);
       System.arraycopy(poolId,   0, poolSelectionInformation, 20,  4);
       parmList[5] = new ProgramParameter(poolSelectionInformation);
+      if (DEBUG) System.out.println("QWCRSSTS parm 6: type==|" + typeOfPool +"| , name==|"+ sharedPoolName.toString() +"| , ID==|"+ systemPoolIdentifier +"|");
 
       // Size of pool selection information.
       // Valid values are 0, 20, or 24
       parmList[6] = new ProgramParameter(bin4.toBytes(24));  // size is 24 bytes
+      if (DEBUG) System.out.println("QWCRSSTS parm 7: " + "24");
     }
 
     return parmList;
+  }
+
+
+  private static final boolean isValidSharedPoolName(String name)
+  {
+    if (name.equals("*ALL") ||
+        name.equals("*MACHINE") ||
+        name.equals("*BASE") ||
+        name.equals("*INTERACT") ||
+        name.equals("*SPOOL") ||
+        name.startsWith("*SHRPOOL"))
+      return true;
+    else return false;
   }
 
   /**
@@ -1325,7 +1416,11 @@ public class SystemPool
           Trace.log(Trace.ERROR, msgList[i].toString());
         }
       }
-      throw new AS400Exception(msgList);
+      if (isSharedPool_ && !isValidSharedPoolName(poolName_)) {
+        Trace.log(Trace.ERROR, "Invalid name for shared pool: "+poolName_);
+        throw new ObjectDoesNotExistException(poolName_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+      }
+      else throw new AS400Exception(msgList);
     }
     byte[] retrievedData = parmList[0].getOutputData();
     Record rec = systemStatusFormat_.getNewRecord(retrievedData);
@@ -1532,9 +1627,9 @@ public class SystemPool
       * The sum of minimum faults and per-thread faults must be less than the
       * value of the maximum faults parameter.  Each value is used by the
       * system if the performance adjustment (QPFRADJ) system value is set to
-      * 2 or 3.  If you want the system to calculate the priority, you must
-      * specify SystemPool.CALCULATE for each parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param minValue The new minimum faults-per-second guideline.
       * @param perValue The new faults per second for each active thread.
@@ -1593,9 +1688,9 @@ public class SystemPool
       * pool.  The sum of minimum faults and per-thread faults must be less than the
       * value of the maximum faults parameter.  This value is used by the
       * system if the performance adjustment (QPFRADJ) system value is set to
-      * 2 or 3.  If you want the system to calculate the priority, you must
-      * specify SystemPool.CALCULATE for this parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param value The new maximum faults-per-second guideline.
       * @exception AS400Exception If the system returns an error
@@ -1627,11 +1722,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!isSharedPool_) throwUnsupported();
-       Integer maxFaults;
-       if (value == CALCULATE) maxFaults = CALCULATE_OBJ;
-       else maxFaults = new Integer((int)(value*100));
-
-       set("maximumFaults", maxFaults);
+       set("maximumFaults", new Float(value));
      }
 
      /**
@@ -1639,9 +1730,9 @@ public class SystemPool
       * (as a percentage of total main storage).  This value cannot be
       * less than the minimum pool size % parameter value.  This value is used
       * by the system if the performance adjustment (QPFRADJ) system value
-      * is set to 2 or 3.  If you want the system to calculate the priority,
-      * you must specify SystemPool.CALCULATE for this parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * is set to 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param value The new maximum pool size.
       * @exception AS400Exception If the system returns an error
@@ -1673,11 +1764,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!isSharedPool_) throwUnsupported();
-       Integer obj;
-       if (value == CALCULATE) obj = CALCULATE_OBJ;
-       else obj = new Integer((int)(value*100));
-
-       set("maximumPoolSize", obj);
+       set("maximumPoolSize", new Float(value));
      }
 
      /**
@@ -1731,7 +1818,8 @@ public class SystemPool
       * calculate the priority, you must specify -2 for this parameter.  If
       * you do not want this value to change, you may specify -1 for this
       * parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param value The new minumum faults-per-second guideline.
       *
@@ -1764,11 +1852,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!isSharedPool_) throwUnsupported();
-       Integer obj;
-       if (value == CALCULATE) obj = CALCULATE_OBJ;
-       else obj = new Integer((int)(value*100));
-
-       set("minimumFaults", obj);
+       set("minimumFaults", new Float(value));
      }
 
      /**
@@ -1776,9 +1860,9 @@ public class SystemPool
       * (as a percentage of total main storage).  Maximum value cannot be
       * less than the minimum pool size % parameter value.  Each value is used
       * by the system if the performance adjustment (QPFRADJ) system value
-      * is set to 2 or 3.  If you want the system to calculate the priority,
-      * you must specify SystemPool.CALCULATE for each parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * is set to 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param minValue The new minimum pool size.
       * @param maxValue The new maximum pool size.
@@ -1835,9 +1919,9 @@ public class SystemPool
       * (as a percentage of total main storage).  This value cannot be
       * greater than the maximum pool size % parameter value.  This value is
       * used by the system if the performance adjustment (QPFRADJ) system
-      * value is set to 2 or 3.  If you want the system to calculate the
-      * priority, you must specify SystemPool.CALCULATE for this parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * value is set to 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param value  The new minimum pool size.
       * @exception AS400Exception If the system returns an error
@@ -1870,11 +1954,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!isSharedPool_) throwUnsupported();
-       Integer obj;
-       if (value == CALCULATE) obj = CALCULATE_OBJ;
-       else obj = new Integer((int)(value*100));
-
-       set("minimumPoolSize", obj);
+       set("minimumPoolSize", new Float(value));
      }
 
      /**
@@ -1928,9 +2008,9 @@ public class SystemPool
       * pool.  This result is added to the minimum faults parameter to
       * calculate the faults-per-second guideline to use for this pool.  This
       * value is used by the system if the performance adjustment (QPFRADJ)
-      * system value is set to 2 or 3.  If you want the system to calculate
-      * the priority, you must specify SystemPool.CALCULATE for this parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * system value is set to 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param value The new faults.
       * @exception AS400Exception If the system returns an error
@@ -1962,11 +2042,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!isSharedPool_) throwUnsupported();
-       Integer obj;
-       if (value == CALCULATE) obj = CALCULATE_OBJ;
-       else obj = new Integer((int)(value*100));
-
-       set("perThreadFaults", obj);
+       set("perThreadFaults", new Float(value));
      }
 
      /**
@@ -2171,10 +2247,9 @@ public class SystemPool
       * Sets the priority of this pool relative the priority of the other
       * storage pools.  Valid values are 1 through 14.  The priority for the
       * *MACHINE pool must be 1.  This value is used by the system if the
-      * performance adjustment (QPFRADJ) system value is set to 2 or 3.  If
-      * you want the system to calculate the priority, you must specify
-      * SystemPool.CALCULATE_INT for this parameter.
-      * <br>Note: This method is not supported for private (subsystem) pools.
+      * performance adjustment (QPFRADJ) system value is set to 2 or 3.
+      * <br>Note: This method is supported only for shared pools,
+      * not for private (subsystem) pools.
       *
       * @param value The new priority.
       * @exception AS400Exception If the system returns an error
