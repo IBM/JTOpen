@@ -10,7 +10,14 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
-
+//
+// @A3 - 10/30/2007 - The NULL Field Byte Map array must be set based on the 
+//       maximum number of fields for any format in a given file.  Refer to 
+//       more detailed explanation for related changes in 
+//       DDMObjectDataStream.java (@A1)
+//       There is also a related change in AS400FileImplRemote.java
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
 import java.beans.PropertyVetoException;
@@ -2229,13 +2236,35 @@ class AS400FileImplNative extends AS400FileImplBase
         int recordIncrement = openFeedback_.getRecordIncrement();
         byte[] recordData = new byte[recordIncrement];
         System.arraycopy(record.getContents(), 0, recordData, 0, record.getRecordLength());
+
+        // Start of changes for -----------------------------------------    @A3A
+        // Determine the maxNumberOfFieldsPerFormatInFile for the file
+        // remembering that multi-format logical files may have a different
+        // number of getNumberOfFields() per record format.
+        // DDMObjectDataStream.getObjectS38BUF() needs maxNumberOfFieldsPerFormatInFile
         int numFields = record.getNumberOfFields();
-        int fieldOffset = recordIncrement - numFields;
+        int maxNumberOfFieldsPerFormatInFile = numFields;
+        if (rfCache_ == null)
+        {
+          // Use default maxNumberOfFieldsPerFormatInFile == numFields
+        }
+        else // Determine if a different record format has more fields (i.e. find the max)
+        {
+          int numberOfRecordFormats = rfCache_.length;
+          for(int i = 0; i < numberOfRecordFormats; ++i)
+          {
+            maxNumberOfFieldsPerFormatInFile = 
+              Math.max(maxNumberOfFieldsPerFormatInFile, rfCache_[i].getNumberOfFields());
+          }
+        }
+        // End of changes for -------------------------------------------    @A3A
+
+        int fieldOffset = recordIncrement - maxNumberOfFieldsPerFormatInFile; //@A3C
         for (int i = 0; i < numFields; ++i, ++fieldOffset)
         {
             recordData[fieldOffset] = (record.isNullField(i))? (byte)0xF1 : (byte)0xF0;
         }
-
+  
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
@@ -2289,6 +2318,29 @@ class AS400FileImplNative extends AS400FileImplBase
           new byte[(records.length < blockingFactor_ ? //@C0C
                     records.length : blockingFactor_) * //@C0C
                    recordIncrement];
+
+        // Start of changes for -----------------------------------------    @A3A
+        // Determine the maxNumberOfFieldsPerFormatInFile for the file
+        // remembering that multi-format logical files may have a different
+        // number of getNumberOfFields() per record format.
+        // DDMObjectDataStream.getObjectS38BUF() needs maxNumberOfFieldsPerFormatInFile
+        int maxNumberOfFieldsPerFormatInFile = -1;
+        if (rfCache_ == null)
+        {
+          // Use default maxNumberOfFieldsPerFormatInFile == -1
+        }
+        else // Determine if a different record format has more fields (i.e. find the max)
+        {
+          int numberOfRecordFormats = rfCache_.length;
+          for(int i = 0; i < numberOfRecordFormats; ++i)
+          {
+            maxNumberOfFieldsPerFormatInFile = 
+              Math.max(maxNumberOfFieldsPerFormatInFile, rfCache_[i].getNumberOfFields());
+          }
+        }
+        // End of changes for -------------------------------------------    @A3A
+
+
         for (int offset = 0, r = 1; r <= records.length; r++)
         {
             // Copy the record data to the record data buffer.
@@ -2300,8 +2352,15 @@ class AS400FileImplNative extends AS400FileImplBase
             // There may be a gap between the end of the record data and the
             // start of the null field byte map.
             int numFields = records[r-1].getNumberOfFields();
-            for (int f = 0, fieldOffset = offset +
-                 (recordIncrement - numFields); f < numFields; fieldOffset++, f++)
+
+            if (maxNumberOfFieldsPerFormatInFile == -1)                    //@A3A
+            {                                                              //@A3A
+              maxNumberOfFieldsPerFormatInFile = numFields;                //@A3A
+            }                                                              //@A3A
+
+
+            for (int f = 0, fieldOffset = offset +                         //@A3C
+                 (recordIncrement - maxNumberOfFieldsPerFormatInFile); f < numFields; fieldOffset++, f++)
             {
                 recordData[fieldOffset] =
                   (records[r-1].isNullField(f) ? (byte) 0xf1 : (byte) 0xf0);
