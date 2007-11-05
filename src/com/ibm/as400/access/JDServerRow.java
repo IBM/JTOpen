@@ -306,7 +306,8 @@ implements JDRow
                             length += 2;        //Add two bytes for length portion on datastream                                        //@K54
                         }                                                           //@K54
                         else if(typeName.equals("VARGRAPHIC") ||                         //@K54  graphics are two-byte characters
-                                typeName.equals("LONG VARGRAPHIC"))                           //@K54
+                                typeName.equals("LONG VARGRAPHIC") ||                          //@K54
+                                typeName.equals("NVARCHAR"))                        //@PD61
                         {                                                           //@K54
                             length = (2 * BinaryConverter.byteArrayToUnsignedShort(rawBytes_, rowDataOffset_ + offset));    //@K54 //get actual length of data
                             length += 2;        //Add two bytes for length portion on datastream                                        //@K54
