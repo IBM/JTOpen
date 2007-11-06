@@ -4242,7 +4242,6 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
-    @return                 The parameter value or 0 if the value is SQL NULL.
         
     @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     @since Modification 5
@@ -4263,7 +4262,6 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
-    @return                 The parameter value or 0 if the value is SQL NULL.
         
     @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
     **/
