@@ -5616,7 +5616,7 @@ implements DatabaseMetaData
     Indicates if the database treats mixed case, quoted SQL identifiers
     as case insensitive and stores them in mixed case.
     
-    @return     Always true. The database does treat mixed case, quoted
+    @return     Always false. The database does not treat mixed case, quoted
                 SQL identifiers as case insensitive and store them in
                 mixed case.
     
@@ -5626,7 +5626,7 @@ implements DatabaseMetaData
     throws SQLException
     {
         // @A2C changed from false to true
-        return true;
+        return false;  //@pdc match other drivers
     }
 
 
