@@ -428,7 +428,7 @@ implements ResultSetMetaData
         checkIndex(columnIndex);
 
         // @G1A If we have column descriptors, use them to get searchable label.              //@G1A
-        if(extendedColumnDescriptors_ != null && concurrency_ != ResultSet.CONCUR_READ_ONLY) //@G1A @G3C
+        if(extendedColumnDescriptors_ != null)// && concurrency_ != ResultSet.CONCUR_READ_ONLY) //@G1A @G3C @36072
         {
             //@G1A
             if(extendedColumnDescriptors_.getUpdateable(columnIndex) == (byte)SQL_READ_ONLY) //@G1A @G2C
