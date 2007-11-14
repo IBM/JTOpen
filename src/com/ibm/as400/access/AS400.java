@@ -1969,10 +1969,14 @@ public class AS400 implements Serializable
             {
                 String thisFileName = "com/ibm/as400/access/AS400.class";
                 String loadFileName = impl.replace('.', '/') + ".class";
-                URL thisUrl = Class.forName("com.ibm.as400.access.AS400").getClassLoader().getResource(thisFileName);
-                URL loadUrl = Class.forName(impl).getClassLoader().getResource(loadFileName);
-                if (thisUrl != null && loadUrl != null)
+                ClassLoader thisLoader = Class.forName("com.ibm.as400.access.AS400").getClassLoader();
+                ClassLoader loadLoader = Class.forName(impl).getClassLoader();
+                if (thisLoader != null && loadLoader != null)
                 {
+                  URL thisUrl = thisLoader.getResource(thisFileName);
+                  URL loadUrl = loadLoader.getResource(loadFileName);
+                  if (thisUrl != null && loadUrl != null)
+                  {
                     String thisPath = thisUrl.getPath();
                     String loadPath = loadUrl.getPath();
                     Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class: " + thisPath);
@@ -1981,8 +1985,9 @@ public class AS400 implements Serializable
                     String loadDirPath = loadPath.length() <= loadFileName.length() ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
                     if (!thisDirPath.equals(loadDirPath))
                     {
-                        Trace.log(Trace.WARNING, "Toolbox classes found at " + thisDirPath + " and " + loadDirPath);
+                      Trace.log(Trace.WARNING, "Toolbox classes found at " + thisDirPath + " and " + loadDirPath);
                     }
+                  }
                 }
             }
             catch (Throwable e)
