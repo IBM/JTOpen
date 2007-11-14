@@ -131,7 +131,18 @@ implements SQLData
         StringBuffer buffer = new StringBuffer();
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.setTime(ts);
-
+        
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);  //@tim2
+        if(hourIn == 24 && hour==0)     //@tim2
+        {//@tim2
+            //db2 represents midnight as 24:00 and midnight + 1 min as 00:01, but in java, 24 is midnight of
+            //the next day (ie calendar.set(2007, 9, 10, 24, 0, 0) toString() -> 2007-10-11 00:00)
+            //java changes 1/1/2007 24:00 -> 1/2/2007 00:00
+            //for Native jdbc driver compliance, code block at bottom replaces "00" with "24", but need to
+            //go back one day to counteract java's conversion.
+            calendar.add(Calendar.DATE, -1); 
+        }//@tim2
+        
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
         buffer.append('-');
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
@@ -139,7 +150,7 @@ implements SQLData
         buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
         buffer.append(' '); //@F6C
         //@F6D buffer.append('-');    // @F3C
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A
+        hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A //@tim2
         // @F4D buffer.append(JDUtilities.padZeros(calendar.get(Calendar.HOUR_OF_DAY), 2));
         buffer.append(JDUtilities.padZeros(hour, 2));       // @F4C
         buffer.append(':');  //@F6C
