@@ -50,10 +50,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     }
 
     // Returns information about the job in which the command/program would be run.
+    // @param threadSafety  The assumed thread safety of the command/program.
     // @return  Information about the job in which the command/program would be run.  This is a String consisting of a 10-character simple job name, a 10-character user name, and a 6-character job number.
     public String getJobInfo(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job infomation from implementation object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job information from implementation object.");
         // Connect to server.
         open(threadSafety);
 
@@ -88,9 +89,9 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         parameterList[5] = new ProgramParameter(new byte[8]);
 
         // Prepare to call the "Retrieve Current Attributes" API.
-        // Design note: QWCRTVCA is documented to be threadsafe.
+        // Design note: QWCRTVCA is documented to be conditionally threadsafe.
 
-        // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or through the host servers, we will issue the job info query accordingly, either on-thread or through the host servers, in order to get the appropriate Job.
+        // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or through the host servers (as indicated by the 'threadsafety' flag), we will issue the job info query accordingly, either on-thread or through the host servers, in order to get the appropriate Job.
 
         // Retrieve Current Attributes.  Failure is returned as a message list.
         try
@@ -131,6 +132,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     }
 
     // Connects to the server.
+    // @param threadSafety  The assumed thread safety of the command/program.
     protected void open(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Remote implementation object open.");
@@ -179,6 +181,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
+
+    // @param threadSafety  The assumed thread safety of the command/program.
     public boolean runCommand(String command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running command: " + command);
@@ -361,6 +365,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         System.arraycopy(serviceParameterList, 0, programParameterList, 7, serviceParameterList.length);
 
         // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or through the host servers, we will issue the service program call request accordingly, either on-thread or through the host servers.
+        // Design note: The QZRUCLSP API itself is not documented to be threadsafe.
         if (!runProgram("QSYS", "QZRUCLSP", programParameterList, threadSafety, messageCount))
         {
             return null;
