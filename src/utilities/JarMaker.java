@@ -294,6 +294,10 @@ public class JarMaker
   static final int            ENDS_WITH     = 2;
   static final int            CONTAINS      = 3;
 
+  private static boolean noSHA_ = false;  // turns on if we don't find SHA algorithm
+  private static boolean noMD5_ = false;  // turns on if we don't find MD5 algorithm
+
+
   // Variables.
 
   boolean verbose_;      // Verbose output mode.
@@ -606,31 +610,43 @@ public class JarMaker
      String line2 = new String("Digest-Algorithms: SHA MD5");
      String line3 = null;  // SHA-Digest: <value>
      String line4 = null;  // MD5-Digest: <value>
+
      byte[] fileContents = getBytes(file); // read file into byte array
-     try
+
+     if (!noSHA_)
      {
-       MessageDigest shaMD = MessageDigest.getInstance("SHA");
-       byte[] shaDigest = shaMD.digest(fileContents);
-       line3 = new String("SHA-Digest: " + shaDigest);
-     }
-     catch (NoSuchAlgorithmException e) {
-       if (DEBUG)
-         System.err.println("Debug: Warning: Manifest entry " +
-                             "will contain no SHA digest:");
-         System.err.println("       " + file.getAbsolutePath());
+       try
+       {
+         MessageDigest shaMD = MessageDigest.getInstance("SHA");
+         byte[] shaDigest = shaMD.digest(fileContents);
+         line3 = new String("SHA-Digest: " + shaDigest);
+       }
+       catch (NoSuchAlgorithmException e) {
+         noSHA_ = true;
+         if (DEBUG) {
+           System.err.println("Debug: Warning: Manifest entry " +
+                              "will contain no SHA digest:");
+           System.err.println("       " + file.getAbsolutePath());
+         }
+       }
      }
 
-     try
+     if (!noMD5_)
      {
-       MessageDigest md5MD = MessageDigest.getInstance("MD5");
-       byte[] md5Digest = md5MD.digest(fileContents);
-       line4 = new String("MD5-Digest: " + md5Digest);
-     }
-     catch (NoSuchAlgorithmException e) {
-       if (DEBUG)
-         System.err.println("Debug: Warning: Manifest entry " +
-                             "will contain no MD5 digest:");
-         System.err.println("       " + file.getAbsolutePath());
+       try
+       {
+         MessageDigest md5MD = MessageDigest.getInstance("MD5");
+         byte[] md5Digest = md5MD.digest(fileContents);
+         line4 = new String("MD5-Digest: " + md5Digest);
+       }
+       catch (NoSuchAlgorithmException e) {
+         noMD5_ = true;
+         if (DEBUG) {
+           System.err.println("Debug: Warning: Manifest entry " +
+                              "will contain no MD5 digest:");
+           System.err.println("       " + file.getAbsolutePath());
+         }
+       }
      }
 
      if ((line1 != null && line2 != null) &&
@@ -652,9 +668,10 @@ public class JarMaker
        }
        buffer.append('\n'); // terminate the section with a zero-length line
      }
-     else
+     else {
        System.err.println("Error: Failed to construct manifest entry for file");
        System.err.println("       " + file.getAbsolutePath());
+     }
    }
 
 
@@ -712,9 +729,10 @@ public class JarMaker
       if (parentDirName == null)
         throw new NullPointerException("parentDirectory");
       File outFileDir = new File(parentDirName);
-      if (!outFileDir.exists() && !outFileDir.mkdirs())
+      if (!outFileDir.exists() && !outFileDir.mkdirs()) {
         throw new IOException(outFileDir.getAbsolutePath() +
-                               ": Cannot create directory.");
+                              ": Cannot create directory.");
+      }
       byte[] buffer = new byte[BUFFER_SIZE];
       try
       {
@@ -936,9 +954,10 @@ public class JarMaker
         if (entryName.endsWith("/"))
         { // Simply create the directory.  Remove the final separator.
           File outFileDir = new File(filePath.substring(0, filePath.length()-1));
-          if (!outFileDir.exists() && !outFileDir.mkdirs())
+          if (!outFileDir.exists() && !outFileDir.mkdirs()) {
             throw new IOException(outFileDir.getAbsolutePath() +
-                                   ": Cannot create directory.");
+                                  ": Cannot create directory.");
+          }
         }
         else
         {
@@ -1216,9 +1235,10 @@ public class JarMaker
      try
      {
        int bytesRead = inStream.read(buffer);
-       if (bytesRead < fileSize)
+       if (bytesRead < fileSize) {
          throw new IOException(file.getAbsolutePath() +
                                 ": Failed to read entire file.");
+       }
      }
      catch (IOException e) {
        System.err.println("Error: IOException when reading file");
@@ -1664,7 +1684,6 @@ public class JarMaker
         {
           System.err.println("Error: A specified additional file was not found:");
           System.err.println("       " + file.getAbsolutePath());
-          throw new FileNotFoundException(file.getAbsolutePath());
         }
       }
 
@@ -2325,8 +2344,9 @@ public class JarMaker
     while (e.hasMoreElements())
     {
       File file = (File)e.nextElement();
-      if (!additionalFiles_.containsKey(file))
+      if (!additionalFiles_.containsKey(file)) {
         additionalFiles_.put(file, baseDirectory);
+      }
     }
     // Postpone verification of files' existence until we need to read them,
     // since we don't want setter throwing "file not found" exceptions.
@@ -3042,9 +3062,10 @@ public class JarMaker
         }
       }  // end of 'while' loop
 
-      if (outFile.length() > splitSize)
+      if (outFile.length() > splitSize) {
         System.err.println("Error: Generated file exceeds specified size:");
         System.err.println("       " + outFile.getAbsolutePath());
+      }
     }
     catch (ZipException e) {
       System.err.println("Error: ZipException when writing to file");

@@ -495,7 +495,7 @@ public class ToolboxJarMaker extends JarMaker
   private static final String CAIV = "com/ibm/as400/vaccess/";
   private static final String CAISA = "com/ibm/as400/security/auth/";
 
-  private static final String COPYRIGHT_ENTRY_NAME = CAIA + "copyright.txt";
+  private static final String COPYRIGHT_ENTRY_NAME = CAIA + "Copyright.class";
 
   static final String DEFAULT_SOURCE_JAR_NAME = "jt400.jar";
 
@@ -641,7 +641,10 @@ public class ToolboxJarMaker extends JarMaker
   private static String addMriSuffix(String entryName, String languageSuffix)
   {
     // Insert the language ID into the entry name after the "MRI".
-    int insertionPosition = entryName.lastIndexOf("MRI") + 3;
+    // Note that MRI entries are named "com/ibm/as400/xxx/xxxMRIxxx.class".
+    int insertionPosition = entryName.lastIndexOf('.');
+    // If no '.' found, then simply append suffix to end.
+    if (insertionPosition == -1) insertionPosition = entryName.length();
     StringBuffer buf = new StringBuffer(entryName);
     buf.insert(insertionPosition, "_"+languageSuffix);
     return buf.toString();
