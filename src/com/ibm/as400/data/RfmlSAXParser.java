@@ -358,8 +358,7 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
 
 
   /***************************************************************
-   The following are extensions to the org.xml.sax.HandlerBase
-   which is a default implementation of DocumentHandler.
+   The following are extensions to org.xml.sax.helpers.DefaultHandler
    ****************************************************************/
 
   /** Start element. **/
