@@ -126,6 +126,7 @@ import com.ibm.as400.vaccess.*;
  * }       
  * 
  * </pre>
+ * @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
 **/
 
 public class AS400JDBCDataSourcePane

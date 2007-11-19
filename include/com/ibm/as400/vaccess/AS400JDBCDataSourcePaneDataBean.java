@@ -20,6 +20,7 @@ import java.util.*;
 /**
  * The AS400JDBCDataSourcePaneDataBean class sets data in,
  * and returns data from, the AS400JDBCDataSourcePane component.
+ * @deprecated Use Java Swing instead, along with the classes in package <tt>com.ibm.as400.access</tt>
  */
 
 public class AS400JDBCDataSourcePaneDataBean extends Object
