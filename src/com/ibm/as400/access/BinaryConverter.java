@@ -39,9 +39,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified short into i5/OS format in the specified byte array.
+    Convert the specified short into i5/OS format in a byte array.
     @param  shortValue  The value to be converted to i5/OS format.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 2) with the data type in i5/OS format.
    **/
   public static byte[] shortToByteArray(short shortValue)
   {
@@ -77,9 +77,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into i5/OS format in the specified byte array.
+    Convert the specified int into i5/OS format in a byte array.
     @param  intValue  The value to be converted to i5/OS format.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 4) with the data type in i5/OS format.
    **/
   public static byte[] intToByteArray(int intValue)
   {
@@ -118,9 +118,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into i5/OS format in the specified byte array.
+    Convert the specified float into i5/OS format in a byte array.
     @param  floatValue  The value to be converted to i5/OS format.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 4) with the data type in i5/OS format.
     @deprecated  Use floatToByteArray(float) instead.
    **/
   public static byte[] floatToByteArray(int floatValue)
@@ -131,9 +131,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into i5/OS format in the specified byte array.
+    Convert the specified float into i5/OS format in a byte array.
     @param  floatValue  The value to be converted to i5/OS format.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 4) with the data type in i5/OS format.
    **/
   public static byte[] floatToByteArray(float floatValue)
   {
@@ -182,9 +182,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified double into i5/OS format in the specified byte array.
+    Convert the specified double into i5/OS format in a byte array.
     @param  doubleValue  The value to be converted to i5/OS format.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 8) with the data type in i5/OS format.
    **/
   public static byte[] doubleToByteArray(double doubleValue)
   {
@@ -227,9 +227,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into i5/OS format in the specified byte array.
+    Convert the specified int into i5/OS format in a byte array.
     @param  intValue  The value to be converted to i5/OS format.  The integer should be greater than or equal to zero and representable in two bytes.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 2) with the data type in i5/OS format.
    **/
   public static byte[] unsignedShortToByteArray(int intValue)
   {
@@ -267,9 +267,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into i5/OS format in the specified byte array.
+    Convert the specified long into i5/OS format in a byte array.
     @param  longValue  The value to be converted to i5/OS format.  The long should be greater than or equal to zero and representable in four bytes.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 4) with the data type in i5/OS format.
    **/
   public static byte[] unsignedIntToByteArray(long longValue)
   {
@@ -316,9 +316,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into i5/OS format in the specified byte array.
+    Convert the specified long into i5/OS format in a byte array.
     @param  longValue  The value to be converted to i5/OS format.
-    @return  The array with the data type in i5/OS format.
+    @return  An array (of length 8) with the data type in i5/OS format.
    **/
   public static byte[] longToByteArray(long longValue)
   {
