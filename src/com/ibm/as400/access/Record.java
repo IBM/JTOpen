@@ -10,6 +10,22 @@
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+// @A2 11/21/2007 - Change to setField() method to calculation of the value for
+//                  variableFieldLength.  Shift-in/shift-out characters need to
+//                  be included for some CCSIDs.
+//                  Similar change in getField for VARGRAPHIC fields.  The 2-byte
+//                  length field (which preceeds the field data) indicates the 
+//                  number of "graphic characters" (NOT the number of "bytes").
+//                  Each graphic character is 2-bytes each.  Therefore, the code
+//                  must multiply the length by 2 to read the correct number of
+//                  bytes.
+//                  This is opposite from a VARCHAR field... where the 2-byte
+//                  length field (which preceeds the field data) indicates the 
+//                  number of "bytes" of character data (NOT the number of 
+//                  characters).  This is because some characters may be represented
+//                  by a single byte or more than a single byte.
+//                  Fix for CPS DB Item: 795LZ6 - DBCS issue with VARCHAR on JTOpen Record Level Access
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -627,6 +643,16 @@ public class Record implements Serializable
       if (((VariableLengthFieldDescription)f).isVariableLength())
       { // Get the number of bytes returned for the field
         variableFieldLength = BinaryConverter.byteArrayToUnsignedShort(as400Data_, offset);
+        if (f instanceof DBCSGraphicFieldDescription)             //@A2A
+        {                                                         //@A2A
+          // NOTE: The 2-byte length field in a VARGRAPHIC field is the number of "characters" and
+          //       is NOT the number of "bytes".  Each VARGRAPHIC "character" is represented by 
+          //       two bytes.  So, we need to multiply the variableFieldLength by two for VARGRAPHIC.
+          // Note: The 2-byte length field in a VARCHAR field is the number of "bytes", so the  
+          //       variableFieldLength is correct and should not be modified.
+          variableFieldLength *= 2;                               //@A2A        
+        }                                                         //@A2A
+        
         offset += 2;
         // Convert the server data to a Java object
         if ((f instanceof HexFieldDescription))
@@ -834,7 +860,6 @@ public class Record implements Serializable
   }
 
 
-  // @A2A
   /**
    *Returns the values of the key fields in a byte array.
    *@return The values of the key fields in a byte array.
@@ -1476,6 +1501,7 @@ public class Record implements Serializable
    *@param index The position in this record of the field whose contents are to be set.  The <i>index</i> must be between 0 and getNumberOfFields() - 1.
    *@param value The value to which to set the contents of the field.  Specify null for
    *<i>value</i> to indicate that the field is null.
+   * @throws UnsupportedEncodingException 
   **/
   public void setField(int index, Object value)
   {
@@ -1487,8 +1513,7 @@ public class Record implements Serializable
     {
       throw new ExtendedIllegalArgumentException("index", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
-
-
+    
     fields_[index] = value;
     if (recordDescriptionListeners_ != null) fireFieldModifiedEvent();
     if (value == null)
@@ -1501,25 +1526,72 @@ public class Record implements Serializable
       nullFieldMap_[index] = false;
     }
     isConvertedToJava_[index] = true;
+    byte[] convertedFieldBytes = null;                                        //@A2A
     if (!hasDependentFields_)
     { // Keep the contents of as400Data_ up to date so that
       // getContents does not need to do any translation
       int offset = fieldOffsets_[index];
-      int variableFieldLength;
+      int variableFieldLength=0;                                //Initialize @A2C
       FieldDescription f = fieldDescriptions_[index];
       // Check for possible variable length field
       if (f instanceof VariableLengthFieldDescription)
       {
         if (((VariableLengthFieldDescription)f).isVariableLength())
-        { // Set the two byte length portion of the contents
+        { 
+          // Set the two byte length portion of the contents
           if (fields_[index] == null)
           {
-            variableFieldLength = 0;
+            // variableFieldLength = 0; Already set to zero, so no-op      //@A2D
           }
           else
           {
-            variableFieldLength = (f instanceof HexFieldDescription)?
-              ((byte[])fields_[index]).length : ((String)fields_[index]).length();
+              try {                                                                //@A2A
+                // For variable length fields there is a two-byte length field that 
+                // needs to be calculated.  Cannot simply use a String.length() method
+                // on the input parameter "value", because it may need to be converted
+                // to the ccsid of the target sytem which could result in a different
+                // length string (i.e. DBCS which could add shift-in and shift-out 
+                // characters).  Unicode "characters" may be represented by multiple
+                // "bytes", hence the need to carefully calculate the "number of bytes"
+                // for the variableFieldLength (not the number of characters).
+                // Therefore, extract the ccsid, convert the data, and save the length
+                // of the result in variableFieldLength.
+                
+                AS400DataType tmpDataType = f.getDataType();                       //@A2A
+                int textByteCount;                                                    //@A2A
+                if (tmpDataType instanceof AS400Text)                              //@A2A
+                {                                                                  //@A2A
+                  int tmpCcsid  = ((AS400Text)tmpDataType).getCcsid();             //@A2A
+                  convertedFieldBytes = CharConverter.stringToByteArray(tmpCcsid, (String)fields_[index]); //@A2A
+                  textByteCount = convertedFieldBytes.length;                                      //@A2A
+                }                                                                  //@A2A
+                else                                                               //@A2A
+                {                                                                  //@A2A
+                  // Prior to the @A2 fix, the following line of code was used to
+                  // calculate the string length.  It is valid for non-AS400Text
+                  // data types.  Retain this behavior.
+                  textByteCount = ((String)fields_[index]).length();
+                }                                                                  //@A2A
+
+                variableFieldLength = (f instanceof HexFieldDescription)?
+                    ((byte[])fields_[index]).length : textByteCount;               //@A2C
+
+                if (f instanceof DBCSGraphicFieldDescription)             //@A2A
+                {                                                         //@A2A
+                  // NOTE: The 2-byte length field in a VARGRAPHIC field is the number of "characters" and
+                  //       is NOT the number of "bytes".  Each VARGRAPHIC "character" is represented by 
+                  //       two bytes.  So, we need to divide the variableFieldLength by two for VARGRAPHIC.
+                  // Note: The 2-byte length field in a VARCHAR field is the number of "bytes", so the  
+                  //       variableFieldLength is correct and should not be modified.
+                  variableFieldLength /= 2;                               //@A2A        
+                }                                                         //@A2A
+              }                                                                    //@A2A
+              catch(UnsupportedEncodingException e)                                //@A2A
+              {
+                Trace.log(Trace.ERROR, "Record.setField received UnsupportedEncodingException", e);
+                throw new
+                  InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);//@A2A
+              }
           }
           BinaryConverter.unsignedShortToByteArray(variableFieldLength, as400Data_, offset);
           offset += 2;
@@ -1530,8 +1602,17 @@ public class Record implements Serializable
       // level access.
       AS400DataType dType = f.getDataType();
       if (fields_[index] != null)
-      { // Field has a value; convert it to server data
-        dType.toBytes(fields_[index], as400Data_, offset);
+      { 
+        if (convertedFieldBytes != null)                                                           //@A2A
+        {
+          // Use already converted data rather than re-converting the data
+          System.arraycopy(convertedFieldBytes, 0, as400Data_, offset, convertedFieldBytes.length);//@A2A
+        }
+        else
+        {
+          // Field has a value; convert it to server data
+          dType.toBytes(fields_[index], as400Data_, offset);
+        }
       }
       else
       { // Field is null; use the default value for the server data to serve as a place holder for
@@ -1556,6 +1637,7 @@ public class Record implements Serializable
    *@param name The name of the field whose contents are to be set.
    *@param value The value to which to set the contents of the field.  Specify null for
    *<i>value</i> to indicate that the field is null.
+   * @throws UnsupportedEncodingException 
   **/
   public void setField(String name, Object value)
   {
@@ -1563,7 +1645,6 @@ public class Record implements Serializable
     {
       throw new ExtendedIllegalStateException("recordFormat", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
-
     setField(recordFormat_.getIndexOfFieldName(name), value);
   }
 
