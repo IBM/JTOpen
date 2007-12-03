@@ -9,8 +9,8 @@ Copyright (C) 1997-2007 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: August 6, 2007
-<!-- cvs log -rJTOpen_5_4:JTOpen_6_0 -N -d >2007-04-02 -->
+Last updated: December 3, 2007
+<!-- On 2007-12-03: cvs log -rJTOpen_6_0:JTOpen_6_1 -N -d >2007-08-06 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#61">Fixes and enhancements in JTOpen 6.1</A><BR>
 <A HREF="#60">Fixes and enhancements in JTOpen 6.0</A><BR>
 <A HREF="#54">Fixes and enhancements in JTOpen 5.4</A><BR>
 <A HREF="#53">Fixes and enhancements in JTOpen 5.3</A><BR>
@@ -47,6 +48,41 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="61">Fixes and enhancements in JTOpen 6.1</A> <i>(released 2008-01-04)</i></H3>
+<PRE>
+- <i>Various:</i>  Javadoc updates.
+- AS400:  Eliminate swallowed NullPointerException.
+- Command call:  Add support to follow proxy command chain.
+- IFS:  Correctly recognize QSYS objects, particularly PRTF objects.
+- IFS:  Eliminate double close requests from finalizer.
+- JDBC:  Add check for closed resultset when checking holdability.
+- JDBC:  Client Functional Level update.
+- JDBC:  Fix for cursor holdability of stored procedures.
+- JDBC:  Fix timestamep so that 24:00 on day n does not advance to 24:00 on day n+1.
+- JDBC:  Fix to ignore some warnings when sqlState starts with 00 or 02.
+- JDBC:  Get scroll type from cursor attrs if exist.
+- JDBC:  JDBC 4.0 additional column in getColumns().
+- JDBC:  Match Native driver truncation on future releases when PreparedStatement.setString() is used.
+- JDBC:  Method JDLobLocator.free() not supported on V5R4 or earlier releases of System i.
+- JDBC:  NVARCHAR length fix.
+- JDBC:  New column in getProcedures() for JDBC 4.
+- JDBC:  Return "NCHAR"  and "NVARCHAR" from getTypeName() for CCSIDs 13488 and 1200.
+- JDBC:  Return first occurrence of column when calling ResultSet.findColumn(String) when there are more than one column with same name.
+- JDBC:  Update getDatabaseMajorVersion and getDatabaseMinorVersion to reflect actual versions from host server.
+- JDBC:  Update minor version.
+- JDBC:  isReadOnly method fix.
+- JDBC: Fix for non-capitalized schema names in getProcedureColumns method.
+- JDBC: Fix storesMixedCaseQuotedIdentifiers method to return false.
+- PCML:  Fix for JTOpen bug 1778759 - set the global isXPCML variable.
+- Permissions:  Permissions.commit() sensitivity of DLO object.
+- RLA:  Add Note to readNextEqual() methods regarding locking.
+- RLA:  Change to ignore *NONE keys in addKeyFieldDescription().
+- RLA:  Corrected field length calculation for DBCS VARCHAR and VARGRAPHIC fields.
+- RLA:  Fix for JTOpen bug 1796143 - Writing to a multiple format file fails.
+- System pool:  Improve handling of shared pools.
+</PRE>
 
 <HR>
 <H3><A NAME="60">Fixes and enhancements in JTOpen 6.0</A> <i>(released 2007-08-20)</i></H3>
