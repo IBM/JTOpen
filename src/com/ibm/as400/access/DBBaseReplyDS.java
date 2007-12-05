@@ -665,6 +665,12 @@ Parses the datastream.
           {
             dataFormat_ = new DBOriginalDataFormat ();
             dataFormat_.overlay (data_, offset + 6);
+          }          
+          else                                    //@79jqev
+          {
+              dataFormat_ = null;                 //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty data format.");  //@79jqev
           }
           break;
 
@@ -674,6 +680,12 @@ Parses the datastream.
           {
             resultData_ = new DBOriginalData (parmLength, oldCompressed);         // @D1C @E2C
             resultData_.overlay (data_, offset + 6);
+          }
+          else                                    //@79jqev
+          {
+              resultData_ = null;                 //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty result data.");  //@79jqev
           }
           break;
 
@@ -689,6 +701,12 @@ Parses the datastream.
           {
             parameterMarkerFormat_ = new DBOriginalDataFormat ();
             parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          else                                    //@79jqev
+          {
+              parameterMarkerFormat_ = null;      //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty parameter marker format.");  //@79jqev
           }
           break;
 
@@ -716,6 +734,12 @@ Parses the datastream.
             dataFormat_ = new DBExtendedDataFormat ();
             dataFormat_.overlay (data_, offset + 6);
           }
+          else                                    //@79jqev
+          {
+              dataFormat_ = null;                 //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended data format.");  //@79jqev
+          }
           break;
 
           // Extended parameter marker format.
@@ -724,6 +748,12 @@ Parses the datastream.
           {
             parameterMarkerFormat_ = new DBExtendedDataFormat ();
             parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          else                                    //@79jqev
+          {
+              parameterMarkerFormat_ = null;      //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended parameter marker format.");  //@79jqev
           }
           break;
 
@@ -741,6 +771,12 @@ Parses the datastream.
             // @C1D lobData_ = new DBByteSubarray (parmLength - 6);
             // @C1D lobData_.overlay (data_, offset + 6);
           }
+          else                                    //@79jqev
+          {
+              resultData_ = null;                 //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended result data.");  //@79jqev
+          }
           break;
 
           // LOB locator data.                                                    // @C1A
@@ -753,6 +789,12 @@ Parses the datastream.
             lobData_ = new DBLobData (length, parmLength -12, oldCompressed);  // @C1A @D2C @D4C @E2C @E4C
             lobData_.overlay (data_, offset + 12);                          // @C1A
           }                                                                   // @C1A
+          else                                    //@79jqev
+          {                                       //@79jqev
+              lobData_ = null;                    //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty lob locator.");  //@79jqev
+          }                                       //@79jqev
           break;
 
           // @E6   Warning, currentLOBLength_ is wrong if the lob is a
@@ -786,6 +828,12 @@ Parses the datastream.
             extendedColumnDescriptors_ = new DBExtendedColumnDescriptors(     // @G4A
                data_, offset + 6);                                            // @G4A
           }                                                                   // @G4A
+          else                                    //@79jqev
+          {
+              extendedColumnDescriptors_ = null;  //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended column descriptor.");  //@79jqev
+          }
           break;                                                           
 
         // Super Extended data format.       //@540 
@@ -796,6 +844,12 @@ Parses the datastream.
             dataFormat_ = new DBSuperExtendedDataFormat ();
             dataFormat_.overlay (data_, offset + 6);
           }
+          else                                    //@79jqev
+          {
+              dataFormat_ = null;                 //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty super extended data format.");  //@79jqev
+          }
           break;
 
         // Super Extended parameter marker format.   //@540
@@ -805,6 +859,12 @@ Parses the datastream.
               //System.out.println("extended parameter marker format");
             parameterMarkerFormat_ = new DBSuperExtendedDataFormat ();
             parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          else                                    //@79jqev
+          {
+              parameterMarkerFormat_ = null;      //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty parameter marker format.");  //@79jqev
           }
           break;
           
@@ -817,6 +877,15 @@ Parses the datastream.
               scrollable = (attrs >> 16) & 0x0001;
               updatable = (attrs >> 8) & 0x0001;
               sensitive = ((attrs >> 0) & 0x0001) == 1 ? 0 : 1; //attr from zda is INsensitive          
+          }
+          else                                    //@79jqev
+          {                                       //@79jqev
+              holdable = -1;                      //@79jqev
+              scrollable = -1;                    //@79jqev
+              updatable = -1;                     //@79jqev
+              sensitive = -1;                     //@79jqev
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty cursor attributes.");  //@79jqev
           }
           break;
       }            
