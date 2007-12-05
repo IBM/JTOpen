@@ -111,7 +111,7 @@ implements java.sql.Driver
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
         //todo is driver_level info in code anywhere else that we could use? 
-        static final String DRIVER_LEVEL_           = "06010000"; // example V5R4M0.0 -> 05040000 (needed for hidden clientInfo in Brent's spec) (each # is 2 digits in length), should match version in Copyright.java  //@PDA jdbc40
+        static final String DRIVER_LEVEL_           = "06010002"; // example V5R4M0.0 -> 05040000 (needed for hidden clientInfo in Brent's spec) (each # is 2 digits in length), should match version in Copyright.java  //@PDA jdbc40 @jt61
 
 
 	// This string "9999:9999" is returned when resource
