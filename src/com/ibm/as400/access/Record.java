@@ -1558,23 +1558,20 @@ public class Record implements Serializable
                 // of the result in variableFieldLength.
                 
                 AS400DataType tmpDataType = f.getDataType();                       //@A2A
-                int textByteCount;                                                    //@A2A
                 if (tmpDataType instanceof AS400Text)                              //@A2A
                 {                                                                  //@A2A
                   int tmpCcsid  = ((AS400Text)tmpDataType).getCcsid();             //@A2A
                   convertedFieldBytes = CharConverter.stringToByteArray(tmpCcsid, (String)fields_[index]); //@A2A
-                  textByteCount = convertedFieldBytes.length;                                      //@A2A
+                  variableFieldLength = convertedFieldBytes.length;                                      //@A2A
                 }                                                                  //@A2A
                 else                                                               //@A2A
                 {                                                                  //@A2A
                   // Prior to the @A2 fix, the following line of code was used to
                   // calculate the string length.  It is valid for non-AS400Text
                   // data types.  Retain this behavior.
-                  textByteCount = ((String)fields_[index]).length();
+                  variableFieldLength = (f instanceof HexFieldDescription)?
+                      ((byte[])fields_[index]).length :  ((String)fields_[index]).length(); //@A2C
                 }                                                                  //@A2A
-
-                variableFieldLength = (f instanceof HexFieldDescription)?
-                    ((byte[])fields_[index]).length : textByteCount;               //@A2C
 
                 if (f instanceof DBCSGraphicFieldDescription)             //@A2A
                 {                                                         //@A2A
