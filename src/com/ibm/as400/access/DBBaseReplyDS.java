@@ -670,7 +670,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty data format.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty data format.");  //@79jqev
           }
           break;
 
@@ -684,7 +684,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty result data.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty result data.");  //@79jqev
           }
           break;
 
@@ -704,7 +704,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty parameter marker format.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty parameter marker format.");  //@79jqev
           }
           break;
 
@@ -735,7 +735,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended data format.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty extended data format.");  //@79jqev
           }
           break;
 
@@ -749,7 +749,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended parameter marker format.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty extended parameter marker format.");  //@79jqev
           }
           break;
 
@@ -770,7 +770,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended result data.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty extended result data.");  //@79jqev
           }
           break;
 
@@ -787,7 +787,7 @@ Parses the datastream.
           else                                    //@79jqev
           {                                       //@79jqev
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty lob locator.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty lob locator.");  //@79jqev
           }                                       //@79jqev
           break;
 
@@ -825,7 +825,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty extended column descriptor.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty extended column descriptor.");  //@79jqev
           }
           break;                                                           
 
@@ -840,7 +840,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty super extended data format.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty super extended data format.");  //@79jqev
           }
           break;
 
@@ -855,7 +855,7 @@ Parses the datastream.
           else                                    //@79jqev
           {
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty parameter marker format.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty parameter marker format.");  //@79jqev
           }
           break;
           
@@ -872,7 +872,7 @@ Parses the datastream.
           else                                    //@79jqev
           {                                       //@79jqev
               if (Trace.traceOn_)                 //@79jqev
-                  Trace.log(Trace.DIAGNOSTIC, "DBBaseReplyDS received empty cursor attributes.");  //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty cursor attributes.");  //@79jqev
           }
           break;
       }            
