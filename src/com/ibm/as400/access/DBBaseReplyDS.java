@@ -875,6 +875,9 @@ Parses the datastream.
                   Trace.log(Trace.DIAGNOSTIC, "Received empty cursor attributes.");  //@79jqev
           }
           break;
+          
+          //README:  When adding a new codepoint, please add any needed initializations 
+          //of references to the initialize() method since this object gets reused.
       }            
 
       offset += parmLength;
