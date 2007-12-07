@@ -142,7 +142,7 @@ class SystemProperties
         ignored_.addElement(propertyName);
     }
 
-    // Loads the properties from the Properties class.
+    // Loads the properties from the Properties class (if one exists on the classpath).
     private static void loadPropertiesFromClass()
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading Properties class: '" + PROPERTIES_CLASS_NAME + "'");
@@ -155,7 +155,7 @@ class SystemProperties
         {
             // We catch Throwable here because certain browsers (to remain nameless) throw ClassFormatError instead of an exception.
             propertiesClassLoadFailed_ = true;
-            if (Trace.isTraceWarningOn()) Trace.log(Trace.WARNING, "Unable to load class: " + PROPERTIES_CLASS_NAME, e);
+            if (Trace.isTraceDiagnosticOn()) Trace.log(Trace.DIAGNOSTIC, "Unable to load class: " + PROPERTIES_CLASS_NAME, e);
         }
     }
 
