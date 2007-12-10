@@ -228,6 +228,8 @@ public class Command implements Serializable
   private boolean refreshedHelpText_ = false;
   private boolean refreshedParsedXML_ = false;
   private boolean loadedDescription_ = false;
+  private boolean detectedMissingPTF_ = false; // V5R4 system is missing PTF SI29629 (5722SS1)
+
 
   // List of property change event bean listeners.
   private transient PropertyChangeSupport propertyChangeListeners_;
@@ -1216,8 +1218,15 @@ public class Command implements Serializable
 
     // Call the QCDRCMDI API to get all of the information.
     int vrm = system_.getVRM();		// @A1A
-	ProgramParameter[] parms = new ProgramParameter[vrm >= 0x00060100 ? 6 : 5];	// @A1C - added support for proxy commands
-	    parms[0] = new ProgramParameter(335); // receiver variable
+    int numParms;
+    if ((vrm >= 0x00060100) ||
+        (vrm >= 0x00050400 && !detectedMissingPTF_)) {
+      numParms = 6;	// @A1C - added support for proxy commands
+    }
+    else numParms = 5;
+
+    ProgramParameter[] parms = new ProgramParameter[numParms];
+    parms[0] = new ProgramParameter(335); // receiver variable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(335)); // length of receiver variable
     parms[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "CMDI0100")); // format name
     byte[] cmdBytes = new byte[20];
@@ -1229,17 +1238,33 @@ public class Command implements Serializable
     text10.toBytes(library, cmdBytes, 10);
     parms[3] = new ProgramParameter(cmdBytes); // qualified command name
     parms[4] = errorCode_;
-    
-    // @A1A - Add support for proxy commands
-	if (vrm >= 0x00060100)		// @A1A
-		parms[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });	// @A1A Follow proxy chain, input CHAR(1)
 
+    // @A1A - Add support for proxy commands
+    ///if (vrm >= 0x00050400)		// @A1A
+    if (numParms > 5)		// @A1A
+      parms[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });	// @A1A Follow proxy chain, input CHAR(1)
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDI.PGM", parms);
     pc.setThreadSafe(true);
 
-    if (!pc.run())
-      throw new AS400Exception(pc.getMessageList());
+    boolean succeeded = pc.run();
+    if (!succeeded)
+    {
+      // If the exception is "MCH0802: Total parameters passed does not match number required" and we're running to V5R4, that means that the user hasn't applied PTF SI29629.  In that case, we will re-issue the program call, minus the new "follow proxy chain" parameter.
+      AS400Message[] msgList = pc.getMessageList();
+      if (numParms > 5 &&
+          vrm < 0x00060100 && vrm >= 0x00050400 &&  // system VRM is V5R4
+          msgList[msgList.length - 1].getID().equals("MCH0802"))  // wrong number of parms
+      {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "PTF SI29629 is not installed: (MCH0802) " + msgList[msgList.length - 1].getText());
+        detectedMissingPTF_ = true;  // remember that the PTF is missing
+        ProgramParameter[] shorterParmList = new ProgramParameter[5];
+        System.arraycopy(parms, 0, shorterParmList, 0, 5);
+        try { pc.setParameterList(shorterParmList); } catch (PropertyVetoException e) {} 
+        succeeded = pc.run();
+      }
+      if (!succeeded) throw new AS400Exception(pc.getMessageList());
+    }
 
     byte[] outputData = parms[0].getOutputData();
     CharConverter conv = new CharConverter(system_.getCcsid());
