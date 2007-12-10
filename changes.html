@@ -54,13 +54,14 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <PRE>
 - <i>Various:</i>  Javadoc updates.
 - AS400:  Eliminate swallowed NullPointerException.
-- Command call:  Add support to follow proxy command chain.
+- AS400:  If no Properties class found, trace a Diagnostic instead of a Warning.
+- Command call:  Add support to follow proxy command chain. Exploit PTF if V5R4.
 - IFS:  Correctly recognize QSYS objects, particularly PRTF objects.
 - IFS:  Eliminate double close requests from finalizer.
 - JDBC:  Add check for closed resultset when checking holdability.
 - JDBC:  Client Functional Level update.
 - JDBC:  Fix for cursor holdability of stored procedures.
-- JDBC:  Fix timestamep so that 24:00 on day n does not advance to 24:00 on day n+1.
+- JDBC:  Fix timestamp so that 24:00 on day n does not advance to 24:00 on day n+1.
 - JDBC:  Fix to ignore some warnings when sqlState starts with 00 or 02.
 - JDBC:  Get scroll type from cursor attrs if exist.
 - JDBC:  JDBC 4.0 additional column in getColumns().
@@ -73,8 +74,9 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC:  Update getDatabaseMajorVersion and getDatabaseMinorVersion to reflect actual versions from host server.
 - JDBC:  Update minor version.
 - JDBC:  isReadOnly method fix.
-- JDBC: Fix for non-capitalized schema names in getProcedureColumns method.
-- JDBC: Fix storesMixedCaseQuotedIdentifiers method to return false.
+- JDBC:  Fix for non-capitalized schema names in getProcedureColumns method.
+- JDBC:  Fix storesMixedCaseQuotedIdentifiers method to return false.
+- JDBC:  Do not re-use stale variables in reply datastream objects.
 - PCML:  Fix for JTOpen bug 1778759 - set the global isXPCML variable.
 - Permissions:  Permissions.commit() sensitivity of DLO object.
 - RLA:  Add Note to readNextEqual() methods regarding locking.
@@ -82,6 +84,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - RLA:  Corrected field length calculation for DBCS VARCHAR and VARGRAPHIC fields.
 - RLA:  Fix for JTOpen bug 1796143 - Writing to a multiple format file fails.
 - System pool:  Improve handling of shared pools.
+- Vaccess: Deprecated last remaining un-deprecated class in package <tt>com.ibm.as400.vaccess</tt>: AS400JDBCDataSourcePane.
 </PRE>
 
 <HR>
