@@ -28,14 +28,13 @@ import java.io.UnsupportedEncodingException;
   * @see SCS5224Writer
   **/
 
- /* @A1C 
+ /* 
   * This class now subclasses SCS5224Writer instead of SCS5219Writer
   * Added Set Presentation of Control Character (SPPC) which required
   * that initPage() be overridden.
   */
 
 
-//public class SCS5553Writer extends SCS5219Writer              //@A1D
 public class SCS5553Writer extends SCS5224Writer
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -60,7 +59,9 @@ public class SCS5553Writer extends SCS5224Writer
     /** Constant for SO takes no position, SI takes 2 A/N/K blanks **/
     public static final int SETCCP_SI_BLANK = 2;            //@A1A
 
-
+    private static final byte [] SCD = {0x2B, (byte)0xD2, 0x04, 0x29,
+        0x00, 0x00};                      
+    
     private static final byte [] DGL = {0x2B, (byte)0xFD, 0x00,
                                         0x00, 0x00, 0x00};
     private static final byte [] SFSS = {0x2B, (byte)0xFD, 0x04,
@@ -146,8 +147,6 @@ public class SCS5553Writer extends SCS5224Writer
     {
         super(out, encoding);
     }
-
-
     
      /*  Sends out controls to initialize the start of a page.
       *
@@ -156,10 +155,56 @@ public class SCS5553Writer extends SCS5224Writer
          throws IOException
     {
        super.initPage();
+       
        // Set the current or default control character presentation.
        setControlCharPresentation(setCCP);      //@A1A
     }
 
+    /** Sets characters per inch.  All following text will be
+     * in the set pitch.
+     *
+     * @param cpi The characters per inch.  Valid values are 10, 12, 13.3, 15, 18 and 20 but 
+     * we won't implement 13.3 for now
+     *
+     * @exception IOException If an error occurs while communicating
+     *   with the system.
+     **/
+   public void setCPI(int cpi)
+          throws IOException
+   {
+      switch (cpi) {
+      case 10:
+         CPI = 10;
+         break;
+      case 12:
+        CPI = 12;
+        break;
+      case 15:
+         CPI = 15;
+         break;
+      case 18:
+        CPI = 18;
+        break;
+      case 20:
+        CPI = 20;
+        break;
+      default:
+         String arg = "CPI (" + String.valueOf(cpi) + ")";
+         throw new ExtendedIllegalArgumentException(arg, 2);
+      } /* endswitch */
+
+      fontOrCPI = CPI_;
+
+//      if (pageStarted_ == true) {                  @A1D
+      if (pageStarted_ == false)                   //@A1A
+         initPage();                               //@A1A
+      
+      // now set the callers CPI
+      byte [] cmd = SCD;
+      cmd[cmd.length-1] = CPI;
+      addToBuffer(cmd);
+   }
+   
     /** Prints a horizontal grid line at the current line.
       *
       * @param start The absolute position in inches, from the left paper edge,
