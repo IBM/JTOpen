@@ -162,6 +162,9 @@ Returns an attribute value.
                         throw new ResourceException(document_.getMessageList(programName));
                     programsCalled_.addElement(programName);
                 }
+                catch (ResourceException re) { // avoid re-wrappering
+                    throw re;
+                }
                 catch (Exception e) {
                     throw new ResourceException(ResourceException.ATTRIBUTES_NOT_RETURNED, e);
                 }
