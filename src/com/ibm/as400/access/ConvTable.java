@@ -356,13 +356,20 @@ abstract class ConvTable
         stringToByteArray(source, buf, offset, length, new BidiConversionProperties(type));
     }
 
-    void stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
+        int truncated = 0; //@trnc
         byte[] b = stringToByteArray(source, properties);
-        if (length > b.length) length = b.length;
+        if (length > b.length) 
+            length = b.length;
+        else if (length < stringToByteArray(source.trim(), properties).length){ //@trnc
+            truncated = b.length - length; //@trnc
+        }
+
         try
         {
             System.arraycopy(b, 0, buf, offset, length);
+            return truncated;  //@trnc
         }
         catch (ArrayIndexOutOfBoundsException aioobe)
         {

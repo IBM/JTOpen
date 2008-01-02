@@ -305,9 +305,10 @@ class ConvTable1208 extends ConvTable
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, length);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         // Don't have a Bidi string type for UTF-8.
         stringToByteArray(source, buf, offset, length);
+        return 0; //@trnc
     }
 }

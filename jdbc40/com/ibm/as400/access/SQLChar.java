@@ -93,7 +93,8 @@ implements SQLData
 
         try
         {
-            ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiConversionProperties); //@KBC bidiStringType);
+            //in cases of variable length chars, check for truncation after conversion
+            truncated_ = ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiConversionProperties); //@KBC bidiStringType);  //@trnc
         }
         catch(CharConversionException e)
         {

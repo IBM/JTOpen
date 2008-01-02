@@ -117,8 +117,9 @@ public class ConvTableUnicodeBigMap extends ConvTable
         stringToByteArray(source, buf, offset, length);
     }
 
-    final void stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         stringToByteArray(source, buf, offset, length);
+        return 0; //@trnc
     }
 }

@@ -671,6 +671,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                     {
                                         //@CRS - This is the only place convertToRawBytes is ever called.
                                         sqlData.convertToRawBytes(parameterMarkerData.getRawBytes(), rowDataOffset + parameterOffsets_[i], ccsidConverter);
+                                        if(ccsidConverter.getCcsid() == 5035) //@trnc this is not caught at setX() time
+                                            testDataTruncation(i+1, sqlData); //@trnc
                                     }
                                     catch(SQLException e)
                                     {
