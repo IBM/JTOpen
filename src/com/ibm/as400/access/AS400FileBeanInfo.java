@@ -6,9 +6,11 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 1997-2008 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
+///////////////////////////////////////////////////////////////////////////////
+// @A1 12/12/2007 Correct EventSet for VetoablePropertyChange
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -74,7 +76,7 @@ public class AS400FileBeanInfo extends SimpleBeanInfo
 
 
       // VetoablePropertyChange
-      eventSet_[2] = new EventSetDescriptor(beanClass_, "propertyVeto",
+      eventSet_[2] = new EventSetDescriptor(beanClass_, "propertyChange", //@A1C
                                             java.beans.VetoableChangeListener.class,
                                             "vetoableChange");
       eventSet_[2].setDisplayName(loader_.getText("EVT_NAME_PROPERTY_VETO"));

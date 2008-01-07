@@ -6,9 +6,11 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2008 International Business Machines Corporation and
 // others. All rights reserved.
 //
+///////////////////////////////////////////////////////////////////////////////
+// @A1 12/12/2007 Correct EventSet for VetoablePropertyChange
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -44,7 +46,8 @@ public class QSYSObjectPathNameBeanInfo extends SimpleBeanInfo
             propertyChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_CHANGE"));
             propertyChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_CHANGE"));
 
-            EventSetDescriptor vetoableChange = new EventSetDescriptor(BEAN_CLASS, "propertyVeto", VetoableChangeListener.class, "vetoableChange");
+            EventSetDescriptor vetoableChange = new EventSetDescriptor(BEAN_CLASS, "propertyChange", //@A1C
+                                                                       VetoableChangeListener.class, "vetoableChange");
             vetoableChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_VETO"));
             vetoableChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_VETO"));
 
