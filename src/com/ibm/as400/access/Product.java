@@ -32,15 +32,15 @@ public class Product
   // Also use this to synchronize access to the user space
   private static final String userSpace_ = "JT4PTF    QTEMP     ";
 
-  private boolean loaded_ = false; // Have we retrieved values from the system yet?
-  private boolean partiallyLoaded_ = false; // Were we constructed from a ProductList?
-  private boolean loadedOptions_ = false; // Have we loaded our option information?
-  private boolean loadedDescriptionText_ = false; // Have we loaded the description yet?
-  private boolean loaded500_ = false; // Have we loaded the PRDR0500 format values?
-  private boolean loaded800_ = false; // Have we loaded the PRDR0500 format values?
-  private boolean error100_ = false; // Did we get an error retrieving the PRDR0100 format values?
-  private boolean error500_ = false; // Did we get an error retrieving the PRDR0500 format values?
-  private boolean error800_ = false; // Did we get an error retrieving the PRDR0800 format values?
+  private boolean loaded_ = false; // Have we retrieved values from the system yet
+  private boolean partiallyLoaded_ = false; // Were we constructed from a ProductList
+  private boolean loadedOptions_ = false; // Have we loaded our option information
+  private boolean loadedDescriptionText_ = false; // Have we loaded the description yet
+  private boolean loaded500_ = false; // Have we loaded the PRDR0500 format values
+  private boolean loaded800_ = false; // Have we loaded the PRDR0500 format values
+  private boolean error100_ = false; // Did we get an error retrieving the PRDR0100 format values
+  private boolean error500_ = false; // Did we get an error retrieving the PRDR0500 format values
+  private boolean error800_ = false; // Did we get an error retrieving the PRDR0800 format values
 
   private AS400 system_;            // never null
   private String productID_;        // never null
@@ -1209,7 +1209,7 @@ public class Product
 
 
   /**
-   * Returns the release level for this product (e.g. "V5R1M0").
+   * Returns the release level for this product.  For example: "V5R1M0".
    * If any of the special values were specified when this object was constructed,
    * the real release level will be retrieved from the system.
    * @return The release level.
