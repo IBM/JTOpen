@@ -28,6 +28,7 @@ public class BinaryConverter
 
   /**
     Convert the specified short into i5/OS format in the specified byte array.
+    The converted value will occupy 2 bytes.
     @param  shortValue  The value to be converted to i5/OS format.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -64,6 +65,7 @@ public class BinaryConverter
 
   /**
     Convert the specified int into i5/OS format in the specified byte array.
+    The converted value will occupy 4 bytes.
     @param  intValue  The value to be converted to i5/OS format.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -104,6 +106,7 @@ public class BinaryConverter
 
   /**
     Convert the specified float into i5/OS format in the specified byte array.
+    The converted value will occupy 4 bytes.
     @param  floatValue  The value to be converted to i5/OS format.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -159,6 +162,7 @@ public class BinaryConverter
 
   /**
     Convert the specified double into i5/OS format in the specified byte array.
+    The converted value will occupy 8 bytes.
     @param  doubleValue  The value to be converted to i5/OS format.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -216,6 +220,7 @@ public class BinaryConverter
 
   /**
     Convert the specified int into i5/OS format in the specified byte array.
+    The converted value will occupy 2 bytes.
     @param  intValue  The value to be converted to i5/OS format.  The integer should be greater than or equal to zero and representable in two bytes.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -252,6 +257,7 @@ public class BinaryConverter
 
   /**
     Convert the specified long into i5/OS format in the specified byte array.
+    The converted value will occupy 4 bytes.
     @param  longValue  The value to be converted to i5/OS format.  The long should be greater than or equal to zero and representable in four bytes.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -294,6 +300,7 @@ public class BinaryConverter
 
   /**
     Convert the specified long into i5/OS format in the specified byte array.
+    The converted value will occupy 8 bytes.
     @param  longValue  The value to be converted to i5/OS format.
     @param  serverValue  The array to receive the data type in i5/OS format.
     @param  offset  The offset into the byte array for the start of the i5/OS value.
@@ -389,6 +396,7 @@ public class BinaryConverter
 
   /**
     Convert the specified byte array to its hexadecimal String representation.
+    Example generated string: "010203047E7F".
     @param  b  The array containing the data.
     @return  A String containing the hex characters that represent the byte data.
    **/
@@ -399,6 +407,7 @@ public class BinaryConverter
 
   /**
     Convert the specified byte array to its hexadecimal String representation.
+    Example generated string: "010203047E7F".
     @param  b  The array containing the data.
     @param offset The offset into the array at which to begin reading bytes.
     @param length The number of bytes to read out of the array.
