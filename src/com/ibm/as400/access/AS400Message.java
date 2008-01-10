@@ -410,7 +410,7 @@ public class AS400Message implements Serializable
 
     /**
      Loads additional message information from the system.  If this message does not have an associated message file, this method does nothing.
-     @param  helpTextFormatting  Formatting performed on the help text.  Valid values for this parameter are defined in the MessageFile class.  They are no formatting, return formatting characters, and replace (substitute) formatting characters.
+     @param  helpTextFormatting  Formatting performed on the help text.  Valid values for this parameter are {@link MessageFile#NO_FORMATTING NO_FORMATTING}, {@link MessageFile#RETURN_FORMATTING_CHARACTERS RETURN_FORMATTING_CHARACTERS}, and {@link MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS SUBSTITUTE_FORMATTING_CHARACTERS}.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the system.
