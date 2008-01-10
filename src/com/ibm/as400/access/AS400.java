@@ -843,14 +843,14 @@ public class AS400 implements Serializable
      <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
      @param  service  The name of the service.  Valid services are:
      <ul>
-     <li>FILE - IFS file classes.
-     <li>PRINT - print classes.
-     <li>COMMAND - command and program call classes.
-     <li>DATAQUEUE - data queue classes.
-     <li>DATABASE - JDBC classes.
-     <li>RECORDACCESS - record level access classes.
-     <li>CENTRAL - licence management classes.
-     <li>SIGNON - sign-on classes.
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
@@ -936,14 +936,14 @@ public class AS400 implements Serializable
      Disconnects the service.  All socket connections associated with this service and this object will be closed.
      @param  service  The name of the service.  Valid services are:
      <ul>
-     <li>FILE - IFS file classes.
-     <li>PRINT - print classes.
-     <li>COMMAND - command and program call classes.
-     <li>DATAQUEUE - data queue classes.
-     <li>DATABASE - JDBC classes.
-     <li>RECORDACCESS - record level access classes.
-     <li>CENTRAL - licence management classes.
-     <li>SIGNON - sign-on classes.
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      **/
     public void disconnectService(int service)
@@ -1088,10 +1088,10 @@ public class AS400 implements Serializable
     /**
      Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the system has been made.  Valid authentication schemes are:
      <ul>
-     <li>AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
-     <li>AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
-     <li>AUTHENTICATION_SCHEME_PROFILE_TOKEN - profile tokens are used.
-     <li>AUTHENTICATION_SCHEME_IDENTITY_TOKEN - identity tokens are used.
+     <li>{@link #AUTHENTICATION_SCHEME_PASSWORD AUTHENTICATION_SCHEME_PASSWORD} - passwords are used.
+     <li>{@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN} - GSS tokens are used.
+     <li>{@link #AUTHENTICATION_SCHEME_PROFILE_TOKEN AUTHENTICATION_SCHEME_PROFILE_TOKEN} - profile tokens are used.
+     <li>{@link #AUTHENTICATION_SCHEME_IDENTITY_TOKEN AUTHENTICATION_SCHEME_IDENTITY_TOKEN} - identity tokens are used.
      </ul>
      @return  The authentication scheme in use for this object.
      **/
@@ -1210,9 +1210,9 @@ public class AS400 implements Serializable
      Returns the option for how the JGSS framework will be used.
      @return  A constant indicating how the JGSS framework will be used.  Valid values are:
      <ul>
-     <li>AS400.GSS_OPTION_MANDATORY
-     <li>AS400.GSS_OPTION_FALLBACK
-     <li>AS400.GSS_OPTION_NONE
+     <li>{@link #GSS_OPTION_MANDATORY GSS_OPTION_MANDATORY}
+     <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
+     <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
      </ul>
      **/
     public int getGSSOption()
@@ -1636,16 +1636,16 @@ public class AS400 implements Serializable
      Returns the service port stored in the service port table for the specified service.
      @param  service  The name of the service.  Valid services are:
      <ul>
-     <li>FILE - IFS file classes.
-     <li>PRINT - print classes.
-     <li>COMMAND - command and program call classes.
-     <li>DATAQUEUE - data queue classes.
-     <li>DATABASE - JDBC classes.
-     <li>RECORDACCESS - record level access classes.
-     <li>CENTRAL - licence management classes.
-     <li>SIGNON - sign-on classes.
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
-     @return  The port specified in the service port table.  The value USE_PORT_MAPPER will be returned if the service has not been set, and the service has not been connected.
+     @return  The port specified in the service port table.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} will be returned if the service has not been set, and the service has not been connected.
      **/
     public int getServicePort(int service)
     {
@@ -1823,14 +1823,14 @@ public class AS400 implements Serializable
      <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @param  service  The name of the service.  Valid services are:
      <ul>
-     <li>FILE - IFS file classes.
-     <li>PRINT - print classes.
-     <li>COMMAND - command and program call classes.
-     <li>DATAQUEUE - data queue classes.
-     <li>DATABASE - JDBC classes.
-     <li>RECORDACCESS - record level access classes.
-     <li>CENTRAL - licence management classes.
-     <li>SIGNON - sign-on classes.
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  true if service is connected; false otherwise.
      **/
@@ -2772,9 +2772,9 @@ public class AS400 implements Serializable
      Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the system.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on the system, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
      @param  gssOption  A constant indicating how GSS will be used.  Valid values are:
      <ul>
-     <li>AS400.GSS_OPTION_MANDATORY
-     <li>AS400.GSS_OPTION_FALLBACK
-     <li>AS400.GSS_OPTION_NONE
+     <li>{@link #GSS_OPTION_MANDATORY GSS_OPTION_MANDATORY}
+     <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
+     <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
      </ul>
      **/
     public void setGSSOption(int gssOption)
@@ -3068,16 +3068,16 @@ public class AS400 implements Serializable
      Sets the service port in the service port table for the specified service for this system name.
      @param  service  The name of the service.  Valid services are:
      <ul>
-     <li>FILE - IFS file classes.
-     <li>PRINT - print classes.
-     <li>COMMAND - command and program call classes.
-     <li>DATAQUEUE - data queue classes.
-     <li>DATABASE - JDBC classes.
-     <li>RECORDACCESS - record level access classes.
-     <li>CENTRAL - licence management classes.
-     <li>SIGNON - sign-on classes.
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
-     @param  port  The port to use for this service.  The value USE_PORT_MAPPER can be used to specify that the next connection to this service should ask the port mapper server for the port number.
+     @param  port  The port to use for this service.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} can be used to specify that the next connection to this service should ask the port mapper server for the port number.
      **/
     public void setServicePort(int service, int port)
     {
