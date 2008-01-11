@@ -1017,9 +1017,9 @@ public class AS400 implements Serializable
      @param  userIdentity  The LDAP distinguished name.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
-     <li>TYPE_SINGLE_USE
-     <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-     <li>TYPE_MULTIPLE_USE_RENEWABLE
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE TYPE_MULTIPLE_USE_RENEWABLE}
      </ul>
      @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
      @return  A ProfileTokenCredential representing the provided user identity.
@@ -1260,13 +1260,14 @@ public class AS400 implements Serializable
      Returns an array of Job objects representing the jobs to which this object is connected.  This information is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
      @param  service  The name of the service.  Valid services are:
      <ul>
-     <li>FILE - IFS file classes.
-     <li>PRINT - print classes.
-     <li>COMMAND - command and program call classes.
-     <li>DATAQUEUE - data queue classes.
-     <li>DATABASE - JDBC classes.
-     <li>CENTRAL - licence management classes.
-     <li>SIGNON - sign-on classes.
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  The array of job objects.
      **/
@@ -1397,7 +1398,7 @@ public class AS400 implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @deprecated  Use getProfileToken(int, int) instead.
+     @deprecated  Use {@link #getProfileToken(int,int) getProfileToken(int,int)} instead.
      **/
     public ProfileTokenCredential getProfileToken() throws AS400SecurityException, IOException, InterruptedException
     {
@@ -1442,8 +1443,8 @@ public class AS400 implements Serializable
      <p>This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable token.  This function is only supported if the system is at i5/OS V4R5M0 or greater.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
-     <li>TYPE_SINGLE_USE
-     <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
      </ul>
      @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
      @return  A ProfileTokenCredential representing the signed-on user.
@@ -1516,9 +1517,9 @@ public class AS400 implements Serializable
      @param  password  The user profile password.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
      <ul>
-     <li>TYPE_SINGLE_USE
-     <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-     <li>TYPE_MULTIPLE_USE_RENEWABLE
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE TYPE_MULTIPLE_USE_RENEWABLE}
      </ul>
      @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
      @return  A ProfileTokenCredential representing the authenticated profile and password.
@@ -2580,7 +2581,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets or resets the identity token for this object.  Using this method will clear any set password.
+     Sets or resets the identity token for this object.  Using this method will clear any previously set authentication information.
      <p>Note: Authentication via IdentityToken is supported in operating system release V5R3M0 and by PTF in operating system releases V5R2M0 and V5R1M0.
      @param  identityToken  The identity token.
      **/
@@ -2746,7 +2747,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS credential for this object.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
+     Sets the GSS credential for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
      @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
      **/
     public void setGSSCredential(Object gssCredential)
@@ -2789,7 +2790,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS name for this object.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
+     Sets the GSS name for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
      @param  gssName  The GSS name string.
      **/
     public void setGSSName(String gssName)
@@ -2954,7 +2955,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the current user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The must use supplied profile property cannot be changed once a connection to the system has been established.
+     Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the current user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The <tt>must use supplied profile</tt> property cannot be changed once a connection to the system has been established.
      @param  mustUseSuppliedProfile  true to use a supplied profile only; false otherwise.
      **/
     public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
@@ -2969,7 +2970,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the password for this object.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set Kerberos ticket, profile token, or identity token.
+     Sets the password for this object.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
      @param  password  The user profile password.
      **/
     public void setPassword(String password)
@@ -3006,7 +3007,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets or resets the profile token for this object.  Using this method will clear any set password.
+     Sets or resets the profile token for this object.  Using this method will clear any previously set authentication information.
      @param  profileToken  The profile token.
      **/
     public void setProfileToken(ProfileTokenCredential profileToken)
