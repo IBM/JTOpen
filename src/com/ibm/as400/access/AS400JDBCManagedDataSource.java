@@ -3545,7 +3545,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
     savePasswordWhenSerialized_ = savePassword;
 
-    logProperty(property, Boolean.toString(savePasswordWhenSerialized_));
+    logProperty(property, String.valueOf(savePasswordWhenSerialized_)); //@jvm13 Boolean.toString(savePasswordWhenSerialized_));
   }
 
 
@@ -3854,7 +3854,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   public void setKeepAlive(boolean keepAlive)
   {
     sockProps_.setKeepAlive(keepAlive);
-    logProperty("keepAlive", Boolean.toString(keepAlive));
+    logProperty("keepAlive", String.valueOf(keepAlive)); //@jvm13 Boolean.toString(keepAlive));
   }
 
   /**
@@ -3928,7 +3928,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   public void setTcpNoDelay(boolean noDelay)
   {
     sockProps_.setTcpNoDelay(noDelay);
-    logProperty("tcpNoDelay", Boolean.toString(noDelay));
+    logProperty("tcpNoDelay", String.valueOf(noDelay)); //@jvm13 Boolean.toString(noDelay));
   }
 
   /**

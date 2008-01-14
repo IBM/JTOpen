@@ -559,7 +559,7 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
   public void setReuseConnections(boolean reuse)
   {
     reuseConnections_ = reuse;
-    logProperty("reuseConnections", Boolean.toString(reuseConnections_));
+    logProperty("reuseConnections", String.valueOf(reuseConnections_)); //@jvm13 Boolean.toString(reuseConnections_));
   }
 
 

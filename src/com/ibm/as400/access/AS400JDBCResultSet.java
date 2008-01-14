@@ -5771,7 +5771,7 @@ public class AS400JDBCResultSet implements ResultSet
             
             //if above cannot determine holdability, then do best guess
             if(connection_ != null)                                                      //@cur
-                return connection_.getHoldability();                                     //@cur
+                return ((AS400JDBCConnection) connection_).getHoldability();             //@cur //@jre13
             else                                                                         //@cur
                 return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
         }
