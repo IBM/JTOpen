@@ -223,7 +223,7 @@ implements SQLData
         }
 
         // The Calendar class represents 24:00:00 as 00:00:00.        // @E3A
-        if(hourIn == 24 && hour==0 /* && minute==0 && second==0 */)  // @E3A
+        if(hourIn == 24 && hour==0 && minute==0 && second==0)  // @E3A //@tim3
         {
             buffer.setCharAt(0,'2');                                    // @E3A
             buffer.setCharAt(1,'4');                                    // @E3A
