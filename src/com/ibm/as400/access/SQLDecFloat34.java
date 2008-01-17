@@ -376,7 +376,13 @@ final class SQLDecFloat34 implements SQLData {
 
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
-            return (new Double(specialValue_)).byteValue();
+          //@snan snan is not yet supported, return as regular nan
+            if(specialValue_.indexOf("-SNaN") != -1)  //@snan
+                return (new Double("-NaN")).byteValue();
+            else if(specialValue_.indexOf("SNaN") != -1)  //@snan
+                return (new Double("NaN")).byteValue();
+            else 
+                return (new Double(specialValue_)).byteValue();
         }
         
         if (value_.compareTo(BYTE_MAX_VALUE) > 0 || value_.compareTo(BYTE_MIN_VALUE) < 0) {
@@ -422,7 +428,13 @@ final class SQLDecFloat34 implements SQLData {
 
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
-            return (new Double(specialValue_)).doubleValue();
+            //@snan snan is not yet supported, return as regular nan
+            if(specialValue_.indexOf("-SNaN") != -1)  //@snan
+                return (new Double("-NaN")).doubleValue();
+            else if(specialValue_.indexOf("SNaN") != -1)  //@snan
+                return (new Double("NaN")).doubleValue();
+            else 
+                return (new Double(specialValue_)).doubleValue();
         }
         
         if (value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0) {
@@ -437,7 +449,13 @@ final class SQLDecFloat34 implements SQLData {
         
         //NaN, Infinity, -Infinity
         if(specialValue_ != null){
-            return (new Float(specialValue_)).floatValue();
+            //@snan snan is not yet supported, return as regular nan
+            if(specialValue_.indexOf("-SNaN") != -1)  //@snan
+                return (new Float("-NaN")).floatValue();
+            else if(specialValue_.indexOf("SNaN") != -1)  //@snan
+                return (new Float("NaN")).floatValue();
+            else
+                return (new Float(specialValue_)).floatValue();
         }
         
         if (value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0) {
@@ -563,7 +581,15 @@ final class SQLDecFloat34 implements SQLData {
     private String getSpecialValue(String number){
         //use indexOf() so that we can use this method for exception text from AS400DecFloat also
         int startOfValue = -1;
-        if ( (startOfValue = number.toUpperCase().indexOf("NAN")) != -1 ){ 
+        //@snan
+        if ( (startOfValue = number.toUpperCase().indexOf("SNAN")) != -1 ){ 
+            //check for sign
+            if ( ((startOfValue > 0 ) && (number.charAt(startOfValue - 1) == '-') ) )
+                return "-SNaN"; //no representaion in Double
+            else
+                return "SNaN"; //no representaion in Double
+        }
+        else if ( (startOfValue = number.toUpperCase().indexOf("NAN")) != -1 ){ 
             //check for sign
             if ( ((startOfValue > 0 ) && (number.charAt(startOfValue - 1) == '-') )
                     || ((startOfValue > 1 ) && (number.charAt(startOfValue - 2) == '-')) )

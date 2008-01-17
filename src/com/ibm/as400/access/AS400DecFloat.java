@@ -33,12 +33,14 @@ public class AS400DecFloat implements AS400DataType
     static final boolean LOW_NIBBLE  = false;
 
     private final static int DEC_FLOAT_16_BIAS = 398;
+    private final static long DEC_FLOAT_16_SIGNAL_MASK = 0x0200000000000000L; // 1 bit (7th bit from left) //@snan
     private final static long DEC_FLOAT_16_SIGN_MASK = 0x8000000000000000L; // 1 bits
     private final static long DEC_FLOAT_16_COMBINATION_MASK = 0x7c00000000000000L; // 5 bits
     private final static long DEC_FLOAT_16_EXPONENT_CONTINUATION_MASK = 0x03fc000000000000L; // 8 bits
     private final static long DEC_FLOAT_16_COEFFICIENT_CONTINUATION_MASK = 0x0003ffffffffffffL; // 50 bits
 
     private final static int DEC_FLOAT_34_BIAS = 6176;
+    private final static long DEC_FLOAT_34_SIGNAL_MASK = 0x0200000000000000L; // 1 bit (7th bit from left) //@snan
     private final static long DEC_FLOAT_34_SIGN_MASK = 0x8000000000000000L; // 1 bits
     private final static long DEC_FLOAT_34_COMBINATION_MASK = 0x7c00000000000000L; // 5 bits
     private final static long DEC_FLOAT_34_EXPONENT_CONTINUATION_MASK = 0x03ffc00000000000L; // 12 bits
@@ -169,6 +171,18 @@ public class AS400DecFloat implements AS400DataType
                 javaValue = new BigDecimal("-1");
                 specialCombination = 0x1fL;
                 signalingNaN = 0;  //@sig1 non signaling
+            }
+            else if ( javaValue.equals("SNaN") )   //@snan
+            {
+                javaValue = new BigDecimal("1");
+                specialCombination = 0x1fL;
+                signalingNaN = 1;  //@sig1 signaling
+            }
+            else if ( javaValue.equals("-SNaN") )  //@snan
+            {
+                javaValue = new BigDecimal("-1");
+                specialCombination = 0x1fL;
+                signalingNaN = 1;  //@sig1 signaling
             }
             else if ( javaValue.equals("Infinity") )
             {
@@ -514,24 +528,41 @@ public class AS400DecFloat implements AS400DataType
         {
             throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
         }
-        
+                
         if(this.digits == 16)
         {
             long decFloat16Bits = BinaryConverter.byteArrayToLong(as400Value, offset);
             long combination = (decFloat16Bits & DEC_FLOAT_16_COMBINATION_MASK) >> 58;
-
+                
             //compute sign here so we can get -+Infinity values
             int sign = ((decFloat16Bits & DEC_FLOAT_16_SIGN_MASK) == DEC_FLOAT_16_SIGN_MASK) ? -1 : 1;
             
             // deal with special numbers. (not a number and infinity)
             if ((combination == 0x1fL) && ( sign == 1))
-                throw new ExtendedIllegalArgumentException("NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            {
+                long  nanSignal = (decFloat16Bits & DEC_FLOAT_16_SIGNAL_MASK) >> 57; //shift first 7 bits to get signal bit out  //@snan
+                if (nanSignal == 1)
+                    throw new ExtendedIllegalArgumentException("SNaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                else
+                    throw new ExtendedIllegalArgumentException("NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                    
+            }
             else if ((combination == 0x1fL) && ( sign == -1))
-                throw new ExtendedIllegalArgumentException("-NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            {
+                long  nanSignal = (decFloat16Bits & DEC_FLOAT_16_SIGNAL_MASK) >> 57; //shift first 7 bits to get signal bit out  //@snan
+                if (nanSignal == 1)
+                    throw new ExtendedIllegalArgumentException("-SNaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                else
+                    throw new ExtendedIllegalArgumentException("-NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
             else if ((combination == 0x1eL) && ( sign == 1))
+            {
                 throw new ExtendedIllegalArgumentException("Infinity", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
             else if ((combination == 0x1eL) && ( sign == -1))
+            {
                 throw new ExtendedIllegalArgumentException("-Infinity", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
 
             // compute the exponent MSD and the coefficient MSD.
             int exponentMSD;
@@ -589,14 +620,30 @@ public class AS400DecFloat implements AS400DataType
             
             // deal with special numbers.
             if ((combination == 0x1fL) && ( sign == 1))
-                throw new ExtendedIllegalArgumentException("NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            {
+                long  nanSignal = (decFloat34BitsHi & DEC_FLOAT_34_SIGNAL_MASK) >> 57; //shift first 7 bits to get signal bit out  //@snan
+                if (nanSignal == 1)
+                    throw new ExtendedIllegalArgumentException("SNaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                else
+                    throw new ExtendedIllegalArgumentException("NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
             else if ((combination == 0x1fL) && ( sign == -1))
-                throw new ExtendedIllegalArgumentException("-NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            {
+                long  nanSignal = (decFloat34BitsHi & DEC_FLOAT_34_SIGNAL_MASK) >> 57; //shift first 7 bits to get signal bit out  //@snan
+                if (nanSignal == 1)
+                    throw new ExtendedIllegalArgumentException("-SNaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                else
+                    throw new ExtendedIllegalArgumentException("-NaN", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
             else if ((combination == 0x1eL) && ( sign == 1))
+            {
                 throw new ExtendedIllegalArgumentException("Infinity", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
             else if ((combination == 0x1eL) && ( sign == -1))
+            {
                 throw new ExtendedIllegalArgumentException("-Infinity", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-
+            }
+            
             // compute the exponent MSD and the coefficient MSD.
             int exponentMSD;
             long coefficientMSD;
