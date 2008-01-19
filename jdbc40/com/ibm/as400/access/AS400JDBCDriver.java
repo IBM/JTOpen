@@ -1203,6 +1203,13 @@ implements java.sql.Driver
                 sockProps = as400.getSocketProperties();
             sockProps.setSendBufferSize(jdProperties.getInt(JDProperties.SEND_BUFFER_SIZE));
         }
+        //@timeout
+        if( jdProperties.getString(JDProperties.LOGIN_TIMEOUT).equals("") == false)
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            sockProps.setSoTimeout(jdProperties.getInt(JDProperties.LOGIN_TIMEOUT));
+        }
         
         if(sockProps != null)
             as400.setSocketProperties(sockProps);
