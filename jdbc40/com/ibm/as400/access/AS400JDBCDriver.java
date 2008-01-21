@@ -1208,7 +1208,7 @@ implements java.sql.Driver
         {
             if(sockProps == null)
                 sockProps = as400.getSocketProperties();
-            sockProps.setSoTimeout(jdProperties.getInt(JDProperties.LOGIN_TIMEOUT));
+            sockProps.setSoTimeout(jdProperties.getInt(JDProperties.LOGIN_TIMEOUT * 1000));
         }
         
         if(sockProps != null)
