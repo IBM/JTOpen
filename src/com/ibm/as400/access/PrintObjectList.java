@@ -534,11 +534,11 @@ implements java.io.Serializable
                     firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e);
                 }
                 chooseImpl();
-
+            }   // Bugfix 1551918                       
             open_ = true;           
             listOutOfSync_ = true;
             impl_.openSynchronously();
-        }
+        //}                                         // Bugfix 1551918
     }
     }
 
