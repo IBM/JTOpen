@@ -121,6 +121,7 @@ public class MRI2 extends ListResourceBundle
       { "EXC_CERTIFICATE_NOT_VALID", "Certificate or certificate type is not valid." },
       { "EXC_MAX_CONN_REACHED", "Maximum configured number of connections has been reached." }, //@F2A
       { "EXC_CONFLICT_POOL_SIZES", "The minimum and maximum number of connections do not agree." }, //@B0A
+      { "EXC_CONN_POOL_CLOSED", "The connection pool is closed." },
 
 
            // #TRANNOTE #####################################################
@@ -482,8 +483,17 @@ public class MRI2 extends ListResourceBundle
       // #TRANNOTE replacing connection that exceeded maximum lifetime for system/userid
       { "CL_REPLIFE", "replacing connection that exceeded maximum lifetime for &0/&1" },
 
+      // #TRANNOTE removing connection that exceeded maximum lifetime for system/userid
+      { "CL_REMLIFE", "removing connection that exceeded maximum lifetime for &0/&1" },
+
       // #TRANNOTE replacing connection that exceeded maximum use count for system/userid
       { "CL_REPUSE", "replacing connection that exceeded maximum use count for &0/&1" },
+
+      // #TRANNOTE removing connection that exceeded maximum use count for system/userid
+      { "CL_REMUSECOUNT", "removing connection that exceeded maximum use count for &0/&1" },
+
+      // #TRANNOTE removing connection that exceeded maximum use time for system/userid
+      { "CL_REMUSETIME", "removing connection that exceeded maximum use time for &0/&1" },
 
       // #TRANNOTE filling numberOfConnections connections to system/userid      // @E8A
       { "AS400CP_FILLING", "filling &0 connections to &1/&2" },                  // @E8A

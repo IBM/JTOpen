@@ -28,6 +28,14 @@ final class ConnectionList
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
+  // Values returned by checkConnectionExpiration().
+  // Note: These correspond to MRI text IDs in class MRI2.
+  private static final String NOT_EXPIRED = null;
+  private static final String EXPIRED_INACTIVE = "CL_REMUNUSED";
+  private static final String EXPIRED_MAX_LIFETIME = "CL_REMLIFE";
+  private static final String EXPIRED_MAX_USE_COUNT = "CL_REMUSECOUNT";
+  private static final String EXPIRED_MAX_USE_TIME = "CL_REMUSETIME";
+
   private String systemName_;
   private String userID_;
   private ConnectionPoolProperties properties_;
@@ -59,6 +67,46 @@ final class ConnectionList
     this.systemName_ = systemName;
     this.userID_ = userID;
     this.properties_ = properties;
+  }
+
+
+  /**
+   * Sees if the specified connection is due for removal.
+   *
+   * @param poolItem The pool item.
+   * @return The MRI textID specifying the type of expiration, or null if not expired.
+   **/
+  private String checkConnectionExpiration(PoolItem poolItem)
+  {
+    // See if the item has exceeded the maximum inactivity time.
+    if ((properties_.getMaxInactivity() >= 0) && 
+        (poolItem.getInactivityTime() >= properties_.getMaxInactivity()))
+    {
+      return EXPIRED_INACTIVE;
+    }
+
+    // See if the item has exceeded the maximum use count.
+    if ((properties_.getMaxUseCount() >= 0) &&
+        (poolItem.getUseCount() >= properties_.getMaxUseCount()))
+    {
+      return EXPIRED_MAX_USE_COUNT;
+    }
+
+    // See if the item has exceeded the maximum lifetime.
+    if ( (properties_.getMaxLifetime() >= 0) && 
+         (poolItem.getLifeSpan() >= properties_.getMaxLifetime()))
+    {
+      return EXPIRED_MAX_LIFETIME;
+    }
+
+    // See if the item has exceeded the maximum use time.
+    if ((properties_.getMaxUseTime() >= 0) &&
+        (poolItem.getInUseTime() >= properties_.getMaxUseTime()))
+    {
+      return EXPIRED_MAX_USE_TIME;
+    }
+
+    return NOT_EXPIRED;
   }
 
 
@@ -588,6 +636,48 @@ final class ConnectionList
         }//end else
       }//end for
     }//@B1A end synchronized
+  }
+
+  /**
+   * Removes the connection from the pool if it is due for removal.
+   *
+   * @param poolItem The pool item.
+   * @param poolListeners The pool listeners to which events will be fired.
+   * @return true if the pool item was found and removed from the pool; false otherwise.
+   * @exception AS400SecurityException If a security error occured.
+   * @exception IOException If a communications error occured.
+   **/
+  boolean removeIfExpired(PoolItem poolItem, ConnectionPoolEventSupport poolListeners)
+  {
+    if (connectionList_.isEmpty()) return false;
+
+    boolean connectionIsExpired = false;
+    String expirationStatus = null;
+    synchronized (connectionList_)
+    {
+      expirationStatus = checkConnectionExpiration(poolItem);
+      if (expirationStatus == NOT_EXPIRED) {}  // do nothing
+      else {
+        connectionList_.removeElement(poolItem);
+        connectionIsExpired = true;
+      }
+    }
+    // Now that we're out of the sync block, disconnect the connection.
+    if (connectionIsExpired)
+    {
+      if (log_ != null && expirationStatus != null)
+      {
+        log(ResourceBundleLoader.getText(expirationStatus, new String[] {systemName_, userID_} ));
+      }
+      if (poolListeners != null)
+      {
+        ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(poolItem.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED);
+        poolListeners.fireConnectionExpiredEvent(poolEvent);  
+      }
+      poolItem.getAS400Object().disconnectAllServices();
+    }
+
+    return connectionIsExpired;
   }
 
 

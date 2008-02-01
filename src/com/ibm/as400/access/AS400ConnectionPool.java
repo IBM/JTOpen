@@ -1087,7 +1087,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     // was returned to the pool.
     if (poolItem != null)
     {
-      poolItem.setInUse(false);
+      // Before making the connection available for re-use, see if it's expired.
+      boolean removed = connections.removeIfExpired(poolItem, poolListeners_);
+      if (!removed) {
+        poolItem.setInUse(false); // indicate that this connection is available
+      }
       if (log_ != null)
       {
         log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
