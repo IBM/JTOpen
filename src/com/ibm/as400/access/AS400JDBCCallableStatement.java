@@ -228,6 +228,7 @@ implements CallableStatement
                   while(rs1.next()) {
                     libListV.addElement(rs1.getString(1));
                   }
+                  rs1.close(); //@SS
                   String[] libList = new String[libListV.size()];
                   libListV.toArray(libList);
 
@@ -256,6 +257,8 @@ implements CallableStatement
                       }
                     }
                   }
+                  rs.close(); //@SS
+                  s1.close(); //@SS
                   if(!found)	// none of the libraries in our library list contain a stored procedure that we are looking for
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);
                 }
@@ -271,7 +274,8 @@ implements CallableStatement
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL);
 
             String specificName = rs.getString(1);
-
+            rs.close(); //@SS
+            
             rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2" + catalogSeparator + "SYSPARMS WHERE " + //@74A
                                 " SPECIFIC_NAME = '" + unquoteNoUppercase(specificName) + "' AND SPECIFIC_SCHEMA = '" + unquote(schema) + "'"); //@DELIMc
 
@@ -288,6 +292,9 @@ implements CallableStatement
                 else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
                     returnParm = colInd;
             }
+            rs.close(); //@SS
+            s.close();  //@SS
+
     
             // If the number of parm names didn't equal the number of parameters, throw
             // an exception (INTERNAL).
