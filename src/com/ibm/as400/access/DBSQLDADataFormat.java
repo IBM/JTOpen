@@ -130,14 +130,29 @@ implements DBDataFormat
         // in the SQLDA does not include the 2 bytes for the
         // actual length.  Therefore, we need to add 2 for these
         // types.
-        int length = BinaryConverter.byteArrayToShort (rawBytes_, offset_ + 18 + (fieldIndex * REPEATED_LENGTH_));
+        int length;                              //@loblen
+        int fieldType = getFieldSQLType (fieldIndex) & 0xFFFE;   //@loblen
+        // lob type then get len from secondary SQLVAR blocks
+        //Note:  we do not get the length for lobs from the correct location in the datastream.
+        //Fixing this exposed a new hostserver issue, where the sql-package does not know before hand
+        //if the type will be a lob or lob-locator.  
+        //Also fixing this exposed a new issue where the lob length returned in the sqlca was not correct.
+        //Rather that fixing all these things, we and hostserver agree to re-prepare when sql-package contains a lob
+        /*leaving this code as commented out in case it is ever needed for reference in future
+        if(fieldType ==  404 || fieldType ==  960 || fieldType ==  408 || fieldType == 964 || fieldType == 412 || fieldType == 968)                            //@loblen
+        {                                        //@loblen
+            int extendedOffset = getNumberOfFields() * REPEATED_LENGTH_; //skip to end of SQLVAR to secondary SQLVAR   //@loblen
+            length = BinaryConverter.byteArrayToInt (rawBytes_, offset_ + 16 + extendedOffset + (fieldIndex * REPEATED_LENGTH_));     //@loblen
+        }                                                                                                            //@loblen
+        else*/                                                                                                         //@loblen
+            length = BinaryConverter.byteArrayToShort (rawBytes_, offset_ + 18 + (fieldIndex * REPEATED_LENGTH_));   //@loblen
+       
 
         // @A0A
         // For type 484 (DECIMAL) and 488 (NUMERIC), the 1st byte in the Field Length
         // represents the precision and the 2nd byte represents the scale.
         // Thus, the real field length has to be calculated.
         int precision = (short) rawBytes_[offset_ + 18 + (fieldIndex * REPEATED_LENGTH_)];    //@A0A
-        int fieldType = getFieldSQLType (fieldIndex) & 0xFFFE;    //@A0A
 
         if(fieldType == 484)
         {    //@A0A

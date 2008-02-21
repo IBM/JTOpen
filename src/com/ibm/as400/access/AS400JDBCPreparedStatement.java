@@ -94,7 +94,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     private boolean[]           parameterNulls_;
     private boolean[]           parameterDefaults_;    //@EIA
     private boolean[]           parameterUnassigned_;  //@EIA
-    JDServerRow         parameterRow_;          // private protected
+    //@re-prep move to statement JDServerRow         parameterRow_;          // private protected
     Vector              batchParameterRows_;    // private protected            @G9A
     private int                 parameterTotalSize_;
     boolean[]           parameterSet_;          // private protected

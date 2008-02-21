@@ -124,6 +124,7 @@ public class AS400JDBCStatement implements Statement
     private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
     private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
     private boolean     useVariableFieldCompression_ = false;    //@K54
+    JDServerRow         parameterRow_;          // private protected //@re-prep moved from preparedStatement so that it has visibility here
     
     /**
     Constructs an AS400JDBCStatement object.
@@ -1184,16 +1185,34 @@ public class AS400JDBCStatement implements Statement
                     else
                         resultRow = new JDServerRow (connection_, id_,
                                                      dataFormat, settings_);
+                    //@re-prep check if one of the columns is a lob or locator on resultset columns
+                    if( resultRow != null && resultRow.containsLob_) //@re-prep
+                    {
+                        resultRow = null;                           //@re-prep output lobs
+                    }                                               //@re-prep
 
-                    commonPrepareBypass (sqlStatement, i);
+                    commonPrepareBypass (sqlStatement, i); 
 
-                    nameOverride_ = packageManager_.getCachedStatementName (i);
-
-                    // Output a summary as a trace message.
-                    if(JDTrace.isTraceOn())
-                        JDTrace.logInformation (this,
+                    //@re-prep input lobs on prepared statement
+                    if(parameterRow_ != null && parameterRow_.containsLob_)  //@re-prep
+                    {                                                        //@re-prep
+                        nameOverride_ = "";                                  //@re-prep
+                        // Output a summary as a trace message.
+                        if(JDTrace.isTraceOn())                              //@re-prep
+                            JDTrace.logInformation (this,
+                                                "Statement [" + sqlStatement + "] was found "
+                                                + "in the cached package "
+                                                + " but must be re-prepared since it contains a lob or locator");  //@re-prep
+                    }                                                                                              //@re-prep
+                    else                                                                                           //@re-prep
+                    {                                                                                              //@re-prep
+                        nameOverride_ = packageManager_.getCachedStatementName (i);
+                        // Output a summary as a trace message.
+                        if(JDTrace.isTraceOn())
+                            JDTrace.logInformation (this,
                                                 "Statement [" + sqlStatement + "] was found "
                                                 + "in the cached package as " + nameOverride_);
+                    }                                           //@re-prep
                 }
             }
         }

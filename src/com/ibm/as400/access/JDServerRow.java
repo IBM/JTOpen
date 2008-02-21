@@ -50,7 +50,7 @@ implements JDRow
     private boolean[]               translated_;
     private boolean                 wasCompressed = false;   // set to true if variable length field compression is used
     private Hashtable               insensitiveColumnNames_; // @PDA maps strings to column indexes
-
+    boolean                         containsLob_;     //@re-prep 
 
     /**
     Constructs a JDServerRow object.  Use this constructor
@@ -176,6 +176,7 @@ implements JDRow
             sqlTypes_   = new int[count];
             translated_ = new boolean[count];
             insensitiveColumnNames_ = null;  //@PDA
+            containsLob_ = false;   //@re-prep
 
             // Compute the offsets, lengths, and SQL data for
             // each field.
@@ -198,6 +199,14 @@ implements JDRow
                     scales_[i] = serverFormat_.getFieldScale (i);
                     precisions_[i] = serverFormat_.getFieldPrecision (i);
                     sqlTypes_[i] = serverFormat_.getFieldSQLType (i);
+                    
+                    //@re-prep check if lob or locator type here
+                    //hostserver cannot know beforehand if type will be a lob or a locator.  This is on a per-connection basis.
+                    int fieldType = sqlTypes_[i] & 0xFFFE;    //@re-prep
+                    if(fieldType ==  404 || fieldType ==  960 || fieldType ==  408 || fieldType == 964 || fieldType == 412 || fieldType == 968)  //@re-prep
+                        containsLob_ = true;                  //@re-prep
+
+                        
                     int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);    // @C2C
 
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
