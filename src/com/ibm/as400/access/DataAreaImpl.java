@@ -114,6 +114,15 @@ interface DataAreaImpl
            IOException;
 
   // For all:
+  int readBytes(byte[] data, int dataBufferOffset, int dataAreaOffset, int dataLength)
+    throws AS400SecurityException,
+           ErrorCompletingRequestException,
+           IllegalObjectTypeException,
+           InterruptedException,
+           ObjectDoesNotExistException,
+           IOException;
+
+  // For all:
   void refreshAttributes()
     throws AS400SecurityException,
            ErrorCompletingRequestException,
@@ -170,6 +179,14 @@ interface DataAreaImpl
 
   // For LogicalDataArea:
   void write(boolean data)
+    throws AS400SecurityException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           ObjectDoesNotExistException,
+           IOException;
+
+  // For all:
+  void write(byte[] data, int dataBufferOffset, int dataAreaOffset, int dataLength)
     throws AS400SecurityException,
            ErrorCompletingRequestException,
            InterruptedException,

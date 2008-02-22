@@ -51,6 +51,8 @@ public abstract class DataArea implements Serializable
    Constants
    **/
 
+  static final int UNKNOWN_LENGTH      = 0;
+
   // Type of data area.
   static final int UNINITIALIZED       = 0;
   static final int CHARACTER_DATA_AREA = 1;
@@ -62,7 +64,7 @@ public abstract class DataArea implements Serializable
    Variables
    **/
 
-  private AS400 system_ = null;              // The server where the data area is located.
+  private AS400 system_ = null;              // The system where the data area is located.
   private String dataAreaPathName_ = null;   // The full path name of the data area,
                                              // as specified by the user.
   private String name_ = null;               // The name of the data area.
@@ -75,7 +77,7 @@ public abstract class DataArea implements Serializable
   //    because the property getter getLength() needs to go the system. Bean property
   //    constructors, getters, and setters should not make connections to the system
   //    because of the way a visual builder environment manipulates bean objects.
-  int length_ = 0;                      // The maximum number of bytes the data area can contain.
+  int length_ = UNKNOWN_LENGTH;              // The maximum number of bytes the data area can contain.
   String textDescription_ = "*BLANK";   // A text description of the data area.
   String authority_ = "*LIBCRTAUT";     // The authority level that public has to the data area.
   int dataAreaType_ = UNINITIALIZED;
@@ -202,6 +204,35 @@ public abstract class DataArea implements Serializable
      impl_.setAttributes(system_.getImpl(), ifsPathName_, dataAreaType_);
    }
 
+   // Returns the descriptive text name corresponding to a specified data area type.
+   static String dataAreaTypeToString(int dataAreaType)
+   {
+     String type = null;
+     switch (dataAreaType)
+     {
+       case CHARACTER_DATA_AREA :
+         type = "Character";
+         break;
+       case DECIMAL_DATA_AREA :
+         type = "Decimal";
+         break;
+       case LOCAL_DATA_AREA :
+         type = "Local";
+         break;
+       case LOGICAL_DATA_AREA :
+         type = "Logical";
+         break;
+       case UNINITIALIZED :
+         type = "Uninitialized";
+         break;
+       default :
+         Trace.log(Trace.ERROR, "Unrecognized data area type: " + dataAreaType);
+         type = "Unrecognized";
+         break;
+     }
+     return type;
+   }
+
 
    /**
    Removes the data area from the system.
@@ -311,7 +342,7 @@ public abstract class DataArea implements Serializable
 
    /**
      Returns the size of the data area.
-        @return The size of the data area.
+        @return The size of the data area, in bytes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception IllegalObjectTypeException      If the system object is not the required type.
@@ -392,6 +423,91 @@ public abstract class DataArea implements Serializable
    {
      in.defaultReadObject();
      initializeTransient();
+   }
+
+
+   // Design note: This method is relevant only to CharacterDataArea and LocalDataArea.
+   // It is irrelevant to DecimalDataArea and LogicalDataArea, since those types of data
+   // areas have restrictions on what byte values can exist in them.
+   /**
+    Reads raw bytes from the data area.
+    It retrieves up to <i>dataLength</i> bytes beginning at offset
+    <i>dataAreaOffset</i> in the data area. The first byte in
+    the data area is at offset 0.
+    @param dataBuffer The buffer into which to read the data.  Must be non-null.
+    @param dataBufferOffset The starting offset in <tt>dataBuffer</tt>.
+    @param dataAreaOffset The offset in the data area at which to start reading.
+    @param dataLength The number of bytes to read. Valid values are from
+    1 through (data area size - <i>dataAreaOffset</i>).
+    @return The total number of bytes read into the buffer.
+    @exception AS400SecurityException          If a security or authority error occurs.
+    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+    @exception IllegalObjectTypeException      If the system object is not the required type.
+    @exception InterruptedException            If this thread is interrupted.
+    @exception IOException                     If an error occurs while communicating with the system.
+    @exception ObjectDoesNotExistException     If the system object does not exist.
+    @see #write(byte[],int,int,int)
+    **/
+   int read(byte[] dataBuffer, int dataBufferOffset, int dataAreaOffset, int dataLength)
+     throws AS400SecurityException,
+   ErrorCompletingRequestException,
+   IllegalObjectTypeException,
+   InterruptedException,
+   IOException,
+   ObjectDoesNotExistException
+   {
+     // Validate the data parameter.
+     if (dataBuffer == null)
+       throw new NullPointerException("dataBuffer");
+
+     // Get size of the data area.
+     if (length_ == UNKNOWN_LENGTH)
+     {
+       try {
+         length_ = getLength();
+       }
+       catch(IllegalObjectTypeException iote) {
+         if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+           Trace.log(Trace.WARNING, "Unexpected exception when retrieving length for data area.", iote);
+         }
+       }
+     }
+
+     // Validate the data length.
+     if (dataBuffer.length < 1)
+       throw new ExtendedIllegalArgumentException("dataBuffer",
+                                                  ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+     // Validate the dataBufferOffset parameter.
+     if (dataBufferOffset < 0 || dataBufferOffset > dataBuffer.length-1)
+       throw new ExtendedIllegalArgumentException("dataBufferOffset",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the dataAreaOffset parameter.
+     if (dataAreaOffset < 0 || dataAreaOffset >= length_)
+       throw new ExtendedIllegalArgumentException("dataAreaOffset",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the dataLength parameter.
+     if (dataLength < 1 || dataLength > dataBuffer.length)
+       throw new ExtendedIllegalArgumentException("dataLength",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the (dataBufferOffset, dataLength) combination.
+     if (dataBufferOffset+dataLength > dataBuffer.length)
+       throw new ExtendedIllegalArgumentException("dataLength",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the (dataAreaOffset, dataLength) combination.
+     if (dataAreaOffset+dataLength > length_)
+       throw new ExtendedIllegalArgumentException("dataLength",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+     if (impl_ == null)
+       chooseImpl();
+
+     // Do the read
+     int bytesRead = impl_.readBytes(dataBuffer, dataBufferOffset, dataAreaOffset, dataLength);
+
+     // Fire the READ event.
+     fireRead();
+
+     return bytesRead;
    }
 
 
@@ -537,6 +653,82 @@ public abstract class DataArea implements Serializable
      system_ = system;
 
      changes_.firePropertyChange("system", old, system_);
+   }
+
+
+   // Design note: This method is relevant only to CharacterDataArea and LocalDataArea.
+   // It is irrelevant to DecimalDataArea and LogicalDataArea, since those types of data
+   // areas have restrictions on what byte values can exist in them.
+   /**
+    Writes the data to the data area.
+    It writes the specified bytes, without conversion, to the data area, at offset <i>dataAreaOffset</i>.
+    The first byte in the data area is at offset 0.
+    @param dataBuffer The data to be written.  Must be non-null.
+    @param dataBufferOffset The starting offset in <tt>dataBuffer</tt>.
+    @param dataAreaOffset The offset in the data area at which to start writing.
+    @param dataLength The number of bytes to write.
+    @exception AS400SecurityException          If a security or authority error occurs.
+    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+    @exception InterruptedException            If this thread is interrupted.
+    @exception IOException                     If an error occurs while communicating with the system.
+    @exception ObjectDoesNotExistException     If the system object does not exist.
+    **/
+   void write(byte[] dataBuffer, int dataBufferOffset, int dataAreaOffset, int dataLength)
+     throws AS400SecurityException,
+   ErrorCompletingRequestException,
+   InterruptedException,
+   IOException,
+   ObjectDoesNotExistException
+   {
+     // Validate the data parameter.
+     if (dataBuffer == null)
+       throw new NullPointerException("dataBuffer");
+
+     // Get size of the data area.
+     if (length_ == UNKNOWN_LENGTH)
+     {
+       try {
+         length_ = getLength();
+       }
+       catch(IllegalObjectTypeException iote) {
+         if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+           Trace.log(Trace.WARNING, "Unexpected exception when retrieving length for data area.", iote);
+         }
+       }
+     }
+
+     // Validate the data length.
+     if (dataBuffer.length < 1)
+       throw new ExtendedIllegalArgumentException("dataBuffer",
+                                                  ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+     // Validate the dataBufferOffset parameter.
+     if (dataBufferOffset < 0 || dataBufferOffset > dataBuffer.length-1)
+       throw new ExtendedIllegalArgumentException("dataBufferOffset",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the dataAreaOffset parameter.
+     if (dataAreaOffset < 0 || dataAreaOffset >= length_)
+       throw new ExtendedIllegalArgumentException("dataAreaOffset",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the dataLength parameter.
+     if (dataLength < 1 || dataLength > dataBuffer.length)
+       throw new ExtendedIllegalArgumentException("dataLength",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the (dataBufferOffset, dataLength) combination.
+     if (dataBufferOffset+dataLength > dataBuffer.length)
+       throw new ExtendedIllegalArgumentException("dataLength",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the (dataAreaOffset, dataLength) combination.
+     if (dataAreaOffset+dataLength > length_)
+       throw new ExtendedIllegalArgumentException("dataLength",
+                                                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     if (impl_ == null)
+       chooseImpl();
+
+     // Do the write
+     impl_.write(dataBuffer, dataBufferOffset, dataAreaOffset, dataLength);
+
+     // Fire the WRITTEN event.
+     fireWritten();
    }
 
 }

@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.beans.PropertyVetoException;
 import java.net.UnknownHostException;
 
-// There is always a local data area associated with the current server job.
+// There is always a local data area associated with the current i5/OS job.
 // It is 1024 bytes in length and is accessed using the name "*LDA". Its text
 // description is "*LDA FOR JOB jobnumber/username/jobname".
-// The server allows only read and write operations on a local data area.
+// i5/OS allows only read and write operations on a local data area.
 
 /**
 The LocalDataArea class represents a local data area on the system.
@@ -30,7 +30,7 @@ A local data area exists as a character data area on the system. It is
 automatically associated with a job and cannot be accessed from another
 job; hence, it cannot be directly created or deleted by the user.
 <p>
-Care must be taken when using local data areas so that the server job
+Care must be taken when using local data areas so that the i5/OS job
 is not ended prematurely. When the job ends, its local data area is
 automatically deleted, at which point the LocalDataArea object that
 is referencing it will no longer be valid.
@@ -53,6 +53,11 @@ dataArea.write("Hello world");
 // Read from the data area
 String data = dataArea.read();
 </pre>
+
+<p>
+Note: Most of the read() and write() methods of this class automatically
+convert characters between Unicode and the CCSID associated with the AS400 object.
+See {@link AS400#getCcsid AS400.getCcsid()}.
 **/
 
 public class LocalDataArea extends DataArea implements Serializable
@@ -68,7 +73,7 @@ public class LocalDataArea extends DataArea implements Serializable
     Constants
    **/
 
-   static final int DEFAULT_LENGTH = 1024;
+   static final int DEFAULT_LENGTH = 1024;  // bytes
    static final String DEFAULT_PATH = "/QSYS.LIB/          .LIB/*LDA.DTAARA";
 
 
@@ -140,7 +145,7 @@ public class LocalDataArea extends DataArea implements Serializable
    Reads the data from the data area.
    It retrieves the entire contents of the data area. Note that if the data
    does not completely fill the data area, this method will return data
-   containing trailing blanks up to the length of the data area.
+   padded with trailing blanks up to the length of the data area.
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -174,7 +179,7 @@ public class LocalDataArea extends DataArea implements Serializable
    Reads the data from the data area.
    It retrieves the entire contents of the data area. Note that if the data
    does not completely fill the data area, this method will return data
-   containing trailing blanks up to the length of the data area.
+   padded with trailing blanks up to the length of the data area.
      @param type The Local Data Area bidi string type, as defined by the CDRA (Character
                  Data Representataion Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
@@ -209,11 +214,11 @@ public class LocalDataArea extends DataArea implements Serializable
 
    /**
    Reads the data from the data area.
-   It retrieves <i>dataLength</i> characters beginning at
+   It retrieves <i>dataLength</i> characters (or fewer if multi-byte characters) beginning at
    <i>dataAreaOffset</i> in the data area. The first character in
    the data area is at offset 0.
      @param dataAreaOffset The offset in the data area at which to start reading.
-     @param dataLength The number of characters to read. Valid values are from
+     @param dataLength The number of bytes to read. Valid values are from
             1 through (data area size - <i>dataAreaOffset</i>).
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
@@ -248,7 +253,7 @@ public class LocalDataArea extends DataArea implements Serializable
        chooseImpl();
 
      // Do the read
-     String val = impl_.retrieve(dataAreaOffset+1, dataLength);
+     String val = impl_.retrieve(dataAreaOffset, dataLength);
 
      // Fire the READ event.
      fireRead();
@@ -259,11 +264,11 @@ public class LocalDataArea extends DataArea implements Serializable
 
    /**
    Reads the data from the data area.
-   It retrieves <i>dataLength</i> characters beginning at
+   It retrieves <i>dataLength</i> characters (or fewer if multi-byte characters) beginning at
    <i>dataAreaOffset</i> in the data area. The first character in
    the data area is at offset 0.
      @param dataAreaOffset The offset in the data area at which to start reading.
-     @param dataLength The number of characters to read. Valid values are from
+     @param dataLength The number of bytes to read. Valid values are from
             1 through (data area size - <i>dataAreaOffset</i>).
      @param type The Data Area bidi string type, as defined by the CDRA (Character
                  Data Representataion Architecture). See <a href="BidiStringType.html">
@@ -301,12 +306,43 @@ public class LocalDataArea extends DataArea implements Serializable
        chooseImpl();
 
      // Do the read
-     String val = impl_.retrieve(dataAreaOffset+1, dataLength, type);  //$A2C
+     String val = impl_.retrieve(dataAreaOffset, dataLength, type);  //$A2C
 
      // Fire the READ event.
      fireRead();
 
      return val;
+   }
+
+
+   /**
+    Reads raw bytes from the data area.
+    It retrieves up to <i>dataLength</i> bytes beginning at offset
+    <i>dataAreaOffset</i> in the data area. The first byte in
+    the data area is at offset 0.
+    @param dataBuffer The buffer into which to read the data.  Must be non-null.
+    @param dataBufferOffset The starting offset in <tt>dataBuffer</tt>.
+    @param dataAreaOffset The offset in the data area at which to start reading.
+    @param dataLength The number of bytes to read. Valid values are from
+    1 through (data area size - <i>dataAreaOffset</i>).
+    @return The total number of bytes read into the buffer.
+    @exception AS400SecurityException          If a security or authority error occurs.
+    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+    @exception IllegalObjectTypeException      If the system object is not the required type.
+    @exception InterruptedException            If this thread is interrupted.
+    @exception IOException                     If an error occurs while communicating with the system.
+    @exception ObjectDoesNotExistException     If the system object does not exist.
+    @see #write(byte[],int,int,int)
+    **/
+   public int read(byte[] dataBuffer, int dataBufferOffset, int dataAreaOffset, int dataLength)
+     throws AS400SecurityException,
+   ErrorCompletingRequestException,
+   IllegalObjectTypeException,
+   InterruptedException,
+   IOException,
+   ObjectDoesNotExistException
+   {
+     return super.read(dataBuffer, dataBufferOffset, dataAreaOffset, dataLength);
    }
 
 
@@ -441,4 +477,31 @@ public class LocalDataArea extends DataArea implements Serializable
      // Fire the WRITTEN event.
      fireWritten();
    }
+
+
+   /**
+    Writes the data to the data area.
+    It writes the specified bytes, without conversion, to the data area, at offset <i>dataAreaOffset</i>.
+    The first byte in the data area is at offset 0.
+    @param dataBuffer The data to be written.  Must be non-null.
+    @param dataBufferOffset The starting offset in <tt>dataBuffer</tt>.
+    @param dataAreaOffset The offset in the data area at which to start writing.
+    @param dataLength The number of bytes to write.
+    @exception AS400SecurityException          If a security or authority error occurs.
+    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+    @exception InterruptedException            If this thread is interrupted.
+    @exception IOException                     If an error occurs while communicating with the system.
+    @exception ObjectDoesNotExistException     If the system object does not exist.
+    **/
+   public void write(byte[] dataBuffer, int dataBufferOffset, int dataAreaOffset, int dataLength)
+     throws AS400SecurityException,
+   ErrorCompletingRequestException,
+   InterruptedException,
+   IOException,
+   ObjectDoesNotExistException
+   {
+     super.write(dataBuffer, dataBufferOffset, dataAreaOffset, dataLength);
+   }
+
+
 }

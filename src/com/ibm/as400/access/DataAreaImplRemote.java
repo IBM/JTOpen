@@ -15,7 +15,7 @@
 //                    characters to be interpretted as a single character.
 //                    This would have resulted in potential length errors
 //                    being reported by toolbox code.  Therefore, some toolbox
-//                    length verification has been removed.  The server code 
+//                    length verification has been removed.  The i5/OS API's
 //                    will report an error if the data length is invalid.
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -40,7 +40,7 @@ class DataAreaImplRemote implements DataAreaImpl
 {
   private static final String copyright = "Copyright (C) 1997-2007 International Business Machines Corporation and others.";
 
-    private AS400ImplRemote system_;  // The server where the data area is located.
+    private AS400ImplRemote system_;  // The system where the data area is located.
     private String library_;  // The library that contains the data area.
     private String name_;  // The name of the data area.
     private QSYSObjectPathName ifsPathName_;  // The full path name of the data area.
@@ -49,14 +49,15 @@ class DataAreaImplRemote implements DataAreaImpl
     private ConverterImplRemote converter_;  // The ccsid converter for this system.
 
     private int ccsid_;  // The ccsid for this system.
-    private RemoteCommandImplRemote rmtCmd_;  // Impl object for remote command server.
+    private RemoteCommandImplRemote rmtCmd_;  // Impl object for remote command host server.
     private AS400Message[] messageList_;  // The message list for the command object.
 
     private int length_;  // The maximum number of bytes the data area can contain.
 
-    private boolean attributesRetrieved_;  // Flag indicating if this data area object contains current information regarding its corresponding server data area.
+    private boolean attributesRetrieved_;  // Flag indicating if this data area object contains current information regarding its corresponding i5/OS data area.
     private int dataAreaType_ = DataArea.UNINITIALIZED;  // Type of data area object.
     private static final QSYSObjectPathName PROGRAM_NAME = new QSYSObjectPathName("/QSYS.LIB/QWCRDTAA.PGM");
+    private static final int RETURNED_DATA_FIXED_HEADER_LENGTH = 36; // length of fixed part of returned data from QWCRDTAA
 
     // For DecimalDataArea only:
     private int decimalPositions_ = 5;  // The default number of decimal positions.
@@ -67,17 +68,17 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void clear() throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
         // Build the string for the write.
         // In the case of Character Data Area and Local Data Area,
         // if a substring starting position and length aren't specified,
-        // the 400 assumes '*ALL' for the starting position and hence
+        // the i5/OS API assumes '*ALL' for the starting position and hence
         // performs an overwrite of the remainder of the data area using
         // all blanks.
         String clrcmd = null;
@@ -110,7 +111,7 @@ class DataAreaImplRemote implements DataAreaImpl
 
     /**
      Creates a character data area with the specified attributes.
-     @param  length  The maximum number of characters in the data area.  Valid values are 1 through 2000.
+     @param  length  The maximum number of bytes in the data area.  Valid values are 1 through 2000.
      @param  initialValue  The initial value for the data area.
      @param  textDescription  The text description for the data area.  The maximum length is 50 characters.
      @param  authority  The public authority level for the data area. Valid values are *ALL, *CHANGE, *EXCLUDE, *LIBCRTAUT, *USE, or the name of an authorization list.  The maximum length is 10 characters.
@@ -118,11 +119,11 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectAlreadyExistsException  If the server object already exists.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectAlreadyExistsException  If the system object already exists.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void create(int length, String initialValue, String textDescription, String authority) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectAlreadyExistsException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -159,11 +160,11 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectAlreadyExistsException  If the server object already exists.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectAlreadyExistsException  If the system object already exists.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void create(int length, int decimalPositions, BigDecimal initialValue, String textDescription, String authority) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectAlreadyExistsException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -199,11 +200,11 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectAlreadyExistsException  If the server object already exists.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectAlreadyExistsException  If the system object already exists.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void create(boolean initialValue, String textDescription, String authority) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectAlreadyExistsException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -233,10 +234,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void delete() throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -265,10 +266,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @return  The number of decimal positions.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public int getDecimalPositions() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -286,13 +287,13 @@ class DataAreaImplRemote implements DataAreaImpl
 
     /**
      Returns the size of the data area.
-     @return  The size of the data area.
+     @return  The size of the data area, in bytes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public int getLength() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -338,7 +339,7 @@ class DataAreaImplRemote implements DataAreaImpl
      Throws the appropriate data area exception for each particular AS400Message.
      @param  messageList  The array of AS400Message objects.
      **/
-    void processExceptions(AS400Message[] messageList) throws AS400SecurityException, ObjectDoesNotExistException, AS400Exception
+    static void processExceptions(AS400Message[] messageList) throws AS400SecurityException, ObjectDoesNotExistException, AS400Exception
     {
         if (messageList == null)
             return;
@@ -398,13 +399,13 @@ class DataAreaImplRemote implements DataAreaImpl
      @return  The decimal data read from the data area.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     // Note that doing a read() will also set the attributes of this
-    // object to what is returned from the 400, namely the length and
+    // object to what is returned from the system, namely the length and
     // number of decimal positions.
     public BigDecimal readBigDecimal() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -425,10 +426,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @return  The data read from the data area.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public boolean readBoolean() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -438,19 +439,21 @@ class DataAreaImplRemote implements DataAreaImpl
             throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
+        // Create the pgm call object
+        if (rmtCmd_ == null)
+        {
+          rmtCmd_ = new RemoteCommandImplRemote();
+          rmtCmd_.setSystem(system_);
+        }
+
         // Do the read
-        // **** Setup the parameter list ****
-        // Format for Retrieve Data Area API (QWCRDTAA):
-        // 1 - Receiver variable - Output - Char *
-        // 2 - Length of receiver variable - Input - Bin 4
-        // 3 - Qualified data area name - Input - Char 20
-        // 4 - Starting position - Input - Bin 4
-        // 5 - Length of data - Input - Bin 4
-        // 6 - Error code - I/O - Char *
 
-        ProgramParameter[] parmlist = new ProgramParameter[6];
+        // We expect to retrieve the fixed header, plus 1 byte.
+        int lengthOfReceiverVariable = RETURNED_DATA_FIXED_HEADER_LENGTH + 1;
 
-        // First parameter: output, is the receiver variable
+        // Call the "Retrieve Data Area" API.
+        byte[] dataReceived = retrieveDataAreaContents(lengthOfReceiverVariable, dataAreaSystemPathName_, -1, 1);
+
         // Format of data returned:
         // Offset - Type - Field
         // 0 - Bin 4 - Bytes available
@@ -460,64 +463,6 @@ class DataAreaImplRemote implements DataAreaImpl
         // 28 - Bin 4 - Length of value returned
         // 32 - Bin 4 - Number of decimal positions
         // 36 - Char * - Value
-        byte[] dataReceived = new byte[37];
-        parmlist[0] = new ProgramParameter(dataReceived.length);
-
-        // Second parameter: input, length of receiver variable
-        byte[] receiverLength = new byte[4];
-        BinaryConverter.intToByteArray(dataReceived.length, receiverLength, 0);
-        parmlist[1] = new ProgramParameter(receiverLength);
-
-        // Third parameter: input, qualified data area name
-        parmlist[2] = new ProgramParameter(dataAreaSystemPathName_);
-
-        // Fourth parameter: input, starting position
-        // 1 through 2000; -1 retrieves all
-        byte[] startingPosition = new byte[4];
-        BinaryConverter.intToByteArray(-1, startingPosition, 0);
-        parmlist[3] = new ProgramParameter(startingPosition);
-
-        // Fifth parameter: input, length of data
-        byte[] lengthOfData = new byte[4];
-        BinaryConverter.intToByteArray(1, lengthOfData, 0);
-        parmlist[4] = new ProgramParameter(lengthOfData);
-
-        // Sixth parameter: input/output, error code
-        // Format ERRC0100: (could also use ERRC0200 instead?)
-        // Offset - Use - Type - Field
-        // 0 - Input - Bin 4 - Bytes provided
-        // 4 - Output - Bin 4 - Bytes available
-        // 8 - Output - Char 7 - Exception ID
-        // 15 - Output - Char 1 - Reserved
-        // 16 - Output - Char * - Exception data
-        byte[] errorCode = new byte[17];
-        // A value >=8 of bytes provided means the 400 will return exception
-        // information on the parameter instead of throwing an exception
-        // to the application. We provide 0 to ensure it does indeed
-        // throw us an exception.
-        BinaryConverter.intToByteArray(0, errorCode, 0);
-        parmlist[5] = new ProgramParameter(errorCode, 17);
-
-        // Create the pgm call object
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
-
-        // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
-        {
-            // Throw AS400MessageList
-            processExceptions(rmtCmd_.getMessageList());
-        }
-
-        // Get the data returned from the program
-        dataReceived = parmlist[0].getOutputData();
-        if (Trace.isTraceOn())
-        {
-            Trace.log(Trace.DIAGNOSTIC, "Logical data area data retrieved:", dataReceived);
-        }
 
         // Check the type
         String type = converter_.byteArrayToString(dataReceived, 8, 10).toUpperCase().trim(); //@A1C
@@ -564,15 +509,185 @@ class DataAreaImplRemote implements DataAreaImpl
         return data;
     }
 
+
+   /**
+    Reads raw bytes from the data area.
+    It retrieves <i>dataLength</i> bytes beginning at
+    <i>dataAreaOffset</i> in the data area. The first byte in
+    the data area is at offset 0.
+    @param data The data to be written.
+    @param dataBufferOffset The starting offset in <tt>data</tt>.
+    @param dataAreaOffset The offset in the data area at which to start reading. (0-based)
+    @param dataLength The number of bytes to read. Valid values are from
+    1 through (data area size - <i>dataAreaOffset</i>).
+    @return The total number of bytes read into the buffer.
+    @exception AS400SecurityException          If a security or authority error occurs.
+    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+    @exception IllegalObjectTypeException      If the system object is not the required type.
+    @exception InterruptedException            If this thread is interrupted.
+    @exception IOException                     If an error occurs while communicating with the system.
+    @exception ObjectDoesNotExistException     If the system object does not exist.
+    **/
+   public int readBytes(byte[] data, int dataBufferOffset, int dataAreaOffset, int dataLength)
+     throws AS400SecurityException,
+   ErrorCompletingRequestException,
+   IllegalObjectTypeException,
+   InterruptedException,
+   IOException,
+   ObjectDoesNotExistException
+   {
+     // Create the pgm call object
+     if (rmtCmd_ == null)
+     {
+       rmtCmd_ = new RemoteCommandImplRemote();
+       rmtCmd_.setSystem(system_);
+     }
+
+     // Do the read
+
+     // We expect to retrieve the fixed header, plus dataLength bytes.
+     int lengthOfReceiverVariable = RETURNED_DATA_FIXED_HEADER_LENGTH + dataLength;
+
+     // Call the "Retrieve Data Area" API.
+     byte[] dataReceived = retrieveDataAreaContents(lengthOfReceiverVariable, dataAreaSystemPathName_, dataAreaOffset+1, dataLength);
+
+     // Format of data returned:
+     // Offset - Type - Field
+     // 0 - Bin 4 - Bytes available    The length of all data available to
+     //             return. All available data is returned if enough space
+     //             is provided.
+     // 4 - Bin 4 - Bytes returned    The length of all data actually
+     //             returned. If the data truncated because the receiver
+     //             variable was not sufficiently large to hold all of the
+     //             data available, this value will be less than the bytes
+     //             available.
+     // 8 - Char 10 - Type of value returned
+     // 18 - Char 10 - Library name
+     // 28 - Bin 4 - Length of value returned
+     // 32 - Bin 4 - Number of decimal positions
+     // 36 - Char * - Value
+
+     int numBytesReturned = BinaryConverter.byteArrayToInt(dataReceived, 4);
+     numBytesReturned = numBytesReturned - 36; // Disregard the header bytes
+     if (numBytesReturned > dataLength)
+     {
+       Trace.log(Trace.ERROR, "Unexpected number of bytes returned: "+numBytesReturned);
+       throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+     }
+     else if (numBytesReturned < dataLength)
+     {
+       Trace.log(Trace.WARNING, "Fewer bytes returned than requested: "+numBytesReturned);
+     }
+
+     // The rest of the receiver array is the retrieved data.
+     byte[] bytes = new byte[numBytesReturned];
+     System.arraycopy(dataReceived, 36, data, dataBufferOffset, numBytesReturned);
+     return numBytesReturned;
+   }
+
+
+    /**
+     Calls the Retrieve Data Area (QWCRDTAA) API to retrieve bytes from specified location in the data area.
+     @param lengthOfReceiverVariable The length of the receiver variable (in bytes).
+     @param qualifiedDataAreaName Byte array containing library and name of the data area.
+     @param startingPosition The position (1-based) in the data area at which to start the retrieve.  A value of 1 specifies the first byte in the data area.  A value of -1 will return all the bytes in the data area.
+     @param dataLength The number of bytes to retrieve.
+     @return The retrieved bytes.
+     **/
+    private byte[] retrieveDataAreaContents(int lengthOfReceiverVariable, byte[] qualifiedDataAreaName, int startingPosition, int dataLength) throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+      // Do the read
+      // **** Setup the parameter list ****
+      // Format for Retrieve Data Area API (QWCRDTAA):
+      // 1 - Receiver variable - Output - Char *
+      // 2 - Length of receiver variable - Input - Bin 4
+      // 3 - Qualified data area name - Input - Char 20
+      // 4 - Starting position - Input - Bin 4
+      // 5 - Length of data - Input - Bin 4
+      // 6 - Error code - I/O - Char *
+
+      ProgramParameter[] parmlist = new ProgramParameter[6];
+
+      // First parameter: output, is the receiver variable
+      // Format of data returned:
+      // Offset - Type - Field
+      // 0 - Bin 4 - Bytes available    The length of all data available to
+      //             return. All available data is returned if enough space
+      //             is provided.
+      // 4 - Bin 4 - Bytes returned    The length of all data actually
+      //             returned. If the data truncated because the receiver
+      //             variable was not sufficiently large to hold all of the
+      //             data available, this value will be less than the bytes
+      //             available.
+      // 8 - Char 10 - Type of value returned
+      // 18 - Char 10 - Library name
+      // 28 - Bin 4 - Length of value returned
+      // 32 - Bin 4 - Number of decimal positions
+      // 36 - Char * - Value
+      byte[] dataReceived = new byte[lengthOfReceiverVariable];
+      parmlist[0] = new ProgramParameter(dataReceived.length);
+
+      // Second parameter: input, length of receiver variable
+      byte[] receiverLength = new byte[4];
+      BinaryConverter.intToByteArray(dataReceived.length, receiverLength, 0);
+      parmlist[1] = new ProgramParameter(receiverLength);
+
+      // Third parameter: input, qualified data area name
+      parmlist[2] = new ProgramParameter(qualifiedDataAreaName);
+
+      // Fourth parameter: input, starting position
+      // 1 through 2000; -1 retrieves all
+      byte[] startingPos = BinaryConverter.intToByteArray(startingPosition);
+      parmlist[3] = new ProgramParameter(startingPos);
+
+      // Fifth parameter: input, length of data
+      byte[] lengthOfData = BinaryConverter.intToByteArray(dataLength);
+      parmlist[4] = new ProgramParameter(lengthOfData);
+
+      // Sixth parameter: input/output, error code
+      // Format ERRC0100: (could also use ERRC0200 instead?)
+      // Offset - Use - Type - Field
+      // 0 - Input - Bin 4 - Bytes provided
+      // 4 - Output - Bin 4 - Bytes available
+      // 8 - Output - Char 7 - Exception ID
+      // 15 - Output - Char 1 - Reserved
+      // 16 - Output - Char * - Exception data
+      byte[] errorCode = new byte[17];
+      // A value >=8 of bytes provided means the system will return exception
+      // information on the parameter instead of throwing an exception
+      // to the application. We provide 0 to ensure it does indeed
+      // throw us an exception.
+      BinaryConverter.intToByteArray(0, errorCode, 0);
+      parmlist[5] = new ProgramParameter(errorCode, 17);
+
+      // Run the program.  Failure is returned as a message list.
+      if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+      {
+        // Throw AS400MessageList
+        processExceptions(rmtCmd_.getMessageList());
+      }
+
+      // Get the data returned from the program
+      dataReceived = parmlist[0].getOutputData();
+
+      if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+      {
+        String areaType = DataArea.dataAreaTypeToString(dataAreaType_);
+        Trace.log(Trace.DIAGNOSTIC, areaType + " data area data retrieved:", dataReceived);
+      }
+
+      return dataReceived;
+    }
+
     /**
      Refreshes the attributes of the data area.
-     This method should be called if the underlying server data area has changed and it is desired that this object should reflect those changes.
+     This method should be called if the underlying i5/OS data area has changed and it is desired that this object should reflect those changes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public void refreshAttributes() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -583,13 +698,15 @@ class DataAreaImplRemote implements DataAreaImpl
     //$D2C
     /**
      Makes the API call to retrieve the character data area data and attributes.
+     @param offset The offset in the data area at which to start retrieving. (0-based)
+     @param length The number of bytes to read.
      @return The String value read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public String retrieve(int offset, int length) throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -603,16 +720,18 @@ class DataAreaImplRemote implements DataAreaImpl
     //$D2A
     /**
      Makes the API call to retrieve the character data area data and attributes.
+     @param offset The offset in the data area at which to start retrieving. (0-based)
+     @param length The number of bytes to read.
      @param stringType The Data Area bidi string type, as defined by the CDRA (Character
                  Data Representataion Architecture). See <a href="BidiStringType.html">
                  BidiStringType</a> for more information and valid values.
      @return The String value read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     public String retrieve(int offset, int length, int stringType) throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -622,29 +741,18 @@ class DataAreaImplRemote implements DataAreaImpl
             throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
-        // **** Setup the parameter list ****
-        // Format for Retrieve Data Area API (QWCRDTAA):
-        // 1 - Receiver variable - Output - Char *
-        // 2 - Length of receiver variable - Input - Bin 4
-        // 3 - Qualified data area name - Input - Char 20
-        // 4 - Starting position - Input - Bin 4
-        // 5 - Length of data - Input - Bin 4
-        // 6 - Error code - I/O - Char *
+        // Create the pgm call object
+        if (rmtCmd_ == null)
+        {
+          rmtCmd_ = new RemoteCommandImplRemote();
+          rmtCmd_.setSystem(system_);
+        }
 
-        ProgramParameter[] parmlist = new ProgramParameter[6];
+        // Do the read
 
-        // First parameter: output, is the receiver variable
-        // Format of data returned:
-        // Offset - Type - Field
-        // 0 - Bin 4 - Bytes available
-        // 4 - Bin 4 - Bytes returned
-        // 8 - Char 10 - Type of value returned
-        // 18 - Char 10 - Library name
-        // 28 - Bin 4 - Length of value returned
-        // 32 - Bin 4 - Number of decimal positions
-        // 36 - Char * - Value
-        byte[] dataReceived = new byte[36+4001];
-        // 36 from above and max of 4001 from data area
+        // We expect to retrieve the fixed header, plus the data bytes.
+        int lengthOfReceiverVariable = RETURNED_DATA_FIXED_HEADER_LENGTH + 4001;
+        // 36 fixed header bytes, plus a max of 4001 bytes from data area.
         // With a max of 2000 characters, the worst case
         // scenario is that every other character is DBCS
         // (i.e. for a mixed byte Unicode String)
@@ -655,63 +763,10 @@ class DataAreaImplRemote implements DataAreaImpl
         // This equates to:
         // max # bytes needed = (2 * initial_chars) + 1
 
-        parmlist[0] = new ProgramParameter(dataReceived.length);
+        // Call the "Retrieve Data Area" API.
+        int startingPosition = (offset == -1 ? offset : offset+1);  // -1 means "retrieve all"
+        byte[] dataReceived = retrieveDataAreaContents(lengthOfReceiverVariable, dataAreaSystemPathName_, startingPosition, length);
 
-        // Second parameter: input, length of receiver variable
-        byte[] receiverLength = new byte[4];
-        BinaryConverter.intToByteArray(dataReceived.length, receiverLength, 0);
-        parmlist[1] = new ProgramParameter(receiverLength);
-
-        // Third parameter: input, qualified data area name
-        parmlist[2] = new ProgramParameter(dataAreaSystemPathName_);
-
-        // Fourth parameter: input, starting position
-        // 1 through 2000; -1 retrieves all
-        byte[] startingPosition = new byte[4];
-        BinaryConverter.intToByteArray(offset, startingPosition, 0);
-        parmlist[3] = new ProgramParameter(startingPosition);
-
-        // Fifth parameter: input, length of data
-        byte[] lengthOfData = new byte[4];
-        BinaryConverter.intToByteArray(length, lengthOfData, 0);
-        parmlist[4] = new ProgramParameter(lengthOfData);
-
-        // Sixth parameter: input/output, error code
-        // Format ERRC0100: (could also use ERRC0200 instead?)
-        // Offset - Use - Type - Field
-        // 0 - Input - Bin 4 - Bytes provided
-        // 4 - Output - Bin 4 - Bytes available
-        // 8 - Output - Char 7 - Exception ID
-        // 15 - Output - Char 1 - Reserved
-        // 16 - Output - Char * - Exception data
-        byte[] errorCode = new byte[17];
-        // A value >=8 of bytes provided means the 400 will return exception
-        // information on the parameter instead of throwing an exception
-        // to the application. We provide 0 to ensure it does indeed
-        // throw us an exception.
-        BinaryConverter.intToByteArray(0, errorCode, 0);
-        parmlist[5] = new ProgramParameter(errorCode, 17);
-
-        // Create the pgm call object
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
-
-        // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
-        {
-            // Throw AS400MessageList
-            processExceptions(rmtCmd_.getMessageList());
-        }
-
-        // Get the data returned from the program
-        dataReceived = parmlist[0].getOutputData();
-        if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
-        {
-            Trace.log(Trace.DIAGNOSTIC, "Character data area data retrieved:", dataReceived);
-        }
         // Format of data returned:
         // Offset - Type - Field
         // 0 - Bin 4 - Bytes available    The length of all data available to
@@ -769,10 +824,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @return  The data read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     private Object retrieveAttributes() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -796,132 +851,67 @@ class DataAreaImplRemote implements DataAreaImpl
      @return  The BigDecimal value read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     private Object retrieveAttributesBigDecimal() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        // For a decimal data area, need to get the length & decimal positions
-        // But since this is the only API available to us, we might as well
-        // do a read of the data too.
+      // For a decimal data area, need to get the length & decimal positions
+      // But since this is the only API available to us, we might as well
+      // do a read of the data too.
 
-        // **** Setup the parameter list ****
-        // Format for Retrieve Data Area API (QWCRDTAA):
-        // 1 - Receiver variable - Output - Char *
-        // 2 - Length of receiver variable - Input - Bin 4
-        // 3 - Qualified data area name - Input - Char 20
-        // 4 - Starting position - Input - Bin 4
-        // 5 - Length of data - Input - Bin 4
-        // 6 - Error code - I/O - Char *
+      // Create the pgm call object
+      if (rmtCmd_ == null)
+      {
+        rmtCmd_ = new RemoteCommandImplRemote();
+        rmtCmd_.setSystem(system_);
+      }
 
-        ProgramParameter[] parmlist = new ProgramParameter[6];
+      // Do the read
 
-        // First parameter: output, is the receiver variable
-        // Format of data returned:
-        // Offset - Type - Field
-        // 0 - Bin 4 - Bytes available               0 0 0 44
-        // 4 - Bin 4 - Bytes returned                0 0 0 44
-        // 8 - Char 10 - Type of value returned      92 -60 -59 -61 64 64 64 64 64 64
-        // 18 - Char 10 - Library name               -61 -30 -44 -55 -29 -56 64 64 64 64
-        // 28 - Bin 4 - Length of value returned     0 0 0 15
-        // 32 - Bin 4 - Number of decimal positions  0 0 0 5
-        // 36 - Char * - Value
-        byte[] dataReceived = new byte[60]; // 36 from above and max of 24 digits from data area
-        parmlist[0] = new ProgramParameter(dataReceived.length);
+      // We expect to retrieve the fixed header, plus a max of 24 digits from data area.
+      int lengthOfReceiverVariable = RETURNED_DATA_FIXED_HEADER_LENGTH + 24;
 
-        // Second parameter: input, length of receiver variable
-        byte[] receiverLength = new byte[4];
-        BinaryConverter.intToByteArray(dataReceived.length, receiverLength, 0);
-        parmlist[1] = new ProgramParameter(receiverLength);
+      // Call the "Retrieve Data Area" API.
+      byte[] dataReceived = retrieveDataAreaContents(lengthOfReceiverVariable, dataAreaSystemPathName_, -1, 24);
 
-        // Third parameter: input, qualified data area name
-        parmlist[2] = new ProgramParameter(dataAreaSystemPathName_);
-
-        // Fourth parameter: input, starting position
-        // 1 through 2000; -1 retrieves all
-        byte[] startingPosition = new byte[4];
-        BinaryConverter.intToByteArray(-1, startingPosition, 0);
-        parmlist[3] = new ProgramParameter(startingPosition);
-
-        // Fifth parameter: input, length of data
-        byte[] lengthOfData = new byte[4];
-        BinaryConverter.intToByteArray(24, lengthOfData, 0);
-        parmlist[4] = new ProgramParameter(lengthOfData);
-
-        // Sixth parameter: input/output, error code
-        // Format ERRC0100: (could also use ERRC0200 instead?)
-        // Offset - Use - Type - Field
-        // 0 - Input - Bin 4 - Bytes provided
-        // 4 - Output - Bin 4 - Bytes available
-        // 8 - Output - Char 7 - Exception ID
-        // 15 - Output - Char 1 - Reserved
-        // 16 - Output - Char * - Exception data
-        byte[] errorCode = new byte[17];
-        // A value >=8 of bytes provided means the 400 will return exception
-        // information on the parameter instead of throwing an exception
-        // to the application. We provide 0 to ensure it does indeed
-        // throw us an exception.
-        BinaryConverter.intToByteArray(0, errorCode, 0);
-        parmlist[5] = new ProgramParameter(errorCode, 17);
-
-        // Create the pgm call object
-        if (rmtCmd_ == null)
+      // Check the type
+      String type = converter_.byteArrayToString(dataReceived, 8, 10).toUpperCase().trim(); //@A1C
+      if (!type.equals("*DEC"))
+      {
+        if (type.equals("*CHAR"))
         {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
+          Trace.log(Trace.ERROR, "Illegal data area type for decimal data area object: "+type);
+          throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_AREA_CHARACTER);
         }
-
-        // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+        else if (type.equals("*LGL"))
         {
-            // Throw AS400MessageList
-            processExceptions(rmtCmd_.getMessageList());
+          Trace.log(Trace.ERROR, "Illegal data area type for decimal data area object: "+type);
+          throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_AREA_LOGICAL);
         }
-
-        // Get the data returned from the program
-        dataReceived = parmlist[0].getOutputData();
-        if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+        else
         {
-            Trace.log(Trace.DIAGNOSTIC, "Decimal data area data retrieved:", dataReceived);
+          Trace.log(Trace.ERROR, "Illegal data area type for decimal data area object: "+type);
+          throw new IOException(ResourceBundleLoader.getText("EXC_OBJECT_TYPE_UNKNOWN"));
         }
+      }
 
-        // Check the type
-        String type = converter_.byteArrayToString(dataReceived, 8, 10).toUpperCase().trim(); //@A1C
-        if (!type.equals("*DEC"))
-        {
-            if (type.equals("*CHAR"))
-            {
-                Trace.log(Trace.ERROR, "Illegal data area type for decimal data area object: "+type);
-                throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_AREA_CHARACTER);
-            }
-            else if (type.equals("*LGL"))
-            {
-                Trace.log(Trace.ERROR, "Illegal data area type for decimal data area object: "+type);
-                throw new IllegalObjectTypeException(IllegalObjectTypeException.DATA_AREA_LOGICAL);
-            }
-            else
-            {
-                Trace.log(Trace.ERROR, "Illegal data area type for decimal data area object: "+type);
-                throw new IOException(ResourceBundleLoader.getText("EXC_OBJECT_TYPE_UNKNOWN"));
-            }
-        }
+      // Set the attributes
+      length_ = BinaryConverter.byteArrayToInt(dataReceived, 28);
+      decimalPositions_ = BinaryConverter.byteArrayToInt(dataReceived, 32);
 
-        // Set the attributes
-        length_ = BinaryConverter.byteArrayToInt(dataReceived, 28);
-        decimalPositions_ = BinaryConverter.byteArrayToInt(dataReceived, 32);
+      // The rest of the receiver array is the packed decimal data.
+      // Need to convert: packed decimal bytes -> AS400PackedDecimal -> BigDecimal.
+      AS400PackedDecimal packedJava = new AS400PackedDecimal(length_, decimalPositions_);
+      byte[] packed400 = new byte[24];
+      System.arraycopy(dataReceived, 36, packed400, 0, 24);
+      BigDecimal val = (BigDecimal)packedJava.toObject(packed400);
 
-        // The rest of the receiver array is the packed decimal data.
-        // Need to convert: packed decimal bytes -> AS400PackedDecimal -> BigDecimal.
-        AS400PackedDecimal packedJava = new AS400PackedDecimal(length_, decimalPositions_);
-        byte[] packed400 = new byte[24];
-        System.arraycopy(dataReceived, 36, packed400, 0, 24);
-        BigDecimal val = (BigDecimal)packedJava.toObject(packed400);
+      attributesRetrieved_ = true;
 
-        attributesRetrieved_ = true;
-
-        return val;
+      return val;
     }
 
     /**
@@ -929,10 +919,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @return The boolean[] value read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     private Object retrieveAttributesBoolean() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -950,10 +940,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @return The String value read from the data area as a result of retrieving the data area's attributes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IllegalObjectTypeException  If the server object is not the required type.
+     @exception  IllegalObjectTypeException  If the system object is not the required type.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      **/
     private Object retrieveAttributesString() throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -976,9 +966,9 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  IOException  If an error occurs while communicating with the system.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     private boolean run(String command, boolean threadSafe) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ServerStartupException, UnknownHostException
     {
@@ -1035,7 +1025,7 @@ class DataAreaImplRemote implements DataAreaImpl
 
     /**
      Sets the system on which the data area exists. The system cannot be set if a connection has already been established.
-     @param  system  The server on which the data area exists.
+     @param  system  The system on which the data area exists.
      **/
     private void setSystem(AS400ImplRemote system)
     {
@@ -1080,10 +1070,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void write(String data, int dataAreaOffset) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -1106,10 +1096,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void write(String data, int dataAreaOffset, int type) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -1211,10 +1201,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void write(BigDecimal data) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -1243,10 +1233,10 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the server.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the system object does not exist.
      @exception  ServerStartupException  If the host server cannot be started.
-     @exception  UnknownHostException  If the server cannot be located.
+     @exception  UnknownHostException  If the system cannot be located.
      **/
     public void write(boolean data) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, ServerStartupException, UnknownHostException
     {
@@ -1265,5 +1255,72 @@ class DataAreaImplRemote implements DataAreaImpl
             // Throw AS400MessageList
             processExceptions(getMessages());
         }
+    }
+
+
+    /**
+     Writes the data to the data area.
+     It writes the specified bytes to the data area, at offset <i>dataAreaOffset</i>.
+     The first byte in the data area is at offset 0.
+     @param data The data to be written.
+     @param dataBufferOffset The starting offset in <tt>data</tt>.
+     @param dataAreaOffset The offset in the data area at which to start writing. (0-based)
+     @param dataLength The number of bytes to write.
+     @exception AS400SecurityException          If a security or authority error occurs.
+     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     @exception InterruptedException            If this thread is interrupted.
+     @exception IOException                     If an error occurs while communicating with the system.
+     @exception ObjectDoesNotExistException     If the system object does not exist.
+     **/
+    public void write(byte[] data, int dataBufferOffset, int dataAreaOffset, int dataLength)
+      throws AS400SecurityException,
+    ErrorCompletingRequestException,
+    InterruptedException,
+    IOException,
+    ObjectDoesNotExistException
+    {
+      // Assume the arguments have been validated by the public class.
+      if (dataAreaType_ != DataArea.CHARACTER_DATA_AREA && dataAreaType_ != DataArea.LOCAL_DATA_AREA)
+      {
+        Trace.log (Trace.ERROR, "Programming error: write(byte[],int) was called when dataAreaType=" + dataAreaType_);
+        throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+      }
+
+      // Build the string for the write.
+      String dataAreaIdentifier = null;
+      switch (dataAreaType_)
+      {
+        case DataArea.CHARACTER_DATA_AREA:
+          dataAreaIdentifier = library_ + "/" + name_;
+          break;
+        case DataArea.LOCAL_DATA_AREA:
+          dataAreaIdentifier = "*LDA";
+          break;
+        default:
+          Trace.log(Trace.ERROR, "Programming error: write(byte[],int,int,int) was called as dataAreaType=" + dataAreaType_);
+          throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+      }
+      String wrtcmd = "QSYS/CHGDTAARA DTAARA(" + dataAreaIdentifier +
+        " (" + (dataAreaOffset+1) + " " + dataLength + "))" +
+        " VALUE(X'" + BinaryConverter.bytesToString(data, dataBufferOffset, dataLength) + "')";
+
+      if (rmtCmd_ == null)
+      {
+        rmtCmd_ = new RemoteCommandImplRemote();
+        rmtCmd_.setSystem(system_);
+      }
+
+      if (Trace.isTraceOn()) {
+        Trace.log(Trace.DIAGNOSTIC, "wrtcmd=["+wrtcmd+"]");
+      }
+      // Run the command as bytes
+      boolean result = rmtCmd_.runCommand(wrtcmd, false, AS400Message.MESSAGE_OPTION_UP_TO_10);
+      messageList_ = rmtCmd_.getMessageList();
+
+      if(!result)
+      {
+        // Throw AS400MessageList
+        processExceptions(getMessages());
+      }
     }
 }
