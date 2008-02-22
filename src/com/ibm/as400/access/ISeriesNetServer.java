@@ -10,6 +10,11 @@
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+// @A1 2008-02-12 Change to userHasSpecialAuthority() method.  This method 
+//     determines if a user has *IOSYSCFG authority.  This change will expand
+//     the determination to include if any groups that the user belongs to has 
+//     *IOSYSCFG authority.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -2528,14 +2533,10 @@ implements Serializable
       try
       {
         User user = new User(system_, system_.getUserId());
-        String[] authorities = (String[])user.getSpecialAuthority();
-        if (authorities != null) {
-          for (int i=0; i<authorities.length && !foundAuth; i++) {
-            if (authorities[i].equals(User.SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION) ) {
-              foundAuth = true;
-            }
-          }
-        }
+        
+        // Call User.hasSpecialAuthority() to determine whether the User, or any groups that the 
+        // User belongs to, has SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION authority
+        foundAuth = user.hasSpecialAuthority(User.SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION);//@A1A
       }
       catch (Exception e) {} // This will never happen.  The User constructor doesn't actually throw any exceptions anymore.
       if (!foundAuth) {
