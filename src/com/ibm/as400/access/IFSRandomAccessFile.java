@@ -10,6 +10,9 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @A1 2008-02-22 Change seek() method to remove (int) cast when calling
+//     setFileOffset() which accepts a long parameter.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -1084,7 +1087,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
     // Ensure that the file is open.
     open();
 
-    fd_.setFileOffset((int) position);
+    fd_.setFileOffset(position); // @A1C - Remove (int) cast to pass long parameter
   }
 
 

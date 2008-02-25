@@ -10,6 +10,9 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @A1 2008-02-22 Change write() method to pass 'long' rather than 'int' to  
+//     the fd_.setFileOffset() method which accepts a long parameter.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -381,7 +384,7 @@ implements IFSFileOutputStreamImpl
         // Get the file information.
         IFSListAttrsRep rep = (IFSListAttrsRep) ds;
 
-        fd_.setFileOffset((int)rep.getSize(fd_.serverDatastreamLevel_));                // @B7c
+        fd_.setFileOffset(rep.getSize(fd_.serverDatastreamLevel_)); // @B7c //@A1C remove (int) cast
       }
       else if (ds instanceof IFSReturnCodeRep)
       {

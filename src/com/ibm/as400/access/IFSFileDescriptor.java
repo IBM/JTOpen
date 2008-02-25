@@ -10,6 +10,11 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @A1 2008-02-22 Change setFileOffset() parameter from int to long 
+//     This is a private method and calls the impl.setFileOffset which already
+//     takes a long.
+//     setFileOffset() is called from IFSRandomAccessFile.seek(long)
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -285,7 +290,7 @@ Constructs an IFSFileDescriptor object.
     impl_ = null;
   }
 
-  void setFileOffset(int fileOffset)
+  void setFileOffset(long fileOffset) //@A1C - Change parameter from int to long
   {
     if (impl_ == null)
     {
