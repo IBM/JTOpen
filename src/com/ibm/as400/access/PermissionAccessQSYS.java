@@ -10,6 +10,8 @@
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+// @A1 - 02/12/2008 - Updates to process QSYS IASP objects correctly.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -152,11 +154,24 @@ class PermissionAccessQSYS extends PermissionAccess
         QSYSPermission qsysPermission = (QSYSPermission)permission;
         String userProfile=qsysPermission.getUserID();
         String object = objectPathName.getObjectName();
-        if (!objectPathName.getLibraryName().equals("QSYS"))
+        // Determine if the object type is an AUTL which must be treated uniquely. @A1A
+        String objectType = objectPathName.getObjectType(); //@A1A
+        boolean isAuthList = objectType.equals("AUTL"); 
+
+        // Set the object equal to only the "lib" if no object type @A1A
+        // Set the object equal to "lib/obj" if not an AUTL         @A1A
+        if (object.equals(""))                                    //@A1A
         {
-            object = objectPathName.getLibraryName()+"/"+object;
+          object = objectPathName.getLibraryName();               //@A1A
         }
-        String objectType = objectPathName.getObjectType();
+        else                                                      //@A1A
+        {
+          if (!isAuthList) // Do NOT prepend LIB name for AUTL objects
+          {
+            object = objectPathName.getLibraryName()+"/"+object;
+          }
+        }
+        
         if (objectType.toUpperCase().equals("MBR"))
             objectType = "FILE";
 
@@ -178,10 +193,19 @@ class PermissionAccessQSYS extends PermissionAccess
                       +" AUT(*EXCLUDE)";
         } else
         {
+          // Add the ASPDEV() parameter if object is on IASP      //@A1A
+          String aspParm = "";                                    //@A1A                                   
+          String aspName = objectPathName.getAspName();           //@A1A
+          if (!aspName.equals(""))                                //@A1A
+          {
+            aspParm = " ASPDEV("+aspName+")";                     //@A1A
+          }
+          
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
                     +" USER("+userProfile+")"
+                    +aspParm                                      //@A1A
                     +" AUT(*EXCLUDE)";
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
@@ -203,16 +227,19 @@ class PermissionAccessQSYS extends PermissionAccess
         QSYSPermission qsysPermission = (QSYSPermission)permission;
         String userProfile=qsysPermission.getUserID();
         String object = objectPathName.getObjectName();
-        if (!objectPathName.getLibraryName().equals("QSYS"))
-        {
-            object = objectPathName.getLibraryName()+"/"+object;
-        }
         String objectType = objectPathName.getObjectType();
+        boolean isAuthList = objectType.equals("AUTL");           
+        
+        if (object.equals(""))                                    //@A1A
+          object = "QSYS/"+objectPathName.getLibraryName();    
+        else 
+          if (!isAuthList) // Do NOT prepend LIB name for AUTL objects //@A1A
+            object = objectPathName.getLibraryName()+"/"+object;
+
         if (objectType.toUpperCase().equals("MBR"))
             objectType = "FILE";
-
+        
         String command;
-        boolean isAuthList = objectType.equals("AUTL");  // @B5a
         try
         {
           object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
@@ -230,10 +257,17 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         else
         {
+          // Add the ASPDEV() parameter if object is on IASP      //@A1A
+          String aspParm = "";                                    //@A1A
+          String aspName = objectPathName.getAspName();           //@A1A
+          if (!aspName.equals(""))                                //@A1A
+            aspParm = " ASPDEV("+aspName+")";                     //@A1A
+
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
                     +" USER("+userProfile+")"
+                    +aspParm                                      //@A1A
                     +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"  // @B5c
                     +" REPLACE(*YES)";
         }
@@ -511,18 +545,26 @@ class PermissionAccessQSYS extends PermissionAccess
         {
           Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
         }
+        // Add the ASPDEV() parameter if object is on IASP        //@A1A
+        String aspParm = "";                                      //@A1A
+        String aspName = objectPathName.getAspName();             //@A1A
+        if (!aspName.equals(""))                                  //@A1A
+          aspParm = " ASPDEV("+aspName+")";                       //@A1A
         if (!oldValue.toUpperCase().equals("*NONE")&&
             autList.toUpperCase().equals("*NONE"))
         {
             cmd = "RVKOBJAUT"
                   +" OBJ("+object+")"
                   +" OBJTYPE(*"+objectType+")"
+                  +aspParm                                        //@A1A
                   +" AUTL("+oldValue+")";
         } else
         {
+
             cmd = "GRTOBJAUT"
                   +" OBJ("+object+")"
                   +" OBJTYPE(*"+objectType+")"
+                  +aspParm                                        //@A1A
                   +" AUTL("+autList+")";
         }
         setAUTL.setCommand(cmd);
@@ -582,18 +624,27 @@ class PermissionAccessQSYS extends PermissionAccess
         {
           Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
         }
+        // Add the ASPDEV() parameter if object is on IASP        //@A1A
+        String aspParm = "";                                      //@A1A
+        String aspName = objectPathName.getAspName();             //@A1A
+        if (!aspName.equals(""))                                  //@A1A
+          aspParm = " ASPDEV("+aspName+")";                       //@A1A
         if (fromAutl)
             cmd = "GRTOBJAUT"
                   +" OBJ("+object+")"
                   +" OBJTYPE(*"+objectType+")"
                   +" USER(*PUBLIC)"
+                  +aspParm                                        //@A1A
                   +" AUT(*AUTL)";
         else
+        {
             cmd = "GRTOBJAUT"
                   +" OBJ("+object+")"
                   +" OBJTYPE(*"+objectType+")"
                   +" USER(*PUBLIC)"
+                  +aspParm                                        //@A1A
                   +" AUT(*EXCLUDE)";
+        }
         fromAUTL.setCommand(cmd);
 //        fromAUTL.setThreadSafe(false); // GRTOBJAUT isn't threadsafe.  @A2A @A3C
         if (fromAUTL.run()!=true)

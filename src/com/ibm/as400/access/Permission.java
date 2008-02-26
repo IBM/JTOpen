@@ -24,6 +24,7 @@
 //                    added to the commit() method to accomodate either order.
 // @A2 - 10/09/2007 - Update parseType() to process '/QSYS.LIB' correctly.  Add
 //                    check to account for missing ending delimiter.
+// @A3 - 02/12/2008 - Updates to process QSYS IASP objects correctly.
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -306,13 +307,13 @@ public class Permission
         Vector vector = null; 
         try 
         {  
-           // @B6 If the QSYS object is on an ASP, prepend the ASP name
-           //     to correctly fully qualify the path.
-           String path = path_;                          // @B6a
-           if (asp_ != null)                             // @B6a
-              path = asp_ + path;                        // @B6a
-           
-           vector = access_.getAuthority(path);          // @B6c
+          // @B6 If the QSYS object is on an ASP, prepend the ASP name
+          //     to correctly fully qualify the path.
+          // @A3 The ASP is already part of the path. (e.g. /iasp123/QSYS.LIB/xyz.lib)
+          // String path = path_;                          // @B6a //@A3D
+          // if (asp_ != null)                             // @B6a //@A3D
+          //    path = asp_ + path;                        // @B6a //@A3D
+          vector = access_.getAuthority(path_);          // @B6c
         }
         catch (PropertyVetoException e)
         {
@@ -616,8 +617,14 @@ public class Permission
      *
     **/
     public String getObjectPath()
-    {
-        return path_;
+    {          
+      // @A3 The ASP is already part of the path. (e.g. /iasp123/QSYS.LIB/xyz.lib)
+      // String fullPath;                                 //@A3D
+      // if (asp_.equals(""))                             //@A3D
+      //   fullPath = path_;                              //@A3D
+      // else                                             //@A3D
+      //   fullPath = "/"+ asp_ + "/" + path_;            //@A3D
+        return (path_);
     }
 
     /**
@@ -823,7 +830,8 @@ public class Permission
                  if (asp.indexOf('/') < 0)                                      // @B6a
                  {                                                              // @B6a
                     asp_  = objectName.substring(0, locationOfQSYS);            // @B6a
-                    path_ = objectName.substring(locationOfQSYS);               // @B6a
+                    // @A3 Leave the ASP in the path. (e.g. /iasp123/QSYS.LIB/xyz.lib)
+                    // path_ = objectName.substring(locationOfQSYS);            // @B6a //@A3D
                     return TYPE_QSYS;                                           // @B6a
                  }                                                              // @B6a
                  else                                                           // @B6a
