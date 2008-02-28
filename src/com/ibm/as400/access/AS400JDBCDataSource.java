@@ -1373,7 +1373,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public boolean isTrueAutoCommit()
     {
-        return properties_.getBoolean(JDProperties.AUTO_COMMIT);
+        return properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT); //@true
     }
     
     //@dup
@@ -1874,9 +1874,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         Boolean newValue = new Boolean(value);
 
         if (value)
-            properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
+            properties_.setString(JDProperties.TRUE_AUTO_COMMIT, TRUE_); //@true
         else
-            properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
+            properties_.setString(JDProperties.TRUE_AUTO_COMMIT, FALSE_); //@true
 
         changes_.firePropertyChange(property, oldValue, newValue);
 

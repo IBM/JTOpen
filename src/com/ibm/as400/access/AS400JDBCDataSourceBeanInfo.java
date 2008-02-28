@@ -495,11 +495,11 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             translateHex.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));                //@K5C
 
             // @KBA - added support for true auto commit
-            PropertyDescriptor autoCommit = new PropertyDescriptor("trueAutoCommit", beanClass, "isTrueAutoCommit", "setTrueAutoCommit");   //@KBA
-            autoCommit.setBound(true);                                                                      //@KBA
-            autoCommit.setConstrained(false);                                                               //@KBA
-            autoCommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTO_COMMIT"));                //@KBA
-            autoCommit.setShortDescription(AS400JDBCDriver.getResource("AUTO_COMMIT_DESC"));                //@KBA
+            PropertyDescriptor trueAutoCommit = new PropertyDescriptor("trueAutoCommit", beanClass, "isTrueAutoCommit", "setTrueAutoCommit");   //@KBA //@true
+            trueAutoCommit.setBound(true);                                                                      //@KBA //@true
+            trueAutoCommit.setConstrained(false);                                                               //@KBA //@true
+            trueAutoCommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRUE_AUTO_COMMIT"));                //@KBA //@true
+            trueAutoCommit.setShortDescription(AS400JDBCDriver.getResource("TRUE_AUTO_COMMIT_DESC"));                //@KBA //@true
 
             //@K94 - added support for holding a cursor across rollbacks
             PropertyDescriptor rollbackCursorHold = new PropertyDescriptor("rollbackCursorHold", beanClass, "isRollbackCursorHold", "setRollbackCursorHold");    //@K94
@@ -569,8 +569,8 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode}; //@540 @550 //@DFA
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException}; //@540 @550 //@DFA //@pdc
         }
         catch(Exception e)
         {

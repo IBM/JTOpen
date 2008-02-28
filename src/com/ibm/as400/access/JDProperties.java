@@ -133,7 +133,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              TRACE_TOOLBOX           = 56;   // @K1A - support to allow a toolbox trace
     static final int              QAQQINILIB              = 57;   // @K2A - support to specify a QAQQINI library name 
     static final int              LOGIN_TIMEOUT           = 58;   // @K5A
-    static final int              AUTO_COMMIT             = 59;   // @KBA
+    static final int              TRUE_AUTO_COMMIT        = 59;   // @KBA //@true
     static final int              BIDI_IMPLICIT_REORDERING = 60;    //@K24
     static final int              BIDI_NUMERIC_ORDERING   = 61;     //@K24
     static final int              HOLD_LOCATORS           = 62;   // @KBL
@@ -221,7 +221,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String USER_                   = "user";
     private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
     private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
-    private static final String AUTO_COMMIT_            = "true autocommit";            //@KBA
+    private static final String TRUE_AUTO_COMMIT_            = "true autocommit";            //@KBA //@true
     private static final String BIDI_IMPLICIT_REORDERING_ = "bidi implicit reordering"; //@K24
     private static final String BIDI_NUMERIC_ORDERING_  = "bidi numeric ordering";      //@K24
     private static final String HOLD_STATEMENTS_ = "hold statements";   //@KBL
@@ -1112,9 +1112,9 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         defaults_[i]        = EMPTY_;
 
         // Auto Commit.  @KBA
-        i = AUTO_COMMIT;
-        dpi_[i] = new DriverPropertyInfo (AUTO_COMMIT_, "");
-        dpi_[i].description = "AUTO_COMMIT_DESC";
+        i = TRUE_AUTO_COMMIT; //@true
+        dpi_[i] = new DriverPropertyInfo (TRUE_AUTO_COMMIT_, ""); //@true
+        dpi_[i].description = "TRUE_AUTO_COMMIT_DESC";  //@true
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = FALSE_;

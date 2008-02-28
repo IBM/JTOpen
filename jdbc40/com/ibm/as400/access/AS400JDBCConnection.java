@@ -3059,7 +3059,7 @@ implements Connection
         statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         if(!TESTING_THREAD_SAFETY && as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
             newAutoCommitSupport_ = 0;                                               //@KBA
-        else if(!properties_.getBoolean(JDProperties.AUTO_COMMIT))                   //@KBA         //run autocommit with *NONE isolation level
+        else if(!properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT))              //@KBA //@true     //run autocommit with *NONE isolation level
             newAutoCommitSupport_ = 1;                                               //@KBA
         else                                                                         //@KBA
             newAutoCommitSupport_ = 2;                                               //@KBA         //run autocommit with specified isolation level
