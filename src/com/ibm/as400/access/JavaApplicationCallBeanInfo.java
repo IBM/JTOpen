@@ -53,7 +53,7 @@ public class JavaApplicationCallBeanInfo extends SimpleBeanInfo
             event2.setShortDescription(rbl_.getText("EVT_DESC_ACTION_COMPLETED"));
 
             EventSetDescriptor event3 =
-              new EventSetDescriptor(beanClass_, "vetoableChange",
+              new EventSetDescriptor(beanClass_, "propertyChange",
                                VetoableChangeListener.class,
                                "vetoableChange");
             event3.setDisplayName(rbl_.getText("EVT_NAME_PROPERTY_VETO"));
