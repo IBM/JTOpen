@@ -49,7 +49,7 @@ public class UserSpaceBeanInfo extends SimpleBeanInfo
             userSpace.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_US_EVENT"));
             userSpace.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_US_EVENT"));
 
-            EventSetDescriptor vetoableChange = new EventSetDescriptor(BEAN_CLASS, "vetoableChange", VetoableChangeListener.class, "vetoableChange");
+            EventSetDescriptor vetoableChange = new EventSetDescriptor(BEAN_CLASS, "propertyChange", VetoableChangeListener.class, "vetoableChange");
             vetoableChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_VETO"));
             vetoableChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_VETO"));
             eventSetDescriptors = new EventSetDescriptor[] { propertyChange, userSpace, vetoableChange };
