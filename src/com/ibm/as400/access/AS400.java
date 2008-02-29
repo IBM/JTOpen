@@ -180,6 +180,7 @@ public class AS400 implements Serializable
     private static int expirationWarning = 7;
     // Random number generator for seeds.
     static Random rng = new Random();
+    private static int alreadyCheckedForMultipleVersions_ = 0;
 
     // System name.
     private String systemName_ = "";
@@ -1963,7 +1964,7 @@ public class AS400 implements Serializable
             impl = "com.ibm.as400.access." + impl;
         }
 
-        if (Trace.traceOn_)
+        if (Trace.traceOn_ && alreadyCheckedForMultipleVersions_++ < 10)
         {
             Trace.log(Trace.DIAGNOSTIC, "Checking for multiple Toolbox versions.");
             try
