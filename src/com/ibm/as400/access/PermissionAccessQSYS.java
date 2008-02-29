@@ -11,6 +11,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 // @A1 - 02/12/2008 - Updates to process QSYS IASP objects correctly.
+// @A4 - 03/01/2008 - Additional iasp updates
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -322,7 +323,11 @@ class PermissionAccessQSYS extends PermissionAccess
             if (asp != null)                                                  // @B6a
                object = asp + "/QSYS.LIB/";                                   // @B6a
             else                                                              // @B6a
-            object = "QSYS.LIB/";
+            {
+              // Starting slash must be there or this will be treated like @A4C 
+              // a relative path of the users working directory            @A4C
+              object = "/QSYS.LIB/";                                     //@A4C
+            }
 
             if (!objectPathName.getLibraryName().equals(""))
                 object += objectPathName.getLibraryName()+".LIB/";

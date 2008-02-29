@@ -25,6 +25,7 @@
 // @A2 - 10/09/2007 - Update parseType() to process '/QSYS.LIB' correctly.  Add
 //                    check to account for missing ending delimiter.
 // @A3 - 02/12/2008 - Updates to process QSYS IASP objects correctly.
+// @A4 - 03/01/2008 - Additional iasp updates
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -510,11 +511,8 @@ public class Permission
             }
             if (ownerChanged_)               // @B2a
             {
-              String path = path_;                          // @B6a
-              if (asp_ != null)                             // @B6a
-                path = asp_ + path;                        // @B6a
-
-              access_.setOwner(path, owner_, revokeOldAuthority_); // @B6c
+              // Removed code which prepended asp since the asp is already in the path_  @A4D
+              access_.setOwner(path_, owner_, revokeOldAuthority_); // @B6c // @A4C
               ownerChanged_ = false;
             }
             if (primaryGroupChanged_)
@@ -560,10 +558,8 @@ public class Permission
               userPermission.setCommitted(UserPermission.COMMIT_NONE);
               break;
             case UserPermission.COMMIT_REMOVE :
-              String path = path_;                                     // @B6a
-              if (asp_ != null)                                        // @B6a
-                path = asp_ + path;                                   // @B6a
-              access_.removeUser(path,userPermission.getUserID());     // @B6c
+              // Removed code which prepended asp since the asp is already in the path_  @A4D
+              access_.removeUser(path_,userPermission.getUserID());     // @B6c //@A4C
               userPermission.setCommitted(UserPermission.COMMIT_NONE);
               userPermissionsBuffer_.removeElement(userPermission);
               break;
