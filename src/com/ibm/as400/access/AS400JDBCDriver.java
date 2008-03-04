@@ -113,6 +113,8 @@ implements java.sql.Driver
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
     static final String DRIVER_LEVEL_           = "06010002"; //(ex: 05040102->V5R4M1.2) (needed for hidden clientInfo) (each # is 2 digits in length), should match version in Copyright.java  //@PDA 550 @jt61
+    public static final int JDBC_MAJOR_VERSION_ = 3; // JDBC spec version: 3.0
+    public static final int JDBC_MINOR_VERSION_ = 0;
 
 
 	// This string "9999:9999" is returned when resource
