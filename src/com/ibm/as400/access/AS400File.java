@@ -1502,12 +1502,15 @@ abstract public class AS400File implements Serializable
      *                <li>READ_WRITE
      *                <li>WRITE_ONLY
      *                </ul>
+     *If the <i>openType</i> is WRITE_ONLY, the various positionCursor() methods 
+     *will fail since write() operations are appended to the end of the file. <br>
      *@param blockingFactor The number of records to retrieve or to write during a
      *read or write operation.<br>
      *The AS400File object will attempt to anticipate the need for data by accessing
-     *blocks of records if the <i>openType</i> is READ_ONLY.  If the <i>openType</i>
+     *blocks of records if the <i>openType</i> is READ_ONLY.  <br>
+     *If the <i>openType</i>
      *is WRITE_ONLY, <i>blockingFactor</i> number of records will be written at one
-     *time when writing an array of records.
+     *time when writing an array of records.   <br>
      *If the open type is READ_WRITE, <i>blockingFactor</i> is ignored and a
      *blocking factor of 1 will be used for data integrity reasons.
      *Specify an appropriate <i>blockingFactor</i> for your performance needs.<br>
@@ -2192,7 +2195,7 @@ abstract public class AS400File implements Serializable
     // @A5A
     /**
      *Sets the readNoUpdate flag, which determines whether the records should be locked for update
-     *when doing reads in a READ_WRITE open mode.
+     *when doing reads or positionCursor operations in a READ_WRITE open mode. 
      *@param readNoUpdate <code>true</code> if the records should not be locked for update when doing
      *reads in a READ_WRITE open mode; <code>false</code> otherwise.
      *@see AS400File#isReadNoUpdate
