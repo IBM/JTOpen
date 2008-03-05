@@ -48,6 +48,21 @@ public class AboutToolbox
 
          // Running with mod2 (with 2nd PTF) or later.
          System.out.println(version.get(null));
+
+         // JDBC version designators were added after JTOpen 6.1.
+         try
+         {
+           Class driver = Class.forName("com.ibm.as400.access.AS400JDBCDriver");
+           Field majorVersion = driver.getDeclaredField("JDBC_MAJOR_VERSION_");
+           Field minorVersion = driver.getDeclaredField("JDBC_MINOR_VERSION_");
+           System.out.println("Supports JDBC version " +
+                              majorVersion.getInt(null) + "." +
+                              minorVersion.getInt(null));
+         }
+         catch(NoSuchFieldException e)
+         {  
+           // We're running JTOpen 6.1 or earlier, so JDBC 4.0 not supported yet.
+         }
       }
       catch(NoSuchFieldException e)
       {  
