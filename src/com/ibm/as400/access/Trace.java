@@ -631,7 +631,10 @@ public class Trace
       pw.print("  ");                                        //@D3A @W1C
     }                                                        //@D3A @W1C
 
-    pw.print(timeStampFormatter_.format(new Date()));             // @W1C
+    synchronized (timeStampFormatter_) // date formats are not synchronized
+    {
+      pw.print(timeStampFormatter_.format(new Date()));             // @W1C
+    }
     pw.print("  ");                                          // @W1C
   }
 
@@ -648,7 +651,10 @@ public class Trace
       buf.append("  ");
     }
 
-    buf.append(timeStampFormatter_.format(new Date()));
+    synchronized (timeStampFormatter_) // date formats are not synchronized
+    {
+      buf.append(timeStampFormatter_.format(new Date()));
+    }
     buf.append("  ");
   }
 
