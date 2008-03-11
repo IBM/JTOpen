@@ -2047,7 +2047,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                    sqlData.set(parameterValue, null, length); // @J0M hacked this to use the scale parameter for the length
+                    //@pddsqlData.set(parameterValue, null, length); // @J0M hacked this to use the scale parameter for the length
+                    sqlData.set(JDUtilities.readerToString(parameterValue, length), null, -1); //@pdc length is incorrect for double-byte chars.  Use a slower, but correct method, until we can create a real ConvTableReader
                 }
                 else
                 {
