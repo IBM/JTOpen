@@ -2415,6 +2415,9 @@ implements Connection
         if (!transactionManager_.isLocalTransaction())                      // @E4A
             JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
+        if (transactionManager_.getAutoCommit () && properties_.getBoolean(JDProperties.AUTOCOMMIT_EXCEPTION))
+            JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE);
+
         if (! transactionManager_.getAutoCommit ())
         {
             transactionManager_.rollback ();
