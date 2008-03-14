@@ -685,7 +685,7 @@ implements ConnectionEventListener
    **/
   private final void closePhysicalConnection(AS400JDBCPooledConnection pooledConnection)
   {
-    // Note: Never pause or terminate early from this method.  It's called from with sync blocks.
+    // Note: Never pause or terminate early from this method.  It's called from within sync blocks.
 
     try {
       pooledConnection.close();
@@ -1571,7 +1571,7 @@ implements ConnectionEventListener
       // and we've turned on the swapInProgress_ flag ourselves.
       try
       {
-        // Note: We never pause during a list swap.
+        // Note: Never pause during a list swap.
 
         switch (sideRequestingSwap)
         {
@@ -2155,7 +2155,9 @@ implements ConnectionEventListener
             synchronized (condemnedConnections_)
             {  // Don't leave connections in limbo.
               while (candidatesIter.hasNext()) {
-                condemnedConnections_.add(candidatesIter.next());
+                AS400JDBCPooledConnection conn = (AS400JDBCPooledConnection)candidatesIter.next();
+                if (JDTrace.isTraceOn()) logDiagnostic(DAEMON_NAME+" is closing an active connection that has exceeded the maximum lifetime: " + conn.toString());
+                condemnedConnections_.add(conn);
                 candidatesIter.remove();  // remove connection from candidatesIter list
               }
               numCondemnedConnections = condemnedConnections_.size();
