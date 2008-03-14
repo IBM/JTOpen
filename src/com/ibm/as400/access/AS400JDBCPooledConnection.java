@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Vector;
+import java.lang.ref.SoftReference;
 
 /**
 *  The AS400JDBCPooledConnection class represents a connection object
@@ -68,7 +69,7 @@ public class AS400JDBCPooledConnection implements PooledConnection
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   private AS400JDBCConnection connection_;                          // The database connection.
-//@CRS - If we maintain a reference to the handle, and the user doesn't call close(), it
+//@CRS - If we maintain a [direct] reference to the handle, and the user doesn't call close(), it
 // will never get closed because it will never get garbage collected.
 // Instead, we are a listener to the handle, so we know when either the user or the
 // garbage collector closes it.  At that point, this PooledConnection is no longer
@@ -81,8 +82,20 @@ public class AS400JDBCPooledConnection implements PooledConnection
 // After we are done with handle_, we must set it to null, so AS400JDBCConnectionHandle can be GCed.
 // In order for the handle to be GCed, a leaked connection has to be Expired and have handle_ set to null
 // upon returning to available queue.
-  private AS400JDBCConnectionHandle handle_;               // The handle to the connection. //@pdc make use of reference to handle
-
+  private SoftReference handle_;               // The handle to the connection. //@pdc make use of reference to handle
+  // This is a soft reference to an AS400JDBCConnectionHandle object.
+  // DESIGN NOTE:
+  // We use a soft reference (rather than a direct reference) in order to avoid
+  // having circular/mutual direct references between the handle and the connection.
+  // In some scenarios, such circular references can prevent such pairs of objects
+  // from being garbage-collected; which can result in memory leaks.
+  // Advantage of a soft reference: If the connection requester gives up their
+  // reference to the handle but neglects to call close() first,
+  // then the only remaining reference to the handle is the soft reference
+  // from the associated AS400JDBCPooledConnection.
+  // The garbage collector will then notice that the only reference to the handle
+  // is a soft reference; and the GC will then collect/remove the handle.
+ 
   private PoolItemProperties properties_;                  // The usage properties.
   private AS400JDBCConnectionEventSupport eventManager_;
 
@@ -251,9 +264,9 @@ public class AS400JDBCPooledConnection implements PooledConnection
     // Start the connection tracking timers.
     setInUse(true);
 
-    handle_ = new AS400JDBCConnectionHandle(this, connection_); //@pdc handle
-    return handle_; //@pda handle
-
+    AS400JDBCConnectionHandle handle = new AS400JDBCConnectionHandle(this, connection_); //@pdc handle
+    handle_ = new SoftReference(handle);
+    return handle; //@pda handle
   }
 
 
@@ -362,9 +375,14 @@ public class AS400JDBCPooledConnection implements PooledConnection
       connection_.setAutoCommit(true);    // Ditto.
       if (handle_ != null) //@pda handle
       {
-          handle_.invalidate();      //@pda Invalidate the handle.  so if this pooledConnection gets expired then also need to invalidate (remove reference from handle to pooledConnection) handle.
-                                     //if the handle gets GCed (due to connection leak), then handle.finalize() will not try to close this pooledConnection, which could have been already assigned to a new handle.
-                                     //(ie prevent two handles from pointing to one pooledConnection)
+          AS400JDBCConnectionHandle handle = (AS400JDBCConnectionHandle)handle_.get();
+          if (handle != null)
+          {
+            handle.invalidate();      //@pda Invalidate the handle.
+            // So if this pooledConnection gets expired then also need to invalidate handle (remove reference from handle to pooledConnection).
+            //if the handle gets GCed (due to connection leak), then handle.finalize() will not try to close this pooledConnection, which could have been already assigned to a new handle.
+            //(ie prevent two handles from pointing to one pooledConnection)
+          }
           handle_ = null;          //remove reference also, so handle is free for GC.
       }
     }
