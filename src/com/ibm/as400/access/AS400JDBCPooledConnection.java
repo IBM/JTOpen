@@ -15,12 +15,10 @@ package com.ibm.as400.access;
 
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
-import javax.sql.DataSource;
 import javax.sql.PooledConnection;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Vector;
 import java.lang.ref.SoftReference;
 
 /**
