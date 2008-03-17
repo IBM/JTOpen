@@ -1289,7 +1289,7 @@ public class AS400 implements Serializable
         for (int i = 0; i < jobStrings.length; ++i)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job: " + jobStrings[i]);
-            if (jobStrings[i].length() == 0) return new Job[0];
+            if (jobStrings[i] == null || jobStrings[i].length() == 0) return new Job[0];
             StringTokenizer tokenizer = new StringTokenizer(jobStrings[i], "/");
             String jobNumber = tokenizer.nextToken();
             String jobUser = tokenizer.nextToken();
