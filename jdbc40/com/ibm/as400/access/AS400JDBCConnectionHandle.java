@@ -94,7 +94,7 @@ implements Connection //@A5A
    *  This way, when finalize() is called by GC we will not try to double-close the connection.
    *  Without this method, it is possible for two handles to have references to the same pooledConnection.
    **/
-   public void invalidate()
+   void invalidate()
    {
       connection_ = null;
       pooledConnection_ = null;
@@ -170,6 +170,7 @@ implements Connection //@A5A
 
     try {
       // Rollback and close the open statements.
+      // Note: Leave the physical connection open, so it can get re-used.
       connection_.pseudoClose();
     }
     catch (SQLException e) {
