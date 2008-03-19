@@ -1277,6 +1277,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
     * Note, this setting is ignored when running to V5R4 i5/OS or earlier
+    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
     **/
@@ -4424,6 +4425,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
     * Note, this setting is ignored when running to V5R4 i5/OS or earlier
+    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.
     * @param limit the storage limit (in megabytes)
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
