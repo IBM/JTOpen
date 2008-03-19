@@ -444,10 +444,10 @@ public class CharacterDataArea extends DataArea implements Serializable
 
 
    /**
-    Reads raw bytes from the data area.
-    It retrieves up to <i>dataLength</i> bytes beginning at offset
-    <i>dataAreaOffset</i> in the data area. The first byte in
-    the data area is at offset 0.
+    Reads the data from the data area.
+    It retrieves up to <i>dataLength</i> bytes, without conversion,
+    beginning at offset <i>dataAreaOffset</i> in the data area.
+    Note that the first byte in the data area is at offset 0.
     @param dataBuffer The buffer into which to read the data.  Must be non-null.
     @param dataBufferOffset The starting offset in <tt>dataBuffer</tt>.
     @param dataAreaOffset The offset in the data area at which to start reading.
@@ -663,7 +663,7 @@ public class CharacterDataArea extends DataArea implements Serializable
    /**
     Writes the data to the data area.
     It writes the specified bytes, without conversion, to the data area, at offset <i>dataAreaOffset</i>.
-    The first byte in the data area is at offset 0.
+    Note that the first byte in the data area is at offset 0.
     @param dataBuffer The data to be written.  Must be non-null.
     @param dataBufferOffset The starting offset in <tt>dataBuffer</tt>.
     @param dataAreaOffset The offset in the data area at which to start writing.
