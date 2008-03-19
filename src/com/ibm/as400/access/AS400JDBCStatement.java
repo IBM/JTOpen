@@ -3596,6 +3596,7 @@ public class AS400JDBCStatement implements Statement
     Sets the query timeout limit.  The query timeout limit
     is the number of seconds that the driver will wait for a
     SQL statement to execute.
+    Beginning with Version 6 Release 1 of i5/OS., you must have *JOBCTL special authority.
     
     @param  queryTimeout    The query timeout limit (in seconds)
                             or 0 for no limit.  The default is the job's query timeout limit
