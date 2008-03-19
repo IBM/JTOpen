@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import java.sql.DriverPropertyInfo;
-
 
 
 /**
@@ -4577,7 +4575,4 @@ implements Connection
 
     }
 
-
-
 }
-
