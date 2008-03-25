@@ -342,12 +342,12 @@ public class ConvTableReader extends InputStreamReader
                             leftoverCount = 1;  // Case 5, 6, and 7.
                             leftovers[0] = b_cache_[n];
                         }
-                        else if ((b_cache_[n-1] & 0xE0) == 0xE0)
+                        else if (n>0 && ((b_cache_[n-1] & 0xE0) == 0xE0))
                         {
                             leftoverCount = 2;  // Case 8, and 9.
                             System.arraycopy(b_cache_, n-1, leftovers, 0, leftoverCount);
                         }
-                        else if ((b_cache_[n-2] & 0xF0) == 0xF0)
+                        else if (n>1 && ((b_cache_[n-2] & 0xF0) == 0xF0))
                         {
                             leftoverCount = 3;  // Case 10.
                             System.arraycopy(b_cache_, n-2, leftovers, 0, leftoverCount);
