@@ -441,7 +441,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.ACCESS);
     }
-
+     
     // @C9 new method
     /**
     *  Returns what behaviors of the Toolbox JDBC driver have been overridden.
@@ -1013,7 +1013,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getString(JDProperties.SECONDARY_URL);
     }
-    
+
     //@dup
     /**
      *  Returns the secondary URL.
@@ -1025,7 +1025,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return getSecondaryUrl();
     }
      
-
     /**
     *  Returns the name of the i5/OS system.
     *  @return The system name.
@@ -1243,7 +1242,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.QAQQINILIB);
     }
     
-    
     //@dup
     /**
      *  Returns the QAQQINI library name.
@@ -1380,7 +1378,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.TRUE_AUTO_COMMIT); //@true
     }
     
-
     //@dup
     /**
      *  Indicates whether true auto commit support is used.
@@ -1392,6 +1389,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return isTrueAutoCommit();
     }
+     
 
     //@K54
     /**
@@ -1406,7 +1404,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     //@CE1
     /**
-     *  Returns whether commit throws SQLException when autocommit is enabled.
+     *  Returns whether commit or rollback throws SQLException when autocommit is enabled.
      *  @return Autocommit Exception.
      *  The default value is false.
      **/
@@ -1519,7 +1517,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return properties_.getBoolean(JDProperties.EXTENDED_METADATA);
     }
-
     
     //@dup
     /**
@@ -1845,7 +1842,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     //@CE1
     /**
-     *  Sets whether commit throws SQLException when autocommit is enabled.
+     *  Sets whether commit or rollback throws SQLException when autocommit is enabled.
      *  @param value
      *  The default value is false.
      **/
@@ -1888,8 +1885,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + value);      
     }
-
-
+    
     //@dup
     /**
      *  Sets whether true auto commit support is used.
@@ -2429,7 +2425,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             return; //return and allow default setting to be used                                                  //@JOB
         }                                     //@JOB
 
-        
+
         validateProperty(property, sort, JDProperties.SORT);
         String old = getSort();
 
@@ -2531,7 +2527,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, "extendedMetaData: " + extendedMetaData);
     }
     
-
     //@dup
     /**
      *  Sets whether the driver should request extended metadata from the
@@ -2559,7 +2554,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         setExtendedMetaData(extendedMetaData);
     }
-
 
 
     // @W1a new method
@@ -2793,6 +2787,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + mds);
     }
     
+    
     //@dup
     /**                                                               
      *  Sets how to retrieve DatabaseMetaData.
@@ -2808,6 +2803,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         setMetaDataSource(mds);
     }
+     
     
     /**
     *  Sets the naming convention used when referring to tables.
@@ -3442,7 +3438,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, "secondaryUrl: " + url); //@A8C
     }
-
     
     //@dup
     /**
@@ -3458,8 +3453,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         setSecondaryUrl(url);
     }
-    
-    
+
     /**
     *  Sets whether a Secure Socket Layer (SSL) connection is used to communicate
     *  with the i5/OS system.  SSL connections are only available when connecting to systems
@@ -4205,7 +4199,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         setPackageCCSID(ccsid);
     }
-    
+     
     // @M0A - added support for 63 digit decimal precision
     /**
     * Gets the minimum divide scale property.  This property ensures the scale
@@ -4380,7 +4374,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + libraryName);  
     }
-    
+
     //@dup
     /**
      *  Sets the QAQQINI library name.  
@@ -4391,8 +4385,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         setQaqqiniLibrary(libraryName);
     }
-    
-
+     
     /**                                                               
     *  Sets the goal the i5/OS system should use with optimization of queries.  
     *  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  
@@ -4500,7 +4493,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.TRACE_TOOLBOX);
     }
     
-
     //@dup
     /**
      *  Returns the toolbox trace category.
@@ -4526,7 +4518,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return getToolboxTraceCategory();
     }
-
 
     // @K2A
     /**
@@ -4596,7 +4587,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, property + ": " + traceCategory);
     }
-    
+
     //@dup
     /**
      * Sets the toolbox trace category, which indicates 
@@ -4624,7 +4615,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         setToolboxTraceCategory(traceCategory);
     }
-
+    
     /**
     *  Validates the property value.
     *  @param property The property name.

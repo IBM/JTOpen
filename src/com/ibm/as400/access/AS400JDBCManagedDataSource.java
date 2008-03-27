@@ -1664,7 +1664,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   //@CE1
   /**
-   *  Returns whether commit throws SQLException when autocommit is enabled.
+   *  Returns whether commit or rollback throws SQLException when autocommit is enabled.
    *  @return Autocommit Exception.
    *  The default value is false.
    **/
@@ -2134,7 +2134,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
 
   //@CE1
   /**
-   *  Sets whether commit throws SQLException when autocommit is enabled.
+   *  Sets whether commit or rollback throws SQLException when autocommit is enabled.
    *  @param value
    *  The default value is false.
    **/

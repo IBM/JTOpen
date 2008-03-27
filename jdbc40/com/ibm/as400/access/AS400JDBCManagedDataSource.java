@@ -1665,7 +1665,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
   //@CE1
   /**
-   *  Returns whether commit throws SQLException when autocommit is enabled.
+   *  Returns whether commit or rollback throws SQLException when autocommit is enabled.
    *  @return Autocommit Exception.
    *  The default value is false.
    **/
@@ -2135,7 +2135,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
   //@CE1
   /**
-   *  Sets whether commit throws SQLException when autocommit is enabled.
+   *  Sets whether commit or rollback throws SQLException when autocommit is enabled.
    *  @param value
    *  The default value is false.
    **/
@@ -2851,6 +2851,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
       setMetaDataSource(mds);
   }
 
+  
   /**
    Sets the naming convention used when referring to tables.
    @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
