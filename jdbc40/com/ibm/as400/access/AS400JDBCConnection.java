@@ -164,7 +164,7 @@ implements Connection
     private boolean                     cancelling_;                    // @E8A
     private Object                      cancelLock_ = new Object();     // @E8A
     private String                      catalog_;
-    private boolean                     checkStatementHoldability_ = false;     // @F3A
+    boolean                     checkStatementHoldability_ = false;     // @F3A  //@XAC
     private boolean                     closing_;            // @D4A
             ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
@@ -1465,7 +1465,7 @@ implements Connection
     
     @param  isRollback True if we called this from rollback(), false if we called this from commit().
     **/
-    private void markCursorsClosed(boolean isRollback)  //@F3C
+    void markCursorsClosed(boolean isRollback)  //@F3C //@XAC
     throws SQLException                  //@F2A
     {
         if (JDTrace.isTraceOn())

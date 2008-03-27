@@ -262,6 +262,10 @@ Commits a global transaction.
       //@KKB resend the transaction isolation since i5/OS gets reset somehow
       transactionManager_.resetXAServer();
       
+      if ((connection_.transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE )//@XAC
+          || (connection_.checkStatementHoldability_ && connection_.getVRM() >= JDUtilities.vrm520))  // @F3A
+          connection_.markCursorsClosed(false);     //@XAC                                      
+      
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
       if(returnCode != 0)
           throw new XAException(returnCode);
