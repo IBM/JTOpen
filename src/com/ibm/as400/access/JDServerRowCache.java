@@ -529,7 +529,11 @@ Sets the fetch size.
     if (rowNumber > 0)
     {
       if(cursor_.isClosed())  //@CU1
+      {                    //@max1
+          if(!firstBlock_) //@max1
+              return;      //@max1 //can't go and refetch since cursor is closed.
           first(false);       //@CU1
+      }                    //@max1
       else                    //@CU1
           first (true);                                                // @G1c
       relative (rowNumber - 1);
@@ -773,7 +777,9 @@ Sets the fetch size.
       // withing the cache.
       int newIndex = index_ + rowNumber;
       if ((newIndex >= 0) && (newIndex < cached_))
-        index_ = newIndex;
+          index_ = newIndex;
+      else if ((newIndex >= 0) && (newIndex == cached_) && (cursor_.isClosed())) //@max1
+          index_ = newIndex; //@max1
 
       // Otherwise, fetch data from the system.  If the
       // last block is flagged, then this means the
