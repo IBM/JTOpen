@@ -3093,7 +3093,8 @@ implements Connection
 
         // Initialize a transaction manager for this connection.
         transactionManager_ = new JDTransactionManager (this, id_,
-                                                        properties_.getString (JDProperties.TRANSACTION_ISOLATION));
+                                                        properties_.getString (JDProperties.TRANSACTION_ISOLATION),
+                                                        properties_.getBoolean (JDProperties.AUTO_COMMIT));  //@AC1
 
         transactionManager_.setHoldIndicator(properties_.getString(JDProperties.CURSOR_HOLD));       // @D9
 
@@ -3542,10 +3543,16 @@ implements Connection
 
                 request.setTranslateIndicator (0xF0);                       // @E2C
                 request.setDRDAPackageSize (1);
+                //Note:  newAutoCommitSupport is trueAutoCommitSupport
                 if(!(newAutoCommitSupport_ == 0))                           //@KBA  V5R3 or greater so run with new support
-                    request.setAutoCommit(0xE8);                            //@KBA  Turn on auto commit
-
-                if(newAutoCommitSupport_ == 1)                              //@KBA
+                {                                                                 //@AC1
+                    if(properties_.getBoolean(JDProperties.AUTO_COMMIT))          //@AC1
+                        request.setAutoCommit(0xE8);                        //@KBA  Turn on auto commit
+                    else                                                          //@AC1
+                        request.setAutoCommit(0xD5);                              //@AC1
+                }                                                                 //@AC1
+                
+                if((newAutoCommitSupport_ == 1) && (properties_.getBoolean(JDProperties.AUTO_COMMIT)))  //@KBA //@AC1 (only set to *NONE if autocommit is on)
                     request.setCommitmentControlLevelParserOption(0);       //@KBA Run under *NONE when in autocommit
                 else                                                        //@KBA Run under default isolation level
                     request.setCommitmentControlLevelParserOption (transactionManager_.getCommitMode ());

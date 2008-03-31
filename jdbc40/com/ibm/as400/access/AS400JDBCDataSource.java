@@ -1402,6 +1402,17 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION);
     }
 
+    //@AC1
+    /**
+     *  Returns whether auto-commit mode is the default connection mode for new connections.
+     *  @return Auto commit.
+     *  The default value is true.
+     **/
+     public boolean isAutoCommit()
+     {
+         return properties_.getBoolean(JDProperties.AUTO_COMMIT);
+     }
+     
     //@CE1
     /**
      *  Returns whether commit or rollback throws SQLException when autocommit is enabled.
@@ -1839,7 +1850,30 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + access);  //@A8C
     }
+ 
+      //@AC1
+      /**
+      *  Sets whether auto-commit mode is the default connection mode for new connections.
+      *  @param value
+      *  The default value is true.
+      **/
+      public void setAutoCommit(boolean value)
+      {
+          String property = "autoCommit";
+          Boolean oldValue = new Boolean(isAutoCommit());
+          Boolean newValue = new Boolean(value);
 
+          if (value)
+              properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
+          else
+              properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
+
+          changes_.firePropertyChange(property, oldValue, newValue);
+
+          if (JDTrace.isTraceOn()) 
+              JDTrace.logInformation (this, property + ": " + value);   
+      }
+     
     //@CE1
     /**
      *  Sets whether commit or rollback throws SQLException when autocommit is enabled.

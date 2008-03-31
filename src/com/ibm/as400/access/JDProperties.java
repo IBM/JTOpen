@@ -49,8 +49,11 @@ attributes for the driver.
 //
 //    __ Add a property to AS400JDBCDataSourceBeanInfo.java.
 //
-//    __ Update the testcase JDDriverGetPropertyInfo.java to
-//       reflect the new number of properties.
+//    __ Update testcases JDDriverGetPropertyInfo.java, 
+//                        AS400JDBCConnectionPoolDataSourceBeanInfoTestcase.java, 
+//                        AS400JDBCDataSourceBeanInfoTestcase.java, 
+//                        JDConnectionCommit.java, 
+//                        JDDriverGetPropertyInfo.java.
 //
 //    __ Test serialization
 //
@@ -150,12 +153,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              QUERY_STORAGE_LIMIT        = 73; //@550
     static final int              DECFLOAT_ROUNDING_MODE     = 74; //@DFA
     static final int              AUTOCOMMIT_EXCEPTION       = 75; //@CE1
+    static final int              AUTO_COMMIT                = 76; //@AC1 (matching Native's naming)
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 76;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 77;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550 @DFA @CE1
+                                                               // @PDC @550 @DFA @CE1 @AC1
 
 
     // Property names.
@@ -237,6 +241,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String QUERY_STORAGE_LIMIT_ = "query storage limit";   //@550
     private static final String DECFLOAT_ROUNDING_MODE_ = "decfloat rounding mode"; //@DFA
     private static final String AUTOCOMMIT_EXCEPTION_ = "autocommit exception"; //@CE1
+    private static final String AUTO_COMMIT_ = "auto commit"; //@AC1  (match Native driver property spelling)
     
 
 
@@ -1111,7 +1116,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;
 
-        // Auto Commit.  @KBA
+        // True Auto Commit.  @KBA
         i = TRUE_AUTO_COMMIT; //@true
         dpi_[i] = new DriverPropertyInfo (TRUE_AUTO_COMMIT_, ""); //@true
         dpi_[i].description = "TRUE_AUTO_COMMIT_DESC";  //@true
@@ -1280,6 +1285,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = FALSE_;
+        
+        // Auto Commit  //@AC1
+        i = AUTO_COMMIT;
+        dpi_[i] = new DriverPropertyInfo (AUTO_COMMIT_, "");
+        dpi_[i].description = "AUTO_COMMIT_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = TRUE_;
+        dpi_[i].choices[1]  = FALSE_;
+        defaults_[i]  = TRUE_;
         
     }
 

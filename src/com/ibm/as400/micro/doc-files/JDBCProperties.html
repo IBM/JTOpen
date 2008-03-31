@@ -87,6 +87,18 @@ attributes. The tables organize the properties into the following categories:</P
     <TH ID="t5">Default</TH>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2"><a name="auto commit">&quot;auto commit&quot;</a></TD>
+    <TD HEADERS="t2">Specifies whether auto-commit mode is the default connection 
+      mode for new connections. Calling AS400JDBCConnection.setAutoCommit(boolean) 
+      will override this property on a per-connection basis. Note that, in order 
+      to use transaction isolation levels other than *NONE when using auto-commit 
+      mode, the property &quot;true autocommit&quot; needs to be set to true.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat2"><a name="cursorhold">&quot;cursor hold&quot;</a></TD>
     <TD HEADERS="t2"> Specifies whether to hold the cursor across transactions. 
       If this property is set to &quot;true&quot;, cursors are not closed when 

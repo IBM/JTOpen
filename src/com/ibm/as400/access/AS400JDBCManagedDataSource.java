@@ -1661,6 +1661,16 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     if (poolManager_ != null) poolManager_.invalidate(key);
   }
 
+   //@AC1
+   /**
+   *  Returns whether auto-commit mode is the default connection mode for new connections.
+   *  @return Auto commit.
+   *  The default value is true.
+   **/
+   public boolean isAutoCommit()
+   {
+       return properties_.getBoolean(JDProperties.AUTO_COMMIT);
+   }
 
   //@CE1
   /**
@@ -2132,6 +2142,22 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     // Note: The JDProperties.setString() logs the property change.
   }
 
+
+   //@AC1
+   /**
+   *  Sets whether auto-commit mode is the default connection mode for new connections.
+   *  @param value
+   *  The default value is true.
+   **/
+   public void setAutoCommit(boolean value)
+   {
+       if (value)
+           properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
+       else
+           properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
+
+   }
+   
   //@CE1
   /**
    *  Sets whether commit or rollback throws SQLException when autocommit is enabled.

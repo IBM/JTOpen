@@ -123,6 +123,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_QUERY_STORAGE_LIMIT", "queryStorageLimit"}, //@550
       { "PROP_NAME_DECFLOAT_ROUNDING_MODE", "decfloatRoundingMode"}, //@DFA //@550
       { "PROP_NAME_AUTOCOMMIT_EXCEPTION", "autocommitException"}, //@CE1
+      { "PROP_NAME_AUTO_COMMIT", "autoCommit"}, //@AC1
       
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -208,6 +209,7 @@ public class JDMRI extends ListResourceBundle
       { "QUERY_STORAGE_LIMIT_DESC", "Specifies the query storage limit to be used when statements in a connection are executed."}, //@550
       { "DECFLOAT_ROUNDING_MODE_DESC", "Specifies the rounding mode to use when working with decfloat data type."}, //@DFA @550
       { "AUTOCOMMIT_EXCEPTION_DESC", "Specifies whether to throw an SQLException when Connection.commit() or Connection.rollback() is called if autocommit is enabled."}, //@CE1
+      { "AUTO_COMMIT_DESC", "Specifies whether auto-commit mode is the default connection mode for new connections."}, //@AC1
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

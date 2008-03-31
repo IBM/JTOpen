@@ -114,12 +114,13 @@ system is behaving.
 **/
   JDTransactionManager (AS400JDBCConnection connection,
                         int id,
-                        String initialLevel)  
+                        String initialLevel,
+                        boolean autoCommit)    //@AC1
   throws SQLException
   {
     activeLocal_            = false;                                                // @C4C
     activeGlobal_           = false;                                                // @C4A
-    autoCommit_             = true;
+    autoCommit_             = autoCommit;   //@AC1
     connection_             = connection;
     holdIndicator_          = CURSOR_HOLD_TRUE;                                     // @C1
     id_                     = id;
@@ -127,7 +128,8 @@ system is behaving.
     currentIsolationLevel_  = mapStringToLevel (initialLevel);
     currentCommitMode_      = mapLevelToCommitMode (currentIsolationLevel_);
     initialCommitMode_    = currentCommitMode_;
-    if(connection_.newAutoCommitSupport_ == 1)          //@K64  If running under new auto commit support (V5R3 and higher), by default, auto commit is run under the *NONE isolation level
+    //@AC1 (only set to *NONE if autocommit is on)
+    if((connection_.newAutoCommitSupport_ == 1) && (autoCommit))          //@K64  If running under new auto commit support (V5R3 and higher), by default, auto commit is run under the *NONE isolation level
         serverCommitMode_ = COMMIT_MODE_NONE_;          //@K64
     else                                                //@K64
         serverCommitMode_   = currentCommitMode_;
