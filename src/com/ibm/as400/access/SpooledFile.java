@@ -391,6 +391,10 @@ implements java.io.Serializable
       * spooled file.
       * This method will fail with an AS400Exception if the spooled file is
       * still being created (ATTR_SPLFSTATUS is *OPEN).
+      * Note that the bytes are returned untransformed, that is, as they are
+      * stored on the server.  To transform the bytes into other forms, use
+      * {@link #getPageInputStream getPageInputStream} or
+      * {@link #getTransformedInputStream getTransformedInputStream}.
       *
       * @return The input stream object that can be used to read the contents
       *         of this spooled file.
@@ -402,6 +406,8 @@ implements java.io.Serializable
       * @exception RequestNotSupportedException If the requested function is not supported
       *                                         because the system is not at the
       *                                         correct level.
+      * @see #getPageInputStream
+      * @see #getTransformedInputStream
       **/
     public PrintObjectInputStream getInputStream()
         throws AS400Exception,
@@ -421,6 +427,10 @@ implements java.io.Serializable
       * spooled file.
       * This method will fail with an AS400Exception if the spooled file is
       * still being created (ATTR_SPLFSTATUS is *OPEN).
+      * Note that the bytes are returned untransformed, that is, as they are
+      * stored on the server.  To transform the bytes into other forms, use
+      * {@link #getPageInputStream getPageInputStream} or
+      * {@link #getTransformedInputStream getTransformedInputStream}.
       *
       * @return The input stream object that can be used to read the contents
       *         of this spooled file.
@@ -432,6 +442,8 @@ implements java.io.Serializable
       * @exception RequestNotSupportedException If the requested function is not supported
       *                                         because the system is not at the
       *                                         correct level.
+      * @see #getPageInputStream
+      * @see #getTransformedInputStream
       **/
     public PrintObjectInputStream getInputStream(PrintParameterList ppl)
         throws AS400Exception,
