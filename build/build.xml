@@ -308,6 +308,7 @@
            debug="on"
            debuglevel="lines,source"
            fork="true"
+           encoding="iso-8859-1"
            target="1.1">
       <classpath>
         <pathelement path="${include}"/>
@@ -333,6 +334,7 @@
            debug="on"
            debuglevel="lines,source"
            fork="true"
+           encoding="iso-8859-1"
            target="1.1">
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
