@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.StringTokenizer;                                   // $D0A
 import java.util.Hashtable;                                         // $W1A
+import java.util.Vector;
 
 /**
   The Trace class logs trace points and diagnostic messages.  Each trace
@@ -195,9 +196,7 @@ import java.util.Hashtable;                                         // $W1A
 
 public class Trace
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
+  private static final String CLASSNAME = "com.ibm.as400.access.Trace";
 
   static boolean traceOn_; //@P0C
   static boolean traceInfo_;
@@ -312,6 +311,10 @@ public class Trace
   private static ToolboxLogger logger_ = null;
   private static boolean firstCallToFindLogger_ = true;
   private static boolean JDK14_OR_HIGHER;
+
+  // List of classes for which we've already logged the "loaded from" path.
+  private static Vector classnamesLogged_ = new Vector();
+
   // @D0A
   static
   {
@@ -324,6 +327,7 @@ public class Trace
     }
 
     loadTraceProperties ();
+    if (traceOn_) classnamesLogged_.setSize(200); // list is used only if tracing is on
   }
 
 
@@ -356,6 +360,34 @@ public class Trace
       throw new NullPointerException("component");
 
     return(String) fileNameHash.get(component);
+  }
+
+  /**
+   Returns the path where the ClassLoader found the specified class.
+   Null is returned if the specified class wasn't found, or if className is null.
+   @param className  The qualified class name (e.g. "com.ibm.as400.access.AS400")
+   @return  The path where the ClassLoader found the class.
+   **/
+  private static final String getLoadPath(String className)
+  {
+    String loadPath = null;
+    try
+    {
+      ClassLoader loader =  Class.forName(className).getClassLoader();
+      if (loader != null)
+      {
+        String resourceName = className.replace('.', '/') + ".class";
+        java.net.URL resourceUrl = loader.getResource(resourceName);
+        if (resourceUrl != null) {
+          loadPath = resourceUrl.getPath();
+          // Remove the "!<class name>" at the end of the path.
+          int delimiterPos = loadPath.lastIndexOf('!');
+          if (delimiterPos != -1) loadPath = loadPath.substring(0, delimiterPos);
+        }
+      }
+    }
+    catch (Throwable t) {}
+    return loadPath;
   }
 
 
@@ -615,6 +647,23 @@ public class Trace
       traceOn_ = value;
     }
 
+  }
+
+  /**
+   Logs the path where the ClassLoader found the specified class.
+   Each specific class is logged no more than once.
+   @param className  The qualified class name (e.g. "com.ibm.as400.access.AS400")
+   **/
+  static final void logLoadPath(String className)
+  {
+    if (className != null &&
+        !classnamesLogged_.contains(className)) // class wasn't already logged
+    {
+      classnamesLogged_.add(className);
+      String loadPath = getLoadPath(className);
+      String message = "Class " + className + " was loaded from " + loadPath;
+      logData(null, DIAGNOSTIC, message, null);
+    }
   }
 
   // Log time stamp information in the trace.

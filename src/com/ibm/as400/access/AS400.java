@@ -48,6 +48,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  **/
 public class AS400 implements Serializable
 {
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400";
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
 
@@ -127,6 +128,7 @@ public class AS400 implements Serializable
     // The static default sign-on handler.
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
+
     static
     {
         try
@@ -157,12 +159,12 @@ public class AS400 implements Serializable
         }
 
         // Get the "default sign-on handler" property, if it is set.
-        String className = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
-        if (className != null)
+        String handlerClass = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
+        if (handlerClass != null)
         {
             try
             {
-                defaultSignonHandlerClass_ = Class.forName(className);
+                defaultSignonHandlerClass_ = Class.forName(handlerClass);
             }
             catch (Exception e)
             {
@@ -875,6 +877,8 @@ public class AS400 implements Serializable
     // Common code for all the constuctors and readObject.
     private void construct()
     {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+
         // See if we are running on i5/OS.
         if (AS400.onAS400)
         {
@@ -1971,7 +1975,7 @@ public class AS400 implements Serializable
             {
                 String thisFileName = "com/ibm/as400/access/AS400.class";
                 String loadFileName = impl.replace('.', '/') + ".class";
-                ClassLoader thisLoader = Class.forName("com.ibm.as400.access.AS400").getClassLoader();
+                ClassLoader thisLoader = Class.forName(CLASSNAME).getClassLoader();
                 ClassLoader loadLoader = Class.forName(impl).getClassLoader();
                 if (thisLoader != null && loadLoader != null)
                 {
