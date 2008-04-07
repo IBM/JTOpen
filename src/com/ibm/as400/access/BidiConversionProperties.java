@@ -39,12 +39,41 @@ public class BidiConversionProperties implements Serializable
     private boolean dstToSrcMapRequired_;
     private boolean propertyMapRequired_;
     private boolean continuation_;
+    private int numeralShaping_ = NUMERALS_DEFAULT;
     private int inpCount_;
     private int outCount_;
     private int[] srcToDstMap_;
     private int[] dstToSrcMap_;
     private byte[] propertyMap_;
+    private boolean expandLamAlef = false;//@bd1a_ramysaid
 
+    /**
+     *  Value identifying that numeral shapes should be the default
+     *  according to the string type.
+     */
+    public static final int    NUMERALS_DEFAULT       = 0;
+
+    /**
+     *  Value identifying that numeral shapes are Nominal.
+     *  Use Arabic digit shapes (1,2,3) for all numbers.
+     */
+    public static final int    NUMERALS_NOMINAL       = 1;
+    /**
+     *  Value identifying that numeral shapes are National
+     *  Use Indic digit shapes for all numbers.
+     */
+	public static final int    NUMERALS_NATIONAL      = 2;
+    /**
+     *  Value identifying that numeral shapes are Contextual (Nominal or National
+     *  depending on context)
+     *  Use nominal or national depending on context.
+     */
+	public static final int    NUMERALS_CONTEXTUAL    = 3;
+    /**
+     *  Value identifying that numeral shapes can be Nominal or National
+     *  Pass-through the original digit shapes.
+     */
+    public static final int    NUMERALS_ANY           = 4;
     /**
      Constructs a BidiConversionProperties object.
      **/
@@ -91,6 +120,15 @@ public class BidiConversionProperties implements Serializable
         propertyMap_ = transform.propertyMap;
         inpCount_ = transform.inpCount;
         outCount_ = transform.outCount;
+        getNumeralShapingFromTransform(transform);
+        
+        //@bd1a_start_ramysaid
+        if (transform.options != null) {
+        	expandLamAlef = (transform.options.getLamAlefMode() == ArabicOption.LAMALEF_RESIZE_BUFFER);
+        } else {
+        	expandLamAlef = false;
+        }
+		//@bd1a_end_ramysaid
     }
 
     /**
@@ -154,14 +192,64 @@ public class BidiConversionProperties implements Serializable
         {
             destination.options.value = options_;
         }
-        destination.wordBreak = wordBreak_;
+		
+        //@bd1a_start_ramysaid
+		ArabicOptionSet aos = new ArabicOptionSet();
+		aos.value = destination.options == null ? 0 : destination.options.value;
+		if (expandLamAlef) {
+			aos.setOneOption(ArabicOption.LAMALEF_RESIZE_BUFFER);
+			destination.options = new ArabicOptionSet(aos);
+		}
+		//@bd1a_end_ramysaid
+        
+		destination.wordBreak = wordBreak_;
         destination.destinationRequired = destinationRequired_;
         destination.srcToDstMapRequired = srcToDstMapRequired_;
         destination.dstToSrcMapRequired = dstToSrcMapRequired_;
         destination.propertyMapRequired = propertyMapRequired_;
         destination.continuation = continuation_;
+        setNumeralShapingOnTransform(destination);
     }
 
+    /**
+     * Copy the numeral shaping options from this object into
+     * the destination transform
+     * @param destination transform
+     */
+    void setNumeralShapingOnTransform(BidiTransform destination)
+    {
+    	switch(numeralShaping_)
+    	{
+    	case NUMERALS_NOMINAL:
+    		destination.flags.setOneFlag(BidiFlag.NUMERALS_NOMINAL);
+    		break;
+    	case NUMERALS_NATIONAL:
+    		destination.flags.setOneFlag(BidiFlag.NUMERALS_NATIONAL);
+    		break;
+    	case NUMERALS_CONTEXTUAL:
+    		destination.flags.setOneFlag(BidiFlag.NUMERALS_CONTEXTUAL);
+    		break;
+    	case NUMERALS_ANY:
+    		destination.flags.setOneFlag(BidiFlag.NUMERALS_ANY);
+    		break;
+    	case NUMERALS_DEFAULT:
+    		break;
+    	}
+    }
+    
+    /**
+     * Copy the numeral shaping options from the source transform
+     * into this object
+     * @param source transform
+     */
+    void getNumeralShapingFromTransform(BidiTransform source)
+    {
+        BidiFlag flag = source.flags.getNumerals();
+        if (flag == BidiFlag.NUMERALS_NOMINAL) numeralShaping_ = NUMERALS_NOMINAL;
+        else if (flag == BidiFlag.NUMERALS_NATIONAL) numeralShaping_ = NUMERALS_NATIONAL;
+        else if (flag == BidiFlag.NUMERALS_CONTEXTUAL) numeralShaping_ = NUMERALS_CONTEXTUAL;
+        else if (flag == BidiFlag.NUMERALS_ANY) numeralShaping_ = NUMERALS_ANY;
+    }
     /**
      Sets the bidi implicit LTR-RTL reordering property.  This property is true by default.
      @param  bidiImplicitReordering  true to use the bidi implicit reordering; false otherwise.
@@ -281,6 +369,44 @@ public class BidiConversionProperties implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi consider white space to always follow base orientation:", wordBreak_);
         return wordBreak_;
+    }
+
+    /**
+     Sets the numeral shaping property.  By default this takes its value from the string type.
+     <p>The possible values are: <ul>
+     <li>{@link #NUMERALS_NOMINAL NUMERALS_NOMINAL}
+     <li>{@link #NUMERALS_NATIONAL NUMERALS_NATIONAL}
+     <li>{@link #NUMERALS_CONTEXTUAL NUMERALS_CONTEXTUAL}
+     <li>{@link #NUMERALS_ANY NUMERALS_ANY}
+     <li>{@link #NUMERALS_DEFAULT NUMERALS_DEFAULT}
+     </ol>
+     @param  numeralShaping  what shapes to use for numerals
+     **/
+    public void setBidiNumeralShaping(int numeralShaping)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting numeral shaping:", numeralShaping);
+        if (numeralShaping < NUMERALS_DEFAULT || numeralShaping > NUMERALS_ANY)
+        {
+          throw new ExtendedIllegalArgumentException("numeralShaping (" + numeralShaping + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        numeralShaping_ = numeralShaping;
+    }
+
+    /**
+    Gets the numeral shaping property.  By default this takes its value from the string type.
+    <p>The possible values are: <ul>
+     <li>{@link #NUMERALS_NOMINAL NUMERALS_NOMINAL}
+     <li>{@link #NUMERALS_NATIONAL NUMERALS_NATIONAL}
+     <li>{@link #NUMERALS_CONTEXTUAL NUMERALS_CONTEXTUAL}
+     <li>{@link #NUMERALS_ANY NUMERALS_ANY}
+     <li>{@link #NUMERALS_DEFAULT NUMERALS_DEFAULT}
+    </ol>
+    @return what shapes to use for numerals
+    **/
+    public int getBidiNumeralShaping()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking numeral shaping:", numeralShaping_);
+        return numeralShaping_;
     }
 
     /**
@@ -412,4 +538,21 @@ public class BidiConversionProperties implements Serializable
     {
         return propertyMap_;
     }
+
+    //@bd1a_start_ramysaid
+    /**
+    Indicates whether lam-alef ligatures should get decomposed into lam and alef characters
+    when transforming from visual to logical.  Not the buffer may expand when this is done.
+    **/
+	public boolean isBidiExpandLamAlef() {
+		return expandLamAlef;
+	}
+    /**
+    Sets whether lam-alef ligatures should get decomposed into lam and alef characters
+    when transforming from visual to logical.
+    **/
+	public void setBidiExpandLamAlef(boolean expandLamAlef) {
+		this.expandLamAlef = expandLamAlef;
+	}
+	//@bd1a_end_ramysaid
 }
