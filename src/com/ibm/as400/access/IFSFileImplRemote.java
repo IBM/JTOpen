@@ -22,6 +22,7 @@
 //                    have the attribute IFSListAttrsRep.FILE.
 //                    All other QSYS objects are neither dirs/files (e.g OUTQ, 
 //                    DSPF, TAPF, or PRTF objects).
+// @D9 - 04/03/2008 - Add clearCachedAttributes() to clear impl cache attributes. 
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -92,6 +93,14 @@ implements IFSFileImpl
     return (fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
   }
 
+  /**
+  Clear the cached attributes.  This is needed when cached attributes
+  need to be refreshed.           
+  **/
+  public void clearCachedAttributes()                  //@D9A
+  {
+    attributesReply_ = null;
+  }
 
   /**
    Copies the current file to the specified path.

@@ -14,6 +14,8 @@
 //                    method to resolve problem of issuing PWFS List Attributes 
 //                    request with both "Sort" indication and "RestartByID" 
 //                    which is documented to be an invalid combination.
+// @D8 - 04/03/2008 - Add clearCachedAttributes() to clear impl cache attributes. 
+//                    
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
@@ -27,6 +29,7 @@ interface IFSFileImpl
 {
   int  canRead() throws IOException, AS400SecurityException;
   int  canWrite() throws IOException, AS400SecurityException;
+  void clearCachedAttributes();                                        //@D8A
   boolean copyTo(String path, boolean replace) throws IOException, AS400SecurityException, ObjectAlreadyExistsException;
   long created() throws IOException, AS400SecurityException;           //@D3a
   int  createNewFile() throws IOException, AS400SecurityException;

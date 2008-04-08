@@ -14,6 +14,7 @@
 //                    method to resolve problem of issuing PWFS List Attributes 
 //                    request with both "Sort" indication and "RestartByID" 
 //                    which is documented to be an invalid combination.
+// @D8 - 04/03/2008 - Add clearCachedAttributes() to clear impl cache attributes. 
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
@@ -54,6 +55,17 @@ implements IFSFileImpl
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
+  }
+
+  public void clearCachedAttributes()                         //@D8A
+  {
+    try {
+      connection_.callMethod(pxId_, "clearCachedAttributes");
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow (e);
+    }
+
   }
 
   public boolean copyTo(String path, boolean replace)

@@ -18,6 +18,8 @@
 //                    to resolve problem of issuing PWFS List Attributes request
 //                    with both "Sort" indication and "RestartByID" 
 //                    which is documented to be an invalid combination.
+// @D8 - 04/03/2008 - Modify clearCachedAttributes() to also call 
+//                    impl.clearCachedAttributes()
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -547,6 +549,11 @@ public class IFSFile
   public void clearCachedAttributes()
   {
       cachedAttributes_ = null;
+      
+      if (impl_ != null)                 //@D8A
+      {
+        impl_.clearCachedAttributes();   //@D8A
+      }
   }
 
 
