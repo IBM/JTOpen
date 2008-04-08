@@ -38,9 +38,14 @@ public class SecureAS400 extends AS400
     public static final int PROXY_SERVER_TO_SERVER = 2;
 
     /**
-     Constant indicating that encryption should be done in both the connection between the client and the proxy server and the connection between the proxy server and the system.
+     @deprecated Use CLIENT_TO_SERVER instead.
      **/
     public static final int CLINT_TO_SERVER = 3;
+
+    /**
+     Constant indicating that encryption should be done in both the connection between the client and the proxy server and the connection between the proxy server and the system.
+     **/
+    public static final int CLIENT_TO_SERVER = 3;
 
     private void construct()
     {
@@ -289,9 +294,9 @@ public class SecureAS400 extends AS400
     /**
      Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and i5/OS system are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
      <br>Valid proxy encryption modes are:
-     <br>   CLIENT_TO_PROXY_SERVER - encrypt between client and proxy server.
-     <br>   PROXY_SERVER_TO_SERVER - encrypt between proxy server and i5/OS system.
-     <br>   CLINT_TO_SERVER - encrypt both portions of connection.
+     <br>{@link #CLIENT_TO_PROXY_SERVER CLIENT_TO_PROXY_SERVER} - encrypt between client and proxy server.
+     <br>{@link #PROXY_SERVER_TO_SERVER PROXY_SERVER_TO_SERVER} - encrypt between proxy server and i5/OS system.
+     <br>{@link #CLIENT_TO_SERVER CLIENT_TO_SERVER} - encrypt both portions of connection.
      @param  proxyEncryptionMode  The proxy encryption mode.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -299,7 +304,8 @@ public class SecureAS400 extends AS400
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting proxy encryption mode:", proxyEncryptionMode);
         // Validate parameter.
-        if (proxyEncryptionMode < 1 || proxyEncryptionMode > 3)
+        if (proxyEncryptionMode < CLIENT_TO_PROXY_SERVER ||
+            proxyEncryptionMode > CLIENT_TO_SERVER)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'proxyEncryptionMode' is not valid:", proxyEncryptionMode);
             throw new ExtendedIllegalArgumentException("proxyEncryptionMode (" + proxyEncryptionMode + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
