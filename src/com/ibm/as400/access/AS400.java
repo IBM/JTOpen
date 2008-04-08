@@ -48,7 +48,6 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  **/
 public class AS400 implements Serializable
 {
-    private static final String CLASSNAME = "com.ibm.as400.access.AS400";
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
 
@@ -128,6 +127,12 @@ public class AS400 implements Serializable
     // The static default sign-on handler.
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
+
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
 
     static
     {
@@ -877,8 +882,6 @@ public class AS400 implements Serializable
     // Common code for all the constuctors and readObject.
     private void construct()
     {
-        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
-
         // See if we are running on i5/OS.
         if (AS400.onAS400)
         {
@@ -1991,7 +1994,7 @@ public class AS400 implements Serializable
                     String loadDirPath = loadPath.length() <= loadFileName.length() ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
                     if (!thisDirPath.equals(loadDirPath))
                     {
-                      Trace.log(Trace.WARNING, "Toolbox classes found at " + thisDirPath + " and " + loadDirPath);
+                      Trace.log(Trace.WARNING, "Toolbox classes found in two different locations: " + thisDirPath + " and " + loadDirPath);
                     }
                   }
                 }

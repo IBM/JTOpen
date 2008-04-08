@@ -23,11 +23,15 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplProxy";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
+
     // Tell super what type of impl we are.
     AS400ImplProxy()
     {
         super("AS400");
-        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
     }
 
     // Tell proxy server to listen for connection events.

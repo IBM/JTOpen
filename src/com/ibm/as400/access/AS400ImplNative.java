@@ -19,8 +19,10 @@ class AS400ImplNative
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplNative";
     static
     {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");
     }
 

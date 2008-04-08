@@ -312,9 +312,6 @@ public class Trace
   private static boolean firstCallToFindLogger_ = true;
   private static boolean JDK14_OR_HIGHER;
 
-  // List of classes for which we've already logged the "loaded from" path.
-  private static Vector classnamesLogged_ = new Vector();
-
   // @D0A
   static
   {
@@ -327,7 +324,6 @@ public class Trace
     }
 
     loadTraceProperties ();
-    if (traceOn_) classnamesLogged_.setSize(200); // list is used only if tracing is on
   }
 
 
@@ -360,34 +356,6 @@ public class Trace
       throw new NullPointerException("component");
 
     return(String) fileNameHash.get(component);
-  }
-
-  /**
-   Returns the path where the ClassLoader found the specified class.
-   Null is returned if the specified class wasn't found, or if className is null.
-   @param className  The qualified class name (e.g. "com.ibm.as400.access.AS400")
-   @return  The path where the ClassLoader found the class.
-   **/
-  private static final String getLoadPath(String className)
-  {
-    String loadPath = null;
-    try
-    {
-      ClassLoader loader =  Class.forName(className).getClassLoader();
-      if (loader != null)
-      {
-        String resourceName = className.replace('.', '/') + ".class";
-        java.net.URL resourceUrl = loader.getResource(resourceName);
-        if (resourceUrl != null) {
-          loadPath = resourceUrl.getPath();
-          // Remove the "!<class name>" at the end of the path.
-          int delimiterPos = loadPath.lastIndexOf('!');
-          if (delimiterPos != -1) loadPath = loadPath.substring(0, delimiterPos);
-        }
-      }
-    }
-    catch (Throwable t) {}
-    return loadPath;
   }
 
 
@@ -652,15 +620,31 @@ public class Trace
   /**
    Logs the path where the ClassLoader found the specified class.
    Each specific class is logged no more than once.
-   @param className  The qualified class name (e.g. "com.ibm.as400.access.AS400")
+   @param className  The package-qualified class name.
    **/
   static final void logLoadPath(String className)
   {
-    if (className != null &&
-        !classnamesLogged_.contains(className)) // class wasn't already logged
+    if (traceDiagnostic_ &&
+        className != null)
     {
-      classnamesLogged_.add(className);
-      String loadPath = getLoadPath(className);
+      String loadPath = null;
+      try
+      {
+        ClassLoader loader =  Class.forName(className).getClassLoader();
+        if (loader != null)
+        {
+          String resourceName = className.replace('.', '/') + ".class";
+          java.net.URL resourceUrl = loader.getResource(resourceName);
+          if (resourceUrl != null) {
+            loadPath = resourceUrl.getPath();
+            // Note: The following logic strips the entry name from the end of the path.
+            // int delimiterPos = loadPath.lastIndexOf('!');
+            // if (delimiterPos != -1) loadPath = loadPath.substring(0, delimiterPos);
+          }
+        }
+      }
+      catch (Throwable t) {}
+
       String message = "Class " + className + " was loaded from " + loadPath;
       logData(null, DIAGNOSTIC, message, null);
     }

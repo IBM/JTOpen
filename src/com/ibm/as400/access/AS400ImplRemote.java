@@ -33,7 +33,6 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 // AS400ImplRemote is the functional implementation of the AS400Impl interface.
 class AS400ImplRemote implements AS400Impl
 {
-    private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
     private static final boolean PASSWORD_TRACE = false;
 
     // The pool of systems.  Tne systems are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
@@ -109,11 +108,12 @@ class AS400ImplRemote implements AS400Impl
     // Sign-on server client seed, held from sign-on connection until sign-on disconnect.
     byte[] clientSeed_;
 
-    public AS400ImplRemote()
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
+    static
     {
-      super();
       if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
     }
+
 
     // Set the connection event dispatcher.
     public void addConnectionListener(ConnectionListener listener)
