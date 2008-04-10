@@ -70,8 +70,10 @@ class AS400ImplRemote implements AS400Impl
     private int ccsid_ = 0;
     // If the user has told us to override common sense and use the CCSID they want.
     private boolean userOverrideCcsid_ = false;
-    // The NLV.
-    private String nlv_;
+    // The client NLV.
+    private String clientNlv_;
+    // The name of the secondary language library (if any). Used by RemoteCommandImplNative.
+    private String secondaryLanguageLibrary_;
     // Set of socket options to use when creating our connections to the system.
     private SocketProperties socketProperties_ = null;
 
@@ -1120,8 +1122,8 @@ class AS400ImplRemote implements AS400Impl
     // The NLV to send to the system.
     String getNLV()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation: " + nlv_);
-        return nlv_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation: " + clientNlv_);
+        return clientNlv_;
     }
 
     // Get the encrypted password with the seeds folded in.
@@ -1249,6 +1251,12 @@ class AS400ImplRemote implements AS400Impl
     public int getServicePort(String systemName, int service)
     {
         return PortMapper.getServicePort(systemName, service, useSSLConnection_);
+    }
+
+    // Get secondary language library name.
+    String getSecondaryLanguageLibrary()
+    {
+        return secondaryLanguageLibrary_;
     }
 
     // Get system name.
@@ -1738,6 +1746,12 @@ class AS400ImplRemote implements AS400Impl
         gssCredential_ = gssCredential;
     }
 
+    // Set secondary language library name.
+    void setSecondaryLanguageLibrary(String libName)
+    {
+        secondaryLanguageLibrary_ = libName;
+    }
+
     // Set port for service.
     public void setServicePort(String systemName, int service, int port)
     {
@@ -1778,7 +1792,7 @@ class AS400ImplRemote implements AS400Impl
             userOverrideCcsid_ = true;
             ccsid_ = ccsid;
         }
-        nlv_ = nlv;
+        clientNlv_ = nlv;
         socketProperties_ = socketProperties;
         ddmRDB_ = ddmRDB;
         mustUseNetSockets_ = mustUseNetSockets;

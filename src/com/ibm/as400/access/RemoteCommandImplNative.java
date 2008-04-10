@@ -30,33 +30,138 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     }
 
     private boolean detectedMissingPTF_ = false; // V5R4 system is missing PTF SI29629 (5722SS1)
+    private boolean serverNlvHasBeenSet_ = false; // NLV has been specified to the server
 
     protected void open(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object open.");
-        if (!threadSafety)
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object open.");
+      if (!threadSafety)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending native open request to super class.");
+        super.open(false);
+        return;
+      }
+
+      // If converter was not set with a user override ccsid, set converter to job ccsid.
+      if (!ccsidIsUserOveride_)
+      {
+        converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
+      }
+      if (AS400.nativeVRM.vrm_ >= 0x00050300)
+      {
+        if (AS400.nativeVRM.vrm_ >= 0x00060100)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending native open request to super class.");
-            super.open(false);
-            return;
+          serverDataStreamLevel_ = 10;
+          unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
         }
-        // If converter was not set with a user override ccsid, set converter to job ccsid.
-        if (!ccsidIsUserOveride_)
+        else
         {
-            converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
+          serverDataStreamLevel_ = 7;
         }
-        if (AS400.nativeVRM.vrm_ >= 0x00050300)
+      }
+
+      // See if, for the current thread, we need to set the secondary language library on the server.
+      // Note: If we were going through the Remote Command Host Server, the host server would set the secondary language library for us.
+      // Since we're not using the host server, we need to handle this ourselves.
+      if (!serverNlvHasBeenSet_)
+      {
+        serverNlvHasBeenSet_ = true;  // prevent infinite loop
+        // Retrieve the name of the secondary language library (if any).
+        String secLibName = retrieveSecondaryLanguageLibName();  // never returns null
+        // Set the NLV on server to match the client's locale.
+        if (secLibName.length() != 0)
         {
-            if (AS400.nativeVRM.vrm_ >= 0x00060100)
-            {
-                serverDataStreamLevel_ = 10;
-                unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
+          setNlvOnServer(secLibName);
+        }
+        // Retain result, to avoid repeated lookups for same system_.
+        system_.setSecondaryLanguageLibrary(secLibName);
+        // Set to non-null, to indicate already looked-up value.
+      }
+
+    }
+
+
+    // Retrieves the secondary language library (if any).
+    // If fail to retrieve library name, or name is blank, returns "".
+    private String retrieveSecondaryLanguageLibName()
+    {
+      String secLibName = system_.getSecondaryLanguageLibrary();
+      if (secLibName == null)  // 'null' implies not already looked-up
+      {
+        String clientNLV = system_.getNLV(); // NLV of client (based on locale)
+        try
+        {
+          int ccsid = system_.getCcsid();
+          ConvTable conv = ConvTable.getTable(ccsid, null);
+
+          ProgramParameter[] parameterList = new ProgramParameter[6];
+          int len = 108+10; // length of PRDR0100, plus first 10 bytes of PRDR0200
+          parameterList[0] = new ProgramParameter(len); // receiver variable - PRDR0100 plus first 10 bytes of PRDR0200
+          parameterList[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
+          parameterList[2] = new ProgramParameter(conv.stringToByteArray("PRDR0200")); // format name
+
+          byte[] productInfo = new byte[36];  // product information
+          AS400Text text4 = new AS400Text(4, ccsid, system_);
+          AS400Text text6 = new AS400Text(6, ccsid, system_);
+          AS400Text text7 = new AS400Text(7, ccsid, system_);
+          AS400Text text10 = new AS400Text(10, ccsid, system_);
+          text7.toBytes("*OPSYS", productInfo, 0);  // product ID
+          text6.toBytes("*CUR", productInfo, 7);  // release level
+          text4.toBytes("0000", productInfo, 13);  // product option
+          text10.toBytes(clientNLV, productInfo, 17); // load ID (specifies desired NLV)
+          BinaryConverter.intToByteArray(36, productInfo, 28);  // length of product information parm
+          BinaryConverter.intToByteArray(ccsid, productInfo, 32);  // ccsid for returned directory
+          parameterList[3] = new ProgramParameter(productInfo); // product information
+          parameterList[4] = new ProgramParameter(new byte[4]); // error code
+          parameterList[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information format name
+
+          // Call QSZRTVPR (Change System Library List) to add the library for the secondary language.
+          // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system.
+          boolean succeeded = runProgram("QSYS", "QSZRTVPR", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10);
+          if (!succeeded)
+          {
+            Trace.log(Trace.ERROR, "Unable to retrieve secondary language library name for NLV " + clientNLV, new AS400Exception(messageList_));
+          }
+          else
+          {
+            byte[] outputData = parameterList[0].getOutputData();
+            int offsetToAddlInfo = BinaryConverter.byteArrayToInt(outputData, 84);
+            secLibName = conv.byteArrayToString(outputData, offsetToAddlInfo, 10).trim();
+            if (secLibName.length() == 0) {
+              Trace.log(Trace.ERROR, "Unable to retrieve secondary language library name for NLV " + clientNLV + ": Blank library name returned.");
             }
-            else
-            {
-                serverDataStreamLevel_ = 7;
-            }
+          }
         }
+        catch (Throwable t) {
+          Trace.log(Trace.ERROR, "Unable to retrieve secondary language library name for NLV " + clientNLV, t);
+        }
+      }
+
+      return (secLibName == null ? "" : secLibName);
+    }
+
+    // Sets the NLV (for the current thread) on the server, so that system msgs are returned in correct language.
+    private void setNlvOnServer(String secondaryLibraryName)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object setting national language for messages.");
+      try
+      {
+        // Call CHGSYSLIBL (Change System Library List) to add the library for the secondary language.
+        // Note: According to the spec, CHGSYSLIBL "changes the system portion of the library list for the current thread".
+        // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe.  However, the CL owner has indicated that this CL has actually been threadsafe all along, and that it cannot damage the system.
+        // At worst, if system value QMLTTHDACN == 3, the system will simply refuse to execute the command.  In which case, the secondary language library won't get added.
+        String cmd = "QSYS/CHGSYSLIBL LIB("+secondaryLibraryName+") OPTION(*ADD)";
+        boolean succeeded = runCommand(cmd, true, AS400Message.MESSAGE_OPTION_UP_TO_10);
+        if (!succeeded)
+        {
+          Trace.log(Trace.ERROR, "Unable to add secondary language library to library list: " + secondaryLibraryName, new AS400Exception(messageList_));
+          return;
+        }
+      }
+      catch (Throwable t)
+      {
+        Trace.log(Trace.ERROR, "Unable to add secondary language library name for library list.", t);
+      }
     }
 
     // Indicates whether or not the command will be considered thread-safe.
