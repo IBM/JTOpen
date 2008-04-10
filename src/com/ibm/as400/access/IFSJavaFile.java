@@ -10,6 +10,8 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @B1 - 2008-04-10 - Update length() for handling of symbolic link objects.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -940,6 +942,13 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   {
     try
     {
+      // For the listFiles() methods, the IFS File Server reports the length of 
+      // a symbolic link rather than the length of the target object.  Circumvention
+      // is to clear the ifsFile cache and re-retrieve the attributes from the IFS
+      // File Server.  When not using wild-cards the IFS File Server always follows
+      // symlnk objects and returns the attributes of the target object.
+      if (ifsFile_.isSymbolicLink())                 //@B1A
+        ifsFile_.clearCachedAttributes();            //@B1A
       return ifsFile_.length0();
     }
     catch (AS400SecurityException e)

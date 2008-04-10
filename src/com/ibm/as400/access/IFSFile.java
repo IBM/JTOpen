@@ -1878,6 +1878,11 @@ public class IFSFile
    This means the reported length may become inconsistent with the system.
    @return The length, in bytes, of the integrated file system object, or
    0L if it does not exist  or is not accessible.
+   <br><b>Note:</b> When used following {@link #listFiles() listFiles} or 
+   {@link #enumerateFiles() enumerateFiles} methods (for symbolic link objects) 
+   this method will return the length of the symbolic link object as returned by the File Server.  
+   In order to retrieve the length of the <b>target</b> object, you must use     
+   {@link #clearCachedAttributes() clearCachedAttributes()} followed by {@link #length() length()}.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
