@@ -73,7 +73,9 @@ class AS400ImplRemote implements AS400Impl
     // The client NLV.
     private String clientNlv_;
     // The name of the secondary language library (if any). Used by RemoteCommandImplNative.
-    private String secondaryLanguageLibrary_;
+    private String secondaryLangLib_;
+    // Flag that gets turned on by RemoteCommandImplNative to indicate that we should skip further attempts to set the secondary language library for this AS400Impl.
+    private boolean isSkipFurtherSettingOfSecondaryLangLib_ = false;
     // Set of socket options to use when creating our connections to the system.
     private SocketProperties socketProperties_ = null;
 
@@ -1254,9 +1256,9 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Get secondary language library name.
-    String getSecondaryLanguageLibrary()
+    String getSecondaryLangLib()
     {
-        return secondaryLanguageLibrary_;
+        return secondaryLangLib_;
     }
 
     // Get system name.
@@ -1308,6 +1310,12 @@ class AS400ImplRemote implements AS400Impl
                 return false;
             }
         }
+    }
+
+    // Indicates whether we've discovered that we should skip further attempts to set the secondary language library for this AS400Impl.
+    boolean isSkipFurtherSettingOfSecondaryLangLib()
+    {
+        return isSkipFurtherSettingOfSecondaryLangLib_;
     }
 
     // Check if thread can be used.
@@ -1747,9 +1755,15 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Set secondary language library name.
-    void setSecondaryLanguageLibrary(String libName)
+    void setSecondaryLangLib(String libName)
     {
-        secondaryLanguageLibrary_ = libName;
+        secondaryLangLib_ = libName;
+    }
+
+    // Indicates that we've discovered that we should skip further attempts to set the secondary language library for this AS400Impl.
+    void setSkipFurtherSettingOfSecondaryLangLib()
+    {
+        isSkipFurtherSettingOfSecondaryLangLib_ = true;
     }
 
     // Set port for service.

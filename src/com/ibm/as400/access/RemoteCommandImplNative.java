@@ -30,7 +30,6 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     }
 
     private boolean detectedMissingPTF_ = false; // V5R4 system is missing PTF SI29629 (5722SS1)
-    private boolean serverNlvHasBeenSet_ = false; // NLV has been specified to the server
 
     protected void open(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -60,12 +59,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
       }
 
-      // See if, for the current thread, we need to set the secondary language library on the server.
-      // Note: If we were going through the Remote Command Host Server, the host server would set the secondary language library for us.
-      // Since we're not using the host server, we need to handle this ourselves.
-      if (!serverNlvHasBeenSet_)
+      // Set the secondary language library on the server.
+      if (!system_.isSkipFurtherSettingOfSecondaryLangLib()) // see if we should try
       {
-        serverNlvHasBeenSet_ = true;  // prevent infinite loop
+        // Note: If we were going through the Remote Command Host Server, the host server would set the secondary language library for us.
+        // Since we're not using the host server, we need to handle this ourselves.
+        // We need to do this on every open, since several different threads may be using this RemoteCommandImpl object.
+
         // Retrieve the name of the secondary language library (if any).
         String secLibName = retrieveSecondaryLanguageLibName();  // never returns null
         // Set the NLV on server to match the client's locale.
@@ -73,8 +73,8 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
           setNlvOnServer(secLibName);
         }
-        // Retain result, to avoid repeated lookups for same system_.
-        system_.setSecondaryLanguageLibrary(secLibName);
+        // Retain result, to avoid repeated lookups for same system_
+        system_.setSecondaryLangLib(secLibName);
         // Set to non-null, to indicate already looked-up value.
       }
 
@@ -85,7 +85,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // If fail to retrieve library name, or name is blank, returns "".
     private String retrieveSecondaryLanguageLibName()
     {
-      String secLibName = system_.getSecondaryLanguageLibrary();
+      String secLibName = system_.getSecondaryLangLib();
       if (secLibName == null)  // 'null' implies not already looked-up
       {
         String clientNLV = system_.getNLV(); // NLV of client (based on locale)
@@ -117,10 +117,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
           // Call QSZRTVPR (Change System Library List) to add the library for the secondary language.
           // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system.
-          boolean succeeded = runProgram("QSYS", "QSZRTVPR", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10);
+          boolean succeeded = runProgram("QSYS", "QSZRTVPR", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, false);
+          // Note: This method is only called from within open().
+          // The final parm on the runProgram call above, indicates "don't call open()".
+
           if (!succeeded)
           {
-            Trace.log(Trace.ERROR, "Unable to retrieve secondary language library name for NLV " + clientNLV, new AS400Exception(messageList_));
+            Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV, new AS400Exception(messageList_));
           }
           else
           {
@@ -128,12 +131,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             int offsetToAddlInfo = BinaryConverter.byteArrayToInt(outputData, 84);
             secLibName = conv.byteArrayToString(outputData, offsetToAddlInfo, 10).trim();
             if (secLibName.length() == 0) {
-              Trace.log(Trace.ERROR, "Unable to retrieve secondary language library name for NLV " + clientNLV + ": Blank library name returned.");
+              Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV + ": Blank library name returned.");
             }
           }
         }
         catch (Throwable t) {
-          Trace.log(Trace.ERROR, "Unable to retrieve secondary language library name for NLV " + clientNLV, t);
+          Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV, t);
         }
       }
 
@@ -151,16 +154,47 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe.  However, the CL owner has indicated that this CL has actually been threadsafe all along, and that it cannot damage the system.
         // At worst, if system value QMLTTHDACN == 3, the system will simply refuse to execute the command.  In which case, the secondary language library won't get added.
         String cmd = "QSYS/CHGSYSLIBL LIB("+secondaryLibraryName+") OPTION(*ADD)";
-        boolean succeeded = runCommand(cmd, true, AS400Message.MESSAGE_OPTION_UP_TO_10);
+        boolean succeeded = runCommand(cmd, true, AS400Message.MESSAGE_OPTION_UP_TO_10, false);
+        // Note: This method is only called from within open().
+        // The final parm on the runCommand above, indicates "don't call open()".
+
         if (!succeeded)
         {
-          Trace.log(Trace.ERROR, "Unable to add secondary language library to library list: " + secondaryLibraryName, new AS400Exception(messageList_));
-          return;
+          if (messageList_.length !=0)
+          {
+            if (messageList_[0].getID().equals("CPF2103")) // lib is already in list
+            {
+              // Tolerate this error.  It means that we're good to go.
+              // If this is the very native open() for this system_, set flag to indicate that the lib is already in list by default.  This will eliminate clutter in the job log, from subsequent attempts to set it.
+              if (system_.getSecondaryLangLib() == null) { // null implies first native open
+                system_.setSkipFurtherSettingOfSecondaryLangLib(); // don't keep trying on subsequent open's
+              }
+            }
+            else if (messageList_[0].getID().equals("CPD0032")) // not auth'd to call CHGSYSLIBL
+            {
+              system_.setSkipFurtherSettingOfSecondaryLangLib(); // don't keep trying on subsequent open's
+              Trace.log(Trace.WARNING, "Profile " + system_.getUserId() + " not authorized to use CHGSYSLIBL to add language library " + secondaryLibraryName + " to liblist.");
+              // Note: The Remote Command Host Server runs this command under greater authority.
+            }
+            else if (messageList_[0].getID().equals("CPF2110")) // library not found
+            {
+              system_.setSkipFurtherSettingOfSecondaryLangLib();  // don't keep trying on subsequent open's
+              Trace.log(Trace.WARNING, "Secondary language library " + secondaryLibraryName + " was not found.");
+            }
+            else
+            {
+              Trace.log(Trace.ERROR, "Unable to add secondary language library " + secondaryLibraryName + " to library list.", new AS400Exception(messageList_));
+            }
+          }
+          else  // no system messages returned
+          {
+            Trace.log(Trace.WARNING, "Unable to add secondary language library " + secondaryLibraryName + " to library list.");
+          }
         }
       }
       catch (Throwable t)
       {
-        Trace.log(Trace.ERROR, "Unable to add secondary language library name for library list.", t);
+        Trace.log(Trace.WARNING, "Failed to add secondary language library " + secondaryLibraryName + " to library list.", t);
       }
     }
 
@@ -320,13 +354,20 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @return  true if command is successful; false otherwise.
     public boolean runCommand(String command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
+        return runCommand(command, threadSafety, messageOption, true);
+    }
+
+    // Runs the command.
+    // @return  true if command is successful; false otherwise.
+    private boolean runCommand(String command, boolean threadSafety, int messageOption, boolean needToOpen) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
         if (!threadSafety)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
             return super.runCommand(command, false, messageOption);
         }
-        open(true);
+        if (needToOpen) open(true);
 
         if (AS400.nativeVRM.vrm_ >= 0x00060100)
         {
@@ -405,6 +446,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // Run the program.
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
+        return runProgram(library, name, parameterList, threadSafety, messageOption, true);
+    }
+
+    // Run the program.
+    private boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption, boolean needToOpen) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
         if (!threadSafety)
         {
@@ -412,7 +459,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             return super.runProgram(library, name, parameterList, false, messageOption);
         }
         // Run the program on-thread.
-        open(true);
+        if (needToOpen) open(true);
 
         if (AS400.nativeVRM.vrm_ < 0x00050300)
         {
