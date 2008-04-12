@@ -28,7 +28,11 @@ import java.util.Vector;
  **/
 public abstract class BaseDataQueue implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String CLASSNAME = "com.ibm.as400.access.BaseDataQueue";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
 
     static final long serialVersionUID = 4L;
 

@@ -18,7 +18,11 @@ import java.io.IOException;
 // Native implementation of data queues.
 class BaseDataQueueImplNative extends BaseDataQueueImplRemote
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String CLASSNAME = "com.ibm.as400.access.BaseDataQueueImplNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
 
     static
     {

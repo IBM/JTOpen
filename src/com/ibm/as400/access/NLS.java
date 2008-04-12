@@ -23,7 +23,11 @@ import java.util.*;
 **/
 public final class NLS
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+    private static final String CLASSNAME = "com.ibm.as400.access.NLS";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
 
   private static int countryBytes_ = 11000;  
   private static int languageBytes_ = 3000;

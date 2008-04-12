@@ -103,6 +103,12 @@ import com.ibm.as400.resource.RJob;
  **/
 public class ProgramCall implements Serializable
 {
+    private static final String CLASSNAME = "com.ibm.as400.access.ProgramCall";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
+
     static final long serialVersionUID = 4L;
 
     // Constants that indicate how thread safety was determined.

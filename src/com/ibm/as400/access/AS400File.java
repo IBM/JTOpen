@@ -73,9 +73,11 @@ import java.beans.PropertyVetoException;
  **/
 abstract public class AS400File implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400File";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
 
     static final long serialVersionUID = 4L;
 

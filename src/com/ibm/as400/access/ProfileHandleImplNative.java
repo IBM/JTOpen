@@ -18,9 +18,14 @@ import com.ibm.as400.security.auth.*;
 /**
  The ProfileHandleImplNative class provides an implementation for behavior delegated by a ProfileHandleCredential object.
  **/
-public class ProfileHandleImplNative implements ProfileHandleImpl
+/*public*/ class ProfileHandleImplNative implements ProfileHandleImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String CLASSNAME = "com.ibm.as400.access.ProfileHandleImplNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
+
     private AS400Credential credential_ = null;
     static
     {

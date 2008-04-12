@@ -19,7 +19,11 @@ import java.net.UnknownHostException;
 // Native implementation of Central Server function
 class NLSImplNative extends NLSImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String CLASSNAME = "com.ibm.as400.access.NLSImplNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
 
     static
     {

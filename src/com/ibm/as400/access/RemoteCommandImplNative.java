@@ -24,6 +24,12 @@ import java.util.StringTokenizer;
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
 class RemoteCommandImplNative extends RemoteCommandImplRemote
 {
+  private static final String CLASSNAME = "com.ibm.as400.access.RemoteCommandImplNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
+
     static
     {
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");

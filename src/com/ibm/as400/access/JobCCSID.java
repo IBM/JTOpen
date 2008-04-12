@@ -20,6 +20,12 @@ import java.io.IOException;
  **/
 public class JobCCSID
 {
+    private static final String CLASSNAME = "com.ibm.as400.access.JobCCSID";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
+
     // The system where the job is located.
     private AS400 system_ = null;
     private int ccsid_ = -1;

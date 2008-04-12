@@ -79,6 +79,12 @@ import com.ibm.as400.resource.RJob;
  **/
 public class CommandCall implements Serializable
 {
+    private static final String CLASSNAME = "com.ibm.as400.access.CommandCall";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
+
     static final long serialVersionUID = 4L;
 
     // Constants that indicate how thread safety was determined.

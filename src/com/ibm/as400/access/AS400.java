@@ -48,6 +48,12 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  **/
 public class AS400 implements Serializable
 {
+    private static final String CLASSNAME = "com.ibm.as400.access.AS400";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
+
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
 
@@ -127,12 +133,6 @@ public class AS400 implements Serializable
     // The static default sign-on handler.
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
-
-    private static final String CLASSNAME = "com.ibm.as400.access.AS400";
-    static
-    {
-        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
-    }
 
     static
     {

@@ -20,8 +20,11 @@ package com.ibm.as400.access;
 **/
 class AS400CertificateVldlUtilImplNative  extends AS400CertificateVldlUtilImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+  private static final String CLASSNAME = "com.ibm.as400.access.AS400CertificateVldlUtilImplNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
 
    // load the service program.
    static

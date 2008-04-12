@@ -15,6 +15,12 @@ package com.ibm.as400.access;
 
 class JobCCSIDNative
 {
+  private static final String CLASSNAME = "com.ibm.as400.access.JobCCSIDNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
+
     static
     {
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");

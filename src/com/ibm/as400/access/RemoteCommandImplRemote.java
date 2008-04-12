@@ -18,6 +18,12 @@ import java.io.IOException;
 // The RemoteCommandImplRemote class is the remote implementation of CommandCall and ProgramCall.
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
+    private static final String CLASSNAME = "com.ibm.as400.access.RemoteCommandImplRemote";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
+
     AS400ImplRemote system_;
     ConverterImplRemote converter_;
     ConverterImplRemote unicodeConverter_;

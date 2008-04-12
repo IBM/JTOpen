@@ -30,7 +30,11 @@ import java.util.Vector; //@C1A
 //@C0C: We now extend AS400FileImplBase.
 class AS400FileImplNative extends AS400FileImplBase
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  private static final String CLASSNAME = "com.ibm.as400.access.AS400FileImplNative";
+  static
+  {
+    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+  }
 
     // File handle.
     transient int handle_;

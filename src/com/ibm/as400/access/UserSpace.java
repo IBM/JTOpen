@@ -27,7 +27,11 @@ import java.util.Vector;
  **/
 public class UserSpace implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+    private static final String CLASSNAME = "com.ibm.as400.access.UserSpace";
+    static
+    {
+        if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
+    }
 
     static final long serialVersionUID = 4L;
 
