@@ -124,7 +124,7 @@ Write the datastream.
            out.write(concatenated.toByteArray());
            out.flush();       
         }                                                     // @W1a
-        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", concatenated.toByteArray()); //@A1A @P0C
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent (connID="+connectionID_+") ...", concatenated.toByteArray()); //@A1A @P0C
 	}
 
 

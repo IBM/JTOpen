@@ -106,7 +106,7 @@ class AS400ImplRemote implements AS400Impl
     private byte[] remoteSeed_ = null;
 
     // Connection to the sign-on server.
-    SocketContainer signonConnection_;
+    AS400NoThreadServer signonServer_;
     // Sign-on server server seed, held from sign-on connection until sign-on disconnect.
     byte[] serverSeed_;
     // Sign-on server client seed, held from sign-on connection until sign-on disconnect.
@@ -118,6 +118,17 @@ class AS400ImplRemote implements AS400Impl
       if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
     }
 
+    static
+    {
+        // Identify all remote command server reply data streams.
+        AS400Server.addReplyStream(new ChangePasswordRep(), AS400.SIGNON);
+        AS400Server.addReplyStream(new AS400StrSvrReplyDS(), AS400.SIGNON);
+        AS400Server.addReplyStream(new SignonGenAuthTokenReplyDS(), AS400.SIGNON);
+        AS400Server.addReplyStream(new AS400GenAuthTknReplyDS(), AS400.SIGNON);
+        AS400Server.addReplyStream(new AS400XChgRandSeedReplyDS(), AS400.SIGNON);
+        AS400Server.addReplyStream(new SignonInfoRep(), AS400.SIGNON);
+        AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.SIGNON);
+    }
 
     // Set the connection event dispatcher.
     public void addConnectionListener(ConnectionListener listener)
@@ -246,13 +257,10 @@ class AS400ImplRemote implements AS400Impl
         }
 
         // Get a socket connection.
-        boolean needToDisconnect = signonConnection_ == null;
+        boolean needToDisconnect = signonServer_ == null;
         signonConnect();
         try
         {
-            InputStream inStream = signonConnection_.getInputStream();
-            OutputStream outStream = signonConnection_.getOutputStream();
-
             // Convert user ID to EBCDIC.
             byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
             byte[] encryptedPassword;
@@ -332,11 +340,7 @@ class AS400ImplRemote implements AS400Impl
             }
 
             ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic, encryptedPassword, oldProtected, oldPassword.length * 2, newProtected, newPassword.length * 2, serverLevel_);
-            chgReq.write(outStream);
-
-            ChangePasswordRep chgRep = new ChangePasswordRep();
-            chgRep.read(inStream);
-
+            ChangePasswordRep chgRep = (ChangePasswordRep)signonServer_.sendAndReceive(chgReq);
             int rc = chgRep.getRC();
             if (rc == 0)
             {
@@ -362,29 +366,15 @@ class AS400ImplRemote implements AS400Impl
         catch (IOException e)
         {
             Trace.log(Trace.ERROR, "Change password failed:", e);
-            try
-            {
-                signonConnection_.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-            }
-            signonConnection_ = null;
+            signonServer_.forceDisconnect();
+            signonServer_ = null;
             throw e;
         }
         catch (AS400SecurityException e)
         {
             Trace.log(Trace.ERROR, "Change password failed:", e);
-            try
-            {
-                signonConnection_.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-            }
-            signonConnection_ = null;
+            signonServer_.forceDisconnect();
+            signonServer_ = null;
             throw e;
         }
     }
@@ -461,19 +451,22 @@ class AS400ImplRemote implements AS400Impl
     {
         server.forceDisconnect();
         int service = server.getService();
-        Vector serverList = serverPool_[service];
-        synchronized (serverList)
+        if (service != AS400.SIGNON)
         {
+          Vector serverList = serverPool_[service];
+          synchronized (serverList)
+          {
             if (!serverList.isEmpty())
             {
-                serverList.removeElement(server);
+              serverList.removeElement(server);
 
-                // Only fire the event if all systems have been disconnected.
-                if (serverList.isEmpty())
-                {
-                    fireConnectEvent(false, service);
-                }
+              // Only fire the event if all systems have been disconnected.
+              if (serverList.isEmpty())
+              {
+                fireConnectEvent(false, service);
+              }
             }
+          }
         }
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server disconnected");
     }
@@ -536,9 +529,6 @@ class AS400ImplRemote implements AS400Impl
         signonConnect();
         try
         {
-            InputStream in = signonConnection_.getInputStream();
-            OutputStream out = signonConnection_.getOutputStream();
-
             byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
             byte[] encryptedPassword = getPassword(clientSeed_, serverSeed_);
             if (PASSWORD_TRACE)
@@ -553,10 +543,7 @@ class AS400ImplRemote implements AS400Impl
 
             int serverId = AS400Server.getServerId(AS400.SIGNON);
             AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, byteType_);
-            req.write(out);
-
-            AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
-            reply.read(in);
+            AS400StrSvrReplyDS reply = (AS400StrSvrReplyDS)signonServer_.sendAndReceive(req);
 
             if (reply.getRC() != 0)
             {
@@ -567,10 +554,7 @@ class AS400ImplRemote implements AS400Impl
             }
 
             SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(), profileToken.getTimeoutInterval(), serverLevel_);
-            req2.write(out);
-
-            SignonGenAuthTokenReplyDS rep = new SignonGenAuthTokenReplyDS();
-            rep.read(in);
+            SignonGenAuthTokenReplyDS rep = (SignonGenAuthTokenReplyDS)signonServer_.sendAndReceive(req2);
 
             int rc = rep.getRC();
             if (rc != 0)
@@ -593,29 +577,15 @@ class AS400ImplRemote implements AS400Impl
         catch (IOException e)
         {
             Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-            try
-            {
-                signonConnection_.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-            }
-            signonConnection_ = null;
+            signonServer_.forceDisconnect();
+            signonServer_ = null;
             throw e;
         }
         catch (AS400SecurityException e)
         {
             Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-            try
-            {
-                signonConnection_.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-            }
-            signonConnection_ = null;
+            signonServer_.forceDisconnect();
+            signonServer_ = null;
             throw e;
         }
     }
@@ -626,9 +596,6 @@ class AS400ImplRemote implements AS400Impl
         signonConnect();
         try
         {
-            InputStream in = signonConnection_.getInputStream();
-            OutputStream out = signonConnection_.getOutputStream();
-
             byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
             byte[] authenticationBytes = null;
             switch (byteType)
@@ -712,10 +679,7 @@ class AS400ImplRemote implements AS400Impl
             }
 
             AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic, authenticationBytes, byteType, profileToken.getTokenType(), profileToken.getTimeoutInterval(), serverLevel_);
-            req.write(out);
-
-            AS400GenAuthTknReplyDS rep = new AS400GenAuthTknReplyDS();
-            rep.read(in);
+            AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS)signonServer_.sendAndReceive(req);
 
             int rc = rep.getRC();
             if (rc != 0)
@@ -738,29 +702,15 @@ class AS400ImplRemote implements AS400Impl
         catch (IOException e)
         {
             Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-            try
-            {
-                signonConnection_.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-            }
-            signonConnection_ = null;
+            signonServer_.forceDisconnect();
+            signonServer_ = null;
             throw e;
         }
         catch (AS400SecurityException e)
         {
             Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-            try
-            {
-                signonConnection_.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-            }
-            signonConnection_ = null;
+            signonServer_.forceDisconnect();
+            signonServer_ = null;
             throw e;
         }
     }
@@ -849,6 +799,7 @@ class AS400ImplRemote implements AS400Impl
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:", port);
         Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
+        int connectionID = socket.hashCode();
         try
         {
             PortMapper.setSocketProperties(socket, socketProperties_);
@@ -858,9 +809,11 @@ class AS400ImplRemote implements AS400Impl
             // The first request we send is "exchange random seeds"...
             int serverId = AS400Server.getServerId(AS400.COMMAND);
             AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
+            if (Trace.traceOn_) xChgReq.setConnectionID(connectionID);
             xChgReq.write(outStream);
 
             AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
+            if (Trace.traceOn_) xChgReply.setConnectionID(connectionID);
             xChgReply.read(inStream);
 
             if (xChgReply.getRC() != 0)
@@ -888,9 +841,11 @@ class AS400ImplRemote implements AS400Impl
             }
 
             AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, byteType_);
+            if (Trace.traceOn_) req.setConnectionID(connectionID);
             req.write(outStream);
 
             AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+            if (Trace.traceOn_) reply.setConnectionID(connectionID);
             reply.read(inStream);
 
             if (reply.getRC() != 0)
@@ -938,7 +893,7 @@ class AS400ImplRemote implements AS400Impl
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job names implementation, service:", service);
         if (service == AS400.SIGNON)
         {
-            return (signonConnection_ != null) ? new String[] { signonJobString_ } : new String[0];
+            return (signonServer_ != null) ? new String[] { signonJobString_ } : new String[0];
         }
         else
         {
@@ -984,7 +939,9 @@ class AS400ImplRemote implements AS400Impl
         }
 
         SocketContainer sc = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+        int connectionID = sc.hashCode();
         String jobString = "";
+
         try
         {
             InputStream inStream = sc.getInputStream();
@@ -992,7 +949,7 @@ class AS400ImplRemote implements AS400Impl
 
             if (service == AS400.RECORDACCESS)
             {
-                Object[] seeds = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, byteType_);
+                Object[] seeds = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, byteType_, connectionID);
                 byte[] clientSeed = (byte[])seeds[0];
                 byte[] serverSeed = (byte[])seeds[1];
 
@@ -1016,16 +973,18 @@ class AS400ImplRemote implements AS400Impl
                   AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
                   iaspBytes = text18.toBytes(ddmRDB_);
                 }
-                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes, byteType_, ddmRDB_, systemName_);
+                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes, byteType_, ddmRDB_, systemName_, connectionID);
             }
-            else
+            else  // service != RECORDACCESS
             {
                 // The first request we send is "exchange random seeds"...
                 int serverId = AS400Server.getServerId(service);
                 AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
+                if (Trace.traceOn_) xChgReq.setConnectionID(connectionID);
                 xChgReq.write(outStream);
 
                 AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
+                if (Trace.traceOn_) xChgReply.setConnectionID(connectionID);
                 xChgReply.read(inStream);
 
                 if (xChgReply.getRC() != 0)
@@ -1053,9 +1012,11 @@ class AS400ImplRemote implements AS400Impl
                 }
 
                 AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, byteType_);
+                if (Trace.traceOn_) req.setConnectionID(connectionID);
                 req.write(outStream);
 
                 AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+                if (Trace.traceOn_) reply.setConnectionID(connectionID);
                 reply.read(inStream);
 
                 byte[] jobBytes = reply.getJobNameBytes();
@@ -1074,29 +1035,18 @@ class AS400ImplRemote implements AS400Impl
         }
         catch (IOException e)
         {
-            Trace.log(Trace.ERROR, "Establishing connection failed:", e);
-            try
-            {
-                sc.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing socket:", ee);
-            }
-            throw e;
+          forceDisconnect(e, server, sc);
+          throw e;
         }
         catch (AS400SecurityException e)
         {
-            Trace.log(Trace.ERROR, "Establishing connection failed:", e);
-            try
-            {
-                sc.close();
-            }
-            catch (IOException ee)
-            {
-                Trace.log(Trace.ERROR, "Error closing socket:", ee);
-            }
-            throw e;
+          forceDisconnect(e, server, sc);
+          throw e;
+        }
+        catch (RuntimeException e)
+        {
+          forceDisconnect(e, server, sc);
+          throw e;
         }
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
@@ -1119,6 +1069,24 @@ class AS400ImplRemote implements AS400Impl
         fireConnectEvent(true, service);
 
         return server;
+    }
+
+    private static void forceDisconnect(Exception e, AS400Server server, SocketContainer sc )
+    {
+      Trace.log(Trace.ERROR, "Establishing connection failed:", e);
+      if (server != null)
+      {
+        try { server.forceDisconnect(); }
+        catch (Throwable ee) {
+          Trace.log(Trace.ERROR, "Error closing socket:", ee);
+        }
+      }
+      else if (sc != null) {
+        try { sc.close(); }
+        catch (Throwable ee) {
+          Trace.log(Trace.ERROR, "Error closing socket:", ee);
+        }
+      }
     }
 
     // The NLV to send to the system.
@@ -1296,7 +1264,7 @@ class AS400ImplRemote implements AS400Impl
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking for service connection implementation:", service);
         if (service == AS400.SIGNON)
         {
-            return signonConnection_ != null;
+            return signonServer_ != null;
         }
         else
         {
@@ -1881,9 +1849,6 @@ class AS400ImplRemote implements AS400Impl
             signonConnect();
             try
             {
-                InputStream inStream = signonConnection_.getInputStream();
-                OutputStream outStream = signonConnection_.getOutputStream();
-
                 byte[] userIDbytes = byteType_ == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter.stringToByteArray(userId) : null;
                 byte[] encryptedPassword = byteType_ == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? bytes_ : getPassword(clientSeed_, serverSeed_);
 
@@ -1898,10 +1863,7 @@ class AS400ImplRemote implements AS400Impl
                 }
 
                 SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, byteType_, serverLevel_);
-                signonReq.write(outStream);
-
-                SignonInfoRep signonRep = new SignonInfoRep();
-                signonRep.read(inStream);
+                SignonInfoRep signonRep = (SignonInfoRep)signonServer_.sendAndReceive(signonReq);
 
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
 
@@ -1939,34 +1901,21 @@ class AS400ImplRemote implements AS400Impl
                 }
                 ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
                 signonJobString_ = converter.byteArrayToString(signonJobBytes_);
+                signonServer_.setJobString(signonJobString_);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server job: " + signonJobString_);
             }
             catch (IOException e)
             {
                 Trace.log(Trace.ERROR, "Signon failed:", e);
-                try
-                {
-                    signonConnection_.close();
-                }
-                catch (IOException ee)
-                {
-                    Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-                }
-                signonConnection_ = null;
+                signonServer_.forceDisconnect();
+                signonServer_ = null;
                 throw e;
             }
             catch (AS400SecurityException e)
             {
                 Trace.log(Trace.ERROR, "Signon failed:", e);
-                try
-                {
-                    signonConnection_.close();
-                }
-                catch (IOException ee)
-                {
-                    Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-                }
-                signonConnection_ = null;
+                signonServer_.forceDisconnect();
+                signonServer_ = null;
                 throw e;
             }
         }
@@ -1976,20 +1925,24 @@ class AS400ImplRemote implements AS400Impl
     // Connect to sign-on server.
     private synchronized void signonConnect() throws AS400SecurityException, IOException
     {
-        if (signonConnection_ == null)
+        if (signonServer_ == null)
         {
-            signonConnection_ = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+            SocketContainer signonConnection = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+            signonServer_ = new AS400NoThreadServer(this, AS400.SIGNON, signonConnection, "");
+            int connectionID = signonConnection.hashCode();
             try
             {
-                InputStream inStream = signonConnection_.getInputStream();
-                OutputStream outStream = signonConnection_.getOutputStream();
+                InputStream inStream = signonConnection.getInputStream();
+                OutputStream outStream = signonConnection.getOutputStream();
 
                 clientSeed_ = byteType_ == AS400.AUTHENTICATION_SCHEME_PASSWORD ? BinaryConverter.longToByteArray(System.currentTimeMillis()) : null;
 
                 SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(clientSeed_);
+                if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
                 attrReq.write(outStream);
 
                 SignonExchangeAttributeRep attrRep = new SignonExchangeAttributeRep();
+                if (Trace.traceOn_) attrRep.setConnectionID(connectionID);
                 attrRep.read(inStream);
 
                 if (attrRep.getRC() != 0)
@@ -2027,15 +1980,8 @@ class AS400ImplRemote implements AS400Impl
             catch (IOException e)
             {
                 Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed:", e);
-                try
-                {
-                    signonConnection_.close();
-                }
-                catch (IOException ee)
-                {
-                    Trace.log(Trace.ERROR, "Error closing signon socket:", ee);
-                }
-                signonConnection_ = null;
+                signonServer_.forceDisconnect();
+                signonServer_ = null;
                 throw e;
             }
         }
@@ -2044,21 +1990,20 @@ class AS400ImplRemote implements AS400Impl
     // Disconnect from sign-on server.
     private synchronized void signonDisconnect()
     {
-        if (signonConnection_ != null)
+        if (signonServer_ != null)
         {
             try
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending end job data stream to signon server...");
-                OutputStream outStream = signonConnection_.getOutputStream();
                 SignonEndServerReq signonEnd = new SignonEndServerReq();
-                signonEnd.write(outStream);
-                signonConnection_.close();
+                signonServer_.send(signonEnd);
+                signonServer_.forceDisconnect();
             }
             catch (IOException e)
             {
                 Trace.log(Trace.ERROR, "Error sending end job data stream to signon server:", e);
             }
-            signonConnection_ = null;
+            signonServer_ = null;
             fireConnectEvent(false, AS400.SIGNON);
         }
     }

@@ -21,6 +21,15 @@ class AS400StrSvrReplyDS extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+    /**
+     Generate a new instance of this type.
+     @return a reference to the new instance
+     **/
+    public Object getNewDataStream()
+    {
+      return new AS400StrSvrReplyDS();
+    }
+
     int getRC()
     {
         return get32bit(20);
@@ -63,7 +72,7 @@ class AS400StrSvrReplyDS extends ClientAccessDataStream
 
         // Receive the header.
         byte[] header = new byte[20];
-        if (DataStream.readFromStream(in, header, 0, 20) < 20)
+        if (readFromStream(in, header, 0, 20) < 20)
         {
             if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the start server reply header."); //@P0C
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -75,5 +84,14 @@ class AS400StrSvrReplyDS extends ClientAccessDataStream
 
         // Read in the rest of the data.
         readAfterHeader(in);
+    }
+
+    /**
+     Generates a hash code for this data stream.
+     @return the hash code
+     **/
+    public int hashCode()
+    {
+      return 0xF002;
     }
 }

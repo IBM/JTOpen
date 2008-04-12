@@ -374,14 +374,6 @@ class NPDataStream extends ClientAccessDataStream
         }
 
         super.write(out);
-
-        if (Trace.isTraceOn() && Trace.isTraceDatastreamOn())
-        {
-            Trace.log(Trace.DATASTREAM,
-                      "Data stream sent...",
-                      data_);
-        }
-
     }
 
     // Most of the work for a reply data stream happens here.

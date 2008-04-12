@@ -19,6 +19,15 @@ import java.io.InputStream;
 // The AS400GenAuthTknReplyDS class represents the data stream for the 'Generate authentication token' reply.
 class AS400GenAuthTknReplyDS extends ClientAccessDataStream
 {
+    /**
+     Generate a new instance of this type.
+     @return a reference to the new instance
+     **/
+    public Object getNewDataStream()
+    {
+      return new AS400GenAuthTknReplyDS();
+    }
+
     int getRC()
     {
         return get32bit(20);
@@ -42,7 +51,7 @@ class AS400GenAuthTknReplyDS extends ClientAccessDataStream
 
         // Receive the header.
         byte[] header = new byte[20];
-        if (DataStream.readFromStream(in, header, 0, 20) < 20)
+        if (readFromStream(in, header, 0, 20) < 20)
         {
             Trace.log(Trace.ERROR, "Failed to read all of the generate authentication token reply header.");
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -54,5 +63,14 @@ class AS400GenAuthTknReplyDS extends ClientAccessDataStream
 
         // Read in the rest of the data.
         readAfterHeader(in);
+    }
+
+    /**
+     Generates a hash code for this data stream.
+     @return the hash code
+     **/
+    public int hashCode()
+    {
+      return 0xF007;
     }
 }

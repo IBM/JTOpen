@@ -22,6 +22,7 @@ class AS400PortMapReplyDS
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     byte[] data_;
+    private int connectionID_;
 
     // Create space for port mapper reply.
     AS400PortMapReplyDS()
@@ -40,11 +41,18 @@ class AS400PortMapReplyDS
     // Read the reply from the port mapper.
     void read(InputStream in) throws IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Receiving port mapper reply...");
-        if (DataStream.readFromStream(in, data_, 0, 5) < 5)
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Receiving port mapper reply (connID="+connectionID_+") ...");
+        if (DataStream.readFromStream(in, data_, 0, 5, connectionID_) < 5)
         {
             Trace.log(Trace.ERROR, "Failed to read all of the port mapper reply.");
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
         }
+    }
+
+    // Set the connection ID associated with this data stream.
+    // @param  connectionID  the connection ID.
+    void setConnectionID(int connectionID)
+    {
+      connectionID_ = connectionID;
     }
 }

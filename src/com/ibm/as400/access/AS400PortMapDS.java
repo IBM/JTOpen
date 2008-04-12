@@ -22,6 +22,7 @@ class AS400PortMapDS
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     byte[] data_;
+    private int connectionID_;
 
     // Create request, data is name of server in ASCII.
     AS400PortMapDS(String server)
@@ -36,6 +37,13 @@ class AS400PortMapDS
         }
     }
 
+    // Set the connection ID associated with this data stream.
+    // @param  connectionID  the connection ID.
+    void setConnectionID(int connectionID)
+    {
+      connectionID_ = connectionID;
+    }
+
     // Send request to the port mapper.
     void write(OutputStream out) throws IOException
     {
@@ -45,6 +53,6 @@ class AS400PortMapDS
             out.write(data_);
             out.flush();
         }
-        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent (connID="+connectionID_+") ...", data_); //@P0C
     }
 }

@@ -41,7 +41,7 @@ class JPingEchoReplyDS extends ClientAccessDataStream
     {
        // Receive the header.
        byte[] header = new byte[20];
-       if (DataStream.readFromStream(in, header, 0, 20) < 20)
+       if (readFromStream(in, header, 0, 20) < 20)
        {
           Trace.log(Trace.ERROR, "Failed to read all of the Retrieve Signon Information Reply header.");
           throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);

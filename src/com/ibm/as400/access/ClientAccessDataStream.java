@@ -28,13 +28,15 @@ class ClientAccessDataStream extends DataStream
 
   boolean inUse_; //@P0A
 
+  // Note: The following method is called by AS400ThreadedServer and AS400NoThreadServer.
+
   // Construct an appropriate client access data stream object.  Read from the InputStream to obtain the data stream data for the object.
   // @param  is  InputStream from which to read to obtain the data stream contents.
   // @param  dataStreams  Hashtable containing instances of data stream objects to receive into.  This table is searched first when a reply comes in.  If found the datastream will be removed from here as it is received.
   // @param  dataStreams  Prototypes Hashtable containing data stream objects from which to obtain a model for this object.
   // @exception  IOException  Data read from the input stream is less than 20 bytes or we are unable to read from the input stream for some other reason.
   // @return  ClientAccessDataStream object.
-  static final ClientAccessDataStream construct(InputStream is, Hashtable dataStreams, Hashtable dataStreamPrototypes, AS400ImplRemote system) throws IOException
+  static final ClientAccessDataStream construct(InputStream is, Hashtable dataStreams, Hashtable dataStreamPrototypes, AS400ImplRemote system, int connectionID) throws IOException
   {
     // Construct a client access data stream to receive the data stream header.  By using the default constructor for ClientAccessDataStream, we get a data stream of size HEADER_LENGTH.
     //@P0D ClientAccessDataStream baseDataStream = new ClientAccessDataStream();
@@ -43,7 +45,7 @@ class ClientAccessDataStream extends DataStream
     try
     {
       // Receive the header.
-      if (readFromStream(is, baseDataStream.data_, 0, HEADER_LENGTH) < HEADER_LENGTH)
+      if (readFromStream(is, baseDataStream.data_, 0, HEADER_LENGTH, connectionID) < HEADER_LENGTH)
       {
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the data stream header."); //@P0C
         baseDataStream.inUse_ = false; //@P0A
@@ -83,6 +85,7 @@ class ClientAccessDataStream extends DataStream
       }
 
       newDataStream.system_ = system;
+      if (Trace.traceOn_) newDataStream.setConnectionID(connectionID);
       // Initialize the header section of the new data stream.
       newDataStream.data_ = new byte[baseDataStream.getLength()];
       System.arraycopy(baseDataStream.data_, 0, newDataStream.data_, 0, HEADER_LENGTH);

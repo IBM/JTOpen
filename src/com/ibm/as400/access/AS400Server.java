@@ -20,6 +20,14 @@ import java.util.Hashtable;
 abstract class AS400Server
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    protected int connectionID_;
+
+    // Returns the connection ID for this AS400Server object.
+    // @return  The connection ID.
+    final int getConnectionID()
+    {
+      return connectionID_;
+    }
 
     // Returns the service ID for a given service name.
     // @param  serviceName  The service name of the associated service job.
@@ -82,7 +90,7 @@ abstract class AS400Server
     }
 
     // The following static array holds the reply streams hash tables for all server daemons.  These Hashtables are populated by the access classes using the addReplyStream(...) method.
-    static Hashtable[] replyStreamsHashTables =  { new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable() };
+    static Hashtable[] replyStreamsHashTables =  { new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable() };
 
     // Add a prototype reply data stream to the collection of reply prototypes.  There must be a prototype reply for every type of reply that must be constructed automatically on receipt.  This method detects an attempt to add the same prototype reply more than once and ignores redundant attempts.
     // @param  replyStream  The prototype reply data stream to be added.

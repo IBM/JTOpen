@@ -49,6 +49,7 @@ class AS400NoThreadServer extends AS400Server
         jobString_ = jobString;
 
         socket_ = socket;
+        connectionID_ = socket_.hashCode();
         inStream_  = socket.getInputStream();
         outStream_ = socket.getOutputStream();
 
@@ -63,6 +64,11 @@ class AS400NoThreadServer extends AS400Server
     String getJobString()
     {
         return jobString_;
+    }
+
+    void setJobString(String jobString)
+    {
+        jobString_ = jobString;
     }
 
     boolean isConnected()
@@ -110,7 +116,10 @@ class AS400NoThreadServer extends AS400Server
 
     int send(DataStream requestStream) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
+        requestStream.setConnectionID(connectionID_);
+      }
         int correlationID = newCorrelationId();
         requestStream.setCorrelation(correlationID);
         requestStream.write(outStream_);
@@ -128,7 +137,10 @@ class AS400NoThreadServer extends AS400Server
 
     void send(DataStream requestStream, int correlationId) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
+        requestStream.setConnectionID(connectionID_);
+      }
         requestStream.setCorrelation(correlationId);
         requestStream.write(outStream_);
     }
@@ -163,14 +175,16 @@ class AS400NoThreadServer extends AS400Server
                 DataStream ds = null;
                 if (service_ != AS400.RECORDACCESS)
                 {
-                    ds = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_);
+                    ds = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_, connectionID_);
                 }
                 else
                 {
-                    ds = DDMDataStream.construct(inStream_, replyStreams_, system_);
+                    ds = DDMDataStream.construct(inStream_, replyStreams_, system_, connectionID_);
                 }
 
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "run(): reply received..." + ds.toString());
+                if (Trace.isTraceOn()) {
+                  Trace.log(Trace.DIAGNOSTIC, "run(): reply received..." + ds.toString());
+                }
 
                 boolean keepDataStream = true;
                 int correlation = ds.getCorrelation();

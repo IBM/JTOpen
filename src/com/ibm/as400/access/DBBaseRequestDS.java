@@ -990,7 +990,7 @@ Overrides the superclass to write the datastream.
               out.write(compressedBytes, 0, compressedSizeWithHeader);                // @E3A
               out.flush();                                                            // @W1A
             }
-            if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", compressedBytes, 0, compressedSizeWithHeader); //@E6A @P0C
+            if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent (connID="+connectionID_+") ...", compressedBytes, 0, compressedSizeWithHeader); //@E6A @P0C
           }                                                                               // @E3A
           else
           {                                                                          // @E3A
@@ -1025,7 +1025,7 @@ Overrides the superclass to write the datastream.
         out.flush();                                         //@W1a
       }
       //@PDA only trace if stream is actually being sent now. (no trace on lazy close here)
-      if (Trace.traceOn_ && !(out instanceof ByteArrayOutputStream)) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A @P0C
+      if (Trace.traceOn_ && !(out instanceof ByteArrayOutputStream)) Trace.log(Trace.DATASTREAM, "Data stream sent (connID="+connectionID_+") ...", data_, 0, currentOffset_);  //@E6A @P0C
     }                                                                                       // @E3A
   }
 }

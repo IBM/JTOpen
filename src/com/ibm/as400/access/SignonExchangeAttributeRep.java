@@ -18,6 +18,15 @@ import java.io.InputStream;
 
 class SignonExchangeAttributeRep extends ClientAccessDataStream
 {
+    /**
+     Generate a new instance of this type.
+     @return a reference to the new instance
+     **/
+    public Object getNewDataStream()
+    {
+      return new SignonExchangeAttributeRep();
+    }
+
     int getRC()
     {
         return get32bit(20);
@@ -78,7 +87,7 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
 
         // Receive the header.
         byte[] header = new byte[20];
-        if (DataStream.readFromStream(in, header, 0, 20) < 20)
+        if (readFromStream(in, header, 0, 20) < 20)
         {
             if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the signon server exchange client/server attributes reply header.");
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -91,4 +100,14 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
         // Read in the rest of the data.
         readAfterHeader(in);
     }
+
+    /**
+     Generates a hash code for this data stream.
+     @return the hash code
+     **/
+    public int hashCode()
+    {
+      return 0xF003;
+    }
+
 }

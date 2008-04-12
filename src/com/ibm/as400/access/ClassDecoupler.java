@@ -25,6 +25,16 @@ class ClassDecoupler
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
+// For future use.
+//    static
+//    {
+//        // Identify all DDM server reply data streams.
+//        AS400Server.addReplyStream(new DDMEXCSATReplyDataStream(), AS400.RECORDACCESS);
+//        AS400Server.addReplyStream(new DDMACCSECReplyDataStream(), AS400.RECORDACCESS);
+//        AS400Server.addReplyStream(new DDMSECCHKReplyDataStream(), AS400.RECORDACCESS);
+//        AS400Server.addReplyStream(new DDMASPReplyDataStream(), AS400.RECORDACCESS);
+//    }
+
   static void freeDBReplyStream(DataStream ds)
   {
     if (ds instanceof DBReplyRequestedDS)
@@ -33,14 +43,16 @@ class ClassDecoupler
     }
   }
 
-  static Object[] connectDDMPhase1(OutputStream outStream, InputStream inStream, boolean passwordType_, int byteType_) throws ServerStartupException, IOException
+  static Object[] connectDDMPhase1(OutputStream outStream, InputStream inStream, boolean passwordType_, int byteType_, int connectionID) throws ServerStartupException, IOException
   {
     // Exchange server start up/security information with DDM server.
     // Exchange attributes.
     DDMEXCSATRequestDataStream EXCSATRequest = new DDMEXCSATRequestDataStream();
+    if (Trace.traceOn_) EXCSATRequest.setConnectionID(connectionID);
     EXCSATRequest.write(outStream);
 
     DDMEXCSATReplyDataStream EXCSATReply = new DDMEXCSATReplyDataStream();
+    if (Trace.traceOn_) EXCSATReply.setConnectionID(connectionID);
     EXCSATReply.read(inStream);
 
     if (!EXCSATReply.checkReply())
@@ -50,9 +62,11 @@ class ClassDecoupler
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM EXCSAT successful.");
 
     DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, byteType_, null); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+    if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
     ACCSECReq.write(outStream);
 
     DDMACCSECReplyDataStream ACCSECRep = new DDMACCSECReplyDataStream();
+    if (Trace.traceOn_) ACCSECRep.setConnectionID(connectionID);
     ACCSECRep.read(inStream);
 
     if (!ACCSECRep.checkReply(byteType_))
@@ -72,16 +86,18 @@ class ClassDecoupler
     return new Object[] { clientSeed, serverSeed };
   }
 
-  static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, byte[] ddmSubstitutePassword, byte[] iaspBytes, int byteType_, String ddmRDB_, String systemName_) throws ServerStartupException, IOException
+  static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, byte[] ddmSubstitutePassword, byte[] iaspBytes, int byteType_, String ddmRDB_, String systemName_, int connectionID) throws ServerStartupException, IOException
   {
     // If the ddmSubstitutePassword length is 8, then we are using DES encryption.  If its length is 20, then we are using SHA encryption.
     // Build the SECCHK request; we build the request here so that we are not passing the password around anymore than we have to.
     DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, iaspBytes, byteType_);
+    if (Trace.traceOn_) SECCHKReq.setConnectionID(connectionID);
 
     // Send the SECCHK request.
     SECCHKReq.write(outStream);
 
     DDMSECCHKReplyDataStream SECCHKRep = new DDMSECCHKReplyDataStream();
+    if (Trace.traceOn_) SECCHKRep.setConnectionID(connectionID);
     SECCHKRep.read(inStream);
 
     // Validate the reply.
@@ -94,8 +110,10 @@ class ClassDecoupler
     {
       // We need to send an RDB datastream to make sure the RDB name we sent on the SECCHK is a valid RDB.
       DDMASPRequestDataStream aspReq = new DDMASPRequestDataStream(iaspBytes);
+      if (Trace.traceOn_) aspReq.setConnectionID(connectionID);
       aspReq.write(outStream);
       DDMASPReplyDataStream aspRep = new DDMASPReplyDataStream();
+      if (Trace.traceOn_) aspRep.setConnectionID(connectionID);
       aspRep.read(inStream);
       if (!aspRep.checkReply())
       {
@@ -106,9 +124,9 @@ class ClassDecoupler
     }
   }
 
-  static DataStream constructDDMDataStream(InputStream inStream, Hashtable replyStreams, AS400ImplRemote system) throws IOException
+  static DataStream constructDDMDataStream(InputStream inStream, Hashtable replyStreams, AS400ImplRemote system, int connectionID) throws IOException
   {
-    return DDMDataStream.construct(inStream, replyStreams, system);
+    return DDMDataStream.construct(inStream, replyStreams, system, connectionID);
   }
 }
 

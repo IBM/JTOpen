@@ -19,6 +19,15 @@ import java.io.InputStream;
 // The SignonGenAuthTokenReplyDS class represents the data stream for the 'Generate authentication token on behalf of another user' reply.
 class SignonGenAuthTokenReplyDS extends ClientAccessDataStream
 {
+    /**
+     Generate a new instance of this type.
+     @return a reference to the new instance
+     **/
+    public Object getNewDataStream()
+    {
+      return new SignonGenAuthTokenReplyDS();
+    }
+
     int getRC()
     {
         return get32bit(20);
@@ -42,7 +51,7 @@ class SignonGenAuthTokenReplyDS extends ClientAccessDataStream
 
         // Receive the header.
         byte[] header = new byte[20];
-        if (DataStream.readFromStream(in, header, 0, 20) < 20)
+        if (readFromStream(in, header, 0, 20) < 20)
         {
             Trace.log(Trace.ERROR, "Failed to read all of the generate authentication token on behalf of another user reply header.");
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -54,5 +63,14 @@ class SignonGenAuthTokenReplyDS extends ClientAccessDataStream
 
         // Read in the rest of the data.
         readAfterHeader(in);
+    }
+
+    /**
+     Generates a hash code for this data stream.
+     @return the hash code
+     **/
+    public int hashCode()
+    {
+      return 0xF008;
     }
 }

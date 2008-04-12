@@ -80,13 +80,13 @@ class DDMDataStream extends DataStream
     // @param  system  The system from which to get the CCSID for conversion.
     // @return  DDMDataStream object
     // @exception  IOException  We are unable to read from the input stream for some reason.
-    static DDMDataStream construct(InputStream is, Hashtable dataStreams, AS400ImplRemote system) throws IOException
+    static DDMDataStream construct(InputStream is, Hashtable dataStreams, AS400ImplRemote system, int connectionID) throws IOException
     {
         // Construct a DDM data stream to receive the data stream header.  By using the default constructor for DDMDataStream, we get a data stream of size HEADER_LENGTH.
 	DDMDataStream baseDataStream = new DDMDataStream();
 
         // Receive the header.
-	if (readFromStream(is, baseDataStream.data_, 0, HEADER_LENGTH) < HEADER_LENGTH)
+	if (readFromStream(is, baseDataStream.data_, 0, HEADER_LENGTH, connectionID) < HEADER_LENGTH)
 	{
 	    Trace.log(Trace.ERROR, "Failed to read all of the DDM data stream header.");
 	    throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -132,7 +132,7 @@ class DDMDataStream extends DataStream
 		b.write(baseDataStream.data_, 0, HEADER_LENGTH);
 	        // Read the first packet from the input stream
 		byte[] packet = new byte[packetLength - HEADER_LENGTH];
-		if (readFromStream(is, packet, 0, packetLength - HEADER_LENGTH) < packetLength - HEADER_LENGTH)
+		if (readFromStream(is, packet, 0, packetLength - HEADER_LENGTH, connectionID) < packetLength - HEADER_LENGTH)
 		{
 		    Trace.log(Trace.ERROR, "Failed to read all of the DDM data stream packet.");
 		    throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -144,7 +144,7 @@ class DDMDataStream extends DataStream
 		while (!done)
 		{
                     // Get the length of the next packet
-		    if (readFromStream(is, nextLength, 0, 2) < 2)
+		    if (readFromStream(is, nextLength, 0, 2, connectionID) < 2)
 		    {
 			Trace.log(Trace.ERROR, "Failed to read all of the DDM data stream packet length.");
 			throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
@@ -164,7 +164,7 @@ class DDMDataStream extends DataStream
 		    }
 
 	            // Read the rest of the packet from the input stream
-		    if (readFromStream(is, packet, 0, packetLength - 2) < packetLength - 2)
+		    if (readFromStream(is, packet, 0, packetLength - 2, connectionID) < packetLength - 2)
 		    {
 			Trace.log(Trace.ERROR, "Failed to read all of the DDM data stream continuation packet.");
 			throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);

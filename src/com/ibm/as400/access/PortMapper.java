@@ -222,10 +222,12 @@ class PortMapper
             // Now we construct and send a "port map" request to get the port number for the requested service...
             String fullServiceName = (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) ? serviceName + "-s" : serviceName;
             AS400PortMapDS pmreq = new AS400PortMapDS(fullServiceName);
+            if (Trace.traceOn_) pmreq.setConnectionID(pmSocket.hashCode());
             pmreq.write(pmOutstream);
 
             // Now we get the response and close the socket connection to the port mapper...
             AS400PortMapReplyDS pmresp = new AS400PortMapReplyDS();
+            if (Trace.traceOn_) pmresp.setConnectionID(pmSocket.hashCode());
             pmresp.read(pmInstream);
             pmSocket.close();
 

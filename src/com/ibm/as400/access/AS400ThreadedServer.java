@@ -182,6 +182,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         jobString_ = jobString;
 
         socket_ = socket;
+        connectionID_ = socket_.hashCode();
         inStream_  = socket.getInputStream();
         outStream_ = socket.getOutputStream();
 
@@ -214,6 +215,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         if (service_ == AS400.DATABASE || service_ == AS400.COMMAND || service_ == AS400.CENTRAL)
         {
             AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
+            if (Trace.traceOn_) endjob.setConnectionID(connectionID_);
             try
             {
                 endjob.write(outStream_);
@@ -286,7 +288,9 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 DataStream ds = replyList_.remove(correlationId);
                 if (ds != null)
                 {
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:", correlationId);
+                  if (Trace.traceOn_) {
+                    Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:", correlationId);
+                  }
                     return ds;
                 }
                 else if (readDaemonException_ != null)
@@ -318,11 +322,11 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 // If client access server, construct ClientAccessDataStream.
                 if (service_ != AS400.RECORDACCESS)
                 {
-                    reply = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_);
+                    reply = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_, connectionID_);
                 }
                 else  // Construct a DDMDataStream.
                 {
-                  reply = ClassDecoupler.constructDDMDataStream(inStream_, replyStreams_, system_);
+                  reply = ClassDecoupler.constructDDMDataStream(inStream_, replyStreams_, system_, connectionID_);
                 }
                 // Note: the thread is blocked on the above call if the inputStream has nothing to receive.
 
@@ -371,7 +375,10 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
     final int send(DataStream requestStream) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
+        requestStream.setConnectionID(connectionID_);
+      }
         if (readDaemonException_ != null)
         {
             Trace.log(Trace.ERROR, "Read daemon generated exception:", readDaemonException_);
@@ -390,7 +397,10 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
     final void send(DataStream requestStream, int correlationId) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
+        requestStream.setConnectionID(connectionID_);
+      }
         if (readDaemonException_ != null)
         {
             Trace.log(Trace.ERROR, "Read daemon generated exception:", readDaemonException_);

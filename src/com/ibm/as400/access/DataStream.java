@@ -23,6 +23,7 @@ abstract class DataStream
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     protected static ConverterImplRemote converter_;  // Character set conversion object.
+    protected int connectionID_;
     static ConverterImplRemote getDefaultConverter()
     {
         return converter_;
@@ -37,9 +38,10 @@ abstract class DataStream
     // @param  buf  Where to read the data into.
     // @param  offset  Offset within buf array to start reading into.
     // @param  length  How many bytes to read.
+    // @param  connectionID  The connection ID.
     // @exception  IOException  from Inputstream.read() operation.
     // @returns  Number of bytes read.
-    static final int readFromStream(InputStream in, byte[] buf, int offset, int length) throws IOException //@P0C
+    static final int readFromStream(InputStream in, byte[] buf, int offset, int length, int connectionID) throws IOException //@P0C
     {
         boolean endOfFile = false;
         int bytesRead = 0;
@@ -56,16 +58,28 @@ abstract class DataStream
             }
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream data received...", buf, offset, bytesRead); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream data received (connID="+connectionID+") ...", buf, offset, bytesRead); //@P0C
 
         return bytesRead;
+    }
+
+    // Read the number of bytes asked for and loop until either that many bytes have been read or until we hit the end of file.
+    // @param  in  Inputstream to read from.
+    // @param  buf  Where to read the data into.
+    // @param  offset  Offset within buf array to start reading into.
+    // @param  length  How many bytes to read.
+    // @exception  IOException  from Inputstream.read() operation.
+    // @returns  Number of bytes read.
+    final int readFromStream(InputStream in, byte[] buf, int offset, int length) throws IOException
+    {
+      return readFromStream(in, buf, offset, length, connectionID_);
     }
 
     protected AS400ImplRemote system_;
 
     protected byte[] data_;  // Contains complete data stream data.
 
-    // Length of the header portion of the data stream.  This should be set by sub-classes of this class during construction via calls to super..
+    // Length of the header portion of the data stream.  This should be set by sub-classes of this class during construction via calls to super.
     protected int headerLength_;
 
 
@@ -170,6 +184,13 @@ abstract class DataStream
         return bytesRead;
     }
 
+    // Set the connection ID associated with this data stream.
+    // @param  connectionID  the connection ID.
+    void setConnectionID(int connectionID)
+    {
+        connectionID_ = connectionID;
+    }
+
     // Set the request correlation for this data stream.
     // @param  correlation  The request correlation number.
     abstract void setCorrelation(int correlation);
@@ -227,6 +248,6 @@ abstract class DataStream
             out.flush();
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent (connID="+connectionID_+") ...", data_); //@P0C
     }
 }
