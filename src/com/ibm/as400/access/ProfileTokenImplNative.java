@@ -21,8 +21,9 @@ import com.ibm.as400.security.auth.*;
  * The ProfileTokenImplNative class provides an implementation for behavior 
  * delegated by a ProfileTokenCredential object.
  **/
-/*public*/ class ProfileTokenImplNative implements ProfileTokenImpl
+public class ProfileTokenImplNative implements ProfileTokenImpl
 {
+  // Note: This class needs to be public, because it's referenced by class com.ibm.as400.security.auth.ProfileTokenCredential
   private static final String CLASSNAME = "com.ibm.as400.access.ProfileTokenImplNative";
   static
   {
