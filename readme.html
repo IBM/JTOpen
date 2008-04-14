@@ -9,7 +9,7 @@ Copyright (C) 1997-2007 International Business Machines Corporation and
 others. All rights reserved.
 
 File: README
-Last updated: August 6, 2007
+Last updated: April 14, 2008
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -70,6 +70,7 @@ JTOpen 3.x      Not applicable  Not applicable  V4R5 and up
 JTOpen 4.0-4.2  Not applicable  Not applicable  V5R1 and up
 JTOpen 4.3-4.7  5722JC1 V5R3M0  V5R1 and up     V5R1 and up
 JTOpen 4.8+     5722JC1 V5R4M0  V5R2 and up     V5R2 and up
+JTOpen 6.1+     5761JC1 V6R1M0  V5R3 and up     V5R3 and up
 
 (*) Note: Toolbox release V5R3 is equivalent to JTOpen 4.3.
 (**) Note:  Toolbox release V5R4 is equivalent to JTOpen 4.8.
@@ -104,7 +105,7 @@ following reasons:
    Toolbox codebase. That is, the Java code in the open source repository
    is the same code that was used to build the V4R5 Toolbox LPP. JTOpen 2.0x
    uses the V5R1 Toolbox as its codebase. The latest release of JTOpen
-   (JTOpen 5.x) uses the V5R4 Toolbox as its codebase.
+   (JTOpen 6.x) uses the V6R1 Toolbox as its codebase.
 
 2. When bugs are reported, fixes will be committed to JTOpen as soon as
    they are realized. When applicable, these same fixes will be committed
@@ -120,6 +121,7 @@ following reasons:
    discretion of the JTOpen Core Team. All changes to the Toolbox LPP
    are made under the control and at the discretion of IBM.
 
+<!--
 4. Initially, JTOpen only contained most of the classes from the
    com.ibm.as400.access package. As of release 2.0x, it contains almost
    all of the primary Toolbox packages:
@@ -133,14 +135,14 @@ following reasons:
      
    As time permits, more code and packages from the Toolbox will be added
    to this repository.
-
-5. In general, the Toolbox LPP is supported directly by IBM. JTOpen
+-->
+4. In general, the Toolbox LPP is supported directly by IBM. JTOpen
    is supported by the JTOpen user community, in which IBM participates
    and contributes, specifically through developer email, the JTOpen
    mailing list, and the JTOpen web forum located at:
      http://www-912.ibm.com/j_dir/JTOpen.nsf/By+Date?OpenView
 
-6. Pursuant to the IBM Public License, programmers are free to alter the
+5. Pursuant to the IBM Public License, programmers are free to alter the
    JTOpen source code and to distribute it with their own applications.
 
 
@@ -177,51 +179,73 @@ JTOpen is comprised of the following files:
 Jar file          Contents
 --------          --------
 
+<!--
 jtStubs.jar       As of JTOpen 4.0 and JDK 1.4, this jar file is no longer required.
+-->
+jtopen_x_x_source.zip  This is a zip file of all the source files in the repository.
+                       It is not a Java jar file.
 
-src.zip           This is a zip file of all the source files in the repository. It is
-                  not a Java jar file. The src.zip file has been replaced by the JTOpen
-                  downloads available on the <A HREF="https://sourceforge.net/projects/jt400">JTOpen SourceForge project site</A>.
+jtopen_x_x_javadoc.zip This is a zip file of the javadoc (in HTML format) for
+                       the JTOpen source files. It is not a Java jar file.
 
-doc.zip           This is a zip file of the javadoc (in HTML format) for the JTOpen
-                  source files. It is not a Java jar file. The doc.zip file has been
-                  replaced by the JTOpen downloads available on the
-                  <A HREF="https://sourceforge.net/projects/jt400">JTOpen SourceForge project site</A>.
+jt400.jar(*)         This is the main JTOpen jar file. It contains almost all open
+                     source code (except for the few Toolbox classes that could
+                     not be open-sourced), including the utilities package,
+                     and the JDBC driver (JDBC 3.0).
 
-jt400.jar         This is the main JTOpen jar file. It contains almost all open
-                  source code (except for the few Toolbox classes that could
-                  not be open-sourced), including the previously disparate
-                  utilities package, and the JDBC driver.
+jt400Micro.jar(*)    This contains the ToolboxME (Micro Edition) classes for
+                     use on a handheld device.
 
-jt400Micro.jar    This contains the ToolboxME (Micro Edition) classes for
-                  use on a handheld device.
+jt400Native.jar(*)   Previously known as jt400Access.zip, this jar does not
+                     contain the vaccess package. It does contain the native
+                     optimization classes necessary for running performance-enhanced
+                     applications on the i5/OS or OS/400 JVM.
 
-jt400Native.jar   Previously known as jt400Access.zip, this jar does not
-                  contain the vaccess package. It does contain the native
-                  optimization classes necessary for running performance-enhanced
-                  applications on the i5/OS or OS/400 JVM.
+jt400Proxy.jar(*)    This jar contains just the classes needed to run a client
+                     application using the Toolbox proxy server. It is
+                     especially useful in environments where a smaller jar
+                     is needed.
 
-jt400Proxy.jar    This jar contains just the classes needed to run a client
-                  application using the Toolbox proxy server. It is
-                  especially useful in environments where a smaller jar
-                  is needed.
+jt400Servlet.jar(*)  This jar contains the html and servlet packages.
 
-jt400Servlet.jar  This jar contains the html and servlet packages.
+jui400.jar(*)        Contains the PDML runtime packages as provided by
+                     the Graphical Toolbox.
 
-                  
+uitools.jar(*)       Contains the GUI Builder packages as provided by the
+                     Graphical Toolbox.
+
+util400.jar(*)       Contains various utilities.
+
+composer.jar(*)      Contains XSL stylesheet composer classes.
+
+reportwriter.jar(*)  Contains XSL report processor classes.
+
+outputwriters.jar(*) Contains PDF, PCL, and font classes.
+
+tes.jar(*)           Contains the iSeries Graphical Debugger.
+
+jtopen_x_x_jdbc40.zip  This zip file contains versions of jt400.jar and
+                       jt400Native.jar (along with source code) that are
+                       compatible for use with JDBC 4.0, on Java 6.0 or higher.
+
+
+(*) Files contained in file jtopen_x_x.zip.
+
+<!--
 The first three files are available through the JTOpen web site
 located at <A HREF="http://jt400.sourceforge.net/">http://jt400.sourceforge.net/</A>.
 Due to export regulations, the other jar files can only be downloaded from
 the official Toolbox web site downloads page:
 <A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox/downloads.htm">http://www.ibm.com/servers/eserver/iseries/toolbox/downloads.htm</A>.
-
+-->
 There are other jar files shipped in the download for JTOpen off of the Toolbox
 downloads page. Those jar files do not (yet) contain JTOpen code. They are
 provided as a convenience to the developer and to mirror the objects that ship
 with the Toolbox LPP.
 
+<!--
 As of JTOpen 3.3, MD5 checksums are provided to verify download integrity.
-
+-->
 <A NAME="use"><H4><U>Building and Using JTOpen</U></H4></A>
 Instructions for using JTOpen:
 1. Download the JTOpen jt400.jar.
@@ -248,11 +272,11 @@ Instructions for building all or part of the JTOpen source code:
    look like this:
      CLASSPATH=C:\jt400\MySource;C:\jt400\jt400.jar;...
 7. Run your application.
-
+<!--
 <A NAME="toolbox"><H4><U>Using the Toolbox LPP</U></H4></A>
 For those interested in the Toolbox LPP version of this software:
 
-The V5R4 Toolbox LPP ships the following files, which are available
+The V6R1 Toolbox LPP ships the following files, which are available
 for download off of the official Toolbox web site at
 <A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox">http://www.ibm.com/servers/eserver/iseries/toolbox</A>.
 
@@ -291,7 +315,7 @@ Instructions for using the Toolbox LPP:
    will be jt400.jar in most cases.
 2. Add it to your CLASSPATH.
 3. Run your application.
-
+-->
 
 <HR><A NAME="info"><H3>Support information</H3></A>
 
