@@ -107,10 +107,10 @@ implements java.sql.Driver
 	// Constants.
         // Update each release.  Was 4 for v5r1.
 	static final int    MAJOR_VERSION_          = 8; //(ex: 8->V6R1)  @B1C @C5C @D1C @540 @610
-	static final int    MINOR_VERSION_          = 2; //(ex: 2->PTF#2) @610 @jt61
+	static final int    MINOR_VERSION_          = 4; //(ex: 2->PTF#2) @610 @jt61
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
-    static final String DRIVER_LEVEL_           = "06010002"; // example V5R4M0.0 -> 05040000 (needed for hidden clientInfo in Brent's spec) (each # is 2 digits in length), should match version in Copyright.java  //@PDA jdbc40 @jt61
+    static final String DRIVER_LEVEL_           = "06010004"; // example V5R4M0.0 -> 05040000 (needed for hidden clientInfo in Brent's spec) (each # is 2 digits in length), should match version in Copyright.java  //@PDA jdbc40 @jt61
     public static final int JDBC_MAJOR_VERSION_ = 4; // JDBC spec version: 4.0
     public static final int JDBC_MINOR_VERSION_ = 0;
 
