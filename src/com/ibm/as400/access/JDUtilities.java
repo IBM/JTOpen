@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.sql.*;                                            // @J1c
 
 
@@ -43,7 +44,9 @@ class JDUtilities
     static final int vrm440 = AS400.generateVRM(4, 4, 0);
     static final int vrm430 = AS400.generateVRM(4, 3, 0);
                  
-    static int JDBCLevel_ = 10;                                     // @J4a         
+    static int JDBCLevel_ = 10;                                     // @J4a    
+    static int JVMLevel_ = 120; //1.2.0                             //@big   
+    private final static Object bigDecimalLock_ = new Object();           //@big   
      
     // @J4a
     static
@@ -55,6 +58,13 @@ class JDUtilities
 
           Class.forName("java.sql.Savepoint"); 
           JDBCLevel_ = 30;
+          
+          Class.forName("java.util.concurrent.Semaphore");       //@big  
+          JVMLevel_  = 150;  //jre 5.0                           //@big  
+          
+          Class.forName("java.sql.SQLXML");                      //@big  
+          JDBCLevel_ = 40;                                       //@big     
+          JVMLevel_  = 160;  //jre 6.0                           //@big  
        }                                         
        catch (Throwable e) { }   
     }                          
@@ -580,6 +590,63 @@ Reads an input stream and returns its data as a String.
       else
         return name.toUpperCase();
     }
+
+
+    //@big For 1.4 backlevel support of Decimal and Numeric types
+    /**
+     * bigDecimalToPlainString takes a big decimal and converts it into a plain string, without an
+     * exponent.  This was the default behavior of toString before JDK 1.5.
+     * bigDecimalToPlainString was taken from Native driver for java 1.5 support and changed a bit for toolbox
+     * Coded so it will compile on java 1.4 also
+     */
+    static java.lang.reflect.Method toPlainStringMethod = null;
+    static Object[] emptyArgs;
+
+    public static String bigDecimalToPlainString(BigDecimal bigDecimal) {
+        if (JVMLevel_ >= 150) {
+            // We compile using JDK 1.4, so we have to get to the new method via
+            // reflection
+
+            if (toPlainStringMethod == null) {
+                synchronized(bigDecimalLock_) {
+                    if (toPlainStringMethod == null) {
+                        try {
+                            Class bigDecimalClass = Class.forName("java.math.BigDecimal");
+                            Class[] parameterTypes = new Class[0]; 
+                            toPlainStringMethod = bigDecimalClass.getMethod("toPlainString",  parameterTypes);
+                            emptyArgs = new Object[0];
+                        } catch (Exception e) {
+                            if (JDTrace.isTraceOn ())                                           
+                            {  
+                               JDTrace.logException(null, "Exception while calling BigDecimal.toPlainString.", e);                          
+                            }     
+                            toPlainStringMethod = null; 
+
+                            return bigDecimal.toString(); 
+                        }
+                    } /* if */ 
+                } /* synchronized */ 
+            } /* toPlainStringMethod == null */ 
+            String returnString;
+            try { 
+                returnString =
+                    (String) toPlainStringMethod.invoke((Object) bigDecimal, emptyArgs);
+            } catch (Exception e) {
+                if (JDTrace.isTraceOn ())                                           
+                {  
+                   JDTrace.logException(null, "Exception while calling BigDecimal.toPlainString.", e);                          
+                }   
+
+                returnString = bigDecimal.toString(); 
+            }
+
+            return returnString; 
+
+        } else { /* not JDK15 */ 
+
+            return bigDecimal.toString(); 
+        } 
+    }    
 
 
 }

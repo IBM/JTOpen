@@ -483,7 +483,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        String stringRep = value_.toString();
+        String stringRep = JDUtilities.bigDecimalToPlainString(value_); //@big java 1.5 support
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
             return stringRep;
