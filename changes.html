@@ -5,11 +5,13 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2007 International Business Machines Corporation and
+Copyright (C) 1997-2008 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: December 14, 2007
+Last updated: April 22, 2008
+<!-- On 2008-04-22: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d >2007-12-14 -->
+<!-- On 2008-04-14: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d >2007-12-14 -->
 <!-- On 2007-12-14: cvs log -rJTOpen_6_0:JTOpen_6_1 -N -d >2007-08-06 -->
 
 The term "JTOpen" refers to the open source software product
@@ -27,6 +29,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#62">Fixes and enhancements in JTOpen 6.2</A><BR>
 <A HREF="#61">Fixes and enhancements in JTOpen 6.1</A><BR>
 <A HREF="#60">Fixes and enhancements in JTOpen 6.0</A><BR>
 <A HREF="#54">Fixes and enhancements in JTOpen 5.4</A><BR>
@@ -50,6 +53,58 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <P>
 
 <HR>
+<H3><A NAME="62">Fixes and enhancements in JTOpen 6.2</A> <i>(released 2008-04-30)</i></H3>
+<PRE>
+- <i>Various:</i> Javadoc updates.
+- <i>Various:</i> Corrected EventSetDescriptor argument, to eliminate IntrospectionException on some JVMs.
+- Build: Fix for JTOpen bug 1924271: In build.xml, specify encoding for javac calls.
+- Build: Removed JDBC version designation.
+- Command call: When running programs/commands natively, set secondary language directory to match client locale.
+- Connection pool: Check for connection expiration when connection returned to pool.
+- Connection pool: Use SoftReference to eliminate circular reference and potential memory leak.
+- Connection pool: Added diagnostic trace for when an active but expired JDBC connection is closed.
+- Connection: Added null pointer check in AS400.getJobs().
+- Connection: Corrected misspelled constant name.
+- Connection: Use socket timeout when connecting if running in Java 1.4 or higher.
+- Data area: Added methods to read/write unconverted bytes.
+- Data conversion: Added setters and getters for numeral shaping, bidi expand alef.
+- Data conversion: Eliminated possible ArrayIndexOutOfBoundsException in ConvTableReader.fillCache(), for example when incorrect data CCSID is specified.
+- Data conversion: Made the Mlog class non-public.
+- IFS: Modifications for IFSFile.clearCachedAttributes() to clear all cached attributes.
+- IFS: Enable operation on files larger than 2GB: IFSFileOutputStreamImplRemote.write(), IFSRandomAccessFile.seek().
+- IFS: Updates to IFSFile.java and IFSJavaFile.java for symbolic link objects.
+- JDBC: Add text "Connection.rollback()" to "autocommit exception" property description.
+- JDBC: Add text "rollback" to "autocommit exception" property description and javadoc.
+- JDBC: AS400JDBCDriver: Added JDBC version indicator.
+- JDBC: Auto-commit property.
+- JDBC: Beginning with Version 6 Release 1 of i5/OS, you must have *JOBCTL special authority for setQueryTimeout().
+- JDBC: Change to not use sql package cache if the statement contains a lob since it could be a lob or lob locator on other connections.
+- JDBC: Close statements to avoid statement leak.
+- JDBC: Fix error when Statement.setMaxRows(count) is same number of rows in a resultset.
+- JDBC: Fix for setCharacterStream to take into account multi-byte chars.
+- JDBC: Fix for time when hour is 24 and minute is not 00.
+- JDBC: Fix to signal truncation of data in CCSID 5035.
+- JDBC: Get timeout property from DriverManager.getLoginTimeout.
+- JDBC: Implementation of Decfloat SNaN.
+- JDBC: Login timeout added to DriverManager properties.
+- JDBC: Login timeout in milliseconds.
+- JDBC: Make the 'autocommit exception' property effective for rollback.
+- JDBC: XA Connection fixed to close cursor after commit.
+- JDBC: You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.
+- JDBC:  For numeric and decimal column types, exploit BigDecimal.toPlainString().
+- NetServer: Fix for IseriesNetServer.java for authority check IOSYSCFG to include groups that a user belongs to.
+- Permission: Changes due to regression test. Permission.java
+- Permission: Updates to process QSYS IASP objects Permission.java PermissionAccessQSYS.java QSYSObjectPathName.java
+- Print: Fix for JTOpen bug 1551918.
+- RLA: Fix for JTOpen bug 1847680: Introspection of Record fails due to bad RecordBeanInfo.java. Original problem reported in JTOpen bug 1779593: Correct EventSet for VetoablePropertyChange
+- Trace: Added tracing of connection ID.
+- Trace: Added tracing of load source.
+- Trace: Fix for JTOpen bug 1889391: Synchronized access to static variable SimpleDateFormat.
+- Trace: Limit repeated checks for multiple Toolbox versions.
+- Utilities: AboutToolbox: Added check for supported JDBC version.
+</PRE>
+
+<HR>
 <H3><A NAME="61">Fixes and enhancements in JTOpen 6.1</A> <i>(released 2008-01-04)</i></H3>
 <PRE>
 - <i>Various:</i>  Javadoc updates.
@@ -70,7 +125,6 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC:  Return "NCHAR"  and "NVARCHAR" from getTypeName() for CCSIDs 13488 and 1200.
 - JDBC:  Return first occurrence of column when calling ResultSet.findColumn(String) when there are more than one column with same name.
 - JDBC:  Update getDatabaseMajorVersion and getDatabaseMinorVersion to reflect actual versions from host server.
-- JDBC:  Update minor version.
 - JDBC:  isReadOnly method fix.
 - JDBC:  Fix for non-capitalized schema names in getProcedureColumns method.
 - JDBC:  Fix storesMixedCaseQuotedIdentifiers method to return false.
@@ -147,7 +201,6 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC:  Allow sort=job to not throw exception, but use default.
 - JDBC:  Added stored procedure support for getIndexInfo. 
 - JDBC:  Added support for stored procedure result sets date and time format.
-- JDBC:  Updated miner version for JTOpen 5.3 and 5.4.0.4
 - JDBC:  ResultSet.getRow() fix to return correct number after inserting new rows.
 - JDBC:  Updated data truncation exception support.
 - JDBC:  Strip out comments in statements greater than 2M in V5R4.
