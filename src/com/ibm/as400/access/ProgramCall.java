@@ -474,6 +474,7 @@ public class ProgramCall implements Serializable
 
     /**
      Indicates whether or not the program will actually get run on the current thread.
+     <br>Note: If the program is run on-thread, it will run in a different job than if it were run off-thread.
      @return  true if the program will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -491,6 +492,7 @@ public class ProgramCall implements Serializable
 
     /**
      Indicates whether or not the program will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.ProgramCall.threadSafe</code> property.
+     <br>Note: If the program is run on-thread, it will run in a different job than if it were run off-thread.
      @return  true if the program will be assumed thread-safe; false otherwise.
      @see  #isStayOnThread
      **/
@@ -829,6 +831,7 @@ public class ProgramCall implements Serializable
     /**
      Specifies whether or not the program should be assumed thread-safe.  The default is false.
      <br>Note: This method does not modify the actual program object on the system.
+     <br>Note: If the program is run on-thread, it will run in a different job than if it were run off-thread.
      @param  threadSafe  true if the program should be assumed to be thread-safe; false otherwise.
      **/
     public void setThreadSafe(boolean threadSafe)

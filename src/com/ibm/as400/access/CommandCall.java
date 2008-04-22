@@ -423,6 +423,7 @@ public class CommandCall implements Serializable
 
     /**
      Indicates whether or not the command will actually get run on the current thread.
+     <br>Note: If the command is run on-thread, it will run in a different job than if it were run off-thread.
      @return  true if the command will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -457,6 +458,7 @@ public class CommandCall implements Serializable
      <li> Send an informational message and run the command.
      <li> Send an escape message, and do not run the command.
      </ul>
+     <br>Note: If the command is run on-thread, it will run in a different job than if it were run off-thread.
      @return  true if the command will be assumed thread-safe; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -773,6 +775,7 @@ public class CommandCall implements Serializable
     /**
      Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the system.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
      <br>Note:  This method does not modify the actual command object on the system.
+     <br>Note: If the command is run on-thread, it will run in a different job than if it were run off-thread.
      @param  threadSafe  true if the command should be assumed to be thread-safe; false otherwise.
      @see #isThreadSafe
      **/
