@@ -474,7 +474,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        String stringRep = value_.toString();
+        String stringRep = value_.toPlainString(); //@big
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
             return stringRep;
