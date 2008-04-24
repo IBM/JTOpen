@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // @A1 - 02/12/2008 - Updates to process QSYS IASP objects correctly.
 // @A4 - 03/01/2008 - Additional iasp updates
+// @A5 - 04/24/2008 - Fix to setAuthorizationList()
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -532,10 +533,12 @@ class PermissionAccessQSYS extends PermissionAccess
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String object = objectPathName.getObjectName();
-        if (!objectPathName.getLibraryName().equals("QSYS"))
-        {
-            object = objectPathName.getLibraryName()+"/"+object;
-        }
+        
+        if (object.equals(""))                                  //@A5A
+          object = "QSYS/"+objectPathName.getLibraryName();     //@A5A
+        else                                                    //@A5A
+          object = objectPathName.getLibraryName()+"/"+object;  //@A5A
+        
         String objectType = objectPathName.getObjectType();
         if (objectType.toUpperCase().trim().equals("MBR"))
             objectType = "FILE";
@@ -611,10 +614,12 @@ class PermissionAccessQSYS extends PermissionAccess
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String object = objectPathName.getObjectName();
-        if (!objectPathName.getLibraryName().equals("QSYS"))
-        {
-            object = objectPathName.getLibraryName()+"/"+object;
-        }
+
+        if (object.equals(""))                                  //@A5A
+          object = "QSYS/"+objectPathName.getLibraryName();     //@A5A
+        else                                                    //@A5A
+          object = objectPathName.getLibraryName()+"/"+object;  //@A5A
+
         String objectType = objectPathName.getObjectType();
         if (objectType.toUpperCase().equals("MBR"))
             objectType = "FILE";
