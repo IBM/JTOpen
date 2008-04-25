@@ -9,10 +9,8 @@ Copyright (C) 1997-2008 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: April 22, 2008
-<!-- On 2008-04-22: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d >2007-12-14 -->
-<!-- On 2008-04-14: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d >2007-12-14 -->
-<!-- On 2007-12-14: cvs log -rJTOpen_6_0:JTOpen_6_1 -N -d >2007-08-06 -->
+Last updated: April 25, 2008
+<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d >2007-12-14 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -90,17 +88,17 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC: Login timeout in milliseconds.
 - JDBC: Make the 'autocommit exception' property effective for rollback.
 - JDBC: XA Connection fixed to close cursor after commit.
-- JDBC: You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.
-- JDBC:  For numeric and decimal column types, exploit BigDecimal.toPlainString().
+- JDBC: Starting in V6R1, user must have *JOBCTL special authority to use query storage limit.
+- JDBC: Starting in JDK 1.5, for numeric and decimal column types, exploit BigDecimal.toPlainString().
 - NetServer: Fix for IseriesNetServer.java for authority check IOSYSCFG to include groups that a user belongs to.
 - Permission: Changes due to regression test. Permission.java
-- Permission: Updates to process QSYS IASP objects Permission.java PermissionAccessQSYS.java QSYSObjectPathName.java
-- Print: Fix for JTOpen bug 1551918.
-- RLA: Fix for JTOpen bug 1847680: Introspection of Record fails due to bad RecordBeanInfo.java. Original problem reported in JTOpen bug 1779593: Correct EventSet for VetoablePropertyChange
+- Permission: Updates to process QSYS IASP objects: Permission, PermissionAccessQSYS, and QSYSObjectPathName.
+- Print: Fix for JTOpen bug 1551918: PrintObjectList: openSynchronously() twice.
+- RLA: Fix for JTOpen bug 1847680: Introspection of Record fails due to bad RecordBeanInfo.java. Original problem reported in JTOpen bug 1779593: Correct EventSet for VetoablePropertyChange.
 - Trace: Added tracing of connection ID.
 - Trace: Added tracing of load source.
 - Trace: Fix for JTOpen bug 1889391: Synchronized access to static variable SimpleDateFormat.
-- Trace: Limit repeated checks for multiple Toolbox versions.
+- Trace: Limit redundant checks for multiple Toolbox versions.
 - Utilities: AboutToolbox: Added check for supported JDBC version.
 </PRE>
 
