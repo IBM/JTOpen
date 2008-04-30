@@ -142,6 +142,9 @@ For String-valued attributes, if the current actual value of the corresponding p
 </pre>
 </blockquote>
 
+@deprecated This class has been replaced by
+ {@link com.ibm.as400.access.ISeriesNetServer ISeriesNetServer}
+ and may be removed in a future release.
 @see NetServerShare
 @see NetServerFileShare
 @see NetServerPrintShare
