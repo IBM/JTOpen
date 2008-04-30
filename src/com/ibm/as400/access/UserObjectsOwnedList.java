@@ -100,8 +100,8 @@ public class UserObjectsOwnedList
   Constructs a UserObjectsOwnedList object. 
   <br>You must call {@link #getObjectList() getObjectList()} method to retrieve the object list.
   <br>Default values are set to select library based objects which the user owns.
-  <br>The <i>formatName</i> parameter defaults to {@link #SELECTION_FILE_SYSTEM_LIBRARY SELECTION_FILE_SYSTEM_LIBRARY}, 
-  the <i>returnedObjects</i> parameter defaults to {@link #SELECTION_OBJECT_RELATION_OWNED SELECTION_OBJECT_RELATION_OWNED}.
+  <br>The <i>selectionFileSystem</i> parameter defaults to {@link #SELECTION_FILE_SYSTEM_LIBRARY SELECTION_FILE_SYSTEM_LIBRARY}, 
+  the <i>selectionObjectRelation</i> parameter defaults to {@link #SELECTION_OBJECT_RELATION_OWNED SELECTION_OBJECT_RELATION_OWNED}.
   @param system The system upon which the user resides.
   @param userName The user name which owns the objects to be returned.
  **/
@@ -541,7 +541,7 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
   
   /**
    Returns a string representation of this object.
-   @return a string with the system, userName, formatName, and returnedObjects
+   @return a string with the system, userName, selectionFileSystem, and selectionObjectRelation
    **/
   public String toString()
   {
