@@ -35,8 +35,6 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");
     }
 
-    private boolean detectedMissingPTF_ = false; // V5R4 system is missing PTF SI29629 (5722SS1)
-
     protected void open(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object open.");
@@ -79,9 +77,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
           setNlvOnServer(secLibName);
         }
-        // Retain result, to avoid repeated lookups for same system_
+        // Retain result, to avoid repeated lookups for same system object.
         system_.setSecondaryLangLib(secLibName);
-        // Set to non-null, to indicate already looked-up value.
+        // Set to non-null, to indicate we already looked-up the value.
       }
 
     }
@@ -122,10 +120,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
           parameterList[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information format name
 
           // Call QSZRTVPR (Change System Library List) to add the library for the secondary language.
-          // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system.
-          boolean succeeded = runProgram("QSYS", "QSZRTVPR", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, false);
+          // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system; so it can safely be called on-thread.
+          boolean succeeded = runProgram("QSYS", "QSZRTVPR", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
           // Note: This method is only called from within open().
-          // The final parm on the runProgram call above, indicates "don't call open()".
+          // The final parm indicates that the on-thread open() has already been done (on this thread).
 
           if (!succeeded)
           {
@@ -157,12 +155,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       {
         // Call CHGSYSLIBL (Change System Library List) to add the library for the secondary language.
         // Note: According to the spec, CHGSYSLIBL "changes the system portion of the library list for the current thread".
-        // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe.  However, the CL owner has indicated that this CL has actually been threadsafe all along, and that it cannot damage the system.
+        // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe.  However, the CL owner has indicated that this CL has actually been threadsafe all along, and that it cannot damage the system; so it can safely be called on-thread.
         // At worst, if system value QMLTTHDACN == 3, the system will simply refuse to execute the command.  In which case, the secondary language library won't get added.
         String cmd = "QSYS/CHGSYSLIBL LIB("+secondaryLibraryName+") OPTION(*ADD)";
-        boolean succeeded = runCommand(cmd, true, AS400Message.MESSAGE_OPTION_UP_TO_10, false);
+        boolean succeeded = runCommand(cmd, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
         // Note: This method is only called from within open().
-        // The final parm on the runCommand above, indicates "don't call open()".
+        // The final parm indicates that the on-thread open() has already been done (on this thread).
 
         if (!succeeded)
         {
@@ -179,7 +177,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             else if (messageList_[0].getID().equals("CPD0032")) // not auth'd to call CHGSYSLIBL
             {
               system_.setSkipFurtherSettingOfSecondaryLangLib(); // don't keep trying on subsequent open's
-              Trace.log(Trace.WARNING, "Profile " + system_.getUserId() + " not authorized to use CHGSYSLIBL to add language library " + secondaryLibraryName + " to liblist.");
+              Trace.log(Trace.DIAGNOSTIC, "Profile " + system_.getUserId() + " not authorized to use CHGSYSLIBL to add secondary language library " + secondaryLibraryName + " to liblist.");
               // Note: The Remote Command Host Server runs this command under greater authority.
             }
             else if (messageList_[0].getID().equals("CPF2110")) // library not found
@@ -251,7 +249,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 		// If the command is not a proxy command, retrieve information for the specified command. 		//@A1A
 		int numParms;
 		if ((AS400.nativeVRM.vrm_ >= 0x00060100) ||
-		   (AS400.nativeVRM.vrm_ >= 0x00050400 && !detectedMissingPTF_)) {
+		   (AS400.nativeVRM.vrm_ >= 0x00050400 && !system_.isMissingPTF())) {
 		   numParms = 6;	// @A1C - added support for proxy commands
 		}
 		else numParms = 5;
@@ -268,7 +266,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         try
         {
           // Retrieve command information.  Failure is returned as a message list.
-          boolean succeeded = runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10);
+          boolean succeeded = runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
           if (!succeeded)
           {
             // If the exception is "MCH0802: Total parameters passed does not match number required" and we're running to V5R4, that means that the user hasn't applied PTF SI29629.  In that case, we will re-issue the program call, minus the new "follow proxy chain" parameter.
@@ -277,10 +275,11 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                 messageList_[messageList_.length - 1].getID().equals("MCH0802"))
             {
               if (Trace.traceOn_) Trace.log(Trace.WARNING, "PTF SI29629 is not installed: (MCH0802) " + messageList_[messageList_.length - 1].getText());
-              detectedMissingPTF_ = true;  // remember that the PTF is missing
+              // Retain result, to avoid repeated 6-parm attempts for same system object.
+              system_.setMissingPTF();
               ProgramParameter[] shorterParmList = new ProgramParameter[5];
               System.arraycopy(parameterList, 0, shorterParmList, 0, 5);
-              succeeded = runProgram("QSYS", "QCDRCMDI", shorterParmList, true, AS400Message.MESSAGE_OPTION_UP_TO_10);
+              succeeded = runProgram("QSYS", "QCDRCMDI", shorterParmList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
             }
             if (!succeeded)
             {
@@ -360,12 +359,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @return  true if command is successful; false otherwise.
     public boolean runCommand(String command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        return runCommand(command, threadSafety, messageOption, true);
+        return runCommand(command, threadSafety, messageOption, false);
     }
 
     // Runs the command.
     // @return  true if command is successful; false otherwise.
-    private boolean runCommand(String command, boolean threadSafety, int messageOption, boolean needToOpen) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommand(String command, boolean threadSafety, int messageOption, boolean alreadyOpenedOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
         if (!threadSafety)
@@ -373,7 +372,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
             return super.runCommand(command, false, messageOption);
         }
-        if (needToOpen) open(true);
+        if (!alreadyOpenedOnThisThread) open(true);
 
         if (AS400.nativeVRM.vrm_ >= 0x00060100)
         {
@@ -452,11 +451,11 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // Run the program.
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        return runProgram(library, name, parameterList, threadSafety, messageOption, true);
+        return runProgram(library, name, parameterList, threadSafety, messageOption, false);
     }
 
     // Run the program.
-    private boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption, boolean needToOpen) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    private boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption, boolean alreadyOpenedOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
         if (!threadSafety)
@@ -465,7 +464,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             return super.runProgram(library, name, parameterList, false, messageOption);
         }
         // Run the program on-thread.
-        if (needToOpen) open(true);
+        if (!alreadyOpenedOnThisThread) open(true);
 
         if (AS400.nativeVRM.vrm_ < 0x00050300)
         {

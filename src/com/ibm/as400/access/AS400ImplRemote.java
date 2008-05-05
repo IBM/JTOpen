@@ -72,12 +72,15 @@ class AS400ImplRemote implements AS400Impl
     private boolean userOverrideCcsid_ = false;
     // The client NLV.
     private String clientNlv_;
-    // The name of the secondary language library (if any). Used by RemoteCommandImplNative.
-    private String secondaryLangLib_;
-    // Flag that gets turned on by RemoteCommandImplNative to indicate that we should skip further attempts to set the secondary language library for this AS400Impl.
-    private boolean isSkipFurtherSettingOfSecondaryLangLib_ = false;
     // Set of socket options to use when creating our connections to the system.
     private SocketProperties socketProperties_ = null;
+
+    // The name of the secondary language library (if any). Used by RemoteCommandImplNative.
+    private String secondaryLangLib_ = null;
+    // Flag that gets set by RemoteCommandImplNative to indicate that we should refrain from further attempts to set the secondary language library for this AS400Impl.
+    private boolean shouldSkipFurtherSettingOfSecLangLib_ = false;
+    // Flag that gets set by RemoteCommandImplNative to indicate that the V5R4 system is missing PTF SI29629 (product 5722SS1).
+    private boolean detectedMissingPTF_ = false;
 
     // IASP name used for DDM, if specified.
     private String ddmRDB_;
@@ -1280,10 +1283,18 @@ class AS400ImplRemote implements AS400Impl
         }
     }
 
+    // Indicates whether we've discovered that PTF SI29629 is missing on a V5R4 system.
+    // This method is used by RemoteCommandImplRemote when deciding how to call an API.
+    // In particular: If the system is at V5R4, and is missing the PTF, we need to call QCDRCMDI with only 5 parameters instead of 6.
+    boolean isMissingPTF()
+    {
+        return detectedMissingPTF_;
+    }
+
     // Indicates whether we've discovered that we should skip further attempts to set the secondary language library for this AS400Impl.
     boolean isSkipFurtherSettingOfSecondaryLangLib()
     {
-        return isSkipFurtherSettingOfSecondaryLangLib_;
+        return shouldSkipFurtherSettingOfSecLangLib_;
     }
 
     // Check if thread can be used.
@@ -1722,6 +1733,13 @@ class AS400ImplRemote implements AS400Impl
         gssCredential_ = gssCredential;
     }
 
+    // Indicates that we've discovered that PTF SI29629 is missing on a V5R4 system.
+    // This method is used by RemoteCommandImplRemote.
+    void setMissingPTF()
+    {
+        detectedMissingPTF_ = true;
+    }
+
     // Set secondary language library name.
     void setSecondaryLangLib(String libName)
     {
@@ -1731,7 +1749,7 @@ class AS400ImplRemote implements AS400Impl
     // Indicates that we've discovered that we should skip further attempts to set the secondary language library for this AS400Impl.
     void setSkipFurtherSettingOfSecondaryLangLib()
     {
-        isSkipFurtherSettingOfSecondaryLangLib_ = true;
+        shouldSkipFurtherSettingOfSecLangLib_ = true;
     }
 
     // Set port for service.
