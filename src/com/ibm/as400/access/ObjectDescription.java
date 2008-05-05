@@ -1331,7 +1331,7 @@ public class ObjectDescription
         return new Long(multi2*size2);
       case LICENSED_PROGRAM:
       case COMPILER:
-        // pppppppVvvRrrMmm
+        // pppppppVvvRrrMmm -- For example: "5761SS1V06R01M00"
         String lpp = (String)o;
         if (lpp.length() == 0) return null;
         else if (lpp.length() < 16)
@@ -1344,11 +1344,11 @@ public class ObjectDescription
           String prodID = lpp.substring(0,7);
           StringBuffer release = new StringBuffer(6);
           release.append('V');
-          release.append(Integer.parseInt(lpp.substring(8,2)));
+          release.append(Integer.parseInt(lpp.substring(8,10)));
           release.append('R');
-          release.append(Integer.parseInt(lpp.substring(11,2)));
+          release.append(Integer.parseInt(lpp.substring(11,13)));
           release.append('M');
-          release.append(Integer.parseInt(lpp.substring(14,2)));
+          release.append(Integer.parseInt(lpp.substring(14,16)));
           return new Product(system_, prodID, Product.PRODUCT_OPTION_BASE, release.toString(), Product.PRODUCT_FEATURE_CODE);
         }
       case USER_CHANGED:
