@@ -107,7 +107,7 @@ implements java.sql.Driver
 	// Constants.
         // Update each release.  Was 4 for v5r1.
 	static final int    MAJOR_VERSION_          = 8; //(ex: 8->V6R1)  @B1C @C5C @D1C @540 @610
-	static final int    MINOR_VERSION_          = 4; //(ex: 2->PTF#2) @610 @jt61
+	static final int    MINOR_VERSION_          = 4; //(ex: 2->PTF#2) comment: for customer usage, minor will correspond to integer after the decimal in M#.#  @610 @jt61
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
     static final String DRIVER_LEVEL_           = "06010004"; // example V5R4M0.0 -> 05040000 (needed for hidden clientInfo in Brent's spec) (each # is 2 digits in length), should match version in Copyright.java  //@PDA jdbc40 @jt61
@@ -908,6 +908,7 @@ implements java.sql.Driver
 	static AS400 initializeAS400(JDDataSourceURL dataSourceUrl,
 								 JDProperties jdProperties,
 								 Properties info)
+	throws SQLException //@pw1
 	{
 		// We must handle the different combinations of input
 		// user names and passwords.
@@ -920,6 +921,53 @@ implements java.sql.Driver
 		String keyRingPassword = jdProperties.getString (JDProperties.KEY_RING_PASSWORD); //@B9A
                 boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
 
+        //@pw1 Decided to leave connections via AS400() as-is and just implement to mimic Native JDBC
+        //@pw1 info contains args to DriverMangager.getConnection(args)
+        //@pw1 jdProperties does not represent null values.  Both null and "" have a value of "".
+        //@pw1 if info contains id/pass of "" then they must no be "" in jdProperties
+        //@pw1 throw exception if info id/pass == ""  and change info id/pass to "" if they are null
+        //check if "".  
+        String userParm = info.getProperty("user");                               //@pw1
+        String passwordParm = info.getProperty("password");                       //@pw1
+        if ("".equals(userParm))                                                  //@pw1
+            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+        if ("".equals(passwordParm))                                              //@pw1
+            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+                
+        if(userParm != null)                                                      //@pw1
+        {                                                                         //@pw1
+            //check for *current
+            if (userParm.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);       //@pw1
+        }                                                                         //@pw1
+        else                                                                      //@pw1
+        {                                                                         //@pw1
+            //since info is null, jdProperty must not be "" or *current, but it can be the default value (ie not set by user)
+            if(userName != JDProperties.EMPTY_)                                   //@pw1
+            {                                                                     //@pw1
+                //userName was updated by app
+                if( userName.equals("") || (userName.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
+                    JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);             //@pw1
+            }                                                                               //@pw1
+        }                                                                                   //@pw1
+        
+        if(passwordParm != null)                                                  //@pw1
+        {                                                                         //@pw1
+            if (passwordParm.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);       //@pw1
+        }                                                                         //@pw1
+        else                                                                      //@pw1
+        {                                                                         //@pw1
+            //since info is null, jdProperty must not be "" or *current, but it can be the default value (ie not set by user)
+            if(password != JDProperties.EMPTY_)                                   //@pw1
+            {                                                                     //@pw1
+                //password was updated by app
+                if( password.equals("") || (password.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
+                    JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);             //@pw1
+            }                                                                               //@pw1
+        }                                                                         //@pw1
+        
+        
 		// Create the AS400 object, so we can create a Connection via loadImpl2.
 		AS400 as400 = null;
 		if (secure)

@@ -554,10 +554,24 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     public Connection getConnection(String user, String password) throws SQLException
     {
         // Validate the parameters.
-        if (user == null)
-            throw new NullPointerException("user");
-        if (password == null)
-            throw new NullPointerException("password");
+        //check if "".  
+        if ("".equals(user))                                                      //@pw1
+            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
+        if ("".equals(password))                                                  //@pw1
+            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
+        
+        //Next, hack for nulls to work on i5
+        //New security: replace null with "" to mimic old behavior to allow null logons...disallowing "" above.
+        if (user == null)                                                         //@pw1
+            user = "";                                                            //@pw1
+        if (password == null)                                                     //@pw1
+            password = "";                                                        //@pw1
+        
+        //check for *current
+        if (user.compareToIgnoreCase("*CURRENT") == 0)                            //@pw1
+            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
+        if (password.compareToIgnoreCase("*CURRENT") == 0)                        //@pw1
+            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
 
         AS400 as400Object;
 
