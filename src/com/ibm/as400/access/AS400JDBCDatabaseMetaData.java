@@ -114,6 +114,24 @@ implements DatabaseMetaData
     private int                     id_;
     private SQLConversionSettings   settings_;
 
+    //@mdsp misc constants for sysibm stored procedures
+    private final static int SQL_NO_NULLS            = 0;   //@mdsp
+    private final static int SQL_NULLABLE            = 1;   //@mdsp
+    private final static int SQL_NULLABLE_UNKNOWN    = 2;   //@mdsp
+    private final static int SQL_BEST_ROWID          = 1;   //@mdsp
+    private final static int SQL_ROWVER              = 2;   //@mdsp
+    private static final String EMPTY_STRING         = "";  //@mdsp
+    private static final String MATCH_ALL            = "%"; //@mdsp
+    
+
+    private static final String VIEW          = "VIEW";          //@mdsp
+    private static final String TABLE         = "TABLE";         //@mdsp
+    private static final String SYSTEM_TABLE  = "SYSTEM TABLE";  //@mdsp
+    private static final String ALIAS         = "ALIAS";         //@mdsp
+    private static final String MQT           = "MATERIALIZED QUERY TABLE";      //@mdsp
+    private static final String SYNONYM       = "SYNONYM";       //@mdsp
+    private static final String FAKE_VALUE    = "QCUJOFAKE";     //@mdsp
+    private static final int  SQL_ALL_TYPES   = 0;               //@mdsp
 
 
 
@@ -345,7 +363,29 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
+   
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSPECIALCOLUMNS(?,?,?,?,?,?,?)");
+            
+            cstmt.setShort(1, (short)SQL_BEST_ROWID); 
+            cstmt.setString(2, normalize(catalog));
+            cstmt.setString(3, normalize(schema));
+            cstmt.setString(4, normalize(table));
+            cstmt.setShort(5, (short) scope);
+            if (nullable) {
+                cstmt.setShort(6, (short) SQL_NULLABLE);
+            } else {
+                cstmt.setShort(6, (short) SQL_NO_NULLS);
+            }
+            cstmt.setString(7,
+                "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cstmt.execute();
 
+            return cstmt.getResultSet();
+        }
+        
         // Initialize the format of the result set.
         String[] fieldNames = { "SCOPE",
             "COLUMN_NAME",
@@ -529,6 +569,20 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();     
 
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cstmt = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
+
+            cstmt.setString(1, "%");
+            cstmt.setString(2, "%");
+            cstmt.setString(3, "%");
+            cstmt.setString(4, "%");
+            cstmt.setString(5, "DATATYPE='JDBC';GETCATALOGS=1;CURSORHOLD=1");
+            cstmt.execute();
+            return cstmt.getResultSet();
+        }
+        
         String[] fieldNames = {"TABLE_CAT"};
         SQLData[] sqlData   = { new SQLVarchar (128, settings_)};
         int[] fieldNullables = {columnNoNulls};    // Catalog Name
@@ -669,6 +723,37 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
+        //@mdsp SYSIBM SP Call - move block to top of method
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            //@PDC change to use sysibm.sqlcolprivileges stored procedure 
+            
+            // Set the library name
+            //@mdsp follow Native JDBC logic
+            /*if (schema == null)
+            {   // use default library or qgpl
+                schema = normalize(connection_.getDefaultSchema());
+            }
+            else schema = normalize(schema);
+            
+            // Set the table name
+            table = normalize(table);
+            */
+            // Set the column name and search pattern
+            // If null, do not set parameter. The system default
+            // value of *ALL is used.
+            
+            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
+            
+            cstmt.setString(1, normalize(catalog));
+            cstmt.setString(2, normalize(schema));
+            cstmt.setString(3, normalize(table));
+            cstmt.setString(4, normalize(columnPattern));
+            cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");  //@pdc options per db2 common design.  //@mdsp more native synch
+            ResultSet rs = cstmt.executeQuery();
+            return rs;
+        }
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -729,7 +814,7 @@ implements DatabaseMetaData
             return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges"); //@PDC
             
         }
-        else if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_ROI))
+        else
         {
             // parameter values are valid, build request & send
             // Create a request
@@ -833,34 +918,7 @@ implements DatabaseMetaData
      
         }  // End of else to build and send request
         
-        else
-        {
-            //@PDC change to use sysibm.sqlcolprivileges stored procedure 
-            
-            // Set the library name
-            if (schema == null)
-            {   // use default library or qgpl
-                schema = normalize(connection_.getDefaultSchema());
-            }
-            else schema = normalize(schema);
-            
-            // Set the table name
-            table = normalize(table);
-            
-            // Set the column name and search pattern
-            // If null, do not set parameter. The system default
-            // value of *ALL is used.
-            
-            CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLCOLPRIVILEGES (?, ?, ?, ?, ?)");
-            
-            cstmt.setString(1, catalog);
-            cstmt.setString(2, schema);
-            cstmt.setString(3, table);
-            cstmt.setString(4, columnPattern);
-            cstmt.setObject(5, "DATATYPE='JDBC';CURSORHOLD=1");  //@pdc options per db2 common design
-            ResultSet rs = cstmt.executeQuery();
-            return rs;
-        }
+      
              
     }
 
@@ -910,6 +968,26 @@ implements DatabaseMetaData
         int[] fieldNullables = null;              //@F2C
         //@F2A Result sets must be different depending on whether we are running under JDBC 3.0
         int vrm = connection_.getVRM();  //@trunc3
+        
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLCOLUMNS(?,?,?,?,?)");
+     
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schemaPattern));
+            cs.setString(3, normalize(tablePattern));
+            cs.setString(4, normalize(columnPattern));
+            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+
+            // Create an return the result set for the request.
+            // Note: This will failed until SQLCOLUMNS returns more columns
+            // return new DB2RSGetColumns40(x, isTransactional);
+        }
+        
         if (!isJDBC3)                             //@F2A
         {
             // Set up the result set in the format required by JDBC
@@ -1375,6 +1453,24 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall(
+              "CALL SYSIBM"+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
+               
+            cs.setString(1, normalize(primaryCatalog));
+            cs.setString(2, normalize(primarySchema));
+            cs.setString(3, normalize(primaryTable));
+            cs.setString(4, normalize(foreignCatalog));
+            cs.setString(5, normalize(foreignSchema));
+            cs.setString(6, normalize(foreignTable));
+            cs.setString(7, "DATATYPE='JDBC';EXPORTEDKEY=0;IMPORTEDKEY=0;DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -1815,6 +1911,25 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
+        
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schema));
+            cs.setString(3, normalize(table));
+            cs.setString(4, normalize(catalog));
+            cs.setString(5, EMPTY_STRING);
+            cs.setString(6, EMPTY_STRING);
+            cs.setString(7, "DATATYPE='JDBC';EXPORTEDKEY=1; CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
+
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2072,6 +2187,24 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator() +"SQLFOREIGNKEYS(?,?,?,?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, null);
+            cs.setString(3, null);
+            cs.setString(4, normalize(catalog));
+            cs.setString(5, normalize(schema)); 
+            cs.setString(6, normalize(table));
+            cs.setString(7, "DATATYPE='JDBC';IMPORTEDKEY=1; CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -2299,6 +2432,7 @@ implements DatabaseMetaData
         int vrm = connection_.getVRM();  //@trunc3
 
         //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --start
+        //@mdsp comment //note always call SP in v6r1 and later.  ROI was lacking in this area.
         if(connection_.getVRM() >= JDUtilities.vrm610)          
         {  
         	short iUnique;
@@ -2328,9 +2462,9 @@ implements DatabaseMetaData
         	 */
         	CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator () + "SQLSTATISTICS(?,?,?,?,?,?)");
 
-        	cstmt.setString(1, catalog);
-        	cstmt.setString(2, schema);
-        	cstmt.setString(3, table);
+        	cstmt.setString(1, normalize(catalog));
+        	cstmt.setString(2, normalize(schema));
+        	cstmt.setString(3, normalize(table));
         	cstmt.setShort(4,  iUnique);
         	cstmt.setShort(5,  reserved);
         	cstmt.setString(6, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
@@ -2944,6 +3078,20 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc
+
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () +"SQLPRIMARYKEYS(?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schema));
+            cs.setString(3, normalize(table));
+            cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
         
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
@@ -3128,6 +3276,22 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLPROCEDURECOLS(?,?,?,?,?)");
+           
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schemaPattern));
+            cs.setString(3, normalize(procedurePattern));
+            cs.setString(4, normalize(columnPattern));
+            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+
+        }         
+                    
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3340,6 +3504,20 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLPROCEDURES(?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schemaPattern));
+            cs.setString(3, normalize(procedurePattern));
+            cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
+        
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3521,6 +3699,20 @@ implements DatabaseMetaData
     public ResultSet getSchemas ()
     throws SQLException
     {
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLTABLES(?,?,?,?,?)");
+
+            cs.setString(1, "%");
+            cs.setString(2, "%");
+            cs.setString(3, "%");
+            cs.setString(4, "%");
+            cs.setString(5, "DATATYPE='JDBC';GETSCHEMAS=1;CURSORHOLD=1");
+            cs.execute();
+            return cs.getResultSet();
+        }
+        
         return JDUtilities.getLibraries(this, connection_, settings_, false);  //@DELIMa
     }
 
@@ -3762,6 +3954,20 @@ implements DatabaseMetaData
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
         
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM"+ getCatalogSeparator () + "SQLTABLEPRIVILEGES(?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schemaPattern));
+            cs.setString(3, normalize(tablePattern));
+            cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
+        
         //-----------------------------------------------------
         //  Set up the result set in the format required by JDBC
         //--------------------------------------------------------
@@ -3961,6 +4167,70 @@ implements DatabaseMetaData
         // is thrown if not available
 
         int vrm = connection_.getVRM();  //@trunc3
+        
+        
+        //@mdsp SYSIBM SP Call and Native logic
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+            // Handle processing the array of table types.
+            //bite the bullet and follow Native JDBC logic
+            boolean rsEmpty = false;
+            String typeString = EMPTY_STRING;
+            if (!rsEmpty) {
+                int i;
+                int stringsInList = 0;
+
+                if (tableTypes != null) {
+                    for (i = 0; i < tableTypes.length; i++) {
+                        String check = tableTypes[i];
+
+                        if ((check.equalsIgnoreCase(VIEW))  ||
+                                (check.equalsIgnoreCase(TABLE)) ||
+                                (check.equalsIgnoreCase(SYSTEM_TABLE)) ||
+                                (check.equalsIgnoreCase(ALIAS)) ||
+                                (check.equalsIgnoreCase(SYNONYM)) || 
+                                (check.equalsIgnoreCase(MQT))) 
+                        {
+
+                            if (check.equalsIgnoreCase(SYNONYM)) {
+                                check = ALIAS;
+                            }
+                            stringsInList++;
+                            if (stringsInList > 1)
+                                typeString = typeString.concat(",");
+                            typeString = typeString.concat(check);
+                        }
+                    }
+
+                    // If there were no valid types, ensure an empty result set.
+                    if (stringsInList == 0)
+                        rsEmpty = true;
+                }
+            }
+
+            // If an empty result set is to be generated, produce the values to
+            // do so here.
+            if (rsEmpty) {
+                schemaPattern = FAKE_VALUE;
+                tablePattern = FAKE_VALUE;
+                typeString.concat(TABLE);
+            }
+
+
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator ()
+                    + "SQLTABLES(?,?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schemaPattern));
+            cs.setString(3, normalize(tablePattern));
+            cs.setString(4, normalize(typeString));
+            cs.setString(5,
+                    "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+            return cs.getResultSet();
+
+        }
+        
         
         //-----------------------------------------------------
         // Set up the result set in the format required by JDBC
@@ -4423,6 +4693,23 @@ implements DatabaseMetaData
     public ResultSet getTableTypes ()
     throws SQLException
     {
+
+
+      //@mdsp SYSIBM SP Call
+      if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+      {
+          CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLTABLES(?,?,?,?,?)");
+
+          cs.setString(1, "%");
+          cs.setString(2, "%");
+          cs.setString(3, "%");
+          cs.setString(4, "%");
+          cs.setString(5, "DATATYPE='JDBC';GETTABLETYPES=1;CURSORHOLD=1");
+          cs.execute();
+          return cs.getResultSet();
+        }
+        
+        
         // Set up the result set.
         String[] fieldNames      = {"TABLE_TYPE"};
         SQLData[] sqlData = { new SQLVarchar (128, settings_)};
@@ -4494,6 +4781,20 @@ implements DatabaseMetaData
     throws SQLException
     {
         int vrm = connection_.getVRM();  //@trunc3
+
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+
+
+            CallableStatement cs = connection_
+            .prepareCall("CALL SYSIBM" +getCatalogSeparator() + "SQLGETTYPEINFO(?,?)");
+
+            cs.setShort(1, (short) SQL_ALL_TYPES);
+            cs.setString(2, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+            return   cs.getResultSet();
+        }
         
         // Initialize a row to describe the format of the result set.
         String[] fieldNames = { "TYPE_NAME",
@@ -4752,7 +5053,38 @@ implements DatabaseMetaData
     throws SQLException
     {
         connection_.checkOpen ();
+        
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
 
+
+
+            CallableStatement cs = connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator()+ "SQLUDTS(?,?,?,?,?)");
+
+            cs.setString(1, normalize(catalog));
+            cs.setString(2, normalize(schemaPattern));
+            cs.setString(3, normalize(typeNamePattern));
+            String typesString = null;
+            int stringsInList = 0;
+
+            if (types != null) {
+                typesString = "";
+                for (int i = 0; i < types.length; i++) {
+                    if (stringsInList > 0) {
+                        typesString += ",";
+                    }
+                    typesString = typesString + types[i];
+                    stringsInList++;
+                }
+            }
+
+            cs.setString(4, typesString);
+            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+            return cs.getResultSet();
+        }
+        
         int vrm = connection_.getVRM();  //@trunc3
         boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
@@ -5029,6 +5361,25 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
         int vrm = connection_.getVRM();  //@trunc3
+        
+
+        //@mdsp SYSIBM SP Call
+        if (connection_.getProperties().getString(JDProperties.METADATA_SOURCE).equals( JDProperties.METADATA_SOURCE_STORED_PROCEDURE))
+        {
+
+            CallableStatement cs =   connection_.prepareCall("CALL SYSIBM" + getCatalogSeparator() + "SQLSPECIALCOLUMNS(?,?,?,?, ?,?,?)");
+
+            cs.setShort(1, (short) SQL_ROWVER);
+            cs.setString(2, normalize(catalog));
+            cs.setString(3, normalize(schema));
+            cs.setString(4, normalize(table));
+            cs.setShort(5, (short) 0);
+            cs.setShort(6, (short) 1);
+            cs.setString(7, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.execute();
+
+            return cs.getResultSet();
+        }
         
         //--------------------------------------------------------
         //  Set up the result set in the format required by JDBC
@@ -5310,6 +5661,9 @@ implements DatabaseMetaData
     // everything to save the caller from having to do so.
     private String normalize(String mixedCaseName)
     {
+        if(mixedCaseName == null)  //@mdsp
+            return null;           //@mdsp
+        
         if (mixedCaseName.length() > 2)
         {
             if (mixedCaseName.charAt(0) == '"')
@@ -6993,10 +7347,10 @@ implements DatabaseMetaData
 
         CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLTABLES  (?, ?, ?, ?, ?)");
         
-        cstmt.setString(1, catalog);
-        cstmt.setString(2, schemaPattern);
-        cstmt.setString(3, null);
-        cstmt.setString(4, null);
+        cstmt.setString(1, normalize(catalog));
+        cstmt.setString(2, normalize(schemaPattern));
+        cstmt.setString(3, "%");  //@mdsp
+        cstmt.setString(4, "%");  //@mdsp
         cstmt.setObject(5, "DATATYPE='JDBC';GETSCHEMAS=2;CURSORHOLD=1");
         ResultSet rs = cstmt.executeQuery();
         return rs;
@@ -7070,10 +7424,10 @@ implements DatabaseMetaData
         
         CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONS  ( ?, ?, ?, ?)");
         
-        cstmt.setString(1, catalog);
-        cstmt.setString(2, schemaPattern);
-        cstmt.setString(3, functionNamePattern);
-        cstmt.setObject(4, "DATATYPE='JDBC';CURSORHOLD=1");
+        cstmt.setString(1, normalize(catalog));
+        cstmt.setString(2, normalize(schemaPattern));
+        cstmt.setString(3, normalize(functionNamePattern));
+        cstmt.setObject(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
         ResultSet rs = cstmt.executeQuery();
         return rs;
     }
@@ -7194,11 +7548,11 @@ implements DatabaseMetaData
         
         CallableStatement cstmt = connection_.prepareCall("call SYSIBM" + getCatalogSeparator() + "SQLFUNCTIONCOLS  ( ?, ?, ?, ?, ?)");
         
-        cstmt.setString(1, catalog);
-        cstmt.setString(2, schemaPattern);
-        cstmt.setString(3, functionNamePattern);
-        cstmt.setString(4, columnNamePattern);
-        cstmt.setObject(5, "DATATYPE='JDBC';CURSORHOLD=1");
+        cstmt.setString(1, normalize(catalog));
+        cstmt.setString(2, normalize(schemaPattern));
+        cstmt.setString(3, normalize(functionNamePattern));
+        cstmt.setString(4, normalize(columnNamePattern));
+        cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
         ResultSet rs = cstmt.executeQuery();
         return rs;
     }

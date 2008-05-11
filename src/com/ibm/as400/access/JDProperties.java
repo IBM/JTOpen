@@ -430,6 +430,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     
     static final String         METADATA_SOURCE_ROI = "0";  //@PDA
     static final String         METADATA_SOURCE_STORED_PROCEDURE = "1";  //@PDA
+    static final String         METADATA_SOURCE_HOST_VERSION_DEFAULT = "-1"; //@mdsp //not yet set, so default depends on i5 version (post-v6r1 default is SP)
     
     static final String         QUERY_STORAGE_LIMIT_NOMAX               = "-1"; //@550
 
@@ -1248,10 +1249,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo (METADATA_SOURCE_, "");
         dpi_[i].description = "METADATA_SOURCE_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[2];
+        dpi_[i].choices     = new String[3];   //@mdsp
         dpi_[i].choices[0]  = METADATA_SOURCE_ROI;
         dpi_[i].choices[1]  = METADATA_SOURCE_STORED_PROCEDURE;
-        defaults_[i]        = METADATA_SOURCE_STORED_PROCEDURE;
+        dpi_[i].choices[2]  = METADATA_SOURCE_HOST_VERSION_DEFAULT; //@mdsp
+        defaults_[i]        = METADATA_SOURCE_HOST_VERSION_DEFAULT; //@mdsp
         
         // Query Storage Limit   //@550
         i = QUERY_STORAGE_LIMIT;

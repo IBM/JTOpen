@@ -131,7 +131,7 @@ attributes. The tables organize the properties into the following categories:</P
       name&quot;</a></TD>
     <TD HEADERS="t2"> 
       <p>Specifies the database to use for the connection, including one stored 
-        in an independent auxiliary storage pool</a>. This 
+        in an independent auxiliary storage pool. This 
         property applies only when connecting to OS/400 V5R2 or i5/OS. 
         When you specify a database name, the name must exist in the relational 
         database directory on the system. The following criteria determine which 
@@ -893,12 +893,11 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat6">&quot;metadata source&quot;</TD>
     <TD HEADERS="t2">Specifies how to retrieve DatabaseMetaData.  If set to &quot;0&quot;, database metadata
       will be retrieved through the ROI (Retrieve Object Information) data flow.  If set to 
-      &quot;1&quot;, database metadata will be retrieved by calling system stored procedures.  Currently, 
-      the only method that is available using stored procedures is getColumnPrivileges().</TD>
+      &quot;1&quot;, database metadata will be retrieved by calling system stored procedures.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;0&quot; (ROI access)<BR>
       &quot;1&quot; (SQL stored procedures)</TD>
-    <TD HEADERS="t5">&quot;1&quot;</TD>
+    <TD HEADERS="t5">&quot;0&quot; (V6R1 and earlier) &quot;1&quot; (post V6R1)</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;proxy server&quot;</TD>

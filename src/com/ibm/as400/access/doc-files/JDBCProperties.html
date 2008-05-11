@@ -893,12 +893,11 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat6">&quot;metadata source&quot;</TD>
     <TD HEADERS="t2">Specifies how to retrieve DatabaseMetaData.  If set to &quot;0&quot;, database metadata
       will be retrieved through the ROI (Retrieve Object Information) data flow.  If set to 
-      &quot;1&quot;, database metadata will be retrieved by calling system stored procedures.  Currently, 
-      the only method that is available using stored procedures is getColumnPrivileges().</TD>
+      &quot;1&quot;, database metadata will be retrieved by calling system stored procedures.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;0&quot; (ROI access)<BR>
       &quot;1&quot; (SQL stored procedures)</TD>
-    <TD HEADERS="t5">&quot;1&quot;</TD>
+    <TD HEADERS="t5">&quot;0&quot; (V6R1 and earlier) &quot;1&quot; (post V6R1)</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;proxy server&quot;</TD>

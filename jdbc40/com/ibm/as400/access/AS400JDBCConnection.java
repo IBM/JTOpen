@@ -3058,6 +3058,15 @@ implements Connection
         dataSourceUrl_          = dataSourceUrl;
         extendedFormats_        = false;
         properties_             = properties;
+        //Set the real default for METADATA SOURCE property since we now know the hostsrvr version
+        if(properties_.getString(JDProperties.METADATA_SOURCE).equals(JDProperties.METADATA_SOURCE_HOST_VERSION_DEFAULT))   //@mdsp
+        {                                                                                                                   //@mdsp
+            if(as400_.getVRM() <= JDUtilities.vrm610)                                                                       //@mdsp
+                properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_ROI);                      //@mdsp
+            else                                                                                                            //@mdsp
+                properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_STORED_PROCEDURE);         //@mdsp
+        }                                                                                                                   //@mdsp
+            
         //@P0D requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         if(!TESTING_THREAD_SAFETY && as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
