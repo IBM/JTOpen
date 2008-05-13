@@ -146,7 +146,7 @@ that are difficult to debug.
 	    int length = schema_.length ();
 
 	    // Check the length.
-	    if (length > 10)
+	    if (length > 128) //@128sch
 	        return null;
 
      	//@C1D Check that every character is alphanumeric.

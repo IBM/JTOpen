@@ -75,6 +75,16 @@ class DBReplyServerAttributes
 	}
 
 
+    //@128sch
+	/* method for retrieving default schema of lengh up to 128 */
+	//adding this method now eventhough it is not called anywhere yet. (same as getDefaultSQLLibraryName)
+    final public String getDefaultSQLSchemaName (ConvTable converter) throws DBDataStreamException
+    {
+        int schemaLen = BinaryConverter.byteArrayToShort (data_, offset_ + 114); //orig doc says bin(15), but should be bin(16)?
+        return converter.byteArrayToString (data_, offset_ + 116, schemaLen);
+    }
+
+    
 
 	final public int getDRDAPackageSize ()  throws DBDataStreamException
 	{

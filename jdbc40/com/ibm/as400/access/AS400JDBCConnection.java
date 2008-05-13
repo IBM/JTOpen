@@ -3672,7 +3672,19 @@ implements Connection
                 {                                                            // @J3a
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
-                
+
+                    if(vrm_ >= JDUtilities.vrm710){                         //@710 //@128sch
+                        //@710 - Client support information - indicate our support for ROWID data type, true autocommit
+                        // and 128 byte column names and 128 length schemas
+                        request.setClientSupportInformation(0xF0000000);
+                        if(JDTrace.isTraceOn()){
+                            JDTrace.logInformation(this, "ROWID supported = true");
+                            JDTrace.logInformation(this, "True auto-commit supported = true");
+                            JDTrace.logInformation(this, "128 byte column names supported = true");
+                            JDTrace.logInformation(this, "128 length schema names supported = true");
+                        }
+
+                    }
                     if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
                         //@540 - Client support information - indicate our support for ROWID data type, true autocommit
                         // and 128 byte column names
@@ -4368,7 +4380,7 @@ implements Connection
      *                  value is null, the current value of the specified
      *                  property is cleared.
      * <p>
-     * @throws  SQLClientInfoException if the database server returns an error while 
+     * @throws  SQLClientInfoException if the database returns an error while 
      *          setting the client info value on the database server.
      * <p>
      */
@@ -4512,8 +4524,8 @@ implements Connection
      *            the list of client info properties to set
      *            <p>
      * @throws SQLClientInfoException
-     *             if the database server returns an error while setting the
-     *             clientInfo values on the database server
+     *             if the database returns an error while setting the
+     *             clientInfo values on the database
      *             <p>
      */
     public void setClientInfo(Properties properties) throws SQLClientInfoException
@@ -4624,7 +4636,7 @@ implements Connection
      * <p>
      * @return          The value of the client info property specified
      * <p>
-     * @throws SQLException     if the database server returns an error when 
+     * @throws SQLException     if the database returns an error when 
      *                          fetching the client info value from the database.
      * <p>
      * see java.sql.DatabaseMetaData#getClientInfoProperties
@@ -4676,7 +4688,7 @@ implements Connection
      * @return  A <code>Properties</code> object that contains the name and current value of 
      *          each of the client info properties supported by the driver.  
      * <p>
-     * @throws  SQLException if the database server returns an error when 
+     * @throws  SQLException if the database returns an error when 
      *          fetching the client info values from the database
      */
     public Properties getClientInfo() throws SQLException

@@ -208,7 +208,13 @@ Constructor.
         //@KBD else if (list_.length > 1)
         //@KBD   defaultSchema_ = list_[1];
           if(list_.length > 0)                   //@KBA
+          {
               defaultSchema_ = list_[0];        //@KBA
+              if(defaultSchema_.length()>10)
+                  list_[0] = defaultSchema_.substring(0, 10); //@128sch Since library list only supports length <= 10.  
+                                                              //But we want to support default schema of greater than 10 starting post-v6r1 (since zda supports it).
+                                                              //Just substring it (so it will not cause all to fail) since it will not be a valid lib in the library list anyway.
+          }
       }
 
       // Reverse the order of the 'F' libraries, so that

@@ -3660,7 +3660,19 @@ implements Connection
                 {                                                            // @J3a
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
-                
+
+                    if(vrm_ >= JDUtilities.vrm710){                         //@710 //@128sch
+                        //@710 - Client support information - indicate our support for ROWID data type, true autocommit
+                        // and 128 byte column names and 128 length schemas
+                        request.setClientSupportInformation(0xF0000000);
+                        if(JDTrace.isTraceOn()){
+                            JDTrace.logInformation(this, "ROWID supported = true");
+                            JDTrace.logInformation(this, "True auto-commit supported = true");
+                            JDTrace.logInformation(this, "128 byte column names supported = true");
+                            JDTrace.logInformation(this, "128 length schema names supported = true");
+                        }
+
+                    }
                     if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
                         //@540 - Client support information - indicate our support for ROWID data type, true autocommit
                         // and 128 byte column names

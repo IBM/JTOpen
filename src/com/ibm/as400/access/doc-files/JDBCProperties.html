@@ -176,7 +176,8 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t2"> 
       <P>Specifies one or more libraries that you want to add to or replace the 
         library list of the server job, and optionally sets the default library 
-        (default schema).
+        (default schema).  Note that libraries cannot be longer than 10 characters in
+        length.  You must use SET PATH sql if you have schemas longer than 10 characters.
       <P><strong>Library list</strong><br>
         The system uses specified libraries to resolve unqualified stored procedure 
         names, and stored procedures use them to resolve unqualified names. To 
