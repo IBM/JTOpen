@@ -29,6 +29,8 @@ class SystemProperties
 
     // System property names.
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
+    public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
+    public static final String AS400_MUST_USE_SOCKETS = ACCESS_PREFIX + "AS400.mustUseSockets";
     public static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
     public static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
@@ -40,7 +42,6 @@ class SystemProperties
     public static final String TUNNELPROXYSERVER_CLIENTCLEANUPINTERVAL = ACCESS_PREFIX + "TunnelProxyServer.clientCleanupInterval"; //@A2A
     public static final String TUNNELPROXYSERVER_CLIENTLIFETIME	= ACCESS_PREFIX + "TunnelProxyServer.clientLifetime"; //@A2A
     public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
-    public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
     public static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
     //  *** Note: ***
     //

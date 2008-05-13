@@ -133,7 +133,8 @@ public class AS400 implements Serializable
     // The static default sign-on handler.
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
-
+    // Default setting for mustUseSockets property.
+    static boolean defaultMustUseSockets_ = false;
     static
     {
         try
@@ -175,6 +176,20 @@ public class AS400 implements Serializable
             {
                 Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", e);
                 defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+            }
+        }
+
+        // Get the "must use sockets" property, if it is set.
+        String socketsPropVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SOCKETS);
+        if (socketsPropVal != null)
+        {
+            try
+            {
+                defaultMustUseSockets_ = Boolean.valueOf(socketsPropVal).booleanValue();
+            }
+            catch (Exception e)
+            {
+                Trace.log(Trace.WARNING, "Error retrieving mustUseSockets property value: ", e);
             }
         }
     }
@@ -225,7 +240,7 @@ public class AS400 implements Serializable
     // SSL options, null value indicates SSL is not to be used.  Options set in SecureAS400 subclass.
     SSLOptions useSSLConnection_ = null;
     // Flag that indicates if we must use the host servers and no native optimizations.
-    private boolean mustUseSockets_ = false;
+    private boolean mustUseSockets_ = defaultMustUseSockets_;
     // Flag that indicates if we must use network sockets and not unix domain sockets.
     private boolean mustUseNetSockets_ = false;
     // Flag that indicates if we must not use the current profile.
