@@ -3061,7 +3061,7 @@ implements Connection
         //Set the real default for METADATA SOURCE property since we now know the hostsrvr version
         if(properties_.getString(JDProperties.METADATA_SOURCE).equals(JDProperties.METADATA_SOURCE_HOST_VERSION_DEFAULT))   //@mdsp
         {                                                                                                                   //@mdsp
-            if(as400_.getVRM() <= JDUtilities.vrm610)                                                                       //@mdsp
+            if(as400_.getVRM() < JDUtilities.vrm710)                                                                        //@mdsp //@710 take effect after 710 (ie. not 615)
                 properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_ROI);                      //@mdsp
             else                                                                                                            //@mdsp
                 properties_.setString(JDProperties.METADATA_SOURCE, JDProperties.METADATA_SOURCE_STORED_PROCEDURE);         //@mdsp

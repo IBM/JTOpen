@@ -2948,7 +2948,7 @@ implements DatabaseMetaData
     public int getMaxSchemaNameLength ()
     throws SQLException
     {
-        if(connection_.getVRM() > JDUtilities.vrm710)                              //@128sch
+        if(connection_.getVRM() >= JDUtilities.vrm710)                             //@128sch
             return 128;                                                            //@128sch
         else                                                                       //@128sch
             return 10;
