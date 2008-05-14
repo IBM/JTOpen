@@ -215,7 +215,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
   /**
     Constructs a <code>ProgramCallDocument</code>.
-    The XPCML document resource will be loaded from the classpath and parsed using
+    The XPCML document resource will be read from the specified input stream, and parsed using
     the XML schema definitions provided in the input XSD stream.
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
