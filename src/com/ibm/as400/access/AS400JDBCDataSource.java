@@ -555,10 +555,18 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         // Validate the parameters.
         //check if "".  
-        if ("".equals(user))                                                      //@pw1
-            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
-        if ("".equals(password))                                                  //@pw1
-            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
+        if ("".equals(user))                                              //@pw1
+        {                                                                 //@pw1
+            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+        }                                                                 //@pw1
+        if ("".equals(password))                                          //@pw1
+        {                                                                 //@pw1
+            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+        }                                                                 //@pw1
         
         //Next, hack for nulls to work on i5
         //New security: replace null with "" to mimic old behavior to allow null logons...disallowing "" above.
@@ -568,10 +576,18 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             password = "";                                                        //@pw1
         
         //check for *current
-        if (user.compareToIgnoreCase("*CURRENT") == 0)                            //@pw1
-            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
-        if (password.compareToIgnoreCase("*CURRENT") == 0)                        //@pw1
-            JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED);     //@pw1
+        if (user.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
+        {                                                                 //@pw1
+            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+        }                                                                 //@pw1
+        if (password.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
+        {                                                                 //@pw1
+            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+        }                                                                 //@pw1
 
         AS400 as400Object;
 

@@ -420,9 +420,11 @@ Maps an object to a string.
       className = clazz.substring(30);                    // @D3A
     else if (clazz.startsWith("com.ibm.as400.access.JD"))   // @D3A
       className = clazz.substring(23);                    // @D3A
+    else if (clazz.startsWith("java.lang.Class"))   
+        className = "";  //@static callers of JDTrace
     else
-      className = "Unknown";
-
+        className = "Unknown";
+    
     StringBuffer buffer = new StringBuffer();
     buffer.append(className);
     buffer.append(" ");

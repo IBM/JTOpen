@@ -211,9 +211,13 @@ Constructor.
           {
               defaultSchema_ = list_[0];        //@KBA
               if(defaultSchema_.length()>10)
+              {
                   list_[0] = defaultSchema_.substring(0, 10); //@128sch Since library list only supports length <= 10.  
                                                               //But we want to support default schema of greater than 10 starting post-v6r1 (since zda supports it).
                                                               //Just substring it (so it will not cause all to fail) since it will not be a valid lib in the library list anyway.
+                  if (JDTrace.isTraceOn()) //jdbc category trace
+                      JDTrace.logInformation (this, "Schema " + defaultSchema_ + " is too long to be in library list without trimming it, but will still be set as default schema");
+              }
           }
       }
 
@@ -315,7 +319,18 @@ Get the default schema.
     return defaultSchema_;
   }
 
-
+  /**
+   *  Returns the string representation of the object.
+   *  @return The string representation.
+   **/
+   public String toString()
+   {
+       /*
+       * Implementation note: Used only for tracing information.
+       */
+       
+       return "";
+   }
 }
 
 
