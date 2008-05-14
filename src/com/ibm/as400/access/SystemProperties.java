@@ -31,6 +31,8 @@ class SystemProperties
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
     public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
     public static final String AS400_MUST_USE_SOCKETS = ACCESS_PREFIX + "AS400.mustUseSockets";
+    public static final String AS400_MUST_USE_NET_SOCKETS = ACCESS_PREFIX + "AS400.mustUseNetSockets";
+    public static final String AS400_MUST_USE_SUPPLIED_PROFILE = ACCESS_PREFIX + "AS400.mustUseSuppliedProfile";
     public static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
     public static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";
@@ -45,11 +47,13 @@ class SystemProperties
     public static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
     //  *** Note: ***
     //
-    // If you add a new system property, remember to add them to the following other files:
-    //     - SystemProperties.htmlsrc
-    //     - SystemPropertiesSample1.htmlsrc
-    //     - SystemPropertiesSample2.htmlsrc
+    // If you add a new system property, remember to also add it to the
+    // following other files:
+    //     - SystemProperties.htm
+    //     - SystemPropertiesSample1.htm
+    //     - SystemPropertiesSample2.htm
     //     - the "near mirror-image" SystemProperties.java in pkg 'test'
+    // The *.htm files are owned/maintained by the InfoCenter support people.
 
     // Private data.
     private static Vector ignored_ = new Vector();

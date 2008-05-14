@@ -134,7 +134,11 @@ public class AS400 implements Serializable
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
     // Default setting for mustUseSockets property.
-    static boolean defaultMustUseSockets_ = false;
+    private static boolean defaultMustUseSockets_ = false;
+    // Default setting for mustUseNetSockets property.
+    private static boolean defaultMustUseNetSockets_ = false;
+    // Default setting for mustUseSuppliedProfile property.
+    private static boolean defaultMustUseSuppliedProfile_ = false;
     static
     {
         try
@@ -164,34 +168,71 @@ public class AS400 implements Serializable
             Trace.log(Trace.WARNING, "Error retrieving os.name:", e);
         }
 
-        // Get the "default sign-on handler" property, if it is set.
-        String handlerClass = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
-        if (handlerClass != null)
+        // Get the "default sign-on handler" property.
         {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
+          if (propVal != null)
+          {
             try
             {
-                defaultSignonHandlerClass_ = Class.forName(handlerClass);
+              defaultSignonHandlerClass_ = Class.forName(propVal);
             }
             catch (Exception e)
             {
-                Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", e);
-                defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+              Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", e);
+              defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
             }
+          }
         }
 
-        // Get the "must use sockets" property, if it is set.
-        String socketsPropVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SOCKETS);
-        if (socketsPropVal != null)
+        // Get the "must use sockets" property.
         {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SOCKETS);
+          if (propVal != null)
+          {
             try
             {
-                defaultMustUseSockets_ = Boolean.valueOf(socketsPropVal).booleanValue();
+              defaultMustUseSockets_ = Boolean.valueOf(propVal).booleanValue();
             }
             catch (Exception e)
             {
-                Trace.log(Trace.WARNING, "Error retrieving mustUseSockets property value: ", e);
+              Trace.log(Trace.WARNING, "Error retrieving mustUseSockets property value: ", e);
             }
+          }
         }
+
+        // Get the "must use net sockets" property.
+        {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_NET_SOCKETS);
+          if (propVal != null)
+          {
+            try
+            {
+              defaultMustUseNetSockets_ = Boolean.valueOf(propVal).booleanValue();
+            }
+            catch (Exception e)
+            {
+              Trace.log(Trace.WARNING, "Error retrieving mustUseNetSockets property value: ", e);
+            }
+          }
+        }
+
+        // Get the "must use supplied profile" property.
+        {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SUPPLIED_PROFILE);
+          if (propVal != null)
+          {
+            try
+            {
+              defaultMustUseSuppliedProfile_ = Boolean.valueOf(propVal).booleanValue();
+            }
+            catch (Exception e)
+            {
+              Trace.log(Trace.WARNING, "Error retrieving mustUseSuppliedProfile property value: ", e);
+            }
+          }
+        }
+
     }
 
     // System list:  elements are 3 element Object[]: systemName, userId, bytes.
@@ -242,9 +283,9 @@ public class AS400 implements Serializable
     // Flag that indicates if we must use the host servers and no native optimizations.
     private boolean mustUseSockets_ = defaultMustUseSockets_;
     // Flag that indicates if we must use network sockets and not unix domain sockets.
-    private boolean mustUseNetSockets_ = false;
+    private boolean mustUseNetSockets_ = defaultMustUseNetSockets_;
     // Flag that indicates if we must not use the current profile.
-    private boolean mustUseSuppliedProfile_ = false;
+    private boolean mustUseSuppliedProfile_ = defaultMustUseSuppliedProfile_;
     // Flag that indicates if we use threads in communication with the host servers.
     private boolean threadUsed_ = true;
     // Locale object to use for determining NLV.
@@ -2978,7 +3019,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the current user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The <tt>must use supplied profile</tt> property cannot be changed once a connection to the system has been established.
+     Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the currently signed-on user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The <tt>must use supplied profile</tt> property cannot be changed once a connection to the system has been established.
      @param  mustUseSuppliedProfile  true to use a supplied profile only; false otherwise.
      **/
     public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
