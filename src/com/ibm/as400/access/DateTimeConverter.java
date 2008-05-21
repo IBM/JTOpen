@@ -10,6 +10,9 @@
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
+// 2008-05-21 @A1 Changes for *CURRENT when returning Date objects.  Adjust the
+//            AS400 system time to the local client time.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -18,6 +21,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone; //@A1A
+
 
 /**
  The DateTimeConverter class represents a converted date and time.
@@ -34,6 +39,7 @@ public class DateTimeConverter
   private Calendar calendar_ = Calendar.getInstance();
   private DateTime17Format format17_;
   private DateTime16Format format16_;
+  private boolean getCurrentSystemTimeUTC = false;  //@A1A
 
   /**
    * Constructs a DateTimeConverter object.
@@ -52,6 +58,8 @@ public class DateTimeConverter
 
   /**
    * Converts date and time values from the input format to the requested output format.
+   * <p>This method effectively re-arranges the time format and returns it.
+   * Therefore, no adjustments are made based on time-zone.  
    *
    * @param data The date and time value to be converted.
    * @param inFormat The input date and time format.
@@ -108,7 +116,8 @@ public class DateTimeConverter
     if (outFormat == null) throw new NullPointerException("outFormat");
 
     // Setup the parameters
-    ProgramParameter[] parmlist = new ProgramParameter[5];
+    // Change to use optional parms to be able to request UTC time    @A1A
+    ProgramParameter[] parmlist = new ProgramParameter[10];         //@A1C
     // First parameter is the input format.
     parmlist[0] = new ProgramParameter(text10_.toBytes(inFormat));
     // Second parameter is the input variable.
@@ -120,6 +129,22 @@ public class DateTimeConverter
     // Fifth parameter is the error format.
     byte[] errorCode = new byte[70];
     parmlist[4] = new ProgramParameter(errorCode);
+    
+    // Use Optional Paramter Group 1                                  @A1A
+    parmlist[5] = new ProgramParameter(text10_.toBytes("*SYS"));    //@A1A
+    if (getCurrentSystemTimeUTC)                                    //@A1A
+    {
+      parmlist[6] = new ProgramParameter(text10_.toBytes("*UTC"));  //@A1A
+      getCurrentSystemTimeUTC = false;                              //@A1A
+    }
+    else
+    {
+      parmlist[6] = new ProgramParameter(text10_.toBytes("*SYS"));  //@A1A
+    }
+    // No need to use the Time zone information output (set to 0)   //@A1A
+    parmlist[7] = new ProgramParameter(0);    //TimeZoneInfo output - @A1A
+    parmlist[8] = new ProgramParameter(BinaryConverter.intToByteArray(0));//@A1A
+    parmlist[9] = new ProgramParameter(text10_.toBytes("0")); //@A1A
 
     // Set the program name and parameter list
     try
@@ -158,6 +183,10 @@ public class DateTimeConverter
 
   /**
    * Returns a converted Date object.
+   * <p><b>Note:</b> This method does not change the time-zone setting in the returned Date object.
+   * <p><b>Note:</b> When <tt>*CURRENT</tt> is specified, the <tt>data</tt> parameter will not be used.  
+   * The time will be retrieved from the <tt>AS400</tt> system object and adjusted to the local 
+   * time-zone based on the value returned from TimeZone.getDefault().getOffset() for the client.
    * @param data The date and time value to be converted.
    * @param inFormat The format of the date and time value being provided.
    * Possible values are:
@@ -195,6 +224,12 @@ public class DateTimeConverter
     if (data == null) throw new NullPointerException("data");
     if (inFormat == null) throw new NullPointerException("inFormat");
 
+    if (inFormat.equalsIgnoreCase("*CURRENT"))                      //@A1A
+    {
+      // Set flag to indicate to other convert() method to retrieve   @A1A
+      // *UTC time from the AS400 object (rather than *SYS time)      @A1A
+      getCurrentSystemTimeUTC = true;                               //@A1A
+    }
     // Use *YYMD which gives us a full Date: YYYYMMDD.
     byte[] converted = convert(data, inFormat, "*YYMD");
     calendar_.clear();
@@ -212,8 +247,43 @@ public class DateTimeConverter
                   Integer.parseInt(((String)rec.getField("minute")).trim()),
                   Integer.parseInt(((String)rec.getField("second")).trim()));
     calendar_.set(Calendar.MILLISECOND, Integer.parseInt(((String)rec.getField("millisecond")).trim()));
-
-    return calendar_.getTime();
+    
+    // ---------------------------------------------------------------------------------------
+    // For the most part... this class is simply converting from one string format to another.
+    // Therefore, no adjustments are made for time-zone because the input time doesn't necessarily
+    // come from the server time.
+    // The input parameter is simply a string of bytes or chars and therefore, it seems perfectly reasonable
+    // that the ouptut Date object is built with the Client timezone.  There is no way to know if the
+    // string of bytes represents a client time, server time, or some manufactured time.
+    // - - - - - 
+    // "*CURRENT", however, is actually obtaining the time from the server clock.
+    // Since the client and server may be in different time-zones, the following code makes the
+    // necessary adjustments to represent the server time in the local time-zone.
+    // ---------------------------------------------------------------------------------------
+    // Begin changes for -------------------------------------------- @A1A
+    if (inFormat.equalsIgnoreCase("*CURRENT"))
+    {
+      // We already obtained the AS400 system date/time as a UTC time.
+      // We will now adjust it to the local time offset from UTC
+      // Step 1 - get the local client time and local offset from GMT
+      Date clientNowDate = new Date();              
+      long clientNowTime = clientNowDate.getTime(); 
+      TimeZone tz = TimeZone.getDefault();          
+      int clientGMTOffset = tz.getOffset(clientNowTime);
+      
+      // Step 2 - Construct a Date object from the server UTC/GMT time
+      Date systemGMTDate    = calendar_.getTime();    
+      
+      // Step 3 - Construct a Date object for the server time adjusted for the local time-zone
+      //          (server UTC time + the local time offset)
+      Date systemDateAdjusted = new Date(systemGMTDate.getTime()+clientGMTOffset);
+      return systemDateAdjusted;
+    }
+    // End changes for ---------------------------------------------- @A1A
+    else 
+    {
+      return calendar_.getTime();
+    }
   }
 
   /**
@@ -334,4 +404,3 @@ public class DateTimeConverter
     }
   }
 }
-
