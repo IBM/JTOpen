@@ -38,6 +38,7 @@ final class SQLBlobLocator implements SQLLocator
     private SQLConversionSettings   settings_;
     private int                     truncated_;
     private int                     columnIndex_;
+    private byte[]                  value_; //@loch //Note that value_ is not used as the output for a ResultSet.getX() call.  We Get the value from a call to the JDLocator (not from value_) and not from the savedObject_, unless resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
 
     private Object savedObject_; // This is the AS400JDBCBlobLocator or InputStream or whatever got set into us.
     private int scale_; // This is actually the length that got set into us.
@@ -67,7 +68,13 @@ final class SQLBlobLocator implements SQLLocator
     public void setHandle(int handle)      
     {
         locator_.setHandle(handle);          
-    }                                      
+    }                     
+    
+    //@loch
+    public int getHandle()
+    {
+        return locator_.getHandle();
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -294,6 +301,99 @@ final class SQLBlobLocator implements SQLLocator
         if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }
 
+    //@loch method to temporary convert from object input to output before even going to host (writeToServer() does the conversion needed before writting to host)
+    //This will only be used when resultSet.updateX(obj1) is called followed by a obj2 = resultSet.getX()
+    //Purpose is to do a local type conversion from obj1 to obj2 like other non-locator lob types
+    private void doConversion()
+    throws SQLException
+    {
+        try
+        {
+            Object object = savedObject_;
+            if(object instanceof byte[])
+            {
+                value_ = (byte[]) object;
+                int objectLength = value_.length;
+                if(value_.length > maxLength_)
+                {
+                    byte[] newValue = new byte[maxLength_];
+                    System.arraycopy(value_, 0, newValue, 0, maxLength_);
+                    value_ = newValue;
+                }
+                truncated_ = objectLength - value_.length;
+            }
+            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
+            {
+                Blob blob = (Blob) object;
+                int blobLength = (int)blob.length();
+                int lengthToUse = blobLength < 0 ? 0x7FFFFFFF : blobLength;
+                if(lengthToUse > maxLength_) lengthToUse = maxLength_;
+                value_ = blob.getBytes(1, lengthToUse);
+                truncated_ = blobLength - lengthToUse;
+            }
+            else if(object instanceof InputStream)
+            {
+                int length = scale_; // hack to get the length into the set method
+                if(length >= 0)
+                {
+                    InputStream stream = (InputStream)object;
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    byte[] byteBuffer = new byte[blockSize];
+                    try
+                    {
+                        int totalBytesRead = 0;
+                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        while(bytesRead > -1 && totalBytesRead < length)
+                        {
+                            baos.write(byteBuffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
+                            int bytesRemaining = length - totalBytesRead;
+                            if(bytesRemaining < blockSize)
+                            {
+                                blockSize = bytesRemaining;
+                            }
+                            bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        }
+                    }
+                    catch(IOException ie)
+                    {
+                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
+                    }
+                    
+                    value_ = baos.toByteArray();
+
+                    if(value_.length < length)
+                    {
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    }
+
+                    int objectLength = value_.length;
+                    if(value_.length > maxLength_)
+                    {
+                        byte[] newValue = new byte[maxLength_];
+                        System.arraycopy(value_, 0, newValue, 0, maxLength_);
+                        value_ = newValue;
+                    }
+                    truncated_ = objectLength - value_.length;
+                }
+                else
+                {
+                    JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+                }
+            }
+            else
+            {
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
+        finally
+        {
+            //nothing
+        }
+    }
+    
     //---------------------------------------------------------//
     //                                                         //
     // DESCRIPTION OF SQL TYPE                                 //
@@ -442,6 +542,14 @@ final class SQLBlobLocator implements SQLLocator
     public Blob getBlob()
     throws SQLException
     {
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCBlob(value_, maxLength_); //@loch
+        }                       //@loch
+        
         // We don't want to give out our internal locator to the public,
         // otherwise when we go to change its handle on the next row, they'll
         // get confused.  So we have to clone it.
@@ -466,6 +574,14 @@ final class SQLBlobLocator implements SQLLocator
     public byte[] getBytes()
     throws SQLException
     {
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return value_;//@loch
+        }                       //@loch
+        
         int locatorLength = (int)locator_.getLength();
         if(locatorLength == 0) return new byte[0];
         DBLobData data = locator_.retrieveData(0, locatorLength);

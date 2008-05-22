@@ -21,6 +21,7 @@ extends SQLData
 
 
     public abstract void setHandle (int handle);
+    public abstract int getHandle ();  //@loch
 
 
 }
