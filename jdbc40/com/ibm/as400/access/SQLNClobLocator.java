@@ -113,9 +113,15 @@ final class SQLNClobLocator implements SQLLocator
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
+    	//@selins1
+        // If it's a String we check for data truncation.
+        if(object instanceof String)
+        {
+            String s = (String)object;
+            truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
+        } 
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
-        if(!(object instanceof String) &&
-           !(object instanceof Reader) &&
+        else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            !(object instanceof Clob) &&
            !(object instanceof SQLXML)) //@PDC jdbc40

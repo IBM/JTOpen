@@ -124,16 +124,20 @@ final class SQLClob implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
+        //@selins1 make same as SQLCloblocator
         // If it's a String we check for data truncation.
         if(object instanceof String)
         {
             String s = (String)object;
-            truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
-        } 
+            int length = s.length(); 
+            truncated_ = (length > maxLength_ ? length-maxLength_ : 0);  
+        }
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
                 !(object instanceof Reader) && //@PDC jdbc40
+                !(object instanceof InputStream) &&
                 !(object instanceof SQLXML)) //@PDC jdbc40
+
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }

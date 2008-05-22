@@ -3057,7 +3057,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 {                                                                    //@trunc2
                     throw dt;                                                        //@trunc2
                 }                                                                    //@trunc2
-                else if((sqlStatement_ != null) && (sqlStatement_.isSelect()))       //@trunc2
+                else if((sqlStatement_ != null) && (sqlStatement_.isSelect()) && (!sqlStatement_.isSelectFromInsert()))       //@trunc2 //@selins1
                 {
                     postWarning(dt);
                 }

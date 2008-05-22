@@ -112,14 +112,21 @@ final class SQLClobLocator implements SQLLocator
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(!(object instanceof String) &&
-           !(object instanceof Reader) &&
+        //@selins1 make same as SQLClob
+        // If it's a String we check for data truncation.
+        if(object instanceof String)
+        {
+            String s = (String)object;
+            int length = s.length(); 
+            truncated_ = (length > maxLength_ ? length-maxLength_ : 0);  
+        }
+        else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob)))
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
-
+        
         savedObject_ = object;
         if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }

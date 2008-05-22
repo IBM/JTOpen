@@ -34,7 +34,7 @@ final class SQLDBClobLocator implements SQLLocator
     private ConvTable               converter_;
     private int                     id_;
     private JDLobLocator            locator_;
-    private int                     maxLength_;
+    private int                     maxLength_; //note length in chars
     private SQLConversionSettings   settings_;
     private int                     truncated_;
     private int                     columnIndex_;
@@ -111,11 +111,18 @@ final class SQLDBClobLocator implements SQLLocator
     public void set(Object object, Calendar calendar, int scale) throws SQLException
     {
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
-        if(!(object instanceof String) &&
-           !(object instanceof Reader) &&
+        //@selins1 make similar to SQLDBClob
+        // If it's a String we check for data truncation.
+        if(object instanceof String)
+        {
+            String s = (String)object;
+            int length = s.length(); 
+            truncated_ = (length > maxLength_ ? length-maxLength_ : 0);  
+        }
+        else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            !(object instanceof Clob) &&
-           !(object instanceof SQLXML)) //@PDC jdbc40)
+           !(object instanceof SQLXML) ) //@PDC jdbc40
         {
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }

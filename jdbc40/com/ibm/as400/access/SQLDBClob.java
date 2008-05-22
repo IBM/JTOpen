@@ -117,14 +117,17 @@ final class SQLDBClob implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
+        //@selins1 make similar to SQLDBClobLocator
         // If it's a String we check for data truncation.
         if(object instanceof String)
         {
             String s = (String)object;
-            truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
+            int byteLength = s.length() * 2; //@selins1
+            truncated_ = (byteLength > maxLength_ ? byteLength-maxLength_ : 0);
         }
         //@PDD jdbc40 (JDUtilities.JDBCLevel_ >= 20 incorrect logic, but n/a now
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
+                !(object instanceof InputStream) &&
                 !(object instanceof Reader) && //@PDC jdbc40
                 !(object instanceof SQLXML)) //@PDC jdbc40
         {
