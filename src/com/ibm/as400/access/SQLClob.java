@@ -126,8 +126,8 @@ final class SQLClob implements SQLData
         if(object instanceof String)
         {
             String s = (String)object;
-            int length = s.length(); //@selins1
-            truncated_ = (byteLength > maxLength_ ? length-maxLength_ : 0);  
+            int byteLength = s.length(); //@selins1
+            truncated_ = (byteLength > maxLength_ ? byteLength-maxLength_ : 0);  
         }
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
