@@ -54,9 +54,13 @@ class ClientAccessDataStream extends DataStream
 
       if (baseDataStream.data_[6] != (byte)0xE0)
       {
-          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Incorrect data stream header detected.");
-          baseDataStream.inUse_ = false;
-          throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+        if (Trace.traceOn_) {
+          Trace.log(Trace.ERROR, "Incorrect data stream header detected.",
+                    baseDataStream.data_, 0, HEADER_LENGTH);
+        }
+        baseDataStream.inUse_ = false;
+        is.skip(is.available());  // disregard the rest of this data stream
+        throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
       }
 
       // First look for an instance data stream.
