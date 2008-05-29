@@ -3116,8 +3116,8 @@ implements Connection
         // Determine the amount of system tracing that should be started.  Trace
         // can be started by either a JDBC property or the ServerTrace class.  Our value
         // will be the combination of the two (instead of one overriding the other).
-        traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) +
-                       ServerTrace.getJDBCServerTraceCategories();  // @j1a
+        traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) |
+                       ServerTrace.getJDBCServerTraceCategories();  // @j1a //@SSa logical OR
 
         // Determine if a QAQQINI library name was specified.  The library can be set using                     //@K2A
         // a JDBC property.                                                                                     //@k2A
