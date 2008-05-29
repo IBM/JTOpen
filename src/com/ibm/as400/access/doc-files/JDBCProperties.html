@@ -863,6 +863,17 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t5">&quot;false&quot; </TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;ignore warnings&quot;</TD>
+    <TD HEADERS="t2">Specifies a list of SQL states for which the driver should not create warning objects. 
+      By default, the Toolbox JDBC driver will internally create a java.sql.SQLWarning 
+      object for each warning returned by the database.  For example, a warning with
+      the SQLSTATE 0100C is created every time a result set is returned from a stored procedure.  This 
+      warning can be safely ignored to improve the performance of applications that call stored procedures.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">A comma separated list of SQL states that should be ignored</TD>
+    <TD HEADERS="t5">&quot;&quot; </TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;keep alive&quot;</TD>
     <TD HEADERS="t2">Specifies whether socket connection is to be periodically checked for operational status.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>

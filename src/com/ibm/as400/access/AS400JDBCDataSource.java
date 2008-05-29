@@ -776,6 +776,18 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getString(JDProperties.DECIMAL_SEPARATOR);
     }
 
+    //@igwrn
+    /**
+    *  Returns the ignore warnings property.
+    *  Specifies a list of SQL states for which the driver should not create warning objects.
+    *  @return The ignore warnings.
+    **/
+    public String getIgnoreWarnings()
+    {
+        return properties_.getString(JDProperties.IGNORE_WARNINGS);
+    }
+    
+    
     /**
     *  Returns the description of the data source.
     *  @return The description.
@@ -2443,6 +2455,27 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + decimalSeparator);    //@A8C
     }
 
+    //@igwrn
+    /**
+    *  Sets the ignore warnings property.
+    *  @param ignoreWarnings Specifies a list of SQL states for which the driver should not create warning objects.
+    **/
+    public void setIgnoreWarnings(String ignoreWarnings)
+    {
+        String property = "ignoreWarnings";
+        if (ignoreWarnings == null)
+            throw new NullPointerException(property);
+ 
+        String old = getIgnoreWarnings();
+
+        properties_.setString(JDProperties.IGNORE_WARNINGS, ignoreWarnings);
+
+        changes_.firePropertyChange(property, old, ignoreWarnings);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + ignoreWarnings);
+    }
+    
     /**
     *  Sets the data source description.
     *  @param description The description.

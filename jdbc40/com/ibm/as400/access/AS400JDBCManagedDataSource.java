@@ -956,6 +956,17 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     return properties_.getString(JDProperties.DECIMAL_SEPARATOR);
   }
 
+  //@igwrn
+  /**
+  *  Returns the ignore warnings property.
+  *  Specifies a list of SQL states for which the driver should not create warning objects.
+  *  @return The ignore warnings.
+  **/
+  public String getIgnoreWarnings()
+  {
+      return properties_.getString(JDProperties.IGNORE_WARNINGS);
+  }
+  
   /**
    Returns the description of the data source.
    @return The description.
@@ -2559,6 +2570,20 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     properties_.setString(JDProperties.DECIMAL_SEPARATOR, decimalSeparator);
   }
 
+  //@igwrn
+  /**
+  *  Sets the ignore warnings property.
+  *  @param ignoreWarnings Specifies a list of SQL states for which the driver should not create warning objects.
+  **/
+  public void setIgnoreWarnings(String ignoreWarnings)
+  {
+      String property = "ignoreWarnings";
+      if (ignoreWarnings == null)
+          throw new NullPointerException(property);
+ 
+      properties_.setString(JDProperties.IGNORE_WARNINGS, ignoreWarnings);
+  }
+  
   /**
    Sets the data source description.
    @param description The description.

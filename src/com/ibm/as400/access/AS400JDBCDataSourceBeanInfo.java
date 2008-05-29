@@ -571,13 +571,20 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             autoCommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTO_COMMIT")); //@AC1
             autoCommit.setShortDescription(AS400JDBCDriver.getResource("AUTO_COMMIT_DESC")); //@AC1
 
+            //@igwrn - added support to ignore warnings
+            PropertyDescriptor ignoreWarnings = new PropertyDescriptor("ignoreWarnings", beanClass, "getIgnoreWarnings", "setIgnoreWarnings");
+            ignoreWarnings.setBound(true);
+            ignoreWarnings.setConstrained(false);
+            ignoreWarnings.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_IGNORE_WARNINGS"));
+            ignoreWarnings.setShortDescription(AS400JDBCDriver.getResource("IGNORE_WARNINGS_DESC"));
+
           
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit}; //@540 @550 //@DFA //@pdc //@AC1
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn
         }
         catch(Exception e)
         {

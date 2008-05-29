@@ -916,7 +916,9 @@ public class AS400JDBCStatement implements Statement
                         }
                         else
                         {
-                            postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                            String sqlState = sqlca.getSQLState (connection_.converter_);  //@igwrn
+                            if( connection_.getProperties().getString(JDProperties.IGNORE_WARNINGS).toUpperCase().indexOf(sqlState) == -1 )  //@igwrn 
+                                postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
                         }
                     }
 

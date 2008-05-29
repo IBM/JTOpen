@@ -154,12 +154,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              DECFLOAT_ROUNDING_MODE     = 74; //@DFA
     static final int              AUTOCOMMIT_EXCEPTION       = 75; //@CE1
     static final int              AUTO_COMMIT                = 76; //@AC1 (matching Native's naming)
+    static final int              IGNORE_WARNINGS            = 77; //@igwrn
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 77;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 78;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550 @DFA @CE1 @AC1
+                                                               // @PDC @550 @DFA @CE1 @AC1 @igwrn
 
 
     // Property names.
@@ -242,6 +243,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String DECFLOAT_ROUNDING_MODE_ = "decfloat rounding mode"; //@DFA
     private static final String AUTOCOMMIT_EXCEPTION_ = "autocommit exception"; //@CE1
     private static final String AUTO_COMMIT_ = "auto commit"; //@AC1  (match Native driver property spelling)
+    private static final String IGNORE_WARNINGS_ = "ignore warnings"; //@igwrn
     
 
 
@@ -1297,6 +1299,14 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = TRUE_;
+        
+        // Ignore Warnings  //@igwrn
+        i = IGNORE_WARNINGS;
+        dpi_[i] = new DriverPropertyInfo (IGNORE_WARNINGS_, "");
+        dpi_[i].description = "IGNORE_WARNINGS_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]  = EMPTY_;
         
     }
 
