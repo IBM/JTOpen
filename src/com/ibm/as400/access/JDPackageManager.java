@@ -91,12 +91,12 @@ class JDPackageManager
       if (packageName.length() > 0)
       {
 
-        // Normalize the package name to 7 characters and tack
-        // on the appropriate 3 character suffix.
+        // Normalize the package name to 6 characters and tack
+        // on the appropriate 4 character suffix.
         StringBuffer buffer = new StringBuffer (10);
         String normalizedName;
-        if (packageName.length() >= 7)
-          normalizedName = packageName.substring (0, 7);
+        if (packageName.length() >= 6)                   //@hex
+          normalizedName = packageName.substring (0, 6); //@hex
         else
           normalizedName = packageName;
         buffer.append (normalizedName.toUpperCase().replace (' ', '_'));
@@ -426,7 +426,7 @@ class JDPackageManager
 
 
   /**
-  Returns the suffix (the last 3 characters) of the package name.
+  Returns the suffix (the last 4 characters) of the package name.
   These are generated based on various property values, which
   influence the effectiveness of the package.  This is necessary
   because the properties in question affect the contents of the
@@ -441,7 +441,7 @@ class JDPackageManager
   private String getSuffix (JDProperties properties,
                             int commitMode)
   {
-    // The last three characters of the package name (the
+    // The last four characters of the package name (the
     // suffix) are generated based on various property
     // values.  This is necessary because the properties
     // in question affect the contents of the packages
@@ -451,10 +451,20 @@ class JDPackageManager
     // This mechanism is exactly the same as is used in
     // Client Access/ODBC.
     //
-    StringBuffer suffix = new StringBuffer (3);
+    StringBuffer suffix = new StringBuffer (4);  //@hex
     int index;
 
+    //@hex adding additional char at front of (now 4 length) suffix.
     // Base the 1st suffix character on:
+    //
+    //     translate hex (h)       - values 0-1 (0 is char, 1 is binary)
+    //
+    // The index into the invariant is formed as 0000000h.
+    index = (properties.getIndex (JDProperties.TRANSLATE_HEX));    //@hex
+    suffix.append (SUFFIX_INVARIANT_.charAt (index));              //@hex
+
+    
+    // Base the 2nd suffix character on:
     //
     //     commit mode (c) - values 0-3
     //     date format (f) - values 0-7
@@ -485,7 +495,7 @@ class JDPackageManager
             | (properties.getIndex (JDProperties.DATE_FORMAT));
     suffix.append (SUFFIX_INVARIANT_.charAt (index));
 
-    // Base the 2nd suffix character on:
+    // Base the 3rd suffix character on:
     //
     //     decimal separator (d) - values 0-1
     //     naming (n)            - values 0-1
@@ -497,7 +507,7 @@ class JDPackageManager
                 | (dateSep);                                                                                        //@G0A
     suffix.append (SUFFIX_INVARIANT_.charAt (index));
 
-    // Base the 3rd suffix character on:
+    // Base the 4th suffix character on:
     //
     //     time format (f)       - values 0-4
     //     time separator (s)    - values 0-3
