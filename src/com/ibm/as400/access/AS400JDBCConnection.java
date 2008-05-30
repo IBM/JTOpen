@@ -3673,7 +3673,7 @@ implements Connection
                         }
 
                     }
-                    if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
+                    else if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
                         //@540 - Client support information - indicate our support for ROWID data type, true autocommit
                         // and 128 byte column names
                         request.setClientSupportInformation(0xE0000000);
