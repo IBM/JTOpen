@@ -18,6 +18,8 @@ import java.io.UnsupportedEncodingException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -3024,6 +3026,25 @@ implements Connection
           {                                       //@D5C
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_UNABLE, e);
           }
+          finally                                               //@dbldrvr
+          {                                                     //@dbldrvr
+              //Since driver is registered twice in DriverManager via DriverManager.registerDriver(new AS400JDBCDriver()), 
+              //remove extra driver references now so we don't waste resources by continuing to try, and also so we don't lock out id if pwd is not correct.
+              Enumeration en = DriverManager.getDrivers();      //@dbldrvr
+              Driver firstDriver = null;                        //@dbldrvr
+              Driver nextDriver = null;                         //@dbldrvr
+              while (en.hasMoreElements())                      //@dbldrvr
+              {                                                 //@dbldrvr
+                  nextDriver = (Driver) en.nextElement();       //@dbldrvr
+                  if(nextDriver instanceof AS400JDBCDriver)     //@dbldrvr
+                  {                                             //@dbldrvr
+                      if(firstDriver == null)                   //@dbldrvr
+                          firstDriver = nextDriver;             //@dbldrvr
+                      else                                      //@dbldrvr
+                          DriverManager.deregisterDriver(nextDriver); //@dbldrvr  
+                  }                                             //@dbldrvr
+              }                                                 //@dbldrvr
+          }                                                     //@dbldrvr
         }
 
         setProperties (dataSourceUrl, properties, as400.getImpl());
