@@ -14,8 +14,8 @@
 package com.ibm.as400.access;
 
 /**
- The BidiStringType class is a collection of constants generally used for describing the output string type of bidi data as defined by the CDRA (Character Data Respresentation Architecture).
- <p>Each CCSID has a default CDRA string type, which defines a set of Bidi flags.  When using these constants while performing conversions on bidi strings, the parameter string type should always be either ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).
+ The BidiStringType class is a collection of constants generally used for describing the output string type of bidi (bi-directional text) data as defined by the CDRA (Character Data Representation Architecture).
+ <p>Each CCSID has a default CDRA string type, which defines a set of Bidi flags.  When using these constants while performing conversions on bidi strings, the parameter string type should always be either ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).  Note that "LTR" means left-to-right, and "RTL" means right-to-left.
  <p>In fact, only the orientation of the given string type is used to modify the Bidi flags to apply to the Java data.  The other Bidi flags of the Java data always conform to the Unicode standard.
  **/
 public interface BidiStringType
