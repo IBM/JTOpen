@@ -169,7 +169,7 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
 
     // QSYLOBJA is the API that is being used to get the object list into a user space. 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSYLOBJA.PGM", parms);
-    pc.setThreadSafe(true); // The QSYLOBJA API is documented to be thread-safe
+    pc.setThreadSafe(false); // The QSYLOBJA API is documented to be thread-safe, however it must run in same thread as /QTEMP.LIB/JT4SYLOBJA.USRSPC was created.
     byte[] buf = null;
 
     synchronized (USERSPACE_NAME)
