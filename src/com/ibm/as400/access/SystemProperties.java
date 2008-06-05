@@ -33,6 +33,7 @@ class SystemProperties
     public static final String AS400_MUST_USE_SOCKETS = ACCESS_PREFIX + "AS400.mustUseSockets";
     public static final String AS400_MUST_USE_NET_SOCKETS = ACCESS_PREFIX + "AS400.mustUseNetSockets";
     public static final String AS400_MUST_USE_SUPPLIED_PROFILE = ACCESS_PREFIX + "AS400.mustUseSuppliedProfile";
+    public static final String AS400_THREAD_USED = ACCESS_PREFIX + "AS400.threadUsed";
     public static final String SECUREAS400_PROXY_ENCRYPTION_MODE = ACCESS_PREFIX + "SecureAS400.proxyEncryptionMode";
     public static final String SECUREAS400_USE_SSLIGHT = ACCESS_PREFIX + "SecureAS400.useSslight";
     public static final String TRACE_CATEGORY = ACCESS_PREFIX + "Trace.category";

@@ -139,6 +139,8 @@ public class AS400 implements Serializable
     private static boolean defaultMustUseNetSockets_ = false;
     // Default setting for mustUseSuppliedProfile property.
     private static boolean defaultMustUseSuppliedProfile_ = false;
+    // Default setting for threadUsed property.
+    private static boolean defaultThreadUsed_ = true;
     static
     {
         try
@@ -233,6 +235,22 @@ public class AS400 implements Serializable
           }
         }
 
+        // Get the "thread used" property.
+        {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_THREAD_USED);
+          if (propVal != null)
+          {
+            try
+            {
+              defaultThreadUsed_ = Boolean.valueOf(propVal).booleanValue();
+            }
+            catch (Exception e)
+            {
+              Trace.log(Trace.WARNING, "Error retrieving threadUsed property value: ", e);
+            }
+          }
+        }
+
     }
 
     // System list:  elements are 3 element Object[]: systemName, userId, bytes.
@@ -287,7 +305,7 @@ public class AS400 implements Serializable
     // Flag that indicates if we must not use the current profile.
     private boolean mustUseSuppliedProfile_ = defaultMustUseSuppliedProfile_;
     // Flag that indicates if we use threads in communication with the host servers.
-    private boolean threadUsed_ = true;
+    private boolean threadUsed_ = defaultThreadUsed_;
     // Locale object to use for determining NLV.
     private Locale locale_ = Locale.getDefault();
     // The NLV set or determined from the locale.
