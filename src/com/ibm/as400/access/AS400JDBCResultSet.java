@@ -1957,8 +1957,8 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Initialization.
             beforePositioning (true);
-            if((positionFromFirst_ == 0) || (positionFromLast_ == 0))
-                return false;
+            //if((positionFromFirst_ == 0) || (positionFromLast_ == 0))  //@rel1 per javadoc, relative(1) <==> next()
+                //return false;
 
             // Handle max rows.
             if((maxRows_ > 0) && (positionFromFirst_ == -1))                // @E3a
