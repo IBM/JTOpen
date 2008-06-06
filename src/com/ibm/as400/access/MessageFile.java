@@ -67,6 +67,11 @@ public class MessageFile implements Serializable
      **/
     public static final int SUBSTITUTE_FORMATTING_CHARACTERS = 2;
 
+    /**
+     Constant indicating "the CCSID of the job".
+     **/
+    public static final int CCSID_OF_JOB = 0;
+
     // The type of help text formatting.
     private int helpTextFormatting_ = NO_FORMATTING;
 
@@ -346,7 +351,7 @@ public class MessageFile implements Serializable
     /**
      Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  <b>The byte array is not changed or converted before being sent to the system</b>.
      @param  ID  The message identifier.
-     @param  substitutionText  The substitution text.
+     @param  substitutionText  The substitution text.  The bytes are assumed to be in the CCSID of the job.
      @return  An AS400Message object containing the message.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -374,7 +379,7 @@ public class MessageFile implements Serializable
     /**
      Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  <b>The byte array is not changed or converted before being sent to the system</b>.
      @param  ID  The message identifier.
-     @param  substitutionText  The substitution text.
+     @param  substitutionText  The substitution text.  The bytes are assumed to be in the CCSID of the job.
      @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  An AS400Message object containing the message.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -387,6 +392,28 @@ public class MessageFile implements Serializable
     public AS400Message getMessage(String ID, byte[] substitutionText, int type) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving message from message file, ID: " + ID + ", type:" + type + ", substitutionText:", substitutionText);
+        return getMessage(ID, substitutionText, type, CCSID_OF_JOB, CCSID_OF_JOB);
+    }
+
+
+    /**
+     Returns an AS400Message object containing the message.  The system and message file name must be set before calling this method.  Up to 1024 bytes of substitution text can be supplied to this method.  <b>The byte array is not changed or converted before being sent to the system</b>.
+     @param  ID  The message identifier.
+     @param  substitutionText  The substitution text.
+     @param  type  The bidi message string type, as defined by the CDRA (Character Data Representataion Architecture).  The default value is {@link BidiStringType#DEFAULT BidiStringType.DEFAULT}. See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @param  ccsidOfSubstitutionText  The CCSID of the substitution text.  The default value is {@link #CCSID_OF_JOB CCSID_OF_JOB}.
+     @param  ccsidToConvertTo  The CCSID in which the system should return the message text. The Toolbox then converts from that CCSID to Unicode when constructing the AS400Message.  The default value is {@link #CCSID_OF_JOB CCSID_OF_JOB}.
+     @return  An AS400Message object containing the message.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     **/
+    public AS400Message getMessage(String ID, byte[] substitutionText, int type, int ccsidOfSubstitutionText, int ccsidToConvertTo) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, PropertyVetoException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving message from message file, ID: " + ID + ", type:" + type+ ", ccsidOfSubstitutionText:" + ccsidOfSubstitutionText + ", substitutionText:", substitutionText);
         if (ID == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'ID' is null.");
@@ -414,17 +441,17 @@ public class MessageFile implements Serializable
 
         Converter conv = new Converter(system_.getCcsid(), system_);
 
-        byte[] nameBytes = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+        byte[] nameBytes = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // 20 EBCDIC blanks
         conv.stringToByteArray(name_, nameBytes, 0, 10, type);
         conv.stringToByteArray(library_, nameBytes, 10, 10, type);
 
-        byte[] idBytes = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+        byte[] idBytes = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // 7 EBCDIC blanks
         conv.stringToByteArray(ID, idBytes, 0, 7);
 
         if (substitutionText == null) substitutionText = new byte[0];
 
-        byte[] starNoBytes = new byte[] { 0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
-        byte[] starYesBytes = new byte[] { 0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+        byte[] starNoBytes = new byte[] { 0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*NO       ", in EBCDIC
+        byte[] starYesBytes = new byte[] { 0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };  // "*YES      ", in EBCDIC
 
         byte[] replace = (substitutionText.length == 0) ? starNoBytes : starYesBytes;
         byte[] format = (helpTextFormatting_ == 0) ? starNoBytes : starYesBytes;
@@ -434,9 +461,9 @@ public class MessageFile implements Serializable
         {
             // Message information, output, char(*).
             new ProgramParameter(5120),
-            // Length of message information, input, binary(4).
+            // Length of message information, input, binary(4). (0x1400 == 5120)
             new ProgramParameter(new byte[] { 0x00, 0x00, 0x14, 0x00 } ),
-            // Format name, input, char(8), EBCDIC 'RTVM0200'.
+            // Format name, input, char(8), "RTVM0200" (EBCDIC).
             new ProgramParameter(new byte[] { (byte)0xD9, (byte)0xE3, (byte)0xE5, (byte)0xD4, (byte)0xF0, (byte)0xF2, (byte)0xF0, (byte)0xF0 } ),
             // Message identifier, input, char(7).
             new ProgramParameter(idBytes),
@@ -454,6 +481,29 @@ public class MessageFile implements Serializable
             new ProgramParameter(new byte[8])
         };
 
+        // Design note: The 3 "optional parameters" existed in V5R1, and probably even earlier.  But to be safe, we'll only send them if we need to.
+
+        // If a CCSID was specified, add the optional parameters.
+        if (ccsidOfSubstitutionText != CCSID_OF_JOB ||
+            ccsidToConvertTo        != CCSID_OF_JOB)
+        {
+          ProgramParameter[] optionalParms = new ProgramParameter[]
+          {
+            // Retrieve option, input, char(10), "*MSGID" (EBCDIC).
+            new ProgramParameter(new byte[] { 0x5C, (byte)0xD4, (byte)0xE2, (byte)0xC7, (byte)0xC9, (byte)0xC4, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 } ),
+            // CCSID to convert to, input, binary(4).  0 == "ccsid of job".
+            new ProgramParameter(BinaryConverter.intToByteArray(ccsidToConvertTo)),
+            // CCSID of replacement data, input, binary(4).  0 == "ccsid of job".
+            new ProgramParameter(BinaryConverter.intToByteArray(ccsidOfSubstitutionText))
+          };
+
+          int numRequiredParms = parameters.length;
+          ProgramParameter[] parmsPlus = new ProgramParameter[3+numRequiredParms];
+          System.arraycopy(parameters, 0, parmsPlus, 0, numRequiredParms);
+          System.arraycopy(optionalParms, 0, parmsPlus, numRequiredParms, 3);
+          parameters = parmsPlus;  // use the extended list
+        }
+
         // Call the program.
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHRTVM.PGM", parameters);
         pc.setThreadSafe(true);
@@ -469,12 +519,23 @@ public class MessageFile implements Serializable
         int defaultReplyLength = BinaryConverter.byteArrayToInt(messageInformation, 28);
         int messageLength = BinaryConverter.byteArrayToInt(messageInformation, 36);
         int helpLength = BinaryConverter.byteArrayToInt(messageInformation, 44);
+
+        // Prepare to convert returned character bytes to Unicode.
+        int ccsidOfTextBytes;  // CCSID of returned character fields
+        if (ccsidToConvertTo == CCSID_OF_JOB) {
+          ccsidOfTextBytes = system_.getCcsid();
+        }
+        else {
+          ccsidOfTextBytes = ccsidToConvertTo;
+          conv = new Converter(ccsidOfTextBytes, system_);
+        }
+
         msg.setDefaultReply(conv.byteArrayToString(messageInformation, 52, defaultReplyLength, type));
         msg.setText(conv.byteArrayToString(messageInformation, 52 + defaultReplyLength, messageLength, type));
         String helpText = conv.byteArrayToString(messageInformation, 52 + defaultReplyLength + messageLength, helpLength, type);
         if (helpTextFormatting_ == SUBSTITUTE_FORMATTING_CHARACTERS)
         {
-            helpText = substituteFormattingCharacters(helpText, AS400BidiTransform.isBidiCcsid(system_.getCcsid()));
+            helpText = substituteFormattingCharacters(helpText, AS400BidiTransform.isBidiCcsid(ccsidOfTextBytes));
         }
         msg.setHelp(helpText);
 
