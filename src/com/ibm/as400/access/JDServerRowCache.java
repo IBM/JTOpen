@@ -54,7 +54,7 @@ implements JDRowCache
   // always equal to 1.
   //
   private int                 cached_;
-  private int                 index_;
+  private int                 index_; //(array index), not row number
 
   // Keep track of the cursor position of the first 
   // row in the row cache from the front of the 
@@ -67,7 +67,7 @@ implements JDRowCache
   // of the RS, but at this time we don't have a requirement
   // to do that.  
   private static int NOT_KNOWN = -9999;                                // @G1a
-  private int cursorPositionOfFirstRowInCache_ = NOT_KNOWN;            // @G1a
+  private int cursorPositionOfFirstRowInCache_ = NOT_KNOWN;            // @G1a //0 means empty cache, 1 means cache is at the beginning (cache 1st row matches host 1st row)
 
 
 /**
@@ -526,7 +526,7 @@ Sets the fetch size.
     // in the case where the system cursor was one place,
     // we thought we were in a different place, and data
     // for the wrong row was given to the app. 
-    if (rowNumber > 0)
+    if (rowNumber >= 0)  //@rel2 >=
     {
       if(cursor_.isClosed())  //@CU1
       {                    //@max1
@@ -776,7 +776,7 @@ Sets the fetch size.
       // If the row is in the cache, then move the index
       // withing the cache.
       int newIndex = index_ + rowNumber;
-      if ((newIndex >= 0) && (newIndex < cached_))
+      if ((newIndex >= -1) && (newIndex < cached_)) //@rel2 allow for before first row
           index_ = newIndex;
       else if ((newIndex >= 0) && (newIndex == cached_) && (cursor_.isClosed())) //@max1
           index_ = newIndex; //@max1
@@ -805,6 +805,10 @@ Sets the fetch size.
             JDError.throwSQLException (JDError.EXC_INTERNAL);     // @G1a
         }                                                           // @G1a
 
+        if(index_ == -1) //@rel2 (if index_ is positioned before any rows, subtract 1 from rowNumber to account that index_ is not on a current row)
+            rowNumber--; //@rel2
+        if(index_ >= cached_) //@rel3 (if index_ is past the cache_ content, add 1 to rowNumber to account that index_ is not on a current row)
+            rowNumber++;  //@rel3
         boolean endBlock = fetch (DBSQLRequestDS.FETCH_RELATIVE, rowNumber);
         firstBlock_ = false;                                // @E1A
 
