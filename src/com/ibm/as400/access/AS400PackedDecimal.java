@@ -96,11 +96,20 @@ public class AS400PackedDecimal implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_PACKED TYPE_PACKED}.
-     * @return Returns AS400DataType.TYPE_PACKED.
+     * @return <tt>AS400DataType.TYPE_PACKED</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_PACKED;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>BigDecimal.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return BigDecimal.class;
     }
 
     /**

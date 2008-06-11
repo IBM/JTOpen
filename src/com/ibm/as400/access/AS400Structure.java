@@ -128,11 +128,20 @@ public class AS400Structure implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_STRUCTURE TYPE_STRUCTURE}.
-     * @return Returns AS400DataType.TYPE_STRUCTURE.
+     * @return <tt>AS400DataType.TYPE_STRUCTURE</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_STRUCTURE;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>Object[].class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return Object[].class;
     }
 
     /**

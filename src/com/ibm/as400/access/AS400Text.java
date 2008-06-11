@@ -218,11 +218,20 @@ public class AS400Text implements AS400DataType
 
     /**
      Returns {@link com.ibm.as400.access.AS400DataType#TYPE_TEXT TYPE_TEXT}.
-     @return  The value AS400DataType.TYPE_TEXT.
+     @return <tt>AS400DataType.TYPE_TEXT</tt>.
      **/
     public int getInstanceType()
     {
         return AS400DataType.TYPE_TEXT;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>String.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return String.class;
     }
 
     // This method is used in conjunction with the constructor that takes an AS400Impl.  It is used to fully instantiate the member data of this AS400Text object once it has been serialized and received on the client from the proxy server.  We do it this way because we can't create a normal AS400Text object on the proxy server and expect it to be valid on the proxy client because its internal Converter object would not be proxified correctly.

@@ -74,11 +74,20 @@ public class AS400Bin4 implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_BIN4 TYPE_BIN4}.
-     * @return Returns AS400DataType.TYPE_BIN4.
+     * @return <tt>AS400DataType.TYPE_BIN4</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_BIN4;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>Integer.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return Integer.class;
     }
 
     /**

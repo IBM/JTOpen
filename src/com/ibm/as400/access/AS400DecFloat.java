@@ -105,11 +105,20 @@ public class AS400DecFloat implements AS400DataType
 
     /**
      * Returns instance type
-     * @return Returns AS400DataType.TYPE_DECFLOAT.
+     * @return <tt>AS400DataType.TYPE_DECFLOAT</tt>.
      **/
     public int getInstanceType()
     {
         return AS400DataType.TYPE_DECFLOAT;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>BigDecimal.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return BigDecimal.class;
     }
 
     /**

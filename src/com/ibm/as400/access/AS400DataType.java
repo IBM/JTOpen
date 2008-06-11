@@ -128,6 +128,12 @@ public interface AS400DataType extends Cloneable, Serializable
     **/
     public abstract int getInstanceType();
 
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return The corresponding Java class for this data type.
+     **/
+    public abstract Class getJavaType();
+
 
     /**
      * Converts the specified Java object to i5/OS format.

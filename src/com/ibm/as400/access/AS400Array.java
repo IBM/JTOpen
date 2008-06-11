@@ -119,11 +119,20 @@ public class AS400Array implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_ARRAY TYPE_ARRAY}.
-     * @return Returns AS400DataType.TYPE_ARRAY.
+     * @return <tt>AS400DataType.TYPE_ARRAY</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_ARRAY;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>Object[].class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return Object[].class;
     }
 
     /**

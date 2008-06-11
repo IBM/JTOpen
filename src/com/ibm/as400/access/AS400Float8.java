@@ -72,11 +72,20 @@ public class AS400Float8 implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_FLOAT8 TYPE_FLOAT8}.
-     * @return Returns AS400DataType.TYPE_FLOAT8.
+     * @return <tt>AS400DataType.TYPE_FLOAT8</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_FLOAT8;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>Double.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return Double.class;
     }
 
     /**

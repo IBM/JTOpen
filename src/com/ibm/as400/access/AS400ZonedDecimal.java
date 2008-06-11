@@ -94,11 +94,20 @@ public class AS400ZonedDecimal implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_ZONED TYPE_ZONED}.
-     * @return Returns AS400DataType.TYPE_ZONED.
+     * @return <tt>AS400DataType.TYPE_ZONED</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_ZONED;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>BigDecimal.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return BigDecimal.class;
     }
 
     /**

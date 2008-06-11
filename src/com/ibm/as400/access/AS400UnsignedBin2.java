@@ -75,11 +75,20 @@ public class AS400UnsignedBin2 implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_UBIN2 TYPE_UBIN2}.
-     * @return Returns AS400DataType.TYPE_UBIN2.
+     * @return <tt>AS400DataType.TYPE_UBIN2</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_UBIN2;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>Integer.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return Integer.class;
     }
 
     /**

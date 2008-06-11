@@ -74,11 +74,20 @@ public class AS400Float4 implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_FLOAT4 TYPE_FLOAT4}.
-     * @return Returns AS400DataType.TYPE_FLOAT4.
+     * @return <tt>AS400DataType.TYPE_FLOAT4</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_FLOAT4;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>Float.class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return Float.class;
     }
 
     /**

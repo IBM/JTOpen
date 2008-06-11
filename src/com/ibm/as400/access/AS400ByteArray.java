@@ -80,11 +80,20 @@ public class AS400ByteArray implements AS400DataType
 
     /**
      * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_BYTE_ARRAY TYPE_BYTE_ARRAY}.
-     * @return Returns AS400DataType.TYPE_BYTE_ARRAY.
+     * @return <tt>AS400DataType.TYPE_BYTE_ARRAY</tt>.
     **/
     public int getInstanceType()
     {
       return AS400DataType.TYPE_BYTE_ARRAY;
+    }
+
+    /**
+     * Returns the Java class that corresponds with this data type.
+     * @return <tt>byte[].class</tt>.
+     **/
+    public Class getJavaType()
+    {
+      return byte[].class;
     }
 
     /**
