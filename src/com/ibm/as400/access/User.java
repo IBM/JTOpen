@@ -927,6 +927,28 @@ public class User implements Serializable
     }
 
     /**
+    Return an object representing the objects that this user owns.
+    @return  UserObjectsOwnedList object constructed with default selection criteria.
+    **/
+   public UserObjectsOwnedList getObjectsOwned()
+   {
+     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading user information.");
+     if (system_ == null)
+     {
+         Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+         throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+     }
+     if (name_ == null)
+     {
+         Trace.log(Trace.ERROR, "Cannot connect to server before setting name.");
+         throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+     }
+     
+     return (new UserObjectsOwnedList(system_, name_));
+   }
+
+
+    /**
      Retrieves the output queue used by this user.
      @return  The output queue used by this user.  Possible values are:
      <ul>
