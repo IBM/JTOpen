@@ -64,7 +64,8 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       }
 
       // Set the secondary language library on the server.
-      if (!system_.isSkipFurtherSettingOfSecondaryLangLib()) // see if we should try
+      if (system_.isMustAddLanguageLibrary() &&
+          !system_.isSkipFurtherSettingOfLanguageLibrary()) // see if we should try
       {
         // Note: If we were going through the Remote Command Host Server, the host server would set the secondary language library for us.
         // Since we're not using the host server, we need to handle this ourselves.
@@ -78,7 +79,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
           setNlvOnServer(secLibName);
         }
         // Retain result, to avoid repeated lookups for same system object.
-        system_.setSecondaryLangLib(secLibName);
+        system_.setLanguageLibrary(secLibName);
         // Set to non-null, to indicate we already looked-up the value.
       }
 
@@ -89,7 +90,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // If fail to retrieve library name, or name is blank, returns "".
     private String retrieveSecondaryLanguageLibName()
     {
-      String secLibName = system_.getSecondaryLangLib();
+      String secLibName = system_.getLanguageLibrary();
       if (secLibName == null)  // 'null' implies not already looked-up
       {
         String clientNLV = system_.getNLV(); // NLV of client (based on locale)
@@ -170,19 +171,19 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
               // Tolerate this error.  It means that we're good to go.
               // If this is the very native open() for this system_, set flag to indicate that the lib is already in list by default.  This will eliminate clutter in the job log, from subsequent attempts to set it.
-              if (system_.getSecondaryLangLib() == null) { // null implies first native open
-                system_.setSkipFurtherSettingOfSecondaryLangLib(); // don't keep trying on subsequent open's
+              if (system_.getLanguageLibrary() == null) { // null implies first native open
+                system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
               }
             }
             else if (messageList_[0].getID().equals("CPD0032")) // not auth'd to call CHGSYSLIBL
             {
-              system_.setSkipFurtherSettingOfSecondaryLangLib(); // don't keep trying on subsequent open's
+              system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
               Trace.log(Trace.DIAGNOSTIC, "Profile " + system_.getUserId() + " not authorized to use CHGSYSLIBL to add secondary language library " + secondaryLibraryName + " to liblist.");
               // Note: The Remote Command Host Server runs this command under greater authority.
             }
             else if (messageList_[0].getID().equals("CPF2110")) // library not found
             {
-              system_.setSkipFurtherSettingOfSecondaryLangLib();  // don't keep trying on subsequent open's
+              system_.setSkipFurtherSettingOfLanguageLibrary();  // don't keep trying on subsequent open's
               Trace.log(Trace.WARNING, "Secondary language library " + secondaryLibraryName + " was not found.");
             }
             else

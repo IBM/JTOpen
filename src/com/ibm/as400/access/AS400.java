@@ -133,6 +133,8 @@ public class AS400 implements Serializable
     // The static default sign-on handler.
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
+    // Default setting for mustAddLanguageLibrary property.
+    private static boolean defaultMustAddLanguageLibrary_ = false;
     // Default setting for mustUseSockets property.
     private static boolean defaultMustUseSockets_ = false;
     // Default setting for mustUseNetSockets property.
@@ -183,6 +185,22 @@ public class AS400 implements Serializable
             {
               Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", e);
               defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+            }
+          }
+        }
+
+        // Get the "must add language library" property.
+        {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_ADD_LANGUAGE_LIBRARY);
+          if (propVal != null)
+          {
+            try
+            {
+              defaultMustAddLanguageLibrary_ = Boolean.valueOf(propVal).booleanValue();
+            }
+            catch (Exception e)
+            {
+              Trace.log(Trace.WARNING, "Error retrieving mustAddLanguageLibrary property value: ", e);
             }
           }
         }
@@ -298,6 +316,8 @@ public class AS400 implements Serializable
 
     // SSL options, null value indicates SSL is not to be used.  Options set in SecureAS400 subclass.
     SSLOptions useSSLConnection_ = null;
+    // Flag that indicates if we must add the secondary language library to the library list.
+    private boolean mustAddLanguageLibrary_ = defaultMustAddLanguageLibrary_;
     // Flag that indicates if we must use the host servers and no native optimizations.
     private boolean mustUseSockets_ = defaultMustUseSockets_;
     // Flag that indicates if we must use network sockets and not unix domain sockets.
@@ -592,6 +612,7 @@ public class AS400 implements Serializable
         showCheckboxes_ = system.showCheckboxes_;
 
         // useSSLConnection_ is handled by SecureAS400 subclass.
+        mustAddLanguageLibrary_ = system.mustAddLanguageLibrary_;
         mustUseSockets_ = system.mustUseSockets_;
         mustUseNetSockets_ = system.mustUseNetSockets_;
         mustUseSuppliedProfile_ = system.mustUseSuppliedProfile_;
@@ -880,7 +901,7 @@ public class AS400 implements Serializable
         }
         if (!propertiesFrozen_)
         {
-            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_);
+            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
             propertiesFrozen_ = true;
         }
     }
@@ -2984,6 +3005,31 @@ public class AS400 implements Serializable
         }
         locale_ = locale;
         nlv_ = nlv;
+    }
+
+    /**
+     Sets this object to attempt to add the appropriate secondary language library to the library list, when running on the system.  The default is false.  Setting the language library will ensure that any system error messages that are returned, will be returned in the appropriate national language for the client locale.  If the user profile has insufficient authority to call CHGSYSLIBL, an error entry will appear in the job log, and the Toolbox will disregard the error and proceed normally.
+     @param  mustAddLanguageLibrary  true to add language library; false otherwise.
+     **/
+    public void setMustAddLanguageLibrary(boolean mustAddLanguageLibrary)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting must add language library:", mustAddLanguageLibrary_);
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set must add language library after connection has been made.");
+            throw new ExtendedIllegalStateException("mustAddLanguageLibrary", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+        mustAddLanguageLibrary_ = mustAddLanguageLibrary;
+    }
+
+    /**
+     Indicates whether this object will attempt to add the appropriate secondary language library to the library list, when running on the system.
+     @return true if you have indicated that the secondary language library must be added; false otherwise.
+     **/
+    public boolean isMustAddLanguageLibrary()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if must add language library:", mustAddLanguageLibrary_);
+        return mustAddLanguageLibrary_;
     }
 
     /**

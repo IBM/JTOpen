@@ -76,9 +76,9 @@ class AS400ImplRemote implements AS400Impl
     private SocketProperties socketProperties_ = null;
 
     // The name of the secondary language library (if any). Used by RemoteCommandImplNative.
-    private String secondaryLangLib_ = null;
+    private String languageLibrary_ = null;
     // Flag that gets set by RemoteCommandImplNative to indicate that we should refrain from further attempts to set the secondary language library for this AS400Impl.
-    private boolean shouldSkipFurtherSettingOfSecLangLib_ = false;
+    private boolean skipFurtherSettingOfLanguageLibrary_ = false;
     // Flag that gets set by RemoteCommandImplNative to indicate that the V5R4 system is missing PTF SI29629 (product 5722SS1).
     private boolean detectedMissingPTF_ = false;
 
@@ -1227,9 +1227,9 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Get secondary language library name.
-    String getSecondaryLangLib()
+    String getLanguageLibrary()
     {
-        return secondaryLangLib_;
+        return languageLibrary_;
     }
 
     // Get system name.
@@ -1291,10 +1291,16 @@ class AS400ImplRemote implements AS400Impl
         return detectedMissingPTF_;
     }
 
-    // Indicates whether we've discovered that we should skip further attempts to set the secondary language library for this AS400Impl.
-    boolean isSkipFurtherSettingOfSecondaryLangLib()
+    // Indicates whether we are required to add the secondary language library.
+    boolean isMustAddLanguageLibrary()
     {
-        return shouldSkipFurtherSettingOfSecLangLib_;
+        return mustAddLanguageLibrary_;
+    }
+
+    // Indicates whether we've discovered that we should skip further attempts to add the secondary language library for this AS400Impl.
+    boolean isSkipFurtherSettingOfLanguageLibrary()
+    {
+        return skipFurtherSettingOfLanguageLibrary_;
     }
 
     // Check if thread can be used.
@@ -1741,15 +1747,15 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Set secondary language library name.
-    void setSecondaryLangLib(String libName)
+    void setLanguageLibrary(String libName)
     {
-        secondaryLangLib_ = libName;
+        languageLibrary_ = libName;
     }
 
     // Indicates that we've discovered that we should skip further attempts to set the secondary language library for this AS400Impl.
-    void setSkipFurtherSettingOfSecondaryLangLib()
+    void setSkipFurtherSettingOfLanguageLibrary()
     {
-        shouldSkipFurtherSettingOfSecLangLib_ = true;
+        skipFurtherSettingOfLanguageLibrary_ = true;
     }
 
     // Set port for service.
@@ -1764,12 +1770,14 @@ class AS400ImplRemote implements AS400Impl
         PortMapper.setServicePortsToDefault(systemName);
     }
 
+    // Flag that indicates if we must add the secondary language library.
+    private boolean mustAddLanguageLibrary_ = false;
     // Flag that indicates if we must use network sockets and not unix domain sockets.
     private boolean mustUseNetSockets_ = false;
     // Flag that indicates if we must not use the current profile.
     private boolean mustUseSuppliedProfile_ = false;
     // Set the state variables for this implementation object.
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary)
     {
         if (Trace.traceOn_)
         {
@@ -1783,6 +1791,7 @@ class AS400ImplRemote implements AS400Impl
             Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: " + ddmRDB);
             Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets: " + mustUseNetSockets);
             Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile: " + mustUseSuppliedProfile);
+            Trace.log(Trace.DIAGNOSTIC, "  Must add language library: " + mustAddLanguageLibrary);
         }
         useSSLConnection_ = useSSLConnection;
         canUseNativeOptimization_ = canUseNativeOptimization;
@@ -1795,6 +1804,7 @@ class AS400ImplRemote implements AS400Impl
         clientNlv_ = nlv;
         socketProperties_ = socketProperties;
         ddmRDB_ = ddmRDB;
+        mustAddLanguageLibrary_ = mustAddLanguageLibrary;
         mustUseNetSockets_ = mustUseNetSockets;
         mustUseSuppliedProfile_ = mustUseSuppliedProfile;
     }

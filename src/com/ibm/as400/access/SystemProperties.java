@@ -30,6 +30,7 @@ class SystemProperties
     // System property names.
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
     public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
+    public static final String AS400_MUST_ADD_LANGUAGE_LIBRARY = ACCESS_PREFIX + "AS400.mustAddLanguageLibrary";
     public static final String AS400_MUST_USE_SOCKETS = ACCESS_PREFIX + "AS400.mustUseSockets";
     public static final String AS400_MUST_USE_NET_SOCKETS = ACCESS_PREFIX + "AS400.mustUseNetSockets";
     public static final String AS400_MUST_USE_SUPPLIED_PROFILE = ACCESS_PREFIX + "AS400.mustUseSuppliedProfile";
