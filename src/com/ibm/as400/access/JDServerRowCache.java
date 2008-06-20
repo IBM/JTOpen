@@ -32,7 +32,7 @@ implements JDRowCache
   // Private data.
   private int                     blockingFactor_;
   private AS400JDBCConnection     connection_;
-  private boolean                 empty_;
+  private boolean                 empty_; //empty_ is not cache empty but resultset returning 0 rows "empty"; thats why it is only set once
   private boolean                 emptyChecked_;
   private boolean                 firstBlock_;
   private JDServerRow             row_;
@@ -364,7 +364,7 @@ Fetches a block of data from the system.
 
         if (serverData_ == null)
         {
-          endBlock = true;
+          endBlock = true; //@rel4 last block was not returned if null????  //@rel9backtotrue and deal with it after called
           cached_ = 0;
         }
         else
@@ -373,7 +373,7 @@ Fetches a block of data from the system.
           cached_ = serverData_.getRowCount ();
         }
 
-        if (emptyChecked_ == false)
+        if (emptyChecked_ == false) //empty_ is refering to empty resultset, not empty cache_
         {
           emptyChecked_ = true;
           empty_        = (cached_ == 0);
@@ -464,7 +464,9 @@ Sets the fetch size.
   }
 
 
-
+  /**
+  isEmpty is not cache empty but resultset returning 0 rows "empty"; thats why it is only set once
+  */
   public boolean isEmpty ()
   throws SQLException
   {
@@ -618,13 +620,18 @@ Sets the fetch size.
     // @G1 change -- do this only if we attempted to go to the system
     // at least once.  If we just opened the rs, go to the 
     // system to see if there are rows in the rs.  
+    boolean done = false; //@rel4
     if ((emptyChecked_)       &&                                     // @G1c
         (! mustAccessServer)  && 
         (firstBlock_))
+    {                     //@rel4
       index_ = 0;
-
+      done = true;        //@rel4
+    }                     //@rel4
+    
     // Otherwise, change the cursor on the system.
-    else
+    //else  //@rel4
+    if(!done || !isValid())  //@rel4 go to system also if not valid
     {
       fetch (DBSQLRequestDS.FETCH_FIRST);
       firstBlock_ = true;
@@ -699,6 +706,7 @@ Sets the fetch size.
     // Otherwise, fetch data from the system.
     else
     {
+      boolean wasBeforeFirst = (index_== -1) ? true : false;   //@rel4
       int oldCached = cached_;                                     // @G1a
       lastBlock_ = fetch (DBSQLRequestDS.FETCH_NEXT);
       firstBlock_ = false;
@@ -708,11 +716,14 @@ Sets the fetch size.
       // of the first row in the cache.  When we know the position, update our 
       // variable by the number of rows in the cache.  (This works 
       // even when we are getting one row at a time because oldCached will be 1).
+
       if (cursorPositionOfFirstRowInCache_ > 0)                    // @G1a
         cursorPositionOfFirstRowInCache_ =                        // @G1a
                                                                   cursorPositionOfFirstRowInCache_ + oldCached;    // @G1a
-      else                                                         // @G1a
+      else if(wasBeforeFirst)                                     // @G1a //@rel4 (only set to 1 if wasBeforeFirst)
         cursorPositionOfFirstRowInCache_ = 1;                     // @G1a 
+      else                                             //@rel4
+          cursorPositionOfFirstRowInCache_ = NOT_KNOWN;//@rel4
     }
 
     row_.setRowIndex (index_);
@@ -725,7 +736,7 @@ Sets the fetch size.
   {
     // If the previous row is cached, then move the index
     // within the cache.
-    if (index_ >= 1)
+    if (index_ >= 1 && cached_ > 0) //@rel4
       --index_;
 
     // If the first block has not been fetched,
@@ -761,6 +772,9 @@ Sets the fetch size.
     else
       index_ = -1;
 
+    if(index_ == -1 && cached_ == 0)     //@rel4  cache is empty
+        cursorPositionOfFirstRowInCache_ = 0;  //@rel4
+        
     row_.setRowIndex (index_);
   }
 
@@ -769,6 +783,8 @@ Sets the fetch size.
   public void relative (int rowNumber)
   throws SQLException
   {
+    //boolean wasBeforeFirst = (index_==-1) ? true : false;//@rel4
+    //boolean wasAfterLast = (wasBeforeFirst == false && lastBlock_ == true && index_ == cached_) ? true : false;//@rel4
     // If row number is 0, then don't change the cursor.
     if (rowNumber != 0)
     {
@@ -776,7 +792,7 @@ Sets the fetch size.
       // If the row is in the cache, then move the index
       // withing the cache.
       int newIndex = index_ + rowNumber;
-      if ((newIndex >= -1) && (newIndex < cached_)) //@rel2 allow for before first row
+      if ((newIndex >= 0) && (newIndex < cached_)) //@rel2 allow for before first row //@rel4 -1->0
           index_ = newIndex;
       else if ((newIndex >= 0) && (newIndex == cached_) && (cursor_.isClosed())) //@max1
           index_ = newIndex; //@max1
@@ -805,10 +821,10 @@ Sets the fetch size.
             JDError.throwSQLException (JDError.EXC_INTERNAL);     // @G1a
         }                                                           // @G1a
 
-        if(index_ == -1) //@rel2 (if index_ is positioned before any rows, subtract 1 from rowNumber to account that index_ is not on a current row)
+        if(index_ == -1 && cached_ > 0) //@rel2 (if index_ is positioned before any rows, subtract 1 from rowNumber to account that index_ is not on a current row) //@rel4 already set to -1 and added
             rowNumber--; //@rel2
-        if(index_ >= cached_) //@rel3 (if index_ is past the cache_ content, add 1 to rowNumber to account that index_ is not on a current row)
-            rowNumber++;  //@rel3
+        else if(index_ == cached_) //@rel3 (if index_ is past the cache_ content, add 1 to rowNumber to account that index_ is not on a current row) //@rel4
+            rowNumber += index_;  //@rel3 //@rel4 even if after last, cursor on host may not know it and may be off by count in cache_
         boolean endBlock = fetch (DBSQLRequestDS.FETCH_RELATIVE, rowNumber);
         firstBlock_ = false;                                // @E1A
 
@@ -817,10 +833,20 @@ Sets the fetch size.
           index_ = 0;
           // @E1D firstBlock_ = false;
           lastBlock_ = endBlock;
+        }else                //@rel4
+        {                    //@rel4
+            if(rowNumber < 0)//@rel4
+            {                //@rel4
+                index_ = -1; //empty //@rel4
+                cursorPositionOfFirstRowInCache_ = 0; //not aligned
+            }                //@rel4
+            else             //@rel4
+                cursorPositionOfFirstRowInCache_ = NOT_KNOWN;  //@rel4
         }
 
         //if ((rowNumber > 0) && (cursorPositionOfFirstRowInCache_ > 0)) // @G1a
-        if(cursorPositionOfFirstRowInCache_ >0)
+        if(cursorPositionOfFirstRowInCache_ >=0)   //@rel4 if beforefirst also
+        
           cursorPositionOfFirstRowInCache_ =                         // @G1a
                                                                      cursorPositionOfFirstRowInCache_ + rowNumber;           // @G1a
         else                                                           // @G1a
