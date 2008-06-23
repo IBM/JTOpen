@@ -190,13 +190,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
   /**
     Constructs a <code>ProgramCallDocument</code>.
-    The XPCML document resource will be loaded from the classpath and parsed using
+    The PCML or XPCML document resource will be loaded from the classpath and parsed using
     the XML schema definitions provided in the input XSD stream.
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
      All PCML-related file extensions are assumed to be lowercase (for example, <tt>.pcml</tt> or <tt>.pcml.ser</tt>).
     @param loader The ClassLoader that will be used when loading the specified document resource.
-    @param xsdStream An input stream that contains XML schema definitions that extend XPCML
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML.  This parameter can be null.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
     @exception PcmlException when the specified PCML document cannot be found
@@ -215,7 +215,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
   /**
     Constructs a <code>ProgramCallDocument</code>.
-    The XPCML document resource will be read from the specified input stream, and parsed using
+    The PCML or XPCML document resource will be read from the specified input stream, and parsed using
     the XML schema definitions provided in the input XSD stream.
     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
@@ -481,7 +481,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }                                                               // @C5A
 
      /**
-    Returns a <code>Descriptor</code> for the specified xpcml document.
+    Returns a <code>Descriptor</code> for the specified XPCML document.
     The XPCML document resource will be loaded from the classpath.
 
     @param docName The document resource name of the XPCML document for which the Descriptor is returned.
@@ -527,7 +527,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Returns a <code>Descriptor</code> for the specified xpcml document.
+    Returns a <code>Descriptor</code> for the specified XPCML document.
     The XPCML document resource will be loaded from the classpath.
 
     @param docName The document resource name of the PCML document for which the Descriptor is returned.
@@ -1039,10 +1039,10 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }                                                               // @C8A
 
     /**
-    Sets the XPCML document resource.
-    The XPCML document resource will be loaded from the classpath.
+    Sets the PCML or XPCML document resource.
+    The document resource will be loaded from the classpath.
 
-    @param docName The document resource name of the PCML document for the programs to be called.
+    @param docName The document resource name of the PCML or XPCML document for the programs to be called.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML
@@ -1129,12 +1129,14 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Allows for dynamically specifying the program path.
+    Allows for dynamically specifying the program path of the program to be called.
 
     @param program The name of the &lt;program&gt; element in the PCML document.
     @param path A String containing the path to the program object to be run on the system.
     @exception PcmlException
                If an error occurs.
+    @see #setDocument(String)
+    @see #ProgramCallDocument(AS400,String,InputStream,ClassLoader,InputStream,int)
     */
     public void setPath(String program, String path)                    // @D1A
         throws PcmlException                                            // @D1A
@@ -1621,7 +1623,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
              throw new NullPointerException();
            }
 
-           // Transform the pcml document to its equivalent xpcml document
+           // Transform the PCML document to its equivalent XPCML document
            XPCMLHelper.doTransform("pcml_xpcml.xsl",pcmlStream, xpcmlStream); //@CRS
       }
 
