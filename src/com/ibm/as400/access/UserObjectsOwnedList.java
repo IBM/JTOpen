@@ -50,6 +50,7 @@ The list does not include objects the user is solely authorized to because:
 </pre>
 </ul> 
 
+ @see  com.ibm.as400.access.User#getObjectsOwned
 **/
 public class UserObjectsOwnedList
 {
