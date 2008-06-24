@@ -423,7 +423,7 @@ class DDMDataStream extends DataStream
 	    out.write(data_, 0, bytesToWrite);
 	    out.flush();
 	}
-	if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "DDMDataStream.write(): ", data_, 0, bytesToWrite);
+	if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "DDMDataStream.write() (connID="+connectionID_+"):", data_, 0, bytesToWrite);
 
         // Is there data stream remaining to be written?  If so, the rest of the data stream is written as packets.  Packets are similar to regular data streams but lack a full header.  The first two bytes of a packet indicate the length of the data in the packet (doesn't include the two byte packet length indicator).  The high bit of the length controls continuation (on = continued, off = not continued).  The rest of the packet is data.
 	if (data_.length > bytesToWrite)
@@ -447,7 +447,7 @@ class DDMDataStream extends DataStream
 			dos.writeShort((short)0xFFFF);
 			dos.flush();
 		    }
-		    if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "DDMDataStream.write() continuation: ", new byte[] {(byte)0xFF, (byte)0xFF});
+		    if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "DDMDataStream.write() continuation (connID="+connectionID_+"):", new byte[] {(byte)0xFF, (byte)0xFF});
 		}
 		else
 		{
@@ -457,7 +457,7 @@ class DDMDataStream extends DataStream
 			dos.writeShort(packetLength);
 			dos.flush();
 		    }
-		    if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "DDMDataStream.write() packetLength: ", new byte[] {(byte)(packetLength >> 8), (byte)packetLength});
+		    if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "DDMDataStream.write() packetLength (connID="+connectionID_+"):", new byte[] {(byte)(packetLength >> 8), (byte)packetLength});
 		}
 
 	        // Write the data.
@@ -468,7 +468,7 @@ class DDMDataStream extends DataStream
 		}
 		if (Trace.isTraceOn())
 		{
-		    Trace.log(Trace.DATASTREAM, "DDMDataStream.write(): ", data_, i, packetLength - 2);
+		    Trace.log(Trace.DATASTREAM, "DDMDataStream.write() (connID="+connectionID_+"):", data_, i, packetLength - 2);
 		}
 	    }
 	}
