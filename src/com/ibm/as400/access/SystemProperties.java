@@ -158,6 +158,11 @@ class SystemProperties
         {
             propertiesFromClass_ = (Properties)Class.forName(PROPERTIES_CLASS_NAME).newInstance();
         }
+        catch (ClassNotFoundException e)
+        {
+            propertiesClassLoadFailed_ = true;
+            if (Trace.isTraceDiagnosticOn()) Trace.log(Trace.DIAGNOSTIC, "Class not found: " + PROPERTIES_CLASS_NAME);
+        }
         catch (Throwable e)
         {
             // We catch Throwable here because certain browsers (to remain nameless) throw ClassFormatError instead of an exception.
