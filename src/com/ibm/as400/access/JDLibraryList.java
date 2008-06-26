@@ -208,19 +208,22 @@ Constructor.
         //@KBD else if (list_.length > 1)
         //@KBD   defaultSchema_ = list_[1];
           if(list_.length > 0)                   //@KBA
-          {
               defaultSchema_ = list_[0];        //@KBA
-              if(defaultSchema_.length()>10)
-              {
-                  list_[0] = defaultSchema_.substring(0, 10); //@128sch Since library list only supports length <= 10.  
-                                                              //But we want to support default schema of greater than 10 starting post-v6r1 (since zda supports it).
-                                                              //Just substring it (so it will not cause all to fail) since it will not be a valid lib in the library list anyway.
-                  if (JDTrace.isTraceOn()) //jdbc category trace
-                      JDTrace.logInformation (this, "Schema " + defaultSchema_ + " is too long to be in library list without trimming it, but will still be set as default schema");
-              }
-          }
       }
-
+     
+      //if default schema is longer than 10, then it cannot be in the library list
+      //users must use SET PATH
+      if((list_[0].length() > 10) && list_[0].equals(defaultSchema_))//@128sch
+      {                                                              //@128sch
+          String[] tmpList = list_;                                  //@128sch
+          list_ = new String[tmpList.length-1];                      //@128sch
+          if(list_.length > 0)
+          System.arraycopy(tmpList, 0, list_, 1, list_.length);  //@128sch
+         
+          if (JDTrace.isTraceOn())  //@128sch
+              JDTrace.logInformation (this, "Schema " + defaultSchema_ + " is too long to be in library list, but will still be set as default schema"); //@128sch
+      }//@128sch
+      
       // Reverse the order of the 'F' libraries, so that
       // they get added to the library in the right order.
       if (liblPosition > 1)
