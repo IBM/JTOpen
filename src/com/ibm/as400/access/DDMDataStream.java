@@ -112,6 +112,7 @@ class DDMDataStream extends DataStream
 	}
 
 	newDataStream.setSystem(system);
+	newDataStream.setConnectionID(connectionID);
 
 	int packetLength = baseDataStream.getLength();
 	if (packetLength - HEADER_LENGTH > 0)
