@@ -3535,10 +3535,14 @@ public class AS400 implements Serializable
             }
             catch (Throwable e)
             {
-                Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
                 if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ == AS400.GSS_OPTION_MANDATORY)
                 {
+                    Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
                     throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+                }
+                else
+                {  // Tolerate the exception - we don't require GSS.
+                    Trace.log(Trace.DIAGNOSTIC, "GSSToken is not available: " + e.getMessage());
                 }
             }
 
