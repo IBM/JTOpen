@@ -213,12 +213,12 @@ Constructor.
      
       //if default schema is longer than 10, then it cannot be in the library list
       //users must use SET PATH
-      if((list_[0].length() > 10) && list_[0].equals(defaultSchema_))//@128sch
+      if((list_.length > 0 ) && (list_[0].length() > 10) && (list_[0].equals(defaultSchema_)))//@128sch
       {                                                              //@128sch
           String[] tmpList = list_;                                  //@128sch
           list_ = new String[tmpList.length-1];                      //@128sch
           if(list_.length > 0)
-          System.arraycopy(tmpList, 0, list_, 1, list_.length);  //@128sch
+              System.arraycopy(tmpList, 0, list_, 1, list_.length);  //@128sch
          
           if (JDTrace.isTraceOn())  //@128sch
               JDTrace.logInformation (this, "Schema " + defaultSchema_ + " is too long to be in library list, but will still be set as default schema"); //@128sch
@@ -246,6 +246,7 @@ Constructor.
     {
       list_ = new String[0];
     }
+     
   }
 
 
