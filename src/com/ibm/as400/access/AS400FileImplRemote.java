@@ -110,7 +110,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38CLOSE(dclName_), /*server_.*/newCorrelationId());  // @B1M
       // Reply expected: S38MSGRM, severity code 0
-      if (!(replys.size() == 1 && verifyS38MSGRM((DDMReplyDataStream)replys.elementAt(0), null, 0)))
+      if (!(replys.size() == 1 && verifyS38MSGRM((DDMDataStream)replys.elementAt(0), null, 0)))
       {
         handleErrorReply(replys, 0);
       }
@@ -909,7 +909,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       if (replys.size() != 1)
       {
-        if (!verifyS38MSGRM((DDMReplyDataStream)replys.elementAt(1), "CPF5001", 0))
+        if (!verifyS38MSGRM((DDMDataStream)replys.elementAt(1), "CPF5001", 0))
         {
           handleErrorReply(replys, 1);
         }
@@ -1001,7 +1001,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       if (replys.size() != 1)
       {
-        if (!verifyS38MSGRM((DDMReplyDataStream)replys.elementAt(1), "CPF5001", 0))
+        if (!verifyS38MSGRM((DDMDataStream)replys.elementAt(1), "CPF5001", 0))
         {
           handleErrorReply(replys, 1);
         }
@@ -2084,12 +2084,15 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public boolean verifyS38MSGRM(DDMReplyDataStream reply, String msgId, int svrCode)
+  public boolean verifyS38MSGRM(DDMDataStream replyParm, String msgId, int svrCode)
   throws AS400Exception,
   AS400SecurityException,
   InterruptedException,
   IOException
   {
+    try {  
+      DDMReplyDataStream reply = (DDMReplyDataStream) replyParm;
+
     DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
     AS400Message[] msgs = msgReply.getAS400MessageList();
     for (int i = 0; i < msgs.length; ++i)
@@ -2108,6 +2111,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           return true;
         }
       }
+    }
+    }
+    catch (ClassCastException e)
+    {
+      Trace.log(Trace.ERROR, e);
     }
     return false;
   }
