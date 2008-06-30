@@ -2094,6 +2094,10 @@ public class AS400 implements Serializable
                   }
                 }
             }
+            catch (ClassNotFoundException e)
+            {
+                Trace.log(Trace.DIAGNOSTIC, "Class not found: " + e.getMessage());
+            }
             catch (Throwable e)
             {
                 Trace.log(Trace.DIAGNOSTIC, e);
@@ -2106,7 +2110,7 @@ public class AS400 implements Serializable
         }
         catch (ClassNotFoundException e1)
         {
-            Trace.log(Trace.ERROR, "Unexpected ClassNotFoundException:", e1);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Class not found: " + e1.getMessage());
         }
         catch (IllegalAccessException e2)
         {
