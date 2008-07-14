@@ -363,7 +363,7 @@ final class SQLDBClobLocator implements SQLLocator
                 int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
                 if(length < blockSize) blockSize = length;
                 int position = 1;
-                AS400JDBCClobLocator thisClob = (AS400JDBCClobLocator)getClob();
+                AS400JDBCClobLocator thisClob = new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);   //@hloc1 getClob() returns local value since it was just set.  Here we want the locator on the host so we can write to it. 
                 while(position <= length)
                 {
                     String substring = clob.getSubString(position, blockSize);
