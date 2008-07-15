@@ -34,8 +34,8 @@ import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.sun.org.apache.xerces.internal.impl.PropertyManager;
-import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
+import com.sun.xml.internal.fastinfoset.stax.StAXDocumentParser;
+
 
 //@PDA jdbc40 new class
 /**
@@ -65,7 +65,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
     }
 
     /**
-     * Retrieves the XML value designated by this SQLXML instance as a stream of ASCII characters. 
+     * Retrieves the XML value designated by this SQLXML instance as a stream. 
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
@@ -78,7 +78,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
         {
           try
           {
-            return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_), 819); // ISO 8859-1.
+            return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_), 13488); 
           }
           catch (UnsupportedEncodingException e)
           {
@@ -87,25 +87,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
           }
         }
     }
-
-
-    /**
-     * Returns a reader that will produce the events corresponding to the XML returned by the data
-     * @return a <code>javax.xml.stream.XMLStreamReader</code> object containing the XML
-     * @throws SQLException if there is an error accessing the XML value
-     */
-    synchronized XMLStreamReader createXMLStreamReader() throws SQLException
-    {
-        try
-        {
-            return new XMLStreamReaderImpl( getCharacterStream(), new PropertyManager(PropertyManager.CONTEXT_READER));
-        } catch (XMLStreamException e)
-        {
-            JDError.throwSQLException(JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    } 
-    
+   
 
     /**
      * Returns a Source for reading the XML value designated by this SQLXML instance.
@@ -144,7 +126,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
 
             } else if (sourceClass == javax.xml.transform.stax.StAXSource.class)
             {
-                return (T) new StAXSource( this.createXMLStreamReader() );
+            	return (T) new StAXSource( new StAXDocumentParser(this.getBinaryStream()));
             } else if (sourceClass == javax.xml.transform.stream.StreamSource.class)
             {
                 return (T) new StreamSource(this.getBinaryStream());

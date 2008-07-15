@@ -37,12 +37,11 @@ import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.sun.org.apache.xerces.internal.impl.PropertyManager;
-import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
+import com.sun.xml.internal.fastinfoset.stax.StAXDocumentParser;
 
 //@PDA jdbc40 new class
 /**
-<p>The AS400JDBCSQLXML class provides the object interface for usin XML data through JDBC.
+<p>The AS400JDBCSQLXML class provides the object interface for using XML data through JDBC.
 The mapping in the JavaTM programming language for the SQL XML type. 
 XML is a built-in type that stores an XML value as a column value in a row of a database table. 
 The SQLXML interface provides methods for accessing the XML value as a String, a Reader or Writer, or as a Stream. 
@@ -75,23 +74,6 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
         super(data);
     }
 
-
-    /**
-     * Returns a reader that will produce the events corresponding to the XML returned by the data
-     * @return a <code>javax.xml.stream.XMLStreamReader</code> object containing the XML
-     * @throws SQLException if there is an error accessing the XML value
-     */
-    synchronized XMLStreamReader createXMLStreamReader() throws SQLException
-    {
-        try
-        {
-            return new XMLStreamReaderImpl(new CharArrayReader(data_), new PropertyManager(PropertyManager.CONTEXT_READER));
-        } catch (XMLStreamException e)
-        {
-            JDError.throwSQLException(JDError.EXC_INTERNAL, e);
-            return null;
-        }
-    } 
     
     /**
      * Retrieves the XML value designated by this SQLXML instance as a java.io.Reader object.
@@ -169,7 +151,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
     }*/
  
     /**
-     * Retrieves the XML value designated by this SQLXML instance as a stream of ASCII characters. 
+     * Retrieves the XML value designated by this SQLXML instance as a stream. 
      * @return a stream containing the XML data.
      * @throws SQLException if there is an error processing the XML value.
      *   An exception is thrown if the state is not readable.
@@ -180,7 +162,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
     {
         try
         {
-          return new ByteArrayInputStream((new String(data_)).getBytes("ISO8859_1"));
+          return new ByteArrayInputStream((new String(data_)).getBytes("UTF-16"));
         }
         catch (UnsupportedEncodingException e)
         {
@@ -228,7 +210,8 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
 
             } else if (sourceClass == javax.xml.transform.stax.StAXSource.class)
             {
-                return (T) new StAXSource( this.createXMLStreamReader() );
+                //return (T) new StAXSource( this.createXMLStreamReader() );
+                return (T) new StAXSource( new StAXDocumentParser(this.getBinaryStream()));
             } else if (sourceClass == javax.xml.transform.stream.StreamSource.class)
             {
                 return (T) new StreamSource(this.getBinaryStream());
@@ -254,7 +237,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
     {
         try
         {
-          return new AS400JDBCClobOutputStream(this, 1, ConvTable.getTable(819, null)); //ISO 8859-1
+          return new AS400JDBCClobOutputStream(this, 1, ConvTable.getTable(13488, null)); 
         }
         catch (UnsupportedEncodingException e)
         {
