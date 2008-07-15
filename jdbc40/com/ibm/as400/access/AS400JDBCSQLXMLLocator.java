@@ -126,7 +126,8 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
 
             } else if (sourceClass == javax.xml.transform.stax.StAXSource.class)
             {
-            	return (T) new StAXSource( new StAXDocumentParser(this.getBinaryStream()));
+                JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+            	//return (T) new StAXSource( new StAXDocumentParser(this.getBinaryStream())); //this does not compile on sun 1.6 unless rt.jar is in classpath...strange
             } else if (sourceClass == javax.xml.transform.stream.StreamSource.class)
             {
                 return (T) new StreamSource(this.getBinaryStream());
