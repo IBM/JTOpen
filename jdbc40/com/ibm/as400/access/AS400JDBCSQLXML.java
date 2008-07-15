@@ -37,7 +37,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.sun.xml.internal.fastinfoset.stax.StAXDocumentParser;
+//import com.sun.xml.internal.fastinfoset.stax.StAXDocumentParser;
 
 //@PDA jdbc40 new class
 /**
