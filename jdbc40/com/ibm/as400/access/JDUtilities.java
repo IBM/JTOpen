@@ -13,12 +13,13 @@
 
 package com.ibm.as400.access;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.*;                                            // @J1c
 
-import com.sun.corba.se.impl.ior.ByteBuffer;
+
 
 
 
@@ -564,7 +565,7 @@ Reads an input stream and returns its data as a byte array.
         return buffer;
     }
 
-    
+   
 
     //@PDA jdbc40
     /**
@@ -579,35 +580,53 @@ Reads an input stream and returns its data as a byte array.
         static final byte[] streamToBytes (InputStream input)
             throws SQLException
         {
-            //Note:  if this is created outside of the try{ then the stub of ByteBuffer for
-            //building under jdk1.4 does not need to be in the jt400.jar
-            ByteBuffer buffer = new ByteBuffer();
+            //@pda copy code from native since ByteBuffer is not available on ibm java
+        	ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+
             
+            int blocksize = 4096;
+            byte[] buffer = new byte[blocksize];
             try {
-                
-                byte[] rawBytes = new byte[32000];
+        	int length2 = input.read (buffer);             
 
-                int actualLength = 0;
-                while (input.available () > 0) {
-                    int length2 = input.read (rawBytes);
-                    if (length2 < 0)
-                        break;
-                   
-                    for(int i = 0; i < length2; i++)
-                        buffer.append(rawBytes[i]);
-                 
-                    actualLength += length2;
-                }
-
-              
-            }
-            catch (IOException e) {
-                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        	while (length2 >=  0) {
+        	    outBuffer.write(buffer, 0, length2);
+        	    length2 = input.read (buffer);         
+        	}
+            } catch (IOException e) {
+            	JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
             }
 
-            return buffer.toArray();
+            return outBuffer.toByteArray();
         }
 
+ 
+
+
+        //@pda method from native
+        /**
+        Reads an input stream and returns its data as a String.
+
+        @param  input       The input stream.
+        @param  encoding    The encoding.
+        @return             The string.
+
+        @exception SQLException If the length is not valid or the 
+                                conversion is not possible.
+         **/
+        static String streamToString (InputStream input, 
+        		String encoding)
+        throws SQLException
+        {
+        	byte[] rawBytes = streamToBytes(input);
+
+        	try {
+        		return new String (rawBytes, 0, rawBytes.length, encoding);
+        	}  catch (IOException e) {
+        		JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        		return null;
+        	}
+        }
 
 /**
 Reads an input stream and returns its data as a String.
