@@ -63,7 +63,7 @@ implements java.io.Serializable
      * See the documentation of the specific network print classes for the attribute IDs
      * that are valid for each particular class.
      *
-     * @return The value of the attribute.
+     * @return The value of the attribute.  Returns null if the attribute has not been set.
      **/
     public Float getFloatParameter(int attributeID)
     {
@@ -78,7 +78,7 @@ implements java.io.Serializable
      * See the documentation of network print classes for what attribute IDs
      * are valid for each particular class.
      *
-     * @return The value of the attribute.
+     * @return The value of the attribute.  Returns null if the attribute has not been set.
      **/
     public Integer getIntegerParameter(int attributeID)
     {
@@ -92,7 +92,7 @@ implements java.io.Serializable
      * See the documentation of network print classes for what attribute IDs
      * are valid for each particular class.
      *
-     * @return The value of the attribute.
+     * @return The value of the attribute.  Returns null if the attribute has not been set.
      **/
     public String getStringParameter(int attributeID)
     {
