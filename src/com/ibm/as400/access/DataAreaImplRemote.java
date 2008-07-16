@@ -58,6 +58,8 @@ class DataAreaImplRemote implements DataAreaImpl
     private int dataAreaType_ = DataArea.UNINITIALIZED;  // Type of data area object.
     private static final QSYSObjectPathName PROGRAM_NAME = new QSYSObjectPathName("/QSYS.LIB/QWCRDTAA.PGM");
     private static final int RETURNED_DATA_FIXED_HEADER_LENGTH = 36; // length of fixed part of returned data from QWCRDTAA
+    private static final boolean COMMAND_CALL = true;
+    private static final boolean PROGRAM_CALL = false;
 
     // For DecimalDataArea only:
     private int decimalPositions_ = 5;  // The default number of decimal positions.
@@ -661,7 +663,8 @@ class DataAreaImplRemote implements DataAreaImpl
       parmlist[5] = new ProgramParameter(errorCode, 17);
 
       // Run the program.  Failure is returned as a message list.
-      if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+      boolean threadSafety = checkThreadSafetyProperty(false, PROGRAM_CALL);  // QWCRDTAA isn't threadsafe, but check property.
+      if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
       {
         // Throw AS400MessageList
         processExceptions(rmtCmd_.getMessageList());
@@ -677,6 +680,18 @@ class DataAreaImplRemote implements DataAreaImpl
       }
 
       return dataReceived;
+    }
+
+    private static boolean checkThreadSafetyProperty(boolean defaultVal, boolean isCommandCall)
+    {
+      boolean result;
+      String property = null;
+      if (isCommandCall) property = CommandCall.getThreadSafetyProperty();
+      else               property = ProgramCall.getThreadSafetyProperty();
+
+      if (property == null) result = defaultVal;
+      else                  result = property.equalsIgnoreCase("true");
+      return result;
     }
 
     /**
@@ -978,7 +993,8 @@ class DataAreaImplRemote implements DataAreaImpl
             rmtCmd_ = new RemoteCommandImplRemote();
             rmtCmd_.setSystem(system_);
         }
-        result = rmtCmd_.runCommand(command, threadSafe, AS400Message.MESSAGE_OPTION_UP_TO_10);      // @B2C
+        boolean threadSafety = checkThreadSafetyProperty(threadSafe, COMMAND_CALL);
+        result = rmtCmd_.runCommand(command, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);      // @B2C
         messageList_ = rmtCmd_.getMessageList();
 
         return result;
@@ -1184,7 +1200,8 @@ class DataAreaImplRemote implements DataAreaImpl
             Trace.log(Trace.DIAGNOSTIC, "wrtcmd2=["+wrtcmd2+"]"); //@A2A
         }                                                         //@A2A
         // Run the command as bytes
-        boolean result = rmtCmd_.runCommand(wrtcmd, false, AS400Message.MESSAGE_OPTION_UP_TO_10);     //@D2C
+        boolean threadSafety = checkThreadSafetyProperty(false, COMMAND_CALL);  // CHGDTAARA isn't threadsafe, but check property.
+        boolean result = rmtCmd_.runCommand(wrtcmd, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);     //@D2C
         messageList_ = rmtCmd_.getMessageList();                //$D2A
 
         if(!result)                                             //$D2C
@@ -1314,7 +1331,8 @@ class DataAreaImplRemote implements DataAreaImpl
         Trace.log(Trace.DIAGNOSTIC, "wrtcmd=["+wrtcmd+"]");
       }
       // Run the command as bytes
-      boolean result = rmtCmd_.runCommand(wrtcmd, false, AS400Message.MESSAGE_OPTION_UP_TO_10);
+      boolean threadSafety = checkThreadSafetyProperty(false, COMMAND_CALL);  // CHGDTAARA isn't threadsafe, but check property.
+      boolean result = rmtCmd_.runCommand(wrtcmd, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);
       messageList_ = rmtCmd_.getMessageList();
 
       if(!result)
