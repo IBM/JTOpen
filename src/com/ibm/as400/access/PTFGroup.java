@@ -44,32 +44,32 @@ public class PTFGroup
 
 
     /**
-    * Constant indicating the PTF Group status cannong be resolved because a related PTF group
+    * Constant indicating the PTF group status is unknown. The PTF group status cannot be resolved because a related PTF group
     * is either not found on the system or is in error.
     **/
     public static final int PTF_GROUP_STATUS_UNKNOWN = 0;
 
     /**
-    * Constant indicating all PTFs in the PTF group and related PTF groups are for products
+    * Constant indicating the PTF group status is "not applicable". All PTFs in the PTF group and related PTF groups are for products
     * that are not installed or supported on this system.
     **/
     public static final int PTF_GROUP_STATUS_NOT_APPLICABLE = 1;
 
     /**
-    * Constant indicating there are no PTFs in the PTF group or related PTF groups that are for installed
+    * Constant indicating the PTF group status is "supported only". There are no PTFs in the PTF group or related PTF groups that are for installed
     * products on this system.  There is at least one PTF that is for a product, release, option, and load 
     * identifier that is supported on this system.
     **/
     public static final int PTF_GROUP_STATUS_SUPPORTED_ONLY = 2;
 
     /**
-    * Constant indicating there is at least one PTF that is for an installed product on this system, and not
+    * Constant indicating the PTF group is not installed. There is at least one PTF that is for an installed product on this system, and not
     * all the PTFs or their superseding PTFs are temporarily or permanently applied.
     **/
     public static final int PTF_GROUP_STATUS_NOT_INSTALLED = 3;
 
     /**
-    * Constant indicating all PTFs for products that are installed on this system are temporarily or
+    * Constant indicating the PTF group is installed. All PTFs for products that are installed on this system are temporarily or
     * permanently applied.  If a PTF is superseded, a superseding PTF is either temporarily or
     * permanently applied.
     **/
@@ -87,11 +87,25 @@ public class PTFGroup
     **/
     public static final int PTF_GROUP_STATUS_NOT_FOUND = 6;
 
+    /**
+    * Constant indicating the PTF group will be applied at next IPL. All PTFs for the installed products on the system are either set to be applied at the next IPL or are already temporarily or permanently applied.
+    **/
+    public static final int PTF_GROUP_STATUS_APPLY_AT_NEXT_IPL = 7; // added in V6R1
+
+    /**
+    * Constant indicating the PTF group is a related group. The PTF group does not have any PTFs for products installed or supported on the system. However, it is identified in another PTF group as a related PTF group. Deleting a PTF group in this status will cause the other PTF group to have a status of {@link #PTF_GROUP_STATUS_UNKNOWN PTF_GROUP_STATUS_UNKNOWN}.
+    **/
+    public static final int PTF_GROUP_STATUS_RELATED_GROUP = 8; // added in V6R1
+
+    /**
+    * Constant indicating the PTF group is on order. There is at least one PTF in the group that is on order and has not yet been installed on the system. It will be delivered on either physical or virtual media.
+    **/
+    public static final int PTF_GROUP_STATUS_ON_ORDER = 9; // added in V6R1
 
     /**
     * Constructs a PTFGroup object.
     * @param system The AS400 system.
-    * @param ptfGroupName The name of the PTF Group you wish to get details about.
+    * @param ptfGroupName The name of the PTF group you wish to get details about.
     **/
     PTFGroup(AS400 system, String ptfGroupName)
     {
@@ -122,7 +136,7 @@ public class PTFGroup
     }
 
     /**
-     * Returns a list of Related PTF Groups.
+     * Returns a list of related PTF groups.
     **/
     public PTFGroup[] getRelatedPTFGroups()
     throws AS400Exception,
@@ -233,8 +247,8 @@ public class PTFGroup
     }
 
     /**
-    * Returns the PTF Group Level.  
-    * @return the PTF Group level, or 0 if the group level cannot be determined.
+    * Returns the PTF group level.  
+    * @return the PTF group level, or 0 if the group level cannot be determined.
     **/
     public int getPTFGroupLevel()
     throws AS400Exception,
@@ -258,6 +272,9 @@ public class PTFGroup
      * <LI>{@link #PTF_GROUP_STATUS_INSTALLED PTF_GROUP_STATUS_INSTALLED}
      * <LI>{@link #PTF_GROUP_STATUS_ERROR PTF_GROUP_STATUS_ERROR}
      * <LI>{@link #PTF_GROUP_STATUS_NOT_FOUND PTF_GROUP_STATUS_NOT_FOUND}
+     * <LI>{@link #PTF_GROUP_STATUS_APPLY_AT_NEXT_IPL PTF_GROUP_STATUS_APPLY_AT_NEXT_IPL}
+     * <LI>{@link #PTF_GROUP_STATUS_RELATED_GROUP PTF_GROUP_STATUS_RELATED_GROUP}
+     * <LI>{@link #PTF_GROUP_STATUS_ON_ORDER PTF_GROUP_STATUS_ON_ORDER}
      * <UL>
     **/
     public int getPTFGroupStatus()
