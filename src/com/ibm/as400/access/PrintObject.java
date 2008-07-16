@@ -123,7 +123,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY12.6">Between files status</A>. **/
     public static final int ATTR_BTWNFILESTS  = 0x00CF;  // Indicates whether the writer is between files
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY13.5">Changes take effect</A>. **/
-    public static final int ATTR_CHANGES      = 0x00BF;  // Changed take effect
+    public static final int ATTR_CHANGES      = 0x00BF;  // Changes take effect
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY53">Graphic character set</A>. **/
     public static final int ATTR_CHAR_ID      = 0x0037;  // AT_CHARID_CHAR_SET (chrid)
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY13">Characters per inch</A>. **/
