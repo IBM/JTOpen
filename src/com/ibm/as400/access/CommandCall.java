@@ -400,7 +400,7 @@ public class CommandCall implements Serializable
         return getThreadSafetyProperty() != null;
     }
 
-    private static String getThreadSafetyProperty()
+    static String getThreadSafetyProperty()
     {
         return SystemProperties.getProperty(SystemProperties.COMMANDCALL_THREADSAFE);
     }
