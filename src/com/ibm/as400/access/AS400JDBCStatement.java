@@ -2661,8 +2661,9 @@ public class AS400JDBCStatement implements Statement
     guaranteed to be unique unless a unique constraint is created on the table.  
     
     <p>In order for this method to return auto-generated keys, the statement must be executed on 
-    a table with an identity column.  For more information about identity columns, see the Database 
-    topic in the V5R2 Information Center, and select Concepts --> Identity columns.
+    a table with an identity column.  For more information about identity columns, Go to the 
+    IBM i Information Center, and search on the phrase "identity column".
+
     
     <p>This method requires OS/400 V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
     an exception will be thrown. 
