@@ -182,7 +182,7 @@ class PortMapper
                 try {                                             //@timeout
                     Class thisClass = pmSocket.getClass();        //@timeout
                     Method method = thisClass.getMethod("connect", new Class[]{ SocketAddress.class, java.lang.Integer.TYPE}); //@timeout
-                    method.setAccessible(true);                   //@timeout
+                    //method.setAccessible(true);                   //@timeout //@CRS (applet gets exception when calling setAccessible())
                     Object[] args = new Object[2];                //@timeout
                     args[0] = hostAddr;                           //@timeout
                     args[1] = new Integer(timeout);               //@timeout
