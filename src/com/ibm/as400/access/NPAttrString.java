@@ -21,12 +21,7 @@ package com.ibm.as400.access;
 class NPAttrString extends NPAttribute implements Cloneable,
                                                   java.io.Serializable  
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
-
-
 
     private String attrValue_;    // stored string byte value in PC terms
 
@@ -149,7 +144,8 @@ class NPAttrString extends NPAttribute implements Cloneable,
             (getID() != PrintObject.ATTR_RMTSYSTEM)  &&          //@A2C
             (getID() != PrintObject.ATTR_FORMTYPE)   &&          //@A2A
             (getID() != PrintObject.ATTR_USRDEFDATA) &&          //@A2A@A3C
-            (getID() != PrintObject.ATTR_USRDEFOPT)              //@A3C
+            (getID() != PrintObject.ATTR_USRDEFOPT)  &&          //@A3C
+            (getID() != PrintObject.ATTR_DESCRIPTION)
             )
            {
            if (attrValue_.length() != 0)

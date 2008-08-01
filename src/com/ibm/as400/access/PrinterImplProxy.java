@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
+import java.io.IOException;
 
 /**
  * The PrinterImplProxy class implements proxy versions of
@@ -24,12 +25,28 @@ import java.lang.reflect.InvocationTargetException;
  **/
 
 class PrinterImplProxy extends PrintObjectImplProxy
-implements ProxyImpl
+implements ProxyImpl, PrinterImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     PrinterImplProxy()
     {
         super("Printer");
     }
+
+    public void setAttributes(PrintParameterList attributes)
+      throws AS400Exception,
+    AS400SecurityException,
+    ErrorCompletingRequestException,
+    IOException,
+    InterruptedException
+    {
+      try {
+        connection_.callMethod (pxId_, "setAttributes",
+                                new Class[] { PrintParameterList.class },
+                                new Object[] { attributes });
+      }
+      catch (InvocationTargetException e) {
+        throw ProxyClientConnection.rethrow(e);
+      }
+    }
+
 }

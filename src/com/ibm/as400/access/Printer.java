@@ -29,8 +29,6 @@ import java.io.IOException;
 public class Printer extends PrintObject
 implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     private static boolean      fAttrIDsToRtvBuilt_ = false;
@@ -104,6 +102,23 @@ implements java.io.Serializable
     }
 
 
+    // Check the run time state
+    void checkRunTimeState()
+    {
+        // check whatever the base class needs to check
+        super.checkRunTimeState();
+
+        // Printers need to additionally check the printer name.
+        // In this context, getIDCodePoint() returns the printer name. 
+        if( getIDCodePoint() == null )
+        {
+            Trace.log(Trace.ERROR, "Printer name has not been set.");
+            throw new ExtendedIllegalStateException(
+              "name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+    }
+
+
 
     // A4A - Added chooseImpl() method
     /**
@@ -119,8 +134,8 @@ implements java.io.Serializable
                                     ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        impl_ = (PrintObjectImpl) system.loadImpl2("com.ibm.as400.access.PrinterImplRemote",
-                                                   "com.ibm.as400.access.PrinterImplProxy");
+        impl_ = (PrinterImpl) system.loadImpl2("com.ibm.as400.access.PrinterImplRemote",
+                                               "com.ibm.as400.access.PrinterImplProxy");
         super.setImpl();
     }
 
@@ -129,7 +144,7 @@ implements java.io.Serializable
     /**
      * Returns the name of the printer.
      *
-     * @return The name of the printer.
+     * @return The name of the printer.  If name is not set, "" is returned.
      **/
     public String getName()
     {
@@ -140,6 +155,53 @@ implements java.io.Serializable
         } else {
             return IDCodePoint.getStringValue(ATTR_PRINTER);
         }
+    }
+
+
+    /**
+     * Sets one or more attributes of the object.  See
+     * <a href="doc-files/PrinterAttrs.html">Printer Attributes</a> for
+     * a list of valid attributes that can be changed.
+     * <br>Note that only the following attributes can be changed:
+     * <ul>
+     * <li>{@link PrintObject#ATTR_CHANGES ATTR_CHANGES}
+     * <li>{@link PrintObject#ATTR_DRWRSEP ATTR_DRWRSEP}
+     * <li>{@link PrintObject#ATTR_FILESEP ATTR_FILESEP}
+     * <li>{@link PrintObject#ATTR_FORMTYPE ATTR_FORMTYPE}
+     * <li>{@link PrintObject#ATTR_OUTPUT_QUEUE ATTR_OUTPUT_QUEUE}
+     * <li>{@link PrintObject#ATTR_DESCRIPTION ATTR_DESCRIPTION}
+     * </ul>
+     * Any other attributes will be ignored by this method.
+     *
+     * @param attributes A print parameter list that contains the
+     *  attributes to be changed.
+     *
+     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception InterruptedException If this thread is interrupted.
+     **/
+    public void setAttributes(PrintParameterList attributes)
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException
+    {
+        if (attributes == null) {
+	        Trace.log(Trace.ERROR, "Parameter 'attributes' is null.");
+	        throw new NullPointerException("attributes");
+	    }
+
+        checkRunTimeState();
+
+        if (impl_ == null) chooseImpl();
+
+        ((PrinterImpl) impl_).setAttributes(attributes);
+   
+        // propagate any changes to attrs
+        attrs = impl_.getAttrValue();
     }
 
 
