@@ -402,7 +402,7 @@ public class SystemValue implements Serializable
     /**
      Returns the current value of this system value.  Use {@link #getType getType()} to determine the type of the returned object.  For example, some system values are represented as arrays of String.
      @see  #getType
-     @return  The data.
+     @return  The data.  Never returns null.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.

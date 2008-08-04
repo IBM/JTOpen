@@ -64,6 +64,7 @@ class SystemValueUtility
             Object value = null;
 
             switch (obj.serverDataType_)
+            // Valid values are SystemValueList.SERVER_TYPE_BINARY and SERVER_TYPE_CHAR.
             {
                 case SystemValueList.SERVER_TYPE_CHAR:
                     if (obj.type_ == SystemValueList.TYPE_ARRAY)
@@ -95,6 +96,8 @@ class SystemValueUtility
                         value = new Integer(BinaryConverter.byteArrayToInt(data, valueOffset + 16));
                     }
                     break;
+                default:
+                    Trace.log(Trace.WARNING, "Invalid value for SystemValueInfo.serverDataType_: " + obj.serverDataType_);
             }
 
             // Handle special cases.
@@ -162,7 +165,7 @@ class SystemValueUtility
     }
 
     // Retrieves a system value from the system.
-    // @return  A Java object representing the current setting for the system value specified by <i>info</i> on <i>system</i>.
+    // @return  A Java object representing the current setting for the system value specified by <i>info</i> on <i>system</i>.  Never returns null.
     static Object retrieve(AS400 system, SystemValueInfo info) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         Vector infos = new Vector();
@@ -299,6 +302,7 @@ class SystemValueUtility
             try
             {
                 switch (info.type_)
+                // Valid values are TYPE_STRING, TYPE_DECIMAL, TYPE_INTEGER, TYPE_ARRAY, and TYPE_DATE.
                 {
                     case SystemValueList.TYPE_STRING:
                         // Add string to command.
@@ -389,6 +393,10 @@ class SystemValueUtility
 
                         command +="'";
                         break;
+
+                    default:
+                        Trace.log(Trace.ERROR, "Invalid value for SystemValueInfo.type_: " + info.type_);
+                        throw new InternalErrorException(InternalErrorException.UNKNOWN);
                 }
             }
             catch (ClassCastException cce)

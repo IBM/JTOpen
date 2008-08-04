@@ -23,7 +23,8 @@ class SystemValueInfo implements Serializable
     // The name of this system value.
     String name_ = null;
     // The i5/OS data type of this system value.
-    byte serverDataType_ = '\0';
+    // Valid values are SystemValueList.SERVER_TYPE_BINARY and SERVER_TYPE_CHAR.
+    byte serverDataType_ = (byte)'\0';
     // The size in bytes of this system value on the system.
     int size_ = 0;
     // The number of actual data values this system value contains on the system.
@@ -33,6 +34,7 @@ class SystemValueInfo implements Serializable
     // The number of decimal positions if this is a type TYPE_DECIMAL value.
     int decimalPositions_ = -1;
     // The Java data type for this value.
+    // Valid values are SystemValueList.TYPE_ARRAY, TYPE_DATE, TYPE_DECIMAL, TYPE_INTEGER, TYPE_STRING.
     int type_ = -1;
     // The group in which this system value belongs.
     int group_ = -1;
