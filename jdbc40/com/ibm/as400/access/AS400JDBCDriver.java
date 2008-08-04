@@ -931,13 +931,13 @@ implements java.sql.Driver
             info = new Properties();
         String userParm = info.getProperty("user");                               //@pw1
         String passwordParm = info.getProperty("password");                       //@pw1
-        if ("".equals(userParm))                                                  //@pw1
+        if ("".equals(userName) && "".equals(userParm))                                                  //@pw1 //@pw2
         {                                                                         //@pw1
             if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
                 JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
             JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
         }                                                                         //@pw1
-        if ("".equals(passwordParm))                                              //@pw1
+        if ("".equals(password) && "".equals(passwordParm))                                              //@pw1 //@pw2
         {                                                                         //@pw1
             if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
                 JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
