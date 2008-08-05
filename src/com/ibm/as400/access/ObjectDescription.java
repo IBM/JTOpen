@@ -36,6 +36,11 @@ import java.util.*;
 **/
 public class ObjectDescription
 {  
+  private static final String USERSPACE_NAME = "JT4WCLOBJLQTEMP     ";                    // New for QWCLOBJL API
+  private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4WCLOBJL.USRSPC";   // New for QWCLOBJL API
+  private static final String QWCLOBJL_FORMAT_NAME = "OBJL0100";                          // New for QWCLOBJL API
+  private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);   // New for QWCLOBJL API
+
   
   /**
    * Object attribute representing whether the object can be
@@ -1284,8 +1289,9 @@ public class ObjectDescription
       retrieve(attribute);
       o = values_.get(attribute);
     }
-    switch (attribute)
-    {
+    try {
+      switch (attribute)
+      {
       case CREATION_DATE:
       case CHANGE_DATE:
       case SOURCE_FILE_UPDATED_DATE:
@@ -1368,6 +1374,12 @@ public class ObjectDescription
 
       default:
         return o;
+      }
+    }
+    catch (NumberFormatException e)
+    {
+      Trace.log(Trace.ERROR, "NumberFormatException - Invalid number conversion.");
+      throw new InternalErrorException("NumberFormatException - Invalid number conversion.", InternalErrorException.UNKNOWN);
     }
   }
 
@@ -1410,6 +1422,183 @@ public class ObjectDescription
   }
 
 
+  /**
+  Returns a list of all ObjectLockListEntry objects representing possible Object Locks on this ObjectDescription.   
+  <p>This method retrieves the list of locks from the system via a call to the List Object Locks (QWCLOBJL) API.  
+  Note: The QWCLOBJL API is not thread safe and will be called with ProgramCall.setThreadSafe(false)
+  @return An array of ObjectLockListEntry representing any Object Locks. If no locks are found, an empty array is returned.
+ **/
+ public ObjectLockListEntry[] getObjectLockList()
+ throws AS400Exception,
+        AS400SecurityException,
+        ErrorCompletingRequestException,
+        InterruptedException,
+        IOException,
+        ObjectDoesNotExistException
+ {
+   final int systemCCSID = system_.getCcsid();
+   CharConverter conv = new CharConverter(systemCCSID);
+
+   ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 6 : 9];  // Allow optional parameters if ASP device name is set
+
+   parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));       //Qualified user space name
+   parms[1] = new ProgramParameter(conv.stringToByteArray(QWCLOBJL_FORMAT_NAME)); // Format Name
+   StringBuffer objectNameBuff = new StringBuffer("                    ");        // initialize to 20 blanks
+   objectNameBuff.replace(0,  name_.length(),    name_);                          
+   objectNameBuff.replace(10, 10+library_.length(), library_);                    
+   parms[2] = new ProgramParameter(conv.stringToByteArray(objectNameBuff.toString()));   // Qualified Object Name (10-ObjectName 10- Library)
+
+   StringBuffer objTypeBuff = new StringBuffer("*         ");  // initialize to 10 blanks (with preceding asterisk)
+   objTypeBuff.replace(1,  type_.length(), type_);
+   parms[3] = new ProgramParameter(conv.stringToByteArray(objTypeBuff.toString()));   // Object type
+ 
+   parms[4] = new ProgramParameter(conv.stringToByteArray("*NONE     "));   //  Member Name
+   parms[5] = errorCode_;
+
+   if(parms.length == 9) // Add Optional parameters
+   {
+     parms[6] = new ProgramParameter(conv.stringToByteArray(""));        // Optional parm - pathName  (Leave blank, so ignored)
+     parms[7] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // Optional parm - pathNameLength
+     StringBuffer aspDeviceNameBuff = new StringBuffer("          ");    // ASP name - initialize to 10 blanks
+     aspDeviceNameBuff.replace(0,  type_.length(), aspDeviceName_);
+     parms[8] = new ProgramParameter(conv.stringToByteArray(aspDeviceNameBuff.toString()));    // Optional parm - Qualified ASP Name
+   }
+   
+   // QWCLOBJL is the API that is being used to get the list of object locks into a user space. 
+   ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWCLOBJL.PGM", parms);
+   pc.setThreadSafe(false); // The QWCLOBJL API is not documented to be thread-safe, (and it must run in same thread as /QTEMP.LIB/JT4SYLOBJA.USRSPC was created).
+   byte[] buf = null;
+
+   synchronized (USERSPACE_NAME)
+   {
+     // Create a user space in QTEMP to receive output.
+     UserSpace space = new UserSpace(system_, USERSPACE_PATH);
+     try
+     {
+       space.setMustUseProgramCall(true);
+       space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+       space.create(256*1024, true, "", (byte)0, "User space for UserObjectsOwnedList", "*EXCLUDE");
+       // Note: User Spaces by default are auto-extendible (by QUSCRTUS API)
+       //       So it will always have enough space available.
+       //       Allocated 256K bytes as a reasonable initial size (1500+ entries)
+       
+       if (!pc.run()) {
+         throw new AS400Exception(pc.getMessageList());
+       }
+
+       // Get the results from the user space.
+       int size = space.getLength();
+       if (size < 144) // Size of General header info that we are interested in
+       {
+         Trace.log(Trace.ERROR, "User Space size is too small (" + size + ")");
+         throw new InternalErrorException("User Space size is too small.", InternalErrorException.UNKNOWN);
+       }
+       buf = new byte[size];
+       space.read(buf, 0);
+     }
+
+     finally {
+       try { space.close(); }
+       catch (Exception e) {
+         Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+       }
+     }
+   }
+
+   // --------------------------------------------------------------------------------------------
+   // QWCLOBJL (List Object Locks) is a "list" API.  
+   // It puts the list of lock information in a user space.  In addition, to the QWCLOBJL documentation,  
+   // the developer must refer to additional documentation describing the data returned:
+   //  - User spaces: List APIs return data to user spaces.  To provide a consistent design and
+   //    use of user space objects, the list APIs use a general data structure.
+   //  - General data structure & Common data structure format (General header format 0100)
+   //    - This format in info center describes the general header format (referenced in the 
+   //      code below).
+   //  - This information is/was documented in info center under the following:
+   //    - Programming -> API Concepts -> User spaces and receiver variables -> User spaces
+   // --------------------------------------------------------------------------------------------
+   // Parse the list data returned in the user space.
+   int headerOffset   = BinaryConverter.byteArrayToInt(buf, 116);       // General header - Offset to header section      
+   int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);       // General header - Offset to list data section      
+   int numEntries     = BinaryConverter.byteArrayToInt(buf, 132);       // General header - Number of list entries
+   int entrySize      = BinaryConverter.byteArrayToInt(buf, 136);       // General header - Size of each entry  
+   int entryCCSID     = BinaryConverter.byteArrayToInt(buf, 140);       // General header - CCSID of data in the list entries
+   //String subsettedListIndicator = conv.byteArrayToString(buf, 149, 1); // General header - Subsetted list indicator  
+   String informationStatus = conv.byteArrayToString(buf, 103, 1);      // General header - info status
+   // informationStatus - 'C'=Complete, 'I'=Incomplete, 'P'=Partial
+
+   if (entryCCSID == 0) entryCCSID = systemCCSID; // From the API spec: "The coded character set ID for data in the list entries.  If 0, then the data is not associated with a specific CCSID and should be treated as hexadecimal data."
+   conv = new CharConverter(entryCCSID);
+
+   String jobName, jobUserName, jobNumber, lockState, memberName, share, lockScope;
+   int    lockStatus, lockType;
+   long   threadID;
+   
+   // -----------------------------------------------------------------------------------------
+   // Extract fields from the QWCLOBJL Specific Header
+   // -----------------------------------------------------------------------------------------
+   //String userSpaceNameUsed      = conv.byteArrayToString(buf, headerOffset+0,  10).trim(); // QWCLOBJL Specific Header - UserSpaceName
+   //String userSpaceLibaryNameUsed= conv.byteArrayToString(buf, headerOffset+10, 10).trim(); // QWCLOBJL Specific Header - UserSpaceLibraryName
+   
+   if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ObjectDescription.getObjectLockList()  informationStatus='"+informationStatus+"' "+"' numEntries='"+numEntries+"'");
+     
+   ObjectLockListEntry[] entries = new ObjectLockListEntry[numEntries];
+   
+   try { 
+     // Extract the fields from each entry in the list
+     int offset = startingOffset;
+     for (int i=0; i<numEntries; ++i)
+     {
+       // Refer to the QWCLOBJL API documentation of the OBJL0100 format
+       // Extract format OBJL0100 fields
+       offset = startingOffset + (i*entrySize); // offset to start of list entry
+
+       /*    0   0  CHAR(10)   Job name
+     10  0A  CHAR(10)   Job user name
+     20  14  CHAR(6)    Job number
+     26  1A  CHAR(10)   Lock state
+     36  24  BINARY(4)  Lock status
+     40  28  BINARY(4)  Lock type
+     44  2C  CHAR(10)   Member name
+     54  36  CHAR(1)    Share
+     55  37  CHAR(1)    Lock scope
+     56  38  CHAR(8)    Thread identifier
+        */
+       jobName = conv.byteArrayToString(buf, offset, 10).trim();      // Job Name (10)
+       offset += 10;
+       jobUserName = conv.byteArrayToString(buf, offset, 10).trim();  // Job User Name (10)
+       offset += 10;
+       jobNumber = conv.byteArrayToString(buf, offset, 6).trim();     // Job Number (6)
+       offset += 6;
+       lockState = conv.byteArrayToString(buf, offset, 10).trim();    // Lock state (10)
+       offset += 10;
+       lockStatus = BinaryConverter.byteArrayToInt(buf, offset);      //  Lock Status (int)
+       offset += 4;
+       lockType = BinaryConverter.byteArrayToInt(buf, offset);        //  Lock Type (int)
+       offset += 4;
+       memberName = conv.byteArrayToString(buf, offset, 10).trim();   // Member Name (10)
+       offset += 10;
+       share = conv.byteArrayToString(buf, offset, 1).trim();         // Share (1)
+       offset += 1;
+       lockScope = conv.byteArrayToString(buf, offset, 1).trim();     // Lock Scope (1)
+       offset += 1;
+       threadID = BinaryConverter.byteArrayToLong(buf, offset);       // Thread Identifier (8)
+       offset += 8;
+
+       // Construct an ObjectLockListEntry() 
+       entries[i] = new ObjectLockListEntry(jobName, jobUserName, jobNumber, lockState, lockStatus, lockType, memberName, share, lockScope, threadID);
+     }
+   }
+   catch(ArrayIndexOutOfBoundsException e)
+   {
+     Trace.log(Trace.ERROR, "ArrayIndexOutOfBoundsException - Buffer from QWCLOBJL API was too small.", e);
+     throw new InternalErrorException("ArrayIndexOutOfBoundsException - Buffer from QWCLOBJL API was too small.", InternalErrorException.UNKNOWN);
+   }
+
+   return entries;
+ } 
+
+  
   private static final int lookupFormat(int attribute)
   {
     switch (attribute)
