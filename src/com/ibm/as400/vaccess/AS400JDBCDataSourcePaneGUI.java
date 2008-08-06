@@ -13,7 +13,12 @@
 
 package com.ibm.as400.vaccess;
 public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+   // NLS_MESSAGEFORMAT_NONE
+   // Each string is assumed NOT to be processed by the MessageFormat class.
+   // This means that a single quote must be coded as 1 single quote.
+
+   // NLS_ENCODING=UTF-8
+   // Instructs the translation tools to interpret the text as UTF-8.
 
    public Object[][] getContents() { return contents; }
    static final Object[][] contents = {
@@ -122,7 +127,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RC", "Allow select and call statements only (read/call)"},
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RO", "Allow select statements only (read only)"},
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RW", "Allow all SQL statements (read/write)"},
-      {"AJDSP_OTHER.AJDSP_OS400DESC_RADIOBUTTON", "i5/OS object description  "},  //@550
+      {"AJDSP_OTHER.AJDSP_OS400DESC_RADIOBUTTON", "i5/OS object description  "},
       {"AJDSP_OTHER.AJDSP_REMARKSSOURCE_LABEL", "Remarks source:"},
       {"AJDSP_OTHER.AJDSP_SQLDESC_RADIOBUTTON", "SQL object comment  "},
       {"AJDSP_OTHER.EditorBounds", "230,32,968,662"},
