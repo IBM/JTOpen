@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.*;
 
 /**
-Locale-specific objects for the IBM Toolbox for Java.
+Locale-specific objects for IBM Toolbox for Java.
 **/
 //
 //        Implementation note:
@@ -27,11 +27,12 @@ Locale-specific objects for the IBM Toolbox for Java.
 
 public class JDMRI2 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
-
    // NLS_MESSAGEFORMAT_NONE
    // Each string is assumed NOT to be processed by the MessageFormat class.
    // This means that a single quote must be coded as 1 single quote.
+
+   // NLS_ENCODING=UTF-8
+   // Instructs the translation tools to interpret the text as UTF-8.
 
    public Object[][] getContents()
    {

@@ -20,9 +20,12 @@ import java.util.ListResourceBundle;
  **/
 public class SVMRI extends ListResourceBundle
 {
-    // NLS_MESSAGEFORMAT_NONE
-    // Each string is assumed NOT to be processed by the MessageFormat class.
-    // This means that a single quote must be coded as 1 single quote.
+   // NLS_MESSAGEFORMAT_NONE
+   // Each string is assumed NOT to be processed by the MessageFormat class.
+   // This means that a single quote must be coded as 1 single quote.
+
+   // NLS_ENCODING=UTF-8
+   // Instructs the translation tools to interpret the text as UTF-8.
 
     public Object[][] getContents()
     {

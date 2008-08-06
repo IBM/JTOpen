@@ -28,12 +28,14 @@ Locale-specific objects for IBM Toolbox for Java.
 //
 public class CoreMRI extends ListResourceBundle
 {
-
    // NLS_MESSAGEFORMAT_NONE
    // Each string is assumed NOT to be processed by the MessageFormat class.
    // This means that a single quote must be coded as 1 single quote.
 
-      public Object[][] getContents()
+   // NLS_ENCODING=UTF-8
+   // Instructs the translation tools to interpret the text as UTF-8.
+
+   public Object[][] getContents()
    {
        return resources;
    }
