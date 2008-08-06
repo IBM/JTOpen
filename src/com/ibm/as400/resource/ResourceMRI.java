@@ -24,10 +24,12 @@ Locale-specific objects for the IBM Toolbox for Java.
 public class ResourceMRI
 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+   // NLS_MESSAGEFORMAT_NONE
+   // Each string is assumed NOT to be processed by the MessageFormat class.
+   // This means that a single quote must be coded as 1 single quote.
 
-
-
+   // NLS_ENCODING=UTF-8
+   // Instructs the translation tools to interpret the text as UTF-8.
 
     public Object[][] getContents()
     {
@@ -207,7 +209,7 @@ extends ListResourceBundle
         { "JOB_CONTROLLED_END_REQUESTED__NAME",                 "Not Running" },
         { "JOB_CONTROLLED_END_REQUESTED_0_NAME",                "Not Canceled" },
         { "JOB_CONTROLLED_END_REQUESTED_1_NAME",                "Canceled" },
-        { "JOB_COUNTRY_ID_NAME",                                "Country or Region ID" },  // @D4C
+        { "JOB_COUNTRY_ID_NAME",                                "Country or Region ID" },   // @D4C
         { "JOB_COUNTRY_ID_SYSVAL_NAME",                         "System Value" },
         { "JOB_COUNTRY_ID_USRPRF_NAME",                         "User Profile" },
         { "JOB_CPU_TIME_USED_NAME",                             "CPU Time Used" },

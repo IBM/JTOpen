@@ -17,12 +17,13 @@ import java.util.ListResourceBundle;
 
 public class DAMRI extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     // NLS_MESSAGEFORMAT_ALL
     // Each string is assumed to be processed by the MessageFormat class.
     // This means that a single quote must be coded as 2 consecutive single quotes ''. 
 
-    
+    // NLS_ENCODING=UTF-8
+    // Instructs the translation tools to interpret the text as UTF-8.
+
     // Define constants so compiler can catch invalid keys
     public final static String    PCML_EXCEPTION_TITLE      = "PCML_EXCEPTION_TITLE";
     public final static String    MISSING_KEY               = "MISSING_KEY";
@@ -173,7 +174,7 @@ public class DAMRI extends ListResourceBundle
 	{ DATATYPE_NOT_SUPPORTED,      "Data type {0} is not supported by RFML." }, // @C2A
 	{ MULTI_ARRAY_NOT_SUPPORTED,   "Multidimensional AS400Array is not supported by RFML." }, // @C2A
 	{ NO_STRUCT,                   "The struct= attribute is required when type=''struct''.  Processing {1} element \"{2}\"." }, // @C2A @D1C
-	{ NO_LENGTH,                   "The length= attribute is required when the type= attribute has a value other than 'struct'.  Processing {1} element \"{2}\"." }, // @C2A
+	{ NO_LENGTH,                   "The length= attribute is required when the type= attribute has a value other than ''struct''.  Processing {1} element \"{2}\"." }, // @C2A @D1C
 	{ INSUFFICIENT_INPUT_DATA,     "Insufficient input data available for this document element. Bytes required: {0}\tBytes provided: {1}\tProcessing {2} element \"{3}\"." }, // @C2A
 	{ EXCESS_INPUT_DATA,           "Excess input data was provided for this document element. Bytes required: {0}\tBytes provided: {1}\tProcessing {2} element \"{3}\"." }, // @C2A
 	{ RECORD_NOT_INITIALIZED,      "The Record object is not initialized." }, // @C2A

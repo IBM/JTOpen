@@ -19,7 +19,13 @@ import java.util.*;
  **/
 public class SecurityMRI extends ListResourceBundle
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+     // NLS_MESSAGEFORMAT_NONE
+     // Each string is assumed NOT to be processed by the MessageFormat class.
+     // This means that a single quote must be coded as 1 single quote.
+
+     // NLS_ENCODING=UTF-8
+     // Instructs the translation tools to interpret the text as UTF-8.
+
      // Note: It is a build/translation requirement that this NOT refer
      // to the Copyright class. The requirement is that the MRI
      // builds do not depend on the code builds.)
