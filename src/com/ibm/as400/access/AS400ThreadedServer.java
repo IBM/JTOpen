@@ -183,8 +183,8 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
         socket_ = socket;
         connectionID_ = socket_.hashCode();
-        inStream_  = socket.getInputStream();
-        outStream_ = socket.getOutputStream();
+        inStream_  = socket_.getInputStream();
+        outStream_ = socket_.getOutputStream();
 
         replyStreams_ = AS400Server.replyStreamsHashTables[service];
 
@@ -369,6 +369,18 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                     receiveLock_.notifyAll();
                 }
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): Threads notified after RuntimeException.");
+            }
+            finally
+            {
+              // Since we've fallen out of the while loop, we can reasonably assume that the socket is broken (based on the loop condition).
+              // Ensure the socket doesn't get left open.
+              if (!isConnected())  // Check it this way, in case we change the meaning of isConnected() in the future.
+              {
+                try { socket_.close(); }
+                catch (Throwable t) {
+                  Trace.log(Trace.ERROR, "Socket close failed:", t);
+                }
+              }
             }
         }
     }
