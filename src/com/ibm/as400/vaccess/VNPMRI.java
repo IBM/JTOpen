@@ -29,6 +29,7 @@ public class VNPMRI extends ListResourceBundle
    // Instructs the translation tools to interpret the text as UTF-8.
 
    public Object[][] getContents()
+   {
        return resources;
    }
 
