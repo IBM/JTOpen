@@ -17,7 +17,7 @@ package com.ibm.as400.access;
 /**
  This entry represents a single IBM i lock placed on an ObjectDescription. 
  <p>Each entry corresponds to an entry from the List Object Locks (QWCLOBJL) API.<br>  
- Instances of this class are created by the {@link ObjectDescription#getLockList() ObjectDescription.getLockList()} method.
+ Instances of this class are created by the {@link ObjectDescription#getObjectLockList() ObjectDescription.getObjectLockList()} method.
 **/
 
 public class ObjectLockListEntry
