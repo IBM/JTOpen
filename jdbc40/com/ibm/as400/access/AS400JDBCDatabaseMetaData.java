@@ -102,9 +102,6 @@ implements DatabaseMetaData
   private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
 
-    static final int    JDBC_MAJOR_VERSION          = 4;        // @G4A //@pdc
-    static final int    JDBC_MINOR_VERSION          = 0;        // @G4A
-
     //New constants for JDBC 3.0.
     public static final int sqlStateXOpen = 1;
     public static final int sqlStateSQL99 = 2;
@@ -2691,7 +2688,7 @@ implements DatabaseMetaData
     public int getJDBCMajorVersion ()
     throws SQLException
     {
-        return JDBC_MAJOR_VERSION;
+        return AS400JDBCDriver.JDBC_MAJOR_VERSION_;  //@pdc
     }
 
 
@@ -2708,7 +2705,7 @@ implements DatabaseMetaData
     public int getJDBCMinorVersion ()
     throws SQLException
     {
-        return JDBC_MINOR_VERSION;
+        return AS400JDBCDriver.JDBC_MINOR_VERSION_; //@pdc
     }
 
 
