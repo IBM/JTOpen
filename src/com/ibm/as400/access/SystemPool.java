@@ -48,7 +48,6 @@ public class SystemPool
 {
   private static final boolean DEBUG = false;
 
-
      /**
       * Indicates that the system should calculate
       * a system pool attribute.
@@ -68,26 +67,24 @@ public class SystemPool
      private static final Integer NO_CHANGE = new Integer(-1);
      private static final String DEFAULT = "*DFT";
 
-     // Private variable representing the system.
      private AS400 system_;
 
-     // Private variable representing the pool's name.  In the case of a private (subsystem) pool, this field will contain a number from 1-10.
+     // The pool's name.  In the case of a subsystem (non-shared) pool, this field will contain a number from 1-10.
      private String poolName_;
 
-     // Private variable representing the system pool identifier.  The number is assigned by the system, and is unique across system at any given moment.  Shared system pools that are not in use by a subsystem, will not have a system pool identifier assigned.
+     // The system pool identifier.  The number is assigned by the system, and is unique across the system at any given moment.  Shared system pools that are not in use by a subsystem, will not have a system pool identifier assigned; in which case this variable will be null.  Otherwise, this variable will contain a number from 1-64.
      private Integer poolIdentifier_;
 
-     private boolean isSharedPool_; // true if it's a shared system pool; false if private to a subsystem
+     private boolean indicatedSharedPool_; // true if caller indicated it's a shared system pool; false otherwise
 
-     // Attributes that are meaningful only if the pool is a subsystem pool.
+     // Attributes that are meaningful only if the pool is a subsystem (non-shared) pool.
      private String subsystemLibrary_;
      private String subsystemName_;
-     private int poolSequenceNumber_;  // pool ID (sequence number) of private pool (1-10)
+     private int poolSequenceNumber_;  // subsystem pool sequence number (within the subsystem) (1-10)
 
      private transient boolean connected_;
-     private boolean cacheChanges_;
+     private boolean cacheChanges_ = false;
 
-     // Private variables representing event support.
      private transient PropertyChangeSupport changes_;
      private transient VetoableChangeSupport vetos_;
 
@@ -110,10 +107,11 @@ public class SystemPool
      }
 
      /**
-      * Constructs a SystemPool object, to represent a shared system pool.
+      * Constructs a SystemPool object, to represent a <i>shared</i> system pool.
       *
       * @param system The system.
       * @param poolName The name of the shared system pool.
+      * Valid values are *MACHINE, *BASE, *INTERACT, *SPOOL, and *SHRPOOL1-60.
       **/
      public SystemPool(AS400 system, String poolName)
      {
@@ -121,21 +119,23 @@ public class SystemPool
             throw new NullPointerException ("system");
          if (poolName == null)
             throw new NullPointerException ("poolName");
+         if (Trace.isTraceOn() && !isValidNameForSharedPool(poolName)) {
+           Trace.log(Trace.WARNING, "Invalid name for shared pool: " + poolName);
+         }
 
          system_ = system;
-         poolName_ = poolName;
-         isSharedPool_ = true;
+         poolName_ = poolName.trim();
+         indicatedSharedPool_ = true;
      }
-     
+
      /**
-      * Constructs a SystemPool object, to represent a subsystem (private) pool.
+      * Constructs a SystemPool object, to represent a <i>subsystem (non-shared)</i> pool.
       *
       * @param subsystem The subsystem that "owns" the pool.
-      * @param sequenceNumber The ID number of the pool (a value from 1 to 10).
-      * @param size The size of the system pool, in kilobytes.
-      * @param activityLevel The activity level of the pool.
+      * @param sequenceNumber The pool's sequence number within the subsystem.
+      * Valid values are 1 through 10.
       **/
-     public SystemPool(Subsystem subsystem, int sequenceNumber, int size, int activityLevel)
+     public SystemPool(Subsystem subsystem, int sequenceNumber)
      {
        if (subsystem == null) throw new NullPointerException ("subsystem");
 
@@ -143,8 +143,22 @@ public class SystemPool
        poolName_ = Integer.toString(sequenceNumber);
        subsystemLibrary_ = subsystem.getLibrary();
        subsystemName_ = subsystem.getName();
-       poolSequenceNumber_ = sequenceNumber;  // pool ID within the subsystem (1-10)
-       isSharedPool_ = false;  // not a (shared) system pool
+       poolSequenceNumber_ = sequenceNumber;  // pool sequence number within the subsystem (1-10)
+       indicatedSharedPool_ = false;  // not a shared system pool
+     }
+
+     /**
+      * Constructs a SystemPool object, to represent a <i>subsystem (non-shared)</i> pool.
+      *
+      * @param subsystem The subsystem that "owns" the pool.
+      * @param sequenceNumber The pool's sequence number within the subsystem.
+      * Valid values are 1 through 10.
+      * @param size The size of the system pool, in kilobytes.
+      * @param activityLevel The activity level of the pool.
+      **/
+     public SystemPool(Subsystem subsystem, int sequenceNumber, int size, int activityLevel)
+     {
+       this(subsystem, sequenceNumber);
 
        cacheChanges_ = true; // don't send values to the system yet
        try {
@@ -169,11 +183,14 @@ public class SystemPool
      }
 
      /**
-      * Constructs a SystemPool object, to represent a shared system pool.
+      * Constructs a SystemPool object, to represent a <i>shared</i> system pool.
       *
       * @param system The system.
       * @param poolName The name of the shared system pool.
-      * @param poolIdentifier The system-related pool identifier.
+      * Valid values are *MACHINE, *BASE, *INTERACT, *SPOOL, and *SHRPOOL1-60.
+      * @param poolIdentifier The system pool identifier.
+      * Valid values are 1 through 64.
+      * @deprecated Use {@link #SystemPool(AS400,int) SystemPool(system, poolIdentifier)} instead.
       **/
      public SystemPool(AS400 system, String poolName, int poolIdentifier)
      {
@@ -185,8 +202,31 @@ public class SystemPool
          system_ = system;
          poolName_ = poolName;
          poolIdentifier_ = new Integer(poolIdentifier);
-         isSharedPool_ = true;
+         indicatedSharedPool_ = true;
+
+         if (Trace.isTraceOn() && !isValidNameForSharedPool(poolName)) {
+           Trace.log(Trace.WARNING, "Invalid name for shared pool: " + poolName);
+         }
      }
+
+     /**
+      * Constructs a SystemPool object, to represent a pool identified
+      * by its unique system pool identifier.
+      * Either a <i>shared</i> pool or a <i>non-shared</i> pool can be specified.
+      *
+      * @param system The system.
+      * @param poolIdentifier The system pool identifier.
+      * Valid values are 1 through 64.
+      **/
+     public SystemPool(AS400 system, int poolIdentifier)
+     {
+         if (system == null)
+            throw new NullPointerException ("system");
+
+         system_ = system;
+         poolIdentifier_ = new Integer(poolIdentifier);
+     }
+
 
      /**
       * Adds a listener to be notified when the value of any bound property
@@ -273,28 +313,27 @@ public class SystemPool
 
       if (!connected_) connect();
 
-      int poolIdentifier;
-      boolean gotPoolIdentifier = false;
+      int poolIdentifier = 0;
       try {
         poolIdentifier = getIdentifier();
-        gotPoolIdentifier = true;
       }
       catch (ObjectDoesNotExistException e) {
-        // This probably indicates that it's a shared pool that's not currently in use by any subsystem.
-        if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn()) {
+        // This may indicate that it's a shared pool that's not currently in use by any subsystem.
+        poolIdentifier = 0;
+        if (Trace.isTraceOn()) {
           Trace.log(Trace.DIAGNOSTIC, "No pool identifier is assigned to pool.", e);
         }
       }
 
-      String messageLogging_pending = null;  // We might need to leave this change uncommitted, if we end up calling CHGSHRPOOL.
+      String messageLogging_pending = null;  // We might need to leave the change uncommitted, if we end up calling CHGSHRPOOL.
 
-      // Note: "Shared" pools that are not currently in use by any subsystem, do _not_ have a system pool identifier assigned, and therefore are beyond the reach of QUSCHGPA.
+      // Note: "Shared" pools that are not currently in use by any subsystem, do not have a system pool identifier assigned, and therefore are beyond the reach of QUSCHGPA.
       // QUSCHGPA works only on active pools that have been allocated by system pood ID.
       // To modify such pools, we must use CHGSHRPOOL.
 
-      if (isSharedPool_ || !gotPoolIdentifier)
-      { // We need to use the CL command, since the QUSCHGPA API requires a (unique) pool ID.
-
+      if (poolIdentifier == 0)
+      {
+        // We need to use CHGSHRPOOL, since QUSCHGPA requires a unique system pool identifier.
         StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+poolName_+")");
         Object obj;  // attribute value
 
@@ -307,7 +346,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_INTEGER)) { // this constant has been deprecated
             obj = "*SAME";
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting activityLevel to SAME.");
             }
           }
@@ -323,7 +362,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_INTEGER)) {
             obj = DEFAULT;
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting priority to DEFAULT.");
             }
           }
@@ -334,7 +373,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_FLOAT)) { // this constant has been deprecated
             obj = DEFAULT;
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting minimumPoolSize to DEFAULT.");
             }
           }
@@ -345,7 +384,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_FLOAT)) {
             obj = DEFAULT;
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting maximumPoolSize to DEFAULT.");
             }
           }
@@ -356,7 +395,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_FLOAT)) {
             obj = DEFAULT;
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting minimumFaults to DEFAULT.");
             }
           }
@@ -367,7 +406,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_FLOAT)) {
             obj = DEFAULT;
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting perThreadFaults to DEFAULT.");
             }
           }
@@ -378,7 +417,7 @@ public class SystemPool
         if (obj != null) {
           if (obj.equals(CALCULATE_FLOAT)) {
             obj = DEFAULT;
-            if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+            if (Trace.isTraceOn()) {
               Trace.log(Trace.WARNING, "Setting maximumFaults to DEFAULT.");
             }
           }
@@ -400,7 +439,7 @@ public class SystemPool
         // Future enhancement: The CL command also has a TEXT() parameter, which can be specified to change the pool's text description.
       }
 
-      else // The pool identifier is known, so we can use the API.
+      else // The pool identifier is known, therefore we can use the QUSCHGPA API.
       {
         QSYSObjectPathName prgName = new QSYSObjectPathName("QSYS","QUSCHGPA","PGM");
         AS400Bin4 bin4 = new AS400Bin4();
@@ -474,14 +513,14 @@ public class SystemPool
         }
         catch(PropertyVetoException pve) {} // Quiet the compiler
 
-        if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+        if (Trace.isTraceOn())
         {
           Trace.log(Trace.DIAGNOSTIC, "Setting system pool information.");
         }
         if (pgm.run() != true)
         {
           AS400Message[] msgList = pgm.getMessageList();
-          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+          if (Trace.isTraceOn())
           {
             Trace.log(Trace.ERROR, "Error setting system pool information:");
             for (int i=0; i<msgList.length; ++i)
@@ -537,7 +576,7 @@ public class SystemPool
 
   /**
    Determines whether this SystemPool object is equal to another object.
-   @return <tt>true</tt> if the two instances are equal
+   @return <tt>true</tt> if the two instances are equal.
    **/
   public boolean equals(Object obj)
   {
@@ -555,11 +594,24 @@ public class SystemPool
       }
       else if (!poolName_.equals(other.getName())) return false;
 
-      if (!isSharedPool_) {  // it's a subsystem pool
-        if (!subsystemLibrary_.equals(other.getSubsystemLibrary())) return false;
-        if (!subsystemName_.equals(other.getSubsystemName())) return false;
+      if (subsystemLibrary_ == null) {
+        if (other.getSubsystemLibrary() != null) return false;
       }
-      else if (other.isShared()) return false;
+      else if (!subsystemLibrary_.equals(other.getSubsystemLibrary())) return false;
+
+      if (subsystemName_ == null) {
+        if (other.getSubsystemName() != null) return false;
+      }
+      else if (!subsystemName_.equals(other.getSubsystemName())) return false;
+
+      // If both objects have non-zero identifiers, they must match.
+      if (poolIdentifier_ != null &&
+          poolIdentifier_.intValue() != 0 &&
+          other.getIdentifier() != 0)
+      {
+        if (poolIdentifier_.intValue() != other.getIdentifier()) return false;
+      }
+
       return true;
     }
     catch (Throwable e) {
@@ -720,13 +772,13 @@ public class SystemPool
       **/
      public String getDescription()
      {
-         if(poolName_.trim().equals("*MACHINE"))
+         if(poolName_.equals("*MACHINE"))
             return ResourceBundleLoader.getText("SYSTEM_POOL_MACHINE");
-         else if(poolName_.trim().equals("*BASE"))
+         else if(poolName_.equals("*BASE"))
             return ResourceBundleLoader.getText("SYSTEM_POOL_BASE");
-         else if(poolName_.trim().equals("*INTERACT"))
+         else if(poolName_.equals("*INTERACT"))
             return ResourceBundleLoader.getText("SYSTEM_POOL_INTERACT");
-         else if(poolName_.trim().equals("*SPOOL"))
+         else if(poolName_.equals("*SPOOL"))
             return ResourceBundleLoader.getText("SYSTEM_POOL_SPOOL");
          else
             return ResourceBundleLoader.getText("SYSTEM_POOL_OTHER");
@@ -881,9 +933,9 @@ public class SystemPool
      }
 
      /**
-      * Returns the pool identifier.
+      * Returns the system pool identifier.
       *
-      * @return The pool identifier.
+      * @return The system pool identifier.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
       * @exception ErrorCompletingRequestException If an error occurs before
@@ -908,9 +960,12 @@ public class SystemPool
      }
 
      /**
-      * Returns the pool identifier.
+      * Returns the system pool identifier.
+      * The system assigns a unique identifier (from 1 through 64) to each
+      * system storage pool that currently has main storage allocated.
+      * If the pool is inactive, 0 is returned.
       *
-      * @return The pool identifier.
+      * @return The system pool identifier.  0 indicates that the pool is inactive.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
       * @exception ErrorCompletingRequestException If an error occurs before
@@ -940,13 +995,13 @@ public class SystemPool
            }
          }
        }
-       return poolIdentifier_.intValue();
+       return (poolIdentifier_ == null ? 0 : poolIdentifier_.intValue());
      }
 
      /**
       * Returns the name of this storage pool.  The name may be a number, in
-      * which case it is a private pool associated with a subsystem.
-      * The following special values may be returned:
+      * which case it is a non-shared pool associated with a subsystem.
+      * The following special values may be returned, in the case of shared pools:
       *<p>
       *<li> *MACHINE  The specified pool definition is defined to be the
       *   machine pool.
@@ -971,8 +1026,8 @@ public class SystemPool
 
      /**
       * Returns the name of this storage pool.  The name may be a number, in
-      * which case it is a private pool associated with a subsystem.
-      * The following special values may be returned:
+      * which case it is a non-shared pool associated with a subsystem.
+      * The following special values may be returned, in the case of shared pools:
       *<p>
       *<li> *MACHINE  The specified pool definition is defined to be the
       *   machine pool.
@@ -1185,18 +1240,21 @@ public class SystemPool
 
 
     /**
-     * Indicates whether the pool is a shared system pool, as opposed to a subsystem (private) pool.
-     * @return true if it's a shared system pool, false if it's a subsystem pool.
+     * Indicates whether the pool is a shared system pool.
+     * <br>Note: In some cases, this method may incorrectly report <tt>false</tt> for a shared pool; for example, if the object was constructed using {@link #SystemPool(AS400, int) SystemPool(system, poolIdentifier)}, and the pool name is not *MACHINE, *BASE, *INTERACT, *SPOOL, or *SHRPOOL1-60.
+     * @return true if it's a shared system pool, false otherwise.
     **/
     public boolean isShared()
     {
-      return isSharedPool_;
+      return (indicatedSharedPool_ || isValidNameForSharedPool(poolName_)) &&
+        (subsystemLibrary_ == null && subsystemName_ == null &&
+         poolSequenceNumber_ == 0);
     }
 
 
      /**
       * Loads the system pool information.  The system and the system pool
-      * name should be set before this method is invoked.
+      * name or identifier should be set before this method is invoked.
       *
       * Note: This method is equivalent to the refreshCache() method.
       *
@@ -1281,11 +1339,11 @@ public class SystemPool
     AS400Bin4 bin4 = new AS400Bin4();
     AS400Text text;
 
-    // Note: If we have a pool identifier, or if the pool is a "shared" pool, we can use the 7-parameter call.
+    // Note: If we have a pool identifier, or if the pool is identified as a "shared" pool, we can use the 7-parameter call.
     // Otherwise we must use the 5-parameter call.
 
     int numParms;
-    if (isSharedPool_ || poolIdentifier_ != null) {
+    if (indicatedSharedPool_ || poolIdentifier_ != null) {
       numParms = 7;
       if (systemStatusFormat_ == null) systemStatusFormat_ = new SSTS0400Format(system_);
       if (poolFormat_ == null) poolFormat_ = new PoolInformationFormat0400(system_);
@@ -1327,18 +1385,23 @@ public class SystemPool
     {
       // Optional parameters:
 
-      // Pool selection information
+      // Pool selection information.
       // 3 subfields:
       // typeOfPool (CHAR10) - Possible values are:  *SHARED, *SYSTEM.
       // sharedPoolName (CHAR10) - Possible values are:  *ALL, *MACHINE, *BASE, *INTERACT, *SPOOL, *SHRPOOL1-60.  If type of pool is *SYSTEM, then this field must be blank.
       // systemPoolIdentifier (BIN4) - If typeOfPool is *SHARED, must be zero.  Otherwise: -1 for "all active pools"; 1-64 to specify an active pool.  If the pool is not active, CPF186B is sent.
-      String typeOfPool = (isSharedPool_ ? "*SHARED   " : "*SYSTEM   ");
-      StringBuffer sharedPoolName = new StringBuffer(isSharedPool_ ? poolName_ : "");
+
+      // Note: The typeOfPool field simply indicates _how_ we are subsequently identifying the pool: Either by shared-pool name, or by system pool identifier.
+      String typeOfPool = (indicatedSharedPool_ ? "*SHARED   " : "*SYSTEM   ");
+
+      StringBuffer sharedPoolName = new StringBuffer(indicatedSharedPool_ ? poolName_ : "");
       if (sharedPoolName.length() < 10) {
         int numPadBytes = 10 - sharedPoolName.length();
-        sharedPoolName.append(new String("          ").substring(10-numPadBytes));  // pad to 10 chars
+        sharedPoolName.append(new String("          ").substring(10-numPadBytes));  // pad field to a length of 10 chars
       }
-      int systemPoolIdentifier = ((isSharedPool_ || poolIdentifier_==null)? 0 : poolIdentifier_.intValue());
+
+      int systemPoolIdentifier = (indicatedSharedPool_ ? 0 : poolIdentifier_.intValue());
+
       byte[] poolType = text.toBytes(typeOfPool);
       byte[] poolNam  = text.toBytes(sharedPoolName.toString());
       byte[] poolId = BinaryConverter.intToByteArray(systemPoolIdentifier);
@@ -1359,7 +1422,12 @@ public class SystemPool
   }
 
 
-  private static final boolean isValidSharedPoolName(String name)
+    /**
+     * Indicates whether the pool name is a valid name for a shared system pool.
+     * <br>Note: In some cases, this method may incorrectly report <tt>false</tt> for a name that actually specifies a shared pool; for example, for a shared pool with a non-standard name.
+     * @return true if poolName is *MACHINE, *BASE, *INTERACT, *SPOOL, or *SHRPOOLxx; false otherwise.
+    **/
+  public static final boolean isValidNameForSharedPool(String name)
   {
     if (name.equals("*ALL") ||
         name.equals("*MACHINE") ||
@@ -1370,6 +1438,7 @@ public class SystemPool
       return true;
     else return false;
   }
+
 
   /**
    * Loads pool data from the system using the SSTS0300 or SSTS0400 format.
@@ -1401,14 +1470,14 @@ public class SystemPool
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
 
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+    if (Trace.isTraceOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "Retrieving system pool information.");
     }
     if (pgm.run() != true)
     {
       AS400Message[] msgList = pgm.getMessageList();
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      if (Trace.isTraceOn())
       {
         Trace.log(Trace.ERROR, "Error retrieving system pool information:");
         for (int i=0; i<msgList.length; ++i)
@@ -1416,7 +1485,7 @@ public class SystemPool
           Trace.log(Trace.ERROR, msgList[i].toString());
         }
       }
-      if (isSharedPool_ && !isValidSharedPoolName(poolName_)) {
+      if ((poolIdentifier_==null) && !isValidNameForSharedPool(poolName_)) {
         Trace.log(Trace.ERROR, "Invalid name for shared pool: "+poolName_);
         throw new ObjectDoesNotExistException(poolName_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
       }
@@ -1441,36 +1510,35 @@ public class SystemPool
     int numPools = ((Integer)rec.getField("numberOfPools")).intValue();
     int entryLength = ((Integer)rec.getField("lengthOfPoolInformationEntry")).intValue();
     byte[] data = rec.getContents();
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+    if (Trace.isTraceOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "Parsing out "+numPools+" system pools with "+entryLength+" bytes each starting at offset "+offsetToInfo+" for a maximum length of "+data.length+".");
     }
 
     // Get each of the pools out of the data and check to see which one is me.
-    String poolName = ( poolName_ == null ? null : poolName_.trim() );
     for (int i=0; i<numPools; ++i)
     {
       int offset = offsetToInfo + i*entryLength;
       Record pool = poolFormat_.getNewRecord(data, offset);
-      if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+      if (Trace.isTraceOn())
       {
         Trace.log(Trace.DIAGNOSTIC, "Parsed pool at offset "+offset+": "+pool.toString());
       }
       String ret = ((String)pool.getField("poolName")).trim();
       Integer poolIdentifier = ((Integer)pool.getField("poolIdentifier"));
 
-      if (isSharedPool_)
+      if (indicatedSharedPool_)
       {
         if (poolIdentifier_ == null)
         { // It's a shared system pool, so it's uniquely identified by the pool name.
           if (DEBUG) {
-            System.out.println("Looking for poolName=="+poolName+", got: " + ret);
+            System.out.println("Looking for poolName=="+poolName_+", got: " + ret);
           }
-          if (ret.equals(poolName)) 
+          if (ret.equals(poolName_))
           {
-            if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+            if (Trace.isTraceOn())
             {
-              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
+              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName_+"'");
             }
 
             poolRecord_ = pool;
@@ -1479,17 +1547,16 @@ public class SystemPool
         }
         else   // poolIdentifier_ != null
         { // It's a shared system pool and poolIdentifier_ is set, so
-          // we can identify the pool by name and identifier. This is in case
-          // there are two isSharedPooled pools with same name. 
+          // we can identify the pool by both name and identifier.
           if (DEBUG) {
-            System.out.println("Looking for poolName=="+poolName+", got: " + ret);
+            System.out.println("Looking for poolName=="+poolName_+", got: " + ret);
           }
-          if ( (ret.equals(poolName)) && 
+          if ( (ret.equals(poolName_)) &&
                (poolIdentifier_.equals(poolIdentifier)) )
           {
-            if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+            if (Trace.isTraceOn())
             {
-              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName+"'");
+              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName_+"'");
             }
 
             poolRecord_ = pool;
@@ -1498,7 +1565,7 @@ public class SystemPool
         }
       }
       else   // not a shared pool
-      { // It's a subsystem pool, so poolName is actually just a sequence number (1-10).
+      { // It's a subsystem pool, so poolName is actually the pool's sequence number within the subsystem (1-10).
         // Need to match subsystem library and name, and poolName.
         String subsysName = ((String)pool.getField("subsystemName")).trim();
         String subsysLib = ((String)pool.getField("subsystemLibraryName")).trim();
@@ -1507,8 +1574,8 @@ public class SystemPool
             subsysLib.equalsIgnoreCase(subsystemLibrary_))
         {
           // We've matched the subsystem.  Now match the poolName to the poolID.
-          if (DEBUG) System.out.println("Matched the subsystem.  Looking for subsys pool ID " + poolSequenceNumber_ + ", got " + poolName);
-          if (Integer.parseInt(poolName) == poolSequenceNumber_) {
+          if (DEBUG) System.out.println("Matched the subsystem.  Looking for subsys pool ID " + poolSequenceNumber_ + ", got " + poolName_);
+          if (Integer.parseInt(poolName_) == poolSequenceNumber_) {
             poolRecord_ = pool;
             return;
           }
@@ -1525,6 +1592,7 @@ public class SystemPool
     Trace.log(Trace.ERROR, "System pool '"+poolName_+"' not found.");
     throw new ObjectDoesNotExistException(poolName_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
   }
+
 
   /**
    * Adjusts the 0300 or 0400 format to be large enough to hold all of the
@@ -1543,7 +1611,7 @@ public class SystemPool
   {
     int available = ((Integer)rec.getField("numberOfBytesAvailable")).intValue();
     int returned = ((Integer)rec.getField("numberOfBytesReturned")).intValue();
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+    if (Trace.isTraceOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "Size check of System Status format: "+available+", "+returned);
       int numPools = ((Integer)rec.getField("numberOfPools")).intValue();
@@ -1562,7 +1630,7 @@ public class SystemPool
       int baseLength = systemStatusFormat_.getNewRecord().getRecordLength();
       int newLength = numPools*entryLength + (offset-baseLength);
       systemStatusFormat_.addFieldDescription(new HexFieldDescription(new AS400ByteArray(newLength), "poolInformation"));
-      if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+      if (Trace.isTraceOn())
       {
         Trace.log(Trace.DIAGNOSTIC, "Resizing System Status format to hold more system pool information.");
         Trace.log(Trace.DIAGNOSTIC, "  New pool information: "+baseLength+", "+newLength+", "+systemStatusFormat_.getNewRecord().getRecordLength());
@@ -1571,6 +1639,7 @@ public class SystemPool
     }
     return false;
   }
+
 
     /**
      * Sets the value for the specified field to value in the
@@ -1629,7 +1698,7 @@ public class SystemPool
       * system if the performance adjustment (QPFRADJ) system value is set to
       * 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param minValue The new minimum faults-per-second guideline.
       * @param perValue The new faults per second for each active thread.
@@ -1662,7 +1731,7 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        if (!cacheChanges_)
        {
          synchronized(this)
@@ -1683,6 +1752,7 @@ public class SystemPool
        }
      }
 
+
      /**
       * Sets the maximum faults-per-second guideline to use for this storage
       * pool.  The sum of minimum faults and per-thread faults must be less than the
@@ -1690,7 +1760,7 @@ public class SystemPool
       * system if the performance adjustment (QPFRADJ) system value is set to
       * 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param value The new maximum faults-per-second guideline.
       * @exception AS400Exception If the system returns an error
@@ -1721,7 +1791,7 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        set("maximumFaults", new Float(value));
      }
 
@@ -1732,7 +1802,7 @@ public class SystemPool
       * by the system if the performance adjustment (QPFRADJ) system value
       * is set to 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param value The new maximum pool size.
       * @exception AS400Exception If the system returns an error
@@ -1763,9 +1833,10 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        set("maximumPoolSize", new Float(value));
      }
+
 
      /**
       * Sets the value indicating whether messages reporting that a change was
@@ -1811,6 +1882,7 @@ public class SystemPool
        set("messageLogging", log ? "Y" : "N");
      }
 
+
      /**
       * Sets the minimum faults-per-second guideline to use for this storage
       * pool.  This value is used by the system if the performance adjustment
@@ -1819,7 +1891,7 @@ public class SystemPool
       * you do not want this value to change, you may specify -1 for this
       * parameter.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param value The new minumum faults-per-second guideline.
       *
@@ -1851,9 +1923,10 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        set("minimumFaults", new Float(value));
      }
+
 
      /**
       * Sets the minimum and maximum amount of storage to allocate to this storage pool
@@ -1862,7 +1935,7 @@ public class SystemPool
       * by the system if the performance adjustment (QPFRADJ) system value
       * is set to 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param minValue The new minimum pool size.
       * @param maxValue The new maximum pool size.
@@ -1894,7 +1967,7 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        if (!cacheChanges_)
        {
          synchronized(this)
@@ -1921,7 +1994,7 @@ public class SystemPool
       * used by the system if the performance adjustment (QPFRADJ) system
       * value is set to 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param value  The new minimum pool size.
       * @exception AS400Exception If the system returns an error
@@ -1953,9 +2026,10 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        set("minimumPoolSize", new Float(value));
      }
+
 
      /**
       * Sets the value indicating whether the system dynamically adjust the
@@ -2001,6 +2075,7 @@ public class SystemPool
        set("pagingOption", value);
      }
 
+
      /**
       * Sets the faults per second for each active thread in this storage
       * pool.  Each job is comprised of one or more threads.  The system multiples
@@ -2010,7 +2085,7 @@ public class SystemPool
       * value is used by the system if the performance adjustment (QPFRADJ)
       * system value is set to 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param value The new faults.
       * @exception AS400Exception If the system returns an error
@@ -2041,9 +2116,10 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        set("perThreadFaults", new Float(value));
      }
+
 
      /**
       * Sets the activity level for the pool.  The activity level of a
@@ -2080,6 +2156,7 @@ public class SystemPool
      {
        setActivityLevel(value);
      }
+
 
      /**
       * Sets the activity level for the pool.  The activity level of a
@@ -2122,6 +2199,7 @@ public class SystemPool
        set("activityLevel", new Integer(value));
      }
 
+
      /**
       * Sets the system pool name.
       *
@@ -2134,6 +2212,7 @@ public class SystemPool
      {
        setName(poolName);
      }
+
 
      /**
       * Sets the system pool name.
@@ -2157,6 +2236,7 @@ public class SystemPool
         poolName_ = poolName;
         if (changes_ != null) changes_.firePropertyChange("poolName", oldValue, newValue);
      }
+
 
      /**
       * Sets the size of the system pool in kilobytes, where one kilobyte is
@@ -2197,6 +2277,7 @@ public class SystemPool
      {
        setSize(value);
      }
+
 
      /**
       * Sets the size of the system pool in kilobytes, where one kilobyte is
@@ -2243,13 +2324,14 @@ public class SystemPool
        set("poolSize", new Integer(value));
      }
 
+
      /**
       * Sets the priority of this pool relative the priority of the other
       * storage pools.  Valid values are 1 through 14.  The priority for the
       * *MACHINE pool must be 1.  This value is used by the system if the
       * performance adjustment (QPFRADJ) system value is set to 2 or 3.
       * <br>Note: This method is supported only for shared pools,
-      * not for private (subsystem) pools.
+      * not for subsystem (non-shared) pools.
       *
       * @param value The new priority.
       * @exception AS400Exception If the system returns an error
@@ -2280,9 +2362,10 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       if (!isSharedPool_) throwUnsupported();
+       if (!indicatedSharedPool_) throwUnsupported();
        set("priority", new Integer(value));
      }
+
 
      /**
       * Sets the system.
@@ -2305,6 +2388,7 @@ public class SystemPool
         if (changes_ != null) changes_.firePropertyChange("system", oldValue,newValue);
      }
 
+
      /**
       * Return the pool name.
       *
@@ -2312,12 +2396,25 @@ public class SystemPool
       **/
      public String toString()
      {
-         return poolName_;
+       StringBuffer buf = new StringBuffer(super.toString());
+       if (poolName_ != null || subsystemName_ != null || poolIdentifier_ != null)
+       {
+         if (subsystemName_ != null) {
+           buf.append("["+subsystemLibrary_+"/"+subsystemName_+"/"+poolSequenceNumber_+"]");
+         }
+         else if (poolName_ != null) {
+           buf.append("["+poolName_+"]");
+         }
+         else if (poolIdentifier_ != null) {
+           buf.append("[poolID="+poolIdentifier_.toString()+"]");
+         }
+       }
+       return buf.toString();
      }
 
      private static final void throwUnsupported()
      {
-       Trace.log(Trace.ERROR, "Method not supported for private pools.");
+       Trace.log(Trace.ERROR, "Method not supported for subsystem (non-shared) pools.");
        throw new UnsupportedOperationException();
      }
 
