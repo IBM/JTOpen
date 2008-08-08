@@ -324,7 +324,7 @@ public class MRI2 extends ListResourceBundle
       { "SYSTEM_POOL_BASE", "The base system pool, which can be shared with other subsystems." },
       { "SYSTEM_POOL_INTERACT", "The shared pool used for interactive work." },
       { "SYSTEM_POOL_SPOOL", "The shared pool used for specified writers." },
-      { "SYSTEM_POOL_OTHER", "A shared pool." },
+      { "SYSTEM_POOL_OTHER", "A system pool." },
 
 
 
