@@ -911,7 +911,7 @@ implements ConnectionEventListener
       long timeNow = System.currentTimeMillis();
       if (reuseConnections_ &&                       // we're reusing connections;
           !conn.fatalConnectionErrorOccurred_ &&     // no fatal errors on this connection;
-          !isExpired(conn, timeNow - maxLifetime_))  // this connection is not expired
+          (maxLifetime_ == 0 || !isExpired(conn, timeNow - maxLifetime_)))  // this connection is not expired //@saa
       {  // Prepare the connection for re-use.
 
         // Tell the pooled connection object to make itself ready for reuse.
