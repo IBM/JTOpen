@@ -677,7 +677,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("activeToIneligible")).intValue()/(float)10.0;
+       return ((Integer)get("activeToIneligible")).floatValue()/(float)10.0;
      }
 
      /**
@@ -704,7 +704,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("activeToWait")).intValue()/(float)10.0;
+       return ((Integer)get("activeToWait")).floatValue()/(float)10.0;
      }
 
      /**
@@ -735,7 +735,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("databaseFaults")).intValue()/(float)10.0;
+       return ((Integer)get("databaseFaults")).floatValue()/(float)10.0;
      }
 
      /**
@@ -762,7 +762,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("databasePages")).intValue()/(float)10.0;
+       return ((Integer)get("databasePages")).floatValue()/(float)10.0;
      }
 
      /**
@@ -772,6 +772,7 @@ public class SystemPool
       **/
      public String getDescription()
      {
+         if(poolName_ == null) return "";
          if(poolName_.equals("*MACHINE"))
             return ResourceBundleLoader.getText("SYSTEM_POOL_MACHINE");
          else if(poolName_.equals("*BASE"))
@@ -865,7 +866,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("nonDatabaseFaults")).intValue()/(float)10.0;
+       return ((Integer)get("nonDatabaseFaults")).floatValue()/(float)10.0;
      }
 
      /**
@@ -892,7 +893,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("nonDatabasePages")).intValue()/(float)10.0;
+       return ((Integer)get("nonDatabasePages")).floatValue()/(float)10.0;
      }
 
      /**
@@ -929,7 +930,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (String)get("pagingOption");
+       return ((String)get("pagingOption")).trim();
      }
 
      /**
@@ -1011,8 +1012,8 @@ public class SystemPool
       *   pool used for interactive work.
       *<li> *SPOOL    The specified pool definition is defined to be the
       *   shared pool used for spooled writers.
-      *<li> *SHRPOOL1 - *SHRPOOL10  The specified pool definition is defined
-      *   to be a shared pool.  For v4r3, this is *SHRPOOL60.
+      *<li> *SHRPOOL1 - *SHRPOOL60  The specified pool definition is defined
+      *   to be a shared pool.
       *</p>
       *
       * @return The pool name.
@@ -1037,16 +1038,27 @@ public class SystemPool
       *   pool used for interactive work.
       *<li> *SPOOL    The specified pool definition is defined to be the
       *   shared pool used for spooled writers.
-      *<li> *SHRPOOL1 - *SHRPOOL10  The specified pool definition is defined
-      *   to be a shared pool.  For v4r3, this is *SHRPOOL60.
+      *<li> *SHRPOOL1 - *SHRPOOL60  The specified pool definition is defined
+      *   to be a shared pool.
       *</p>
       *
-      * @return The pool name.
+      * @return The pool name.  If the pool name cannot be determined, null is returned.
       **/
      public String getName()
      {
-       //return (String)get("poolName");
-       return poolName_;
+       if (poolName_ != null) return poolName_;
+       else {
+         try
+         {
+           poolName_ = ((String)get("poolName")).trim();
+           return poolName_;
+         }
+         catch (Exception e)
+         {
+           if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Unable to get pool name.", e);
+           return null;
+         }
+       }
      }
 
      /**
@@ -1158,7 +1170,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (String)get("subsystemLibraryName");
+       return ((String)get("subsystemLibraryName")).trim();
      }
 
      /**
@@ -1185,7 +1197,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (String)get("subsystemName");
+       return ((String)get("subsystemName")).trim();
      }
 
      /**
@@ -1222,7 +1234,7 @@ public class SystemPool
                ObjectDoesNotExistException,
                UnsupportedEncodingException
      {
-       return (float)((Integer)get("waitToIneligible")).intValue()/(float)10.0;
+       return ((Integer)get("waitToIneligible")).floatValue()/(float)10.0;
      }
 
     /**
@@ -1343,15 +1355,25 @@ public class SystemPool
     // Otherwise we must use the 5-parameter call.
 
     int numParms;
-    if (indicatedSharedPool_ || poolIdentifier_ != null) {
+    if (indicatedSharedPool_ || poolIdentifier_ != null)
+    {
       numParms = 7;
-      if (systemStatusFormat_ == null) systemStatusFormat_ = new SSTS0400Format(system_);
-      if (poolFormat_ == null) poolFormat_ = new PoolInformationFormat0400(system_);
+      if (systemStatusFormat_ == null ||
+          systemStatusFormat_.getClass() != SSTS0400Format.class)
+      {
+        systemStatusFormat_ = new SSTS0400Format(system_);
+        poolFormat_ = new PoolInformationFormat0400(system_);
+      }
     }
-    else {
+    else
+    {
       numParms = 5;
-      if (systemStatusFormat_ == null) systemStatusFormat_ = new SSTS0300Format(system_);
-      if (poolFormat_ == null) poolFormat_ = new PoolInformationFormat(system_);
+      if (systemStatusFormat_ == null ||
+          systemStatusFormat_.getClass() != SSTS0300Format.class)
+      {
+        systemStatusFormat_ = new SSTS0300Format(system_);
+        poolFormat_ = new PoolInformationFormat(system_);
+      }
     }
     ProgramParameter[] parmList = new ProgramParameter[numParms];
 
@@ -1391,7 +1413,7 @@ public class SystemPool
       // sharedPoolName (CHAR10) - Possible values are:  *ALL, *MACHINE, *BASE, *INTERACT, *SPOOL, *SHRPOOL1-60.  If type of pool is *SYSTEM, then this field must be blank.
       // systemPoolIdentifier (BIN4) - If typeOfPool is *SHARED, must be zero.  Otherwise: -1 for "all active pools"; 1-64 to specify an active pool.  If the pool is not active, CPF186B is sent.
 
-      // Note: The typeOfPool field simply indicates _how_ we are subsequently identifying the pool: Either by shared-pool name, or by system pool identifier.
+      // Note: The typeOfPool field simply indicates _how_ we are identifying the pool in this API: Either by shared-pool name, or by system pool identifier.
       String typeOfPool = (indicatedSharedPool_ ? "*SHARED   " : "*SYSTEM   ");
 
       StringBuffer sharedPoolName = new StringBuffer(indicatedSharedPool_ ? poolName_ : "");
@@ -1429,6 +1451,7 @@ public class SystemPool
     **/
   public static final boolean isValidNameForSharedPool(String name)
   {
+    if (name == null) return false;
     if (name.equals("*ALL") ||
         name.equals("*MACHINE") ||
         name.equals("*BASE") ||
@@ -1515,7 +1538,8 @@ public class SystemPool
       Trace.log(Trace.DIAGNOSTIC, "Parsing out "+numPools+" system pools with "+entryLength+" bytes each starting at offset "+offsetToInfo+" for a maximum length of "+data.length+".");
     }
 
-    // Get each of the pools out of the data and check to see which one is me.
+    // Get each of the pools out of the data, and check to see which one is me.
+
     for (int i=0; i<numPools; ++i)
     {
       int offset = offsetToInfo + i*entryLength;
@@ -1524,69 +1548,74 @@ public class SystemPool
       {
         Trace.log(Trace.DIAGNOSTIC, "Parsed pool at offset "+offset+": "+pool.toString());
       }
-      String ret = ((String)pool.getField("poolName")).trim();
+      String returnedName = ((String)pool.getField("poolName")).trim();
       Integer poolIdentifier = ((Integer)pool.getField("poolIdentifier"));
 
-      if (indicatedSharedPool_)
+      // If we know the system pool identifier, just need to match that.
+      if (poolIdentifier_ != null)
       {
-        if (poolIdentifier_ == null)
-        { // It's a shared system pool, so it's uniquely identified by the pool name.
-          if (DEBUG) {
-            System.out.println("Looking for poolName=="+poolName_+", got: " + ret);
-          }
-          if (ret.equals(poolName_))
-          {
-            if (Trace.isTraceOn())
-            {
-              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName_+"'");
-            }
-
-            poolRecord_ = pool;
-            return;
-          }
-        }
-        else   // poolIdentifier_ != null
-        { // It's a shared system pool and poolIdentifier_ is set, so
-          // we can identify the pool by both name and identifier.
-          if (DEBUG) {
-            System.out.println("Looking for poolName=="+poolName_+", got: " + ret);
-          }
-          if ( (ret.equals(poolName_)) &&
-               (poolIdentifier_.equals(poolIdentifier)) )
-          {
-            if (Trace.isTraceOn())
-            {
-              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName_+"'");
-            }
-
-            poolRecord_ = pool;
-            return;
-          }
-        }
-      }
-      else   // not a shared pool
-      { // It's a subsystem pool, so poolName is actually the pool's sequence number within the subsystem (1-10).
-        // Need to match subsystem library and name, and poolName.
-        String subsysName = ((String)pool.getField("subsystemName")).trim();
-        String subsysLib = ((String)pool.getField("subsystemLibraryName")).trim();
-
-        if (subsysName.equalsIgnoreCase(subsystemName_) &&
-            subsysLib.equalsIgnoreCase(subsystemLibrary_))
+        if (poolIdentifier_.equals(poolIdentifier))
         {
-          // We've matched the subsystem.  Now match the poolName to the poolID.
-          if (DEBUG) System.out.println("Matched the subsystem.  Looking for subsys pool ID " + poolSequenceNumber_ + ", got " + poolName_);
-          if (Integer.parseInt(poolName_) == poolSequenceNumber_) {
+          if (Trace.isTraceOn()) {
+            Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName_+"'");
+          }
+
+          poolRecord_ = pool;
+          return;
+        }
+      }
+      else  // The caller didn't specify the system pool identifier, so we need to uniquely identify the pool some other way.
+      {
+        if (indicatedSharedPool_)
+        {
+          // It's a shared system pool, so it's uniquely identified by the pool name.
+          if (DEBUG) {
+            System.out.println("Looking for poolName=="+poolName_+", got: " + returnedName);
+          }
+          if (returnedName.equals(poolName_))
+          {
+            if (Trace.isTraceOn()) {
+              Trace.log(Trace.DIAGNOSTIC, "Found matching system pool '"+poolName_+"'");
+            }
+
             poolRecord_ = pool;
+            if (poolIdentifier_ == null) poolIdentifier_ = poolIdentifier;
             return;
           }
-          else {
-            if (DEBUG) {
-              System.out.println("Mismatched subystem library/name.  Expected: " + subsystemLibrary_+"/"+subsystemName_ + ", got " + subsysLib+"/"+subsysName + " (poolName == " + ret + ")");
+        }
+        else  // The caller didn't indicate it's a shared pool, and didn't specify a system pool identifier.
+        {
+          // It's a subsystem pool, so poolName is actually the pool's sequence number within the subsystem (1-10).
+          // Need to match subsystem library and name, and pool name (pool sequence number).
+          String subsysName = ((String)pool.getField("subsystemName")).trim();
+          String subsysLib = ((String)pool.getField("subsystemLibraryName")).trim();
+          if (DEBUG) {
+            System.out.println("Returned subsysLib: |" + subsysLib + "|");
+            System.out.println("Returned subsysName: |" + subsysName + "|");
+            System.out.println("Returned poolName: |" + returnedName + "|");
+          }
+
+          if (subsysName.equalsIgnoreCase(subsystemName_) &&
+              subsysLib.equalsIgnoreCase(subsystemLibrary_))
+          {
+            // We've matched the subsystem.  Now match the sequence number.
+            if (DEBUG) System.out.println("Matched the subsystem.  Looking for subsys pool sequence number " + poolName_ + ", got " + returnedName);
+            if (returnedName.equals(poolName_))
+            {
+              poolRecord_ = pool;
+              if (poolIdentifier_ == null) poolIdentifier_ = poolIdentifier;
+              return;
             }
-            continue;  // not a match, so keep looking
+            else {
+              if (DEBUG) {
+                System.out.println("Mismatched subsystem library/name.  Expected: " + subsystemLibrary_+"/"+subsystemName_+"/"+poolName_ + ", got " + subsysLib+"/"+subsysName+"/"+returnedName + ")");
+              }
+              continue;  // not a match, so keep looking through the list
+            }
           }
         }
       }
+
     }  // 'for' loop
 
     Trace.log(Trace.ERROR, "System pool '"+poolName_+"' not found.");
@@ -2242,8 +2271,8 @@ public class SystemPool
       * Sets the size of the system pool in kilobytes, where one kilobyte is
       * 1024 bytes.
       * For shared pools, this specifies the requested ("defined") size.
-      * The minimum value is 32 kilobytes.  For V4R3 and later, the
-      * minimum is 256.  To indicate that no storage or activity level is defined
+      * The minimum value is 256 kilobytes.
+      * To indicate that no storage or activity level is defined
       * for the pool, specify 0.
       *
       * @param value The new size of the system pool.
@@ -2283,8 +2312,8 @@ public class SystemPool
       * Sets the size of the system pool in kilobytes, where one kilobyte is
       * 1024 bytes.
       * For shared pools, this specifies the requested ("defined") size.
-      * The minimum value is 32 kilobytes.  For V4R3 and later, the
-      * minimum is 256.  To indicate that no storage or activity level is defined
+      * The minimum value is 256 kilobytes.
+      * To indicate that no storage or activity level is defined
       * for the pool, specify 0.
       *
       * Recommended coding pattern:
