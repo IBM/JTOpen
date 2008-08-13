@@ -225,7 +225,7 @@ class PortMapper
     {
         //Code to make use of new method java.net.Socket.connect(host, timeout) in jdk 1.4
         //only really needed on first socket connect so we do not hang when a system is down.  
-        //Socket pmSocket = new Socket(systemName, 449); //@timeout
+        //Socket pmSocket = new Socket(systemName, port); //@timeout
         Socket pmSocket;                                 //@timeout
         try{                                             //@timeout
             /*  Due to various jvm and compile issues, there are many possible types of exceptions that could
@@ -244,8 +244,8 @@ class PortMapper
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + timeout + "ms"); //@timeout
             
 
-            InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, 449) :  //@timeout
-                new InetSocketAddress(InetAddress.getByName(null), 449);   //@timeout
+            InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, port) :  //@timeout
+                new InetSocketAddress(InetAddress.getByName(null), port);   //@timeout
 
             //pmSocket.connect(hostAddr, timeout); //fyi, PortMapper will not load and gets NoClassDefFoundError in jvm1.3 due to SocketAddress parameter type, must use reflection below  //@timeout
             try {                                             //@timeout
@@ -280,7 +280,7 @@ class PortMapper
             //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
             //Just create socket the way we did before without a timeout.
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.3 or lower.  Connect to port mapper without timeout");//@timeout
-            pmSocket = new Socket(systemName, 449); //for pre jdk1.4  //@timeout 
+            pmSocket = new Socket(systemName, port); //for pre jdk1.4  //@timeout 
         }                                                             //@timeout
         return pmSocket;
     }
