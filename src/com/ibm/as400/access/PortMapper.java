@@ -157,64 +157,7 @@ class PortMapper
             //Code to make use of new method java.net.Socket.connect(host, timeout) in jdk 1.4
             //only really needed on first socket connect so we do not hang when a system is down.  
             //Socket pmSocket = new Socket(systemName, 449); //@timeout
-            Socket pmSocket;                                 //@timeout
-            try{                                             //@timeout
-                /*  Due to various jvm and compile issues, there are many possible types of exceptions that could
-                    be thrown, depending on jvm version and implementation etc.  Class.forName() seems to be the best
-                    solution to finding the jvm version that does not degrade performance. */
-                Class.forName("java.net.InetSocketAddress"); //throws ClassNotFoundException (common to all jvm implementations) //@timeout 
-                         
-                pmSocket = new Socket();                        //@timeout 
-
-                int timeout = 0;                                //@timeout
-                if(socketProperties.isSoTimeoutSet())           //@timeout
-                {                                               //@timeout
-                    timeout = socketProperties.getSoTimeout();  //@timeout
-                }                                               //@timeout
-                
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + timeout + "ms"); //@timeout
-                
-
-                InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, 449) :  //@timeout
-                    new InetSocketAddress(InetAddress.getByName(null), 449);   //@timeout
-
-                //pmSocket.connect(hostAddr, timeout); //fyi, PortMapper will not load and gets NoClassDefFoundError in jvm1.3 due to SocketAddress parameter type, must use reflection below  //@timeout
-                try {                                             //@timeout
-                    Class thisClass = pmSocket.getClass();        //@timeout
-                    Method method = thisClass.getMethod("connect", new Class[]{ SocketAddress.class, java.lang.Integer.TYPE}); //@timeout
-                    //method.setAccessible(true);                   //@timeout //@CRS (applet gets exception when calling setAccessible())
-                    Object[] args = new Object[2];                //@timeout
-                    args[0] = hostAddr;                           //@timeout
-                    args[1] = new Integer(timeout);               //@timeout
-
-                    method.invoke(pmSocket, args);                //@timeout
-                } catch (InvocationTargetException e) {           //@timeout
-                    Throwable e2 = e.getTargetException();        //@timeout
-                    if(e2 instanceof IOException)                 //@timeout
-                    {                                             //@timeout
-                        //Here is the actual timeout or network exceptions that we throw back to caller 
-                        throw (IOException) e2;                   //@timeout
-                    }else                                         //@timeout
-                    {                                             //@timeout
-                        //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
-                        throw new ClassNotFoundException();       //@timeout
-                    }                                             //@timeout
-                } catch (IllegalAccessException e) {              //@timeout
-                    //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
-                    throw new ClassNotFoundException();           //@timeout
-                } catch (NoSuchMethodException e) {               //@timeout
-                    //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
-                    throw new ClassNotFoundException();           //@timeout
-                }                                                 //@timeout
-                
-            }catch(ClassNotFoundException e){                            //@timeout 
-                //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
-                //Just create socket the way we did before without a timeout.
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.3 or lower.  Connect to port mapper without timeout");//@timeout
-                pmSocket = new Socket(systemName, 449); //for pre jdk1.4  //@timeout 
-            }                                                             //@timeout
-            
-            
+            Socket pmSocket = getSocketConnection(systemName, 449, socketProperties); //@timeout2
             
             InputStream pmInstream = pmSocket.getInputStream();
             OutputStream pmOutstream = pmSocket.getOutputStream();
@@ -246,7 +189,7 @@ class PortMapper
         }
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to system...");
-        Socket socket = new Socket(systemName, srvPort);
+        Socket socket = getSocketConnection(systemName, srvPort, socketProperties);  //@timeout2
         PortMapper.setSocketProperties(socket, socketProperties);
 
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...
@@ -275,6 +218,72 @@ class PortMapper
         return sc;
     }
 
+    /*  Helper method to get connection using the timeout available in jmv 1.4+ 
+     *  If running in JVM 1.3 then it defaults to the old connection without a timeout
+     */
+    static Socket getSocketConnection(String systemName, int port, SocketProperties socketProperties) throws IOException
+    {
+        //Code to make use of new method java.net.Socket.connect(host, timeout) in jdk 1.4
+        //only really needed on first socket connect so we do not hang when a system is down.  
+        //Socket pmSocket = new Socket(systemName, 449); //@timeout
+        Socket pmSocket;                                 //@timeout
+        try{                                             //@timeout
+            /*  Due to various jvm and compile issues, there are many possible types of exceptions that could
+                be thrown, depending on jvm version and implementation etc.  Class.forName() seems to be the best
+                solution to finding the jvm version that does not degrade performance. */
+            Class.forName("java.net.InetSocketAddress"); //throws ClassNotFoundException (common to all jvm implementations) //@timeout 
+                     
+            pmSocket = new Socket();                        //@timeout 
+
+            int timeout = 0;                                //@timeout
+            if(socketProperties.isSoTimeoutSet())           //@timeout
+            {                                               //@timeout
+                timeout = socketProperties.getSoTimeout();  //@timeout
+            }                                               //@timeout
+            
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + timeout + "ms"); //@timeout
+            
+
+            InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, 449) :  //@timeout
+                new InetSocketAddress(InetAddress.getByName(null), 449);   //@timeout
+
+            //pmSocket.connect(hostAddr, timeout); //fyi, PortMapper will not load and gets NoClassDefFoundError in jvm1.3 due to SocketAddress parameter type, must use reflection below  //@timeout
+            try {                                             //@timeout
+                Class thisClass = pmSocket.getClass();        //@timeout
+                Method method = thisClass.getMethod("connect", new Class[]{ SocketAddress.class, java.lang.Integer.TYPE}); //@timeout
+                //method.setAccessible(true);                   //@timeout //@CRS (applet gets exception when calling setAccessible())
+                Object[] args = new Object[2];                //@timeout
+                args[0] = hostAddr;                           //@timeout
+                args[1] = new Integer(timeout);               //@timeout
+
+                method.invoke(pmSocket, args);                //@timeout
+            } catch (InvocationTargetException e) {           //@timeout
+                Throwable e2 = e.getTargetException();        //@timeout
+                if(e2 instanceof IOException)                 //@timeout
+                {                                             //@timeout
+                    //Here is the actual timeout or network exceptions that we throw back to caller 
+                    throw (IOException) e2;                   //@timeout
+                }else                                         //@timeout
+                {                                             //@timeout
+                    //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
+                    throw new ClassNotFoundException();       //@timeout
+                }                                             //@timeout
+            } catch (IllegalAccessException e) {              //@timeout
+                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
+                throw new ClassNotFoundException();           //@timeout
+            } catch (NoSuchMethodException e) {               //@timeout
+                //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch is below.
+                throw new ClassNotFoundException();           //@timeout
+            }                                                 //@timeout
+            
+        }catch(ClassNotFoundException e){                            //@timeout 
+            //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
+            //Just create socket the way we did before without a timeout.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.3 or lower.  Connect to port mapper without timeout");//@timeout
+            pmSocket = new Socket(systemName, 449); //for pre jdk1.4  //@timeout 
+        }                                                             //@timeout
+        return pmSocket;
+    }
     static void setSocketProperties(Socket socket, SocketProperties socketProperties) throws SocketException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket options...");
