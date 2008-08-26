@@ -9,8 +9,9 @@ Copyright (C) 1997-2008 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: April 25, 2008
-<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d >2007-12-14 -->
+Last updated: August 13, 2008
+<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d>2007-12-14 -->
+<!-- On 2008-08-13: cvs log -rJTOpen_6_2:JTOpen_6_3 -N -d>2008-04-25 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -22,11 +23,12 @@ is contained in the open source repository located off of:
 The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program
 Product "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") which is
 supported by IBM and can be obtained from the IBM Toolbox for Java web site:
-<A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox">http://www.ibm.com/systems/i/software/toolbox/</A>.
+<A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
 </PRE>
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#63">Fixes and enhancements in JTOpen 6.3</A><BR>
 <A HREF="#62">Fixes and enhancements in JTOpen 6.2</A><BR>
 <A HREF="#61">Fixes and enhancements in JTOpen 6.1</A><BR>
 <A HREF="#60">Fixes and enhancements in JTOpen 6.0</A><BR>
@@ -49,6 +51,60 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="63">Fixes and enhancements in JTOpen 6.3</A> <i>(released 2008-08-29)</i></H3>
+<PRE>
+- <i>Various:</i> Javadoc updates.
+- <i>Admin:</i> Updated this file (changes.html) so component names are consistent.
+- Command call: Changed scope of getThreadSafetyProperty() from private to package. 
+- Command call: Refined tracking of missing V5R4 PTF for QCDRCMDI (SI29629).
+- Connection pool: Fix bug to reuse connections which have a maxLifetime of 0.
+- Connection: Added AS400 properties: mustAddLanguageLibrary, mustUseSuppliedProfile.
+- Connection: Added AS400 properties: mustUseSockets, mustUseNetSockets, threadUsed.
+- Connection: Ensure that the socket never gets left open.
+- Connection: Fix code so that applets do not get AccessControlException.
+- Connection: Only try to load PASE library when on V6R1 or higher.
+- Connection: Fix for JTOpen bug 2039039: Set another timeout when opening a socket connection.
+- Data area: Honor setting of threadSafe property.
+- Data conversion: Modification to handling of Date convert(*CURRENT) to adjust to local time.
+- Data conversion: Added method AS400DataType.getJavaType().
+- Data conversion: Regenerated conversion tables for CCSIDs 835 and 4931.
+- JDBC: Add support for getSQLXML on Blob columns, for consistency with native JDBC driver.
+- JDBC: Allow userid/password in URL to override blanks in parameters.
+- JDBC: Fix ResultSet navigation for various relative scrolling.
+- JDBC: Fix cast exception for DBClob when written as a locator. 
+- JDBC: Fix double JDBC driver registration with DriverManager.registerDriver().
+- JDBC: Fix generated keys truncation. 
+- JDBC: Fix lob locator update and retrieval from AS400JDBCResultSet. 
+- JDBC: Fix logic so that ResultSet.relative(1) is same as ResultSet.next().
+- JDBC: Fix long schema bug in library list.
+- JDBC: Fix stream helper method.
+- JDBC: Fix server trace bug.
+- JDBC: Fix typo in byteLength variable.
+- JDBC: Get database metadata from SYSIBM stored procedures if "metadata source" property is set to 1.
+- JDBC: Ignore Warnings to allow users to specify list of SQL states to cause JDBC to ignore and not issue warnings. 
+- JDBC: Misc XML fixes to not rely on external parsers.
+- JDBC: More resultset cursor navigation fixes for various abnormal scrolling. 
+- JDBC: Prohibit accidental JDBC Connection with userid or password of "". 
+- JDBC: Use connection property "translate hex" value in the algorithm to generate extended dynamic sql package name.
+- Messages: Added new MessageFile.getMessage() method, with additional CCSID parameters. 
+- NetServer: Deprecated class; use ISeriesNetServer instead.
+- Object description: Fixed StringIndexOutOfBoundsException.
+- Object description: New method ObjectDescription.getObjectLockList(). 
+- PTF: Added constants to represent new V6R1 status values.
+- Print: Added method Printer.setAttributes(), to match functionality of RPrinter. 
+- RLA: Changes to verifyS38MSGRM() to better handle ClassCastException.
+- System pool: Added 2 constructors, and isValidNameForSharedPool().
+- System pool: Eliminated logic errors.  Strip trailing blanks from returned String-valued attributes. 
+- System value: Enhanced javadoc and code comments. 
+- Trace: Add more tracing for invalid passwords.
+- Trace: Added tracing of connection ID.
+- Trace: Skip stack trace for "Class com.ibm.as400.access.Properties not found".
+- Trace: If incorrect reply datastream header: Trace bytes, and disregard stream. 
+- Trace: Streamlined trace messages for 'GSSToken not available' and non-fatal ClassNotFoundException.
+- User: Add getObjectsOwned() method.
+</PRE>
 
 <HR>
 <H3><A NAME="62">Fixes and enhancements in JTOpen 6.2</A> <i>(released 2008-04-30)</i></H3>
@@ -141,9 +197,9 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <HR>
 <H3><A NAME="60">Fixes and enhancements in JTOpen 6.0</A> <i>(released 2007-08-20)</i></H3>
 <PRE>
-- Connection Pool:  Added a check to verify connection is not in use when checking the max lifetime and removing a connection from the pool.
-- Data Area:  Fix for JTOpen bug 1737692 - allow users to write data containing single-quote characters.
-- Data Conversion:  Updated various converter tables.
+- Connection pool:  Added a check to verify connection is not in use when checking the max lifetime and removing a connection from the pool.
+- Data area:  Fix for JTOpen bug 1737692 - allow users to write data containing single-quote characters.
+- Data conversion:  Updated various converter tables.
 - FTP:  Add support for EPSV and EPRT.
 - IFS:  Updated getCanonicalPath() to remove '.' and '..' from paths.
 - IFS:  Updated listObjectAttrs() to see if a file handle has already been opened.
@@ -169,16 +225,16 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC:  Fix performace related bug that caused ResultSet not to close after cursor was implicitly closed.
 - JDBC:  Use SQLState instead of SQLCode for flag of errors/warnings.
 - JDBC:  Retrieve cursor attributes from a stored procedure.
-- JobList:  Fix for JTOpen Bug 1728765 - allow more than one value for the selection criteriat that are suppose to allow multiple values.
-- JobLog:  Added the ability to retrieve all attributes for a message.
-- JobLog:  Updated javadoc to list attributes that can be accessed for a QueuedMessage object.
-- ObjectDescription:  Modified exists() method to handle CPF9811 message.
+- Job list:  Fix for JTOpen Bug 1728765 - allow more than one value for the selection criteriat that are suppose to allow multiple values.
+- Job log:  Added the ability to retrieve all attributes for a message.
+- Job log:  Updated javadoc to list attributes that can be accessed for a QueuedMessage object.
+- Object description:  Modified exists() method to handle CPF9811 message.
 - ObjectList:  Fix for JTOpen Bug 1725312 - fix to allocate correct storage amount for getObjects().
 - ObjectList:  Updated javadoc for getObject() to indicate that the listOffset parameter may be greater than "or equal to" zero.
 - ObjectList:  Updated addObjectAuthorityCritiria() to enforce documented interface restrictions.
 - QueuedMessage:  Added the ability to retrieve all attributes for a Job Log message.
-- SystemPool:  Added the ability to set the "system-related pool identifier".
-- SystemStatus:  Added the ability to set the "system-related pool identifier".
+- System pool:  Added the ability to set the "system-related pool identifier".
+- System status:  Added the ability to set the "system-related pool identifier".
 - Trace:  Fix to ensure tracing is off if a category is not set.
 </PRE>
 
@@ -189,7 +245,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - <i>Various:</i>  Javadoc updates.
 - Connection: Support new messages from sign-on server.
 - Connection: Added additional change password return codes.
-- Data Conversion:  Fix array out of bounds error so we throw SQLException back with single character input.
+- Data conversion:  Fix array out of bounds error so we throw SQLException back with single character input.
 - File:  Fixed record cache so that positionCursor() works regardless of the blocking factor.   
 - IFS:  Updatated javadoc for list, listFiles and enumerateFiles methods.
 - IFS:  Updated to throw an exception if access is denied to a directory and to search by restart name if accessing QSYS.LIB in an IASP.
@@ -205,8 +261,8 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC:  Added query storage limit connection property.
 - NetServer:  Fix to createPrintShare().
 - NetServer:  Fixed bug in parameter validation in setTextConversionEnablement()
-- ObjectDescription:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
-- ObjectDescription:  Added support for returning the asp device name on the path.
+- Object description:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
+- Object description:  Added support for returning the asp device name on the path.
 - ObjectList:  Added support to list objects in an auxiliary storage pool (ASP) and to get the object descriptions.
 - Permissions:  Updated setDataAuthority() for *AUTL.
 - Permissions:  Changes to allow DLOPermission to work with the QDLS root folder.
@@ -218,7 +274,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Security: Support new messages from sign-on server.
 - Security: Added additional change password return codes.
 - SpooledFile:  Retrieving invalid spooled file attributes.
-- UserSpace:  Changes so that when running natively user space will use sockets instead of native method calls to avoid error indicating that JT4PTF and JT4USRSPC user space could not be found.
+- User space:  Changes so that when running natively user space will use sockets instead of native method calls to avoid error indicating that JT4PTF and JT4USRSPC user space could not be found.
 </PRE>
 
 <HR>
@@ -228,7 +284,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - <i>Various:</i>  Javadoc updates.
 - Build:  Fixed various build warnings for JDK 1.5.
 - Connection:  Allow GSS credential to change.
-- Data Area: Provide more useful exception information, especially when PCML source document not found.
+- Data area: Provide more useful exception information.
 - IFS:  Fixed bug that made IFSFile.setCCSID() a no-op.
 - JDBC:  Only send/update sort sequence if not set to default (hex).
 - JDBC:  Added query storage limit support.
@@ -241,8 +297,8 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC:  Fix to allow a forward-only sensitive cursor.
 - NetServer:  Corrected behavior of getTextConversionEnablement()
 - PCML:  Provide more useful exception information, especially when PCML source document not found.
-- Program Call:  Provide more useful exception information, especially when PCML source document not found.
-- System Resource:  Provide more useful exception information, especially when PCML source document not found.
+- Program call:  Provide more useful exception information.
+- System resource:  Provide more useful exception information.
 - UDFS:  Added new classes IFSIoctlRep, IFSIoctlReq, and UDFS for user-defined file system support.
 </PRE>
 
@@ -278,7 +334,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - PCML:  Improved error messages. 
 - Print:  CPU performance fix due to recursive paint events in SpooledFileViewer.
 - RFML:  Close opened streams in 'finally' clause.
-- PTFGroup:  Updated for Native support.
+- PTF group:  Updated for Native support.
 - System value:  Various updates.
 - Trace:  Updated for JDK 1.5 misbehavior in LogManager.getLogger().
 </PRE>
@@ -297,7 +353,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Connection:  Avoided potential StringIndexOutOfBoundsException in trace.  
 - Connection:  Added new properties to prevent use of current user and Unix domain sockets.
 - Connection:  Improved warning messages.
-- Connection Pool:  Fixed JTOpen Bug 1459369:  Added support to terminate maintenance thread when pool is closed.
+- Connection pool:  Fixed JTOpen Bug 1459369:  Added support to terminate maintenance thread when pool is closed.
 - Data conversion:  Enhanced bidi support.
 - FTP:  Added support so FTP datastreams use CRLF.
 - IFS:  Added new IFSFile methods:  setSorted() and getOwnerName().
@@ -356,7 +412,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC: Improved handling of return codes 438 and 443 from stored procedures.
 - JDBC: Added 'ALIAS' to reported list of supported table type.
 - JarMaker: Updated dependency list for 'IFS' component.
-- JobList: Fixed JobList sort list field lengths.
+- Job list: Fixed JobList sort list field lengths.
 - Message queue: Fixed divide by zero when list empty.
 - Message queue: Fixed reply type in receive method.
 - PCML: Corrected error message in case of insufficient input data.
@@ -397,7 +453,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC: Send empty Package name code point when doing a normal prepare and extended dynamic support is requested.
 - JDBC: Turn auto-commit back on and set the commitment control parser option when an XA transaction is ended.
 - Job: Added JOB_LOG_OUTPUT property.
-- JobList: Joblist.load() hangs with certain selection criteria.
+- Job list: Joblist.load() hangs with certain selection criteria.
 - Message queue: Fixed overflow in calculating receiver variable size.
 - Print: Added print attribute ATTR_PUBINF.
 - QSYS object types: Added new and missing object types.
@@ -435,7 +491,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Job: Fixed JTOpen bug 1143395. Update max library list size.
 - Job: Throw exception when read-only value is specified on setValue().
 - Message queue: Retrieve user's message queue instead of assuming default path.
-- ObjectDescription: Added new method getValueAsString().
+- Object description: Added new method getValueAsString().
 - Permission: Preserve leading/trailing blanks in filename.
 - Print: Add ATTR_AUTOEND to attribute list.
 - Print: Added getInputStream() that takes a PrintParameterList as a parameter.
@@ -458,7 +514,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Build: Updated readme to refer to build.xml.
 - Build: Updated JDK level check in build.xml.
 - Connection: Fixed localhost IllegalStateException. (AS400)
-- CallStackEntry: Added new class CallStackEntry.
+- Call stack: Added new class CallStackEntry.
 - Data conversion: Fix mixed byte buffering problem. (ConvTableReader)
 - FTP: Use separate thread to monitor ServerSocket when in "active" mode.
 - IFS: Throw IOException instead of ClosedChannelException. (IFSFileInputStream)
@@ -498,7 +554,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Print: Added PrintObject attributes ATTR_DATE_END and ATTR_TIME_END.
 - Save file: Added new component to represent "save files".
 - Security: Removed unnecessary serializability from AS400Certificate* classes.
-- System values: Added new system values.
+- System value: Added new system values.
 </PRE>
 
 <HR>
@@ -520,9 +576,9 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <PRE>
 - CommandHelpRetriever: Use relative column widths on syntax summary table.
 - Connection: Decoupled JDBC and DDM from AS400 object, to improve effectiveness of AS400ToolboxJarMaker.
-- Connection pools: Added getSystemNames(), getUsers(system), and getConnectedUsers(system).
-- Connection pools: Fixed JTOpen Bug 3384.  (AS400ConnectionPool unnecessarily creates objects)
-- Connection pools: Fixed JTOpen Bug 3863.  (NullPointerException when connection returned to pool)
+- Connection pool: Added getSystemNames(), getUsers(system), and getConnectedUsers(system).
+- Connection pool: Fixed JTOpen Bug 3384.  (AS400ConnectionPool unnecessarily creates objects)
+- Connection pool: Fixed JTOpen Bug 3863.  (NullPointerException when connection returned to pool)
 - Data conversion: Fixed tables for CCSIDs 424, 862, 1200.
 - Data conversion: Added ability to return Double objects instead of BigDecimal objects on toObject() calls.
 - Data conversion: Allow BidiStringType.None as valid value.
@@ -544,7 +600,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - PCML: Added ProgramCallDocument.getProgramCall().
 - RLA: Performance improvements.
 - RFML: Fixed JTOpen Bug 3953.  (Deserializing RecordFormatDocument)
-- System values: Improved handling of invalid QDATE values.
+- System value: Improved handling of invalid QDATE values.
 </PRE>
 
 <HR>
@@ -588,8 +644,8 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC: Use BidiConversionProperties class instead on only bidi string type.
 - JDBC: Added two connection properties "bidi implicit reordering" and "bidi numeric ordering".
 - Job: Return -1 on getQueuePriority() if job's status is *OUTQ.
-- JobList: Trace a warning message if there are open enumerations returned by a JobList and the JobList is being closed.
-- JobList: Invalidate all JobEnumerations created from a JobList which has been closed.
+- Job list: Trace a warning message if there are open enumerations returned by a JobList and the JobList is being closed.
+- Job list: Invalidate all JobEnumerations created from a JobList which has been closed.
 - Object description: Tolerate additional error message in exists().
 - Print: Formdef is now handled on the server.
 - Print: Maintain lowercase for certain attributes.
@@ -598,7 +654,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - RLA: Handle *NONE key field names in logical files.
 - SpooledFile: Retrieve ATTR_CHR_RTT_CMDS attribute.
 - SpooledFile: Don't retrieve ATTR_DATE_END or ATTR_TIME_END.
-- UserSpace: *SYSTEM domain was being sent to the server as *SYSTFM on a create().
+- User space: *SYSTEM domain was being sent to the server as *SYSTFM on a create().
 </PRE>
 
 <HR>
@@ -611,11 +667,11 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Connection: Added serialVersionUID to SocketProperties.
 - Connection: Added AS400.setDDMRDB() method to set the IASP/RDB to use for record-level access (RLA).
 - Connection: Added AS400.getSocketProperties().
-- Connection pools: Fixed bug #3727 - Don't synchronize the entire pool in order to get one connection out.
-- Connection pools: Added socket properties.
-- Connection pools: Allow null password.
-- Connection pools: Set thread name on maintenance thread.
-- Connection pools: Don't start maintenance thread if threadUsed is false.
+- Connection pool: Fixed bug #3727 - Don't synchronize the entire pool in order to get one connection out.
+- Connection pool: Added socket properties.
+- Connection pool: Allow null password.
+- Connection pool: Set thread name on maintenance thread.
+- Connection pool: Don't start maintenance thread if threadUsed is false.
 - Data conversion: Added another variant of CharConverter.byteArrayToString() and stringToByteArray().
 - Data conversion: Enhanced bidi algorithms.
 - Data conversion: Directly support CCSID 1208 (UTF-8).
@@ -671,9 +727,9 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Connection: Open sourced AS400ImplRemote.
 - Connection: Support extra GSS/Kerberos option of authentication for portlet environment.
 - Connection: Catch socket properties exceptions when tracing is active.
-- Connection pools: Moved inner classes to their own external definitions, to avoid possible JIT errors.
-- Connection pools: Check for null in AS400JDBCConnectionPool.setDataSource().
-- Connection pools: Ensure AS400 object is connected when it is retrieved from the pool.
+- Connection pool: Moved inner classes to their own external definitions, to avoid possible JIT errors.
+- Connection pool: Check for null in AS400JDBCConnectionPool.setDataSource().
+- Connection pool: Ensure AS400 object is connected when it is retrieved from the pool.
 - Data areas: Cleaned up implementation of subclass delete() methods.
 - Data conversion: Added NLV mapping for zh_CN.
 - Data conversion: Added getInstanceType() methods to AS400DataType classes for performance.
@@ -715,7 +771,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - JDBC: Added proxy support for ParameterMetaData.
 - JDBC: Set table name from first SELECT FROM TABLE only, in the case of a subquery.
 - JDBC: Changes to how the default schema is added to the library list.
-- Jobs: Return empty array when JobList length is 0.
+- Job: Return empty array when JobList length is 0.
 - Messages: Added option to get the user who sent the message as well as the initial user of the job. 
 - Messages: Fixed MessageFile.replaceText() to use the correct indices.
 - Messages: Support more than 10 messages returned from a remote command or API call.
@@ -752,8 +808,8 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Command: Add product library to library list before refreshing panel group information.
 - Command: Separated getXMLXXX() methods so as not to rely on system command information.
 - Command call: Deprecated getJob() in favor of getServerJob().
-- Connection pools: Changed ConnectionListEvent.getSource() to always return an AS400 object.
-- Connection pools: Added synchronization; throw exception if PooledConnection is in use.
+- Connection pool: Changed ConnectionListEvent.getSource() to always return an AS400 object.
+- Connection pool: Added synchronization; throw exception if PooledConnection is in use.
 - Data conversion: CCSID 1200 is now UTF-16; CCSID 1202 is now little endian UCS-2.
 - Data conversion: Fixed ArrayIndexOutOfBoundsException in ConvTableReader.
 - Data conversion: Bidi strings are now padded before conversion algorithm is applied, instead of after.
@@ -827,7 +883,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Security: Refreshed codebase from Toolbox LPP; open sourced.
 - Security: Changes to authentication token generation.
 - Servlet: Support XSL-FO tags.
-- System values: Support QTHDRSCAFN and QTHDRSCADJ.
+- System value: Support QTHDRSCAFN and QTHDRSCADJ.
 - User: Updated javadoc and synchronization in UserList.
 - User space: Added constants; allow *USER.
 - Utilities: Support specifying alternate panel group to retrieve help text in CommandHelpRetriever.
