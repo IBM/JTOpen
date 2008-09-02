@@ -68,6 +68,7 @@ extends DBBaseRequestDS
     public static final int FETCH_AFTER_LAST    = 0x0005;
     public static final int FETCH_CURRENT       = 0x0006;
     public static final int FETCH_RELATIVE      = 0x0007;
+    public static final int FETCH_DIRECT        = 0x0008;  //@abs2
 
     //@F6A Constants for cursor sensitivity property (for >= v5r2 systems)
     public static final int CURSOR_NOT_SCROLLABLE_ASENSITIVE  = 0;      
@@ -200,7 +201,7 @@ extends DBBaseRequestDS
 	{
 	    // The system gives an error when we pass rows
 	    // and value != FETCH_RELATIVE.
-	    if (value == FETCH_RELATIVE)
+	    if (value == FETCH_RELATIVE || value == FETCH_DIRECT) //@abs2
     		addParameter (0x380E, (short)value, rows);
         else
             addParameter (0x380E, (short)value);

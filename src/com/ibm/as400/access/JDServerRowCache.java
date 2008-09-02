@@ -501,52 +501,98 @@ Sets the fetch size.
 
 
 
+  //@abs2 re-design method
+  /* absolute may or maynot go to server */
   public void absolute (int rowNumber)
   throws SQLException
-  {
-    // Since the system does not provide a fetch absolute,
-    // we have to start at the first or last (depending
-    // on the sign of the row number) and go relative
-    // from there.
-    // 
-    // @E1A: I investigated making the call to first()
-    // or last() more efficient.  In a nutshell, I changed
-    // them to position the cursor on the system, but
-    // not to fetch data.  In addition, I tried to chain
-    // the requests to the following call to relative().
-    // This did not work since, in some cases, the call
-    // to first() or last() resulted in an error class:
-    // return code of 2:701, signalling the last block.
-    // Since this is a non-zero error code, the chained
-    // relative() request fails with 7:1000 return code.
-    // So, I decided to resign to the fact the absolute
-    // will be slow in many cases!
-    //
-    // The change for @G1 is to force a trip to the system.
-    // That syncs the system cursor with the client cursor.
-    // Before we forced a trip to the system we would get
-    // in the case where the system cursor was one place,
-    // we thought we were in a different place, and data
-    // for the wrong row was given to the app. 
-    if (rowNumber >= 0)  //@rel2 >=
-    {
-      if(cursor_.isClosed())  //@CU1
-      {                    //@max1
-          if(!firstBlock_) //@max1
-              return;      //@max1 //can't go and refetch since cursor is closed.
-          first(false);       //@CU1
-      }                    //@max1
-      else                    //@CU1
-          first (true);                                                // @G1c
-      relative (rowNumber - 1);
-    }
-    else
-    {
-      last (true);                                                 // @G1c
-      relative (rowNumber + 1);
-    }
+  {	  
+      // If the row is in the cache, then move the index
+      // withing the cache.
+
+      int newIndex = index_;
+      
+      //int serverRowIndexFromBeg = cursorPositionOfFirstRowInCache_ + index_; //1 is on first row
+      //int numberOfServerRows = cursorPositionOfFirstRowInCache_ + cached_ - 1;//!!when lastBlock_==true
+
+      if ( (rowNumber >= cursorPositionOfFirstRowInCache_) && (rowNumber < cursorPositionOfFirstRowInCache_+ cached_ )&& (rowNumber >= 0) && (cursorPositionOfFirstRowInCache_ != NOT_KNOWN))
+      {
+          //rowNumber is positive and row is in cache_
+          index_ = rowNumber - cursorPositionOfFirstRowInCache_;
+      }
+      else if((rowNumber<0) && lastBlock_ && (cached_ >= -rowNumber) && (cursorPositionOfFirstRowInCache_ != NOT_KNOWN))
+      {
+          //rowNumber is negative and row is in cache_
+          //if lastBlock_ then we know we can just count backwards to the offset in cache_
+          //(ie if rowNumber is in cache and last row in cache_ is last row on server)
+          index_ = cached_ + rowNumber;
+      }
+      // Otherwise, fetch data from the system.  If the
+      // last block is flagged, then this means the
+      // request was not valid.
+      else
+      {
+          // Since we could not find the row in the cache we have to find
+          // it on the system. 
+
+          absolute(rowNumber, true);
+          return; 
+      }
+
+      row_.setRowIndex (index_);
   }
 
+
+  //@abs2
+  void absolute (int rowNumber, boolean mustAccessServer)
+  throws SQLException
+  {
+  
+      if(mustAccessServer == false)
+      {
+          absolute(rowNumber);
+          return;
+      }
+
+      //int newIndex = rowNumber; 
+      boolean endBlock = false;
+      if(rowNumber > 0)
+      {
+          if(cursor_.isClosed() )//&& !firstBlock_)  
+          {                    //@max1
+              return;          //@max1 //can't go and refetch since cursor is closed.
+          }                    //@max1
+          else
+          {
+              endBlock = fetch (DBSQLRequestDS.FETCH_DIRECT, rowNumber);
+          }
+      }
+      else if(rowNumber == 0)
+      {
+          //fetch(direct,0) followed by fetch(relative,-x) does not work
+          beforeFirst(true);
+      }
+      else
+      {
+          //hostserver fetch(direct) does not support negative directions
+          //have to do last() and then reletive(-x)
+          last (true);
+          relative (rowNumber + 1);
+      }
+      firstBlock_ = false;                               
+
+      if (endBlock == false)
+      {
+          index_ = 0;
+          // @E1D firstBlock_ = false;
+          lastBlock_ = endBlock;
+      }
+
+      cursorPositionOfFirstRowInCache_ = rowNumber;
+
+      row_.setRowIndex (index_);
+  }
+
+ 
 
 
   public void afterLast ()
@@ -573,7 +619,28 @@ Sets the fetch size.
     row_.setRowIndex (index_);
   }
 
+  public void beforeFirst (boolean mustAccessServer)
+  throws SQLException
+  {
+      if(mustAccessServer == false)
+      {
+          beforeFirst();
+          return;
+      }
+      else
+      {
+          fetch (DBSQLRequestDS.FETCH_BEFORE_FIRST);
+          firstBlock_ = true;
+          lastBlock_ = false;
+          index_ = -1;
 
+          // BeforeFirst will not return any rows.  Set the 
+          // variable to 0 to indicate we are before the first row.
+          cursorPositionOfFirstRowInCache_ = 0;
+
+          row_.setRowIndex (index_);
+      }
+  }
 
   public void beforeFirst ()
   throws SQLException
@@ -753,7 +820,7 @@ Sets the fetch size.
       {
         // @G1a  
         if (cursorPositionOfFirstRowInCache_ > 0)                 // @G1a  
-          absolute(cursorPositionOfFirstRowInCache_);            // @G1a
+          absolute(cursorPositionOfFirstRowInCache_, true);            // @G1a //@abs2
         else                                                      // @G1a
           JDError.throwSQLException (JDError.EXC_INTERNAL);      // @G1a
       }                                                            // @G1a
@@ -816,7 +883,7 @@ Sets the fetch size.
         {
           // @G1a
           if (cursorPositionOfFirstRowInCache_ > 0)                // @G1a
-            absolute(cursorPositionOfFirstRowInCache_ + index_);  // @G1a 
+            absolute(cursorPositionOfFirstRowInCache_ + index_, true);  // @G1a //@abs2
           else                                                     // @G1a
             JDError.throwSQLException (JDError.EXC_INTERNAL);     // @G1a
         }                                                           // @G1a
@@ -825,7 +892,7 @@ Sets the fetch size.
             rowNumber--; //@rel2
         else if(index_ == cached_) //@rel3 (if index_ is past the cache_ content, add 1 to rowNumber to account that index_ is not on a current row) //@rel4
             rowNumber += index_;  //@rel3 //@rel4 even if after last, cursor on host may not know it and may be off by count in cache_
-        boolean endBlock = fetch (DBSQLRequestDS.FETCH_RELATIVE, rowNumber);
+        boolean endBlock = fetch (DBSQLRequestDS.FETCH_RELATIVE, rowNumber); //@abs2 comment: why not combine absolutesynchwithserver and fetch using something like fetch(-cache_ + index_ + rowNumber)
         firstBlock_ = false;                                // @E1A
 
         if (endBlock == false)
