@@ -51,9 +51,16 @@ Constructor.
     // Initialize.
     defaultSchema_ = null;
     if (!defaultSchema.equals("") || defaultSchema != null)
-      if (defaultSchema.length() > 0)
-        defaultSchema_ = defaultSchema.toUpperCase ();
-
+    {
+        if(defaultSchema.length() > 0)
+        {
+            if (defaultSchema.startsWith("\""))  //@delim3
+                defaultSchema_ = defaultSchema;  //@delim3
+            else                                 //@delim3
+                defaultSchema_ = defaultSchema.toUpperCase ();
+        }
+    }
+    
     // @F1: through v4r5 the system automatically added the default schema
     //      to the front of the library list.  In v5r1 they stopped adding it.
     //      ODBC Customers complained their apps no longer worked so ODBC changed

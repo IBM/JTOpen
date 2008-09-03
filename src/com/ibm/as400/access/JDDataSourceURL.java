@@ -298,6 +298,22 @@ Parse a URL.
         else
           token = subname.substring (priorSemicolonPos+1,
                                      nextSemicolonPos);
+        //@delim3 allow quoted default schema in url
+        int nextQuote = -1;                                               //@delim3
+        //Check if schema is quoted.  Parsing could have split schema if it contains ';'.   //@delim3
+        if(token.indexOf ('"') != -1 )                                   //@delim3
+        {                                                                //@delim3
+            if (token.endsWith("\""))                                    //@delim3
+            {                                                            //@delim3
+                nextQuote = nextSemicolonPos-1;                          //@delim3
+            }else                                                        //@delim3
+            {                                                            //@delim3
+                nextQuote = subname.indexOf('"', nextSemicolonPos);      //@delim3
+                token += subname.substring(nextSemicolonPos, nextQuote + 1); //@delim3
+                nextSemicolonPos = nextQuote + 1;                        //@delim3
+            }                                                            //@delim3
+        }                                                                //@delim3
+        
         ++tokenCount;
 
         // Parse the first token.  This is the system name and
@@ -328,7 +344,7 @@ Parse a URL.
 
           // Validate the schema.
           int slash2 = schema_.indexOf ('/');
-          if (slash2 != -1) {
+          if (slash2 != -1 && nextQuote == -1) {  //@delim3
             schema_ = schema_.substring (0, slash2);
             extraPathSpecified_ = true;
           }
