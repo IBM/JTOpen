@@ -800,8 +800,16 @@ public class SystemStatus implements Serializable
         {
             byte[] poolInformation = new byte[length];
             System.arraycopy(receiverVariables_[3], offset, poolInformation, 0, length);
-	    // Extracting the system pool identification using "BinaryConverter.byteArrayToInt( poolInformation, 0 )"
-            SystemPool systemPool = new SystemPool(system_, poolInformation, BinaryConverter.byteArrayToInt( poolInformation, 0 ));
+            SystemPool systemPool = null;
+            int poolIdentifier = BinaryConverter.byteArrayToInt(poolInformation, 0);
+            if (poolIdentifier != 0) // this will usually (maybe always) be true
+            {
+              systemPool = new SystemPool(system_, poolIdentifier);
+            }
+            else {
+              String poolName = new CharConverter(system_.getJobCcsid(), system_).byteArrayToString(poolInformation, 44, 10);
+              systemPool = new SystemPool(system_, poolName);
+            }
             poolsVector_.addElement(systemPool);
             offset += length;
         }
