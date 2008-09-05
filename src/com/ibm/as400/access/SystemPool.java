@@ -139,6 +139,11 @@ public class SystemPool
      {
        if (subsystem == null) throw new NullPointerException ("subsystem");
 
+       if (sequenceNumber < 1 || sequenceNumber > 10)
+       {
+         throw new ExtendedIllegalArgumentException("sequenceNumber (" + sequenceNumber + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+       }
+
        system_ = subsystem.getSystem();
        poolName_ = Integer.toString(sequenceNumber);
        subsystemLibrary_ = subsystem.getLibrary();
@@ -172,16 +177,6 @@ public class SystemPool
        cacheChanges_ = false;
      }
 
-     SystemPool(AS400 system, byte[] poolInformation) throws AS400SecurityException, IOException
-     {
-         this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 44, 10));
-     }
-
-     SystemPool(AS400 system, byte[] poolInformation, int poolIdentifier) throws AS400SecurityException, IOException
-     {
-         this(system, new CharConverter(system.getJobCcsid(), system).byteArrayToString(poolInformation, 44, 10), poolIdentifier);
-     }
-
      /**
       * Constructs a SystemPool object, to represent a <i>shared</i> system pool.
       *
@@ -199,8 +194,13 @@ public class SystemPool
          if (poolName == null)
             throw new NullPointerException ("poolName");
 
+         if (poolIdentifier < 1 || poolIdentifier > 64)
+         {
+           throw new ExtendedIllegalArgumentException("poolIdentifier (" + poolIdentifier + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+         }
+
          system_ = system;
-         poolName_ = poolName;
+         poolName_ = poolName.trim();
          poolIdentifier_ = new Integer(poolIdentifier);
          indicatedSharedPool_ = true;
 
@@ -222,6 +222,11 @@ public class SystemPool
      {
          if (system == null)
             throw new NullPointerException ("system");
+
+         if (poolIdentifier < 1 || poolIdentifier > 64)
+         {
+           throw new ExtendedIllegalArgumentException("poolIdentifier (" + poolIdentifier + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+         }
 
          system_ = system;
          poolIdentifier_ = new Integer(poolIdentifier);
@@ -1432,7 +1437,10 @@ public class SystemPool
       System.arraycopy(poolNam,  0, poolSelectionInformation, 10, 10);
       System.arraycopy(poolId,   0, poolSelectionInformation, 20,  4);
       parmList[5] = new ProgramParameter(poolSelectionInformation);
-      if (DEBUG) System.out.println("QWCRSSTS parm 6: type==|" + typeOfPool +"| , name==|"+ sharedPoolName.toString() +"| , ID==|"+ systemPoolIdentifier +"|");
+      if (Trace.isTraceOn())
+      {
+        Trace.log(Trace.DIAGNOSTIC, "QWCRSSTS parameter 6: poolType==|" + typeOfPool +"| , poolName==|"+ sharedPoolName.toString() +"| , poolID==|"+ systemPoolIdentifier +"|");
+      }
 
       // Size of pool selection information.
       // Valid values are 0, 20, or 24
@@ -2260,7 +2268,7 @@ public class SystemPool
                     ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
 
         String oldValue = poolName_;
-        String newValue = poolName;
+        String newValue = poolName.trim();
         if (vetos_ != null) vetos_.fireVetoableChange("poolName", oldValue, newValue);
         poolName_ = poolName;
         if (changes_ != null) changes_.firePropertyChange("poolName", oldValue, newValue);
