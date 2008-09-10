@@ -134,6 +134,18 @@ implements ReturnCodeException {
     }
 
     /**
+      Constructs an InternalErrorException object. It indicates that
+      an internal error has occurred.  The string is displayed
+      at the end of the message.
+      @param returnCode The return code which identifies the message to be displayed.
+      @param text  The string to add to the end of the message
+    **/
+    InternalErrorException(int returnCode, String text) {
+        super(loader_.getText(getMRIKey(returnCode)) + " " + text);
+        rc_ = returnCode;
+    }
+
+    /**
        Constructs an InternalErrorException object.
        It indicates that an internal error has occurred.
        @param errorInfo Additional error information.
