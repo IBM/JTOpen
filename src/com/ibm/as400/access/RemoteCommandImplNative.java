@@ -403,6 +403,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        if (priorCallWasOnThread_ == FALSE)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
+        }
+        priorCallWasOnThread_ = TRUE;
+
         try
         {
             if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
@@ -464,6 +470,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending program to super class.");
             return super.runProgram(library, name, parameterList, false, messageOption);
         }
+        if (priorCallWasOnThread_ == FALSE)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
+        }
+        priorCallWasOnThread_ = TRUE;
+
         // Run the program on-thread.
         if (!alreadyOpenedOnThisThread) open(true);
 

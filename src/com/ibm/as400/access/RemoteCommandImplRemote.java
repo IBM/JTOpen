@@ -19,6 +19,8 @@ import java.io.IOException;
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
     private static final String CLASSNAME = "com.ibm.as400.access.RemoteCommandImplRemote";
+    static final Boolean TRUE = Boolean.TRUE;
+    static final Boolean FALSE = Boolean.FALSE;
     static
     {
         if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
@@ -31,6 +33,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     private AS400Server server_;
     AS400Message[] messageList_ = new AS400Message[0];
     int serverDataStreamLevel_ = 0;
+    // Flag for detecting when sequential calls switch between on-thread and off-thread.
+    protected Boolean priorCallWasOnThread_ = null;
 
     static
     {
@@ -215,6 +219,12 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     private boolean runCommand(byte[] command, int messageCount, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
+        if (priorCallWasOnThread_ == TRUE)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was on-thread, but this call is off-thread, so different job.");
+        }
+        priorCallWasOnThread_ = FALSE;
+
         try
         {
             // Create and send request.
@@ -248,6 +258,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running program: " + library + "/" + name);
+        if (priorCallWasOnThread_ == TRUE)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was on-thread, but this call is off-thread, so different job.");
+        }
+        priorCallWasOnThread_ = FALSE;
 
         // Connect to server
         open(threadSafety);
@@ -309,6 +324,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, boolean threadSafety, int procedureNameCCSID, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running service program: " + library + "/" + name + " procedure name: " + procedureName);
+        if (priorCallWasOnThread_ == TRUE)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was on-thread, but this call is off-thread, so different job.");
+        }
+        priorCallWasOnThread_ = FALSE;
 
         // Connect to server.
         open(threadSafety);
