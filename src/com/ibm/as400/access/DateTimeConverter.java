@@ -115,9 +115,11 @@ public class DateTimeConverter
     if (inFormat == null) throw new NullPointerException("inFormat");
     if (outFormat == null) throw new NullPointerException("outFormat");
 
+    int vrm = system_.getVRM(); 
+        
     // Setup the parameters
     // Change to use optional parms to be able to request UTC time    @A1A
-    ProgramParameter[] parmlist = new ProgramParameter[10];         //@A1C
+    ProgramParameter[] parmlist = new ProgramParameter[(vrm < 0x00050300) ? 5 : 10];         //@A1C
     // First parameter is the input format.
     parmlist[0] = new ProgramParameter(text10_.toBytes(inFormat));
     // Second parameter is the input variable.
@@ -130,22 +132,25 @@ public class DateTimeConverter
     byte[] errorCode = new byte[70];
     parmlist[4] = new ProgramParameter(errorCode);
     
-    // Use Optional Paramter Group 1                                  @A1A
-    parmlist[5] = new ProgramParameter(text10_.toBytes("*SYS"));    //@A1A
-    if (getCurrentSystemTimeUTC)                                    //@A1A
+    if (vrm >= 0x00050300)
     {
-      parmlist[6] = new ProgramParameter(text10_.toBytes("*UTC"));  //@A1A
-      getCurrentSystemTimeUTC = false;                              //@A1A
+      // Use Optional Paramter Group 1                                  @A1A
+      parmlist[5] = new ProgramParameter(text10_.toBytes("*SYS"));    //@A1A
+      if (getCurrentSystemTimeUTC)                                    //@A1A
+      {
+        parmlist[6] = new ProgramParameter(text10_.toBytes("*UTC"));  //@A1A
+        getCurrentSystemTimeUTC = false;                              //@A1A
+      }
+      else
+      {
+        parmlist[6] = new ProgramParameter(text10_.toBytes("*SYS"));  //@A1A
+      }
+      // No need to use the Time zone information output (set to 0)   //@A1A
+      parmlist[7] = new ProgramParameter(0);    //TimeZoneInfo output - @A1A
+      parmlist[8] = new ProgramParameter(BinaryConverter.intToByteArray(0));//@A1A
+      parmlist[9] = new ProgramParameter(text10_.toBytes("0")); //@A1A
     }
-    else
-    {
-      parmlist[6] = new ProgramParameter(text10_.toBytes("*SYS"));  //@A1A
-    }
-    // No need to use the Time zone information output (set to 0)   //@A1A
-    parmlist[7] = new ProgramParameter(0);    //TimeZoneInfo output - @A1A
-    parmlist[8] = new ProgramParameter(BinaryConverter.intToByteArray(0));//@A1A
-    parmlist[9] = new ProgramParameter(text10_.toBytes("0")); //@A1A
-
+    
     // Set the program name and parameter list
     try
     {
@@ -261,7 +266,8 @@ public class DateTimeConverter
     // necessary adjustments to represent the server time in the local time-zone.
     // ---------------------------------------------------------------------------------------
     // Begin changes for -------------------------------------------- @A1A
-    if (inFormat.equalsIgnoreCase("*CURRENT"))
+    int vrm = system_.getVRM(); 
+    if ((inFormat.equalsIgnoreCase("*CURRENT")) && (vrm >= 0x00050300))
     {
       // We already obtained the AS400 system date/time as a UTC time.
       // We will now adjust it to the local time offset from UTC
