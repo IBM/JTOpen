@@ -769,7 +769,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
     public Object getValue(String name)
         throws PcmlException
     {
-        return m_pcmlDoc.getValue(name);
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Entered method ProgramCallDocument.getValue("+name+")");
+
+      Object val = m_pcmlDoc.getValue(name);
+
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Exiting method ProgramCallDocument.getValue("+name+")");
+
+      return val;
     }
 
     /**
@@ -818,7 +824,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
     public Object getValue(String name, int[] indices)
         throws PcmlException
     {
-        return m_pcmlDoc.getValue(name, new PcmlDimensions(indices));
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Entered method ProgramCallDocument.getValue("+name+", indices)");
+
+      Object val = m_pcmlDoc.getValue(name, new PcmlDimensions(indices));
+
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Exiting method ProgramCallDocument.getValue("+name+", indices)");
+
+      return val;
     }
 
     /**

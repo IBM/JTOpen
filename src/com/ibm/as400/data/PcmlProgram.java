@@ -18,6 +18,7 @@ import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ServiceProgramCall;                     // @B1A
 import com.ibm.as400.access.ProgramParameter;
+import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
@@ -678,7 +679,11 @@ class PcmlProgram extends PcmlDocNode
         //
         // Call the target program
         //
+        if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Submitting program call: " + m_pgmCall.getProgram() + " ...");
+
         m_pgmRc = m_pgmCall.run();                                    // @B1A
+
+        if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Completed program call: " + m_pgmCall.getProgram());
 
         //
         // If the program signalled a message, save the message list.
