@@ -102,8 +102,8 @@ class ConvTableJavaMap extends ConvTable
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "IOException occurred on stringToByteArray for encoding " + encoding_, e);
             }
             writer_ = null;
+            ret = outBuffer_.toByteArray();
         }
-        ret = outBuffer_.toByteArray();
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
         return ret;
     }

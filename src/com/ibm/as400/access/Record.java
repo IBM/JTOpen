@@ -529,7 +529,9 @@ public class Record implements Serializable
       // Determine the number of bytes that make of the record
       AS400DataType dType;
       int offset = 0;
-      Trace.log(Trace.INFORMATION, "recordLength_: " + String.valueOf(recordLength_));
+      if (Trace.traceOn_) {
+        Trace.log(Trace.INFORMATION, "recordLength_: " + String.valueOf(recordLength_));
+      }
       byte[] toBytes = new byte[recordLength_];
       FieldDescription f;
       int variableFieldLength;
@@ -1326,9 +1328,9 @@ public class Record implements Serializable
     {
       throw new ExtendedIllegalArgumentException("contents", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
-    if (offset < 0)
+    if (offset < 0 || offset >= contents.length)
     {
-      throw new ExtendedIllegalArgumentException("offset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("offset (" + offset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
     if (hasDependentFields_)
@@ -1444,6 +1446,11 @@ public class Record implements Serializable
     }
     else
     { // No dependent fields; we can convert on the fly as necessary
+      if (contents.length - offset < as400Data_.length)
+      {
+        Trace.log(Trace.WARNING, "Byte array has insufficient length for record.  contents length: " + contents.length + ", offset: " + offset + ", record length: " + as400Data_.length);
+        throw new ExtendedIllegalArgumentException("contents.length (" + contents.length + "), offset (" + offset + "), recordLength (" + as400Data_.length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
       System.arraycopy(contents, offset, as400Data_, 0, as400Data_.length);
       // Indicate that no fields have been converted yet
       for (int i = 0; i < isConvertedToJava_.length; ++i)
