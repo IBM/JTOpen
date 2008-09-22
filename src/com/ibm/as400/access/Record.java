@@ -1448,7 +1448,7 @@ public class Record implements Serializable
     { // No dependent fields; we can convert on the fly as necessary
       if (contents.length - offset < as400Data_.length)
       {
-        Trace.log(Trace.WARNING, "Byte array has insufficient length for record.  contents length: " + contents.length + ", offset: " + offset + ", record length: " + as400Data_.length);
+        Trace.log(Trace.ERROR, "Byte array has insufficient length for record.  contents length: " + contents.length + ", offset: " + offset + ", record length: " + as400Data_.length);
         throw new ExtendedIllegalArgumentException("contents.length (" + contents.length + "), offset (" + offset + "), recordLength (" + as400Data_.length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
       }
       System.arraycopy(contents, offset, as400Data_, 0, as400Data_.length);
