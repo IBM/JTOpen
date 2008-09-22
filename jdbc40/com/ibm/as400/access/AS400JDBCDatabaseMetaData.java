@@ -381,7 +381,11 @@ implements DatabaseMetaData
                 "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cstmt.execute();
 
-            return cstmt.getResultSet();
+            ResultSet rs = cstmt.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         // Initialize the format of the result set.
@@ -578,7 +582,11 @@ implements DatabaseMetaData
             cstmt.setString(4, "%");
             cstmt.setString(5, "DATATYPE='JDBC';GETCATALOGS=1;CURSORHOLD=1");
             cstmt.execute();
-            return cstmt.getResultSet();
+            ResultSet rs = cstmt.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         String[] fieldNames = {"TABLE_CAT"};
@@ -749,7 +757,10 @@ implements DatabaseMetaData
             cstmt.setString(4, normalize(columnPattern));
             cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");  //@pdc options per db2 common design.  //@mdsp more native synch
             ResultSet rs = cstmt.executeQuery();
-            return rs;
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //--------------------------------------------------------
@@ -980,7 +991,11 @@ implements DatabaseMetaData
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+            
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            return rs;  //@mdrs
 
             // Create an return the result set for the request.
             // Note: This will failed until SQLCOLUMNS returns more columns
@@ -1471,7 +1486,11 @@ implements DatabaseMetaData
             cs.setString(7, "DATATYPE='JDBC';EXPORTEDKEY=0;IMPORTEDKEY=0;DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //--------------------------------------------------------
@@ -1929,7 +1948,11 @@ implements DatabaseMetaData
             cs.setString(7, "DATATYPE='JDBC';EXPORTEDKEY=1; CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
 
         
@@ -2205,7 +2228,11 @@ implements DatabaseMetaData
             cs.setString(7, "DATATYPE='JDBC';IMPORTEDKEY=1; CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //--------------------------------------------------------
@@ -2473,9 +2500,11 @@ implements DatabaseMetaData
         	cstmt.setString(6, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
         	cstmt.execute();
 
-        	ResultSet rs = cstmt.getResultSet();
-
-        	return rs;
+            ResultSet rs = cstmt.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
 
         }
         //@pda 550  derived keys support.  change to call sysibm.SQLSTATISTICS  --end
@@ -3096,7 +3125,11 @@ implements DatabaseMetaData
             cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //--------------------------------------------------------
@@ -3294,7 +3327,11 @@ implements DatabaseMetaData
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
 
         }         
                     
@@ -3521,7 +3558,11 @@ implements DatabaseMetaData
             cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //--------------------------------------------------------
@@ -3720,7 +3761,11 @@ implements DatabaseMetaData
             cs.setString(4, "%");
             cs.setString(5, "DATATYPE='JDBC';GETSCHEMAS=1;CURSORHOLD=1");
             cs.execute();
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         return JDUtilities.getLibraries(this, connection_, settings_, false);  //@DELIMa
@@ -3975,7 +4020,11 @@ implements DatabaseMetaData
             cs.setString(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //-----------------------------------------------------
@@ -4237,7 +4286,11 @@ implements DatabaseMetaData
             cs.setString(5,
                     "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
 
         }
         
@@ -4716,7 +4769,11 @@ implements DatabaseMetaData
           cs.setString(4, "%");
           cs.setString(5, "DATATYPE='JDBC';GETTABLETYPES=1;CURSORHOLD=1");
           cs.execute();
-          return cs.getResultSet();
+          ResultSet rs = cs.getResultSet();  //@mdrs
+          if(rs != null)                        //@mdrs
+              ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+          
+          return rs;  //@mdrs
         }
         
         
@@ -4803,7 +4860,11 @@ implements DatabaseMetaData
             cs.setShort(1, (short) SQL_ALL_TYPES);
             cs.setString(2, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
-            return   cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         // Initialize a row to describe the format of the result set.
@@ -5092,7 +5153,11 @@ implements DatabaseMetaData
             cs.setString(4, typesString);
             cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         int vrm = connection_.getVRM();  //@trunc3
@@ -5388,7 +5453,11 @@ implements DatabaseMetaData
             cs.setString(7, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
             cs.execute();
 
-            return cs.getResultSet();
+            ResultSet rs = cs.getResultSet();  //@mdrs
+            if(rs != null)                        //@mdrs
+                ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            
+            return rs;  //@mdrs
         }
         
         //--------------------------------------------------------
@@ -7409,8 +7478,12 @@ implements DatabaseMetaData
         cstmt.setString(3, "%");  //@mdsp
         cstmt.setString(4, "%");  //@mdsp
         cstmt.setObject(5, "DATATYPE='JDBC';GETSCHEMAS=2;CURSORHOLD=1");
-        ResultSet rs = cstmt.executeQuery();
-        return rs;
+        cstmt.execute(); //@mdrs
+        ResultSet rs = cstmt.getResultSet();  //@mdrs
+        if(rs != null)                        //@mdrs
+            ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+        
+        return rs;  //@mdrs
     }
 
 
@@ -7500,8 +7573,12 @@ implements DatabaseMetaData
         cstmt.setString(2, normalize(schemaPattern));
         cstmt.setString(3, normalize(functionNamePattern));
         cstmt.setObject(4, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
-        ResultSet rs = cstmt.executeQuery();
-        return rs;
+        cstmt.execute(); //@mdrs
+        ResultSet rs = cstmt.getResultSet();  //@mdrs
+        if(rs != null)                        //@mdrs
+            ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+        
+        return rs;  //@mdrs
     }
 
 
@@ -7625,8 +7702,12 @@ implements DatabaseMetaData
         cstmt.setString(3, normalize(functionNamePattern));
         cstmt.setString(4, normalize(columnNamePattern));
         cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
-        ResultSet rs = cstmt.executeQuery();
-        return rs;
+        cstmt.execute();//@mdrs
+        ResultSet rs = cstmt.getResultSet();  //@mdrs
+        if(rs != null)                        //@mdrs
+            ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+        
+        return rs;  //@mdrs
     }
   
       

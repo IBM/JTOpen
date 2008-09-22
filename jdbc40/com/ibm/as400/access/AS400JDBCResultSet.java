@@ -209,6 +209,7 @@ implements ResultSet
     private boolean[]                   updateSet_;
     private boolean                     wasNull_;
     private boolean                     wasDataMappingError_;
+    boolean                             isMetadataResultSet = false; //@mdrs
 
 
     /*---------------------------------------------------------*/
@@ -674,7 +675,10 @@ implements ResultSet
     public Statement getStatement ()
     throws SQLException
     {
-        return statement_;
+        if(isMetadataResultSet)//@mdrs
+            return null;       //@mdrs
+        else                   //@mdrs
+            return statement_;
     }
 
 
