@@ -1388,9 +1388,7 @@ implements Serializable
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    DateTimeConverter conv = new DateTimeConverter(system_);
-    Date d = conv.convert(data, "*DTS");
-    return d;
+    return new DateTimeConverter(system_).convert(data, "*DTS");
   }
 
 

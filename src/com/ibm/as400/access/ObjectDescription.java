@@ -1138,8 +1138,7 @@ public class ObjectDescription
     else if (o instanceof byte[])
     {
       byte[] b = (byte[])o; // system timestamp
-      DateTimeConverter dtConv = new DateTimeConverter(system_);
-      return dtConv.convert(b, "*DTS");
+      return new DateTimeConverter(system_).convert(b, "*DTS");
     }
     return null;
   }
