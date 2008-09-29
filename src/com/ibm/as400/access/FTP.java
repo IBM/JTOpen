@@ -2368,9 +2368,34 @@ public class FTP implements java.io.Serializable
         if (response.startsWith("229"))
         {
             // System supports EPSV.
-            int end = response.lastIndexOf('|');
-            int begin = response.lastIndexOf('|', end - 1);
-            int port = Integer.parseInt(response.substring(begin + 1, end));
+
+            // Note: The response will be something like this (without the double-quotes):
+            // "229 Entering Extended Passive Mode (|||52900|)."
+            // Note: For some languages we will see a delimiter other than "|".
+
+            // Locate the left-parenthesis.
+            int begin = response.indexOf('(');
+            if (begin == -1) {
+              Trace.log(Trace.ERROR, "FTP server response does not contain a left parenthesis.");
+              throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, response);
+            }
+
+            // Locate the first digit of the port number.
+            int ii;
+            final int responseLength = response.length();
+            for (ii=begin+1; ii<responseLength && !Character.isDigit(response.charAt(ii)); ii++);
+            if (ii == responseLength) {
+              Trace.log(Trace.ERROR, "FTP server response does not contain a port number.");
+              throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, response);
+            }
+
+            // Locate the position after the last digit of the port number.
+            begin = ii;
+            int end;
+            for (end=begin+1; end<responseLength && Character.isDigit(response.charAt(end)); end++);
+
+            // Extract the port number from the response.
+            int port = Integer.parseInt(response.substring(begin, end));
             return new Socket(server_, port);
         }
         // System may not support EPSV, fallback to the passive command.
