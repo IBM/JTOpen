@@ -310,7 +310,8 @@ Parse a URL.
             {                                                            //@delim3
                 nextQuote = subname.indexOf('"', nextSemicolonPos);      //@delim3
                 token += subname.substring(nextSemicolonPos, nextQuote + 1); //@delim3
-                nextSemicolonPos = nextQuote + 1;                        //@delim3
+                nextSemicolonPos = subname.indexOf (';', nextQuote );//@delim4
+                //nextSemicolonPos = nextQuote + 1;                        //@delim3
             }                                                            //@delim3
         }                                                                //@delim3
         
