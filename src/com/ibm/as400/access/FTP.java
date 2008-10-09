@@ -74,9 +74,6 @@ import java.beans.*;
 
 public class FTP implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
     private static final boolean DEBUG = false;
 
@@ -132,9 +129,10 @@ public class FTP implements java.io.Serializable
     boolean reuseSocket_ = true;  // default behavior is to reuse socket
 
                // Lists of listeners
-    transient         PropertyChangeSupport changes_   = new PropertyChangeSupport(this);
-    transient         VetoableChangeSupport vetos_     = new VetoableChangeSupport(this);
-    transient         Vector                listeners_ = new Vector();
+    transient         PropertyChangeSupport changes_   = null;
+    transient         VetoableChangeSupport vetos_     = null;
+    transient         Vector                listeners_ = null;
+    private final     Object                listenerLock_ = new Object();
 
 
                // amount of data to transfer at one time
@@ -241,6 +239,15 @@ public class FTP implements java.io.Serializable
        {
           throw new NullPointerException("listener");
        }
+       if (changes_ == null)
+       {
+         synchronized(listenerLock_)
+         {
+           if (changes_ == null) {
+             changes_ = new PropertyChangeSupport(this);
+           }
+         }
+       }
        changes_.addPropertyChangeListener(listener);
     }
 
@@ -259,6 +266,15 @@ public class FTP implements java.io.Serializable
        if (listener == null)
        {
           throw new NullPointerException("listener");
+       }
+       if (listeners_ == null)
+       {
+         synchronized(listenerLock_)
+         {
+           if (listeners_ == null) {
+             listeners_ = new Vector();
+           }
+         }
        }
        listeners_.addElement(listener);
     }
@@ -375,18 +391,32 @@ public class FTP implements java.io.Serializable
 
          byte[] buffer = new byte[bufferSize_];
 
-         FileInputStream f = new FileInputStream(sourceFileName);
-         OutputStream out = append(targetFileName);
-
-         int length = f.read(buffer);
-
-         while (length > 0)
+         FileInputStream f = null;
+         OutputStream out = null;
+         try
          {
+           f = new FileInputStream(sourceFileName);
+           out = append(targetFileName);
+
+           int length = f.read(buffer);
+
+           while (length > 0)
+           {
              out.write(buffer,0,length);
              length = f.read(buffer);
+           }
          }
-         out.close();
-         f.close();
+         finally
+         {
+           try
+           {
+             if (out != null) out.close();
+           }
+           finally
+           {
+             if (f != null) f.close();
+           }
+         }
 
          if (Trace.isTraceOn())
              Trace.log(Trace.DIAGNOSTIC,"leaving append(String, String)");
@@ -413,6 +443,15 @@ public class FTP implements java.io.Serializable
        if (listener == null)
        {
           throw new NullPointerException("listener");
+       }
+       if (vetos_ == null)
+       {
+         synchronized(listenerLock_)
+         {
+           if (vetos_ == null){
+             vetos_ = new VetoableChangeSupport(this);
+           }
+         }
        }
        vetos_.addVetoableChangeListener(listener);
     }
@@ -534,7 +573,7 @@ public class FTP implements java.io.Serializable
         reader_ = new BufferedReader(new InputStreamReader(controlSocket_.getInputStream()));
         ps_ = new PrintWriter(controlSocket_.getOutputStream(), true);
 
-        String s = readReply();
+        readReply();
 
         login(user_, password_);
 
@@ -908,7 +947,7 @@ public class FTP implements java.io.Serializable
 
    void fireEvent(int event)
    {
-      if (! listeners_.isEmpty())
+      if (listeners_ != null && (!listeners_.isEmpty()))
       {
          Vector targets = (Vector) listeners_.clone();
          FTPEvent ftpEvent = new FTPEvent(this, event);
@@ -1658,18 +1697,32 @@ public class FTP implements java.io.Serializable
 
          byte[] buffer = new byte[bufferSize_];
 
-         FileInputStream f = new FileInputStream(sourceFileName);
-         OutputStream out = put(targetFileName);
-
-         int length = f.read(buffer);
-
-         while (length > 0)
+         FileInputStream f = null;
+         OutputStream out = null;
+         try
          {
+           f = new FileInputStream(sourceFileName);
+           out = put(targetFileName);
+
+           int length = f.read(buffer);
+
+           while (length > 0)
+           {
              out.write(buffer,0,length);
              length = f.read(buffer);
+           }
          }
-         out.close();
-         f.close();
+         finally
+         {
+           try
+           {
+             if (out != null) out.close();
+           }
+           finally
+           {
+             if (f != null) f.close();
+           }
+         }
 
          if (Trace.isTraceOn())
              Trace.log(Trace.DIAGNOSTIC,"leaving put(String, String)");
@@ -1717,7 +1770,9 @@ public class FTP implements java.io.Serializable
          throw new NullPointerException("listener");
       }
 
-      changes_.removePropertyChangeListener(listener);
+      if (changes_ != null) {
+        changes_.removePropertyChangeListener(listener);
+      }
    }
 
 
@@ -1735,7 +1790,9 @@ public class FTP implements java.io.Serializable
          throw new NullPointerException("listener");
       }
 
-      listeners_.removeElement(listener);
+      if (listeners_ != null) {
+        listeners_.removeElement(listener);
+      }
    }
 
 
@@ -1753,7 +1810,9 @@ public class FTP implements java.io.Serializable
          throw new NullPointerException("listener");
       }
 
-      vetos_.removeVetoableChangeListener(listener);
+      if (vetos_ != null) {
+        vetos_.removeVetoableChangeListener(listener);
+      }
    }
 
 
@@ -1763,7 +1822,7 @@ public class FTP implements java.io.Serializable
 
 // ---------------------------------------------------------------------------
    /**
-    * During object deserialization, this method is called.  When it is call
+    * During object deserialization, this method is called.  When it is called
     * we need to initialize transient data.
    **/
 
@@ -1775,9 +1834,9 @@ public class FTP implements java.io.Serializable
         connectionState_     = PARKED;
         inConnect_           = false;
         lastMessage_         = "";
-        changes_             = new PropertyChangeSupport(this);
-        vetos_               = new VetoableChangeSupport(this);
-        listeners_           = new Vector();
+        changes_             = null;
+        vetos_               = null;
+        listeners_           = null;
         externallyConnected_ = false;                              // @D2a
     }
 
@@ -1872,12 +1931,16 @@ public class FTP implements java.io.Serializable
        int oldValue = bufferSize_;
 
        // Fire a vetoable change event.
-       vetos_.fireVetoableChange("bufferSize", new Integer(oldValue), new Integer(bufferSize));
+       if (vetos_ != null) {
+         vetos_.fireVetoableChange("bufferSize", new Integer(oldValue), new Integer(bufferSize));
+       }
 
        bufferSize_ = bufferSize;
 
        // Fire the property change event.
-       changes_.firePropertyChange("bufferSize", new Integer(oldValue), new Integer(bufferSize));
+       if (changes_ != null) {
+         changes_.firePropertyChange("bufferSize", new Integer(oldValue), new Integer(bufferSize));
+       }
     }
 
 
@@ -2040,12 +2103,16 @@ public class FTP implements java.io.Serializable
        int oldValue = port_;
 
        // Fire a vetoable change event.
-       vetos_.fireVetoableChange("port", new Integer(oldValue), new Integer(port));
+       if (vetos_ != null) {
+         vetos_.fireVetoableChange("port", new Integer(oldValue), new Integer(port));
+       }
 
        port_ = port;
 
        // Fire the property change event.
-       changes_.firePropertyChange("port", new Integer(oldValue), new Integer(port));
+       if (changes_ != null) {
+         changes_.firePropertyChange("port", new Integer(oldValue), new Integer(port));
+       }
     }
 
 
@@ -2098,12 +2165,16 @@ public class FTP implements java.io.Serializable
        String oldServer = server_;
 
        // Fire a vetoable change event for system.
-       vetos_.fireVetoableChange("server", oldServer, server);
+       if (vetos_ != null) {
+         vetos_.fireVetoableChange("server", oldServer, server);
+       }
 
        server_ = server;
 
        // Fire the property change event.
-       changes_.firePropertyChange("server", oldServer, server);
+       if (changes_ != null) {
+         changes_.firePropertyChange("server", oldServer, server);
+       }
     }
 
 
@@ -2139,7 +2210,9 @@ public class FTP implements java.io.Serializable
        String oldUser = user_;
 
        // Fire a vetoable change event.
-       vetos_.fireVetoableChange("user", oldUser, user);
+       if (vetos_ != null) {
+         vetos_.fireVetoableChange("user", oldUser, user);
+       }
 
        try
        {
@@ -2150,7 +2223,9 @@ public class FTP implements java.io.Serializable
        user_ = user;
 
        // Fire the property change event.
-       changes_.firePropertyChange("user", oldUser, user);
+       if (changes_ != null) {
+         changes_.firePropertyChange("user", oldUser, user);
+       }
 
     }
 
