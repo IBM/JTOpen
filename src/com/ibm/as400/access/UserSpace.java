@@ -145,15 +145,18 @@ public class UserSpace implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        synchronized (this)
+        // If first add.
+        if (propertyChangeListeners_ == null)
         {
-            // If first add.
+          synchronized (this)
+          {
             if (propertyChangeListeners_ == null)
             {
-                propertyChangeListeners_ = new PropertyChangeSupport(this);
+              propertyChangeListeners_ = new PropertyChangeSupport(this);
             }
-            propertyChangeListeners_.addPropertyChangeListener(listener);
+          }
         }
+        propertyChangeListeners_.addPropertyChangeListener(listener);
     }
 
     /**
@@ -168,15 +171,18 @@ public class UserSpace implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        synchronized (this)
+        // If first add.
+        if (userSpaceListeners_ == null)
         {
-            // If first add.
+          synchronized (this)
+          {
             if (userSpaceListeners_ == null)
             {
-                userSpaceListeners_ = new Vector();
+              userSpaceListeners_ = new Vector();
             }
-            userSpaceListeners_.addElement(listener);
+          }
         }
+        userSpaceListeners_.addElement(listener);
     }
 
     /**
@@ -191,15 +197,18 @@ public class UserSpace implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        synchronized (this)
+        // If first add.
+        if (vetoableChangeListeners_ == null)
         {
-            // If first add.
+          synchronized (this)
+          {
             if (vetoableChangeListeners_ == null)
             {
-                vetoableChangeListeners_ = new VetoableChangeSupport(this);
+              vetoableChangeListeners_ = new VetoableChangeSupport(this);
             }
-            vetoableChangeListeners_.addVetoableChangeListener(listener);
+          }
         }
+        vetoableChangeListeners_.addVetoableChangeListener(listener);
     }
 
     // Determines the type of implementation that will be used.  Properties system, path, and  mustUseProgramCall are committed at this time.
@@ -640,9 +649,15 @@ public class UserSpace implements Serializable
         // Do the read.
         byte[] dataBuffer = new byte[length];
         read(dataBuffer, userSpaceOffset, 0, length);
-        synchronized (this)
+        if (dataConverter_ == null)
         {
-            if (dataConverter_ == null) dataConverter_ = new Converter(system_.getCcsid(), system_);
+          synchronized (this)
+          {
+            if (dataConverter_ == null)
+            {
+              dataConverter_ = new Converter(system_.getCcsid(), system_);
+            }
+          }
         }
         return dataConverter_.byteArrayToString(dataBuffer);
     }
@@ -1007,9 +1022,15 @@ public class UserSpace implements Serializable
         }
 
         chooseImpl();
-        synchronized (this)
+        if (dataConverter_ == null)
         {
-            if (dataConverter_ == null) dataConverter_ = new Converter(system_.getCcsid(), system_);
+          synchronized (this)
+          {
+            if (dataConverter_ == null)
+            {
+              dataConverter_ = new Converter(system_.getCcsid(), system_);
+            }
+          }
         }
         write(dataConverter_.stringToByteArray(data), userSpaceOffset);
     }
