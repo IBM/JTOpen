@@ -818,8 +818,8 @@ attributes. The tables organize the properties into the following categories:</P
         <li>isSearchable(int)</li>
         <li>isWriteable(int)</li>
       </ul>
-      <P>Additionally, setting this property to true enables support for the ResultSetMetaData.getSchemaName(int) 
-      method. Setting this property to true may slow performance because it requires retrieving more information 
+      <P>Additionally, setting this property to true enables support for the ResultSetMetaData.getSchemaName(int)  
+      and ResultSetMetaData.isAutoIncrement(int) methods. Setting this property to true may slow performance because it requires retrieving more information 
 	  from the system. Leave the property as the default (false) unless you need more specific information from 
 	  the listed methods. For example, when this property is off (false), ResultSetMetaData.isSearchable(int) 
       always returns "true" because because the driver does not have enough information 
