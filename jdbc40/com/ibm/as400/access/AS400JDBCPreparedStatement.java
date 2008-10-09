@@ -1303,7 +1303,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             }                                                                                              // @G6A
             return new AS400JDBCResultSetMetaData (connection_.getCatalog (),
                                                    resultSetConcurrency_, cursor_.getName (), resultRow_,
-                                                   extendedDescriptors, convTable);                        // @G6A
+                                                   extendedDescriptors, convTable, connection_);  //@in1                       // @G6A
         }
     }
 

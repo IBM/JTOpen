@@ -3034,7 +3034,7 @@ public class AS400JDBCResultSet implements ResultSet
             }                                                                                        // @G5A
             return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
                                                    cursorName_, row_, 
-                                                   extendedDescriptors, convTable);                  // @G5A
+                                                   extendedDescriptors, convTable, connection_);                  // @G5A //@in1
         }
     }
 

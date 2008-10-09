@@ -13,9 +13,13 @@
 
 package com.ibm.as400.access;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
 <p>The AS400JDBCResultSetMetaData class describes the
@@ -58,6 +62,7 @@ implements ResultSetMetaData
     private JDRow               row_;
     private DBExtendedColumnDescriptors extendedColumnDescriptors_;   //@G1A   
     private ConvTable           convTable_;                           //@G1A
+    private Connection          con_;                                 //@in1
 
     /**
     Constructs an AS400JDBCResultSetMetaData object.
@@ -73,7 +78,8 @@ implements ResultSetMetaData
                                 String cursorName,
                                 JDRow row,
                                 DBExtendedColumnDescriptors extendedColumnDescriptors,   //@G1A
-                                ConvTable convTable)                                     //@G1A
+                                ConvTable convTable,                                     //@G1A
+                                Connection con)                                 //@in1
     {
         catalog_        = catalog;
         concurrency_    = concurrency;
@@ -81,6 +87,7 @@ implements ResultSetMetaData
         row_            = row;
         extendedColumnDescriptors_ = extendedColumnDescriptors;                          //@G1A
         convTable_      = convTable;                                                     //@G1A
+        con_            = con;                                                           //@in1
     }                                                                                    
 
     /**
@@ -341,16 +348,48 @@ implements ResultSetMetaData
     /**
     Indicates if the column is automatically numbered.
     @param  columnIndex     The column index (1-based).
-    @return                 Always false.  DB2 for i5/OS
-                            does not support automatically
-                            numbered columns.
+    @return                 True if column is autoincrement, false otherwise.
     @exception  SQLException    If the column index is not valid.
+    Note:  connection property "extended metadata" must be true for this method to be used.
     **/
     public boolean isAutoIncrement(int columnIndex)
     throws SQLException
     {
         checkIndex(columnIndex);
-        return false;
+        //return false; //@in1 add implementation instead of always returning false
+
+        Statement statement = null;
+        ResultSet rs = null;
+        try
+        {
+            PreparedStatement ps = con_.prepareStatement("SELECT identity_generation " +
+                    "FROM QSYS2" + getCatalogSeparator() + "SYSCOLUMNS" +
+                    " WHERE identity_generation is not null" +
+                    " AND column_name = ?" +
+                    " AND table_name = ?" +
+                    " AND table_schema = ?");
+            ps.setString(1, this.getColumnName(columnIndex));
+            ps.setString(2, this.getTableName(columnIndex));
+            ps.setString(3, this.getSchemaName(columnIndex));
+
+            rs = ps.executeQuery();
+            if ( rs.next()) 
+                return true;
+            else
+                return false;
+
+        }
+        catch (SQLException e)
+        {
+            throw e;
+        }
+        finally
+        {
+            if(rs != null)
+                rs.close();   
+            if(statement != null)
+                statement.close();   
+        }
     }
 
     /**
@@ -511,10 +550,33 @@ implements ResultSetMetaData
         return cursorName_;
     }
     
+    
     //@pda jdbc40
     protected String[] getValidWrappedList()
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCResultSetMetaData", "java.sql.ResultSetMetaData" };
     } 
+         
+    //@in1 (copied from AS400JDBCDatabaseMetadata)
+    /**
+    Returns the naming convention used when referring to tables.
+    This depends on the naming convention specified in the connection
+    properties.
+    
+    @return     If using SQL naming convention, "." is returned. If
+                using system naming convention, "/" is returned.
+    
+    @exception  SQLException    This exception is never thrown.
+    **/
+    private String getCatalogSeparator ()
+    throws SQLException
+    {
+        String catalogSeparator;
+        if (((AS400JDBCConnection)con_).getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))
+            catalogSeparator = ".";
+        else
+            catalogSeparator = "/";
 
+        return catalogSeparator;
+    }
 }
