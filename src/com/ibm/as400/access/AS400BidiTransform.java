@@ -388,7 +388,7 @@ public class AS400BidiTransform
 
         while (low < high)
         {
-            int mid = (low + high) / 2;
+            int mid = (low + high) >>> 1;  // same as division by 2, but eliminates possibility of overflow
             if (ccsid < CCSID_TABLE[mid][0]) high = mid - 1;
             else if (ccsid > CCSID_TABLE[mid][0]) low = mid + 1;
             else return CCSID_TABLE[mid][1];
