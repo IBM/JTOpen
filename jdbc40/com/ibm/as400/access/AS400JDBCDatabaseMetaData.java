@@ -64,14 +64,14 @@ double-quotes.
 //   When the parameter is NOT search pattern capable and:
 //     null is specified for:
 //             catalog (system) - parameter is ignored
-//             schema (library) - use default library
-//                                The default library can be
+//             schema (library) - use default SQL schema
+//                                The default SQL schema can be
 //                                set in the URL. If not
 //                                specified in URL, the first
 //                                library specified in the library
 //                                properties is used as the
-//                                default library.
-//                                If no default library exists,
+//                                default SQL schema.
+//                                If no default SQL schema exists,
 //                                QGPL is used.
 //             table (file)     - empty result set is returned
 //             column (field)   - empty result set is returned
@@ -322,11 +322,11 @@ implements DatabaseMetaData
                        is ignored.  If empty string is specified,
                        an empty result set is returned.
   @param  schema         The schema name. If null is specified, the
-                       default library specified in the URL is used.
-                       If null is specified and a default library was not
+                       default SQL schema specified in the URL is used.
+                       If null is specified and a default SQL schema was not
                        specified in the URL, the first library specified
                        in the libraries properties file is used.
-                       If null is specified and a default library was
+                       If null is specified and a default SQL schema was
                        not specified in the URL and a library was not
                        specified in the libraries properties file,
                        QGPL is used.
@@ -476,7 +476,7 @@ implements DatabaseMetaData
 
                     // Set the library name
                     if (schema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setLibraryName(connection_.getDefaultSchema(), connection_.converter_); //@P0C
                     }
                     else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
@@ -696,11 +696,11 @@ implements DatabaseMetaData
                             is ignored.  If empty string is specified,
                             an empty result set is returned.
     @param  schema          The schema name. If null is specified, the
-                            default library specified in the URL is used.
-                            If null is specified and a default library was not
+                            default SQL schema specified in the URL is used.
+                            If null is specified and a default SQL schema was not
                             specified in the URL, the first library specified
                             in the libraries properties file is used.
-                            If null is specified and a default library was
+                            If null is specified and a default SQL schema was
                             not specified in the URL and a library was not
                             specified in the libraries properties file,
                             QGPL is used.
@@ -737,7 +737,7 @@ implements DatabaseMetaData
             // Set the library name
             //@mdsp follow Native JDBC logic
             /*if (schema == null)
-            {   // use default library or qgpl
+            {   // use default SQL schema or qgpl
                 schema = normalize(connection_.getDefaultSchema());
             }
             else schema = normalize(schema);
@@ -839,7 +839,7 @@ implements DatabaseMetaData
                         DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
                 // Set the library name
                 if (schema == null)
-                {   // use default library or qgpl
+                {   // use default SQL schema or qgpl
                     request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C @P0C
                 }
                 else request.setLibraryName(normalize(schema), connection_.converter_);       // @E4C @P0C
@@ -1383,11 +1383,11 @@ implements DatabaseMetaData
     @param  primarySchema    The name of the schema where the primary table
                              is located.
                              If null is specified, the
-                             default library specified in the URL is used.
-                             If null is specified and a default library was not
+                             default SQL schema specified in the URL is used.
+                             If null is specified and a default SQL schema was not
                              specified in the URL, the first library specified
                              in the libraries properties file is used.
-                             If null is specified,a default library was
+                             If null is specified,a default SQL schema was
                              not specified in the URL, and a library was not
                              specified in the libraries properties file,
                              QGPL is used.
@@ -1401,11 +1401,11 @@ implements DatabaseMetaData
                              result set is returned.
     @param  foreignSchema    The name of the schema where the primary table
                              is located. If null is specified, the
-                             default library specified in the URL is used.
-                             If null is specified and a default library was not
+                             default SQL schema specified in the URL is used.
+                             If null is specified and a default SQL schema was not
                              specified in the URL, the first library specified
                              in the libraries properties file is used.
-                             If null is specified, a default library was
+                             If null is specified, a default SQL schema was
                              not specified in the URL, and a library was not
                              specified in the libraries properties file,
                              QGPL is used.
@@ -1586,14 +1586,14 @@ implements DatabaseMetaData
 
                     // Set the primary key file library name
                     if (primarySchema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_); // @E4C @P0C
                     }
                     else request.setPrimaryKeyFileLibraryName(normalize(primarySchema), connection_.converter_);              // @E4C @P0C
 
                     // Set the foreign key file library name
                     if (foreignSchema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C @P0C
                     }
                     else request.setForeignKeyFileLibraryName(normalize(foreignSchema), connection_.converter_);                  // @E4C @P0C
@@ -1906,11 +1906,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schema         The schema name. If null is specified, the
-                           default library specified in the URL is used.
-                           If null is specified and a default library was not
+                           default SQL schema specified in the URL is used.
+                           If null is specified and a default SQL schema was not
                            specified in the URL, the first library specified
                            in the libraries properties file is used.
-                           If null is specified, a default library was
+                           If null is specified, a default SQL schema was
                            not specified in the URL, and a library was not
                            specified in the libraries properties file,
                            QGPL is used.
@@ -2046,7 +2046,7 @@ implements DatabaseMetaData
 
                     // Set the primary key file library name
                     if (schema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C @P0C
                     }
                     else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.converter_);                         // @E4C @P0C
@@ -2185,11 +2185,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schema         The schema name. If null is specified, the
-                           default library specified in the URL is used.
-                           If null is specified and a default library was not
+                           default SQL schema specified in the URL is used.
+                           If null is specified and a default SQL schema was not
                            specified in the URL, the first library specified
                            in the libraries properties file is used.
-                           If null is specified, a default library was
+                           If null is specified, a default SQL schema was
                            not specified in the URL, and a library was not
                            specified in the libraries properties file,
                            QGPL is used.
@@ -2326,7 +2326,7 @@ implements DatabaseMetaData
 
                     // Set the foreign key file library name
                     if (schema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C
                     }
                     else request.setForeignKeyFileLibraryName(normalize(schema), connection_.converter_); // @E4C
@@ -2428,11 +2428,11 @@ implements DatabaseMetaData
                          is ignored.  If empty string is specified,
                          an empty result set is returned.
     @param  schema       The schema name. If null is specified, the
-                         default library specified in the URL is used.
-                         If null is specified and a default library was not
+                         default SQL schema specified in the URL is used.
+                         If null is specified and a default SQL schema was not
                          specified in the URL, the first library specified
                          in the libraries properties file is used.
-                         If null is specified, a default library was
+                         If null is specified, a default SQL schema was
                          not specified in the URL, and a library was not
                          specified in the libraries properties file,
                          QGPL is used.
@@ -2596,7 +2596,7 @@ implements DatabaseMetaData
                                                                              DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
                     // Set the library name
                     if (schema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);      // @E4C
                     }
                     else request.setLibraryName(normalize(schema), connection_.converter_);                           // @E4C
@@ -3087,11 +3087,11 @@ implements DatabaseMetaData
                          is ignored.  If empty string is specified,
                          an empty result set is returned.
     @param  schema       The schema name. If null is specified, the
-                         default library specified in the URL is used.
-                         If null is specified and a default library was not
+                         default SQL schema specified in the URL is used.
+                         If null is specified and a default SQL schema was not
                          specified in the URL, the first library specified
                          in the libraries properties file is used.
-                         If null is specified, a default library was
+                         If null is specified, a default SQL schema was
                          not specified in the URL, and a library was not
                          specified in the libraries properties file,
                          QGPL is used.
@@ -3197,7 +3197,7 @@ implements DatabaseMetaData
 
                     // Set the primary key file library name
                     if (schema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);    // @E4C
                     }
                     else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.converter_);                         // @E4C
@@ -4549,7 +4549,7 @@ implements DatabaseMetaData
                         // If null, do not set parameter.  The system default value of
                         // *USRLIBL is used.
                         if (schemaPattern != null)
-                        { // use default library or qgpl
+                        { // use default SQL schema or qgpl
                             JDSearchPattern schema = new JDSearchPattern(schemaPattern);
                             request.setLibraryName (normalize(schema.getPatternString()), connection_.converter_); // @E4C
                             request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
@@ -5409,11 +5409,11 @@ implements DatabaseMetaData
                            is ignored.  If empty string is specified,
                            an empty result set is returned.
     @param  schema         The schema name. If null is specified, the
-                           default library specified in the URL is used.
-                           If null is specified and a default library was not
+                           default SQL schema specified in the URL is used.
+                           If null is specified and a default SQL schema was not
                            specified in the URL, the first library specified
                            in the libraries properties file is used.
-                           If null is specified, a default library was
+                           If null is specified, a default SQL schema was
                            not specified in the URL, and a library was not
                            specified in the libraries properties file,
                            QGPL is used.
@@ -5538,7 +5538,7 @@ implements DatabaseMetaData
 
                     // Set the library name
                     if (schema == null)
-                    {   // use default library or qgpl
+                    {   // use default SQL schema or qgpl
                         request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.converter_);  // @E4C
                     }
                     else request.setLibraryName(normalize(schema), connection_.converter_);                       // @E4C

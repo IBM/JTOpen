@@ -298,7 +298,7 @@ Parse a URL.
         else
           token = subname.substring (priorSemicolonPos+1,
                                      nextSemicolonPos);
-        //@delim3 allow quoted default schema in url
+        //@delim3 allow quoted default SQL schema in url
         int nextQuote = -1;                                               //@delim3
         //Check if schema is quoted.  Parsing could have split schema if it contains ';'.   //@delim3
         if(token.indexOf ('"') != -1 )                                   //@delim3
@@ -318,7 +318,7 @@ Parse a URL.
         ++tokenCount;
 
         // Parse the first token.  This is the system name and
-        // default schema.
+        // default SQL schema.
         if (tokenCount == 1) {
 
           // Strip off // if it is there.

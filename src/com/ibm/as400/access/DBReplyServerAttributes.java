@@ -76,7 +76,7 @@ class DBReplyServerAttributes
 
 
     //@128sch
-	/* method for retrieving default schema of lengh up to 128 */
+	/* method for retrieving default SQL schema of lengh up to 128 */
 	//adding this method now eventhough it is not called anywhere yet. (same as getDefaultSQLLibraryName)
     final public String getDefaultSQLSchemaName (ConvTable converter) throws DBDataStreamException
     {

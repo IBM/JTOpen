@@ -175,9 +175,9 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;libraries&quot;</TD>
     <TD HEADERS="t2"> 
       <P>Specifies one or more libraries that you want to add to or replace the 
-        library list of the server job, and optionally sets the default library 
-        (default schema).  Note that libraries cannot be longer than 10 characters in
-        length.  You must use SET PATH sql if you have schemas longer than 10 characters.
+        library list of the server job, and optionally sets the default SQL schema 
+        (default library).  Note that libraries cannot be longer than 10 characters in
+        length.  You must use SET PATH sql if you have libraries longer than 10 characters.
       <P><strong>Library list</strong><br>
         The system uses specified libraries to resolve unqualified stored procedure 
         names, and stored procedures use them to resolve unqualified names. To 
@@ -188,28 +188,28 @@ attributes. The tables organize the properties into the following categories:</P
         the current library list of the server job When you do not use *LIBL, 
         the specified libraries replace the current library list of the server 
         job
-      <P><strong>Default schema</strong><br>
-        The system uses the default schema to resolve unqualified names in SQL 
+      <P><strong>Default SQL schema</strong><br>
+        The system uses the default SQL schema to resolve unqualified names in SQL 
         statements. For example, in the statement "SELECT * FROM MYTABLE", the 
-        system looks only in the default schema for MYTABLE. You can specify the 
-        default schema on the connection URL. When you do not specify the default 
-        schema on the connection URL, the following conditions apply, depending 
+        system looks only in the default SQL schema for MYTABLE. You can specify the 
+        default SQL schema on the connection URL. When you do not specify the default 
+        SQL schema on the connection URL, the following conditions apply, depending 
         on whether you use SQL Naming or System Naming.
       <ul>
         <li>SQL Naming<br>
-          When you do not specify the default schema on the connection URL: 
+          When you do not specify the default SQL schema on the connection URL: 
           <ul>
-            <li>The first entry (unless it is *LIBL) becomes the default schema</li>
-            <li>When the first entry is *LIBL, the second entry becomes the default 
+            <li>The first entry (unless it is *LIBL) becomes the default SQL schema</li>
+            <li>When the first entry is *LIBL, the second entry becomes the default SQL
               schema</li>
             <li>When you do not set this property or when it contains only *LIBL, 
-              the user profile becomes the default schema</li>
+              the user profile becomes the default SQL schema</li>
           </ul>
         </li>
         <li>System Naming<br>
-          When you do not specify the default schema on the connection URL:
+          When you do not specify the default SQL schema on the connection URL:
           <ul>
-            <li>No default schema is set, and the system uses the specified libraries 
+            <li>No default SQL schema is set, and the system uses the specified libraries 
               to search for unqualified names</li>
             <li>When you do not set this property or when it contains only *LIBL, 
               the system uses the current library list of the server job to search 

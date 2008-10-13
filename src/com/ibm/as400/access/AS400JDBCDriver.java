@@ -47,13 +47,13 @@ jdbc:as400://<em>system-name</em>/<em>default-schema</em>;<em>properties</em>
 to a corresponding i5/OS system.  If a system name is not
 specified, then the user will be prompted.  
 
-<p>The default schema is optional and the driver uses it to resolve 
-unqualified names in SQL statements.  If no default schema is set, then
+<p>The default SQL schema is optional and the driver uses it to resolve 
+unqualified names in SQL statements.  If no default SQL schema is set, then
 the driver resolves unqualified names based on the naming convention
-for the connection.  If SQL naming is being used, and no default schema
+for the connection.  If SQL naming is being used, and no default SQL schema
 is set, then the driver resolves unqualified names using the schema with 
 the same name as the user.  If system naming is being used, and no
-default schema is set, then the driver resolves unqualified names using
+default SQL schema is set, then the driver resolves unqualified names using
 the server job's library list.  See
 <a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
 for more details on how to set the naming convention
@@ -70,7 +70,7 @@ for a complete list of properties supported by this driver.
 
 <p>The following example URL specifies a connection to the
 database on system <em>mysystem.helloworld.com</em> with
-<em>mylibrary</em> as the default schema.  The connection will
+<em>mylibrary</em> as the default SQL schema.  The connection will
 use the system naming convention and return full error messages:
 <pre>
 jdbc:as400://mysystem.helloworld.com/mylibrary;naming=system;errors=full
@@ -447,7 +447,7 @@ implements java.sql.Driver
 	
 	@param  system   The i5/OS system to connect.
         @param  info     The connection properties.
-        @param  schema   The default schema or null meaning no default schema specified.
+        @param  schema   The default SQL schema or null meaning no default SQL schema specified.
         @param  clone    True if the AS400 object should be cloned, false otherwises
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
@@ -626,7 +626,7 @@ implements java.sql.Driver
 	
 	@param  system  The i5/OS system to connect.
 	@param  info    The connection properties.
-	@param  schema  The default schema or null meaning no default schema specified.
+	@param  schema  The default SQL schema or null meaning no default SQL schema specified.
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
 					to the database.

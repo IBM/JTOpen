@@ -218,7 +218,7 @@ implements CallableStatement
             { // Derive the schema.
               schema = connection_.getDefaultSchema(true); // get raw value
 
-              if(schema == null)	// No default schema was set on the connection url, or by the libraries connection property.
+              if(schema == null)	// No default SQL schema was set on the connection url, or by the libraries connection property.
               {
                 if(catalogSeparator.equals(".")) // using sql naming
                 {

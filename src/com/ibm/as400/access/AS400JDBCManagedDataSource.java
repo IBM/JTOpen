@@ -1145,7 +1145,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Returns the library for the SQL package.  This property has no effect unless
    the extended dynamic property is set to true.
-   @return The SQL package library.  The default library is "QGPL".
+   @return The SQL package library.  The default package library is "QGPL".
    **/
   public String getPackageLibrary()
   {
@@ -3018,7 +3018,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    Sets the library for the SQL package.  This property has no effect unless
    the extended dynamic property is set to true.
-   @param packageLibrary The SQL package library.  The default library is "QGPL".
+   @param packageLibrary The SQL package library.  The default package library is "QGPL".
    **/
   public void setPackageLibrary(String packageLibrary)
   {

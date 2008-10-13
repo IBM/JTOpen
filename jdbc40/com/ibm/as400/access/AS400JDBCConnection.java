@@ -930,9 +930,9 @@ implements Connection
 
 
     /**
-    Returns the default schema.
+    Returns the default SQL schema.
     
-    @return     The default schema, or QGPL if none was
+    @return     The default SQL schema, or QGPL if none was
                 specified.
     **/
     String getDefaultSchema ()
@@ -944,10 +944,10 @@ implements Connection
 
     //@DELIMa
     /**
-    Returns the default schema.
+    Returns the default SQL schema.
 
-    @param returnRawValue Indicates what to return if default schema has not been set.  If true, return raw value; if false, then return QGPL rather than null.
-    @return     The default schema.  If returnRawValue==false and no default schema was specified, then return QGPL rather than null.
+    @param returnRawValue Indicates what to return if default SQL schema has not been set.  If true, return raw value; if false, then return QGPL rather than null.
+    @return     The default SQL schema.  If returnRawValue==false and no default SQL schema was specified, then return QGPL rather than null.
     **/
     String getDefaultSchema (boolean returnRawValue)
     throws SQLException
@@ -3641,7 +3641,7 @@ implements Connection
                         JDTrace.logInformation (this, "Data compression = none");       // @ECA
                 }                                                                       // @ECA
 
-                // Default schema.
+                // Default SQL schema.
                 if (defaultSchema_ != null)
                     request.setDefaultSQLLibraryName (defaultSchema_, tempConverter);
 

@@ -40,7 +40,7 @@ class JDLibraryList
 Constructor.
 
 @param  list                The list of libraries.
-@param  defaultSchema       The default schema.
+@param  defaultSchema       The default SQL schema.
 @param  naming              The naming convention.
 **/
   JDLibraryList (String list, String defaultSchema, String naming) // @C1C
@@ -61,16 +61,16 @@ Constructor.
         }
     }
     
-    // @F1: through v4r5 the system automatically added the default schema
+    // @F1: through v4r5 the system automatically added the default SQL schema
     //      to the front of the library list.  In v5r1 they stopped adding it.
     //      ODBC Customers complained their apps no longer worked so ODBC changed
-    //      to add the default schema to the library list.  We will do the same
+    //      to add the default SQL schema to the library list.  We will do the same
     //      here because we will eventually have broken customers as well.  The
-    //      rules are add the default schema to the front of the library list
+    //      rules are add the default SQL schema to the front of the library list
     //      (1) for both SQL and system naming, (2) if it isn't already in the
     //      list, (3) only if a default is specified (don't add the userid if SQL
     //      naming).  Note we won't break the comma started list (@E2) since
-    //      that applies only if no default schema is specified.  If no default
+    //      that applies only if no default SQL schema is specified.  If no default
     //      is specified we don't change the list given to us by the user.
     if (defaultSchema_ != null)                                      //@F1a
     {                                                                //@F1a
@@ -79,13 +79,13 @@ Constructor.
           // assume the deafult schema is not in the list            //@F1a
           boolean alreadyInList = false;                             //@F1a
                                                                      //@F1a
-          // does something in the list start with the default schema? //@F1a
+          // does something in the list start with the default SQL schema? //@F1a
           if (list.toUpperCase().indexOf(defaultSchema_) >= 0)       //@F1a
           {                                                          //@F1a
              // Since something close is already in the list         //@F1a
              // look at each token for an exact match.  The          //@F1a
              // .indexOf() check will return a false positive if     //@F1a
-             // the default schema is DAW and a library in the       //@F1a
+             // the default SQL schema is DAW and a library in the       //@F1a
              // list is DAWJDBC.  We do this extra processing        //@F1a
              // only if there is a close match for performance       //@F1a
              StringTokenizer tokenizer = new StringTokenizer (list, " ,:;");  //@F1a
@@ -111,10 +111,10 @@ Constructor.
     {
 
       // OpNav asked that there be a way to specify a library list without
-      // getting a default schema.  We agreed that if the library list starts
-      // with a comma we would not set a default schema.  We do this
+      // getting a default SQL schema.  We agreed that if the library list starts
+      // with a comma we would not set a default SQL schema.  We do this
       // only if no schema is in the url.  A schema on the url
-      // will be sent as the default schema no matter what is listed
+      // will be sent as the default SQL schema no matter what is listed
       // in the library list.
       if (defaultSchema_ == null)                // @E2a
       {                                          // @E2a
@@ -193,9 +193,9 @@ Constructor.
           System.arraycopy(tmpList, 0, list_, 0, i);            //@delim2
       }                                                         //@delim2
 
-      // If no default schema was specified, then
+      // If no default SQL schema was specified, then
       // derive it from the list.
-      // @E1 do this only for SQL naming!  If we tell the system to use a default schema
+      // @E1 do this only for SQL naming!  If we tell the system to use a default SQL schema
       //     then the library list is ignored.  That would break some apps using system naming.
       //     For example, suppose the libraries property is "libraries=lib1,lib2,lib3", and the
       //     file is in lib3.  If we take the first one off the list and set it to be the default
@@ -205,11 +205,11 @@ Constructor.
       //     item the default.  The user can override this behavior by starting the
       //     list with a comma.
       if ((defaultSchema_ == null)
-          && (! startsWithComma)                         // @E2a don't set default schema if first char is a comma
+          && (! startsWithComma)                         // @E2a don't set default SQL schema if first char is a comma
           && (naming.equals (JDProperties.NAMING_SQL)))  // @E1c @C1C
       {
         //@KBA  Fix for JTOpen Bug 4025 - *LIBL is not added to the list_ array.  Therefore, the first thing in the
-        // list_ array should become the default schema, provided that there was a libraries list.
+        // list_ array should become the default SQL schema, provided that there was a libraries list.
         //@KBD if (liblPosition != 0)
         //@KBD   defaultSchema_ = list_[0];
         //@KBD else if (list_.length > 1)
@@ -218,7 +218,7 @@ Constructor.
               defaultSchema_ = list_[0];        //@KBA
       }
      
-      //if default schema is longer than 10, then it cannot be in the library list
+      //if default SQL schema is longer than 10, then it cannot be in the library list
       //users must use SET PATH
       if((list_.length > 0 ) && (list_[0].length() > 10) && (list_[0].equals(defaultSchema_)))//@128sch
       {                                                              //@128sch
@@ -228,7 +228,7 @@ Constructor.
               System.arraycopy(tmpList, 1, list_, 0, list_.length);  //@128sch
          
           if (JDTrace.isTraceOn())  //@128sch
-              JDTrace.logInformation (this, "Schema " + defaultSchema_ + " is too long to be in library list, but will still be set as default schema"); //@128sch
+              JDTrace.logInformation (this, "Schema " + defaultSchema_ + " is too long to be in library list by Toolbox (Hostserver will add it), but will still be set as default SQL schema"); //@128sch
       }//@128sch
       
       // Reverse the order of the 'F' libraries, so that
@@ -321,9 +321,9 @@ in the server job's library list.
 
 
 /**
-Get the default schema.
+Get the default SQL schema.
 
-@return     The default schema, or null if none specified.
+@return     The default SQL schema, or null if none specified.
 **/
   String getDefaultSchema ()
   {

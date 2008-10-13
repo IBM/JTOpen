@@ -415,9 +415,9 @@ implements Connection //@A5A
 
 
   /**
-  *  Returns the default schema.
+  *  Returns the default SQL schema.
   *
-  *  @return     The default schema, or QGPL if none was specified.
+  *  @return     The default SQL schema, or QGPL if none was specified.
   **/
   String getDefaultSchema ()
   throws SQLException                                      // @A3A
