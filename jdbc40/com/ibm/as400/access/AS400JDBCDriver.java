@@ -1095,7 +1095,7 @@ implements java.sql.Driver
 				//@C3M
 				boolean isLocal = false;													// @C2A
 				String serverName = dataSourceUrl.getServerName();							// @C2A
-				if (serverName.length() == 0)												// @C2A
+				if (serverName.length() == 0 || serverName.equalsIgnoreCase("localhost"))	// @C2A //@locala
 					isLocal = true;															// @C2A
 				else {																		// @C2A
 					try {																	// @C2A
