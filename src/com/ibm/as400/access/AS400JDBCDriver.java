@@ -1118,7 +1118,7 @@ implements java.sql.Driver
 						JDTrace.logInformation(this, "Connection is local");				// @C2A
 					String nativeURL = dataSourceUrl.getNativeURL();                       
 					if (JDTrace.isTraceOn())
-						JDTrace.logInformation(this, "Using native IBM Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
+						JDTrace.logInformation(this, "Using native IBM Developer Kit for Java JDBC driver implementation");//@native don't print passwd
 					return nativeDriver.connect(nativeURL, info);
 				}																			// @C2A
 			}

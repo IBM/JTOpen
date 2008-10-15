@@ -202,7 +202,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String PACKAGE_CRITERIA_       = "package criteria";       // @A0A
     private static final String PACKAGE_ERROR_          = "package error";
     private static final String PACKAGE_LIBRARY_        = "package library";
-    private static final String PASSWORD_               = "password";
+    static final String PASSWORD_                       = "password";            //@native
     private static final String PREFETCH_               = "prefetch";
     private static final String PROMPT_                 = "prompt";
     private static final String PROXY_SERVER_           = "proxy server";           // @A3A
@@ -223,7 +223,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String TRANSACTION_ISOLATION_  = "transaction isolation";
     private static final String TRANSLATE_BINARY_       = "translate binary";
     private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
-    private static final String USER_                   = "user";
+    static final String USER_                           = "user";                   //@native
     private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
     private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
     private static final String TRUE_AUTO_COMMIT_            = "true autocommit";            //@KBA //@true

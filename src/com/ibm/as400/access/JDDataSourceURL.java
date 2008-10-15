@@ -117,6 +117,14 @@ Constructor.
         // @B3D if (url_.length() >= 11)                                    // @B2A
         // @B3D     buffer.append(url_.substring(11));
         buffer.append("LOCALHOST");                                         // @B3A
+        String user = (String) properties_.getProperty(JDProperties.USER_);    //@native
+        String pass = (String) properties_.getProperty(JDProperties.PASSWORD_); //@native
+        if(user!=null)                                                          //@native
+            buffer.append(";user=" + user);                                     //@native
+        if(pass!=null)                                                          //@native
+            buffer.append(";password=" + pass);                                 //@native
+            		
+        
         return buffer.toString();
     }
 
