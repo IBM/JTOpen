@@ -2919,13 +2919,17 @@ implements Statement
     
     @return         Always false because this method is not supported.
     
-    @exception      SQLException    Always thrown because the Toolbox JDBC driver does
-                                    does not support this method.
+    @exception      SQLException    if DatabaseMetaData.supportsMultipleOpenResults returns false 
+                    and either Statement.KEEP_CURRENT_RESULT or Statement.CLOSE_ALL_RESULTS are 
+                    supplied as the argument.
     @since Modification 5
     **/
     public boolean getMoreResults (int current)
     throws SQLException
     {
+        if(current == Statement.CLOSE_CURRENT_RESULT)  //@forum1
+            return getMoreResults();   //@forum1
+        
         JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return false;
     }
