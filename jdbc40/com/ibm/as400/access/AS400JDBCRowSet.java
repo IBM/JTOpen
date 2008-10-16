@@ -137,7 +137,7 @@ implements RowSet, Serializable             // @A3C
     private Connection connection_;             // The JDBC connection.
     private DataSource dataSource_;             // The dataSource used to make the connection.
     private AS400JDBCPreparedStatement statement_;       // The prepared statement. //@pdc jdbc40
-    private AS400JDBCResultSet resultSet_;      // The result set.  @G4C
+    private transient AS400JDBCResultSet resultSet_;      // The result set.  @G4C //@scan1
     private transient AS400JDBCRowSetEventSupport eventSupport_;    // RowSetListener support.  @A3C
     private Context context_ = null;  //@A1A    // The JNDI naming context which specifies how naming
     // and directory services are accessed.
@@ -2067,6 +2067,7 @@ implements RowSet, Serializable             // @A3C
     {
         eventSupport_ = new AS400JDBCRowSetEventSupport();
         changes_ = new PropertyChangeSupport(this); 
+        resultSet_ = null;  //@scan1
     }
 
     /**

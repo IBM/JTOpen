@@ -178,6 +178,8 @@ implements SQLData
                         bytesRead = stream.read(byteBuffer, 0, blockSize);
                     }
                     value_ = baos.toByteArray();
+                    stream.close(); //@scan1
+                    
                     if(value_.length < length)
                     {
                         // a length longer than the stream was specified

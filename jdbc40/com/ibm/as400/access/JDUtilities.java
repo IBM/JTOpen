@@ -493,27 +493,35 @@ stored procedure to run the command
    static final void runCommand(Connection connection, String command, boolean SQLNaming)
                           throws SQLException
    {
-      Statement statement = connection.createStatement();
+       Statement statement = null; //@scan1
+       try
+       {
+           statement = connection.createStatement();
 
-      // We run commands via the QCMDEXC stored procedure.  That procedure
-      // requires the length of the command be included with the command 
-      // specified in precision 15, scale 5 format.  That is,
-      // "CALL QSYS.QCMDEXC('command-to-run', 000000nnnn.00000)"
-      String commandLength = "0000000000" + command.length();
-             commandLength = commandLength.substring(commandLength.length() - 10) +
-                               ".00000";
-                                                                                  
-      String commandPreface;
+           // We run commands via the QCMDEXC stored procedure.  That procedure
+           // requires the length of the command be included with the command 
+           // specified in precision 15, scale 5 format.  That is,
+           // "CALL QSYS.QCMDEXC('command-to-run', 000000nnnn.00000)"
+           String commandLength = "0000000000" + command.length();
+           commandLength = commandLength.substring(commandLength.length() - 10) +
+           ".00000";
 
-      if (SQLNaming)
-         commandPreface = "CALL QSYS.QCMDEXC('";
-      else
-         commandPreface = "CALL QSYS/QCMDEXC('";
-                                                                                  
-      String SQLCommand = commandPreface + command  + "', " + commandLength + ")";
+           String commandPreface;
 
-      statement.executeUpdate(SQLCommand);
-      statement.close();
+           if (SQLNaming)
+               commandPreface = "CALL QSYS.QCMDEXC('";
+           else
+               commandPreface = "CALL QSYS/QCMDEXC('";
+
+           String SQLCommand = commandPreface + command  + "', " + commandLength + ")";
+
+           statement.executeUpdate(SQLCommand);
+       }finally //@scan1
+       {
+           if(statement != null)
+               statement.close();
+       }
+          
    }
 
 

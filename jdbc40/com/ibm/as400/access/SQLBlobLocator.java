@@ -272,6 +272,7 @@ final class SQLBlobLocator implements SQLLocator
                         System.arraycopy(bytes, 0, newValue, 0, maxLength_);
                         bytes = newValue;
                     }
+                    stream.close(); //@scan1
                     object = bytes;
                     truncated_ = objectLength - bytes.length;
                 }

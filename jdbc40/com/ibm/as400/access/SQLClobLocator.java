@@ -280,12 +280,14 @@ final class SQLClobLocator implements SQLLocator
                                 blockSize = bytesRemaining;
                                 if(stream.available() == 0 && blockSize != 0)
                                 {
+                                    stream.close(); //@scan1
                                     stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
                                 }
                             }
                             bytesRead = stream.read(byteBuffer, 0, blockSize);
                         }
-
+                        stream.close(); //@scan1
+                        
                         if(totalBytesRead < length)
                         {
                             // a length longer than the stream was specified

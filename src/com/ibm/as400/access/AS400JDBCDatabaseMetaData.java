@@ -609,14 +609,24 @@ implements DatabaseMetaData
             try
             {                                                                          // @F1a                                                                            // @F1a
                 Vector RDBEntries = new Vector();                                        // @F1a
-                Statement statement = connection_.createStatement();                     // @F1a
-                ResultSet rs = statement.executeQuery("SELECT LOCATION FROM QSYS2" + getCatalogSeparator() + "SYSCATALOGS WHERE RDBTYPE = 'LOCAL' AND RDBASPSTAT='AVAILABLE' ");  // @F1a
-                while (rs.next())                                                        // @F1a
-                {                                                                        // @F1a
-                    RDBEntries.add(rs.getString(1).trim());                              // @F1a
-                }                                                                        // @F1a
-                rs.close();                                                              // @F1a
-                statement.close();                                                       // @F1a
+                
+                Statement statement = null; //@scan1
+                ResultSet rs = null;        //@scan1
+                try
+                {
+                    statement = connection_.createStatement();                     // @F1a
+                    rs = statement.executeQuery("SELECT LOCATION FROM QSYS2" + getCatalogSeparator() + "SYSCATALOGS WHERE RDBTYPE = 'LOCAL' AND RDBASPSTAT='AVAILABLE' ");  // @F1a
+                    while (rs.next())                                                        // @F1a
+                    {                                                                        // @F1a
+                        RDBEntries.add(rs.getString(1).trim());                              // @F1a
+                    }           
+                }finally   //@scan1
+                {
+                    if(rs != null)
+                        rs.close();     
+                    if(statement != null)
+                        statement.close();         
+                }
                 int count = RDBEntries.size();                                           // @F1a
                 if (count > 0)                                                           // @F1a
                 {                                                                        // @F1a
@@ -3463,11 +3473,16 @@ implements DatabaseMetaData
                 selectStmt.append ("ORDER BY SPECIFIC_SCHEMA, SPECIFIC_NAME, ORDINAL_POSITION");        // Added ORDINAL_POSITION to fix JTOpen bug 3646, SYSPARMS table doesn't always have parameters in physical right order
 
                 // Create statement object and do Execute Query
-                AS400JDBCStatement statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
-                AS400JDBCResultSet serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
+                AS400JDBCStatement statement_ = null;  //@scan1
+                AS400JDBCResultSet serverResultSet = null; //@scan1
+                JDRowCache serverRowCache  = null;
+                try
+                {
+                statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
+                serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
 
-                JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
-                statement_.close ();
+                serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
+               
 
                 JDFieldMap[] maps = new JDFieldMap[13];
 
@@ -3492,6 +3507,13 @@ implements DatabaseMetaData
                 JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                 rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
 
+                }finally  //@scan1
+                {
+                    if(serverResultSet != null)
+                        serverResultSet.close();
+                    if(statement_ != null)
+                        statement_.close ();
+                }
             } // End of else build request and send
 
 
@@ -4262,7 +4284,7 @@ implements DatabaseMetaData
             if (rsEmpty) {
                 schemaPattern = FAKE_VALUE;
                 tablePattern = FAKE_VALUE;
-                typeString.concat(TABLE);
+                typeString = typeString.concat(TABLE); //@scan1
             }
 
 

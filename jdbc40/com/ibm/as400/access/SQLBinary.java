@@ -177,6 +177,7 @@ implements SQLData
                         // a length longer than the stream was specified
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
+                    stream.close(); //@scan1
                 }
                 catch(ExtendedIOException eie)
                 {

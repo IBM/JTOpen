@@ -2173,10 +2173,18 @@ implements Connection
         if (getAutoCommit())
             JDError.throwSQLException(this, JDError.EXC_TXN_STATE_INVALID);
 
-        Statement statement = createStatement();
+        Statement statement = null;   //@scan1
+        try{
+            statement = createStatement();
 
-        statement.executeUpdate(savepointStatement);
-        statement.close();
+            statement.executeUpdate(savepointStatement);
+        
+        }finally                  //@scan1
+        {
+            if(statement != null) //@scan1
+                statement.close();
+            
+        }
     }
 
 

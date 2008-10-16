@@ -188,6 +188,8 @@ final class SQLRowID implements SQLData
                         System.arraycopy(value_, 0, newValue, 0, 40);
                         value_ = newValue;
                     }
+                    stream.close(); //@scan1
+                    
                     truncated_ = objectLength - value_.length;
                 }
                 catch(ExtendedIOException eie)
