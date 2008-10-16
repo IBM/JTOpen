@@ -201,8 +201,10 @@ implements CallableStatement
             parameterNames_ = new String[parameterCount_];
 
             // Cache all the parm names and numbers.
-
-            Statement s = connection_.createStatement();
+            Statement s = null; //@scan1
+            ResultSet rs = null; //@scan1
+            try{
+            s = connection_.createStatement();
             String catalogSeparator = "";                                                           //@74A Added a check for the naming used.  Need to use separator appropriate to naming.
             if (connection_.getProperties().equals (JDProperties.NAMING, JDProperties.NAMING_SQL))  //@74A
                 catalogSeparator = ".";                                                             //@74A
@@ -234,12 +236,12 @@ implements CallableStatement
 
                   // Get a result set that we can scroll forward/backward through.
                   Statement s1 = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-                  ResultSet rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
+                  rs = s1.executeQuery("SELECT ROUTINE_SCHEMA FROM QSYS2"
                                   + catalogSeparator
                                   + "SYSPROCS WHERE ROUTINE_NAME='"
                                   + unquote(sqlStatement_.getProcedure())
                                   + "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = "
-                                  + parameterCount_);
+                                  + parameterCount_);//@scan1
                   if(!rs.next())
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL);	// didn't find the procedure in any schema
 
@@ -292,9 +294,13 @@ implements CallableStatement
                 else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
                     returnParm = colInd;
             }
-            rs.close(); //@SS
-            s.close();  //@SS
-
+            }finally //@scan1
+            {
+                if(rs != null) //@scan1
+                    rs.close(); //@SS
+                if(s != null)  //@scan1
+                    s.close();  //@SS
+            }
     
             // If the number of parm names didn't equal the number of parameters, throw
             // an exception (INTERNAL).
