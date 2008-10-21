@@ -378,8 +378,8 @@ Writes part of the contents of the lob.
           int returnCode = reply.getReturnCode();
           
           //7,-401 signals already free
-          if (errorClass != 0 && !(errorClass == 7 && returnCode == -401))
-              JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
+          //if (errorClass != 0 && !(errorClass == 7 && returnCode == -401))
+              //JDError.throwSQLException(this, connection_, id_, errorClass, returnCode); //@free2 hostnow has various errors if locator is already freed.
           
       }  catch (DBDataStreamException e)
       {
