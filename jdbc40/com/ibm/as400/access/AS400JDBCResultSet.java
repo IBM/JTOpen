@@ -347,12 +347,17 @@ implements ResultSet
     //
     AS400JDBCResultSet (JDRowCache rowCache,
                         String catalog,
-                        String cursorName)
+                        String cursorName,
+                        AS400JDBCConnection con)  //@in2
     throws SQLException
     {
         this (null, null, rowCache, catalog, cursorName, 0,
               TYPE_SCROLL_INSENSITIVE, CONCUR_READ_ONLY,
               FETCH_FORWARD, 0);
+        
+        //connection is needed in AS400JDBCResultsetMetadata.  connection is passed in from AS400JDBCDatabaseMetaData
+        if(con != null)         //@in2
+            connection_ = con;  //@in2
     }
 
 

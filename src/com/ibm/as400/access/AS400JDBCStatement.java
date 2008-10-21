@@ -3241,7 +3241,7 @@ public class AS400JDBCStatement implements Statement
             rowCache = new JDSimpleRowCache (formatRow, data, nulls, dataMappingErrors);
         }
         // Construct with row cache, no catalog, and no cursor name
-        generatedKeys_ = new AS400JDBCResultSet (rowCache, "", "");
+        generatedKeys_ = new AS400JDBCResultSet (rowCache, "", "", connection_); //@in2
     }
 
 

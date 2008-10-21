@@ -266,7 +266,7 @@ for use in implementing various pieces of the JDBC driver.
 
         // Return the results
         return new AS400JDBCResultSet (rowCache,
-                                       connection.getCatalog(), "Schemas");
+                                       connection.getCatalog(), "Schemas", connection); //@in2
 
     }
 

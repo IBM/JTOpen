@@ -548,7 +548,7 @@ implements DatabaseMetaData
             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier");
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier", connection_); //@in2
     }
 
 
@@ -654,7 +654,7 @@ implements DatabaseMetaData
         }                                                                                // @F1a
 
         JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow, data, nulls, dataMappingErrors);
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs");
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs", connection_); //@in2
     }
 
 
@@ -829,7 +829,7 @@ implements DatabaseMetaData
                 ((columnPattern != null) && (columnPattern.length()==0)))
         { // Return empty result set
             rowCache = new JDSimpleRowCache (formatRow);
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges"); //@PDC
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_); //@in2 //@PDC
             
         }
         else
@@ -932,7 +932,7 @@ implements DatabaseMetaData
                 if (reply != null) reply.inUse_ = false;
             }
             // Return the results
-            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges");
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "ColumnPrivileges", connection_); //@in2
      
         }  // End of else to build and send request
         
@@ -1351,7 +1351,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Columns");
+                                       "Columns", connection_); //@in2
 
     }  // End of getColumns
 
@@ -1690,7 +1690,7 @@ implements DatabaseMetaData
 
 
         // Return the results
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "CrossReference");
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "CrossReference", connection_); //@in2
 
     }  // End of getCrossReference
 
@@ -2143,7 +2143,7 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ExportedKeys");
+                                       "ExportedKeys", connection_); //@in2
     }
 
 
@@ -2420,7 +2420,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ImportedKeys");
+                                       "ImportedKeys", connection_); //@in2
     }
 
 
@@ -2703,7 +2703,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "IndexInfo");
+                                       "IndexInfo", connection_); //@in2
 
     } // End of getIndexInfo
 
@@ -3278,7 +3278,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "PrimaryKeys");
+                                       "PrimaryKeys", connection_); //@in2
     } 
 
 
@@ -3527,7 +3527,7 @@ implements DatabaseMetaData
 
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "ProcedureColumns");
+                                       "ProcedureColumns", connection_); //@in2
 
     } // End of getProcedureColumns
 
@@ -3709,7 +3709,7 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Procedures");
+                                       "Procedures", connection_); //@in2
 
     }
 
@@ -4198,7 +4198,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "TablePrivileges");      //@G4C
+                                       "TablePrivileges", connection_); //@in2      //@G4C
     }
 
 
@@ -4724,7 +4724,7 @@ implements DatabaseMetaData
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Tables");
+                                       "Tables", connection_); //@in2
     }
 
 //@K3A                                                           
@@ -4823,7 +4823,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Table Types");
+                                       "Table Types", connection_); //@in2
         
     }
 
@@ -5078,7 +5078,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data, nulls, dataMappingErrors);
 
         return new AS400JDBCResultSet (rowCache,
-                                       connection_.getCatalog(), "Type Info");
+                                       connection_.getCatalog(), "Type Info", connection_); //@in2
 
 
 
@@ -5375,7 +5375,7 @@ implements DatabaseMetaData
         }
 
         // Return the result set.
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "UDTs");
+        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "UDTs", connection_); //@in2
     }
 
 
@@ -5635,7 +5635,7 @@ implements DatabaseMetaData
 
         // Return the results
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "VersionColumns");
+                                       "VersionColumns", connection_); //@in2
     }
 
 
@@ -7405,7 +7405,7 @@ implements DatabaseMetaData
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Client Info");
+                                       "Client Info", connection_); //@in2
     }
 
 
