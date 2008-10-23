@@ -922,26 +922,41 @@ implements java.sql.Driver
                 boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
 
         //@pw1 Decided to leave connections via AS400() as-is and just implement to mimic Native JDBC
-        //@pw1 info contains args to DriverMangager.getConnection(args)
+        //@pw1 info contains args from DriverMangager.getConnection(args)
         //@pw1 jdProperties does not represent null values.  Both null and "" have a value of "".
-        //@pw1 if info contains id/pass of "" then they must no be "" in jdProperties
+        //@pw1 if info contains id/pass of "" then they must not be "" in jdProperties (allowing jdProperties to override)
         //@pw1 throw exception if info id/pass == ""  and change info id/pass to "" if they are null
+        //@pw3 Add way to get old behavior allowing "" (!but also need to allow new behavior of allowing null is/passwd so customers can slowly migrate)
         //check if "".  
+        
+        String secureCurrentUser = SystemProperties.getProperty (SystemProperties.JDBC_SECURE_CURRENT_USER); //@pw3
+        boolean isSecureCurrentUser = true;                                                                  //@pw3
+        //if system property or jdbc property is set to false then secure current user code is not used
+        //null value for system property means not specified...so true by default
+        if(((secureCurrentUser != null) && (Boolean.valueOf(secureCurrentUser).booleanValue() == false)) || !jdProperties.getBoolean(JDProperties.SECURE_CURRENT_USER))            //@pw3
+            isSecureCurrentUser = false;                                                                      //@pw3
+                
         if(info == null)
             info = new Properties();
         String userParm = info.getProperty("user");                               //@pw1
         String passwordParm = info.getProperty("password");                       //@pw1
         if ("".equals(userName) && "".equals(userParm))                                                  //@pw1 //@pw2
         {                                                                         //@pw1
-            if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
-                JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+            if(isSecureCurrentUser)//@pw3
+            {  //@pw3
+                if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
+                    JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+            }  //@pw3
         }                                                                         //@pw1
         if ("".equals(password) && "".equals(passwordParm))                                              //@pw1 //@pw2
         {                                                                         //@pw1
-            if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
-                JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+            if(isSecureCurrentUser)//@pw3
+            {  //@pw3
+                if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
+                    JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+            }  //@pw3
         }                                                                         //@pw1
                 
         if(userParm != null)                                                      //@pw1
@@ -949,9 +964,12 @@ implements java.sql.Driver
             //check for *current                                                  //@pw1
             if (userParm.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
             {                                                                     //@pw1
-                if (JDTrace.isTraceOn()) //jdbc category trace                    //@pw1
-                    JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);       //@pw1
+                if(isSecureCurrentUser)//@pw3
+                {  //@pw3
+                    if (JDTrace.isTraceOn()) //jdbc category trace                    //@pw1
+                        JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                    JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);       //@pw1
+                }  //@pw3
             }                                                                     //@pw1
         }                                                                         //@pw1
         else                                                                      //@pw1
@@ -962,9 +980,12 @@ implements java.sql.Driver
                 //userName was updated by app
                 if( userName.equals("") || (userName.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
                 {                                                                 //@pw1
-                    if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                        JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                    JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                    if(isSecureCurrentUser)//@pw3
+                    {  //@pw3
+                        if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                            JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                        JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                    }  //@pw3
                 }                                                                 //@pw1
             }                                                                     //@pw1
         }                                                                         //@pw1
@@ -973,9 +994,12 @@ implements java.sql.Driver
         {                                                                         //@pw1
             if (passwordParm.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
             {                                                                         //@pw1
-                if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
-                    JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+                if(isSecureCurrentUser)//@pw3
+                {  //@pw3
+                    if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
+                        JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                    JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+                }  //@pw3
             }                                                                         //@pw1
         }                                                                         //@pw1
         else                                                                      //@pw1
@@ -986,9 +1010,12 @@ implements java.sql.Driver
                 //password was updated by app
                 if( password.equals("") || (password.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
                 {                                                                         //@pw1
-                    if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
-                        JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                    JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+                    if(isSecureCurrentUser)//@pw3
+                    {  //@pw3
+                        if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
+                            JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                        JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
+                    }  //@pw3
                 }                                                                         //@pw1
             }                                                                               //@pw1
         }                                                                         //@pw1

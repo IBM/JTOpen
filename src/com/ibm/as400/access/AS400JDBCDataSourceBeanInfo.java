@@ -577,6 +577,13 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             ignoreWarnings.setConstrained(false);
             ignoreWarnings.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_IGNORE_WARNINGS"));
             ignoreWarnings.setShortDescription(AS400JDBCDriver.getResource("IGNORE_WARNINGS_DESC"));
+            
+            //@pw3 - added support to allow/disallow "" and *current for user name and password
+            PropertyDescriptor secureCurrentUser = new PropertyDescriptor("secureCurrentUser", beanClass, "isSecureCurrentUser", "setSecureCurrentUser");
+            secureCurrentUser.setBound(true);
+            secureCurrentUser.setConstrained(false);
+            secureCurrentUser.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SECURE_CURRENT_USER"));
+            secureCurrentUser.setShortDescription(AS400JDBCDriver.getResource("SECURE_CURRENT_USER_DESC"));
 
           
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
@@ -584,7 +591,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3
         }
         catch(Exception e)
         {

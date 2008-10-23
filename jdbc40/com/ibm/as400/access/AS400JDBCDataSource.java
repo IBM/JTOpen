@@ -555,18 +555,33 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public Connection getConnection(String user, String password) throws SQLException
     {
         // Validate the parameters.
+        //@pw3 Add way to get old behavior allowing "" (!but also need to allow new behavior of allowing null is/passwd so customers can slowly migrate)
+        String secureCurrentUser = SystemProperties.getProperty (SystemProperties.JDBC_SECURE_CURRENT_USER); //@pw3
+        boolean isSecureCurrentUser = true;                                                                  //@pw3
+        //if system property or jdbc property is set to false then secure current user code is not used
+        //null value for system property means not specified...so true by default
+        if(((secureCurrentUser != null) && (Boolean.valueOf(secureCurrentUser).booleanValue() == false)) || !isSecureCurrentUser())            //@pw3
+            isSecureCurrentUser = false;                                                                      //@pw3
+            
+        
         //check if "".  
         if ("".equals(user))                                              //@pw1
         {                                                                 //@pw1
-            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            if(isSecureCurrentUser)//@pw3
+            {  //@pw3
+                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            }  //@pw3
         }                                                                 //@pw1
         if ("".equals(password))                                          //@pw1
         {                                                                 //@pw1
-            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            if(isSecureCurrentUser)//@pw3
+            {  //@pw3
+                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            }  //@pw3
         }                                                                 //@pw1
         
         //Next, hack for nulls to work on i5
@@ -579,15 +594,22 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         //check for *current
         if (user.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
         {                                                                 //@pw1
-            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            if(isSecureCurrentUser)//@pw3
+            {  //@pw3
+                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            }  //@pw3
+            
         }                                                                 //@pw1
         if (password.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
         {                                                                 //@pw1
-            if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-            JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            if(isSecureCurrentUser)//@pw3
+            {  //@pw3
+                if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
+                    JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
+                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+            }  //@pw3
         }                                                                 //@pw1
 
         AS400 as400Object;
@@ -1066,6 +1088,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return getSecondaryUrl();
     }
+    
      
     /**
     *  Returns the name of the i5/OS system.
@@ -1763,6 +1786,15 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.SECURE);
     }
 
+    //@pw3
+    /**
+     *  Returns the secure current user setting.  True indicates to disallow "" and *current for user name and password.
+     *  @return The secure current user setting.
+     **/
+    public boolean isSecureCurrentUser()
+    {
+        return  properties_.getBoolean(JDProperties.SECURE_CURRENT_USER);
+    }
 
     /**
     *  Indicates whether a thread is used.
@@ -3585,6 +3617,30 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, "secure: " + secure);     //@A8C
     }
 
+    //@pw3
+    /**
+     *  Sets whether to disallow "" and *current as user name and password.  
+     *  True indicates to disallow "" and *current for user name and password.
+     *  @parm The secure current user setting.
+     **/
+    public void setSecureCurrentUser(boolean secureCurrentUser)
+    {
+        String property = "secureCurrentUser";
+        Boolean oldVal = new Boolean(isSecureCurrentUser());
+        Boolean newVal = new Boolean(secureCurrentUser);
+
+        if (secureCurrentUser)
+            properties_.setString(JDProperties.SECURE_CURRENT_USER, TRUE_);
+        else
+            properties_.setString(JDProperties.SECURE_CURRENT_USER, FALSE_);
+
+        changes_.firePropertyChange(property, oldVal, newVal);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + secureCurrentUser);  
+    }
+    
+    
     /**
     *  Sets the i5/OS system name.
     *  @param serverName The system name.

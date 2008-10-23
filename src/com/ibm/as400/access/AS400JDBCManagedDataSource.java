@@ -1984,6 +1984,15 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     return properties_.getBoolean(JDProperties.SECURE);
   }
 
+  //@pw3
+  /**
+   *  Returns the secure current user setting.  True indicates to disallow "" and *current for user name and password.
+   *  @return The secure current user setting.
+   **/
+  public boolean isSecureCurrentUser()
+  {
+      return  properties_.getBoolean(JDProperties.SECURE_CURRENT_USER);
+  }
 
   /**
    Indicates whether a thread is used.
@@ -3435,6 +3444,22 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
       properties_.setString(JDProperties.SECURE, FALSE_);
   }
 
+
+  //@pw3
+  /**
+   *  Sets whether to disallow "" and *current as user name and password.  
+   *  True indicates to disallow "" and *current for user name and password.
+   *  @parm The secure current user setting.
+   **/
+  public void setSecureCurrentUser(boolean secureCurrentUser)
+  {
+      if (secureCurrentUser)
+          properties_.setString(JDProperties.SECURE_CURRENT_USER, TRUE_);
+      else
+          properties_.setString(JDProperties.SECURE_CURRENT_USER, FALSE_);
+  }
+  
+ 
   /**
    Sets the serverName property.
    @param serverName The system name.
