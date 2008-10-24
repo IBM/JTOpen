@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.Date;
 import java.util.Locale;
 
@@ -53,7 +54,10 @@ public class PTF
   private String saveFile_;  
   private String supersedingPTF_;
   private String targetRelease_;
-  private String supersededBy_;
+  //private String supersededByPTFID_;      // V5R2
+  private String currentServerIPLSource_; // V5R3
+  private int serverIPLRequired_ = -1;    // V5R3
+  private String creationDateAndTime_;    // V5R3
 
   private boolean loaded_ = false;
   private boolean partiallyLoaded_ = false;
@@ -713,16 +717,13 @@ public class PTF
   {
     if (messageData_ == null)
     {
-      MessageFile mf = new MessageFile(system_, "/QSYS.LIB/QCPFMSG.MSGF");
-      AS400Message msg = null;
       try
       {
-        msg = mf.getMessage("CPX3501");
+        MessageFile mf = new MessageFile(system_, "/QSYS.LIB/QCPFMSG.MSGF");
+        AS400Message msg = mf.getMessage("CPX3501");
+        if (msg != null) messageData_ = msg.getHelp();
       }
-      catch(PropertyVetoException pve)
-      {
-      }
-      messageData_ = msg.getHelp();
+      catch (PropertyVetoException pve) {}  // will never happen
     }
     // String, offset, length
     // NONE, 0, 11
@@ -856,7 +857,7 @@ public class PTF
 
      
   /**
-   * Returns the product ID of this PTF (e.g. "5722JC1").
+   * Returns the product ID of this PTF.  For example: "5722JC1"
    * If this value was initially set to PRODUCT_ID_ONLY, it
    * will be overwritten with the value returned from the system
    * after the values have been refreshed.
@@ -1025,8 +1026,8 @@ public class PTF
 
 
   /**
-   * Returns the date and time the PTF status last changed. This will be blank
-   * if the status date and time are not available.
+   * Returns the date and time the PTF status last changed.
+   * If the status date and time are not available, null is returned.
    * @return The status date.
   **/
   public Date getStatusDate()
@@ -1097,6 +1098,66 @@ public class PTF
     return targetRelease_;
   }
 
+
+  /**
+   * Returns the date and time that the PTF was created.
+   * If the creation date and time cannot be determined, null is returned.
+   * <p>NOTE:  This method is not supported when running to OS/400 V5R2 or earlier releases.
+   * @return The date and time that the PTF was created, or null if not determined or system is pre-V5R3.
+  **/
+  public Date getCreationDate()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded_) refresh(100);
+
+    TimeZone tz = DateTimeConverter.timeZoneForSystem(system_);
+    Calendar dateTime = Calendar.getInstance(tz);
+    dateTime.clear();
+
+    // CYYMMDDHHMMSS format.
+    String dattim = creationDateAndTime_;  // abbreviate
+    if (dattim == null) return null;
+    else
+    {
+      dateTime.set(Integer.parseInt(dattim.substring(0, 3)) + 1900,
+                   Integer.parseInt(dattim.substring(3, 5)) - 1,
+                   Integer.parseInt(dattim.substring(5, 7)),
+                   Integer.parseInt(dattim.substring(7, 9)),
+                   Integer.parseInt(dattim.substring(9, 11)),
+                   Integer.parseInt(dattim.substring(11, 13)));
+
+      return dateTime.getTime();
+    }
+  }
+  
+  /**
+   Indicates whether a server IPL must be performed in order to activate
+   the changes for the PTF.
+   <p>NOTE:  This method is not supported when running to OS/400 V5R2 or earlier releases.
+   @return Whether a server IPL must be performed.
+   The possible values are:
+   <ul>
+   <li>0 No server IPL is required to activate the changes for the PTF.
+   <li>1 A server IPL must be performed using the T server IPL source in order to activate the changes for the PTF.
+   <li>2 A server IPL must be performed using the P server IPL source in order to activate the changes for the PTF.
+   <li>-1 The value of the "IPL required" property cannot be determined, or system is pre-V5R3.
+   </ul>
+  **/
+  public int getServerIPLRequired()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    return serverIPLRequired_;
+  }
   
   /**
    * This method is used internally by getCoverLetters().
@@ -1491,7 +1552,15 @@ public class PTF
     if (output.length >= 115)
     {
       // V5R2 and higher
-      supersededBy_ = conv.byteArrayToString(output, 108, 7).trim();
+      //supersededByPTFID_ = conv.byteArrayToString(output, 108, 7).trim();
+
+      if (output.length >= 130)
+      {
+        // V5R3 and higher
+        currentServerIPLSource_ = conv.byteArrayToString(output, 115, 1).trim();
+        serverIPLRequired_ = (int)(output[116] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.
+        creationDateAndTime_ = conv.byteArrayToString(output, 117, 13).trim();
+      }
     }
     loaded_ = true;
 
