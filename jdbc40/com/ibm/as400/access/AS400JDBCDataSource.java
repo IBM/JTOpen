@@ -3621,7 +3621,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
      *  Sets whether to disallow "" and *current as user name and password.  
      *  True indicates to disallow "" and *current for user name and password.
-     *  @parm The secure current user setting.
+     *  @param The secure current user setting.
      **/
     public void setSecureCurrentUser(boolean secureCurrentUser)
     {
