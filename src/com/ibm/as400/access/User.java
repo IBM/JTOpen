@@ -22,18 +22,21 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  The User class represents a user profile object on the system.
- <p>Note that calling any of the attribute getters for the first time will result in an implicit call to {@link #loadUserInformation loadUserInformation()}.  If any exceptions are thrown by loadUserInformation() during the implicit call, they will be logged to {@link com.ibm.as400.access.Trace#ERROR Trace.ERROR} and ignored.  However, should an exception occur during an explicit call to loadUserInformation(), it will be thrown to the caller.
+ <p>Note that calling any of the attribute getters for the first time will result in an implicit call to {@link #loadUserInformation loadUserInformation()}.  If any exceptions are thrown by loadUserInformation() during the implicit call, they will be logged to {@link Trace#ERROR Trace.ERROR} and ignored.  However, should an exception occur during an explicit call to loadUserInformation(), it will be thrown to the caller.
  <p>Implementation note:  This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that retrieve user profile information.  The caller must have *READ authority to the user profile object in order to retrieve the information.  The class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change user profile information.  The caller must have security administrator (*SECADM) special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
- @see  com.ibm.as400.access.DirectoryEntry
- @see  com.ibm.as400.access.UserList
- @see  com.ibm.as400.access.UserGroup
+ @see  DirectoryEntry
+ @see  UserList
+ @see  UserGroup
  **/
 public class User implements Serializable
 {
     static final long serialVersionUID = 5L;
+    private static final boolean COMMAND_CALL = true;
+    private static final boolean PROGRAM_CALL = false;
 
     // These need to be in this order so we can easily reference them from the code that parses the API return information in loadUserInformation().
     private static final String[] SPECIAL_AUTHORITIES = new String[]
@@ -120,6 +123,11 @@ public class User implements Serializable
     private String description_ = null;
     // Group member indicator.
     private boolean groupHasMember_ = false;
+
+    private CommandCall chgUsrPrf_ = null;
+    private CommandCall chgUsrAud_ = null;
+    private final static boolean COMMAND_CHGUSRPRF = true;
+    private final static boolean COMMAND_CHGUSRAUD = false;
 
     // Flag that indicates that the above properties were set by UserList.
     private boolean partiallyLoaded_ = false;
@@ -249,6 +257,22 @@ public class User implements Serializable
     private boolean localPasswordManagement_;
     // Password change block
     private String pwdChangeBlock_;		// @610
+    // User entitlement required.
+    // (Note: No setter for this attribute)
+    private boolean userEntitlementRequired_;		// @610
+    // User expiration interval.
+    private int userExpirationInterval_;           // @710
+    // User expiration date (raw from API).
+    private byte[] userExpirationDateBytes_;       // @710
+    // User expiration date.
+    private Date userExpirationDate_;              // @710
+    // User expiration action.
+    // (Note: No setter for this attribute)
+    private String userExpirationAction_;          // @710
+
+    private TimeZone systemTimeZone_;
+    private DateTimeConverter dateConverter_;
+    private String jobDateFormat_;
 
     /**
      Constructs a User object.
@@ -411,7 +435,7 @@ public class User implements Serializable
      @return  The attention key handling program for this user.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QATNPGM determines the user's attention key handling program.
-     <li>{@link #NONE User.NONE} - No attention key handling program is used.
+     <li>{@link #NONE NONE} - No attention key handling program is used.
      <li>The fully qualified integrated file system path name of the attention key handling program.
      </ul>
      @see  QSYSObjectPathName
@@ -541,7 +565,7 @@ public class User implements Serializable
      Retrieves the authority the user's group profile has to objects the user creates.
      @return  The authority the user's group profile has to objects the user creates.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - The group profile has no authority to the objects the user creates, or the user does not have a group profile.
+     <li>{@link #NONE NONE} - The group profile has no authority to the objects the user creates, or the user does not have a group profile.
      <li>"*ALL" - The group profile has all authority to the objects the user creates.
      <li>"*CHANGE" - The group profile has change authority to the objects the user creates.
      <li>"*USE" - The group profile has use authority to the objects the user creates.
@@ -601,7 +625,7 @@ public class User implements Serializable
      Retrieves the name of the group profile.
      @return  The name of the group profile.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - The user does not have a group profile.
+     <li>{@link #NONE NONE} - The user does not have a group profile.
      <li>The group profile name.
      </ul>
      **/
@@ -636,8 +660,8 @@ public class User implements Serializable
      @return  The list of independent auxiliary storage pool (IASP) names in use by this user.  If no IASP name are in use by this user, a zero length array is returned.  If the system operating system is not release V5R1M0 or higher, null is returned.
      @see  #getIASPStorageAllowed
      @see  #getIASPStorageUsed
-     @see  com.ibm.as400.access.AS400#getVRM
-     @see  com.ibm.as400.access.AS400#generateVRM
+     @see  AS400#getVRM
+     @see  AS400#generateVRM
      **/
     public String[] getIASPNames()
     {
@@ -714,7 +738,7 @@ public class User implements Serializable
      Retrieves the initial program for the user.
      @return  The initial program for the user.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - The user does not have an initial program.
+     <li>{@link #NONE NONE} - The user does not have an initial program.
      <li>The fully qualified integrated file system path name of the initial program name.
      </ul>
      @see  QSYSObjectPathName
@@ -783,7 +807,7 @@ public class User implements Serializable
 
     /**
      Retrieves whether the user is limited to one device session.
-     NOTE:  Values "0-9" are only valid when running to the i5/OS release after V5R4.
+     NOTE:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
      @return  Whether the user is limited to one device session.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN determines if the user is limited to one device session.
@@ -804,7 +828,7 @@ public class User implements Serializable
      Retrieves a list of the job attributes which are set from the user's locale path name.
      @return  A list of the job attributes which are set from the user's locale path name.  Possible values for the elements of this array are:
      <ul>
-     <li>{@link #NONE User.NONE} - No job attributes are used from the locale path name at the time a job is started for this user profile.
+     <li>{@link #NONE NONE} - No job attributes are used from the locale path name at the time a job is started for this user profile.
      <li>"*SYSVAL" - The job attributes assigned from the locale path name are determined by the system value QSETJOBATR at the time a job is started for this user profile.
      <li>"*CCSID" - The coded character set identifier is set from the locale path name at the time a job is started for this user profile.
      <li>"*DATFMT" - The date format is set from the locale path name at the time a job is started for this user profile.
@@ -822,7 +846,7 @@ public class User implements Serializable
 
     private static final String[] LOCALE_ATTRIBUTES = new String[]
     {
-        User.NONE,
+        NONE,
         "*SYSVAL",
         "*CCSID",
         "*DATFMT",
@@ -837,7 +861,7 @@ public class User implements Serializable
      @return  The locale path name that is assigned to the user profile when a job is started.  Possible values are:
      <ul>
      <li>"*C" - The C locale path name is assigned.
-     <li>{@link #NONE User.NONE} - No locale path name is assigned.
+     <li>{@link #NONE NONE} - No locale path name is assigned.
      <li>"*POSIX" - The POSIX locale path name is assigned.
      <li>"*SYSVAL" - The QLOCALE system value is used to determine the locale path name.
      <li>A locale path name.
@@ -915,7 +939,7 @@ public class User implements Serializable
      Retrieves the user's object auditing value.
      @return  The user's object auditing value.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - No additional object auditing is done for the user.
+     <li>{@link #NONE NONE} - No additional object auditing is done for the user.
      <li>"*CHANGE" - Object changes are audited for the user if the object's auditing value is *USRPRF.
      <li>"*ALL" - Object read and change operations are audited for the user if the object's auditing value is *USRPRF.
      </ul>
@@ -993,11 +1017,15 @@ public class User implements Serializable
         {
             try
             {
-                passwordExpireDate_ = new DateTimeConverter(system_).convert(passwordExpireDateBytes_, "*DTS");
+                // First see if a blank value was returned.
+                if (isBlanks(passwordExpireDateBytes_)) return null;
+
+                passwordExpireDate_ = getDateTimeConverter().convert(passwordExpireDateBytes_, "*DTS");
             }
             catch (Exception e)
             {
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception while converting datePasswordExpires:", e);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
             }
         }
         return passwordExpireDate_;
@@ -1007,12 +1035,12 @@ public class User implements Serializable
     /**
      * Retrieves the time period during which a password is blocked from being changed
      * following the prior successful password change operation.
-     * <p><b>NOTE:  This method should not be used when running to i5/OS V5R4 or earlier releases.</b>
+     * <p><b>NOTE:  This method should not be used when running to IBM i 5.4 or earlier releases.</b>
      * @return The time period during which a password is blocked from being changed.  Possible values are:
      * <ul>
      * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
-     * <li>"*NONE" - The password can be changed at any time.</li>
-     * <li>"1-99" - Indicates the number of hours a user must wait after the prior successful password change operation
+     * <li>{@link #NONE NONE} - The password can be changed at any time.</li>
+     * <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change operation
      * before they are able to change the password again.</li>
      * </ul>
      */
@@ -1048,11 +1076,12 @@ public class User implements Serializable
         {
             try
             {
-                passwordLastChangedDate_ = new DateTimeConverter(system_).convert(passwordLastChangedDateBytes_, "*DTS");
+                passwordLastChangedDate_ = getDateTimeConverter().convert(passwordLastChangedDateBytes_, "*DTS");
             }
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Exception while converting passwordLastChangedDate:", e);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
             }
         }
         return passwordLastChangedDate_;
@@ -1119,14 +1148,14 @@ public class User implements Serializable
      Retrieves a list of the special authorities the user has.
      @return  A list of the special authorities the user has.  If the user has no special authorities, an empty array is returned.  Possible values for the elements of this array are:
      <ul>
-     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT User.SPECIAL_AUTHORITY_ALL_OBJECT} - All object.
-     <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR User.SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator.
-     <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL User.SPECIAL_AUTHORITY_JOB_CONTROL} - Job control.
-     <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL User.SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control.
-     <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM User.SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system.
-     <li>{@link #SPECIAL_AUTHORITY_SERVICE User.SPECIAL_AUTHORITY_SERVICE} - Service.
-     <li>{@link #SPECIAL_AUTHORITY_AUDIT User.SPECIAL_AUTHORITY_AUDIT} - Audit.
-     <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION User.SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output system configuration.
+     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT SPECIAL_AUTHORITY_ALL_OBJECT} - All object.
+     <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator.
+     <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL SPECIAL_AUTHORITY_JOB_CONTROL} - Job control.
+     <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control.
+     <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system.
+     <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service.
+     <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit.
+     <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output system configuration.
      </ul>
      **/
     public String[] getSpecialAuthority()
@@ -1140,7 +1169,7 @@ public class User implements Serializable
      @return  The special environment the user operates in after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special environment.
-     <li>{@link #NONE User.NONE} - The user operates in the i5/OS system environment.
+     <li>{@link #NONE NONE} - The user operates in the i5/OS system environment.
      <li>"*S36" - The user operates in the System/36 environment.
      </ul>
      **/
@@ -1265,6 +1294,70 @@ public class User implements Serializable
         return userClassName_;
     }
 
+
+    /**
+     Retrieves the action that will occur when the user profile has expired.
+     @return  The action that will occur when the user profile has expired.
+     Possible values include:
+     <ul>
+     <li>{@link #NONE NONE} - The user profile will not expire.
+     <li>"*DISABLE" - The user profile will be disabled.
+     <li>"*DELETE" - The user profile will be deleted. If the user profile cannot be deleted, it will be disabled.
+     </ul>
+     **/
+    public String getUserExpirationAction()
+    {
+        if (!loaded_) refresh();
+        return userExpirationAction_;
+    }
+
+
+    /**
+     Retrieves the date when the user profile expires and is automatically disabled.
+     @return  The date when the user profile expires.  <tt>null</tt> is returned if the user profile does not have an expiration date. 
+     **/
+    public Date getUserExpirationDate()
+    {
+      if (!loaded_) refresh();
+      if (userExpirationDate_ == null)
+      {
+        try
+        {
+          // First see if a blank value was returned.  If so, return null.
+          if (isBlanks(userExpirationDateBytes_)) return null;
+
+          userExpirationDate_ = getDateTimeConverter().convert(userExpirationDateBytes_, "*DTS");
+        }
+        catch (Exception e)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception while converting userExpirationDate:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+        }
+      }
+      return userExpirationDate_;
+    }
+
+    // Returns true if the specified byte array is a sequence of 0 or more EBCDIC blanks (x40).  Returns false if any character other than EBCDIC blank is encountered.
+    static final boolean isBlanks(byte[] bytes)
+    {
+      for (int i=0; i<bytes.length; i++)
+      {
+        if (bytes[i] != (byte)0x40 ) return false;
+      }
+      return true;
+    }
+
+
+    /**
+     Retrieves the number of days before the user profile is automatically disabled.
+     @return  The number of days until the user profile expires, starting from when the profile was created or last re-enabled.  0 is returned if the user profile does not have a user expiration interval.
+     **/
+    public int getUserExpirationInterval()
+    {
+        if (!loaded_) refresh();
+        return userExpirationInterval_;
+    }
+
     /**
      Retrieves the user ID (UID) number for the user profile.  The UID is used to identify the user when using the integrated file system.
      @return  The user ID (UID) number for the user profile.
@@ -1376,7 +1469,7 @@ public class User implements Serializable
             catch (Exception e)
             {
                 Trace.log(Trace.ERROR, "Unexpected Exception constructing User object:", e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
             }
         }
         // Check the supplemental groups.
@@ -1396,7 +1489,7 @@ public class User implements Serializable
                 catch (Exception e)
                 {
                     Trace.log(Trace.ERROR, "Unexpected Exception constructing User object:", e);
-                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
                 }
             }
         }
@@ -1408,7 +1501,7 @@ public class User implements Serializable
      Retrieves whether this user is a group that has members.
      <p>For User objects, this should always return false.  For UserGroup objects, this should return true if the group profile has members.
      @return  true if the user is a group that has members, false otherwise.
-     @see  com.ibm.as400.access.UserGroup
+     @see  UserGroup
      **/
     public boolean isGroupHasMember()
     {
@@ -1444,6 +1537,18 @@ public class User implements Serializable
     {
         if (!loaded_) refresh();
         return passwordSetExpire_;
+    }
+
+
+    /**
+     Retrieves whether a user entitlement is required for this user profile. This property should be ignored on systems that do not have feature 5052 installed.
+     Note: This method is valid only when running to IBM i 6.1 or higher.
+     @return  true if a user entitlement is required for this user profile; false otherwise.
+     **/
+    public boolean isUserEntitlementRequired()
+    {
+        if (!loaded_) refresh();
+        return userEntitlementRequired_;
     }
 
     /**
@@ -1498,6 +1603,9 @@ public class User implements Serializable
         };
 
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSYRUSRI.PGM", parameters);
+        // Note: QSYRUSRI is designated "Threadsafe: Yes".
+        // But honor the ProgramCall.threadsafe property if set.
+        if (checkThreadSafetyProperty(true,PROGRAM_CALL)) pc.setThreadSafe(true);
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -1519,7 +1627,7 @@ public class User implements Serializable
             catch (PropertyVetoException e)
             {
                 Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
             }
             if (!pc.run())
             {
@@ -1531,7 +1639,7 @@ public class User implements Serializable
         userProfileName_ = conv.byteArrayToString(data, 8, 10).trim();
 
         // Previous sign-on is in format:  "CYYMMDDHHMMSS".
-        String previousSignon = conv.byteArrayToString(data, 18, 13);
+        String previousSignon = conv.byteArrayToString(data, 18, 13); // Note: This time value is relative to the system's local time zone, not UTC.
         if (previousSignon.trim().length() > 0)
         {
             Calendar cal = Calendar.getInstance();
@@ -1542,6 +1650,11 @@ public class User implements Serializable
             cal.set(Calendar.HOUR, Integer.parseInt(previousSignon.substring(7, 9)));
             cal.set(Calendar.MINUTE, Integer.parseInt(previousSignon.substring(9, 11)));
             cal.set(Calendar.SECOND, Integer.parseInt(previousSignon.substring(11, 13)));
+            // Set the correct time zone (in case client is in a different zone than server).
+            if (systemTimeZone_ == null) {
+              systemTimeZone_ = getDateTimeConverter().getSystemTimeZone();
+            }
+            if (systemTimeZone_ != null) cal.setTimeZone(systemTimeZone_);
             previousSignedOnDate_ = cal.getTime();
         }
         else
@@ -1558,7 +1671,7 @@ public class User implements Serializable
         passwordLastChangedDate_ = null;  // Reset.
 
         // EBCDIC 'Y' for no password.
-        noPassword_ = data[54] == (byte)0xE8;
+        noPassword_ = (data[54] == (byte)0xE8);
         // 1-366.  0 means use system value QPWDEXPITV.  -1 means *NOMAX.
         passwordExpirationInterval_ = BinaryConverter.byteArrayToInt(data, 56);
 
@@ -1569,7 +1682,7 @@ public class User implements Serializable
 
         daysUntilPasswordExpire_ = BinaryConverter.byteArrayToInt(data, 68);
         // EBCDIC 'Y' if the user's password is set to expire.
-        passwordSetExpire_ = data[72] == (byte)0xE8;
+        passwordSetExpire_ = (data[72] == (byte)0xE8);
         userClassName_ = conv.byteArrayToString(data, 73, 10).trim();
 
         int numSpecAuth = 0;
@@ -1722,9 +1835,9 @@ public class User implements Serializable
         }
 
         // EBCDIC '1' indicates the user is a group that has members.
-        groupHasMember_ = data[632] == (byte)0xF1;
+        groupHasMember_ = (data[632] == (byte)0xF1);
         // EBCDIC '1' indicates there is at least one digital certificate associated with this user.
-        withDigitalCertificates_ = data[633] == (byte)0xF1;
+        withDigitalCertificates_ = (data[633] == (byte)0xF1);
         chridControl_ = conv.byteArrayToString(data, 634, 10).trim();
 
         int vrm = system_.getVRM();
@@ -1752,11 +1865,23 @@ public class User implements Serializable
             if (vrm >= 0x00050300)
             {
                 // EBCDIC 'Y' indicates the password is managed locally.
-                localPasswordManagement_ = data[660] == (byte)0xE8;
+                localPasswordManagement_ = (data[660] == (byte)0xE8);
                 
-                if(vrm >= 0x00060100)	// @550 added password change block
+                if (vrm >= 0x00060100)	// @550 added password change block
                 {
-                	pwdChangeBlock_ = conv.byteArrayToString(data, 661, 10).trim();
+                  pwdChangeBlock_ = conv.byteArrayToString(data, 661, 10).trim();
+                  // EBCDIC '1' indicates user entitlement is required.
+                  userEntitlementRequired_ = (data[671] == (byte)0xF1);
+
+                  if (vrm >= 0x00070100)	// @710 added more fields
+                  {
+                    userExpirationInterval_ = BinaryConverter.byteArrayToInt(data, 672);
+                    if (userExpirationDateBytes_ == null) userExpirationDateBytes_ = new byte[8];
+                    // *DTS format - convert on getter.
+                    System.arraycopy(data, 676, userExpirationDateBytes_, 0, 8);
+                    userExpirationDate_ = null;  // Reset.
+                    userExpirationAction_ = conv.byteArrayToString(data, 684, 10).trim();
+                  }
                 }
             }
         }
@@ -1830,11 +1955,10 @@ public class User implements Serializable
             throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        CommandCall cmd = new CommandCall(system_, "QSYS/CHGUSRPRF USRPRF(" + name_ + ") " + parameters);
-        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
-        {
-          cmd.setThreadSafe(false);
-        }
+        CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRPRF);
+        try {
+          cmd.setCommand("QSYS/CHGUSRPRF USRPRF(" + name_ + ") " + parameters);
+        } catch (PropertyVetoException e) {}  // will never happen
 
         if (!cmd.run())
         {
@@ -1842,6 +1966,32 @@ public class User implements Serializable
         }
         loaded_ = false;
         connected_ = true;
+    }
+
+
+    // Utility method.
+    private final CommandCall getCommandCallObject(boolean isChgUsrPrf)
+    {
+      if (isChgUsrPrf)
+      {
+        if (chgUsrPrf_ == null)
+        {
+          chgUsrPrf_ = new CommandCall(system_);
+          // CHGUSRPRF is not threadsafe, but honor the property if set.
+          chgUsrPrf_.setThreadSafe(checkThreadSafetyProperty(false,COMMAND_CALL));
+        }
+        return chgUsrPrf_;
+      }
+      else
+      {
+        if (chgUsrAud_ == null)
+        {
+          chgUsrAud_ = new CommandCall(system_);
+          // CHGUSRAUD is not threadsafe, but honor the property if set.
+          chgUsrAud_.setThreadSafe(checkThreadSafetyProperty(false,COMMAND_CALL));
+        }
+        return chgUsrAud_;
+      }
     }
 
     // Used by the setters to change the user auditing.
@@ -1859,11 +2009,10 @@ public class User implements Serializable
             throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        CommandCall cmd = new CommandCall(system_, "QSYS/CHGUSRAUD USRPRF(" + name_ + ") " + parameters);
-        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
-        {
-          cmd.setThreadSafe(false);
-        }
+        CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRAUD);
+        try {
+          cmd.setCommand("QSYS/CHGUSRAUD USRPRF(" + name_ + ") " + parameters);
+        } catch (PropertyVetoException e) {};  // will never happen
 
         if (!cmd.run())
         {
@@ -1902,14 +2051,15 @@ public class User implements Serializable
     static private String setArrayToString(String[] array)
     {
         int arrayLength = array.length;
-        if (arrayLength == 0) return "*NONE";
+        if (arrayLength == 0) return NONE;
         if (arrayLength == 1) return array[0];
-        String string = array[0];
+        StringBuffer string = new StringBuffer(array[0]);
         for (int i = 1; i < arrayLength; ++i)
         {
-            string += " " + array[i];
+            string.append(" ");
+            string.append(array[i]);
         }
-        return string;
+        return string.toString();
     }
 
     /**
@@ -1937,7 +2087,7 @@ public class User implements Serializable
      @param attentionKeyHandlingProgram The program to be used as the Attention (ATTN) key handling program for this user.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QATNPGM is used.
-     <li>{@link #NONE User.NONE} - No ATTN key handling program is used by this user.
+     <li>{@link #NONE NONE} - No ATTN key handling program is used by this user.
      <li>"*ASSIST" - The Operational Assistant ATTN key handling program, QEZMAIN, is used.
      <li>The fully qualified integrated file system path name of the attention key handling program.
      </ul>
@@ -2102,7 +2252,7 @@ public class User implements Serializable
      Sets the specific authority given to the group profile for newly created objects.  If *GRPPRF is specified for the Owner (OWNER) parameter, specification of this parameter is not allowed.
      @param groupAuthority The specific authority given to the group profile for newly created objects.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - No group authority is given.
+     <li>{@link #NONE NONE} - No group authority is given.
      <li>"*ALL" - The user can perform all operations execept those limited to the owner or controlled by authorization list management (*AUTLMGT) authority.  The user can control the object's existence, specify the security for the object, change the object, and perform basic functions on the object.  The user can also change ownership of the object.
      <li>"*CHANGE" - The user can perform all operations execept those limited to the owner or controlled by the object existence (*OBJEXIST) and object management (*OBJMGT) authorities.  The user can change and perform basic functions on the object.  *CHANGE authority provides object operational (*OBJOPR) authority and all data authority.  If the object is an authorization list, the user cannot add, change, or remove users.
      <li>"*USE" - The user can perform basic operations on the object, such as running a program or reading a file.  The user cannot change the object.  User (*USE) authority provides object operational (*OBJOPR), read (*READ), and execute (*EXECUTE) authorities.
@@ -2120,11 +2270,11 @@ public class User implements Serializable
     }
 
     /**
-     Sets the type of authority to be granted to the group profile for newly-created objects.  If *NONE is specified for the Group Authority (GRPAUT) parameter, specification of this parameter is ignored.
+     Sets the type of authority to be granted to the group profile for newly-created objects.  If {@link #NONE NONE} is specified for the Group Authority (GRPAUT) parameter, specification of this parameter is ignored.
      @param groupAuthorityType The type of authority to be granted to the group profile for newly-created objects.  Possible values are:
      <ul>
-     <li>"*PRIVATE" - The group profile is granted private authority to newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is *NONE, this value is ignored.
-     <li>"*PGP" - The group profile is the primary group for newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is *NONE, this value is ignored.
+     <li>"*PRIVATE" - The group profile is granted private authority to newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
+     <li>"*PGP" - The group profile is the primary group for newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
      </ul>
      **/
     public void setGroupAuthorityType(String groupAuthorityType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -2170,7 +2320,7 @@ public class User implements Serializable
      </ul>
      @param groupID The group ID number (gid number) for this user profile.  Possible values are:
      <ul>
-     <li>"*NONE" - The user does not have a gid number or an existing gid number is removed.
+     <li>{@link #NONE NONE} - The user does not have a gid number or an existing gid number is removed.
      <p>Note:  This value cannot be specified if the user is a group profile or the primary group of an object.
      <li>"*GEN" - The gid number will be generated for the user.  The system generates a gid number that is not already assigned to another user.  The gid number generated is greater than 100.
      <li>1-4294967294 - The gid number to be assigned to the user profile.  The gid number assigned must not already be assigned to another user profile.
@@ -2190,7 +2340,7 @@ public class User implements Serializable
      Sets the user's group profile name whose authority is used if no specific authority is given for the user.  The caller must have object management (*OBJMGT) and change (*CHANGE) authority to the profile specified for the Group profile (GRPPRF) parameter.  The required *OBJMGT authority cannot be given by a program adopt operation.
      @param groupProfileName The user's group profile name whose authority is used if no specific authority is given for the user.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - The user profile has no group profile.
+     <li>{@link #NONE NONE} - The user profile has no group profile.
      <li>The name of the group profile used with this user profile.
      </ul>
      **/
@@ -2281,7 +2431,7 @@ public class User implements Serializable
      <p>The caller must have *USE authority to the specified program.
      @param initialProgram The initial program for the user.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - No program is called when the user signs on.  If a menu name is specified in the Initial menu (INLMNU) parameter, that menu is displayed.
+     <li>{@link #NONE NONE} - No program is called when the user signs on.  If a menu name is specified in the Initial menu (INLMNU) parameter, that menu is displayed.
      <li>The fully qualified integrated file system path name of the initial program for the user.
      </ul>
      @see  QSYSObjectPathName
@@ -2387,7 +2537,7 @@ public class User implements Serializable
 
     /**
      Sets if the number of device sessions allowed for a user is limited to 1.  This does not limit SYSREQ and second sign-on.
-     NOTE:  Values "0-9" are only valid when running to the i5/OS release after V5R4.
+     NOTE:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
      @param limitDeviceSessions If the number of device sessions allowed for a user is limited to 1.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN is used to determine whether the user is limited to a single device session.
@@ -2413,7 +2563,7 @@ public class User implements Serializable
      @param localeJobAttributes A list of attributes which are set from the locale path name at the time a job is started for this user.  Possible values for the elements of this array are:
      <ul>
      <li>"*SYSVAL" - The system value, QSETJOBATR, is used to determine which job attributes are taken from the locale.
-     <li>{@link #NONE User.NONE} - No job attributes are taken from the locale.
+     <li>{@link #NONE NONE} - No job attributes are taken from the locale.
      <li>"*CCSID" - The coded character set identifier from the locale is used.  The CCSID value from the locale overrides the user profile CCSID.
      <li>"*DATFMT" - The date format from the locale is used.
      <li>"*DATSEP" - The date separator from the locale is used.
@@ -2437,7 +2587,7 @@ public class User implements Serializable
      @param localePathName The locale path name that is assigned to the user profile when a job is started.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLOCALE is used to determine the locale path name to be assigned for this user.
-     <li>{@link #NONE User.NONE} - No locale path name is assigned for this user.
+     <li>{@link #NONE NONE} - No locale path name is assigned for this user.
      <li>"*C" - The C locale path name is assigned for this user.
      <li>"*POSIX" - The POSIX locale path name is assigned for this user.
      <li>The path name of the locale to be assigned for this user.
@@ -2625,7 +2775,7 @@ public class User implements Serializable
      <p>Implementation note:  The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change User Profile (CHGUSRPRF) command.  The caller must have audit (*AUDIT) special authority.  Changes take effect the next time a job is started for this user.
      @param objectAuditingValue The object auditing value for the user.  Possible values are:
      <ul>
-     <li>{@link #NONE User.NONE} - The auditing value for the object determines when auditing is performed.
+     <li>{@link #NONE NONE} - The auditing value for the object determines when auditing is performed.
      <li>"*CHANGE" - All changes accesses by this user on all objects with the *USRPRF audit value are logged.
      <li>"*ALL" - All change and read accesses by this use on all objects with the *USRPRF audit value are logged.
      </ul>
@@ -2691,12 +2841,12 @@ public class User implements Serializable
     /**
      * Sets the time period during which a password is blocked from being changed
      * following the prior successful password change operation.
-     * <p><b>NOTE:  This method should not be used when running to i5/OS V5R4 or earlier releases.</b>
+     * <p><b>NOTE:  This method is not supported when running to i5/OS 5.4 or earlier releases.</b>
      * @param pwdChangeBlock The time period during which a password is blocked from being changed.  Possible values are:
      * <ul>
      * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
-     * <li>"*NONE" - The password can be changed at any time.</li>
-     * <li>"1-99" - Indicates the number of hours a user must wait after the prior successful password change operation
+     * <li>{@link #NONE NONE} - The password can be changed at any time.</li>
+     * <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change operation
      * before they are able to change the password again.</li>
      * </ul> 
      */
@@ -2825,15 +2975,15 @@ public class User implements Serializable
      @param specialAuthority The special authorities given to a user.  Possible values for the elements of this array are:
      <ul>
      <li>"*USRCLS" - Special authorities are granted to this user based on the value specified on User class (USRCLS) parameter.
-     <li>"*NONE" - No special authorities are granted to this user.
-     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT User.SPECIAL_AUTHORITY_ALL_OBJECT} - All object authority is given to the user.  The user can access any system resource with or without private user authorizations.
-     <li>{@link #SPECIAL_AUTHORITY_AUDIT User.SPECIAL_AUTHORITY_AUDIT} - Audit authority is granted to this user.  The user is given the authority to perform auditing functions.  Auditing functions include turning auditing on or off for the system and controlling the level of auditing on an object or user. 
-     <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL User.SPECIAL_AUTHORITY_JOB_CONTROL} - Job control authority is given to the user.  The user has authority to change, display, hold, release, cancel, and clear all jobs that are running on the system or that are on a job queue or output queue that has OPRCTL (*YES) specified.  The user also has the authority to start writers and to stop active subsystems.
-     <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM User.SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system authority is given to the user profile.  This user has the authority to save, restore, and free storage for all objects on the system, with or without object management authority. 
-     <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION User.SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output (I/O) system configuration authority is given to the user.  The user has authority to change system I/O configurations. 
-     <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR User.SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator authority is given to the user.  The user can create, change, or delete user profiles if authorized to the Create User Profile (CRTUSRPRF), Change User Profile (CHGUSRPRF), or Delete User Profile (DLTUSRPRF) commands and is authorized to the user profile.  This authority does not allow giving special authorities that this user profile does not have.  To give *SECADM special authority to another user, a user must have both *ALLOBJ and *SECADM special authorities. 
-     <li>{@link #SPECIAL_AUTHORITY_SERVICE User.SPECIAL_AUTHORITY_SERVICE} - Service authority is given to this user.  The user can perform service functions. 
-     <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL User.SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control authority is given to this user.  The user can perform all spool functions.
+     <li>{@link #NONE NONE} - No special authorities are granted to this user.
+     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT SPECIAL_AUTHORITY_ALL_OBJECT} - All object authority is given to the user.  The user can access any system resource with or without private user authorizations.
+     <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit authority is granted to this user.  The user is given the authority to perform auditing functions.  Auditing functions include turning auditing on or off for the system and controlling the level of auditing on an object or user. 
+     <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL SPECIAL_AUTHORITY_JOB_CONTROL} - Job control authority is given to the user.  The user has authority to change, display, hold, release, cancel, and clear all jobs that are running on the system or that are on a job queue or output queue that has OPRCTL (*YES) specified.  The user also has the authority to start writers and to stop active subsystems.
+     <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system authority is given to the user profile.  This user has the authority to save, restore, and free storage for all objects on the system, with or without object management authority. 
+     <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output (I/O) system configuration authority is given to the user.  The user has authority to change system I/O configurations. 
+     <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator authority is given to the user.  The user can create, change, or delete user profiles if authorized to the Create User Profile (CRTUSRPRF), Change User Profile (CHGUSRPRF), or Delete User Profile (DLTUSRPRF) commands and is authorized to the user profile.  This authority does not allow giving special authorities that this user profile does not have.  To give *SECADM special authority to another user, a user must have both *ALLOBJ and *SECADM special authorities. 
+     <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service authority is given to this user.  The user can perform service functions. 
+     <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control authority is given to this user.  The user can perform all spool functions.
      </ul>
      **/
     public void setSpecialAuthority(String[] specialAuthority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -2851,7 +3001,7 @@ public class User implements Serializable
      @param specialEnvironment The special environment in which the user operates after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value, QSPCENV, is used to determine the system environment after the user signs on the system.
-     <li>{@link #NONE User.NONE} - The user operates in the i5/OS system environment after signing on the system.
+     <li>{@link #NONE NONE} - The user operates in the i5/OS system environment after signing on the system.
      <li>"*S36" - The user operates in the System/36 environment after signing on the system.
      </ul>
      **/
@@ -2894,7 +3044,7 @@ public class User implements Serializable
      </ul>
      @param supplementalGroups The user's supplemental group profiles.  Possible values for the elements of this array are:
      <ul>
-     <li>"*NONE" - No supplemental group profiles are used with this user profile.
+     <li>{@link #NONE NONE} - No supplemental group profiles are used with this user profile.
      <li>The group profile names to be used with this user profile and the group profile specified on the GRPPRF parameter to determine a job's eligibility for getting access to existing objects and special authority.  A maximum of 15 group profile names may be specified.
      **/
     public void setSupplementalGroups(String[] supplementalGroups) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -2949,11 +3099,11 @@ public class User implements Serializable
     }
 
     /**
-     Sets the level of activity that is audited for this user profile.  Note:  The system values QAUDLVL and QAUDLVL2 are used in conjunction with this parameter.  Example:  If QAUDLVL is set to *DELETE and AUDLVL is set to *CREATE, then both *DELETE and *CREATE would be audited for this user.  The default value for the QAUDLVL and QAUDLVL2 system values is *NONE.
+     Sets the level of activity that is audited for this user profile.  Note:  The system values QAUDLVL and QAUDLVL2 are used in conjunction with this parameter.  Example:  If QAUDLVL is set to *DELETE and AUDLVL is set to *CREATE, then both *DELETE and *CREATE would be audited for this user.  The default value for the QAUDLVL and QAUDLVL2 system values is {@link #NONE NONE}.
      <p>Implementation note:  The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change User Profile (CHGUSRPRF) command.  The caller must have audit (*AUDIT) special authority.  Changes take effect the next time a job is started for this user.
      @param userActionAuditLevel The level of activity that is audited for this user profile.  Possible values for the elements of this array are:
      <ul>
-     <li>"*NONE" - No auditing level is specified.  The auditing level for this user is taken from system values QAUDLVL and QAUDLVL2.
+     <li>{@link #NONE NONE} - No auditing level is specified.  The auditing level for this user is taken from system values QAUDLVL and QAUDLVL2.
      <li>"*CMD" - CL command strings, System/36 environment operator control commands, and System/36 enviromnent procedures are logged for this user.
      <li>"*CREATE" - Auditing entries are sent when objects are created by this user.
      <li>"*DELETE" - Auditing entries are sent when objects are deleteed by this user.
@@ -3029,6 +3179,118 @@ public class User implements Serializable
         runCommand("USRCLS(" + userClassName + ")");
     }
 
+
+    /**
+     Sets the date when the user profile expires and is automatically disabled.
+     <p>Note: Certain IBM-supplied user profiles cannot specify a user expiration date. 
+     <p><b>NOTE:  This method is not supported when running to IBM i 6.1 or earlier releases.</b>
+     @param expirationDate The date when the user profile expires and is automatically disabled.  <tt>null</tt> is returned if the user profile does not have an expiration date.
+     @see #setUserExpirationInterval
+     **/
+    public void setUserExpirationDate(Date expirationDate)
+      throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException, ObjectDoesNotExistException
+    {
+      if (system_.getVRM() < 0x00070100)
+      {
+        String currentRelease = system_.getVersion() + "." + system_.getRelease();
+        throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+      }
+
+      String expDate;
+      if (expirationDate == null)
+      {
+        expDate = NONE;
+      }
+      else
+      {
+        // The date must be specified in the "job date format".
+        String jobDateFormat = getJobDateFormat();
+        byte[] dateBytes = getDateTimeConverter().convert(expirationDate, jobDateFormat);
+        expDate = DateTimeConverter.formatDateForCommandParameter(dateBytes, jobDateFormat);
+      }
+
+      runCommand("USREXPDATE(" + expDate + ")");
+    }
+
+
+    // Utility method.  Returns this object's internal DateTimeConverter object.
+    // If we haven't already created dateConverter_, creates it now.
+    private final DateTimeConverter getDateTimeConverter()
+    {
+      if (dateConverter_ == null) {
+        dateConverter_ = new DateTimeConverter(system_);
+      }
+      return dateConverter_;
+    }
+
+
+    // Utility method.  Gets the job date format for the job in which CHGUSRPRF will be run.
+    private final String getJobDateFormat()
+      throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+      if (jobDateFormat_ == null)
+      {
+        // First, get the CommandCall object that will be used to submit the CHGUSRPRF command. This will ensure that we're querying the correct job (on-thread versus off-thread).
+        CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRPRF);
+        Job job = cmd.getServerJob();
+        jobDateFormat_ = job.getDateFormat();
+      }
+      return jobDateFormat_;
+    }
+
+
+    /**
+     Utility method.  Checks the setting of the system properties that control whether we assume commands and programs are threadsafe.
+     @param defaultVal  The default value to return if the relevant property isn't set.
+     @param isCommandCall  Specifies whether we're interested in the CommandCall "threadSafe" property (versus the ProgramCall property).
+     @return If the relevant property is set, then this method returns the property value.
+     If the relevant property isn't set, then this method returns defaultVal.
+     **/
+    private static boolean checkThreadSafetyProperty(boolean defaultVal, boolean isCommandCall)
+    {
+      boolean result;
+      String property = null;
+      if (isCommandCall) {
+        property = CommandCall.getThreadSafetyProperty();
+      }
+      else {
+        property = ProgramCall.getThreadSafetyProperty();
+      }
+
+      if (property == null) {
+        result = defaultVal;
+      }
+      else {
+        result = property.equalsIgnoreCase("true");
+      }
+      return result;
+    }
+
+
+    /**
+     Sets the expiration interval (in days) before the user profile is automatically disabled.
+     If the user profile does not have a user expiration date, or the user profile has expired and the Status parameter is set to *ENABLED, specifies the number of days between today and the new date when the user profile expires. If the user profile has not yet expired, the user expiration interval is changed, but the existing user expiration date is not changed.
+     @param expirationInterval The number of days from today until the user profile is automatically disabled.  Valid values range from 1 through 366.  To specify that the user profile has no expiration interval, call {@link #setUserExpirationDate setUserExpirationDate(null)}.
+     <p><b>NOTE:  This method is not supported when running to IBM i 6.1 or earlier releases.</b>
+     @see #setUserExpirationDate
+     **/
+    public void setUserExpirationInterval(int expirationInterval)
+      throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException
+    {
+      if (system_.getVRM() < 0x00070100)
+      {
+        String currentRelease = system_.getVersion() + "." + system_.getRelease();
+        throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+      }
+
+      if (expirationInterval < 1 || expirationInterval > 366)
+      {
+        throw new ExtendedIllegalArgumentException("expirationInterval (" + expirationInterval + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
+
+      runCommand("USREXPITV(" + expirationInterval + ") USREXPDATE(*USREXPITV)");
+    }
+
     /**
      Sets the user ID number (uid number) for this user profile.  The uid number is used to identify the user when the user is using the directory file system.  The uid number for a user cannot be changed if there are one or more active jobs for the user.
      @param userID The uid number to be assigned to the user profile.  A value from 1 to 4294967294 can be entered.  The uid number assigned must not already be assigned to another user profile.
@@ -3042,7 +3304,7 @@ public class User implements Serializable
      Sets the level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  The system shows several displays that are suitable for the inexperienced user.  More experienced users must perform an extra action to see detailed information.  When values are specified for this parameter, the system presents detailed information without further action by the experienced user.
      @param userOptions The level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  Possible values include:
      <ul>
-     <li>"*NONE" - Detailed information is not shown.
+     <li>{@link #NONE NONE} - Detailed information is not shown.
      <li>"*CLKWD" - Parameter keywords are shown instead of the possible parameter values when a control language (CL) command is prompted.
      <li>"*EXPERT" - More detailed information is shown when the user is performing display and edit options to define or change the system (such as edit or display object authority).
      <li>"*ROLLKEY" - The actions of the Page Up and Page Down keys are reversed.
