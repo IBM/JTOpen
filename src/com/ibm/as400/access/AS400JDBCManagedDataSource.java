@@ -3449,7 +3449,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   /**
    *  Sets whether to disallow "" and *current as user name and password.  
    *  True indicates to disallow "" and *current for user name and password.
-   *  @param The secure current user setting.
+   *  @param secureCurrentUser The secure current user setting.
    **/
   public void setSecureCurrentUser(boolean secureCurrentUser)
   {
