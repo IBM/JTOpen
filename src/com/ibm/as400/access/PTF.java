@@ -1121,7 +1121,7 @@ public class PTF
 
     // CYYMMDDHHMMSS format.
     String dattim = creationDateAndTime_;  // abbreviate
-    if (dattim == null) return null;
+    if (dattim == null || dattim.length() == 0) return null;
     else
     {
       dateTime.set(Integer.parseInt(dattim.substring(0, 3)) + 1900,
