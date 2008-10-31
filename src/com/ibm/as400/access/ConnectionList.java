@@ -1,4 +1,3 @@
-// TBD: Revamp the synchronization logic???
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
@@ -10,6 +9,9 @@
 // Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
+///////////////////////////////////////////////////////////////////////////////
+// @C1 - 2008-06-06 - Added support for ProfileTokenCredential authentication
+//                    by using AS400ConnectionPoolAuthentication class.
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -26,8 +28,6 @@ import java.util.Locale;      //@B2A
  **/
 final class ConnectionList 
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   // Values returned by checkConnectionExpiration().
   // Note: These correspond to MRI text IDs in class MRI2.
   private static final String NOT_EXPIRED = null;
@@ -147,7 +147,7 @@ final class ConnectionList
    *  @exception ConnectionPoolException If max connection limit is reached.
    **/
   private PoolItem createNewConnection(int service, boolean connect, boolean secure, 
-                                       ConnectionPoolEventSupport poolListeners, Locale locale, String password, SocketProperties socketProperties) //@B2C  //@B4C
+                                       ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties) //@B2C  //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException  //@A1C
   {     
     if (log_ != null)
@@ -175,7 +175,7 @@ final class ConnectionList
 
     boolean threadUse = properties_.isThreadUsed();
     // create a new connection
-    PoolItem sys = new PoolItem (systemName_, userID_, password, secure, locale, service, connect, threadUse, socketProperties);    //@B2C //@B4C
+    PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, socketProperties);    //@B2C //@B4C //@C1C
     //@B4D if (connect)
     //@B4D {
     //@B4D 	sys.getAS400Object().connectService(service);
@@ -289,7 +289,7 @@ final class ConnectionList
    *  @exception ConnectionPoolException If a connection pool error occured.
    *  @return The pool item.
    **/
-  PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, String password, SocketProperties socketProperties)    //@B2C //@B4C
+  PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties)    //@B2C //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
@@ -303,19 +303,21 @@ final class ConnectionList
         if (!item.isInUse())
         {
           //@B2A Add a check for locales.  If the user did not specify a locale at
-          //creation time, item.getLocale() will be "".  If the user did 
+          //creation time, item.getLocale() will be null.  If the user did 
           // not pass in a locale on their getConnection(), locale will be null.
           if (secure && item.getAS400Object() instanceof SecureAS400
-              && ((item.getLocale().equals("") && locale == null)        //@B2A
-                  || (locale != null && item.getLocale().equals(locale.toString()))))   //@B2A
+              && ((item.getLocale() == null && locale == null)        //@B2A //@C1C
+                  || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))   //@B2A //@C1C
           {
             // return item found
             poolItem = item; 
             break;   
           }
+          
+          // NEED TO HANDLE WHEN item.getLocale() returns null BUT locale is NOT NULL... searching for a match, but no local in item.getLocale()
           else if (!secure && !(item.getAS400Object() instanceof SecureAS400)
-                   && ((item.getLocale().equals("") && locale == null)   //@B2A
-                       || (locale != null && item.getLocale().equals(locale.toString()))))   //@B2A
+                   && ((item.getLocale() == null && locale == null)   //@B2A //@C1C
+                       || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))   //@B2A //@C1C
           {
             // return item found
             poolItem = item; 
@@ -332,7 +334,7 @@ final class ConnectionList
     if (poolItem == null)
     {
       // didn't find a suitable connection, create a new one
-      poolItem = createNewConnection (0, false, secure, poolListeners, locale, password, socketProperties); //@B2C //@B4C
+      poolItem = createNewConnection (0, false, secure, poolListeners, locale, poolAuth, socketProperties); //@B2C //@B4C //@C1C
     }
 
     return poolItem;
@@ -352,7 +354,7 @@ final class ConnectionList
    *  @exception ConnectionPoolException If a connection pool error occured.
    *  @return The pool item.
    **/
-  PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, String password, SocketProperties socketProperties)  //@B2C //@B4C 
+  PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties)  //@B2C //@B4C //@C1C 
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
@@ -367,8 +369,8 @@ final class ConnectionList
         {
           if (secure && item.getAS400Object() instanceof SecureAS400 &&
               item.getAS400Object().isConnected(service) 
-              && ((item.getLocale().equals("") && locale == null)         //@B2A
-                  || (locale != null && item.getLocale().equals(locale.toString())))) //@B2A
+              && ((item.getLocale() == null && locale == null)         //@B2A //@C1C
+                  || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale)))) //@B2A //@C1C
           {
             Trace.log(Trace.INFORMATION, "Using already connected connection");
             poolItem = item;
@@ -376,8 +378,8 @@ final class ConnectionList
           }
           else if (!secure && !(item.getAS400Object() instanceof SecureAS400) &&
                    item.getAS400Object().isConnected(service)
-                   && ((item.getLocale().equals("") && locale == null)     //@B2A
-                       || (locale != null && item.getLocale().equals(locale.toString()))))     //@B2A
+                   && ((item.getLocale() == null && locale == null)     //@B2A //@C1C
+                       || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))     //@B2A //@C1C
           {
             Trace.log(Trace.INFORMATION, "Using already connected connection");
             poolItem = item;
@@ -397,16 +399,16 @@ final class ConnectionList
           if (!item.isInUse())
           {
             if (secure && item.getAS400Object() instanceof SecureAS400
-                && ((item.getLocale().equals("") && locale == null)  //@B2A
-                    || (locale != null && item.getLocale().equals(locale.toString()))))      //@B2A
+                && ((item.getLocale() == null && locale == null)  //@B2A //@C1C
+                    || (locale != null && item.getLocale().equals(locale))))      //@B2A //@C1C
             {
               Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
               poolItem = item;                  
               break;
             }
             else if (!secure && !(item.getAS400Object() instanceof SecureAS400)
-                     && ((item.getLocale().equals("") && locale == null)     //@B2A
-                         || (locale != null && item.getLocale().equals(locale.toString()))))     //@B2A
+                     && ((item.getLocale() == null && locale == null)     //@B2A //@C1C
+                         || (locale != null && item.getLocale().equals(locale))))     //@B2A //@C1C
             {
               Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
               poolItem = item;                  
@@ -424,7 +426,7 @@ final class ConnectionList
 
     if (poolItem == null)
     {
-      poolItem = createNewConnection(service, true, secure, poolListeners, locale, password, socketProperties);    //@B2C  //@B4C
+      poolItem = createNewConnection(service, true, secure, poolListeners, locale, poolAuth, socketProperties);    //@B2C  //@B4C //@C1C
     }
 
     return poolItem;

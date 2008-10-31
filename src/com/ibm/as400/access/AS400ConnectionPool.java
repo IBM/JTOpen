@@ -1,4 +1,3 @@
-// TBD: Revamp the synchronization logic???
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
@@ -11,9 +10,12 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @C1 - 2008-06-06 - Added support for ProfileTokenCredential authentication.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import com.ibm.as400.security.auth.ProfileTokenCredential;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;     //Java 2
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+
 
 /**
  *  The AS400ConnectionPool class manages a pool of AS400 objects.  A connection pool is used to 
@@ -84,12 +87,7 @@ import java.beans.PropertyChangeEvent;
  **/
 public class AS400ConnectionPool extends ConnectionPool implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   static final long serialVersionUID = 4L;
-
-
 
   private transient Hashtable as400ConnectionPool_;
   // Hashtable of lists of connections that have been marked invalid by the user
@@ -98,7 +96,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   private transient Log log_;
   private SocketProperties socketProperties_;
   private transient long lastRun_=0;     //@D1A Last time cleanupConnections() was called.  Added for fix to JTOpen Bug #3863
-
+  
   // Handles loading the appropriate resource bundle
 //@CRS  private static ResourceBundleLoader loader_;
 
@@ -196,6 +194,99 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
   /** 
    * Preconnects a specified number of connections to a specific system, userID,
+   * profileToken, and service.
+   *
+   * @param systemName The name of the system where the connections should exist.
+   * @param userID The name of the user.
+   * @param profileToken The profile token to use to authenticate to the system.
+   * @param service The service to be connected. See the service number constants defined by AS400 class.
+   * @param numberOfConnections The number of connections to be made.
+   *
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public void fill(String systemName, String userID, ProfileTokenCredential profileToken, int service, int numberOfConnections) //@C1A
+  throws ConnectionPoolException
+  {
+    fill(systemName, userID, profileToken, service, numberOfConnections, null);
+  }
+
+  /** 
+   * Preconnects a specified number of connections to a specific system, userID,
+   * profileToken, service, and Locale.  
+   *
+   * @param systemName The name of the system where the connections should exist.
+   * @param userID The name of the user.
+   * @param profileToken The profile token to use to authenticate to the system.
+   * @param service The service to be connected. See the service number constants defined by AS400 class.
+   * @param numberOfConnections The number of connections to be made.
+   * @param locale The Locale used to set the National Language Version (NLV) on the system for the AS400 objects
+   * created.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   *
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public void fill(String systemName, String userID, ProfileTokenCredential profileToken, int service, int numberOfConnections, Locale locale) //@C1A 
+  throws ConnectionPoolException
+  {
+    if (numberOfConnections < 1)
+      throw new ExtendedIllegalArgumentException("numberOfConnections", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    Vector newAS400Connections = new Vector();
+    if (Trace.isTraceOn())
+      Trace.log(Trace.INFORMATION, "fill() key before resolving= " + systemName + "/" + userID);
+    systemName = AS400.resolveSystem(systemName);  
+    userID = AS400.resolveUserId(userID.toUpperCase());   //@KBA   
+    String key = createKey(systemName, userID);
+    if (Trace.isTraceOn())
+      Trace.log(Trace.INFORMATION, "fill() key after resolving= " + key);
+    try
+    {
+      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
+      log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
+                               systemName, userID} ));
+      // create the specified number of connections
+      for (int i = 0; i < numberOfConnections; i++)
+      {
+        newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, locale, profileToken));
+      }
+      connections = (ConnectionList)as400ConnectionPool_.get(key);
+      for (int j = 0; j < numberOfConnections; j++)
+      {
+        connections.findElement((AS400)newAS400Connections.elementAt(j)).setInUse(false);
+      }
+      if (Trace.isTraceOn() && locale != null)
+        Trace.log(Trace.INFORMATION, "created " + numberOfConnections + "with a locale");
+    }
+    catch (AS400SecurityException e)
+    {
+      // If exception occurs, stop creating connections, run maintenance thread, and 
+      // throw whatever exception was received on creation to user.
+      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
+      for (int k = 0; k < newAS400Connections.size(); k++)
+      {
+        connections.findElement((AS400)newAS400Connections.elementAt(k)).setInUse(false); 
+      }
+      if (maintenance_ != null && maintenance_.isRunning())
+        cleanupConnections();
+      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));         
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie) 
+    {
+      // If exception occurs, stop creating connections, run maintenance thread, and       
+      // throw whatever exception was received on creation to user.                        
+      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);      
+      for (int k = 0; k < newAS400Connections.size(); k++)
+      { 
+        connections.findElement((AS400)newAS400Connections.elementAt(k)).setInUse(false); 
+      } 
+      if (maintenance_ != null && maintenance_.isRunning())
+        cleanupConnections();                     
+      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));   
+      throw new ConnectionPoolException(ie);     
+    }    
+  }
+
+  /** 
+   * Preconnects a specified number of connections to a specific system, userID,
    * password, and service.  
    *
    * @param systemName The name of the system where the connections should exist.
@@ -204,7 +295,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param service The service to be connected. See the service number constants defined by AS400 class.
    * @param numberOfConnections The number of connections to be made.
    *
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/
   public void fill(String systemName, String userID, String password, int service, int numberOfConnections) 
   throws ConnectionPoolException
@@ -226,7 +317,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param locale The Locale used to set the National Language Version (NLV) on the system for the AS400 objects
    * created.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    *
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/
   public void fill(String systemName, String userID, String password, int service, int numberOfConnections, Locale locale) 
   throws ConnectionPoolException
@@ -291,8 +382,6 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }                                           //@A2A
   }
 
-
-
   /**
    * Closes the connection if not explicitly closed by the caller.
    *
@@ -309,6 +398,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
   /**
    * Get the number of active connections to a system. 
+   * Note: The value returned is based on systemName and userID and does not
+   * reflect the authentication scheme (e.g. password, profile token).
    *
    * @param   systemName  The name of the system where the connections exist.
    * @param   userID  The name of the user.
@@ -338,6 +429,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
   /**
    * Get the number of available connections to a system. 
+   * Note: The value returned is based on systemName and userID and does not
+   * reflect the authentication scheme (e.g. password, profile token).
    *
    * @param   systemName  The name of the system where the connections exist.
    * @param   userID  The name of the user.
@@ -365,21 +458,21 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   }
 
 
-  /**
+  /** 
    * Get a connected AS400 object from the connection pool.  If an appropriate one is 
    * not found, one is created.  If the maximum connection limit has been reached, an exception
-     * will be thrown.  Note that the password is validated only when creating a new connection, 
-     * not as part 
-     * of the match criteria to pull a connection out of the pool.  This means that
-     * if a connection in the pool matches the systemName and userID passed in, a
-     * connection will be returned without the password being validated.
+   * will be thrown.  
+   * Note that the password is validated only when creating a <b>new</b> connection, 
+   * of the match criteria to pull a connection out of the pool.  This means that
+   * if an <b>existing</b> connection in the pool matches the systemName and userID 
+   * passed in, a connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @param   password  The password of the user.
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/
   public AS400 getConnection(String systemName, String userID, String password, int service)
   throws ConnectionPoolException
@@ -419,7 +512,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
    * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    * @return     A connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/
   public AS400 getConnection(String systemName, String userID, String password, int service, Locale locale)
   throws ConnectionPoolException
@@ -484,16 +577,16 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
    * one is created.  If the maximum connection limit has been reached, an exception
    * will be thrown.  The AS400 object may not be connected to any services.
-     * Note that the password is validated only when creating a new connection, not as part 
-     * of the match criteria to pull a connection out of the pool.  This means that
-     * if a connection in the pool matches the systemName and userID passed in, a
-     * connection will be returned without the password being validated.
+   * Note that the password is validated only when creating a <b>new</b> connection, 
+   * of the match criteria to pull a connection out of the pool.  This means that
+   * if an <b>existing</b> connection in the pool matches the systemName and userID 
+   * passed in, a connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @param   password  The password of the user.
    * @return     An AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/ 
   public AS400 getConnection(String systemName, String userID, String password)
   throws ConnectionPoolException
@@ -531,7 +624,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
    * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    * @return     An AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/ 
   public AS400 getConnection(String systemName, String userID, String password, Locale locale)  
   throws ConnectionPoolException
@@ -591,26 +684,162 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     //@B4D }
     throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
-
-
-  /**	
-   * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
-   * one is created.  The AS400 object may not be connected to any services.	
+  
+  /** 
+   * Get a connected AS400 object from the connection pool.  If an appropriate one is 
+   * not found, one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  
+   * Note that the profileTokenCredential is validated only when creating a <b>new</b> 
+   * connection, of the match criteria to pull a connection out of the pool.  This means
+   * that if an <b>existing</b> connection in the pool matches the systemName and
+   * userID passed in, a connection will be returned without the profileTokenCredential 
+   * being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
+   * @param   profileToken  The profile token to use to authenticate to the system.
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
-   * @param   connect  If true connect to specified service.
-   * @param   secure   If true secure AS400 object was requested.	  
+   * @return     A connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public AS400 getConnection(String systemName, String userID, ProfileTokenCredential profileToken, int service) //@C1A
+  throws ConnectionPoolException
+  {
+    try
+    {
+      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, null, profileToken);
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED);
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
+      return releaseConnection;
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie)
+    {
+      throw new ConnectionPoolException(ie);
+    }
+  }
+
+  /**
+   * Get a connected AS400 object from the connection pool with the specified Locale.  If an appropriate one is 
+   * not found, one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   profileToken  The profile token to use to authenticate to the system.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
+   * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   * @return     A connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public AS400 getConnection(String systemName, String userID, ProfileTokenCredential profileToken, int service, Locale locale) //@C1A
+  throws ConnectionPoolException
+  {
+    try
+    {
+      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, locale, profileToken);
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
+      return releaseConnection;
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie)
+    {
+      throw new ConnectionPoolException(ie);
+    }
+  }
+
+
+  /**
+   * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  The AS400 object may not be connected to any services.
+     * Note that the password is validated only when creating a new connection, not as part 
+     * of the match criteria to pull a connection out of the pool.  This means that
+     * if a connection in the pool matches the systemName and userID passed in, a
+     * connection will be returned without the password being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   profileToken  The profile token to use to authenticate to the system.
+   * @return     An AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/ 
+  public AS400 getConnection(String systemName, String userID, ProfileTokenCredential profileToken) //@C1A
+  throws ConnectionPoolException
+  {    
+    try
+    {
+      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, null, profileToken);
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED);
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
+      return releaseConnection; 
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie)
+    {
+      throw new ConnectionPoolException(ie);
+    }
+  }
+
+  /**
+   * Get an AS400 object from the connection pool with the specified Locale.  If an appropriate one is not found, 
+   * one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  The AS400 object may not be connected to any services.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   profileToken  The profile token to use to authenticate to the system.
    * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
    * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    * @return     An AS400 object.
-   *
-   * @exception   AS400SecurityException  If a security error occured.
-   * @exception   IOException  If a communications error occured.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
    **/ 
-  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, String password)  //@B3C //@B4C
+  public AS400 getConnection(String systemName, String userID, ProfileTokenCredential profileToken, Locale locale) //@C1A  
+  throws ConnectionPoolException
+  {    
+    try
+    {
+      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, locale, profileToken);
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
+      return releaseConnection; 
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie)
+    {
+      throw new ConnectionPoolException(ie);
+    }
+  }
+
+
+  
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, AS400ConnectionPoolAuthentication poolAuth)  //@B3C //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException 
   {
     if (systemName == null)
@@ -635,7 +864,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       Trace.log(Trace.INFORMATION, "getConnection() key after resolving= " + key); //@A5A
     }
 
-    if (!isInUse())                      //@A3A     				
+    if (!isInUse())                      //@A3A             
     {
       //@A3A
       setInUse(true);     // threadUsed property can now not be changed.     //@A3A
@@ -699,13 +928,61 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     //Get a connection from the list
     if (connect)
     {
-      return connections.getConnection(service, secure, poolListeners_, locale, password, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C
+      return connections.getConnection(service, secure, poolListeners_, locale, poolAuth, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
     }
     else
     {
-      return connections.getConnection(secure, poolListeners_, locale, password, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C
+      return connections.getConnection(secure, poolListeners_, locale, poolAuth, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C //@C1C
     }
+    
+  }
 
+  /** 
+   * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  The AS400 object may not be connected to any services.  
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @param   connect  If true connect to specified service.
+   * @param   secure   If true secure AS400 object was requested.   
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
+   * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   * @return     An AS400 object.
+   *
+   * @exception   AS400SecurityException  If a security error occurred.
+   * @exception   IOException  If a communications error occurred.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/ 
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, String password)  //@B3C //@B4C
+  throws AS400SecurityException, IOException, ConnectionPoolException 
+  {
+    AS400ConnectionPoolAuthentication poolAuth = new AS400ConnectionPoolAuthentication(password); //@C1A
+    return (getConnection(systemName, userID, service, connect, secure, locale, poolAuth));       //@C1C
+}
+
+  /** 
+   * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  The AS400 object may not be connected to any services.  
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @param   connect  If true connect to specified service.
+   * @param   secure   If true secure AS400 object was requested.   
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
+   * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   * @return     An AS400 object.
+   *
+   * @exception   AS400SecurityException  If a security error occurred.
+   * @exception   IOException  If a communications error occurred.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/ 
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, ProfileTokenCredential profileToken)
+  throws AS400SecurityException, IOException, ConnectionPoolException 
+  {
+    AS400ConnectionPoolAuthentication poolAuth = new AS400ConnectionPoolAuthentication(profileToken); //@C1A
+    return (getConnection(systemName, userID, service, connect, secure, locale, poolAuth));           //@C1C
   }
 
 
@@ -713,16 +990,16 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * Get an secure connected AS400 object from the connection pool.  If an appropriate one is not found, 
    * one is created.  If the maximum connection limit has been reached, an exception
    * will be thrown.  The AS400 object may not be connected to any services.
-     * Note that the password is validated only when creating a new connection, not as part 
-     * of the match criteria to pull a connection out of the pool.  This means that
-     * if a connection in the pool matches the systemName and userID passed in, a
-     * connection will be returned without the password being validated.
+   * Note that the password is validated only when creating a <b>new</b> connection, 
+   * of the match criteria to pull a connection out of the pool.  This means that
+   * if an <b>existing</b> connection in the pool matches the systemName and userID 
+   * passed in, a connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @param   password  The password of the user.
    * @return     A secure connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
   **/  
   public AS400 getSecureConnection(String systemName, String userID, String password)
   throws ConnectionPoolException
@@ -787,17 +1064,18 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   /**
    * Get a secure connected AS400 object from the connection pool.  If an appropriate one is 
    * not found, one is created.  If the maximum connection limit has been reached, an exception
-     * will be thrown.  Note that the password is validated only when creating a new connection, not as part 
+     * will be thrown.  
+     * Note that the password is validated only when creating a <b>new</b> connection, 
      * of the match criteria to pull a connection out of the pool.  This means that
-     * if a connection in the pool matches the systemName and userID passed in, a
-     * connection will be returned without the password being validated.
+     * if an <b>existing</b> connection in the pool matches the systemName and userID 
+     * passed in, a connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @param   password  The password of the user.
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+   * @exception ConnectionPoolException If a connection pool error occurred.
   **/
   public AS400 getSecureConnection(String systemName, String userID, String password, int service)
   throws ConnectionPoolException
@@ -857,6 +1135,87 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
 
+  /**
+   * Get an secure connected AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  The AS400 object may not be connected to any services.
+   * Note that the profileTokenCredential is validated only when creating a <b>new</b> 
+   * connection, of the match criteria to pull a connection out of the pool.  This means
+   * that if an <b>existing</b> connection in the pool matches the systemName and
+   * userID passed in, a connection will be returned without the profileTokenCredential 
+   * being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   profileToken  The profile token to use to authenticate to the system.
+   * @return     A secure connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+  **/  
+  public AS400 getSecureConnection(String systemName, String userID, ProfileTokenCredential profileToken) //@C1A
+  throws ConnectionPoolException
+  {    
+    try
+    {
+      AS400 releaseConnection = getConnection(systemName, userID, 0, false, true, null, profileToken);
+      releaseConnection.getVRM();
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
+      return releaseConnection; 
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie)
+    {
+      throw new ConnectionPoolException(ie);
+    }
+  }
+
+
+  /**
+   * Get a secure connected AS400 object from the connection pool.  If an appropriate one is 
+   * not found, one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown. 
+   * Note that the profileTokenCredential is validated only when creating a <b>new</b> 
+   * connection, of the match criteria to pull a connection out of the pool.  This means
+   * that if an <b>existing</b> connection in the pool matches the systemName and
+   * userID passed in, a connection will be returned without the profileTokenCredential 
+   * being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   profileToken  The profile token to use to authenticate to the system.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @return     A connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+  **/
+  public AS400 getSecureConnection(String systemName, String userID, ProfileTokenCredential profileToken, int service) //@C1A
+  throws ConnectionPoolException
+  {
+    try
+    {
+      AS400 releaseConnection = getConnection(systemName, userID, service, true, true, null, profileToken);
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED);
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
+      return releaseConnection;
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ConnectionPoolException(e);
+    }
+    catch (IOException ie)
+    {
+      throw new ConnectionPoolException(ie);
+    }
+  }
+
 
 
   /**
@@ -900,6 +1259,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   //@B2A
   /**
    * Get an enumeration of the systemName/userId pairs in the pool.
+   * Note: The returned information is regardless of the authentication 
+   * scheme used when filling the pool (e.g. password, profile token).
    *
    * @return     An enumeration of the systemName/userIds in the pool
   **/  
@@ -913,6 +1274,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * Get a list of the userIds in the pool with connections to a specific system.
    * UserIds are listed regardless of whether their connections are
    * currently active or disconnected.
+   * Note: The returned information is regardless of the authentication 
+   * scheme used when filling the pool (e.g. password, profile token).
    *
    * @param systemName  The name of the system of interest.
    * @return     A list of the userIds in the pool for system <tt>systemName</tt>.
@@ -928,6 +1291,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   /**
    * Get a list of the userIds in the pool with connections to a specific system.
    * Only userIds with currently active (non-disconnected) connections are listed.
+   * Note: The returned information is regardless of the authentication 
+   * scheme used when filling the pool (e.g. password, profile token).
    *
    * @param systemName  The name of the system of interest.
    * @return     A list of the connected userIds in the pool for system <tt>systemName</tt>.
@@ -1025,12 +1390,14 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   //@A6A
   /**
    * Remove the connections for a systemName/userID.  Call this function if connections for a
-   * particular system/userID/password would no longer be valid.  For example, if you change the password for a 
-   * userId, you will want to call this method to remove the connections for the old userID/password 
+   * particular system/userID would no longer be valid.  For example, if you change the password for a 
+   * userId, you will want to call this method to remove the connections for the old userID 
    * combination.  This will not invalidate connections in use; rather it will mean that the next time
    * a connection is requested for that userID, a new connection 
    * will be established to the system.  After you call this method, you may want 
-   * to fill the pool with connections with your new password to avoid connection time. 
+   * to fill the pool with connections with your new password to avoid connection time.
+   * Note: This method will remove connections regardless of the authentication scheme
+   * used when filling the pool  (e.g. password, profile token).
    *
    * @param systemName The system name of connections you want to remove.
    * @param userID The user ID of connections you want to remove.       

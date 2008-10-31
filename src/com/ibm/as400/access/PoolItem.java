@@ -10,9 +10,13 @@
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
+// @C1 - 2008-06-06 - Added support for ProfileTokenCredential authentication
+//                    by using AS400ConnectionPoolAuthentication class.
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.access.AS400SecurityException;  //@B4A
 import java.beans.PropertyVetoException;
 import java.io.IOException;  //@B4A
@@ -25,11 +29,10 @@ import java.util.Locale;      //@B2A
   **/
 class PoolItem
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private AS400 AS400object_; 
   private PoolItemProperties properties_;
-  private String locale_ = "";     //@B2A	what locale was used to create the AS400 object
+  private Locale locale_ = null; //@C1C
+  //private String locale_ = "";     //@B2A	what locale was used to create the AS400 object
 
   /**
    *
@@ -48,44 +51,63 @@ class PoolItem
     *  If null, this parameter is ignored.
    *
    **/
-  PoolItem(String systemName, String userID, String password, boolean secure, Locale locale, 
+  PoolItem(String systemName, String userID, AS400ConnectionPoolAuthentication poolAuth, boolean secure, Locale locale, //@C1C
            int service, boolean connect, boolean threadUse, SocketProperties socketProperties)  //@B4C
   throws AS400SecurityException, IOException  //@B4A
   {
-    if (secure)
+    String password = null; //@C1A
+    if (poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN) //@C1A
     {
+      ProfileTokenCredential profileToken = poolAuth.getProfileToken(); //@C1A
+      if (secure) //@C1A
+      {
+        AS400object_ = new SecureAS400(systemName, profileToken); //@C1A
+      }
+      else
+      {
+        AS400object_ = new AS400(systemName, profileToken); //@C1A
+      }
+    }
+    else // AS400.AUTHENTICATION_SCHEME_PASSWORD
+    {
+      password = poolAuth.getPassword(); //@C1A
+      if (secure)
+      {
         if (password==null)										//Stevers
         {
-            if (userID.equals("*CURRENT"))							//Stevers   
-                AS400object_ = new SecureAS400(systemName);			//Stevers
-            else													//Stevers
-                AS400object_ = new SecureAS400(systemName, userID);	//Stevers
+          if (userID.equals("*CURRENT"))							//Stevers   
+            AS400object_ = new SecureAS400(systemName);			//Stevers
+          else													//Stevers
+            AS400object_ = new SecureAS400(systemName, userID);	//Stevers
         }
         else														//Stevers
-            AS400object_ = new SecureAS400(systemName, userID, password);  //@B4C
-    }
-    else
-    {
+          AS400object_ = new SecureAS400(systemName, userID, password);  //@B4C
+      }
+      else
+      {
         if (password==null)										//Stevers
         {
-            if (userID.equals("*CURRENT"))							//Stevers
-                AS400object_ = new AS400(systemName);				//Stevers
-            else													//Stevers
-                AS400object_ = new AS400(systemName, userID);		//Stevers
+          if (userID.equals("*CURRENT"))							//Stevers
+            AS400object_ = new AS400(systemName);				//Stevers
+          else													//Stevers
+            AS400object_ = new AS400(systemName, userID);		//Stevers
         }
         else														//Stevers
-            AS400object_ = new AS400(systemName, userID, password);   //@B4C
+          AS400object_ = new AS400(systemName, userID, password);   //@B4C
+      }
     }
+    
+    
     if (locale != null)                                     //@B2A
     {
       //@B2A
       AS400object_.setLocale(locale);                     //@B2A
-      locale_ = locale.toString();                        //@B2A
+      locale_ = locale;                        //@B2A @C1C
     }                                                       //@B2A
     else                                                    //@B2A
-      locale_ = "";                                   //@B2A
+      locale_ = null;                                   //@B2A @C1C
     properties_ = new PoolItemProperties();
-    if (password!=null)							//Stevers
+    if ((poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD) && (password!=null))	//Stevers //@C1C 
     {
       try
       {
@@ -171,7 +193,7 @@ class PoolItem
    *  Returns the locale of the AS400 object.
    *  @return The locale of the AS400 object, null if none was used at connection time.
    **/
-  String getLocale()
+  Locale getLocale() //@C1C (Previously returned a String representation of Locale)
   {
     return locale_;
   }
