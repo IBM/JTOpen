@@ -99,6 +99,16 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t5">&quot;true&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2"><a name="concurrentaccessresolution">&quot;concurrent access resolution&quot;</a></TD>
+    <TD HEADERS="t2">Specifies whether &quot;currently committed&quot; access is used on the connection.  A value of 1
+      indicates that &quot;currently committed&quot; will be used.  A value of 2 indicates that
+      &quot;currently committed&quot; not be used.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;1&quot;<BR>
+      &quot;2&quot;</TD>
+    <TD HEADERS="t5">(system default)</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat2"><a name="cursorhold">&quot;cursor hold&quot;</a></TD>
     <TD HEADERS="t2"> Specifies whether to hold the cursor across transactions. 
       If this property is set to &quot;true&quot;, cursors are not closed when 

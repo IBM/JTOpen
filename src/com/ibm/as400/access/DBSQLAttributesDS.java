@@ -568,6 +568,20 @@ extends DBBaseRequestDS
     {                                                              
         addParameter(0x383F, (byte)value);                               
     }     
+    
+    //@cc1 currently committed support in 710
+    /**
+    Turns on or off Currently Committed support.
+    @parm value 
+        'E8'x -- Implicitly close cursors which qualify and pass a return code/return class pair that indicates the cursor was closed.
+        'D5'x -- Do not implicitly close cursors. 
+    @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void setConcurrentAccessResolution(int value)                                         
+    throws DBDataStreamException                                  
+    {                                                              
+        addParameter(0x3840, value);                               
+    }     
 }
 
 

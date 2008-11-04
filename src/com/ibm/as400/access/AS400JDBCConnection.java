@@ -221,6 +221,8 @@ implements Connection
     private String clientHostname_ = ""; //@pdc
     private String clientAccounting_ = ""; //@pdc
     private String clientProgramID_ = ""; //@pdc
+    
+    private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -847,7 +849,36 @@ implements Connection
         return catalog_;
     }
 
-
+    //@cc1
+    /**
+     * This method returns the concurrent access resolution setting.
+     * This method has no effect on IBM i V6R1 or earlier.
+     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} and 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, 
+     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
+     * Setting this property to default exhibits the default behavior on the servers  
+     * i.e., the semantic applied for read 
+     * transactions to avoid locks will be determined by the server.          
+     *
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
+     * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
+     * ultimately determined by server. 
+     *
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
+     * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
+     * if enabled, and the server will wait for the commit or rollback of data in the process of
+     * being updated.  
+     *   
+     * @return  The concurrent access resolution setting.    Possible return valuse:
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, or 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}
+     */
+    public int getConcurrentAccessResolution ()
+    {
+        return concurrentAccessResolution_;
+    }
 
     /**
     Returns the converter for this connection.
@@ -2912,6 +2943,70 @@ implements Connection
         // No-op.
     }
 
+    //@cc1
+    /**
+     * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
+     * URL properties.  This changes the setting for this connection only.  This method has no effect on
+     * IBM i V6R1 or earlier.
+     * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} and 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, 
+     * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
+     * Setting this property to default exhibits the default behavior on the servers  
+     * i.e., the semantic applied for read 
+     * transactions to avoid locks will be determined by the server.          
+     *
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
+     * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
+     * ultimately determined by server. 
+     *
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
+     * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
+     * if enabled, and the server will wait for the commit or rollback of data in the process of
+     * being updated.  
+     *   
+     *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, or
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}
+     */
+    public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
+    {
+             
+        DBSQLAttributesDS request = null;
+        DBReplyRequestedDS reply = null;
+        try
+        {
+            if (getVRM() >= JDUtilities.vrm710)
+            {
+                request = DBDSPool.getDBSQLAttributesDS(DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES, id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);
+               
+                //get value of concurrent access resolution.
+                int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);         
+                //here, we also allow resetting back to default 0
+                //pass value of concurrent access resolution into the hostserver request.
+                request.setConcurrentAccessResolution( car );              
+                
+                reply = sendAndReceive(request);
+                int errorClass = reply.getErrorClass();
+                if (errorClass != 0)
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());
+            }
+        } catch( Exception e)
+        {
+            JDError.throwSQLException( this, JDError.EXC_INTERNAL, e);
+        } finally
+        {
+            if (request != null)
+                request.inUse_ = false;
+            if (reply != null)
+                reply.inUse_ = false;
+        }
+       
+        concurrentAccessResolution_ = concurrentAccessResolution;
+    }
+    
+    
     /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
@@ -3887,6 +3982,20 @@ implements Connection
                     
                 }
 
+                //@710 
+                if (vrm_ >= JDUtilities.vrm710)
+                {
+                    int car = properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);        //@cc1
+                    if( !(properties_.getString(JDProperties.CONCURRENT_ACCESS_RESOLUTION)).equals( JDProperties.CONCURRENTACCESS_NOT_SET ))       //@cc1
+                    {                                                                               //@cc1
+                        request.setConcurrentAccessResolution( car );                               //@cc1
+                        //Use instance variable to to "current setting".
+                        //This will allow the Connection setting to override DataSource 
+                        //setting for future updates to this property from the Connection object.   //@cc1
+                        concurrentAccessResolution_ = car;                                          //@cc1
+                    }                                                                               //@cc1
+                }
+                
                 // Send the request and process the reply.
                 reply = sendAndReceive (request);
 

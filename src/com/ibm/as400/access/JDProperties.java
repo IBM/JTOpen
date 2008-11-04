@@ -156,12 +156,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              AUTO_COMMIT                = 76; //@AC1 (matching Native's naming)
     static final int              IGNORE_WARNINGS            = 77; //@igwrn
     static final int              SECURE_CURRENT_USER        = 78; //@pw3
+    static final int              CONCURRENT_ACCESS_RESOLUTION  = 79; //@cc1
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 79;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 80;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3
+                                                               // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1
 
 
     // Property names.
@@ -246,6 +247,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String AUTO_COMMIT_ = "auto commit"; //@AC1  (match Native driver property spelling)
     private static final String IGNORE_WARNINGS_ = "ignore warnings"; //@igwrn
     private static final String SECURE_CURRENT_USER_ = "secure current user"; //@pw3 (switch to turn on/off old code. see @pw1)
+    private static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
     
 
 
@@ -446,6 +448,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         DECFLOAT_ROUNDING_MODE_HALF_DOWN    = "half down"; //@DFA
     static final String         DECFLOAT_ROUNDING_MODE_UP           = "up"; //@DFA
 
+    static final String         CONCURRENTACCESS_NOT_SET = "0";  //@cc1  default
+    static final String         CONCURRENTACCESS_USE_CURRENTLY_COMMITTED = "1";  //@cc1
+    static final String         CONCURRENTACCESS_WAIT_FOR_OUTCOME = "2"; //@cc1
+
+    
     
     // Static data.
     private static DriverPropertyInfo[] dpi_;
@@ -1319,6 +1326,18 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]  = TRUE_;
+        
+        // Concurrent Access Resolution  //@cc1
+        i = CONCURRENT_ACCESS_RESOLUTION;
+        dpi_[i] = new DriverPropertyInfo (CONCURRENT_ACCESS_RESOLUTION_, "");
+        dpi_[i].description = "CONCURRENT_ACCESS_RESOLUTION_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[3];
+        dpi_[i].choices[0]  = CONCURRENTACCESS_NOT_SET;
+        dpi_[i].choices[1]  = CONCURRENTACCESS_USE_CURRENTLY_COMMITTED;
+        dpi_[i].choices[2]  = CONCURRENTACCESS_WAIT_FOR_OUTCOME;
+        defaults_[i]  = CONCURRENTACCESS_NOT_SET;
+      
         
     }
 

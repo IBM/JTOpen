@@ -644,6 +644,36 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     return properties_.getInt(JDProperties.BLOCK_SIZE);
   }
 
+  //@cc1
+  /**
+   * This method returns the concurrent access resolution setting.
+   * This method has no effect on IBM i V6R1 or earlier.
+   * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} and 
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, 
+   * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
+   * Setting this property to default exhibits the default behavior on the servers  
+   * i.e., the semantic applied for read 
+   * transactions to avoid locks will be determined by the server.          
+   *
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
+   * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
+   * ultimately determined by server. 
+   *
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
+   * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
+   * if enabled, and the server will wait for the commit or rollback of data in the process of
+   * being updated.  
+   *   
+   * @return  The concurrent access resolution setting.    Possible return valuse:
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, or 
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}
+   */
+  public int getConcurrentAccessResolution ()
+  {
+      return properties_.getInt(JDProperties.CONCURRENT_ACCESS_RESOLUTION);
+  }
 
   // method required by javax.sql.DataSource
   /**
@@ -2346,7 +2376,43 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     properties_.setString(JDProperties.BLOCK_SIZE, new Integer(blockSize).toString());
   }
+  
+  //@cc1
+  /**
+   * This method sets concurrent access resolution.  This method overrides the setting of ConcurrentAccessResolution on the datasource or connection
+   * URL properties.  This method has no effect on
+   * IBM i V6R1 or earlier.
+   * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} and 
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, 
+   * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
+   * Setting this property to default exhibits the default behavior on the servers  
+   * i.e., the semantic applied for read 
+   * transactions to avoid locks will be determined by the server.          
+   *
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} specifies that driver will flow USE CURRENTLY COMMITTED 
+   * to server.  Whether CURRENTLY COMMITTED will actually be in effect is
+   * ultimately determined by server. 
+   *
+   * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} specifies that driver will flow WAIT FOR OUTCOME
+   * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
+   * if enabled, and the server will wait for the commit or rollback of data in the process of
+   * being updated.  
+   *   
+   *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
+   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
+   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, or
+   *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}
+   */
+  public void setConcurrentAccessResolution (int concurrentAccessResolution)
+  {
+      String property = "concurrentAccessResolution";
 
+      validateProperty(property, Integer.toString(concurrentAccessResolution), JDProperties.CONCURRENT_ACCESS_RESOLUTION);
+
+      properties_.setString(JDProperties.CONCURRENT_ACCESS_RESOLUTION, Integer.toString(concurrentAccessResolution));
+  }
+  
   /**
    Sets the cursor sensitivity to be requested from the database.  If the resultSetType is
    ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE, the value of this property

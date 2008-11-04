@@ -585,13 +585,20 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             secureCurrentUser.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SECURE_CURRENT_USER"));
             secureCurrentUser.setShortDescription(AS400JDBCDriver.getResource("SECURE_CURRENT_USER_DESC"));
 
+            //@cc1 - added support for concurrent access resolution
+            PropertyDescriptor  concurrentAccessResolution = new PropertyDescriptor("concurrentAccessResolution", beanClass, "getConcurrentAccessResolution", "setConcurrentAccessResolution");
+            concurrentAccessResolution.setBound(true);
+            concurrentAccessResolution.setConstrained(false);
+            concurrentAccessResolution.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CONCURRENT_ACCESS_RESOLUTION"));
+            concurrentAccessResolution.setShortDescription(AS400JDBCDriver.getResource("CONCURRENT_ACCESS_RESOLUTION_DESC"));
+
           
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
                 keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, trueAutoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
-                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser}; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3
+                queryOptimizeGoal, xaLooselyCoupledSupport, translateBoolean, metaDataSource, queryStorageLimit, decfloatRoundingMode, autocommitException, autoCommit, ignoreWarnings, secureCurrentUser, concurrentAccessResolution }; //@540 @550 //@DFA //@pdc //@AC1 //@igwrn //@pw3 //@cc1
         }
         catch(Exception e)
         {
