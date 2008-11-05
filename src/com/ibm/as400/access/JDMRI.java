@@ -215,7 +215,7 @@ public class JDMRI extends ListResourceBundle
       { "AUTOCOMMIT_EXCEPTION_DESC", "Specifies whether to throw an SQLException when Connection.commit() or Connection.rollback() is called if autocommit is enabled."}, //@CE1
       { "AUTO_COMMIT_DESC", "Specifies whether auto-commit mode is the default connection mode for new connections."}, //@AC1
       { "IGNORE_WARNINGS_DESC", "Specifies a list of SQL states for which the driver should not create warning objects."}, //@igwrn
-      { "SECURE_CURRENT_USER", "Specifies whether to disallow \"\" and *current as user name and password."}, //@pw3
+      { "SECURE_CURRENT_USER_DESC", "Specifies whether to disallow \"\" and *current as user name and password."}, //@pw3
       { "CONCURRENT_ACCESS_RESOLUTION_DESC", "Specifies whether \"currently committed\" access is used on the connection."}, //@cc1
       
       // JDBC 2 - Optional Package support - RowSet    @E5
