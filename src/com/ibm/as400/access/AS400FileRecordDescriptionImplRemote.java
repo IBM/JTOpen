@@ -63,7 +63,7 @@ import java.beans.PropertyVetoException;
  *<li>VetoableChangeEvent
  *</ul>
 **/
-class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescriptionImpl, Serializable
+class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescriptionImpl
 {
   static final long serialVersionUID = 4L;
 
@@ -747,6 +747,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     {
       fd.setALWNULL(true);
     }
+    // Set the field text
+    fd.setTEXT(((String)record.getField("WHFTXT")).trim());
     // Add the field description
     rf.addFieldDescription(fd);
   }
@@ -1169,6 +1171,11 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       records = dspffd.readAll("seq", 100); //@B5C @D1C @E0C
       dspffd.delete(); //@E0A
     }                  //@E0A
+
+    if (records.length == 0) {
+      Trace.log(Trace.ERROR, "No records were returned from command " + cmd);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve the key field information for the file
