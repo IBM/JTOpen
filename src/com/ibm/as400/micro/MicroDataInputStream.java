@@ -22,8 +22,6 @@ communication to be optionally traced.
 **/
 class MicroDataInputStream 
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     DataInputStream   in_;
 
     /**
@@ -181,9 +179,10 @@ class MicroDataInputStream
     /**
     May be needed someday to allow us to skip over optional information 
     returned in the stream.
+    @return The actual number of bytes skipped.
     **/
-    public void skipBytes(int count) throws IOException
+    public int skipBytes(int count) throws IOException
     {
-        in_.skipBytes(count);
+        return in_.skipBytes(count);
     }
 }
