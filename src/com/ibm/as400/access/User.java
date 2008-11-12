@@ -407,6 +407,7 @@ public class User implements Serializable
     /**
      Retrieves the accounting code that is associated with this user.
      @return  The accounting code that is associated with this user.  If the user does not have an accounting code, an empty string ("") is returned.
+     @see #setAccountingCode
      **/
     public String getAccountingCode()
     {
@@ -468,6 +469,7 @@ public class User implements Serializable
      <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
      <li>"*JOBCCSID" - The *JOBCCSID special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
      </ul>
+     @see #setCHRIDControl
      **/
     public String getCHRIDControl()
     {
@@ -482,6 +484,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The system value QCNTRYID is used to determine the user's country or region ID.
      <li>A country or region ID.
      </ul>
+     @see #setCountryID
      **/
     public String getCountryID()
     {
@@ -496,6 +499,7 @@ public class User implements Serializable
      <li>"*CRTDFT" - The user does not have a current library.
      <li>A library name.
      </ul>
+     @see #setCurrentLibraryName
      **/
     public String getCurrentLibraryName()
     {
@@ -521,6 +525,7 @@ public class User implements Serializable
     /**
      Retrieves the descriptive text for the user profile.  This value is pre-loaded into any User objects generated from a UserList object so that a call to the system is not required to retrieve this value.  In the event that this User object was not constructed by a UserList, the description will need to be retrieved from the system via an implicit call to loadUserInformation().
      @return  The descriptive text for the user profile.
+     @see #setDescription
      **/
     public String getDescription()
     {
@@ -554,6 +559,7 @@ public class User implements Serializable
      <li>"*YES" - The sign-on information display is shown when the user signs on.
      <li>"*NO" - The sign-on information display is not shown when the user signs on.
      </ul>
+     @see #setDisplaySignOnInformation
      **/
     public String getDisplaySignOnInformation()
     {
@@ -571,6 +577,7 @@ public class User implements Serializable
      <li>"*USE" - The group profile has use authority to the objects the user creates.
      <li>"*EXCLUDE" - The group profile has exclude authority to the objects the user creates.
      </ul>
+     @see #setGroupAuthority
      **/
     public String getGroupAuthority()
     {
@@ -585,6 +592,7 @@ public class User implements Serializable
      <li>"*PRIVATE" - The group profile has a private authority to the objects the user creates, or the user does not have a group profile.
      <li>"*PGP" - The group profile will be the primary group for objects the user creates.
      </ul>
+     @see #setGroupAuthorityType
      **/
     public String getGroupAuthorityType()
     {
@@ -599,6 +607,8 @@ public class User implements Serializable
      <li>0 - user does not have a group ID (*NONE).
      <li>A GID.
      </ul>
+     @see #setGroupID(long)
+     @see #setGroupID(String)
      **/
     public long getGroupID()
     {
@@ -628,6 +638,7 @@ public class User implements Serializable
      <li>{@link #NONE NONE} - The user does not have a group profile.
      <li>The group profile name.
      </ul>
+     @see #setGroupProfileName
      **/
     public String getGroupProfileName()
     {
@@ -638,6 +649,7 @@ public class User implements Serializable
     /**
      Retrieves the highest scheduling priority the user is allowed to have for each job submitted to the system.
      @return  The highest scheduling priority the user is allowed to have for each job submitted to the system.  The priority is a value from 0 to 9, with 0 being the highest priority.
+     @see #setHighestSchedulingPriority
      **/
     public int getHighestSchedulingPriority()
     {
@@ -648,6 +660,7 @@ public class User implements Serializable
     /**
      Retrieves the home directory for this user profile.  The home directory is the user's initial working directory.  The working directory, associated with a process, is used in path name resolution in the directory file system for path names that do not begin with a slash (/).
      @return  The home directory for this user profile.
+     @see #setHomeDirectory
      **/
     public String getHomeDirectory()
     {
@@ -727,6 +740,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the initial menu name.
      </ul>
      @see  QSYSObjectPathName
+     @see #setInitialMenu
      **/
     public String getInitialMenu()
     {
@@ -742,6 +756,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the initial program name.
      </ul>
      @see  QSYSObjectPathName
+     @see #setInitialProgram
      **/
     public String getInitialProgram()
     {
@@ -753,6 +768,7 @@ public class User implements Serializable
      Retrieves the fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
      @return  The fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
      @see  QSYSObjectPathName
+     @see #setJobDescription
      **/
     public String getJobDescription()
     {
@@ -769,6 +785,7 @@ public class User implements Serializable
      <li>"*NO" - The type-ahead and attention-key buffering options are not on.
      <li>"*TYPEAHEAD" - The type-ahead option is on, but the attention-key buffering option is not.
      </ul>
+     @see #setKeyboardBuffering
     **/
     public String getKeyboardBuffering()
     {
@@ -783,6 +800,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The system value QLANGID will be used to determine the language ID.
      <li>The language ID.
      </ul>
+     @see #setLanguageID
      **/
     public String getLanguageID()
     {
@@ -798,6 +816,7 @@ public class User implements Serializable
      <li>"*YES" - The user cannot change the initial menu, initial program, or current library.  The user cannot run commands from the command line.
      <li>"*NO" - The user is not limited.
      </ul>
+     @see #setLimitCapabilities
      **/
     public String getLimitCapabilities()
     {
@@ -807,7 +826,7 @@ public class User implements Serializable
 
     /**
      Retrieves whether the user is limited to one device session.
-     NOTE:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
+     Note:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
      @return  Whether the user is limited to one device session.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN determines if the user is limited to one device session.
@@ -817,6 +836,7 @@ public class User implements Serializable
      <li>"1" - The user is limited to a single device session.  The value has the same meaning as *YES.
      <li>"2-9" - The user is limited to the specified number of device sessions.
      </ul>
+     @see #setLimitDeviceSessions
      **/
     public String getLimitDeviceSessions()
     {
@@ -837,6 +857,7 @@ public class User implements Serializable
      <li>"*TIMSEP" - The time separator is set from the locale path name at the time a job is started for this user profile.
      <li>"*DECFMT" - The decimal format is set from the locale path name at the time a job is started for this user profile.
      </ul>
+     @see #setLocaleJobAttributes
      **/
     public String[] getLocaleJobAttributes()
     {
@@ -866,6 +887,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The QLOCALE system value is used to determine the locale path name.
      <li>A locale path name.
      </ul>
+     @see #setLocalePathName
      **/
     public String getLocalePathName()
     {
@@ -880,6 +902,8 @@ public class User implements Serializable
      <li>-1 - The user does not have a maximum amount of allowed storage (*NOMAX).
      <li>The maximum amount of auxiliary storage (in kilobytes).
      </ul>
+     @see #setMaximumStorageAllowed(int)
+     @see #setMaximumStorageAllowed(String)
      **/
     public int getMaximumStorageAllowed()
     {
@@ -891,6 +915,7 @@ public class User implements Serializable
      Retrieves the fully qualified integrated file system path name of the message queue that is used by this user.
      @return  The fully qualified integrated file system path name of the message queue that is used by this user.
      @see  QSYSObjectPathName
+     @see #setMessageQueue
      **/
     public String getMessageQueue()
     {
@@ -907,6 +932,7 @@ public class User implements Serializable
      <li>"*HOLD" - The messages are held in the message queue until they are requested by the user or program.
      <li>"*NOTIFY" - The job to which the message queue is assigned is notified when a message arrives on the message queue.
      </ul>
+     @see #setMessageQueueDeliveryMethod
      **/
     public String getMessageQueueDeliveryMethod()
     {
@@ -917,6 +943,7 @@ public class User implements Serializable
     /**
      Retrieves the lowest severity that a message can have and still be delivered to a user in break or notify mode.
      @return  The lowest severity that a message can have and still be delivered to a user in break or notify mode.  The severity is a value in the range 0 through 99.
+     @see #setMessageQueueSeverity
      **/
     public int getMessageQueueSeverity()
     {
@@ -943,6 +970,7 @@ public class User implements Serializable
      <li>"*CHANGE" - Object changes are audited for the user if the object's auditing value is *USRPRF.
      <li>"*ALL" - Object read and change operations are audited for the user if the object's auditing value is *USRPRF.
      </ul>
+     @see #setObjectAuditingValue
      **/
     public String getObjectAuditingValue()
     {
@@ -981,6 +1009,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the output queue.
      </ul>
      @see  QSYSObjectPathName
+     @see #setOutputQueue
      **/
     public String getOutputQueue()
     {
@@ -995,6 +1024,7 @@ public class User implements Serializable
      <li>"*USRPRF" - The user owns any objects the user creates.  If the user does not have a group profile, the field contains this value.
      <li>"*GRPPRF" - The user's group profile owns any objects the user creates.
      </ul>
+     @see #setOwner
      **/
     public String getOwner()
     {
@@ -1035,7 +1065,7 @@ public class User implements Serializable
     /**
      * Retrieves the time period during which a password is blocked from being changed
      * following the prior successful password change operation.
-     * <p><b>NOTE:  This method should not be used when running to IBM i 5.4 or earlier releases.</b>
+     * <p>Note: This method should not be used when running to IBM i 5.4 or earlier releases.
      * @return The time period during which a password is blocked from being changed.  Possible values are:
      * <ul>
      * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
@@ -1043,6 +1073,7 @@ public class User implements Serializable
      * <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change operation
      * before they are able to change the password again.</li>
      * </ul>
+     * @see #setPasswordChangeBlock
      */
     public String getPasswordChangeBlock()
     {
@@ -1058,6 +1089,8 @@ public class User implements Serializable
      <li>-1 - The user's password does not expire (*NOMAX).
      <li>1-366 - The number of days the user's password can remain active before it must be changed.
      </ul>
+     @see #setPasswordExpirationInterval(int)
+     @see #setPasswordExpirationInterval(String)
      **/
     public int getPasswordExpirationInterval()
     {
@@ -1109,6 +1142,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The default system printer specified in the system value QPRTDEV is used.
      <li>The print device.
      </ul>
+     @see #setPrintDevice
      **/
     public String getPrintDevice()
     {
@@ -1137,6 +1171,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the sort sequence table name.
      </ul>
      @see  QSYSObjectPathName
+     @see #setSortSequenceTable
      **/
     public String getSortSequenceTable()
     {
@@ -1157,6 +1192,8 @@ public class User implements Serializable
      <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit.
      <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output system configuration.
      </ul>
+     @see #hasSpecialAuthority
+     @see #setSpecialAuthority
      **/
     public String[] getSpecialAuthority()
     {
@@ -1169,9 +1206,10 @@ public class User implements Serializable
      @return  The special environment the user operates in after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special environment.
-     <li>{@link #NONE NONE} - The user operates in the i5/OS system environment.
+     <li>{@link #NONE NONE} - The user operates in the IBM i system environment.
      <li>"*S36" - The user operates in the System/36 environment.
      </ul>
+     @see #setSpecialEnvironment
      **/
     public String getSpecialEnvironment()
     {
@@ -1186,6 +1224,7 @@ public class User implements Serializable
      <li>"*ENABLED" - The user profile is enabled; therefor, the user is able to sign on.
      <li>"*DISABLED" - The user profile is not enabled; therefor, the user cannot sign on.
      </ul>
+     @see #setStatus
      **/
     public String getStatus()
     {
@@ -1206,6 +1245,7 @@ public class User implements Serializable
     /**
      Retrieves the supplemental groups for the user profile.
      @return  The array of supplemental groups for the user profile, or an array of length 0 if there are no supplemental groups.
+     @see #setSupplementalGroups
      **/
     public String[] getSupplementalGroups()
     {
@@ -1228,6 +1268,7 @@ public class User implements Serializable
     /**
      Returns the system object representing the system on which the user profile exists.
      @return  The system object representing the system on which the user profile exists.  If the system has not been set, null is returned.
+     @see #setSystem
      **/
     public AS400 getSystem()
     {
@@ -1253,6 +1294,7 @@ public class User implements Serializable
      <li>"*SPLFDTA" - The user has the *SPLFDTA audit value specified in the user profile.
      <li>"*SYSMGT" - The user has the *SYSMGT audit value specified in the user profile.
      </ul>
+     @see #setUserActionAuditLevel
      **/
     public String[] getUserActionAuditLevel()
     {
@@ -1287,6 +1329,7 @@ public class User implements Serializable
      <li>"*SYSOPR" - The user has a class of system operator.
      <li>"*USER" - The user has a class of end user.
      </ul>
+     @see #setUserClassName
      **/
     public String getUserClassName()
     {
@@ -1297,6 +1340,7 @@ public class User implements Serializable
 
     /**
      Retrieves the action that will occur when the user profile has expired.
+     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
      @return  The action that will occur when the user profile has expired.
      Possible values include:
      <ul>
@@ -1314,7 +1358,9 @@ public class User implements Serializable
 
     /**
      Retrieves the date when the user profile expires and is automatically disabled.
-     @return  The date when the user profile expires.  <tt>null</tt> is returned if the user profile does not have an expiration date. 
+     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
+     @return  The date when the user profile expires.  <tt>null</tt> is returned if the user profile does not have an expiration date.
+     @see #setUserExpirationDate
      **/
     public Date getUserExpirationDate()
     {
@@ -1350,7 +1396,9 @@ public class User implements Serializable
 
     /**
      Retrieves the number of days before the user profile is automatically disabled.
+     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
      @return  The number of days until the user profile expires, starting from when the profile was created or last re-enabled.  0 is returned if the user profile does not have a user expiration interval.
+     @see #setUserExpirationInterval
      **/
     public int getUserExpirationInterval()
     {
@@ -1361,6 +1409,7 @@ public class User implements Serializable
     /**
      Retrieves the user ID (UID) number for the user profile.  The UID is used to identify the user when using the integrated file system.
      @return  The user ID (UID) number for the user profile.
+     @see #setUserID
      **/
     public long getUserID()
     {
@@ -1390,6 +1439,7 @@ public class User implements Serializable
      <li>"*ROLLKEY" - The opposite action from the system default for roll keys is taken.
      <li>"*PRTMSG" - A message is sent to the user when a spooled file is printed.
      </ul>
+     @see #setUserOptions
      **/
     public String[] getUserOptions()
     {
@@ -1432,6 +1482,8 @@ public class User implements Serializable
      <li>*IOSYSCFG - Input/output system configuration.
      </ul>
      @return  true if this user has the authority or belongs to a group that has the authority; false if it does not have authority or an error occurs.
+     @see #getSpecialAuthority
+     @see #setSpecialAuthority
      **/
     public boolean hasSpecialAuthority(String authority)
     {
@@ -1512,6 +1564,7 @@ public class User implements Serializable
     /**
      Retrieves whether the password is managed locally.
      @return  true if the password is managed locally, false otherwise.
+     @see #setLocalPasswordManagement
      **/
     public boolean isLocalPasswordManagement()
     {
@@ -1532,6 +1585,7 @@ public class User implements Serializable
     /**
      Retrieves whether the user's password is set to expire, requiring the user to change the password when signing on.
      @return  true if the password set to expire, false otherwise.
+     @see #setPasswordSetExpire
      **/
     public boolean isPasswordSetExpire()
     {
@@ -2029,6 +2083,7 @@ public class User implements Serializable
      <li>"*BLANK" - An accounting code of 15 blanks is assigned to this user profile.
      <li>An accounting code - A 15 character accounting code to be used by jobs that get their accounting code from this user profile.  If less than 15 characters are specified, the string is padded on the right with blanks.
      </ul>
+     @see #getAccountingCode
      **/
     public void setAccountingCode(String accountingCode) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2155,6 +2210,7 @@ public class User implements Serializable
      <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
      <li>"*JOBCCSID" - The *JOBCCSID special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
      </ul>
+     @see #getCHRIDControl
      **/
     public void setCHRIDControl(String chridControl) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2173,6 +2229,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The system value QCNTRYID is used.
      <li>A country or region identifier.
      </ul>
+     @see #getCountryID
      **/
     public void setCountryID(String countryID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2193,6 +2250,7 @@ public class User implements Serializable
      <li>"*CRTDFT" - The user has no current library.  The library QGPL is used as the default current library.
      <li>A library name.
      </ul>
+     @see #getCurrentLibraryName
      **/
     public void setCurrentLibraryName(String currentLibraryName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2211,6 +2269,7 @@ public class User implements Serializable
      <li>"*BLANK" - No text is specified.
      <li>No more than 50 characters of text.
      </ul>
+     @see #getDescription
      **/
     public void setDescription(String description) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2237,6 +2296,7 @@ public class User implements Serializable
      <li>"*NO" - The sign-on information display is not shown.
      <li>"*YES" - The sign-on information display is shown.
      </ul>
+     @see #getDisplaySignOnInformation
      **/
     public void setDisplaySignOnInformation(String displaySignOnInformation) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2258,6 +2318,7 @@ public class User implements Serializable
      <li>"*USE" - The user can perform basic operations on the object, such as running a program or reading a file.  The user cannot change the object.  User (*USE) authority provides object operational (*OBJOPR), read (*READ), and execute (*EXECUTE) authorities.
      <li>"*EXCLUDE" - The user cannot access the object.
      </ul>
+     @see #getGroupAuthority
      **/
     public void setGroupAuthority(String groupAuthority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2276,6 +2337,7 @@ public class User implements Serializable
      <li>"*PRIVATE" - The group profile is granted private authority to newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
      <li>"*PGP" - The group profile is the primary group for newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
      </ul>
+     @see #getGroupAuthorityType
      **/
     public void setGroupAuthorityType(String groupAuthorityType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2299,6 +2361,7 @@ public class User implements Serializable
      <p>Note:  This value cannot be specified if the user is a group profile or the primary group of an object.
      <li>1-4294967294 - The gid number to be assigned to the user profile.  The gid number assigned must not already be assigned to another user profile.
      </ul>
+     @see #getGroupID
      **/
     public void setGroupID(long groupID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2325,6 +2388,7 @@ public class User implements Serializable
      <li>"*GEN" - The gid number will be generated for the user.  The system generates a gid number that is not already assigned to another user.  The gid number generated is greater than 100.
      <li>1-4294967294 - The gid number to be assigned to the user profile.  The gid number assigned must not already be assigned to another user profile.
      </ul>
+     @see #getGroupID
      **/
     public void setGroupID(String groupID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2343,6 +2407,7 @@ public class User implements Serializable
      <li>{@link #NONE NONE} - The user profile has no group profile.
      <li>The name of the group profile used with this user profile.
      </ul>
+     @see #getGroupProfileName
      **/
     public void setGroupProfileName(String groupProfileName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2357,6 +2422,7 @@ public class User implements Serializable
     /**
      Sets the highest scheduling priority the user is allowed to have for each job submitted to the system.  This value controls the job processing priority and output priority for any job running under this user profile; that is, values specified in the JOBPTY and OUTPTY parameters of any job command cannot exceed the PTYLMT value of the user profile under which the job is run.  The scheduling priority can have a value ranging from 0 through 9, where 0 is the highest priority and 9 is the lowest priority.
      @param highestSchedulingPriority The highest scheduling priority the user is allowed to have for each job submitted to the system.
+     @see #getHighestSchedulingPriority
      **/
     public void setHighestSchedulingPriority(int highestSchedulingPriority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2370,6 +2436,7 @@ public class User implements Serializable
      <li>"*USRPRF" - The home directory assigned to the user will be /home/USRPRF, where USRPRF is the name of the user profile.
      <li>The path name of the home directory to be assigned to this user.
      </ul>
+     @see #getHomeDirectory
      **/
     public void setHomeDirectory(String homeDirectory) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2402,6 +2469,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the initial menu.
      </ul>
      @see  QSYSObjectPathName
+     @see #getInitialMenu
      **/
     public void setInitialMenu(String initialMenu) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2435,6 +2503,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the initial program for the user.
      </ul>
      @see  QSYSObjectPathName
+     @see #getInitialProgram
      **/
     public void setInitialProgram(String initialProgram) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2458,6 +2527,7 @@ public class User implements Serializable
      Sets the fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.  If the job description does not exist when the user profile is created or changed, a library qualifier must be specified, because the job description name is kept in the user profile.  The caller must have *USE authority to the specified job description.
      @param jobDescription The fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
      @see  QSYSObjectPathName
+     @see #getJobDescription
      **/
     public void setJobDescription(String jobDescription) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2486,6 +2556,7 @@ public class User implements Serializable
      <li>"*TYPEAHEAD" - The type-ahead option is active, but the attention key buffering option is not.
      <li>"*YES" - The type-ahead and attention key buffering options are active.
      </ul>
+     @see #getKeyboardBuffering
     **/
     public void setKeyboardBuffering(String keyboardBuffering) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2504,6 +2575,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The system value QLANGID is used.
      <li>The language ID to be used.
      </ul>
+     @see #getLanguageID
      **/
     public void setLanguageID(String languageID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2524,6 +2596,7 @@ public class User implements Serializable
      <li>"*PARTIAL" - The program and current library cannot be changed on the sign-on display.  The menu can be changed and comands can be run from a command line.  A user can change the menu value with the Change profile (CHGPRF) command.  The program, current library, and the ATTN key handling program cannot be changed using the CHGPRF command.
      <li>"*YES" - The program, menu, and current library values cannot be changed on the sign-on display.  Commands cannot be run when issued from a command line or by selecting an option from a command grouping menu such as CMDADD, but can still be run from a command entry screen.  The user cannot change the program, menu, current library, or the ATTN key program handling values by using the CHGPRF command.
      </ul>
+     @see #getLimitCapabilities
      **/
     public void setLimitCapabilities(String limitCapabilities) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2537,7 +2610,7 @@ public class User implements Serializable
 
     /**
      Sets if the number of device sessions allowed for a user is limited to 1.  This does not limit SYSREQ and second sign-on.
-     NOTE:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
+     Note:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
      @param limitDeviceSessions If the number of device sessions allowed for a user is limited to 1.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN is used to determine whether the user is limited to a single device session.
@@ -2547,6 +2620,7 @@ public class User implements Serializable
      <li>"1" - The user is limited to a single device session.  The value has the same meaning as *YES.
      <li>"2-9" - The user is limited to the specified number of device sessions.
      </ul>
+     @see #getLimitDeviceSessions
      **/
     public void setLimitDeviceSessions(String limitDeviceSessions) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2571,6 +2645,7 @@ public class User implements Serializable
      <li>"*SRTSEQ" - The sort sequence from the locale is used.  The sort sequence from the locale overrides the user profile sort sequence.
      <li>"*TIMSEP" - The time separator from the locale is used.
      </ul>
+     @see #getLocaleJobAttributes
      **/
     public void setLocaleJobAttributes(String[] localeJobAttributes) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2592,6 +2667,7 @@ public class User implements Serializable
      <li>"*POSIX" - The POSIX locale path name is assigned for this user.
      <li>The path name of the locale to be assigned for this user.
      </ul>
+     @see #getLocalePathName
      **/
     public void setLocalePathName(String localePathName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2613,6 +2689,7 @@ public class User implements Serializable
     /**
      Sets whether the user profile password should be managed locally.
      @param localPasswordManagement true if the password will be managed on the local system, false otherwise.
+     @see #isLocalPasswordManagement
      **/
     public void setLocalPasswordManagement(boolean localPasswordManagement) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2634,6 +2711,7 @@ public class User implements Serializable
      <li>-1 - As much storage as is required is assigned to this profile (*NOMAX).
      <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024 bytes).
      </ul>
+     @see #getMaximumStorageAllowed
      **/
     public void setMaximumStorageAllowed(int maximumStorageAllowed) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2655,6 +2733,7 @@ public class User implements Serializable
      <li>"*NOMAX" - As much storage as is required is assigned to this profile.
      <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024 bytes).
      </ul>
+     @see #getMaximumStorageAllowed
      **/
     public void setMaximumStorageAllowed(String maximumStorageAllowed) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2676,6 +2755,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the message queue to be used with this profile.
      </ul>
      @see  QSYSObjectPathName
+     @see #getMessageQueue
      **/
     public void setMessageQueue(String messageQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2704,6 +2784,7 @@ public class User implements Serializable
      <li>"*BREAK" - The job to which the message queue is assigned is interrupted when a message arrives at the message queue.  If the job is an interactive job, the autdible alarm is sounded (if the alarm feature is set).  The delivery mode cannot be changed to *BREAK if the message queue is also being used by another job.
      <li>"*DFT" - The default reply to the inquiry message is sent.  If no default reply is specified in the message description of the inquiry message, the system default reply, *N, is used.
      </ul>
+     @see #setMessageQueueDeliveryMethod
      **/
     public void setMessageQueueDeliveryMethod(String messageQueueDeliveryMethod) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2718,6 +2799,7 @@ public class User implements Serializable
     /**
      Sets the lowest severity code that a message can have and still be delivered to a user in break or notify mode.  Messages arriving at the message queue whose severities are lower than the the severity code specified for this parameter do not interrupt the job or turn on the audible alarm or the message-waiting light; they are held in the queue until they are requested by using the Display Message (DSPMSG) command.  If *BREAK or *NOTIFY is specidied for the Delivery (DLVRY) parameter, and is in effect when a message arrives at the queue, the message is delivered if the severity code associated with the message is equal or greater then the value specified here.  Otherwiese, the message is held in the queue until it is requested.
      @param messageQueueSeverity A severity code ranging from 00 through 99.
+     @see #getMessageQueueSeverity
      **/
     public void setMessageQueueSeverity(int messageQueueSeverity) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2779,6 +2861,7 @@ public class User implements Serializable
      <li>"*CHANGE" - All changes accesses by this user on all objects with the *USRPRF audit value are logged.
      <li>"*ALL" - All change and read accesses by this use on all objects with the *USRPRF audit value are logged.
      </ul>
+     @see #getObjectAuditingValue
      **/
     public void setObjectAuditingValue(String objectAuditingValue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2800,6 +2883,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the output queue to be used by this user profile.
      </ul>
      @see  QSYSObjectPathName
+     @see #getOutputQueue
      **/
     public void setOutputQueue(String outputQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2826,6 +2910,7 @@ public class User implements Serializable
      <li>"*USRPRF" - The user profile associated with the job is the owner of the object.
      <li>"*GRPPRF" - The group profile is made the owner of newly created objects and has all authority to the object.  The user profile associated with the job does not have any specific authority to the object.  If *GRPPRF is specified, a user profile name must be specified for the Group profile (GRPPRF) parameter, and the Group authority (GRPAUT) parameter cannot be specified.
      </ul>
+     @see #getOwner
      **/
     public void setOwner(String owner) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2841,7 +2926,7 @@ public class User implements Serializable
     /**
      * Sets the time period during which a password is blocked from being changed
      * following the prior successful password change operation.
-     * <p><b>NOTE:  This method is not supported when running to i5/OS 5.4 or earlier releases.</b>
+     * <p>Note: This method should not be used when running to IBM i 5.4 or earlier releases.
      * @param pwdChangeBlock The time period during which a password is blocked from being changed.  Possible values are:
      * <ul>
      * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
@@ -2849,6 +2934,7 @@ public class User implements Serializable
      * <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change operation
      * before they are able to change the password again.</li>
      * </ul> 
+     * @see #getPasswordChangeBlock
      */
     public void setPasswordChangeBlock(String pwdChangeBlock) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2868,6 +2954,7 @@ public class User implements Serializable
      <li>-1 - The password does not expire (*NOMAX).
      <li>1-366 - The number of days between the date when the password is changed and the date when the password expires.
      </ul>
+     @see #getPasswordExpirationInterval
      **/
     public void setPasswordExpirationInterval(int passwordExpirationInterval) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2882,6 +2969,7 @@ public class User implements Serializable
      <li>"*NOMAX" - The password does not expire.
      <li>1-366 - The number of days between the date when the password is changed and the date when the password expires.
      </ul>
+     @see #getPasswordExpirationInterval
      **/
     public void setPasswordExpirationInterval(String passwordExpirationInterval) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2896,6 +2984,7 @@ public class User implements Serializable
     /**
      Sets whether the password for this user is set to expired.  If the password is set to expired, the use is required to change the password to sign on the system.  When the user attempts to sign on the system, the sign-on information display is shown and the user has the option to change this password.
      @param passwordSetExpire true if the password set to expired, false otherwise.
+     @see #isPasswordSetExpire
      **/
     public void setPasswordSetExpire(boolean passwordSetExpire) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2912,6 +3001,7 @@ public class User implements Serializable
      <li>"*SYSVAL" - The value specified in the system value QPRTDEV is used.
      <li>The name of a printer that is to be used to print the output for this user.
      </ul>
+     @see #getPrintDevice
      **/
     public void setPrintDevice(String printDevice) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2934,6 +3024,7 @@ public class User implements Serializable
      <li>The fully qualified integrated file system path name of the sort sequence table to be used with this profile.
      </ul>
      @see  QSYSObjectPathName
+     @see #getSortSequenceTable
      **/
     public void setSortSequenceTable(String sortSequenceTable) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2985,6 +3076,8 @@ public class User implements Serializable
      <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service authority is given to this user.  The user can perform service functions. 
      <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control authority is given to this user.  The user can perform all spool functions.
      </ul>
+     @see #getSpecialAuthority
+     @see #hasSpecialAuthority
      **/
     public void setSpecialAuthority(String[] specialAuthority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3001,9 +3094,10 @@ public class User implements Serializable
      @param specialEnvironment The special environment in which the user operates after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value, QSPCENV, is used to determine the system environment after the user signs on the system.
-     <li>{@link #NONE NONE} - The user operates in the i5/OS system environment after signing on the system.
+     <li>{@link #NONE NONE} - The user operates in the IBM i system environment after signing on the system.
      <li>"*S36" - The user operates in the System/36 environment after signing on the system.
      </ul>
+     @see #getSpecialEnvironment
      **/
     public void setSpecialEnvironment(String specialEnvironment) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3023,6 +3117,7 @@ public class User implements Serializable
      <li>"*ENABLED" - The user profile is valid for sign-on.
      <li>"*DISABLED" - The user profile is not valid for sign-on until an authorized user enables it again.  Batch jobs can be submitted under a disabled user profile.
      </ul>
+     @see #getStatus
      **/
     public void setStatus(String status) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3046,6 +3141,7 @@ public class User implements Serializable
      <ul>
      <li>{@link #NONE NONE} - No supplemental group profiles are used with this user profile.
      <li>The group profile names to be used with this user profile and the group profile specified on the GRPPRF parameter to determine a job's eligibility for getting access to existing objects and special authority.  A maximum of 15 group profile names may be specified.
+     @see #getSupplementalGroups
      **/
     public void setSupplementalGroups(String[] supplementalGroups) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3061,6 +3157,7 @@ public class User implements Serializable
      Sets the system object representing the system on which the user profile exists.  This property cannot be changed if the object has established a connection to the system.
      @param  system  The system object representing the system on which the user profile exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     @see #getSystem
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
     {
@@ -3137,6 +3234,7 @@ public class User implements Serializable
      <li>"*SPLFDTA" - Spooled file operations made by this user are audited.
      <li>"*SYSMGT" - Use of system management functions by this user are audited.
      </ul>
+     @see #getUserActionAuditLevel
      **/
     public void setUserActionAuditLevel(String[] userActionAuditLevel) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3168,6 +3266,7 @@ public class User implements Serializable
      <li>"*PGMR" - At QSECURITY level 10 or 20, the programmer has *ALLOBJ, *SAVSYS, and *JOBCTL special authorities.  At QSECURITY level 30 or above, the user has no special authorities.
      <li>"*SYSOPR" - At QSECURITY level 10 or 20, the system operator has *ALLOBJ, *SAVSYS, and *JOBCTL special authorities.  At QSECURITY level 30 or above, the user has *SAVSYS and *JOBCTL special authorities.
      </ul>
+     @see #getUserClassName
      **/
     public void setUserClassName(String userClassName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3183,8 +3282,9 @@ public class User implements Serializable
     /**
      Sets the date when the user profile expires and is automatically disabled.
      <p>Note: Certain IBM-supplied user profiles cannot specify a user expiration date. 
-     <p><b>NOTE:  This method is not supported when running to IBM i 6.1 or earlier releases.</b>
+     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
      @param expirationDate The date when the user profile expires and is automatically disabled.  <tt>null</tt> is returned if the user profile does not have an expiration date.
+     @see #getUserExpirationDate
      @see #setUserExpirationInterval
      **/
     public void setUserExpirationDate(Date expirationDate)
@@ -3270,8 +3370,9 @@ public class User implements Serializable
     /**
      Sets the expiration interval (in days) before the user profile is automatically disabled.
      If the user profile does not have a user expiration date, or the user profile has expired and the Status parameter is set to *ENABLED, specifies the number of days between today and the new date when the user profile expires. If the user profile has not yet expired, the user expiration interval is changed, but the existing user expiration date is not changed.
+     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
      @param expirationInterval The number of days from today until the user profile is automatically disabled.  Valid values range from 1 through 366.  To specify that the user profile has no expiration interval, call {@link #setUserExpirationDate setUserExpirationDate(null)}.
-     <p><b>NOTE:  This method is not supported when running to IBM i 6.1 or earlier releases.</b>
+     @see #getUserExpirationInterval
      @see #setUserExpirationDate
      **/
     public void setUserExpirationInterval(int expirationInterval)
@@ -3294,6 +3395,7 @@ public class User implements Serializable
     /**
      Sets the user ID number (uid number) for this user profile.  The uid number is used to identify the user when the user is using the directory file system.  The uid number for a user cannot be changed if there are one or more active jobs for the user.
      @param userID The uid number to be assigned to the user profile.  A value from 1 to 4294967294 can be entered.  The uid number assigned must not already be assigned to another user profile.
+     @see #getUserID
      **/
     public void setUserID(long userID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3313,6 +3415,7 @@ public class User implements Serializable
      <li>"*HLPFULL" - Help text is shown on a full display rather than in a window.
      <li>"*PRTMSG" - A message is sent to this user's message queue when a spooled file for this user is printed or held by the printer writer.
      </ul>
+     @see #getUserOptions
      **/
     public void setUserOptions(String[] userOptions) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
