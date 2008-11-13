@@ -24,8 +24,6 @@ import java.text.Collator;
 
 abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
   // Is this class an ImplRemote or an ImplNative
   boolean isNative_ = false; //@E2A
 
@@ -163,7 +161,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   //@B0A
   // This flag tells us if we are an impl for a KeyedFile or a SequentialFile.
   // Created primarily for use in refreshCache().
-  private boolean isKeyed_ = false;
+  //private boolean isKeyed_ = false;      // not used
 
 
   //@B4A - constants for comparing keys
@@ -384,10 +382,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-  public void setIsKeyed(boolean keyed)
-  {
-    isKeyed_ = keyed;
-  }
+  //public void setIsKeyed(boolean keyed)   // not used
+  //{
+  //  isKeyed_ = keyed;
+  //}
 
   public boolean isReadNoUpdate()
   {
@@ -689,7 +687,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     setPath(pathName);
     setRecordFormat(rf);
     setReadNoUpdate(readNoUpdate); //@B5A
-    setIsKeyed(isKeyed);
+    //setIsKeyed(isKeyed);
     setSSPFile(ssp);
     setConverter(); //@B5A - 06/08/1999
   }
@@ -1225,7 +1223,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       commitmentControlSystems_.removeElement(system_);
 //      server_.commitmentControlStarted_ = false; //@B0A
     }
-*///@E2D
+*/ //@E2D
   }
 
 
@@ -1327,7 +1325,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     {
       commitmentControlSystems_.addElement(system_);
     }
-*///@E2D
+*/ //@E2D
   }
 
 
@@ -1966,7 +1964,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       // want up-to-date data.
       blockingFactor_ = 1;
     }
-*///@D0M
+*/ //@D0M
     blockingFactor_ = blockingFactor; //@D0A
 
     // Determine if we are to cache records.
@@ -2883,7 +2881,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   InterruptedException,
   IOException
   {
-    Record r = positionCursorToKey(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
+    positionCursorToKey(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
     if (cacheRecords_)
     {
       cache_.setIsEmpty();
@@ -2914,7 +2912,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   InterruptedException,
   IOException
   {
-    Record r = positionCursorToKey(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
+    positionCursorToKey(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
     if (cacheRecords_)
     {
       cache_.setIsEmpty();
