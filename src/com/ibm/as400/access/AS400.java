@@ -1022,7 +1022,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting all services...");
         if (impl_ != null)
         {
-            chooseImpl();
             impl_.disconnect(AS400.FILE);
             impl_.disconnect(AS400.PRINT);
             impl_.disconnect(AS400.COMMAND);
@@ -1060,7 +1059,6 @@ public class AS400 implements Serializable
         }
 
         if (impl_ == null) return;
-        chooseImpl();
         impl_.disconnect(service);
     }
 
@@ -1385,7 +1383,6 @@ public class AS400 implements Serializable
         }
 
         if (impl_ == null) return new Job[0];
-        chooseImpl();
         String[] jobStrings = impl_.getJobs(service);
         Job[] jobs = new Job[jobStrings.length];
         for (int i = 0; i < jobStrings.length; ++i)
@@ -1904,13 +1901,21 @@ public class AS400 implements Serializable
 
     /**
      Indicates if any service is currently connected through this object.
-     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
+     <p>A service is considered "connected" if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @return  true if any service is connected; false otherwise.
+     @see #isConnectionAlive
      **/
     public boolean isConnected()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking for any service connection...");
-        if (isConnected(AS400.FILE) || isConnected(AS400.PRINT) || isConnected(AS400.COMMAND) || isConnected(AS400.DATAQUEUE) || isConnected(AS400.DATABASE) || isConnected(AS400.RECORDACCESS) || isConnected(AS400.CENTRAL)|| isConnected(AS400.SIGNON))
+        if (isConnected(AS400.FILE) ||
+            isConnected(AS400.PRINT) ||
+            isConnected(AS400.COMMAND) ||
+            isConnected(AS400.DATAQUEUE) ||
+            isConnected(AS400.DATABASE) ||
+            isConnected(AS400.RECORDACCESS) ||
+            isConnected(AS400.CENTRAL)||
+            isConnected(AS400.SIGNON))
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "A service is connected.");
             return true;
@@ -1924,7 +1929,7 @@ public class AS400 implements Serializable
 
     /**
      Indicates if a service is currently connected through this object.
-     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
+     <p>A service is considered "connected" if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @param  service  The name of the service.  Valid services are:
      <ul>
      <li>{@link #FILE FILE} - IFS file classes.
@@ -1937,6 +1942,7 @@ public class AS400 implements Serializable
      <li>{@link #SIGNON SIGNON} - sign-on classes.
      </ul>
      @return  true if service is connected; false otherwise.
+     @see #isConnectionAlive
      **/
     public boolean isConnected(int service)
     {
@@ -1949,10 +1955,32 @@ public class AS400 implements Serializable
         }
 
         if (impl_ == null) return false;
-        chooseImpl();
         boolean connected = impl_.isConnected(service);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connection:", connected);
         return connected;
+    }
+
+
+    /**
+     Tests the connection to the system, to verify that it is still working.
+     This is similar in concept to "pinging" the system over the connection.
+     <p>Note: This method is <b>not fully supported until the release following IBM i V6R1</b>.  If running to V6R1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
+     <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
+     </ul>
+     @return  true if the connection is still working; false otherwise.
+     @see #isConnected
+     @see AS400JPing
+     **/
+    public boolean isConnectionAlive()
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Testing connection...");
+
+      boolean alive;
+      if (impl_ == null) alive = false;
+      else               alive = impl_.isConnectionAlive();
+
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connection status:", alive);
+      return alive;
     }
 
     /**
@@ -2588,10 +2616,9 @@ public class AS400 implements Serializable
     {
         if (!currentUserTried)
         {
-            Class currentUserClass = null;
             try
             {
-                currentUserClass = Class.forName("com.ibm.as400.access.CurrentUser");
+                Class.forName("com.ibm.as400.access.CurrentUser");
             }
             catch (Throwable t)
             {
@@ -2782,7 +2809,7 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Cannot set RDB name after connection has been made.");
             throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
-        if (ddmRDB.length() > 18)
+        if (ddmRDB != null && ddmRDB.length() > 18)
         {
             throw new ExtendedIllegalArgumentException("ddmRDB", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }

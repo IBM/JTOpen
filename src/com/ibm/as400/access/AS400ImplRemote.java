@@ -34,6 +34,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 class AS400ImplRemote implements AS400Impl
 {
     private static final boolean PASSWORD_TRACE = false;
+    private static final boolean DEBUG = false;
 
     // The pool of systems.  Tne systems are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
     private Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector() };
@@ -53,7 +54,7 @@ class AS400ImplRemote implements AS400Impl
     // GSS name string, for Kerberos.
     private String gssName_ = "";
     // How to use the GSS framework.
-    int gssOption_;
+    //int gssOption_;                    // not used
     // Adder for twiddled password bytes.
     private byte[] adder_ = null;
     // Mask for twiddled password bytes.
@@ -131,6 +132,9 @@ class AS400ImplRemote implements AS400Impl
         AS400Server.addReplyStream(new AS400XChgRandSeedReplyDS(), AS400.SIGNON);
         AS400Server.addReplyStream(new SignonInfoRep(), AS400.SIGNON);
         AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.SIGNON);
+        if (DEBUG) {
+          AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
+        }
     }
 
     // Set the connection event dispatcher.
@@ -260,7 +264,7 @@ class AS400ImplRemote implements AS400Impl
         }
 
         // Get a socket connection.
-        boolean needToDisconnect = signonServer_ == null;
+        boolean needToDisconnect = (signonServer_ == null);
         signonConnect();
         try
         {
@@ -505,8 +509,12 @@ class AS400ImplRemote implements AS400Impl
     protected void finalize() throws Throwable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Finalize method for AS400 implementation invoked.");
-        disconnectAllServices();
-        super.finalize();
+        try {
+          disconnectAllServices();
+        }
+        finally {
+          super.finalize();
+        }
     }
 
     // Fire connnect event.
@@ -789,13 +797,14 @@ class AS400ImplRemote implements AS400Impl
         String line = reader.readLine();
         if (line == null || line.length() == 0) throw new IOException();
         String code = line.substring(0, 3);
-        String fullMessage = line;
-        while (!(line.length() > 3 && line.substring(0, 3).equals(code) && line.charAt(3) == ' '))
+        StringBuffer fullMessage = new StringBuffer(line);
+        while ((line != null) &&
+               !(line.length() > 3 && line.substring(0, 3).equals(code) && line.charAt(3) == ' '))
         {
             line = reader.readLine();
-            fullMessage += "\n" + line;
+            fullMessage.append("\n" + line);
         }
-        return fullMessage;
+        return fullMessage.toString();
     }
 
     synchronized Socket getConnection(int dhcp, int port) throws AS400SecurityException, IOException
@@ -1125,7 +1134,8 @@ class AS400ImplRemote implements AS400Impl
 
         if (bytes_ == null)
         {
-            if (AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
+            if (!mustUseSuppliedProfile_ &&
+                AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
             {
                 encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed);
             }
@@ -1281,6 +1291,171 @@ class AS400ImplRemote implements AS400Impl
                 return false;
             }
         }
+    }
+
+
+    private SignonPingReq signonPingRequest_;
+    private IFSPingReq ifsPingRequest_;
+    private static final int NO_PRIOR_SERVICE = -1;
+    private int priorService_ = NO_PRIOR_SERVICE;
+
+    // Check connection's current status.
+    public boolean isConnectionAlive()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking connection's current alive status");
+
+        // The host server 'ping' request is supported starting in V7R1.
+        if (getVRM() < 0x00070100)
+        {
+          Trace.log(Trace.DIAGNOSTIC, "The IBM i version is V6R1 or lower, therefore isConnectionAlive() defaults to the behavior of isConnected().");
+          if (isConnected(AS400.FILE) ||
+              isConnected(AS400.PRINT) ||
+              isConnected(AS400.COMMAND) ||
+              isConnected(AS400.DATAQUEUE) ||
+              isConnected(AS400.DATABASE) ||
+              isConnected(AS400.RECORDACCESS) ||
+              isConnected(AS400.CENTRAL)||
+              isConnected(AS400.SIGNON))
+          {
+            return true;
+          }
+          else
+          {
+            return false;
+          }
+        }
+
+        boolean isAlive = false;
+
+        try
+        {
+          AS400Server connectedServer = null;
+
+          // Note:  The Signon Server is the "common gateway" (contains common code) for the following servers:  Network Print, Remote Command, Data Queue, Database, Central, Signon.
+          // The File Server and DDM Server (Record Level Access) are independent from the Signon Server, and do not yet support a "ping" request.
+          // To test connection, we will ping a connected connection to any of the above services.
+
+          // First, try the previously-connected common service (if any).
+          if (priorService_ != NO_PRIOR_SERVICE &&
+              (priorService_ == AS400.PRINT ||
+               priorService_ == AS400.COMMAND ||
+               priorService_ == AS400.DATAQUEUE ||
+               priorService_ == AS400.DATABASE ||
+               priorService_ == AS400.CENTRAL ||
+               priorService_ == AS400.SIGNON))
+          {
+            connectedServer = getConnectedServer(new int[] {priorService_});
+          }
+
+          if (connectedServer == null)
+          {
+            // Go through the list of common servers until we find a connected connection.
+            connectedServer = getConnectedServer(new int[] {AS400.SIGNON, AS400.COMMAND, AS400.DATABASE, AS400.PRINT, AS400.DATAQUEUE, AS400.CENTRAL});
+          }
+
+          // If we have a connection to a "common" server, send the ping request.
+          // If no exception gets thrown, report that the connection is alive.
+          if (connectedServer != null)
+          {
+            if (signonPingRequest_ == null) {
+              signonPingRequest_ = new SignonPingReq(); // the above services all support "ping"
+            }
+            connectedServer.sendAndDiscardReply(signonPingRequest_);
+            // If no exception was thrown, then the ping succeeded.
+
+            isAlive = true;
+            priorService_ = connectedServer.getService();
+          }
+
+          // If we have a connection to the File Server, send the ping request.
+          // Then if a reply comes back, swallow the "invalid request" error and report that the connection is alive.
+          if (connectedServer == null)
+          {
+            connectedServer = getConnectedServer(new int[] {AS400.FILE});
+            if (connectedServer != null)
+            {
+              if (ifsPingRequest_ == null) {
+                ifsPingRequest_ = new IFSPingReq();  // a dummy request, just to get a reply
+              }
+              // We expect to get back a reply indicating "request not supported".
+              DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
+              // If no exception was thrown, then the ping succeeded.
+
+              isAlive = true;
+              priorService_ = connectedServer.getService();
+
+              if (DEBUG)
+              {
+                // Sanity-check the reply.
+                if (reply instanceof IFSReturnCodeRep)
+                {
+                  int returnCode = ((IFSReturnCodeRep)reply).getReturnCode();
+                  // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
+                  // That sort of error doesn't clutter the job log with error entries.
+                  if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED)
+                  {
+                    if (Trace.traceOn_) {
+                      Trace.log(Trace.DIAGNOSTIC, "Ping of File Server failed with unexpected return code " + returnCode);
+                    }
+                  }
+                }
+                else {
+                  Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
+                }
+              }
+
+            }
+          }
+
+          // If all we have is a connection to the DDM Server, simply return true.
+          // We don't have a way to ping the DDM server without creating an error entry in the job log.
+          if (connectedServer == null)
+          {
+            if (isConnected(AS400.RECORDACCESS))
+            {
+              Trace.log(Trace.DIAGNOSTIC, "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
+              isAlive = true;
+            }
+          }
+
+          if (connectedServer == null) { priorService_ = NO_PRIOR_SERVICE; }
+
+        }
+        catch (Exception e)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+          isAlive = false;
+        }
+
+        if (!isAlive) { priorService_ = NO_PRIOR_SERVICE; }
+
+        return isAlive;
+    }
+
+    private final AS400Server getConnectedServer(int[] services)
+    {
+      AS400Server server = null;
+      for (int i=0; i<services.length && server == null; i++)
+      {
+        int service = services[i];
+        if (service == AS400.SIGNON) {
+          server = signonServer_;
+        }
+        else
+        {
+          Vector serverList = serverPool_[service];
+          synchronized (serverList)
+          {
+            for (int ii = serverList.size() - 1; ii >= 0 && server == null; ii--)
+            {
+              if (((AS400Server)serverList.elementAt(ii)).isConnected()) {
+                server = (AS400Server)serverList.elementAt(ii);
+              }
+            }
+          }
+        }
+      }
+      return server;
     }
 
     // Indicates whether we've discovered that PTF SI29629 is missing on a V5R4 system.
@@ -1695,9 +1870,9 @@ class AS400ImplRemote implements AS400Impl
     static AS400Message parseMessage(byte[] data, int offset, ConverterImplRemote converter) throws IOException
     {
         AS400Message message = new AS400Message();
-        int textCcsid = BinaryConverter.byteArrayToInt(data, offset);
+        //int textCcsid = BinaryConverter.byteArrayToInt(data, offset);  // not used
         offset += 4;
-        int substitutionCcsid = BinaryConverter.byteArrayToInt(data, offset);
+        //int substitutionCcsid = BinaryConverter.byteArrayToInt(data, offset);  // not used
         offset += 4;
         message.setSeverity(BinaryConverter.byteArrayToUnsignedShort(data, offset));
         offset += 2;
@@ -1816,7 +1991,7 @@ class AS400ImplRemote implements AS400Impl
         systemNameLocal_ = systemNameLocal;
         userId_ = userId;
         gssName_ = gssName;
-        gssOption_ = gssOption;
+        //gssOption_ = gssOption;   // not used
 
         if (bytes != null)
         {

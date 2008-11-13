@@ -43,6 +43,8 @@ interface AS400Impl
     int getServicePort(String systemName, int service);
     // Check service connection.
     boolean isConnected(int service);
+    // Check connection's current status.
+    boolean isConnectionAlive();
     // Load converter into converter pool.
     void newConverter(int ccsid) throws UnsupportedEncodingException;
     // Remove the connection event dispatcher.
