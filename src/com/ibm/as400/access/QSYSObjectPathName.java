@@ -120,8 +120,6 @@ import java.util.EventListener;
  **/
 public class QSYSObjectPathName implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // Full IFS path name.
@@ -1188,6 +1186,15 @@ public class QSYSObjectPathName implements Serializable
         return result.toString();
       }
 
+    }
+
+    // Validates a path.
+    // @param  path  The fully qualified integrated file system name of an object in the QSYS file system.
+    // @param  objectType  The type of object <i>path</i> should represent.
+    static final void validatePath(String path, String objectType)
+    {
+        // The constructor will throw an exception if the path is not valid.
+        QSYSObjectPathName verify = new QSYSObjectPathName(path, objectType);
     }
 
 }
