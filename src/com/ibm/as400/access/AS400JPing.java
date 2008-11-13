@@ -51,9 +51,9 @@ public class AS400JPing
     // Socket to the DDM Server.
     private Socket s_;
     // Thread to handle timeout values.
-    private Thread thread_;
+    private Thread jpingDaemon_;
     // Inner class that implements runnable.
-    private JPingThread     jpingThread;
+    private JPingThread     jpingThread_;
     private SocketProperties socketProperties_ = new SocketProperties();
 
     // Handles loading the appropriate resource bundle.
@@ -150,7 +150,10 @@ public class AS400JPing
                 pingDDM();
             else
             {
-                jpingThread = new JPingThread();
+                jpingThread_ = new JPingThread();
+                jpingDaemon_ = new Thread(jpingThread_, "AS400JPingDaemon");
+                jpingDaemon_.setDaemon(true);
+                jpingDaemon_.start();
 
                 synchronized (this)
                 {
@@ -172,7 +175,7 @@ public class AS400JPing
                 // and fail the ping attempt.
                 if (sc_ == null)
                 {
-                    thread_.stop();
+                    jpingDaemon_.stop();
                     throw new Exception("Ping timeout occurred.");
                 }
                 else  // The Thread has returned within the timeout period.
@@ -288,7 +291,10 @@ public class AS400JPing
 
         try
         {
-            jpingThread = new JPingThread();
+            jpingThread_ = new JPingThread();
+            jpingDaemon_ = new Thread(jpingThread_, "AS400JPingDaemon");
+            jpingDaemon_.setDaemon(true);
+            jpingDaemon_.start();
 
             synchronized (this)
             {
@@ -310,7 +316,7 @@ public class AS400JPing
             // and fail the ping attempt.
             if (s_ == null)
             {
-                thread_.stop();
+                jpingDaemon_.stop();
                 throw new Exception("Ping Timeout occurred.");
             }
             else  // The Thread has returned within the timeout period.
@@ -321,7 +327,12 @@ public class AS400JPing
 
                 InputStream is = s_.getInputStream();
                 byte[] excsatRep = new byte[113];
-                is.read(excsatRep);
+                int numBytesRead = is.read(excsatRep);
+                if (numBytesRead < excsatRep.length)
+                {
+                  Trace.log(Trace.ERROR, "Unexpected ddm server response.", excsatRep);
+                  throw new Exception("Unexpected ddm server response.");
+                }
 
                 // Close the input/output streams and the socket.
                 is.close();
@@ -333,8 +344,8 @@ public class AS400JPing
                     // If the reply matched our expected reply, continue.  Otherwise throw an exception, which will bubble up to the ping(int) method and get handled properly.
                     if (excsatRep[i] != expectedRep[i])
                     {
-                        Trace.log(Trace.ERROR, "Unexpected ddm server response.");
-                        throw new Exception();
+                        Trace.log(Trace.ERROR, "Unexpected ddm server response.", excsatRep);
+                        throw new Exception("Unexpected ddm server response.");
                     }
                 }
             }
@@ -371,38 +382,34 @@ public class AS400JPing
         time_ = time;
     }
 
-    /**
-     Sets the length of the data in the datastream.
-     @param  length  The length of the data (1 - 1000).  The default is 10.
-     **/
-    void setLength(int length)
-    {
-        if (length < 1 || length > 1000)
-            throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Not used.
+    // /**
+    // Sets the length of the data in the datastream.
+    // @param  length  The length of the data (1 - 1000).  The default is 10.
+    // **/
+    //void setLength(int length)
+    //{
+    //    if (length < 1 || length > 1000)
+    //        throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-        length_ = length;
-    }
+    //    length_ = length;
+    //}
 
-    /**
-     Sets whether the echo is on.
-     @param  echo  true if the service should echo back the packet received, false otherwise.  The default is false.
-     **/
-    void setUseEcho(boolean echo)
-    {
-        echo_ = echo;
-    }
+    // Not used.
+    // /**
+    // Sets whether the echo is on.
+    // @param  echo  true if the service should echo back the packet received, false otherwise.  The default is false.
+    // **/
+    //void setUseEcho(boolean echo)
+    //{
+    //    echo_ = echo;
+    //}
 
     /**
      JPingThread is the inner class that tries to create the Socket connection to the system using a Thread.  An inner class is used so that the user does not see that the AS400JPing class implements Runnable and does not see the run() method and they don't try to call that method in their applications.
      **/
     private class JPingThread implements Runnable
     {
-        JPingThread()
-        {
-            thread_ = new Thread(this);
-            thread_.start();
-        }
-
         /**
          A Thread is started to do the Socket creation.  The socket creation will hang if the system is not responding.  To aleviate the long hang times, if this Thread does not return within the timeout period, it is assumed the system is unreachable.  The hang could also be attributed to network speed.  The default timeout period is 20000ms (20 sec).
          **/

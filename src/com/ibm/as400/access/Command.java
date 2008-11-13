@@ -22,7 +22,6 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.util.*;
 import org.xml.sax.InputSource;
-//import org.apache.xerces.parsers.SAXParser;
 import javax.xml.parsers.*;
 import org.xml.sax.SAXException;
 
@@ -38,11 +37,7 @@ import org.xml.sax.SAXException;
 **/
 public class Command implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-  /**
-   * NOTE:   This class uses the QCDRCMDD and QCDRCMDI system APIs to retrieve information about a CL command.
-   **/
+  // NOTE:  This class uses the QCDRCMDD and QCDRCMDI system APIs to retrieve information about a CL command.
 
   static final long serialVersionUID = 6L;
 
@@ -216,7 +211,7 @@ public class Command implements Serializable
 
   private String xml_;
   private String xml2_;
-  private PanelGroupHelpIdentifier[] helpIDs_;
+  private transient PanelGroupHelpIdentifier[] helpIDs_;
   private String xmlProductLibrary_;
   private String xmlPanelGroup_;
   private String xmlHelpText_;
@@ -262,7 +257,7 @@ public class Command implements Serializable
     if (path == null)
       throw new NullPointerException("path");
 
-    QSYSObjectPathName verify = new QSYSObjectPathName(path, "CMD");
+    QSYSObjectPathName.validatePath(path, "CMD");
 
     system_ = system;
     path_ = path;
@@ -1240,7 +1235,6 @@ public class Command implements Serializable
     parms[4] = errorCode_;
 
     // @A1A - Add support for proxy commands
-    ///if (vrm >= 0x00050400)		// @A1A
     if (numParms > 5)		// @A1A
       parms[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });	// @A1A Follow proxy chain, input CHAR(1)
 
@@ -1308,7 +1302,7 @@ public class Command implements Serializable
 
     whereAllowedToRun_ = conv.byteArrayToString(outputData, 108, 15); // Don't trim!
 
-    allowLimitedUser_ = outputData[123] == 0xF1; // '1' for *YES, '0' for *NO
+    allowLimitedUser_ = outputData[123] == (byte)0xF1; // '1' for *YES, '0' for *NO
 
     maxPosParms_ = BinaryConverter.byteArrayToInt(outputData, 124);
 
@@ -1490,10 +1484,10 @@ public class Command implements Serializable
   {
     if (path == null) throw new NullPointerException("path");
 
+    QSYSObjectPathName.validatePath(path, "CMD");
+
     synchronized(this)
     {
-      QSYSObjectPathName verify = new QSYSObjectPathName(path, "CMD");
-
       String old = path_;
       path_ = path;
 
