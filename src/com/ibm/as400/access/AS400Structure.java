@@ -18,17 +18,12 @@ package com.ibm.as400.access;
  **/
 public class AS400Structure implements AS400DataType
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
-
-
-    private AS400DataType[] elements = null;
-    private static Object[] defaultValue = null;
-    private boolean allowChanges = true;  // For beans: allow changes after null constructor until conversion method called
+    private AS400DataType[] elements_ = null;
+    private static Object[] defaultValue_ = null;
+    private static final Object defaultValueLock_ = new Object();
+    private boolean allowChanges_ = true;  // For beans: allow changes after null constructor until conversion method called
 
     /**
      * Constructs an AS400Structure object.  The setMembers() method must be called before any conversion methods or getByteLength()  on this object.
@@ -49,8 +44,8 @@ public class AS400Structure implements AS400DataType
          // store only clones
          newMembers[i] = (AS400DataType)members[i].clone();  // let this line throw NullPointerException
      }
-     this.allowChanges = false;
-     this.elements = newMembers;
+     this.allowChanges_ = false;
+     this.elements_ = newMembers;
     }
 
     /**
@@ -62,7 +57,7 @@ public class AS400Structure implements AS400DataType
      try
      {
          AS400Structure nObj = (AS400Structure)super.clone();  // Object.clone does not throw exception
-         AS400DataType[] myMembers = this.elements;
+         AS400DataType[] myMembers = this.elements_;
 
          if (myMembers == null) return nObj;  // Short cut out if nothing to clone
 
@@ -73,7 +68,7 @@ public class AS400Structure implements AS400DataType
           // clone all the elements
           newMembers[i] = (AS400DataType)myMembers[i].clone(); // Data Types do not throw exception
          }
-         nObj.elements = newMembers;
+         nObj.elements_ = newMembers;
          return nObj;
      }
      catch (CloneNotSupportedException e)
@@ -89,13 +84,13 @@ public class AS400Structure implements AS400DataType
      **/
     public int getByteLength()
     {
-     AS400DataType[] elementIterator = this.elements;
+     AS400DataType[] elementIterator = this.elements_;
      // Check for valid state
      if (elementIterator == null)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_SET);
      }
-     this.allowChanges = false;  // Check before setting so don't have unfixable object
+     this.allowChanges_ = false;  // Check before setting so don't have unfixable object
 
      // Length is sum of the elements length
      int numElements = elementIterator.length;
@@ -113,16 +108,22 @@ public class AS400Structure implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-      if (defaultValue == null)
+      if (defaultValue_ == null)
       {
-        int numElements = elements.length;
-        defaultValue = new Object[numElements];
-        for (int i = 0; i < numElements; i++) {
-          defaultValue[i] = elements[i].getDefaultValue();
+        synchronized (defaultValueLock_)
+        {
+          if (defaultValue_ == null)
+          {
+            int numElements = elements_.length;
+            defaultValue_ = new Object[numElements];
+            for (int i = 0; i < numElements; i++) {
+              defaultValue_[i] = elements_[i].getDefaultValue();
+            }
+          }
         }
       }
 
-      return defaultValue;
+      return defaultValue_;
     }
 
 
@@ -150,9 +151,9 @@ public class AS400Structure implements AS400DataType
      **/
     public int getNumberOfMembers()
     {
-     return (this.elements == null) ?
+     return (this.elements_ == null) ?
        -1 :
-       this.elements.length;
+       this.elements_.length;
     }
 
     /**
@@ -161,7 +162,7 @@ public class AS400Structure implements AS400DataType
      **/
     public AS400DataType[] getMembers()
     {
-     AS400DataType[] myMembers = this.elements;
+     AS400DataType[] myMembers = this.elements_;
 
      if (myMembers == null) return null;  // if elements unset, return null
 
@@ -182,11 +183,11 @@ public class AS400Structure implements AS400DataType
      **/
     public AS400DataType getMembers(int index)
     {
-     if (this.elements == null)
+     if (this.elements_ == null)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_SET);
      }
-     return (AS400DataType)this.elements[index].clone();  // only return clones, let this line throw ArrayIndexExceptions
+     return (AS400DataType)this.elements_[index].clone();  // only return clones, let this line throw ArrayIndexExceptions
     }
 
     /**
@@ -195,7 +196,7 @@ public class AS400Structure implements AS400DataType
      **/
     public void setMembers(AS400DataType[] members)
     {
-     if (!this.allowChanges)
+     if (!this.allowChanges_)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
      }
@@ -205,7 +206,7 @@ public class AS400Structure implements AS400DataType
          // only store clones
          newMembers[i] = (AS400DataType)members[i].clone();  // let this line throw NullPointerException
      }
-     this.elements = newMembers;
+     this.elements_ = newMembers;
     }
 
     /**
@@ -215,16 +216,16 @@ public class AS400Structure implements AS400DataType
      **/
     public void setMembers(int index, AS400DataType member)
     {
-     if (!this.allowChanges)
+     if (!this.allowChanges_)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
      }
      // check state
-     if (this.elements == null)
+     if (this.elements_ == null)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_SET);
      }
-     this.elements[index] = (AS400DataType)member.clone();  // only store clones, let this line throw ArrayIndexException
+     this.elements_[index] = (AS400DataType)member.clone();  // only store clones, let this line throw ArrayIndexException
     }
 
     /**
@@ -259,14 +260,14 @@ public class AS400Structure implements AS400DataType
      **/
     public int toBytes(Object javaValue, byte[] as400Value, int offset)
     {
-     AS400DataType[] elementIterator = this.elements;
+     AS400DataType[] elementIterator = this.elements_;
 
      // Check for valid state
      if (elementIterator == null)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_SET);
      }
-     this.allowChanges = false;;  // Check before setting so don't have unfixable object
+     this.allowChanges_ = false;;  // Check before setting so don't have unfixable object
 
      int numElements = elementIterator.length;
      Object[] arrayValue = (Object[])javaValue;  // let this line to throw ClassCastException
@@ -301,13 +302,13 @@ public class AS400Structure implements AS400DataType
      **/
     public Object toObject(byte[] as400Value, int offset)
     {
-     AS400DataType[] elementIterator = this.elements;
+     AS400DataType[] elementIterator = this.elements_;
      // Check for valid state
      if (elementIterator == null)
      {
          throw new ExtendedIllegalStateException("Members", ExtendedIllegalStateException.PROPERTY_NOT_SET);
      }
-     this.allowChanges = false;  // Check before setting so don't have unfixable object
+     this.allowChanges_ = false;  // Check before setting so don't have unfixable object
      int numElements = elementIterator.length;
 
      Object[] returnArray = new Object[numElements];

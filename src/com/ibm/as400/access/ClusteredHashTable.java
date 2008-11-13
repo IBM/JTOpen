@@ -92,8 +92,6 @@ Note: This class uses APIs that are available only when connecting to systems ru
 public class ClusteredHashTable
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
   /**
      Constants
   **/
@@ -387,8 +385,11 @@ implements java.io.Serializable
 
     if (lastModifiedProfile != null && lastModifiedProfile.length() < 10)
     {
-      for (int i = lastModifiedProfile.length(); i < 10; ++i)
-        lastModifiedProfile += " ";
+      StringBuffer buf = new StringBuffer(lastModifiedProfile);
+      for (int i = lastModifiedProfile.length(); i < 10; ++i) {
+        buf.append(" ");
+      }
+      lastModifiedProfile = buf.toString();
     }
 
     if (!connected_)

@@ -363,7 +363,11 @@ class ArabicOptionSet
     public boolean equals(ArabicOptionSet other)
     {
         if (other == null)  return false;
-        return this.value == other.value;
+        return ((this.getLamAlefMode()  == other.getLamAlefMode()) &&
+                (this.getSeenMode()     == other.getSeenMode()) &&
+                (this.getYehHamzaMode() == other.getYehHamzaMode()) &&
+                (this.getTashkeelMode() == other.getTashkeelMode()));
+
     }
 
 /**

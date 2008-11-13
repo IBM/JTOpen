@@ -45,9 +45,6 @@ import java.io.Serializable;
  **/
 public class CommandList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 6L;
 
     /**
@@ -193,16 +190,16 @@ public class CommandList implements Serializable
             us.create(140, true, " ", (byte)0, "", "*ALL");
 
             CharConverter conv37_ = new CharConverter(37);
-            String commandString = cmd_.toUpperCase().trim();
-            while (commandString.length() < 10) commandString += ' ';
-            String libraryString = lib_.toUpperCase().trim();
-            while (libraryString.length() < 10) libraryString += ' ';
+            StringBuffer commandString = new StringBuffer(cmd_.toUpperCase().trim());
+            while (commandString.length() < 10) commandString.append(' ');
+            StringBuffer libraryString = new StringBuffer(lib_.toUpperCase().trim());
+            while (libraryString.length() < 10) libraryString.append(' ');
 
             // Create the program parameters for the list object program call.
             ProgramParameter[] parms = new ProgramParameter[]
             {
                 parm0_, parm1_,
-                new ProgramParameter(conv37_.stringToByteArray(commandString+libraryString)),
+                new ProgramParameter(conv37_.stringToByteArray(commandString.toString()+libraryString.toString())),
                 parm3_, parm4_
             };
 

@@ -22,8 +22,6 @@ import java.io.UnsupportedEncodingException;
  **/
 public class AS400Text implements AS400DataType
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     private int length_;
@@ -31,7 +29,7 @@ public class AS400Text implements AS400DataType
     transient private String encoding_ = null;
     private AS400 system_;
     transient ConverterImpl tableImpl_;
-    private static final String defaultValue = "";
+    private static final String defaultValue_ = "";
     private byte[] padding_ = null;
 
     /**
@@ -203,7 +201,7 @@ public class AS400Text implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-        return new String(defaultValue);
+        return defaultValue_;
     }
 
     /**
@@ -422,7 +420,7 @@ public class AS400Text implements AS400DataType
         if (eValue.length > length_)
         {
             Trace.log(Trace.ERROR, "Length of parameter 'javaValue' is not valid: '" + javaValue + "'");
-            throw new ExtendedIllegalArgumentException("javaValue (" + toConvert.toString() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("javaValue (" + toConvert + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         // Let this line throw ArrayIndexException.
         System.arraycopy(eValue, 0, serverValue, offset, eValue.length);

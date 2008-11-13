@@ -20,8 +20,6 @@ import java.util.Hashtable;
 
 final class AS400ThreadedServer extends AS400Server implements Runnable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     private static int threadCount = 0;
 
     private AS400ImplRemote system_;
@@ -44,18 +42,20 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     // Vectors are slow, but Object arrays are big, so we implement our own hashtables to compromise.
     private final ReplyList replyList_ = new ReplyList();
 
-    private final class DataStreamCollection
+    private static final class DataStreamCollection
     {
         DataStream[] chain_;
         DataStreamCollection(DataStream ds)
         {
             chain_ = new DataStream[] { ds };
         }
-    };
+    }
 
-    private final class ReplyList
+    private static final class ReplyList
     {
         final DataStreamCollection[] streams_ = new DataStreamCollection[16];
+        private DiscardList discardList_;
+
 
         final void add(DataStream ds)
         {
@@ -121,13 +121,20 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 return null;
             }
         }
+
+        void setDiscardList(DiscardList discardList)
+        {
+          discardList_ = discardList;
+        }
     };
 
     private final DiscardList discardList_ = new DiscardList();
 
-    private final class DiscardList
+    private static final class DiscardList
     {
         int[] ids_ = new int[8];
+        final Object idsLock_ = new Object();
+        private ReplyList replyList_;
 
         final void add(int correlation)
         {
@@ -138,9 +145,9 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 ClassDecoupler.freeDBReplyStream(ds);
                 return;
             }
-            synchronized (ids_)
+            synchronized (idsLock_)
             {
-                int max = ids_.length;
+                final int max = ids_.length;
                 for (int i = 0; i < max; ++i)
                 {
                     if (ids_[i] == 0)
@@ -158,8 +165,8 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
         final boolean remove(int correlation)
         {
-            int max = ids_.length;
-            for (int i = 0; i < ids_.length; ++i)
+            final int max = ids_.length;
+            for (int i = 0; i < max; ++i)
             {
                 if (ids_[i] == correlation)
                 {
@@ -168,6 +175,11 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 }
             }
             return false;
+        }
+
+        void setReplyList(ReplyList replyList)
+        {
+          replyList_ = replyList;
         }
     }
 
@@ -187,6 +199,9 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         outStream_ = socket_.getOutputStream();
 
         replyStreams_ = AS400Server.replyStreamsHashTables[service];
+
+        discardList_.setReplyList(replyList_);
+        replyList_.setDiscardList(discardList_);
 
         readDaemon_ = new Thread(this, "AS400 Read Daemon-" + (++threadCount));
         readDaemon_.setDaemon(true);
