@@ -848,6 +848,14 @@ public class ToolboxJarMaker extends JarMaker
         }
       }
 
+      if (excludeJDBC_ && excludeRLA_)
+      {
+        addElement(dependenciesToExclude_, "com/ibm/as400/access/ClassDecoupler.class");
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding dependency: " + "com/ibm/as400/access/ClassDecoupler.class");
+        }
+      }
+
       // If SystemValue isn't on the components list,
       // and the required files list contains no file named com/ibm/as400/access/SystemValue*,
       // then exclude SV* classes.
@@ -2350,14 +2358,9 @@ public class ToolboxJarMaker extends JarMaker
       }
       else System.exit(1);
     }
-    catch (Exception e) {
+    catch (Throwable e) {
       System.err.println(e.toString());
-      if (DEBUG) e.printStackTrace(System.err);
-      System.exit(1);
-    }
-    catch (Error e) {
-      System.err.println(e.toString());
-      if (DEBUG) e.printStackTrace(System.err);
+      e.printStackTrace(System.err);
       System.exit(1);
     }
 
