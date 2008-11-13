@@ -25,11 +25,6 @@ import java.io.UnsupportedEncodingException;
 **/
 class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-    private ProgramCall pgmCall_;
-
 
  //********************************************************************/
  //* methods for remote invocation                                    */
@@ -83,18 +78,18 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       BinaryConverter.intToByteArray(-1, retcodeB, 0);
       parmlist[6] = new ProgramParameter(retcodeB, 4 );
 
-      pgmCall_ = new ProgramCall(system_);
+      ProgramCall pgmCall = new ProgramCall(system_);
       try {
-	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
+	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall_.setThreadSafe(true);  //@A1A
+      pgmCall.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
-      if(pgmCall_.run() != true)
+      if(pgmCall.run() != true)
       {
-	  AS400Message[] messagelist = pgmCall_.getMessageList();
+	  AS400Message[] messagelist = pgmCall.getMessageList();
 	  cpfError_ = messagelist[0].toString();
 	  return -1;
       }
@@ -111,9 +106,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      if (-1 == rc) return rc;
 	      //get cpf error id
 	      errorInfoB = parmlist[5].getOutputData();
-	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0);
-	      //trim off white space
-	      cpfError_.trim();
+	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
       }
@@ -177,18 +170,18 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       BinaryConverter.intToByteArray(-1, retcodeB, 0);
       parmlist[7] = new ProgramParameter(retcodeB, 4 );
 
-      pgmCall_ = new ProgramCall(system_);
+      ProgramCall pgmCall = new ProgramCall(system_);
       try {
-	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
+	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall_.setThreadSafe(true);  //@A1A
+      pgmCall.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
-      if(pgmCall_.run() != true)
+      if(pgmCall.run() != true)
       {
-	  AS400Message[] messagelist = pgmCall_.getMessageList();
+	  AS400Message[] messagelist = pgmCall.getMessageList();
 	  cpfError_ = messagelist[0].toString();
 	  return -1;
       }
@@ -205,9 +198,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      if (-1 == rc) return rc;
 	      //get cpf error id
 	      errorInfoB = parmlist[6].getOutputData();
-	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0);
-	      //trim off white space
-	      cpfError_.trim();
+	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
       }
@@ -355,21 +346,21 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       BinaryConverter.intToByteArray(-1, retcodeB, 0);
       parmlist[9] = new ProgramParameter(retcodeB, 4 );
 
-      pgmCall_ = new ProgramCall(system_);
+      ProgramCall pgmCall = new ProgramCall(system_);
       try {
-	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
+	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall_.setThreadSafe(true);  //@A1A
+      pgmCall.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
-      if(pgmCall_.run() != true)
+      if(pgmCall.run() != true)
       {
 
 	  numberCertificatesFound_ = 0;
 
-	  AS400Message[] messagelist = pgmCall_.getMessageList();
+	  AS400Message[] messagelist = pgmCall.getMessageList();
 	  cpfError_ = messagelist[0].toString();
 	  return -1;
 
@@ -388,9 +379,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      if (-1 == rc) return rc;
 	      //get cpf error id
 	      errorInfoB = parmlist[8].getOutputData();
-	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0);
-	      //trim off white space
-	      cpfError_.trim();
+	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
 
@@ -463,18 +452,18 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       BinaryConverter.intToByteArray(-1, retcodeB, 0);
       parmlist[8] = new ProgramParameter(retcodeB, 4 );
 
-      pgmCall_ = new ProgramCall(system_);
+      ProgramCall pgmCall = new ProgramCall(system_);
       try {
-	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
+	  pgmCall.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall_.setThreadSafe(true);  //@A1A
+      pgmCall.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
-      if(pgmCall_.run() != true)
+      if(pgmCall.run() != true)
       {
-	  AS400Message[] messagelist = pgmCall_.getMessageList();
+	  AS400Message[] messagelist = pgmCall.getMessageList();
 	  cpfError_ = messagelist[0].toString();
 	  return -1;
       }
@@ -491,9 +480,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      if (-1 == rc) return rc;
 	      //get cpf error id
 	      errorInfoB = parmlist[7].getOutputData();
-	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0);
-	      //trim off white space
-	      cpfError_.trim();
+	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
 
