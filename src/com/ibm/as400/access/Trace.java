@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.StringTokenizer;                                   // $D0A
 import java.util.Hashtable;                                         // $W1A
 import java.util.Vector;
+import java.util.Enumeration;
 
 /**
   The Trace class logs trace points and diagnostic messages.  Each trace
@@ -331,6 +332,25 @@ public class Trace
   // This is only here to prevent the user from constructing a Trace object.
   private Trace()
   {
+  }
+
+  protected void finalize() throws Throwable
+  {
+    try
+    {
+      if (printWriterHash != null && !printWriterHash.isEmpty()) {
+        // close all the PrintWriters in the hash table.
+        Enumeration writers = printWriterHash.elements();
+        while (writers.hasMoreElements()) {
+          PrintWriter writer = (PrintWriter)writers.nextElement();
+          try { writer.close(); } catch (Throwable t) {}
+        }
+      }
+    }
+
+    finally {
+      super.finalize();
+    }
   }
 
   /**
@@ -1031,7 +1051,7 @@ public class Trace
       if (message == null)                             //@D2a
         throw new NullPointerException("message");    //@D2a
 
-      log(category, message + "  " + data);
+      log(category, message + "  " + "(null)");
     }
     else
     {
@@ -1059,7 +1079,7 @@ public class Trace
       if (message == null)                             //@D2a
         throw new NullPointerException("message");    //@D2a
 
-      log(component, category, message + "  " + data);
+      log(component, category, message + "  " + "(null)");
     }
     else
     {
