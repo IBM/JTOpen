@@ -918,26 +918,28 @@ public class JavaApplicationCall implements Serializable
         // 12. OPTION
 
         // 1.CLASS
-        String commandString = "JAVA CLASS(" + getJavaApplication() + ") ";
+        StringBuffer commandString = new StringBuffer("JAVA CLASS(" + getJavaApplication() + ") ");
         // 2.PARM
         String[] parm = getParameters();
         if (parm.length > 0)
         {
-            commandString += "PARM(";
-            for (int i = 0 ; i < parm.length; i++)
-                commandString = commandString + "'" + parm[i] + "' ";
-            commandString = commandString.trim(); // delete last space
-            commandString += ") ";
+            commandString.append("PARM(");
+            for (int i = 0 ; i < parm.length; i++) {
+                commandString.append("'" + parm[i] + "' ");
+            }
+            // delete last space
+            commandString.delete(commandString.length()-1, commandString.length());
+            commandString.append(") ");
         }
         // 3.CLASSPATH
         if (getClassPath().length() > 0)
-            commandString = commandString + "CLASSPATH('" + getClassPath() + "') ";
+            commandString.append("CLASSPATH('" + getClassPath() + "') ");
         // 4.CHKPATH
-        commandString += "CHKPATH(" + getSecurityCheckLevel() +") ";
+        commandString.append("CHKPATH(" + getSecurityCheckLevel() +") ");
         // 5.OPTIMIZE
-        commandString += "OPTIMIZE(" + getOptimization() + ") ";
+        commandString.append("OPTIMIZE(" + getOptimization() + ") ");
         // 6.INTERPRET
-        commandString += "INTERPRET(" + getInterpret() + ") ";
+        commandString.append("INTERPRET(" + getInterpret() + ") ");
         // 7.PROP
 
         String localAddress = null;                                         // @E1c
@@ -968,11 +970,11 @@ public class JavaApplicationCall implements Serializable
            }
         }                                                                   // @E1a
 
-        commandString = commandString + "PROP("
+        commandString.append("PROP("
                         +"(os400.stdin 'port:"+localAddress+":"+new Integer(getStandardInPort()).toString()+"') "
                         +"(os400.stdout 'port:"+localAddress+":"+new Integer(getStandardOutPort()).toString()+"') "
-                        +"(os400.stderr 'port:"+localAddress+":"+new Integer(getStandardErrorPort()).toString()+"') ";
-        commandString += "(os400.stdio.convert N)";
+                        +"(os400.stderr 'port:"+localAddress+":"+new Integer(getStandardErrorPort()).toString()+"') ");
+        commandString.append("(os400.stdio.convert N)");
 
         if (getProperties() != null)
         {
@@ -981,32 +983,34 @@ public class JavaApplicationCall implements Serializable
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
                 String value = (String)properties_.get(key);
-                commandString += " (" + key + " " + value + ")";
+                commandString.append(" (" + key + " " + value + ")");
             }
         }
 
-        commandString += ") ";
+        commandString.append(") ");
         // 8.GCHINL
-        Integer gc = new Integer(getGarbageCollectionInitialSize());
-        commandString += "GCHINL(" + gc.toString() + ") ";
+        commandString.append("GCHINL(" + getGarbageCollectionInitialSize() + ") ");
         // 9.GCHMAX
-        commandString += "GCHMAX(" + getGarbageCollectionMaximumSize() + ") ";
+        commandString.append("GCHMAX(" + getGarbageCollectionMaximumSize() + ") ");
         // 10.GCFRQ
-        gc = new Integer(getGarbageCollectionFrequency());
-        commandString += "GCFRQ(" + gc.toString() + ") ";
+        commandString.append("GCFRQ(" + getGarbageCollectionFrequency() + ") ");
         // 11.GCPTY
-        gc = new Integer(getGarbageCollectionPriority());
-        commandString += "GCPTY(" + gc.toString() + ") ";
+        commandString.append("GCPTY(" + getGarbageCollectionPriority() + ") ");
         // 12.OPTION
         String[] opt = getOptions();
-        commandString += "OPTION(";
-        for (int i = 0 ; i < opt.length; i++)
-            commandString = commandString + opt[i] + " ";
-        commandString.trim();
-        commandString += ") ";
+        if (opt.length > 0)
+        {
+          commandString.append("OPTION(");
+          for (int i = 0 ; i < opt.length; i++) {
+            commandString.append(opt[i] + " ");
+          }
+          // delete last space
+          commandString.delete(commandString.length()-1, commandString.length());
+          commandString.append(") ");
+        }
         // 13.JOB                                            @F0A
         if (as400_.getVRM() >= 0x00050300)  // New in V5R3M0 @F0A
-            commandString += "JOB(" + getJobName() +") "; // @F0A
+            commandString.append("JOB(" + getJobName() +") "); // @F0A
         //run the command
         boolean success = false;
 
@@ -1014,7 +1018,7 @@ public class JavaApplicationCall implements Serializable
 
         try
         {
-           success = command_.run(commandString);
+           success = command_.run(commandString.toString());
         }
         catch (PropertyVetoException e) {}
         finally
@@ -1195,7 +1199,7 @@ public class JavaApplicationCall implements Serializable
        <UL>
        <li>2048 The default initial size is 2048 kilobytes.
 
-       <li>heap-initial-size  The initial value of the garbage collection heap in
+       <li>heap-initial-size  The initial value of the garbage collection heap, in
                               kilobytes. We recommend that the initial heap size be
                               set to 2048 kilobytes (the default) or larger.
 
@@ -1207,27 +1211,34 @@ public class JavaApplicationCall implements Serializable
 
     public void setGarbageCollectionInitialSize(int size) throws PropertyVetoException
     {
-        if (size > 0)
+      if (size > 0)
+      {
+        if (Trace.traceOn_)
         {
-            int sizeValue = -1;
-            boolean nomax = false;
-            try
-            {
-                Integer i = new Integer(getGarbageCollectionMaximumSize());
-                sizeValue = i.intValue();
-            }
-            catch(NumberFormatException e)
-            {
-                nomax = true;
-            }
+          int sizeValue = -1;
+          boolean nomax = false;
+          try
+          {
+            sizeValue = Integer.parseInt(getGarbageCollectionMaximumSize());
+          }
+          catch(NumberFormatException e)
+          {
+            nomax = true;
+          }
 
-            int old = this.garbageCollectionInitialSize_;
-            vetoableChange_.fireVetoableChange("garbageCollectionInitialSize",new Integer(old),new Integer(size));
-            this.garbageCollectionInitialSize_ = size;
-            propertyChange_.firePropertyChange("garbageCollectionInitialSize",new Integer(old),new Integer(size));
+          if (!nomax && size > sizeValue)
+          {
+            Trace.log(Trace.WARNING , "Initial size ("+size+") exceeds specified maximum size (" + sizeValue + ")");
+          }
         }
-        else
-            throw new IllegalArgumentException("garbageCollectionInitialSize");
+
+        int old = this.garbageCollectionInitialSize_;
+        vetoableChange_.fireVetoableChange("garbageCollectionInitialSize",new Integer(old),new Integer(size));
+        this.garbageCollectionInitialSize_ = size;
+        propertyChange_.firePropertyChange("garbageCollectionInitialSize",new Integer(old),new Integer(size));
+      }
+      else
+        throw new IllegalArgumentException("garbageCollectionInitialSize");
     }
 
     /**
@@ -1259,11 +1270,9 @@ public class JavaApplicationCall implements Serializable
         {
             if (!size.toUpperCase().equalsIgnoreCase("*NOMAX"))
             {
-                int sizeValue = -1;
                 try
                 {
-                    Integer i = new Integer(size);
-                    sizeValue = i.intValue();
+                    Integer.parseInt(size);
                 }
                 catch(NumberFormatException e)
                 {

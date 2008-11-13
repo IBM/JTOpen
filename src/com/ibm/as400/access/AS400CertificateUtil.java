@@ -1246,9 +1246,9 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
       connected_ = false;
 
       // Reset the listeners.
-      PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-      VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-      Vector certListeners_ = new Vector();
+      changes_ = new PropertyChangeSupport(this);
+      vetos_ = new VetoableChangeSupport(this);
+      certListeners_ = new Vector();
 
       // Reset some flags.
       nextCertificateToReturn_ = 0;
