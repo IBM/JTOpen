@@ -480,20 +480,20 @@ final class ConnectionList
       log_.log(msg);
   }
 
-
-  /**
-   * Log an exception and message to the event log.
-   *
-   * @param   exception  The exception to log.
-   * @param   msg  The message to log.
-   **/
-  private void log(Exception exception, String msg)
-  {
-    if (Trace.isTraceOn())
-      Trace.log(Trace.ERROR, msg, exception);
-    if (log_ != null)
-      log_.log(msg, exception);
-  }
+  // Not used.
+  //  /**
+  //   * Log an exception and message to the event log.
+  //   *
+  //   * @param   exception  The exception to log.
+  //   * @param   msg  The message to log.
+  //   **/
+  //  private void log(Exception exception, String msg)
+  //  {
+  //    if (Trace.isTraceOn())
+  //      Trace.log(Trace.ERROR, msg, exception);
+  //    if (log_ != null)
+  //      log_.log(msg, exception);
+  //  }
 
 
   /**

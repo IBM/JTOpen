@@ -786,7 +786,7 @@ public class ObjectReferences
         }
     }
 
-    private final class SimpleObjectReferenceTypesStructure
+    private static final class SimpleObjectReferenceTypesStructure
     {
         // Read Only.
         long readOnly_;
@@ -836,7 +836,7 @@ public class ObjectReferences
         }
     }
 
-    private final class ExtendedObjectReferenceTypesStructure
+    private static final class ExtendedObjectReferenceTypesStructure
     {
         // Read Only, Share with Readers Only.
         long readOnlyShareWithReadersOnly_;
@@ -937,7 +937,7 @@ public class ObjectReferences
     /**
      Contains information about the jobs that are known to be holding a reference on the object.
      **/
-    public class JobUsingObjectStructure
+    public static class JobUsingObjectStructure
     {
         // Displacement to Next Job Entry.
         private int displacementToNextJobEntry_;
@@ -1335,7 +1335,7 @@ public class ObjectReferences
         private JobUsingObjectStructure(byte[] receiverVariable, int offset, Converter conv, int vrm)
         {
             int displacementToSimpleReferenceTypes = BinaryConverter.byteArrayToInt(receiverVariable, offset);
-            int lengthOfSimpleReferenceTypes = BinaryConverter.byteArrayToInt(receiverVariable, offset + 4);
+            //int lengthOfSimpleReferenceTypes = BinaryConverter.byteArrayToInt(receiverVariable, offset + 4);
             int displacementToExtendedReferenceTypes = BinaryConverter.byteArrayToInt(receiverVariable, offset + 8);
             int lengthOfExtendedReferenceTypes = BinaryConverter.byteArrayToInt(receiverVariable, offset + 12);
             displacementToNextJobEntry_ = BinaryConverter.byteArrayToInt(receiverVariable, offset + 16);
@@ -1365,7 +1365,7 @@ public class ObjectReferences
     /**
      Contains information about the sessions that are known to be holding a reference on the object.
      **/
-    public class SessionUsingObjectStructure
+    public static class SessionUsingObjectStructure
     {
         // Session identifier.
         private byte[] sessionIdentifier_;

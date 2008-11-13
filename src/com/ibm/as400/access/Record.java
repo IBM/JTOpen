@@ -72,9 +72,6 @@ import java.util.Vector;
 **/
 public class Record implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -417,6 +414,7 @@ public class Record implements Serializable
   **/
   public boolean equals(Object obj)
   {
+    if (obj == null) return false;
     try
     {
       Record cmp = (Record)obj;

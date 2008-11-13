@@ -51,10 +51,6 @@ commands GRTOBJAUT (Grant object authority) and EDTOBJAUT (Edit object authority
 
 public class QSYSPermission extends UserPermission
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-    
-
     static final long serialVersionUID = 4L;
 
 
@@ -250,9 +246,9 @@ public class QSYSPermission extends UserPermission
       String attribute = "*" + adjustLength(qsysObjPath.getObjectType(), 9);
       String qualObj   = adjustLength(qsysObjPath.getObjectName(), 10) + adjustLength(qsysObjPath.getLibraryName(), 10);
 
-      String authorities = "";
+      StringBuffer authorities = new StringBuffer();
       for (int i=0; i< authorityList.length; i++)
-        authorities += adjustLength(authorityList[i], 10);
+        authorities.append(adjustLength(authorityList[i], 10));
 
       try
       {
@@ -265,7 +261,7 @@ public class QSYSPermission extends UserPermission
         paramList[1] = new ProgramParameter(CharConverter.stringToByteArray(system, profile));
         paramList[2] = new ProgramParameter(CharConverter.stringToByteArray(system, qualObj));
         paramList[3] = new ProgramParameter(CharConverter.stringToByteArray(system, attribute));
-        paramList[4] = new ProgramParameter(CharConverter.stringToByteArray(system, authorities));
+        paramList[4] = new ProgramParameter(CharConverter.stringToByteArray(system, authorities.toString()));
         paramList[5] = new ProgramParameter(BinaryConverter.intToByteArray(authorityList.length)); // # of Authorities
         paramList[6] = new ProgramParameter(BinaryConverter.intToByteArray(1));  // Call Level
 

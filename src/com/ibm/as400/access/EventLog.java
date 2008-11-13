@@ -49,9 +49,6 @@ import java.lang.StringBuffer;
 
 public class EventLog implements Log
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
    private PrintWriter writer_;
 
    /**
@@ -115,6 +112,18 @@ public class EventLog implements Log
           writer_ = out;
      }
 
+
+   protected void finalize() throws Throwable
+   {
+     try {
+       if (writer_ != null) {
+         writer_.close();
+       }
+     }
+     finally {
+       super.finalize();
+     }
+   }
 
      /**
     * Logs a message to the event log.
