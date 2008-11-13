@@ -18,12 +18,8 @@ import java.io.Serializable;
 import java.io.IOException;
 
 class AS400FileRecordDescriptionImplProxy extends AbstractProxyImpl
-  implements AS400FileRecordDescriptionImpl,
-             Serializable
+  implements AS400FileRecordDescriptionImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
 
