@@ -266,9 +266,6 @@ java utilities.JarMaker -source myJar.jar
 
 public class JarMaker
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
   // Constants.
   static final boolean DEBUG                        = false;
   private static final boolean DEBUG_MANIFEST       = false;
@@ -677,7 +674,7 @@ public class JarMaker
 
    // Utility method to determine if an int array contains a specific value.
    // Assumes that the array is sorted in ascending order.
-  final static boolean contains(int[] list, int element)
+  static final boolean contains(int[] list, int element)
   {
     if (Arrays.binarySearch(list, element) >= 0) return true;
     else return false;
@@ -1926,7 +1923,7 @@ public class JarMaker
    @param  inStream           The input stream.
    @param  contextPackageName The package name for the referencing entry.
    @param  jarMap             A map of the JAR or ZIP file.
-   @returns The list of constant_pool indexes for class names, as Short's.
+   @returns The list of constant_pool indexes for class names, as Integer's.
 
    @exception IOException If an I/O error occurs when reading the JAR or ZIP file.
    **/
@@ -1945,17 +1942,17 @@ public class JarMaker
     DataInputStream dataInput = new DataInputStream(inStream);
 
     // Read the prefix information.
-    dataInput.readInt();       // Magic.
-    dataInput.readShort();     // Minor version.
-    dataInput.readShort();     // Major version.
+    skipBytes(dataInput, 4);     // Magic.
+    skipBytes(dataInput, 2);     // Minor version.
+    skipBytes(dataInput, 2);     // Major version.
 
     // Read the constant pool.  Constant pool indices are
     // numbered from 1 to constantPoolCount - 1.
-    short cpCount = dataInput.readShort();
+    int cpCount = dataInput.readUnsignedShort();
     if (DEBUG_CP)
       System.out.println("Constant pool count = " + cpCount);
 
-    for (short cpIndex = 1; cpIndex < cpCount; ++cpIndex)
+    for (int cpIndex = 1; cpIndex < cpCount; ++cpIndex)
     {
       // Read the tag.
       byte tag = dataInput.readByte();
@@ -1966,55 +1963,55 @@ public class JarMaker
       // for its class name, verify that this entry is a utf8 entry.
       if (DEBUG_CP &&
           (tag != 1) &&
-          (classIndexes.contains(new Short(cpIndex))))
+          (classIndexes.contains(new Integer(cpIndex))))
         System.err.println("Error: Class file format");
 
       // Decide what to do based on the tag.
       switch (tag)
       {
         case 1: // CONSTANT_Utf8
-          short length = dataInput.readShort();
-          dataInput.skipBytes(length);
+          int length = dataInput.readUnsignedShort();
+          skipBytes(dataInput, length);
           break;
 
         case 3: // CONSTANT_Integer
         case 4: // CONSTANT_Float
-          dataInput.skipBytes(4);    // Bytes.
+          skipBytes(dataInput, 4);    // Bytes.
           break;
 
         case 5: // CONSTANT_Long
         case 6: // CONSTANT_Double
-          dataInput.skipBytes(8);    // Bytes.
+          skipBytes(dataInput, 8);    // Bytes.
           ++cpIndex;                  // These take up 2 slots!
           break;
 
         case 7: // CONSTANT_Class
-          short nameIndex = dataInput.readShort();
+          int nameIndex = dataInput.readUnsignedShort();
           if (DEBUG_CP)
             System.out.println("Found class constant pointing to index "
                                 + nameIndex);
-          classIndexes.addElement(new Short(nameIndex));
+          classIndexes.addElement(new Integer(nameIndex));
           break;
 
         case 8: // CONSTANT_String
-          dataInput.skipBytes(2);    // String index.
+          skipBytes(dataInput, 2);    // String index.
           break;
 
         case 9: // CONSTANT_Fieldref
         case 10: // CONSTANT_Methodref
         case 11: // CONSTANT_InterfaceMethodref
-          dataInput.skipBytes(2);    // Class index.
-          dataInput.skipBytes(2);    // Name and type index.
+          skipBytes(dataInput, 2);    // Class index.
+          skipBytes(dataInput, 2);    // Name and type index.
           break;
 
         case 12: // CONSTANT_NameAndType
-          dataInput.skipBytes(2);    // Name index.
-          dataInput.skipBytes(2);    // Descriptor index.
+          skipBytes(dataInput, 2);    // Name index.
+          skipBytes(dataInput, 2);    // Descriptor index.
           break;
 
         default:
           if (DEBUG_CP)
-            System.out.println("Ignoring unrecognized tag during prescan: " + tag);
+            System.err.println("Ignoring unrecognized tag during prescan: " + tag);
           break;
       }
     }
@@ -2030,7 +2027,7 @@ public class JarMaker
    @param  packagePrefix The package prefix for the referencing entry.
    @param  jarMap        A map of the JAR or ZIP file.
    @param  classIndexes  The list of indices that contain references
-                         to classes.  List elements are Short objects.
+                         to classes.  List elements are Integer objects.
    @returns The output list of referenced classes (ZIP entry names), as String's.
 
    @exception IOException If an I/O error occurs when reading the JAR or ZIP file.
@@ -2050,16 +2047,16 @@ public class JarMaker
     DataInputStream dataInput = new DataInputStream(inStream);
 
     // Read the prefix information.
-    dataInput.readInt();       // Magic.
-    dataInput.readShort();     // Minor version.
-    dataInput.readShort();     // Major version.
+    skipBytes(dataInput, 4);     // Magic.
+    skipBytes(dataInput, 2);     // Minor version.
+    skipBytes(dataInput, 2);     // Major version.
 
     // Read the constant pool.  Constant pool indices are
     // numbered from 1 to constantPoolCount - 1.
-    short cpCount = dataInput.readShort();
+    int cpCount = dataInput.readUnsignedShort();
     if (DEBUG_CP)
       System.out.println("Constant pool count = " + cpCount);
-    for (short cpIndex = 1; cpIndex < cpCount; ++cpIndex)
+    for (int cpIndex = 1; cpIndex < cpCount; ++cpIndex)
     {
       // Read the tag.
       byte tag = dataInput.readByte();
@@ -2069,18 +2066,18 @@ public class JarMaker
       // If a "class" entry in the constant_pool pointed to this index
       // for its class name, verify that this entry is a utf8 entry.
       if (DEBUG_CP)
-        if ((tag != 1) && (classIndexes.contains(new Short(cpIndex))))
+        if ((tag != 1) && (classIndexes.contains(new Integer(cpIndex))))
           System.err.println("Error: Class file format");
 
       // Decide what to do based on the tag.
       switch (tag)
       {
         case 1: // CONSTANT_Utf8
-          short length = dataInput.readShort();
+          int length = dataInput.readUnsignedShort();
           if (length <= 0)
           {
             if (DEBUG_CP)
-              System.out.println("Bad length in apparent CONSTANT_Utf8: " + length);
+              System.err.println("Bad length in apparent CONSTANT_Utf8: " + length);
           }
           else
           {
@@ -2096,41 +2093,41 @@ public class JarMaker
 
         case 3: // CONSTANT_Integer
         case 4: // CONSTANT_Float
-          dataInput.skipBytes(4);    // Bytes.
+          skipBytes(dataInput, 4);    // Bytes.
           break;
 
         case 5: // CONSTANT_Long
         case 6: // CONSTANT_Double
-          dataInput.skipBytes(8);    // Bytes.
+          skipBytes(dataInput, 8);    // Bytes.
           ++cpIndex;                  // These take up 2 slots!
           break;
 
         case 7: // CONSTANT_Class
-          short nameIndex = dataInput.readShort();
+          int nameIndex = dataInput.readUnsignedShort();
           if (DEBUG_CP)
             System.out.println("Found class constant pointing to index "
                                 + nameIndex);
           break;
 
         case 8: // CONSTANT_String
-          dataInput.skipBytes(2);    // String index.
+          skipBytes(dataInput, 2);    // String index.
           break;
 
         case 9: // CONSTANT_Fieldref
         case 10: // CONSTANT_Methodref
         case 11: // CONSTANT_InterfaceMethodref
-          dataInput.skipBytes(2);    // Class index.
-          dataInput.skipBytes(2);    // Name and type index.
+          skipBytes(dataInput, 2);    // Class index.
+          skipBytes(dataInput, 2);    // Name and type index.
           break;
 
         case 12: // CONSTANT_NameAndType
-          dataInput.skipBytes(2);    // Name index.
-          dataInput.skipBytes(2);    // Descriptor index.
+          skipBytes(dataInput, 2);    // Name index.
+          skipBytes(dataInput, 2);    // Descriptor index.
           break;
 
         default:
           if (DEBUG_CP)
-            System.out.println("Ignoring unrecognized tag: " + tag);
+            System.err.println("Ignoring unrecognized tag: " + tag);
           break;
       }
     }
@@ -2150,7 +2147,7 @@ public class JarMaker
    @returns The name of the referenced ZIP entry name.
    <code>null</code> if a corresponding ZIP entry was not found in source file.
    **/
-  private String processUtf8(short cpIndex,
+  private String processUtf8(int cpIndex,
                             String literal,
                             Vector classIndexes,
                             String contextPackageName,
@@ -2161,7 +2158,7 @@ public class JarMaker
 
     // If this index was flagged as one with a CONSTANT_class
     // structure, then it is a referenced class.
-    if (classIndexes.contains(new Short(cpIndex)))
+    if (classIndexes.contains(new Integer(cpIndex)))
     {
       // Also verify that the class is in the source file, and
       // not the JDK or some primitive class like [[B (byte array).
@@ -2241,7 +2238,7 @@ public class JarMaker
       {
         int endIndex = 80;  // just print out the first 80 chars
         if (literal.length() < 80) endIndex = literal.length();
-        System.out.println("processUtf8: Ignoring reference: " +
+        System.err.println("processUtf8: Ignoring reference: " +
                             literal.substring(0,endIndex));
       }
     }
@@ -2578,6 +2575,16 @@ public class JarMaker
    otherwise turn verbose mode off.
    **/
   public void setVerbose(boolean verbose) { verbose_ = verbose; }
+
+
+  private static final void skipBytes(DataInputStream dataInput, int length)
+    throws IOException
+  {
+    int bytesSkipped = dataInput.skipBytes(length);
+    if (bytesSkipped != length) {
+      throw new IOException("Fewer bytes skipped ("+bytesSkipped+") than specified ("+length+").");
+    }
+  }
 
 
   /**
@@ -3124,14 +3131,9 @@ public class JarMaker
       }
       else System.exit(1);
     }
-    catch (Exception e) {
+    catch (Throwable e) {
       System.err.println(e.toString());
-      if (DEBUG) e.printStackTrace(System.err);
-      System.exit(1);
-    }
-    catch (Error e) {
-      System.err.println(e.toString());
-      if (DEBUG) e.printStackTrace(System.err);
+      e.printStackTrace(System.err);
       System.exit(1);
     }
 
