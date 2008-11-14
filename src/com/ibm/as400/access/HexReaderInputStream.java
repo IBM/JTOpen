@@ -25,8 +25,6 @@ import java.io.*;
 **/
 class HexReaderInputStream extends InputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private Reader reader_;
   private boolean cached_ = false;
   private char cachedChar_;
@@ -53,12 +51,12 @@ class HexReaderInputStream extends InputStream
     if (cached_)
     {
       cached_ = false;
-      char lo = (char)reader_.read();
+      int lo = reader_.read();
       if (lo == -1) return -1;
 
       try
       {
-          return BinaryConverter.charsToByte(cachedChar_, lo);
+          return BinaryConverter.charsToByte(cachedChar_, (char)lo);
       }
       catch(NumberFormatException e)
       {
@@ -67,14 +65,14 @@ class HexReaderInputStream extends InputStream
     }
     else
     {
-      char hi = (char)reader_.read();
+      int hi = reader_.read();
       if (hi == -1) return -1;
-      char lo = (char)reader_.read();
+      int lo = reader_.read();
       if (lo == -1) return -1;
 
       try
       {
-          return BinaryConverter.charsToByte(hi, lo);
+          return BinaryConverter.charsToByte((char)hi, (char)lo);
       }
       catch(NumberFormatException e)
       {
@@ -95,11 +93,11 @@ class HexReaderInputStream extends InputStream
     if (cached_)
     {
       cached_ = false;
-      char lo = (char)reader_.read();
+      int lo = reader_.read();
       if (lo == -1) return -1;
       try
       {
-          b[off] = BinaryConverter.charsToByte(cachedChar_, lo);
+          b[off] = BinaryConverter.charsToByte(cachedChar_, (char)lo);
       }
       catch(NumberFormatException e)
       {
@@ -111,6 +109,7 @@ class HexReaderInputStream extends InputStream
     {
       char[] buf = new char[len*2];
       int numRead = reader_.read(buf);
+      if (numRead == -1) return -1;
       if (numRead % 2 == 1)
       {
         cached_ = true;
