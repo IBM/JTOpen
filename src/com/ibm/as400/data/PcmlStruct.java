@@ -21,9 +21,6 @@ import java.io.OutputStream;
 
 class PcmlStruct extends PcmlDocNode
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
     /***********************************************************
      Static Members
     ***********************************************************/
@@ -909,10 +906,7 @@ class PcmlStruct extends PcmlDocNode
             }
 
             // Add the base value to the offset value
-            if (myOffsetbase instanceof Integer)
-            {
-                myOffset = myOffset + myOffsetbase.intValue();
-            }
+            myOffset = myOffset + myOffsetbase.intValue();
 
             // If the total offset value is greater than the current
             // offset into the input byte array, calculate the

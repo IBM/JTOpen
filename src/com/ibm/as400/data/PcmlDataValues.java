@@ -32,8 +32,6 @@ import java.util.StringTokenizer;
 
 class PcmlDataValues extends Object implements Serializable         // @C1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = -8169008879805188674L;	    // @C1A
 
     private PcmlData m_owner;      // PcmlData node that owns this object
@@ -617,14 +615,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 }                                                   // @A1A
             }
             
-            if (myOffsetbase instanceof Integer)
+            myOffset = myOffset + myOffsetbase.intValue();
+            // Handle errors caused by bad offset values
+            if (myOffset < 0 || myOffset > bytes.length)
             {
-                myOffset = myOffset + myOffsetbase.intValue();
-                // Handle errors caused by bad offset values
-                if (myOffset < 0 || myOffset > bytes.length)
-                {
-                    throw new PcmlException(DAMRI.BAD_TOTAL_OFFSET, new Object[] {new Integer(myOffset), new Integer(bytes.length), myOffsetbase, myOffsetfrom, "<data>", getNameForException()} );
-                }
+              throw new PcmlException(DAMRI.BAD_TOTAL_OFFSET, new Object[] {new Integer(myOffset), new Integer(bytes.length), myOffsetbase, myOffsetfrom, "<data>", getNameForException()} );
             }
             
             // If offset for this element is beyond current offset

@@ -80,8 +80,6 @@ import org.xml.sax.SAXException;                                    //@E1A
  */
 public class ProgramCallDocument implements Serializable, Cloneable
 {                                                                   // @C1C @C3C
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = -1836686444079106483L;	    // @C1A
 
     /**
@@ -1526,7 +1524,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
       throws IOException, XmlException
     {
       if (fileName == null) {
-        throw new NullPointerException(fileName);
+        throw new NullPointerException("fileName");
       }
       FileOutputStream fos = null;
       try
@@ -1560,10 +1558,10 @@ public class ProgramCallDocument implements Serializable, Cloneable
       throws IOException, XmlException
     {
       if (fileName == null) {
-        throw new NullPointerException(fileName);
+        throw new NullPointerException("fileName");
       }
       if (pgmName == null) {
-        throw new NullPointerException(pgmName);
+        throw new NullPointerException("pgmName");
       }
       FileOutputStream fos = null;
       try
@@ -1628,11 +1626,11 @@ public class ProgramCallDocument implements Serializable, Cloneable
     	{
 
            if (pcmlStream == null) {
-             throw new NullPointerException();
+             throw new NullPointerException("pcmlStream");
            }
 
            if (xpcmlStream == null) {
-             throw new NullPointerException();
+             throw new NullPointerException("xpcmlStream");
            }
 
            // Transform the PCML document to its equivalent XPCML document
@@ -1659,19 +1657,19 @@ public class ProgramCallDocument implements Serializable, Cloneable
            String xpcmlName="";
 
            if (fullStream == null) {
-             throw new NullPointerException();
+             throw new NullPointerException("fullStream");
            }
 
            if (xsdStream == null) {
-             throw new NullPointerException();
+             throw new NullPointerException("xsdStream");
            }
 
            if (condensedStream == null) {
-             throw new NullPointerException();
+             throw new NullPointerException("condensedStream");
            }
 
            if (xsdStreamName == null) {
-             throw new NullPointerException();
+             throw new NullPointerException("xsdStreamName");
            }
 
 

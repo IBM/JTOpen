@@ -27,8 +27,6 @@ import com.ibm.as400.access.Trace;                          // @A2A
  */
 public class PcmlMessageLog
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     private static String       m_logFileName = null;
     private static OutputStream m_outputStream;
     private static PrintWriter  m_logTarget;
@@ -336,16 +334,16 @@ public class PcmlMessageLog
     {
         int bytes, offset;
         String offStr;
-        String cp37Str;
-        String byteString;                                          // @A2A
+        StringBuffer cp37Str;
+        StringBuffer byteString;                                  // @A2A
         
         if (ba == null)
             return;
             
         bytes = ba.length;
         offset = 0;
-        cp37Str = "";
-        byteString = "";
+        cp37Str = new StringBuffer();
+        byteString = new StringBuffer();
         while (offset < bytes) 
         {
             if ((offset % 32) == 0)
@@ -356,18 +354,18 @@ public class PcmlMessageLog
                 }
                 else
                 {
-                    byteString = byteString + " *" + cp37Str + "*";
-                    Trace.log(Trace.PCML, byteString);                // @A2C
-                    cp37Str = "";
-                    byteString = "";
+                    byteString.append(" *" + cp37Str.toString() + "*");
+                    Trace.log(Trace.PCML, byteString.toString());      // @A2C
+                    cp37Str.setLength(0);
+                    byteString.setLength(0);
                 }
                     
                 offStr = "      " + Integer.toHexString(offset);
                 offStr = offStr.substring(offStr.length() - 6);
-                byteString = byteString + offStr + " : ";
+                byteString.append(offStr + " : ");
             }
-            byteString = byteString + byteArrayToHexString(ba, offset, 4) + " ";
-            cp37Str = cp37Str + byteArrayToCP37String(ba, offset, 4);
+            byteString.append(byteArrayToHexString(ba, offset, 4) + " ");
+            cp37Str.append(byteArrayToCP37String(ba, offset, 4));
             offset = offset + 4;
 
         }
@@ -378,21 +376,21 @@ public class PcmlMessageLog
             // 'overshot' the number of bytes.
             for (int b = bytes; b < offset; b++)
             {
-                byteString = byteString + "  ";
-                cp37Str = cp37Str + " ";
+                byteString.append("  ");
+                cp37Str.append(" ");
             }
             // Now pad the line to a multiple of 32 bytes so the
             // character dump on the right side is lined up.
             while ((offset % 32) != 0)
             {
-                byteString = byteString + "         ";
-                cp37Str = cp37Str + "    ";
+                byteString.append("         ");
+                cp37Str.append("    ");
                 offset = offset + 4;
             }
-            byteString = byteString + " *" + cp37Str + "*";
-            Trace.log(Trace.PCML, byteString);                // @A2C
-            byteString = "";
-            cp37Str = "";
+            byteString.append(" *" + cp37Str.toString() + "*");
+            Trace.log(Trace.PCML, byteString.toString());                // @A2C
+            byteString.setLength(0);
+            cp37Str.setLength(0);
         }
         
     }

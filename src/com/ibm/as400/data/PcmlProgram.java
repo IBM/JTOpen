@@ -38,9 +38,6 @@ import java.util.Vector;
 */
 class PcmlProgram extends PcmlDocNode
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 7278339230268347333L;
 
     private static final String PROGRAMATTRIBUTES[] = {
@@ -777,8 +774,7 @@ class PcmlProgram extends PcmlDocNode
             // If this child (parameter) has an output buffer
             // parse the bytes into its fields
             // Data is not converted to Java objects until the value is requested.
-            if ( childParms[childNbr] instanceof ProgramParameter
-              && childParms[childNbr].getOutputDataLength() > 0)    // @A1C
+            if (childParms[childNbr].getOutputDataLength() > 0)    // @A1C
             {
                 bytes = childParms[childNbr].getOutputData();       // @A1C
 

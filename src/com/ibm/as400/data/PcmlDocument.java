@@ -58,8 +58,6 @@ import com.ibm.as400.access.BinaryConverter;
 */
 class PcmlDocument extends PcmlDocRoot
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     // Used for XPCML testing
     boolean compareSucceeded=true;
 
@@ -2470,7 +2468,6 @@ class PcmlDocument extends PcmlDocRoot
                countVal = ((PcmlStruct)node).getXPCMLCount(dim);
                 else
                    countVal = 0;
-          int countV=countVal-node.getCountReps();
           dimensions.set(current_dimension, (countVal - node.getCountReps()));
           copyValues(root, node, num_dimensions, current_dimension, dimensions, struct, structR, count);
         }

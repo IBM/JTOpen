@@ -28,9 +28,6 @@ import java.util.StringTokenizer;
 
 class PcmlData extends PcmlDocNode
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
     /***********************************************************
      Static Members
     ***********************************************************/
@@ -273,10 +270,8 @@ class PcmlData extends PcmlDocNode
 	// due to the recursive nature of deserialization.
     void readObjectPostprocessing()                                 // @C1A
     {                                                               // @C1A
-        if (m_scalarValue instanceof PcmlDataValues)                // @C1A
-            m_scalarValue.readObjectPostprocessing();               // @C1A
-        if (m_vectorValue instanceof PcmlDataVector)                // @C1A
-            m_vectorValue.readObjectPostprocessing();               // @C1A
+        m_scalarValue.readObjectPostprocessing();               // @C1A
+        m_vectorValue.readObjectPostprocessing();               // @C1A
 
         super.readObjectPostprocessing();                           // @C1A
     }                                                               // @C1A
@@ -1105,10 +1100,7 @@ class PcmlData extends PcmlDocNode
                 }
 
                 // Add the base value to the offset value
-                if (myOffsetbase instanceof Integer)                    // @C8A
-                {
-                    myOffset = myOffset + myOffsetbase.intValue();      // @C8A
-                }
+                myOffset = myOffset + myOffsetbase.intValue();      // @C8A
 
                 // If the total offset value is greater than the current
                 // offset into the input byte array, calculate the

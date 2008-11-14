@@ -50,10 +50,6 @@ import com.ibm.as400.access.Trace;
 
 class PcmlSAXParser extends DefaultHandler
 {
-
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   private transient PcmlDocument m_rootNode;
   private transient PcmlDocNode  m_currentNode;
   private transient String       m_docName;
@@ -73,7 +69,7 @@ class PcmlSAXParser extends DefaultHandler
 
   // @E1A -- isXPCML - is the document an XPCML doc vs a PCML doc?
   private boolean isXPCML = false;                 //@E1A
-  private String xsdStreamName;                    //@E1A     // Used to determine if this is first instance of this node or if its an array
+  //private String xsdStreamName;                    //@E1A     // Used to determine if this is first instance of this node or if its an array
   private boolean firstInstance=true;              //@E1A 
   /** xsd transformed as a byte array input and output stream **/
   ByteArrayOutputStream xmlOut = new ByteArrayOutputStream();
@@ -116,12 +112,12 @@ class PcmlSAXParser extends DefaultHandler
 
     xsdFileStream = xsdStream;  // xsd stream holder @E1A
 
-    xsdStreamName="";
+    //xsdStreamName="";
 
 
     // initialize parsing vectors
     curAttrs.add(0,new AttributesImpl());
-    curQName.add(0,new String(""));
+    curQName.add(0,"");
 
     // Save the document name
     if (docName.endsWith(".pcml") || docName.endsWith(".pcmlsrc") ||
@@ -323,13 +319,13 @@ class PcmlSAXParser extends DefaultHandler
 
     xsdFileStream = xsdStream;  // xsd stream holder @E1A
 
-    xsdStreamName="";
+    //xsdStreamName="";
 
     this.isXPCML = isXPCML;         // Fix for JTOpen Bug 1778759 - set the global isXPCML variable
 
     // initialize parsing vectors
     curAttrs.add(0,new AttributesImpl());
-    curQName.add(0,new String(""));
+    curQName.add(0,"");
 
     // Save the document name
     if (docName.endsWith(".pcml") || docName.endsWith(".pcmlsrc") ||
@@ -347,7 +343,7 @@ class PcmlSAXParser extends DefaultHandler
     // @E1A -- Changes for XPCML.  First find out if document is XPCML.  Then setup SequenceInputStream
     // for PCML doc and BufferedInputStream for XPCML docs.
     //    isXPCML = SystemResourceFinder.isXPCML(docName,loader);     //@E1A
-    InputStream isHeader=null, isPCML=null;                       //@E1A
+    InputStream isHeader=null;                       //@E1A
     SequenceInputStream sis=null;                               //@E1A
     BufferedInputStream bis=null;                               //@E1A
 
@@ -459,10 +455,10 @@ class PcmlSAXParser extends DefaultHandler
       // Close the input stream -- @E1C - moved to above
       //@E1D        sis.close();
       //@E1D        sis = null;
-      if (isPCML != null) {
-        isPCML.close();
-        isPCML = null;
-      }
+      //if (isPCML != null) {
+      //  isPCML.close();
+      //  isPCML = null;
+      //}
 
       // Check for errors
       ParseException exc = xh.getException();
@@ -509,9 +505,9 @@ class PcmlSAXParser extends DefaultHandler
       if (isHeader != null) {
         try { isHeader.close(); } catch (Exception e) {};
       }
-      if (isPCML != null) {
-        try { isPCML.close(); } catch (Exception e) {};
-      }
+      //if (isPCML != null) {
+      //  try { isPCML.close(); } catch (Exception e) {};
+      //}
       if (sis != null) {
         try { sis.close(); } catch (Exception e) {};
       }
@@ -1027,7 +1023,7 @@ class PcmlSAXParser extends DefaultHandler
           dimensions.set(curDim, dimensions.at(curDim)+1);
         }
         curList = new AttributesImpl( (AttributesImpl) curAttrs.elementAt(curDim));
-        curName=  new String((String) curQName.elementAt(curDim));
+        curName = (String)curQName.elementAt(curDim);
       }
       else
       {
@@ -1506,8 +1502,7 @@ class PcmlSAXParser extends DefaultHandler
           if (m_currentNode.getAttributeValue("type").equals("byte"))
           {
             // Need to convert hex input to bytes
-            byte[] byteA = new byte[initValue.length()/2];
-            byteA = BinaryConverter.stringToBytes(initValue);
+            byte[] byteA = BinaryConverter.stringToBytes(initValue);
             ((PcmlData) m_currentNode).setValue(byteA, dimensions);
           }
           else
@@ -1767,7 +1762,7 @@ class PcmlSAXParser extends DefaultHandler
 
       // Backing up tree.  Reset dimensions and current dimension
       if (equivQName.equals("arrayOfStructParm") || equivQName.equals("arrayOfStringParm")  ||
-          equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfUnsignedIntParm") |
+          equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfUnsignedIntParm") ||
           equivQName.equals("arrayOfShortParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
           equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm")   ||
           equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfHexBinaryParm") ||

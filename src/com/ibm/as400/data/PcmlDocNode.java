@@ -19,9 +19,6 @@ import java.util.Enumeration;
 
 abstract class PcmlDocNode extends PcmlNode
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-    
     public final int PROGRAM = 1;
     public final int STRUCT  = 2;
     public final int DATA    = 3;
@@ -331,10 +328,7 @@ abstract class PcmlDocNode extends PcmlNode
     String resolveRelativeName(String relativeName)
     {
         PcmlDocNode relativeNode = resolveRelativeNode(relativeName);
-        if (relativeNode instanceof PcmlDocNode)
-            return relativeNode.getQualifiedName();
-        else
-            return null;
+        return relativeNode.getQualifiedName();
     }
 
     // Resolve a relative name and return the resolved node
