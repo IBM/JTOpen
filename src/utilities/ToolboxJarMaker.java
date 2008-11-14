@@ -2480,6 +2480,7 @@ public class ToolboxJarMaker extends JarMaker
 
           // excludeSomeDependencies tag                                @A4a
           else if (arg.equals("-xd") ||
+                   arg.equals("-xsd") ||
                    arg.startsWith("-excludesome"))
           {
             excludeSomeDependencies_ = true;
