@@ -31,12 +31,7 @@ import java.lang.Math;                                                //@A2A
 
 class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C0C
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
   static final long serialVersionUID = 4L;
-
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -59,7 +54,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   static private byte[] s38Buffer = {0x00, 0x05, (byte)0xD4, 0x05, 0x00};
 
   // Server
-  AS400Server server_ = null;
+  transient AS400Server server_ = null;
 
   // @B1A
   private static int lastCorrelationId_ = 0; //@B6C
@@ -99,7 +94,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     super.close(); //@C0A
 
     // Send the close file data stream request
-    if (discardReplys_)
+    if (discardReplys_ && (server_ != null))
     {
       synchronized(server_) //@F1A
       { //@F1A
@@ -858,6 +853,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       cache_.setIsEmpty();
     }
 
+    connect();
+
     // Send the request to force end of data specifying end of the file for
     // positioning.
     // Need correlation id as we will be chaining an S38BUF object to this request
@@ -949,6 +946,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       cache_.setIsEmpty();
     }
 
+
+    connect();
 
     // Send the request to force end of data specifying beginning of the
     // file for positioning; this is how we position the cursor to
@@ -1124,9 +1123,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       handleErrorReply(replys, 0);
     }
-    Record[] returned = processReadReply(replys, true);     // @A1C
-    return null;            // @A1A
+//    Record[] returned = processReadReply(replys, true);     // @A1C
 //    return returned[0];   // @A1D
+    processReadReply(replys, true);     // @A1C
+    return null;            // @A1A
   }
 
 
@@ -1181,9 +1181,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       handleErrorReply(replys, 0);
     }
-    Record[] returned = processReadReply(replys, true);     // @A1C
-    return null;  // @A1A
+//    Record[] returned = processReadReply(replys, true);     // @A1C
 //    return returned[0];  // @A1D
+    processReadReply(replys, true);     // @A1C
+    return null;  // @A1A
   }
 
 
@@ -1356,44 +1357,47 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     AS400Message[] msgs = null;
     Vector as400MsgList = new Vector();
 
-    for (int i = 0; i < replys.size(); ++i)
+    if (replys != null)
     {
-      DDMDataStream reply = (DDMDataStream)replys.elementAt(i);
-      int codePoint = reply.getCodePoint();
-      switch (codePoint)
+      for (int i = 0; i < replys.size(); ++i)
       {
-        case DDMTerm.S38MSGRM:
-          // Because we will normally get more than one AS400Message for an
-          // error condition, we build a vector of AS400Message arrays and
-          // throw an AS400Exception with all messages once we have finished
-          // parsing the replies.  Note that the DDMAS400MessageReply class
-          // extracts all the server messages contained in reply.data_.  I.e.
-          // a single reply may contain more than one message.
-          DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
-          as400MsgList.addElement(msgReply.getAS400MessageList());
-          break;
-          // If any of the following cases occur, we throw the exception and are done.
-        case DDMTerm.AGNPRMRM:
-        case DDMTerm.CMDCHKRM:
-        case DDMTerm.CMDNSPRM:
-        case DDMTerm.DCLNAMRM:
-        case DDMTerm.PRCCNVRM:
-        case DDMTerm.PRMNSPRM:
-        case DDMTerm.RSCLMTRM:
-        case DDMTerm.SYNTAXRM:
-        case DDMTerm.VALNSPRM:
-          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-          {
-            Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
-          }
-          throw new InternalErrorException(codePoint);
-        default:
-          // We don't know what the reply is.  Throw exception and be done.
-          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-          {
-            Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
-          }
-          throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, codePoint);
+        DDMDataStream reply = (DDMDataStream)replys.elementAt(i);
+        int codePoint = reply.getCodePoint();
+        switch (codePoint)
+        {
+          case DDMTerm.S38MSGRM:
+            // Because we will normally get more than one AS400Message for an
+            // error condition, we build a vector of AS400Message arrays and
+            // throw an AS400Exception with all messages once we have finished
+            // parsing the replies.  Note that the DDMAS400MessageReply class
+            // extracts all the server messages contained in reply.data_.  I.e.
+            // a single reply may contain more than one message.
+            DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
+            as400MsgList.addElement(msgReply.getAS400MessageList());
+            break;
+            // If any of the following cases occur, we throw the exception and are done.
+          case DDMTerm.AGNPRMRM:
+          case DDMTerm.CMDCHKRM:
+          case DDMTerm.CMDNSPRM:
+          case DDMTerm.DCLNAMRM:
+          case DDMTerm.PRCCNVRM:
+          case DDMTerm.PRMNSPRM:
+          case DDMTerm.RSCLMTRM:
+          case DDMTerm.SYNTAXRM:
+          case DDMTerm.VALNSPRM:
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+            {
+              Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
+            }
+            throw new InternalErrorException(codePoint);
+          default:
+            // We don't know what the reply is.  Throw exception and be done.
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+            {
+              Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
+            }
+            throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, codePoint);
+        }
       }
     }
     // If we get to here, we should have a list of messages to throw
@@ -1422,7 +1426,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
     }
 
-    return msgs;
+    return (msgs == null ? new AS400Message[0] : msgs);
   }
 
 
@@ -1883,9 +1887,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the server.
   **/
-  public Vector sendRequestAndReceiveReplies(DDMDataStream req, int correlationId)
-  throws InterruptedException, IOException
+  private Vector sendRequestAndReceiveReplies(DDMDataStream req, int correlationId)
+  throws InterruptedException, IOException, AS400SecurityException
   {
+    connect();
+
     DDMDataStream reply = null;
     try
     {
@@ -1994,6 +2000,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       throw new ExtendedIllegalArgumentException("record", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
+
+    connect();
 
     // getObjectS38BUF requires an array of records
     Record[] records = new Record[1];
@@ -2151,6 +2159,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       throw new ExtendedIllegalArgumentException("records", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
+
+    connect();
 
     // We will be chaining the S38BUF to the request, so the correlation ids must match
     int correlationId = newCorrelationId(); //@B6C
