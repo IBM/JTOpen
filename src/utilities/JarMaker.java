@@ -3626,7 +3626,7 @@ public class JarMaker
 
 
 
-  class JarMap
+  static class JarMap
   {
     private ZipFile zipFile_;  // ZipFile view of the JAR file.
     private ZipEntry manifest_;  // The Manifest entry.
@@ -3769,7 +3769,7 @@ public class JarMaker
 
 
 
-  class ManifestMap
+  static class ManifestMap
   {
 
     // Names of all entries in the JAR file's manifest.
@@ -3873,7 +3873,7 @@ public class JarMaker
     // Closes this ManifestMap.
     void close()
     {
-      if (verbose_ || DEBUG) System.out.println("Closing manifest");
+      if (DEBUG) System.out.println("Closing manifest");
       entryList_.removeAllElements();
       entryMap_.clear();
       jarMap_ = null;
