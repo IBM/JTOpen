@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen Version</H2>
 <PRE>
-Copyright (C) 1997-2007 International Business Machines Corporation and
+Copyright (C) 1997-2008 International Business Machines Corporation and
 others. All rights reserved.
 
 File: README
-Last updated: April 14, 2008
+Last updated: November 17, 2008
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -67,13 +67,13 @@ V5R4(**)        5722JC1 V5R4M0  V5R2 and up     V5R2 and up
 JTOpen 1.x      Not applicable  Not applicable  V4R3 and up
 JTOpen 2.x      Not applicable  Not applicable  V4R4 and up
 JTOpen 3.x      Not applicable  Not applicable  V4R5 and up
-JTOpen 4.0-4.2  Not applicable  Not applicable  V5R1 and up
+JTOpen 4.0-4.2  Not applicable  Not applicable  V4R5 and up
 JTOpen 4.3-4.7  5722JC1 V5R3M0  V5R1 and up     V5R1 and up
 JTOpen 4.8+     5722JC1 V5R4M0  V5R2 and up     V5R2 and up
 JTOpen 6.1+     5761JC1 V6R1M0  V5R3 and up     V5R3 and up
 
-(*) Note: Toolbox release V5R3 is equivalent to JTOpen 4.3.
-(**) Note:  Toolbox release V5R4 is equivalent to JTOpen 4.8.
+(*)  Note: Toolbox release V5R3 is equivalent to JTOpen 4.3.
+(**) Note: Toolbox release V5R4 is equivalent to JTOpen 4.8.
 
 
 Newer versions of the Toolbox are backwards-compatible with earlier
@@ -111,31 +111,14 @@ following reasons:
    they are realized. When applicable, these same fixes will be committed
    to the Toolbox LPP and made available in a future PTF or service pack.
 
-3. Any new functionality that is committed to JTOpen will not be
-   automatically added into the Toolbox LPP. However, new function that
-   exists in future releases of the Toolbox LPP may also get submitted
-   to the JTOpen repository, at IBM's discretion. The end result is
-   JTOpen will become a superset of the Toolbox LPP.
+3. Any new functionality that is committed to JTOpen will be subsequently
+   added, when applicable, into the Toolbox LPP and made available in a
+   future PTF or service pack.
 
    Note: All changes to JTOpen are made under the control and at the
    discretion of the JTOpen Core Team. All changes to the Toolbox LPP
    are made under the control and at the discretion of IBM.
 
-<!--
-4. Initially, JTOpen only contained most of the classes from the
-   com.ibm.as400.access package. As of release 2.0x, it contains almost
-   all of the primary Toolbox packages:
-     com.ibm.as400.access
-     com.ibm.as400.data
-     com.ibm.as400.resource
-     com.ibm.as400.util.html
-     com.ibm.as400.util.servlet
-     com.ibm.as400.vaccess
-     utilities
-     
-   As time permits, more code and packages from the Toolbox will be added
-   to this repository.
--->
 4. In general, the Toolbox LPP is supported directly by IBM. JTOpen
    is supported by the JTOpen user community, in which IBM participates
    and contributes, specifically through developer email, the JTOpen
@@ -257,21 +240,15 @@ Instructions for building all or part of the JTOpen source code:
 1. Download the JTOpen jt400.jar.
 2. Download any source files you want to change. The src.zip file includes
    all of the source in the repository for convenience.
-3. Download jtStubs.jar. This is needed ONLY at compile time, if at all.
-4. Set up your CLASSPATH to include everything in the correct order:
+3. Set up your CLASSPATH to include everything in the correct order:
    a. Your source files should be in your CLASSPATH first. Note that you
       cannot point to src.zip - you must unzip it, since it contains only
       source files.
    b. Next, add jt400.jar.
-   c. Finally, add jtStubs.jar.
-   d. It should look something like this:
-      CLASSPATH=C:\jt400\MyApp;C:\jt400\jt400.jar;C:\jt400\jtStubs.jar;...
-5. Compile your source.
-6. Remove jtStubs.jar from your CLASSPATH. If you don't, certain pieces of
-   code may not function correctly, namely JDBC and applets. It should now
-   look like this:
-     CLASSPATH=C:\jt400\MySource;C:\jt400\jt400.jar;...
-7. Run your application.
+   c. Your CLASSPATH should look something like this:
+      CLASSPATH=C:\jt400\MyApp;C:\jt400\jt400.jar;...
+4. Compile your source.
+5. Run your application.
 <!--
 <A NAME="toolbox"><H4><U>Using the Toolbox LPP</U></H4></A>
 For those interested in the Toolbox LPP version of this software:
