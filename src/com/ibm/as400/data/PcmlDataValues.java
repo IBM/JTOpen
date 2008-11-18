@@ -615,11 +615,14 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 }                                                   // @A1A
             }
             
-            myOffset = myOffset + myOffsetbase.intValue();
-            // Handle errors caused by bad offset values
-            if (myOffset < 0 || myOffset > bytes.length)
+            if (myOffsetbase != null)
             {
-              throw new PcmlException(DAMRI.BAD_TOTAL_OFFSET, new Object[] {new Integer(myOffset), new Integer(bytes.length), myOffsetbase, myOffsetfrom, "<data>", getNameForException()} );
+                myOffset = myOffset + myOffsetbase.intValue();
+                // Handle errors caused by bad offset values
+                if (myOffset < 0 || myOffset > bytes.length)
+                {
+                    throw new PcmlException(DAMRI.BAD_TOTAL_OFFSET, new Object[] {new Integer(myOffset), new Integer(bytes.length), myOffsetbase, myOffsetfrom, "<data>", getNameForException()} );
+                }
             }
             
             // If offset for this element is beyond current offset

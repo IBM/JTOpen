@@ -906,7 +906,10 @@ class PcmlStruct extends PcmlDocNode
             }
 
             // Add the base value to the offset value
-            myOffset = myOffset + myOffsetbase.intValue();
+            if (myOffsetbase != null)
+            {
+                myOffset = myOffset + myOffsetbase.intValue();
+            }
 
             // If the total offset value is greater than the current
             // offset into the input byte array, calculate the

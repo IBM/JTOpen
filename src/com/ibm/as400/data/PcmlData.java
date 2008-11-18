@@ -270,8 +270,10 @@ class PcmlData extends PcmlDocNode
 	// due to the recursive nature of deserialization.
     void readObjectPostprocessing()                                 // @C1A
     {                                                               // @C1A
-        m_scalarValue.readObjectPostprocessing();               // @C1A
-        m_vectorValue.readObjectPostprocessing();               // @C1A
+        if (m_scalarValue != null)                                  // @C1A
+            m_scalarValue.readObjectPostprocessing();               // @C1A
+        if (m_vectorValue != null)                                  // @C1A
+            m_vectorValue.readObjectPostprocessing();               // @C1A
 
         super.readObjectPostprocessing();                           // @C1A
     }                                                               // @C1A
@@ -1100,7 +1102,10 @@ class PcmlData extends PcmlDocNode
                 }
 
                 // Add the base value to the offset value
-                myOffset = myOffset + myOffsetbase.intValue();      // @C8A
+                if (myOffsetbase != null)                               // @C8A
+                {
+                    myOffset = myOffset + myOffsetbase.intValue();      // @C8A
+                }
 
                 // If the total offset value is greater than the current
                 // offset into the input byte array, calculate the

@@ -774,7 +774,8 @@ class PcmlProgram extends PcmlDocNode
             // If this child (parameter) has an output buffer
             // parse the bytes into its fields
             // Data is not converted to Java objects until the value is requested.
-            if (childParms[childNbr].getOutputDataLength() > 0)    // @A1C
+            if ( childParms[childNbr] != null
+              && childParms[childNbr].getOutputDataLength() > 0)    // @A1C
             {
                 bytes = childParms[childNbr].getOutputData();       // @A1C
 

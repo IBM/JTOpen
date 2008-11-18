@@ -328,7 +328,10 @@ abstract class PcmlDocNode extends PcmlNode
     String resolveRelativeName(String relativeName)
     {
         PcmlDocNode relativeNode = resolveRelativeNode(relativeName);
-        return relativeNode.getQualifiedName();
+        if (relativeNode != null)
+            return relativeNode.getQualifiedName();
+        else
+            return null;
     }
 
     // Resolve a relative name and return the resolved node
