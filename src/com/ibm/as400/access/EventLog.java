@@ -50,6 +50,7 @@ import java.lang.StringBuffer;
 public class EventLog implements Log
 {
    private PrintWriter writer_;
+   private boolean writerIsPrivate_ = false;
 
    /**
     *  Constructs a default EventLog object.  Using this constructor,
@@ -81,6 +82,7 @@ public class EventLog implements Log
       File file = new File(pathname);
       FileOutputStream os = new FileOutputStream(pathname, file.exists());
       writer_ = new PrintWriter(os, true);
+      writerIsPrivate_ = true;
    }
 
    /**
@@ -115,8 +117,11 @@ public class EventLog implements Log
 
    protected void finalize() throws Throwable
    {
-     try {
-       if (writer_ != null) {
+     try
+     {
+       // If we "own" the writer (it's not attached to someone else's stream),
+       // then close it.
+       if (writerIsPrivate_ && writer_ != null) {
          writer_.close();
        }
      }
@@ -124,6 +129,7 @@ public class EventLog implements Log
        super.finalize();
      }
    }
+
 
      /**
     * Logs a message to the event log.
