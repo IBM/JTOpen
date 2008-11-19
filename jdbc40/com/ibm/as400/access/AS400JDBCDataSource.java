@@ -583,6 +583,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if(((secureCurrentUser != null) && (Boolean.valueOf(secureCurrentUser).booleanValue() == false)) || !isSecureCurrentUser())            //@pw3
             isSecureCurrentUser = false;                                                                      //@pw3
             
+        boolean forcePrompt = false;     //@prompt
         
         //check if "".  
         if ("".equals(user))                                              //@pw1
@@ -591,7 +592,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             {  //@pw3
                 if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
                     JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                forcePrompt = true;  //@prompt
             }  //@pw3
         }                                                                 //@pw1
         if ("".equals(password))                                          //@pw1
@@ -600,7 +602,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             {  //@pw3
                 if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
                     JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                forcePrompt = true;  //@prompt
             }  //@pw3
         }                                                                 //@pw1
         
@@ -618,7 +621,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             {  //@pw3
                 if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
                     JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                forcePrompt = true;  //@prompt
             }  //@pw3
             
         }                                                                 //@pw1
@@ -628,7 +632,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             {  //@pw3
                 if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
                     JDTrace.logInformation (this, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
+                forcePrompt = true;  //@prompt
             }  //@pw3
         }                                                                 //@pw1
 
@@ -662,6 +667,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         catch (PropertyVetoException pve)                                   //@C2A
         { /*ignore*/                                                        //@C2A
         }                                                                   //@C2A
+        
+        if(forcePrompt)                  //@prompt
+            as400Object.forcePrompt();   //@prompt
+        
         return getConnection(as400Object);                                  //@C2A
 
         //@C2D return getConnection(new AS400(getServerName(), user, password));

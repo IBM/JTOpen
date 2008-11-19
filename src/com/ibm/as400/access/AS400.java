@@ -360,6 +360,12 @@ public class AS400 implements Serializable
     private transient SignonHandler signonHandler_ = null;
     private transient boolean handlerCanceled_ = false;
 
+    /* forcePrompt_ is a flag that tells AS400 to force prompt by displaying login dialog (actually the sign-on handler) prior to even trying to authenticate.
+    This is useful in cases where an application sends in incorrect dummy id/password and expects Toolbox to display the logon dialog.
+    In JDBC, we do some pre-validation of id/password.  So JDBC may flag the id/password as invalid and then need
+    to let AS400 know that it just needs to display the logon dialog. */
+    private boolean forcePrompt_ = false;  //@prompt
+    
     /**
      Constructs an AS400 object.
      <p>If running on i5/OS, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
@@ -2264,7 +2270,7 @@ public class AS400 implements Serializable
             SignonHandler soHandler = getSignonHandler();
 
             // If something isn't set, go to prompt state.
-            if (byteType_ == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null || !(soHandler instanceof ToolboxSignonHandler)))
+            if (byteType_ == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))  //@prompt
             {
                 pwState = PROMPT;
             }
@@ -2284,6 +2290,14 @@ public class AS400 implements Serializable
                             sendSignonRequest();
                             break;
                         case PROMPT:
+                            if(!isGuiAvailable() && forcePrompt_)                                               //@prompt
+                            {                                                                                   //@prompt
+                                //JDBC flagged id/pass as invalid and set forcePrompt, but GUI not available    //@prompt
+                                //So don't even try to authenticate because it could be a non-safe password.    //@prompt
+                                Trace.log(Trace.ERROR, "No GUI available for signon dialog.");                  //@prompt
+                                handlerCanceled_ = true;  // Don't submit exception to handler.                 //@prompt
+                                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID); //@prompt
+                            }                                                                                   //@prompt
                             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling SignonHandler...");
                             // If bytes_ has not been set, tell the handler something is missing.
                             SignonEvent soEvent = new SignonEvent(this, reconnecting);
@@ -2381,6 +2395,7 @@ public class AS400 implements Serializable
         finally
         {
             signingOn_ = false;
+            forcePrompt_ = false;  //@prompt
         }
     }
 
@@ -3799,5 +3814,17 @@ public class AS400 implements Serializable
 
         validationSystem.signon(false);
         return true;
+    }
+    
+    //@prompt new method
+    /**
+    This tells AS400 to force prompt by displaying login dialog (actually the sign-on handler) prior to even trying to authenticate.
+    This is useful in cases where an application sends in incorrect dummy id/password and expects Toolbox to display the logon dialog.
+    In JDBC, we do some pre-validation of id/password.  So JDBC may flag the id/password as invalid and then need
+    to let AS400 know that it just needs to display the logon dialog. 
+    **/
+    void forcePrompt() 
+    {
+        forcePrompt_ = true;
     }
 }
