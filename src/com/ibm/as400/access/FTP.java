@@ -132,7 +132,7 @@ public class FTP implements java.io.Serializable
     transient         PropertyChangeSupport changes_   = null;
     transient         VetoableChangeSupport vetos_     = null;
     transient         Vector                listeners_ = null;
-    private final     Object                listenerLock_ = new Object();
+    transient private Object                listenerLock_ = new Object();
 
 
                // amount of data to transfer at one time
@@ -1837,6 +1837,7 @@ public class FTP implements java.io.Serializable
         changes_             = null;
         vetos_               = null;
         listeners_           = null;
+        listenerLock_        = new Object();
         externallyConnected_ = false;                              // @D2a
     }
 
