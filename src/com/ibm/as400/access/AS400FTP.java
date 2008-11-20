@@ -1085,12 +1085,16 @@ public class AS400FTP
        String oldValue = saveFilePublicAuthority_;
 
        // Fire a vetoable change event for system.
-       vetos_.fireVetoableChange("saveFilePublicAuthority", oldValue, publicAuthority);
+       if (vetos_ != null) {
+         vetos_.fireVetoableChange("saveFilePublicAuthority", oldValue, publicAuthority);
+       }
 
        saveFilePublicAuthority_ = publicAuthority;
 
        // Fire the property change event.
-       changes_.firePropertyChange("saveFilePublicAuthority", oldValue, publicAuthority);
+       if (changes_ != null) {
+         changes_.firePropertyChange("saveFilePublicAuthority", oldValue, publicAuthority);
+       }
     }
 
 
@@ -1144,12 +1148,16 @@ public class AS400FTP
        AS400 oldSystem = system_;
 
        // Fire a vetoable change event for system.
-       vetos_.fireVetoableChange("system", oldSystem, system);
+       if (vetos_ != null) {
+         vetos_.fireVetoableChange("system", oldSystem, system);
+       }
 
        system_ = system;
 
        // Fire the property change event.
-       changes_.firePropertyChange("system", oldSystem, system);
+       if (changes_ != null) {
+         changes_.firePropertyChange("system", oldSystem, system);
+       }
     }
 
 
