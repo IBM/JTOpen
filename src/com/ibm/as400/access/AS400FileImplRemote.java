@@ -176,7 +176,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   throws AS400SecurityException, ConnectionDroppedException, IOException,
   InterruptedException, ServerStartupException, UnknownHostException
   {
-    server_ = system_.getConnection(AS400.RECORDACCESS, false); //@C0C @B5C
+    if (server_ == null)
+    {
+      server_ = system_.getConnection(AS400.RECORDACCESS, false); //@C0C @B5C
+    }
   }
 
 
