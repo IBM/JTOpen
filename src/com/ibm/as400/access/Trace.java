@@ -329,29 +329,11 @@ public class Trace
 
 
 
-  // This is only here to prevent the user from constructing a Trace object.
+  // This is only here to prevent anyone from instantiating a Trace object.
   private Trace()
   {
   }
 
-  protected void finalize() throws Throwable
-  {
-    try
-    {
-      if (printWriterHash != null && !printWriterHash.isEmpty()) {
-        // close all the PrintWriters in the hash table.
-        Enumeration writers = printWriterHash.elements();
-        while (writers.hasMoreElements()) {
-          PrintWriter writer = (PrintWriter)writers.nextElement();
-          try { writer.close(); } catch (Throwable t) {}
-        }
-      }
-    }
-
-    finally {
-      super.finalize();
-    }
-  }
 
   /**
     Returns the trace file name.
@@ -1396,7 +1378,7 @@ public class Trace
     }
     else  // The specified fileName is null - Use default destination.
     {
-      destination_.close();
+      // destination_.close();   // avoid closing System.out
 
       // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
 
@@ -1427,7 +1409,10 @@ public class Trace
 
     String oldName = (String) fileNameHash.remove(component);
     if (oldName != null)
+    {
+      // This writer was pointing to a file (rather than to System.out).
       pw.close();
+    }
 
     if (fileName != null)
     {
@@ -1460,6 +1445,7 @@ public class Trace
 
     if (fileName_ != null)
     {
+      // This writer was pointing to a file (rather than to System.out).
       destination_.close();
       fileName_ = null;
     }
@@ -1493,7 +1479,10 @@ public class Trace
 
     String fileName = (String) fileNameHash.remove(component);
     if (fileName != null)
+    {
+      // This writer was pointing to a file (rather than to System.out).
       pw.close();
+    }
 
     if (obj != null)
       pw = obj;
