@@ -22,18 +22,18 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 /**
-*  The ConnectionPool class represents a pool of connections to the system.
+*  Represents a pool of connections to the system.
 *
 *  <P>ConnectionPool objects generate the following events:
 *  <ul>
-*    <li><a href="ConnectionPoolEvent.html">ConnectionPoolEvent</a> - The events fired are:
+*    <li>{@link ConnectionPoolEvent ConnectionPoolEvent} - The events fired are:
 *      <ul>
-*       <li>CONNECTION_CREATED</li>
-*       <li>CONNECTION_EXPIRED</li>
-*       <li>CONNECTION_POOL_CLOSED</li>
-*       <li>CONNECTION_RELEASED</li>
-*       <li>CONNECTION_RETURNED</li>
-*       <li>MAINTENANCE_THREAD_RUN</li>
+*       <li>{@link ConnectionPoolEvent#CONNECTION_CREATED CONNECTION_CREATED}</li>
+*       <li>{@link ConnectionPoolEvent#CONNECTION_EXPIRED CONNECTION_EXPIRED}</li>
+*       <li>{@link ConnectionPoolEvent#CONNECTION_POOL_CLOSED CONNECTION_POOL_CLOSED}</li>
+*       <li>{@link ConnectionPoolEvent#CONNECTION_RELEASED CONNECTION_RELEASED}</li>
+*       <li>{@link ConnectionPoolEvent#CONNECTION_RETURNED CONNECTION_RETURNED}</li>
+*       <li>{@link ConnectionPoolEvent#MAINTENANCE_THREAD_RUN MAINTENANCE_THREAD_RUN}</li>
 *       </ul>
 *    </li>
 *    <li>PropertyChangeEvent</li>
@@ -41,11 +41,7 @@ import java.io.ObjectInputStream;
 **/
 public abstract class ConnectionPool implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   static final long serialVersionUID = 4L;
-
 
   ConnectionPoolProperties properties_ = new ConnectionPoolProperties();
   private boolean inUse_ = false;
@@ -108,13 +104,6 @@ public abstract class ConnectionPool implements Serializable
   public abstract void close() throws ConnectionPoolException;
 
   /**
-  *  Returns the time interval for how often the maintenance daemon is run.
-  *  The default value is 300000 milliseconds.
-  *  @return     Number of milliseconds.
-  **/
-
-
-  /**
   *  Closes the connection pool if not explicitly closed by the caller.
   *  @exception Throwable If an error occurs.
   **/
@@ -127,6 +116,11 @@ public abstract class ConnectionPool implements Serializable
     super.finalize();
   }
 
+  /**
+  *  Returns the time interval for how often the maintenance daemon is run.
+  *  The default value is 300000 milliseconds (5 minutes).
+  *  @return     Number of milliseconds.
+  **/
   public long getCleanupInterval()
   {
     return properties_.getCleanupInterval();
@@ -393,7 +387,7 @@ public abstract class ConnectionPool implements Serializable
    *  expired connections.  If setThreadUsed is true, the Toolbox starts an extra thread to
    *  perform maintenance.  If setThreadUsed is false, the Toolbox will perform maintenance
    *  on the user's thread when it uses the connection pool.
-   *  This method and <a href="#setThreadUsed(boolean)">setThreadUsed()</a> can be set
+   *  This method and {@link #setThreadUsed setThreadUsed} can be set
    *  in interchangeable order.
    *  The default value is true.
    *  @param cleanup If expired connections are cleaned up by the maintenance daemon.
@@ -418,16 +412,21 @@ public abstract class ConnectionPool implements Serializable
   }
 
   /**
-  *  Sets whether the IBM Toolbox for Java uses threads in communication with the host servers
-  *  and for running maintenance. Letting the IBM Toolbox for Java use threads will be beneficial
+  *  Sets whether the IBM Toolbox for Java uses additional threads.
+  *  The Toolbox creates additional threads for various purposes, including:
+  *  <ul>
+  *  <li>for communication with the host servers; and</li>
+  *  <li>for running pool maintenance.</li>
+  *  </ul>
+  *  Letting the IBM Toolbox for Java use additional threads will be beneficial
   *  to performance, but turning threads off may be necessary if your application needs to be compliant
-  *  with the Enterprise Java Beans specification. The thread used property cannot be changed once
-  *  the pool is in use.  This property affects AS400ConnectionPool and not AS400JDBCConnectionPool
+  *  with the Enterprise Java Beans specification. The threadUsed property cannot be changed once
+  *  the pool is in use.  This property affects AS400ConnectionPool and not AS400JDBCConnectionPool,
   *  which is written to the JDBC specification.  This method and
-  *  <a href="#setRunMaintenance(boolean)">setRunMaintenance()</a> can be called
+  *  {@link #setRunMaintenance setRunMaintenance} can be called
   *  in interchangeable order.
   *  The default value is true.
-  *  @param useThreads true to use threads; false otherwise.
+  *  @param useThreads true to use additional threads; false otherwise.
   **/
   public void setThreadUsed(boolean useThreads)
   {
