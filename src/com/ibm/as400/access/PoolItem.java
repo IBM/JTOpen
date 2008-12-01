@@ -161,6 +161,7 @@ class PoolItem
   /**
    *  Returns the elapsed time the connection has been idle waiting in the pool.
    *  @return The idle time.
+   *  If the connection is currently in use, 0 is returned.
    **/
   long getInactivityTime()
   {
@@ -169,8 +170,10 @@ class PoolItem
 
 
   /**
-   *  Returns the elapsed time the connection has been in use.
+   *  Returns the elapsed time the connection has been in use
+   *  since it was most recently allocated from the pool.
    *  @return The elapsed time.
+   *  If the connection is not currently in use, 0 is returned.
    **/
   long getInUseTime()
   {

@@ -158,7 +158,7 @@ final class ConnectionList
     {
       log(ResourceBundleLoader.getText("CL_CLEANUPEXP"));
       // see if anything frees up
-      removeAndReplace(poolListeners);  
+      removeExpiredConnections(poolListeners);  
 
       // if that didn't do the trick, try shutting down unused connections
       if (getConnectionCount() >= properties_.getMaxConnections())
@@ -552,14 +552,13 @@ final class ConnectionList
 
 
   /**
-   * Removes any connection that has exceeded inactivity time and also replace any connection 
-   *  that exceeded the maximum use count or maximum lifetime with a new connection.
+   * Removes any connection that has exceeded its time limits or usage count limits.
    *
    * @param poolListeners The pool listeners to which events will be fired.
    * @exception AS400SecurityException If a security error occured.
    * @exception IOException If a communications error occured.
    **/
-  void removeAndReplace(ConnectionPoolEventSupport poolListeners)   //@B1D synchronized
+  void removeExpiredConnections(ConnectionPoolEventSupport poolListeners)   //@B1D synchronized
   throws AS400SecurityException, IOException
   {    
     synchronized (connectionList_)  //@B1A
@@ -569,64 +568,20 @@ final class ConnectionList
       {
         PoolItem p = (PoolItem)connectionList_.elementAt(i);    
 
-        if ((properties_.getMaxInactivity() >= 0) && 
-            (p.getInactivityTime() >= properties_.getMaxInactivity()))
+        // Be conservative about removing in-use connections.
+        if (p.isInUse())
         {
-          // remove any item that has exceeded inactivity time
-          if (log_ != null)
-            log(ResourceBundleLoader.getText("CL_REMUNUSED", new String[] {systemName_, userID_} ));
-          p.getAS400Object().disconnectAllServices();
-          connectionList_.removeElementAt(i);
-          if (poolListeners != null)
-          {
-            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
-            poolListeners.fireConnectionExpiredEvent(poolEvent);  
-          }
-        }
-        else
-        {
-          if ((properties_.getMaxUseCount() >= 0) &&
-              (p.getUseCount() >= properties_.getMaxUseCount()))
-          {
-            //@B4C remove any item that exceeded maximum use count	
-            if (log_ != null)
-              log(ResourceBundleLoader.getText("CL_REPUSE", new String[] {systemName_, userID_} ));
-            p.getAS400Object().disconnectAllServices();
-            //@B4D PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400), p.getAS400Object().getLocale());	  //@B2C
-            //@B4D reconnectAllServices(p, newItem);
-            connectionList_.removeElementAt(i);             
-            //@B4D connectionList_.insertElementAt(newItem, i);
-            //@B4D AS400 sys = p.getAS400Object();	//@A5A
-            //@B4D p = newItem;
-            if (poolListeners != null)
-            {
-              ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
-              poolListeners.fireConnectionExpiredEvent(poolEvent);  
-            }
-          }
-	  if ( (properties_.getMaxLifetime() >= 0) && 
-	  (p.getLifeSpan() >= properties_.getMaxLifetime()) && (!p.isInUse()))
-          {
-            //@B4C remove any item that has lived past expected lifetime
-            if (log_ != null)
-              log(ResourceBundleLoader.getText("CL_REPLIFE", new String[] {systemName_, userID_} ));
-            p.getAS400Object().disconnectAllServices();
-            //@B4D PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400), p.getAS400Object().getLocale());	  //@B2C
-            //@B4D reconnectAllServices(p, newItem);
-            connectionList_.removeElementAt(i);           
-            //@B4D connectionList_.insertElementAt(newItem, i);             
-            //@B4D AS400 sys = p.getAS400Object();	//@A5A
-            //@B4D p = newItem;
-            if (poolListeners != null)
-            {
-              ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
-              poolListeners.fireConnectionExpiredEvent(poolEvent);  
-            }
-          }
+          // Reclaim an in-use connection, only if its maxUseTime limit is exceeded.
           if ((properties_.getMaxUseTime() >= 0) &&
-              (p.getInUseTime() >= properties_.getMaxUseTime()))
+                   (p.getInUseTime() >= properties_.getMaxUseTime()))
           {
-            // maximum usage time exceeded.  try and disconnect, then remove from list
+            // Limit exceeded, so disconnect and remove the connection.
+            if (log_ != null) {
+              log(ResourceBundleLoader.getText(EXPIRED_MAX_USE_TIME, new String[] {systemName_, userID_} ));
+            }
+            if (Trace.traceOn_) {
+              Trace.log(Trace.WARNING, "Disconnecting an in-use connection because it has exceeded its maximum use time limit.");
+            }
             p.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(i);
             if (poolListeners != null)
@@ -635,7 +590,63 @@ final class ConnectionList
               poolListeners.fireConnectionExpiredEvent(poolEvent);  
             }
           }
-        }//end else
+        }  // if p.inUse()
+
+
+        // The remaining cases are for connections that aren't currently in use.
+
+
+        // See if the connection has exceeded the maximum inactivity time.
+        else if ((properties_.getMaxInactivity() >= 0) && 
+                 (p.getInactivityTime() >= properties_.getMaxInactivity()))
+        {
+          // Limit exceeded, so disconnect and remove the connection.
+          if (log_ != null) {
+            log(ResourceBundleLoader.getText(EXPIRED_INACTIVE, new String[] {systemName_, userID_} ));
+          }
+          p.getAS400Object().disconnectAllServices();
+          connectionList_.removeElementAt(i);
+          if (poolListeners != null)
+          {
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
+            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+          }
+        }
+
+        // See if the connection has exceeded the maximum use count.
+        else if ((properties_.getMaxUseCount() >= 0) &&
+                 (p.getUseCount() >= properties_.getMaxUseCount()))
+        {
+          // Limit exceeded, so disconnect and remove the connection.
+          if (log_ != null) {
+            log(ResourceBundleLoader.getText(EXPIRED_MAX_USE_COUNT, new String[] {systemName_, userID_} ));
+          }
+          p.getAS400Object().disconnectAllServices();
+          connectionList_.removeElementAt(i);             
+          if (poolListeners != null)
+          {
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
+            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+          }
+        }
+
+        // See if the connection has exceeded the maximum lifetime.
+        else if ( (properties_.getMaxLifetime() >= 0) && 
+                  (p.getLifeSpan() >= properties_.getMaxLifetime()))
+        {
+          // Limit exceeded, so disconnect and remove the connection.
+          if (log_ != null) {
+            log(ResourceBundleLoader.getText(EXPIRED_MAX_LIFETIME, new String[] {systemName_, userID_} ));
+          }
+          p.getAS400Object().disconnectAllServices();
+          connectionList_.removeElementAt(i);           
+          if (poolListeners != null)
+          {
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
+            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+          }
+        }
+
       }//end for
     }//@B1A end synchronized
   }

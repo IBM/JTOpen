@@ -128,7 +128,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         try
         {
           ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(key);
-          connList.removeAndReplace(poolListeners_);  
+          connList.removeExpiredConnections(poolListeners_);  
         }
         catch (Exception e)
         {

@@ -15,12 +15,10 @@ package com.ibm.as400.access;
 
 class PoolItemProperties
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   private long creationTime_;                  // Creation time.
-   private long lastUseTime_ = 0;               // Active connection time. 
-   private long timeIdleInPool_;                // Time at which connection became idle.
-   private int timesUsedCount_ = 0;             // Number of times connection has been used.
+   private long creationTime_ = 0;    // Time at which this connection was created.
+   private long lastUseTime_ = 0;     // Time at which this connection became in-use.
+   private long timeIdleInPool_ = 0;  // Time at which this connection became idle.
+   private int  timesUsedCount_ = 0;  // Number of times this connection has been used.
 
    /**
    *  Constructs a default PoolItemProperties object.
@@ -37,7 +35,6 @@ class PoolItemProperties
    **/
    public void clear()
    {
-      creationTime_ = 0;
       timeIdleInPool_ = 0;
       lastUseTime_ = 0;
       timesUsedCount_ = 0;
@@ -59,6 +56,7 @@ class PoolItemProperties
    /**
    *  Returns the elapsed time the connection has been idle waiting in the pool.
    *  @return The idle time (milliseconds).
+   *  If the connection is currently in use, 0 is returned.
    **/
    public long getInactivityTime()
    {
@@ -68,13 +66,14 @@ class PoolItemProperties
    /**
    *  Returns the elapsed time the connection has been in use.
    *  @return The elapsed time (milliseconds).
+   *  If the connection is not currently in use, 0 is returned.
    **/
 	public long getInUseTime()
 	{            
       if (isInUse()) 
          return getElapsedTime(lastUseTime_);
       else
-         return lastUseTime_;
+         return 0;
 
 	}
 	
