@@ -15,10 +15,10 @@ package com.ibm.as400.access;
 
 class PoolItemProperties
 {
-   private long creationTime_ = 0;    // Time at which this connection was created.
-   private long lastUseTime_ = 0;     // Time at which this connection became in-use.
-   private long timeIdleInPool_ = 0;  // Time at which this connection became idle.
-   private int  timesUsedCount_ = 0;  // Number of times this connection has been used.
+   private long creationTime_   = 0;  // Time when this connection was created.
+   private long lastUseTime_    = 0;  // Time when this connection became in-use.
+   private long timeIdleInPool_ = 0;  // Time when this connection became available.
+   private int  timesUsedCount_ = 0;  // Number of times connection has been assigned.
 
    /**
    *  Constructs a default PoolItemProperties object.
@@ -31,10 +31,11 @@ class PoolItemProperties
    }
 
    /**
-   *  Clears the timers.
+   *  Clears the timers and counters.  Called by AS400JDBCPooledConnection.close().
    **/
    public void clear()
    {
+      creationTime_ = 0;
       timeIdleInPool_ = 0;
       lastUseTime_ = 0;
       timesUsedCount_ = 0;
@@ -44,6 +45,7 @@ class PoolItemProperties
    *  Returns the time elapsed.
    *  @param startTime The starting time.
    *  @return The time elapsed (milliseconds).
+   *  If a value of 0 is specified for startTime, 0 is returned.
    **/
    private long getElapsedTime(long startTime)
 	{
@@ -54,7 +56,7 @@ class PoolItemProperties
 	}
 
    /**
-   *  Returns the elapsed time the connection has been idle waiting in the pool.
+   *  Returns the elapsed time that the connection has been idle waiting in the pool.
    *  @return The idle time (milliseconds).
    *  If the connection is currently in use, 0 is returned.
    **/
@@ -64,7 +66,7 @@ class PoolItemProperties
    }
    
    /**
-   *  Returns the elapsed time the connection has been in use.
+   *  Returns the elapsed time since the connection was assigned.
    *  @return The elapsed time (milliseconds).
    *  If the connection is not currently in use, 0 is returned.
    **/
@@ -78,7 +80,7 @@ class PoolItemProperties
 	}
 	
    /**
-   *  Returns the elapsed time the pooled connection has been alive.
+   *  Returns the elapsed time that the pooled connection has been alive.
    *  @return The elapsed time (milliseconds).
    **/
 	public long getLifeSpan()
@@ -87,7 +89,7 @@ class PoolItemProperties
 	}
 	
    /**
-   *  Returns the number of times the pooled connection has been used.
+   *  Returns the number of times the pooled connection has been assigned.
    *  @return The number of times used.
    **/
    public int getUseCount()
@@ -96,7 +98,7 @@ class PoolItemProperties
    }
 
    /**
-   *  Indicates if the pooled connection is in use.
+   *  Indicates if the pooled connection is currently assigned.
    *  @return true if the pooled connection is in use; false otherwise.
    **/
    public boolean isInUse()
