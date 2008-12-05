@@ -270,8 +270,8 @@ public class User implements Serializable
     // (Note: No setter for this attribute)
     private String userExpirationAction_;          // @710
 
-    private TimeZone systemTimeZone_;
-    private DateTimeConverter dateConverter_;
+    private transient TimeZone systemTimeZone_;
+    private transient DateTimeConverter dateConverter_;
     private String jobDateFormat_;
 
     /**
