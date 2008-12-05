@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
- The User class represents a user profile object on the system.
+ Represents a user profile object on the system.
  <p>Note that calling any of the attribute getters for the first time will result in an implicit call to {@link #loadUserInformation loadUserInformation()}.  If any exceptions are thrown by loadUserInformation() during the implicit call, they will be logged to {@link Trace#ERROR Trace.ERROR} and ignored.  However, should an exception occur during an explicit call to loadUserInformation(), it will be thrown to the caller.
  <p>Implementation note:  This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that retrieve user profile information.  The caller must have *READ authority to the user profile object in order to retrieve the information.  The class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change user profile information.  The caller must have security administrator (*SECADM) special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
  @see  DirectoryEntry
@@ -1037,7 +1037,7 @@ public class User implements Serializable
      @return  The date the user's password expires.  Possible values are:
      <ul>
      <li>A date object containing the date the user's password expires.
-     <li>null - The user's password will not expire (password expiration interval of *NOMAX) or the user's password is set to expire.
+     <li>null - The user's password will not expire (password expiration interval of *NOMAX) or the user's password is set to expired.
      </ul>
      **/
     public Date getPasswordExpireDate()
@@ -1048,7 +1048,7 @@ public class User implements Serializable
             try
             {
                 // First see if a blank value was returned.
-                if (isBlanks(passwordExpireDateBytes_)) return null;
+                if (isNullOrBlanks(passwordExpireDateBytes_)) return null;
 
                 passwordExpireDate_ = getDateTimeConverter().convert(passwordExpireDateBytes_, "*DTS");
             }
@@ -1359,7 +1359,8 @@ public class User implements Serializable
     /**
      Retrieves the date when the user profile expires and is automatically disabled.
      <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
-     @return  The date when the user profile expires.  <tt>null</tt> is returned if the user profile does not have an expiration date.
+     @return  The date when the user profile expires.
+     <tt>null</tt> is returned if the user profile does not have an expiration date.
      @see #setUserExpirationDate
      **/
     public Date getUserExpirationDate()
@@ -1370,7 +1371,7 @@ public class User implements Serializable
         try
         {
           // First see if a blank value was returned.  If so, return null.
-          if (isBlanks(userExpirationDateBytes_)) return null;
+          if (isNullOrBlanks(userExpirationDateBytes_)) return null;
 
           userExpirationDate_ = getDateTimeConverter().convert(userExpirationDateBytes_, "*DTS");
         }
@@ -1383,9 +1384,10 @@ public class User implements Serializable
       return userExpirationDate_;
     }
 
-    // Returns true if the specified byte array is a sequence of 0 or more EBCDIC blanks (x40).  Returns false if any character other than EBCDIC blank is encountered.
-    static final boolean isBlanks(byte[] bytes)
+    // Returns true if the specified byte array is either null or a sequence of EBCDIC blanks (x40).  Returns false if any character other than EBCDIC blank is encountered.
+    private static final boolean isNullOrBlanks(byte[] bytes)
     {
+      if (bytes == null) return true;
       for (int i=0; i<bytes.length; i++)
       {
         if (bytes[i] != (byte)0x40 ) return false;
@@ -1583,8 +1585,8 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether the user's password is set to expire, requiring the user to change the password when signing on.
-     @return  true if the password set to expire, false otherwise.
+     Retrieves whether the user's password is set to expired, requiring the user to change the password when signing on.
+     @return  true if the password is set to expired, false otherwise.
      @see #setPasswordSetExpire
      **/
     public boolean isPasswordSetExpire()
@@ -1735,7 +1737,7 @@ public class User implements Serializable
         passwordExpireDate_ = null;  // Reset.
 
         daysUntilPasswordExpire_ = BinaryConverter.byteArrayToInt(data, 68);
-        // EBCDIC 'Y' if the user's password is set to expire.
+        // EBCDIC 'Y' if the user's password is set to expired.
         passwordSetExpire_ = (data[72] == (byte)0xE8);
         userClassName_ = conv.byteArrayToString(data, 73, 10).trim();
 
@@ -2982,7 +2984,7 @@ public class User implements Serializable
     }
 
     /**
-     Sets whether the password for this user is set to expired.  If the password is set to expired, the use is required to change the password to sign on the system.  When the user attempts to sign on the system, the sign-on information display is shown and the user has the option to change this password.
+     Sets whether the password for this user is set to expired.  If the password is set to expired, the user is required to change the password to sign on to the system.  When the user attempts to sign on to the system, the sign-on information display is shown and the user has the option to change this password.
      @param passwordSetExpire true if the password set to expired, false otherwise.
      @see #isPasswordSetExpire
      **/
@@ -3346,7 +3348,7 @@ public class User implements Serializable
      @return If the relevant property is set, then this method returns the property value.
      If the relevant property isn't set, then this method returns defaultVal.
      **/
-    private static boolean checkThreadSafetyProperty(boolean defaultVal, boolean isCommandCall)
+    private static final boolean checkThreadSafetyProperty(boolean defaultVal, boolean isCommandCall)
     {
       boolean result;
       String property = null;
