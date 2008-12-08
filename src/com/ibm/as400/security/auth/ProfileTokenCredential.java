@@ -86,6 +86,8 @@ import java.util.Random;
  *   AS400Credential cr = pt.swap(true);
  *
  *  // Perform work under the swapped identity at this point.
+ *  // Newly-connected AS400 objects will run under the swapped identity.
+ *   AS400 swapped = new AS400("localhost", "*CURRENT", "*CURRENT");
  *
  *  // Swap back to the original thread identity.
  *   cr.swap();
