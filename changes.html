@@ -9,9 +9,10 @@ Copyright (C) 1997-2008 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: August 13, 2008
-<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d>2007-12-14 -->
+Last updated: December 8, 2008
+<!-- On 2008-12-08: cvs log -rJTOpen_6_3:JTOpen_6_4 -N -d>2008-08-13 -->
 <!-- On 2008-08-13: cvs log -rJTOpen_6_2:JTOpen_6_3 -N -d>2008-04-25 -->
+<!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d>2007-12-14 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -28,6 +29,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#64">Fixes and enhancements in JTOpen 6.4</A><BR>
 <A HREF="#63">Fixes and enhancements in JTOpen 6.3</A><BR>
 <A HREF="#62">Fixes and enhancements in JTOpen 6.2</A><BR>
 <A HREF="#61">Fixes and enhancements in JTOpen 6.1</A><BR>
@@ -51,6 +53,58 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="64">Fixes and enhancements in JTOpen 6.4</A> <i>(released 2008-12-12)</i></H3>
+<PRE>
+- <i>Various:</i> Javadoc updates.
+- <i>Various:</i> Enhancements suggested by static analysis.
+- Command call: Log a warning if sequential calls switch between on-thread and off-thread.
+- Connection pool: Enhance AS400ConnectionPool to support ProfileTokenCredentials.
+- Connection pool: Fix pool maintenance daemon so as to disconnect active connections, only when a connection exceeds its maxUseTime limit.
+- Connection: Added method AS400.isConnectionAlive().
+- Connection: Fix bug in portmapper port.
+- Data conversion: Eliminated possible arithmetic overflow.
+- Data conversion: Fix JTOpen bug 2120228: ConvTableJavaMap is not appropriately synchronized.
+- Data conversion: Resynchronized with updated system converter tables.
+- Date conversion: Optional parameters for QWCCVTDT only valid for V5R3 and beyond.
+- Date conversion: Streamlined design, based on assumption that all dates are in timezone of system.
+- FTP: Check for null-valued changes_, vetos_ before referencing.
+- FTP: Improved synchronization.  Ensure that streams always get closed.
+- FTP: Tolerate delimiters other than '|' in EPSV response.
+- JDBC: Add Currently Committed support.
+- JDBC: Add code to make use of hostserver's fetch-direct function.
+- JDBC: Add property "secure current user" to allow JDBC connections with "" or *current when running on the IBM i host.
+- JDBC: Documentation rename of "default schema/library" to "default SQL schema".
+- JDBC: Fix AS400JDBCResultSetMetadata.isAutoIncrement() method to get more accurate information.
+- JDBC: Fix bug in delimited schema in connection URL.
+- JDBC: Fix bug in getCatalogSeparator being able to access connection.
+- JDBC: Fix bug in getMoreResults(int) so that CLOSE_CURRENT_RESULT does not throw exception.
+- JDBC: Fix bug when locators are freed more than once.
+- JDBC: Fix for connection property "driver=native" when hostname is localhost.
+- JDBC: Fix for quoted schema names in URL.
+- JDBC: Fix misc resources that are opened but not closed properly.
+- JDBC: Fix stored procedure flavor of AS400JDBCDatabaseMetaData resultset.getStatement() so it returns null per JDBC spec.
+- JDBC: Fix typo in secure current user description.
+- JDBC: Fix when using userid in URL and using connection property driver.
+- JDBC: Force signon GUI dialog to display when id/password are "" or "*current".
+- JarMaker: Recognize -xsd as abbreviation for -excludeSomeDependencies.
+- JarMaker: If not JDBC or RLA, don't follow dependencies from ClassDecoupler.
+- JarMaker: Verify number of bytes skipped. Call readUnsignedShort() instead of readShort().
+- Message file: Added FIRST and NEXT options to getMessage() methods. (Enhancement submitted by David Gibbs.)
+- Micro edition: Modified skipBytes() to return actual number of bytes skipped.
+- PCML: Added more PCML trace points.
+- PTF: Added 'get' methods for creationDate and serverIPLRequired.
+- QSYSObjectPathName: Added static non-public validatePath() method.
+- RLA: Added parameter validation and more tracing.
+- RLA: Set field description text.  Removed 'serializable' designation.  Added check for no records returned from DSPFFD.
+- System pool: Eliminated 2 obsolete non-public constructors. Added parameter validation.
+- System status: Exploit new SystemPool constructors.
+- Trace: In finalize(), close all writers (except when they're built on System.out).
+- User: Added getters/setters for userExpirationAction, userExpirationDate, userExpirationInterval, userEntitlementRequired.
+- User: Additional fixes not included in the associated PTF's: Serializability bug, and NullPointerException in new utility method 'isBlanks'.
+- User space: Improved synchronization.
+</PRE>
 
 <HR>
 <H3><A NAME="63">Fixes and enhancements in JTOpen 6.3</A> <i>(released 2008-08-29)</i></H3>
@@ -270,10 +324,10 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Product:  Changes so that when running natively user space will use sockets instead of native method calls. 
 - PTF:  Changes so that when running natively user space will use sockets instead of native method calls. 
 - QSYSObjectPathName:  Fix parsing of eszett and other 1 to N uppercasing characters.
-- SaveFile:  Changes so that when running natively user space will use sockets instead of native method calls. 
+- Save file:  Changes so that when running natively user space will use sockets instead of native method calls. 
 - Security: Support new messages from sign-on server.
 - Security: Added additional change password return codes.
-- SpooledFile:  Retrieving invalid spooled file attributes.
+- Spooled file:  Retrieving invalid spooled file attributes.
 - User space:  Changes so that when running natively user space will use sockets instead of native method calls to avoid error indicating that JT4PTF and JT4USRSPC user space could not be found.
 </PRE>
 
@@ -652,8 +706,8 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Print: Retrieve AT_SYS_DRV_PGM attribute.  Added ATTR_CHR_RTT_CMDS attribute.
 - RFML: Rethrow IOException as SAXException on call to DefaultHandler.resolveEntity(), for compatibility with the IBM JDK.
 - RLA: Handle *NONE key field names in logical files.
-- SpooledFile: Retrieve ATTR_CHR_RTT_CMDS attribute.
-- SpooledFile: Don't retrieve ATTR_DATE_END or ATTR_TIME_END.
+- Spooled file: Retrieve ATTR_CHR_RTT_CMDS attribute.
+- Spooled file: Don't retrieve ATTR_DATE_END or ATTR_TIME_END.
 - User space: *SYSTEM domain was being sent to the server as *SYSTFM on a create().
 </PRE>
 
