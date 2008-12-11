@@ -44,8 +44,8 @@ class AS400ConnectionPoolAuthentication // Package scoped class
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400ConnectionPoolAuthentication object (password)");
     if (password == null)
     {
-        Trace.log(Trace.ERROR, "Parameter 'password' is null.");
-        throw new NullPointerException("password");
+        Trace.log(Trace.DIAGNOSTIC, "Parameter 'password' is null (password prompt may be used).");
+        //throw new NullPointerException("password");
     }
 
     password_ = password;
