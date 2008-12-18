@@ -18,7 +18,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
 import java.beans.PropertyVetoException;
 /**
- * The ProfileHandleCredential class represents an i5/OS system profile handle.
+ * Represents an i5/OS system profile handle.
  *
  * <p> This credential does not support all possible behavior
  * for i5/OS system profile handles. It is provided to fill a secondary
@@ -33,8 +33,6 @@ import java.beans.PropertyVetoException;
  *
  */
 public final class ProfileHandleCredential extends AS400Credential {
-
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
 
 
@@ -43,7 +41,7 @@ public final class ProfileHandleCredential extends AS400Credential {
 	/**
 	 Indicates the length of a profile handle (in bytes)
 	 **/
-	public static int HANDLE_LENGTH = 12;
+	public static final int HANDLE_LENGTH = 12;
 /**
  * Constructs a ProfileHandleCredential object.
  *
