@@ -17,7 +17,7 @@ package com.ibm.as400.util.commtrace;
  * Allows the user to parse, print, and have easy access to the LanHeader.
  */
 public class LanHeader {
-	private BitBuf data;
+	//private BitBuf data;
 	private Field llc;
 	private String protocol, frameformat;
 	private Field lanroutel, eth2sourcemac, // ETH V2 fields
@@ -49,7 +49,7 @@ public class LanHeader {
 	 * @param protocol	this packet's protocol.
 	 */
 	LanHeader(BitBuf data, Field f, String protocol) {
-		this.data= data;
+		//this.data= data;
 		this.llc= f;
 		this.protocol= protocol;
 		lanroutel= new Dec(data.slice(160, 8));
@@ -82,7 +82,7 @@ public class LanHeader {
 	 */
 	public int getDataStart() {
 		if ((llc.toString()).equals("0xFF")) {
-			if ((protocol.toString()).equals("E")) { // Tokenring     
+			if (protocol.equals("E")) { // Tokenring     
 				return ((Integer.parseInt(lanroutel.toString()) * 8) + 176);
 			} else { // 802.3 Ethernet
 				return 176;
@@ -98,7 +98,7 @@ public class LanHeader {
 	 */
 	public int getFrameType() {
 		if ((llc.toString()).equals("0xFF")) {
-			if ((protocol.toString()).equals("E")) { // Tokenring		
+			if (protocol.equals("E")) { // Tokenring		
 				frametype= trnframetype;
 			} else { // 802.3 Ethernet
 				frametype= ethframetype;
@@ -115,7 +115,7 @@ public class LanHeader {
 	 */
 	public String getMacAddress() {
 		if ((llc.toString()).equals("0xFF")) {
-			if ((protocol.toString()).equals("E")) { // Tokenring		
+			if (protocol.equals("E")) { // Tokenring		
 				destmac= trndestmac;
 			} else { // 802.3 Ethernet
 				destmac= ethdestmac;
@@ -142,7 +142,7 @@ public class LanHeader {
 	 */
 	public String toString() {
 		if ((llc.toString()).equals("0xFF")) {
-			if ((protocol.toString()).equals("E")) { // Tokenring		
+			if (protocol.equals("E")) { // Tokenring		
 				sourcemac= trnsourcemac;
 				destmac= trndestmac;
 				frametype= trnframetypeh;
