@@ -34,7 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 
 /**
- *  Utility class for generating IBM-formatted CL command help documentation.
+ *  Generates IBM-formatted CL command help documentation.
  *  This class requires that valid XML and XSL processors (e.g. Xerces and Xalan) be in the CLASSPATH.
  *
  *   CommandHelpRetriever can be run as a command line program, as follows:
@@ -54,28 +54,28 @@ import javax.xml.parsers.ParserConfigurationException;
  *  <p>
  *  <dl>
  *
- *  <dt><b><code>-library </b></code><var>i5/OS library.</var></dt>
- *  <dd>Specifies the i5/OS library.
+ *  <dt><b><code>-library </b></code><var>IBM i library.</var></dt>
+ *  <dd>Specifies the IBM i library.
  *  This parameter may be abbreviated <code>-l</code> or <code>-lib</code>.
  *  </dd>
  *
- *  <dt><b><code>-command </b></code><var>i5/OS command.</var></dt>
- *  <dd>Specifies the i5/OS command.
+ *  <dt><b><code>-command </b></code><var>IBM i command.</var></dt>
+ *  <dd>Specifies the IBM i command.
  *  This parameter may be abbreviated <code>-c</code> or <code>-cmd</code>.
  *  </dd>
  *
- *  <dt><b><code>-system </b></code><var>i5/OS system name</var></dt>
- *  <dd>Specifies the i5/OS system.  If an i5/OS system name is not provided, a signon dialog will be displayed.
+ *  <dt><b><code>-system </b></code><var>IBM i system name</var></dt>
+ *  <dd>Specifies the IBM i system.  If an IBM i system name is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-s</code> or <code>-sys</code>.
  *  </dd>
  *  
- *  <dt><b><code>-userid </b></code><var>i5/OS userId.</var></dt>
- *  <dd>Specifies the i5/OS userId.    If an i5/OS userid  is not provided, a signon dialog will be displayed.
+ *  <dt><b><code>-userid </b></code><var>IBM i userID.</var></dt>
+ *  <dd>Specifies the IBM i userId.    If an IBM i userID is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-u</code> or <code>-uid</code>.
  *  </dd>
  *
- *  <dt><b><code>-password </b></code><var>i5/OS password.</var></dt>
- *  <dd>Specifies the i5/OS password.  If an i5/OS password is not provided, a signon dialog will be displayed.
+ *  <dt><b><code>-password </b></code><var>IBM i password.</var></dt>
+ *  <dd>Specifies the IBM i password.  If an IBM i password is not provided, a signon dialog will be displayed.
  *  This optional parameter may be abbreviated <code>-p</code> or <code>-pwd</code>.
  *  </dd>
  * 
@@ -103,8 +103,6 @@ import javax.xml.parsers.ParserConfigurationException;
 **/
 public class CommandHelpRetriever
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
   private boolean debug_ = false;
 
   // The Templates object is threadsafe. We use it to pre-compile
@@ -262,7 +260,7 @@ public class CommandHelpRetriever
   // Don't ask for UIM MRI unless someone calls the UIM methods.  Do this so this tool
   // works with V5R2 MRI.
 //  private static final String[][] transformedUIMParms_ = getTransformedUIMParms(Locale.getDefault());
-  private static String[][] transformedUIMParms_;
+  //private static String[][] transformedUIMParms_;
 
   // Find the XSL document, generate an XSL template, load the resource bundles,
   // and generate the MRI strings.
@@ -379,8 +377,8 @@ public class CommandHelpRetriever
             }
 
             FileWriter out = new FileWriter(outFile);
-            out.write(html);
-            out.close();
+            try { out.write(html); }
+            finally { if (out != null) out.close(); }
           }
           if (genUIM_)
           {
@@ -399,8 +397,8 @@ public class CommandHelpRetriever
             }
 
             FileWriter out = new FileWriter(outFile);
-            out.write(uim);
-            out.close();
+            try { out.write(uim); }
+            finally { if (out != null) out.close(); }
           }
         }
         catch (Exception e1)
@@ -614,9 +612,8 @@ public class CommandHelpRetriever
         outFile = new File(outputDirectory_ + "_XML.xml");
 
       FileWriter fw = new FileWriter(outFile);
-      fw.write(xml);
-      fw.flush();
-      fw.close();
+      try { fw.write(xml); }
+      finally { if (fw != null) fw.close(); }
     }
 
     if (Trace.isTraceOn())
@@ -687,9 +684,8 @@ public class CommandHelpRetriever
         outFile = new File(outputDirectory_ + "_HTMLHelp.html");
 
       FileWriter fw = new FileWriter(outFile);
-      fw.write(helpResults);
-      fw.flush();
-      fw.close();
+      try { fw.write(helpResults); }
+      finally { if (fw != null) fw.close(); }
     }
 
     // Reset the transformer. We could re-use the same Transformer object,
@@ -792,9 +788,8 @@ public class CommandHelpRetriever
         outFile = new File(outputDirectory_ + "_XML_X.xml");
 
       FileWriter fw = new FileWriter(outFile);
-      fw.write(xml);
-      fw.flush();
-      fw.close();
+      try { fw.write(xml); }
+      finally { if (fw != null) fw.close(); }
     }
 
     if (Trace.isTraceOn())
