@@ -16,22 +16,19 @@ package com.ibm.as400.resource;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.io.Serializable;
 
 
 
 
 /**
-The ProgramKeys class represents a map between logical values (e.g.
+Represents a map between logical values (e.g.
 Resource attribute values) and keys for a program call.  This is
 useful for system APIs which allow values to be set using a key.
 Each logical value is referred to by a logical ID in the map.
 **/
-class ProgramKeys
+class ProgramKeys implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
 
 /**
 Constant indicating the type for binary data.
