@@ -19,7 +19,7 @@ import java.util.Hashtable;
 
 
 /**
-The Presentation class represents presentation information that
+Represents presentation information that
 describes an object.  This may include description text, help
 text, and icons.  In addition, customized information can also
 be stored.
@@ -28,14 +28,7 @@ be stored.
 public class Presentation
 implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
-
     static final long serialVersionUID = 4L;
-
-
 
     // Private data.
     private static final String EMPTY_STRING_           = "";
@@ -308,7 +301,7 @@ Sets a presentation value.
 
         if (key.equals(NAME))
             name_ = value.toString();
-        else if (equals(FULL_NAME))
+        else if (key.equals(FULL_NAME))
             fullName_ = value.toString();
         else
             values_.put(key, value);
