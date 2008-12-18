@@ -138,7 +138,7 @@ class IPAddressConversion {
 			ret.append(seg[i] + ".");
 		}
 		// Remove the last delimiter and return the array
-		return ret.substring(0, (ret.length() - 1)).toString();
+		return ret.substring(0, (ret.length() - 1));
 	}
 
 	/**
@@ -196,7 +196,7 @@ class IPAddressConversion {
 			}
 		}
 		// Remove the last delimiter and return the array
-		return ret.substring(0, (ret.length() - 1)).toString();
+		return ret.substring(0, (ret.length() - 1));
 	}
 
 	/**
@@ -327,7 +327,7 @@ class IPAddressConversion {
 			}
 		}
 		// Remove the last delimiter and return the array 
-		return ret.substring(0, ret.length() - 1).toString();
+		return ret.substring(0, ret.length() - 1);
 	}
 
 	/**
@@ -392,7 +392,7 @@ class IPAddressConversion {
 			}
 		}
 		// Remove the last delimiter and return the array 
-		return ret.substring(0, ret.length() - 1).toString();
+		return ret.substring(0, ret.length() - 1);
 	}
 
 	/**
