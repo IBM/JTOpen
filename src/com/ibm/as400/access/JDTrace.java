@@ -413,6 +413,8 @@ Maps an object to a string.
 **/
   static String objectToString(Object object)               // @J3c (no longer private)
   {
+    if(object == null)
+        object = ""; //@pda dummy to "" so don't get incorrect null pointer exception while trace is on.
     // Determine the class name.
     String clazz = object.getClass().getName();     // @D3C
     String className;
