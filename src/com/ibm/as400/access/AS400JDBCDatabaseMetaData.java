@@ -5561,7 +5561,7 @@ implements DatabaseMetaData
 
                     // Set the Field Information to Return Bitmap
                     // Return library, table, and column
-                    request.setSpecialColumnsReturnInfoBitmap(0x1F000000);
+                    request.setSpecialColumnsReturnInfoBitmap(0x1F800000); //@rchg set 8th bit for row change timestamp column information
 
 
                     // Set the short / long file and field name indicator
