@@ -53,6 +53,7 @@ class JDCursor
   private int                 scrollable_ = -1;          //@cur
   private int                 updatable_ = -1;           //@cur (if on 550 hostserver, can use this instead of concurrency_)
   private int                 sensitive_ = -1;           //@cur
+  private int                 isolationLevel_ = -1;      //@isol  
 
 
 /**
@@ -267,7 +268,7 @@ Opens the cursor and describes the data format.
                                              id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
                                              + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT              
                                              + DBSQLRequestDS.ORS_BITMAP_SQLCA,                                  // @E1A
-                                             0);
+                                             0);   //@isol  Note:  ORS_BITMAP_CURSOR_ATTRIBUTES not needed here since it is specified by callers before this point
 
       request.setOpenAttributes (openAttributes);
                 //@F1 Even though multiple cases were required in AS400JDBCStatement, scrollable is 
@@ -423,6 +424,7 @@ Processes a cursor attributes from a reply.
      scrollable_ = reply.getCursorAttributeScrollable();
      updatable_ = reply.getCursorAttributeUpdatable();
      sensitive_ = reply.getCursorAttributeSensitive();
+     isolationLevel_ = reply.getCursorIsolationLevel(); //@isol
  }
 
 
@@ -466,7 +468,17 @@ Processes a cursor attributes from a reply.
      return sensitive_;
  }
  
-
+ 
+ //@isol new method
+ /**
+ Returns the cursor isolation level.
+ @return The cursor isolation level.
+ **/
+ public int getCursorIsolationLevel()
+ {
+     return isolationLevel_;
+ }
+ 
 
 /**
 Set the cursor name.

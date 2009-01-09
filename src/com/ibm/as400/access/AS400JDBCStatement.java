@@ -714,7 +714,7 @@ public class AS400JDBCStatement implements Statement
                             requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS;    //@F3A  //@541C  undeleted
                          }                                                                                          //@F3A  //@541C  undeleted
                     }                                                                                              //@F3A   //@541C  undeleted
-                    if(connection_.getVRM() >= JDUtilities.vrm610 && isCall)     //@cur request cursor attributes
+                    if(connection_.getVRM() >= JDUtilities.vrm610 )     //@cur request cursor attributes  //@isol
                         requestedORS = requestedORS + DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES; //@cur
                     //@P0A
                     request = DBDSPool.getDBSQLRequestDS(functionId, id_, requestedORS, 0);    //@P0C @F3C @F5C //@541C 
@@ -1332,7 +1332,7 @@ public class AS400JDBCStatement implements Statement
                     
                     int requestedORS = DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA;    //@F5A
                     boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);      //@cur
-                    if(connection_.getVRM() >= JDUtilities.vrm610 && isCall)                           //@cur
+                    if(connection_.getVRM() >= JDUtilities.vrm610 )                           //@cur //@isol
                         requestedORS += DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES;                   //@cur
                     //@F5A If we are on a system that supports extended column descriptors and if the              //@F5A
                     //@F5A user asked for them, send the extended column descriptors code point.                   //@F5A
@@ -2794,7 +2794,7 @@ public class AS400JDBCStatement implements Statement
                 DBReplyRequestedDS reply = null;    //@P0A
                 try
                 {
-                    if((connection_.getVRM() >= JDUtilities.vrm610) && (this instanceof AS400JDBCCallableStatement))                           //@cur
+                    if((connection_.getVRM() >= JDUtilities.vrm610))                           //@cur //@isol
                         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT+DBSQLRequestDS.ORS_BITMAP_CURSOR_ATTRIBUTES, 0);    //@cur
                     else
                         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA+DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);    //@P0C
@@ -3264,8 +3264,10 @@ public class AS400JDBCStatement implements Statement
         // @F4 holdability of a specific statement (as a different value than the connection
         // @F4 holdability) with JDBC 3.0 support.  If this was called from Connection.rollback(),
         // @F4 close all statements.
-        if(getResultSetHoldability() == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT    //@F4A
-           || isRollback)    //@F4A
+        if((getResultSetHoldability() == AS400JDBCResultSet.CLOSE_CURSORS_AT_COMMIT    //@F4A
+           || isRollback)  //@F4A 
+           &&  ((connection_.getVRM() <= JDUtilities.vrm610) 
+               || ((connection_.getVRM() >= JDUtilities.vrm710) && cursor_.getCursorIsolationLevel() != 0)))   //@isol only close if cursor's isolationlvl is not *none
         {
             //@F5D cursor_.setState(true);
             //@F4 Instead of calling closeResultSet which does more work than we need to, 

@@ -232,6 +232,8 @@ extends ClientAccessDataStream
   private int scrollable = -1;    //@cur
   private int updatable = -1;     //@cur
   private int sensitive = -1;     //@cur 
+  
+  private int isolationLevel = -1; //@isol
 
   
   //@P0A - Call this in place of constructing a new reply datastream.
@@ -259,6 +261,7 @@ extends ClientAccessDataStream
     updatable = -1;     //@cur
     sensitive = -1;     //@cur 
     extendedColumnDescriptors_ = null; //@79jqev
+    isolationLevel = -1; //@isol
     
   }
 
@@ -379,6 +382,17 @@ Returns the first level message text.
 
 
 
+  //@isol 
+  /**
+  Returns the cursor isolation level.
+  @return The cursor isolation level. 
+  **/
+  public int getCursorIsolationLevel()
+  {
+          return isolationLevel;
+  }
+  
+  
 /**
 Returns the LOB data.
 
@@ -868,6 +882,16 @@ Parses the datastream.
               scrollable = (attrs >> 16) & 0x0001;
               updatable = (attrs >> 8) & 0x0001;
               sensitive = ((attrs >> 0) & 0x0001) == 1 ? 0 : 1; //attr from zda is INsensitive          
+              
+              attrs = get32bit(offset + 10);    //@isol
+              isolationLevel = (attrs >> 24) & 0x000f;  //@isol 
+              /*(Byte 5 - Cursor Isolation Level  
+                '0' None  
+                '1' Cursor Stability  
+                '2' Uncommitted Read (*CHG)  
+                '3' Read Stability (*ALL) 
+                '4' Repeatable Read */  
+                
           }
           else                                    //@79jqev
           {                                       //@79jqev
