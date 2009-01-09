@@ -170,6 +170,11 @@ for use in implementing various pieces of the JDBC driver.
                   request.setLibraryName("%", connection.converter_);
                   request.setLibraryNameSearchPatternIndicator(0xF1);
                 }
+                else
+                {
+                    request.setLibraryName("*LIBL", connection.converter_); //@libl
+                    request.setLibraryNameSearchPatternIndicator(0xF0);     //@libl
+                }
 
 
                 // Set the Library Information to Return Bitmap
