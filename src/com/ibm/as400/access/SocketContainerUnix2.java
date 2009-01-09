@@ -21,7 +21,7 @@ import java.net.SocketException;
 
 class SocketContainerUnix2 extends SocketContainer
 {
-    private int sd_;
+    private int[] sd_; //@leak [0] is normal descriptor, [1] is needed for close()
     private boolean closed_ = false;
     private Object lock_ = new Object();
 
@@ -58,7 +58,64 @@ class SocketContainerUnix2 extends SocketContainer
         }
         try
         {
-            sd_ = NativeMethods.socketCreate(serverNumber);
+            /*  A little background:  From jt400Native.jar (NativeMethod.java) 
+            we first load qyjspase32/64 followed load of QYJSPART.SRVPGM.
+            qyjspase contains functions with same signature as qyjspart.  
+            So these methods are used in a jni call since they were loaded first.
+            We had a leak since socketPair creates two descriptors, 
+            but we were only closing one of them.
+            Since we need to close both socketPair descriptors, we ended 
+            up having to create a new method with new signature to return
+            both socket descriptors.  And a corresponding socketPaseClose 
+            method was added.  We cannot just change the existing function
+            signatures to handle two descriptors since if calling from old 
+            jt400Native.jar they will fail, but other methods will still 
+            be accessable, but will not work with ILE sockets.  So the 
+            solution is to use all or none of the pase socket related methods.
+            (create, close, read, write).  (ie.  We cannot allow just 
+            socketCreate() to fail and thus use old method (in qyjspntv.C), followed
+            by calls to pase socketRead/Write since they fail).
+            Also note that we want to be able to run with the old jt400Native 
+            jar with the new qyjspase lib.  To do this, we have to add a try/catch
+            in java com.ibm.as400.access.SocketContainerUnix2 to first try
+            the new socketPaseCreate() function and if it fails, then catch the exception
+            and try the old function signature (ie socketCreate()).  
+            If socketPaseCreate() fails, we cannot just move on down to the socketCreate()
+            in qyjspart since then socketRead/Write would fail (no mixing of ile with pase).  
+            So this is why we have left the socketCreate/Close functions
+            here in this file and just added socketPaseCreate/Close with the needed updates.
+            */
+                        
+            if(NativeMethods.paseLibLoaded)                         //@leak
+            {
+                try{
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseCreate()");//@leak
+                    
+                    sd_ = NativeMethods.socketPaseCreate(serverNumber);      //@leak //socketPaseCreate in qyjspase
+                }catch(NativeException ne){                                  //@leak
+                    //got here because of actual exception creating socket on host.
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseCreate()");//@leak
+                    throw ne;                                                //@leak
+                }catch(Throwable e){                                         //@leak
+                    //Here we actually get java.lang.UnsatisfiedLinkError which is subclass of Throwable
+                    //got here is using new jt400Native.jar with old qyjspase32.so lib
+                    //so we just call the old method in qyjspase32.so
+                    if (Trace.traceOn_)
+                    {
+                        Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseCreate()");//@leak
+                        Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketCreate()");//@leak
+                    }
+                    sd_ = new int[1];                                    //@leak
+                    sd_[0] = NativeMethods.socketCreate(serverNumber);   //@leak //socketCreate in qyjspase
+                }
+            }
+            else
+            {                                                        //@leak
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling non-pase NativeMethods.socketPaseCreate()");//@leak
+              
+                sd_ = new int[1];                                    //@leak
+                sd_[0] = NativeMethods.socketCreate(serverNumber);   //@leak //socketCreate in qyjspart
+            }                                                        //@leak
         }
         catch (NativeException e)
         {
@@ -72,7 +129,36 @@ class SocketContainerUnix2 extends SocketContainer
         {
             try
             {
-                NativeMethods.socketClose(sd_);
+                if(NativeMethods.paseLibLoaded)               //@leak
+                {                                             //@leak
+                    try{                                      //@leak
+                        if(sd_.length < 2)                    //@leak
+                            throw new Throwable();            //@leak
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseClose()");//@leak
+                        
+                        NativeMethods.socketPaseClose(sd_[0], sd_[1]); //@leak
+                    }catch(NativeException ne){                        //@leak
+                        //got here because of actual exception calling close on host.
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseClose()");//@leak
+                        throw ne;                                      //@leak
+                    }catch(Throwable e){                               //@leak
+                        //Here we actually get java.lang.UnsatisfiedLinkError which is subclass of Throwable
+                        //got here is using new jt400Native.jar with old qyjspase32.so lib
+                        //so we just call the old method in qyjspase32.s
+                        if (Trace.traceOn_)
+                        {
+                            Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseClose()");//@leak
+                            Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketClose()");//@leak
+                        }
+                        NativeMethods.socketClose(sd_[0]);    //@leak
+                    }                                         //@leak 
+                }                                             //@leak
+                else                                          //@leak
+                {                                             //@leak
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling non-pase NativeMethods.socketClose()");//@leak
+                    NativeMethods.socketClose(sd_[0]);        //@leak
+                }                                             //@leak
+              
                 closed_ = true;
             }
             catch (NativeException e)
@@ -136,7 +222,7 @@ class SocketContainerUnix2 extends SocketContainer
             }
             try
             {
-                int n = NativeMethods.socketRead(sd_, b, off, length);
+                int n = NativeMethods.socketRead(sd_[0], b, off, length);  //@leak
                 if (n <= 0)
                 {
                     eof_ = true;
@@ -192,7 +278,7 @@ class SocketContainerUnix2 extends SocketContainer
             {
                 try
                 {
-                    return NativeMethods.socketAvailable(sd_);
+                    return NativeMethods.socketAvailable(sd_[0]); //@leak
                 }
                 catch (NativeException e)
                 {
@@ -226,7 +312,7 @@ class SocketContainerUnix2 extends SocketContainer
         {
             try
             {
-                NativeMethods.socketWrite(sd_, b, off, len);
+                NativeMethods.socketWrite(sd_[0], b, off, len); //@leak
             }
             catch (NativeException e)
             {

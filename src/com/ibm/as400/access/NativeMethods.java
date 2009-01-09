@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 // The NativeMethods class is used to call the native methods for the IBM Toolbox for Java Native Classes.
 public class NativeMethods
 {
+    static boolean paseLibLoaded = false; //@leak
     static
     {
         // Check to see which version of native code to use                 //@pase1
@@ -30,12 +31,14 @@ public class NativeMethods
                     //load 64 bit version
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 64bit libs if available");//@pase1
                     System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase64.so");  //@pase1
+                    paseLibLoaded = true; //@leak
 
                 } else                                                          //@pase1
                 {                                                               //@pase1
                     //load 32 bit version
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 32bit libs if available");//@pase1
                     System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase32.so");   
+                    paseLibLoaded = true; //@leak
                 }                                                               //@pase1
             }catch(Throwable t)                                                 //@pase1
             {                                                                   //@pase1
@@ -69,7 +72,9 @@ public class NativeMethods
 
     static native int socketAvailable(int sd) throws NativeException;
     static native int socketCreate(int serverNumber) throws NativeException;
+    static native int[] socketPaseCreate(int serverNumber) throws NativeException;  //@leak returns 2 descriptors
     static native void socketClose(int sd) throws NativeException;
+    static native void socketPaseClose(int sd, int sd2) throws NativeException; //@leak
     static native int socketRead(int sd, byte b[], int off, int len) throws NativeException;
     static native void socketWrite(int sd, byte b[], int off, int len) throws NativeException;
     static native byte[] getUserId() throws NativeException;
