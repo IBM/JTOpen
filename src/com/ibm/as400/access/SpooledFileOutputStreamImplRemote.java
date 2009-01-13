@@ -22,13 +22,10 @@ import java.io.IOException;
 class SpooledFileOutputStreamImplRemote
 implements SpooledFileOutputStreamImpl
 {   
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final String DT_AUTO = "*AUTO";
     static final String DT_PRTF = "*PRTF";
 
     private byte[] buffer_ = new byte[4096];  // we'll buffer up to 4K before sending
-    private byte[] buffer1Byte_ = new byte[1];  // for the write(byte) method
 
     private NPConversation conversation_;
 
@@ -364,13 +361,13 @@ implements SpooledFileOutputStreamImpl
             cpIDOutQ_ = (NPCPIDOutQ)((OutputQueueImplRemote) outputQueue).getIDCodePoint();
         }
 
-        /////////////////////////////////////////////////////////////////////////
+        //-------------------------------------------------------------
         // figure out what data type we're using.
         // If the user has specified nothing or *AUTO
         //   delay the open until we get some data to analyze.
         // If the user has specified *PRTF, change it to be nothing and the server
         //   will use what is in the printer file.
-        /////////////////////////////////////////////////////////////////////////
+        //-------------------------------------------------------------
         String strDataType = null;
 
         cpAttr_ = new NPCPAttribute();       // we need our own copy because we may change things
@@ -386,14 +383,13 @@ implements SpooledFileOutputStreamImpl
              // datastream type not specified, so use *AUTO
             strDataType = DT_AUTO;
         } else {
-            ///////////////////////////////////////////////////////////////
+            //-------------------------------------------------------------
             // strip trailing nulls & uppercase user specified value.
-            ///////////////////////////////////////////////////////////////
-            strDataType = strDataType.trim();
-            strDataType.toUpperCase();
+            //-------------------------------------------------------------
+            strDataType = strDataType.toUpperCase().trim();
         }
 
-        //////////////////////////////////////////////////////////////////
+        //-------------------------------------------------------------
         // strDataType now contains the data type to use, whether the user
         // explicitly set it or we defaulted it.
         // Need to see if we should delay the create here
@@ -403,7 +399,7 @@ implements SpooledFileOutputStreamImpl
         // ELSE
         //   set create pending flag on
         // ENDIF
-        //////////////////////////////////////////////////////////////////
+        //-------------------------------------------------------------
         if (strDataType.equals(DT_AUTO))
         {
            fCreatePending_ = true;  // data type is automatic so wait for create
@@ -423,7 +419,7 @@ implements SpooledFileOutputStreamImpl
       * It must be called to release any resources associated with the stream.
       * @exception IOException If an error occurs while communicating with the server.
       **/
-    public void close()
+    public synchronized void close()
        throws IOException
     {
         if (conversation_ == null)
@@ -519,8 +515,6 @@ implements SpooledFileOutputStreamImpl
                }
            }
            npSystem_.returnConversation(conversation_);
-           conversation_ = null;
-           npSystem_ = null;
        }
        super.finalize();   // always call super.finalize()!
     }
@@ -530,7 +524,7 @@ implements SpooledFileOutputStreamImpl
     /** Flushes the stream.  This will write any buffered output bytes.
       * @exception IOException If an error occurs while communicating with the server.
       **/
-    public void flush()
+    public synchronized void flush()
         throws IOException
     {
         // send what we have, if any
@@ -593,10 +587,10 @@ implements SpooledFileOutputStreamImpl
         Trace.log(Trace.ERROR, "Conversation is null.");
             throw new IOException();
         }
-        /////////////////////////////////////////////////////////////////
+        //-------------------------------------------------------------
         // if datatype is something (override the printer file
         //  set the datatype in the attributes
-        /////////////////////////////////////////////////////////////////
+        //-------------------------------------------------------------
         if ((strDataType != null) &&
             (!strDataType.equals("")))     // if strDataType is something
         {
@@ -731,32 +725,32 @@ implements SpooledFileOutputStreamImpl
         {
 
 
-            ////////////////////////////////////////////////////////////
+            //-------------------------------------------------------------
             // calculate the available buffer space left in the current
             // buffer
-            ////////////////////////////////////////////////////////////
+            //-------------------------------------------------------------
             int availLen = buffer_.length - offset_;
 
             if (availLen >= dataLeftToSend)
             {
-                //////////////////////////////////////////////////////////
+                //-------------------------------------------------------------
                 // If we have enough to hold it all
                 //   Move it all to the current buffer
-                //////////////////////////////////////////////////////////
+                //-------------------------------------------------------------
                 System.arraycopy(data, currentSourceOffset,
                                  buffer_, offset_,
                                  dataLeftToSend);
                 currentSourceOffset += dataLeftToSend;
                 offset_ += dataLeftToSend;
-                dataLeftToSend -= dataLeftToSend;
+                dataLeftToSend = 0;
             } else {
                 if (availLen != 0)
                 {
-                    ///////////////////////////////////////////////////////
+                    //-------------------------------------------------------------
                     // If we have ANY room at all
                     //   Move what we can from the callers buffer to
                     //     the current write bitstream
-                    ///////////////////////////////////////////////////////
+                    //-------------------------------------------------------------
                     System.arraycopy(data, currentSourceOffset,
                                      buffer_, offset_,
                                      availLen);
@@ -766,9 +760,9 @@ implements SpooledFileOutputStreamImpl
                     dataLeftToSend -= availLen;
                  }
 
-                 ///////////////////////////////////////////////////////
+                 //-------------------------------------------------------------
                  // if there is any data in the bytestream, send it out
-                 ///////////////////////////////////////////////////////
+                 //-------------------------------------------------------------
                  if (offset_ != 0)
                  {
                      makeWriteRequest(buffer_, 0, offset_);
