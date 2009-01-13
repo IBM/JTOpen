@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSConnection.java
 //                                                                             
@@ -30,10 +30,6 @@ to a client of the proxy server.
 class PSConnection
 extends StoppableThread
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     // Private data.
     private boolean                             closed_                 = false;
     private long                                connectionId_;
@@ -150,7 +146,6 @@ Constructs a PSConnection object.
         }
         factory_ = null;
         load_.connectionClosed ();
-        System.gc();
 
         Verbose.println (ResourceBundleLoader.getText ("PROXY_CONNECTION_CLOSED", Long.toString (connectionId_)));
     }
