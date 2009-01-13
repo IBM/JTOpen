@@ -54,7 +54,7 @@ implements Serializable
   private static final int EXISTENCE_YES     = 1;  // save file exists on system
   private static final int EXISTENCE_NO      = 2;  // save file doesn't exist
 
-  private static final String USERSPACE_NAME = "JT4USRSPC QTEMP     ";
+  private static final String USERSPACE_QUALIFIED_NAME = "JT4USRSPC QTEMP     ";
   private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4USRSPC.USRSPC";
 
   private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
@@ -294,6 +294,7 @@ implements Serializable
     {
       SaveFile other = (SaveFile)obj;
 
+      // Note: For any given SaveFile object:  system_, library_, and name_ are all guaranteed to be non-null.
       if (!system_.equals(other.getSystem())) return false;
       if (!library_.equals(other.getLibrary())) return false;
       if (!name_.equals(other.getName())) return false;
@@ -302,6 +303,16 @@ implements Serializable
     catch (Throwable e) {
       return false;
     }
+  }
+
+  /**
+   Returns a hash code value for the object.
+   @return A hash code value for this object.
+   **/
+  public int hashCode()
+  {
+    // We must conform to the invariant that equal objects must have equal hashcodes.
+    return (system_.hashCode() + library_.hashCode() + name_.hashCode());
   }
 
 
@@ -604,7 +615,7 @@ implements Serializable
 
     ProgramParameter[] parms = new ProgramParameter[7];
 
-    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));
+    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));
     parms[1] = new ProgramParameter(conv.stringToByteArray("SAVF0200"));
     parms[2] = new ProgramParameter(conv.stringToByteArray(getNameAndLib()));
     parms[3] = new ProgramParameter(conv.stringToByteArray("*ALL      "));
@@ -615,7 +626,7 @@ implements Serializable
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSRLSAVF.PGM", parms);
     byte[] buf = null;
 
-    synchronized (USERSPACE_NAME)
+    synchronized (USERSPACE_QUALIFIED_NAME)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
@@ -740,7 +751,7 @@ implements Serializable
 
     ProgramParameter[] parms = new ProgramParameter[4];
 
-    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));
+    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));
     parms[1] = new ProgramParameter(conv.stringToByteArray("PRDL0100"));
     parms[2] = new ProgramParameter(conv.stringToByteArray(getNameAndLib()));
     parms[3] = errorCode_;
@@ -748,7 +759,7 @@ implements Serializable
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QLPLPRDS.PGM", parms);
     byte[] buf = null;
 
-    synchronized (USERSPACE_NAME)
+    synchronized (USERSPACE_QUALIFIED_NAME)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
@@ -976,7 +987,7 @@ implements Serializable
       }
       throw new AS400Exception(cmd.getMessageList());
     }
-    catch (PropertyVetoException e) {} // this will never happen
+    catch (PropertyVetoException e) { Trace.log(Trace.ERROR, e); } // this will never happen
   }
 
 
@@ -1261,7 +1272,7 @@ implements Serializable
   }
 
   /**
-   Sets whether the open data path (ODP) for the save file is shared with other programs in the routing step.  When an ODP is shared, the programs accessing the file can share facilities such as the file status and the buffer.  For more details refer to the specification of the <tt>CHGSAVF</tt> CL command in the i5/OS reference.
+   Sets whether the open data path (ODP) for the save file is shared with other programs in the routing step.  When an ODP is shared, the programs accessing the file can share facilities such as the file status and the buffer.  For more details refer to the specification of the <tt>CHGSAVF</tt> CL command in the IBM i reference.
    If the save file doesn't exist on the system, an exception is thrown.
    <br>The default is "not shared".
    @param shared Whether ODP is shared.
