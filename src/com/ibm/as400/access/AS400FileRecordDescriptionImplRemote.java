@@ -48,7 +48,7 @@ import java.beans.PropertyVetoException;
  *contains enough information to use to describe the record format of the
  *existing file from which it was generated.  The record formats
  *generated are not meant for creating files with the same format as the
- *file from which they are retrieved.  Use the i5/OS Copy File (CPYF) command to create
+ *file from which they are retrieved.  Use the IBM i "Copy File" (CPYF) command to create
  *a file with the same format as an existing file.
  *<br>
  *AS400FileRecordDescription objects generate the following events:
@@ -790,11 +790,11 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       IOException,
       InterruptedException
   {
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------
     // Retrieve the field information for the file
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Generate file on the server containing the file field description
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     String cmd = "DSPFFD FILE(" + library_ + "/" + file_ + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FFD)";
     //@B5D theFile_.chooseImpl();
     Record[] records = null;  //@E0A
@@ -831,9 +831,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       dspffd.delete(); //@E0A
     }                  //@E0A
 
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Retrieve the key field information for the file
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Generate file on the server containing the key field description
     cmd = "DSPFD FILE(" + library_ + "/" + file_ + ") TYPE(*ACCPTH) OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FD)";
     Record[] keyRecords = null; //@E0A
@@ -1130,11 +1130,11 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       InterruptedException,
       IOException
   {
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Retrieve the field information for the file
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Generate file on the server containing the file field description
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     String cmd = "DSPFFD FILE(" + library_ + "/" + file_ + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FFD)";
     //@B5D theFile_.chooseImpl();
     Record[] records = null;  //@E0A
@@ -1177,9 +1177,9 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Retrieve the key field information for the file
-    //////////////////////////////////////////////////////////////////////////////////////////
+    // ------------------------------------------------------------ 
     // Generate file on the server containing the key field description
     cmd = "DSPFD FILE(" + library_ + "/" + file_ + ") TYPE(*ACCPTH) OUTPUT(*OUTFILE) OUTFILE(QTEMP/JT4FD)";
     Record[] keyRecords = null; //@E0A
@@ -2150,7 +2150,6 @@ class QWHFDFMTFormat extends RecordFormat
     super("QWHFDFMT");
 
     AS400Text txt1 = new AS400Text(1, ccsid);
-    AS400Text txt3 = new AS400Text(3, ccsid);
     AS400Text txt4 = new AS400Text(4, ccsid);
     AS400Text txt6 = new AS400Text(6, ccsid);
     AS400Text txt8 = new AS400Text(8, ccsid);
@@ -2222,7 +2221,6 @@ class QWHDRFFDFormat extends RecordFormat
 
     AS400Text txt1 = new AS400Text(1, ccsid);
     AS400Text txt2 = new AS400Text(2, ccsid);
-    AS400Text txt3 = new AS400Text(3, ccsid);
     AS400Text txt4 = new AS400Text(4, ccsid);
     AS400Text txt6 = new AS400Text(6, ccsid);
     AS400Text txt7 = new AS400Text(7, ccsid);
