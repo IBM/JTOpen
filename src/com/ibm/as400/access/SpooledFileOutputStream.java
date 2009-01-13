@@ -22,8 +22,6 @@ import java.io.UnsupportedEncodingException;
   **/
 public class SpooledFileOutputStream extends OutputStream
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     //Private Data
     
     private transient AS400 system_;
@@ -323,8 +321,7 @@ public class SpooledFileOutputStream extends OutputStream
             throw new NullPointerException("system");
         }
         system_ = system;
-        if (impl_ == null)
-            chooseImpl();
+        chooseImpl();
         // Do connect here because it may throw Exceptions.    
         system_.connectService(AS400.PRINT);
       
