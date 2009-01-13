@@ -178,9 +178,6 @@ java com.ibm.as400.access.ProxyServer -maxconnections 25
 //
 public class ProxyServer
 {
-
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     // Private data.
     private static final PrintStream                errors_             = System.err;
 
@@ -379,9 +376,6 @@ Runs the proxy server as an application.
 **/
     public static void main (String args[])
     {
-        // Just to be safe...
-        System.runFinalizersOnExit(true);
-
         ProxyServer proxyServer = new ProxyServer ();
         if (proxyServer.parseArgs (args)) {
             Verbose.forcePrintln (ResourceBundleLoader.getText ("PROXY_SERVER_STARTED"));
@@ -462,7 +456,7 @@ accordingly.
            }                                                                                            //$B1A
         }                                                                                               //$B1A
         catch (ClassNotFoundException e)                                                                //$B1A
-        { /* No need to parse the keyring options since the SSLight classes are not in the CLASSPATH. *///$B1A
+        { /* No need to parse the keyring options since the SSLight classes are not in the CLASSPATH. */ //$B1A
         }                                                                                               //$B1A
 
 
