@@ -25,12 +25,10 @@ import java.util.Date;
 **/
 public class PTFGroup
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     // Also use this to synchronize access to the user space
-    static final String USER_SPACE_NAME = "JT4PTF    QTEMP     ";
+    static final String USERSPACE_QUALIFIED_NAME = "JT4PTF    QTEMP     ";
 
-    static final String USER_SPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC";
+    static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC";
 
     private AS400 system_;
     private String PTFGroupName_;
@@ -147,51 +145,54 @@ public class PTFGroup
     ObjectDoesNotExistException
     {
 
+      try
+      {
         int len = 164;
         int ccsid = system_.getCcsid();
         ConvTable conv = ConvTable.getTable(ccsid, null);
 
         ProgramParameter[] parms = new ProgramParameter[5];
-        parms[0] = new ProgramParameter(conv.stringToByteArray(USER_SPACE_NAME));        //qualified user space name
-        try {parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));        //qualified user space name
+        parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         byte[] groupInfo = new byte[69];
         AS400Text text60 = new AS400Text(60, ccsid, system_);
-        AS400Text text1 = new AS400Text(1, ccsid, system_);
         BinaryConverter.intToByteArray(69, groupInfo, 0);
         text60.toBytes(PTFGroupName_, groupInfo, 4);
         BinaryConverter.intToByteArray(ccsid, groupInfo, 64);
         groupInfo[68] = includeRelatedPTFGroups_ ? (byte)0xF1 : (byte)0xF0; // '1' or '0'
         parms[1] = new ProgramParameter(groupInfo);        // PTF Group Information 
-        try{parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[2] = new ProgramParameter(conv.stringToByteArray("GRPR0500"));            //FORMAT
-        try{parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(ccsid));     //CCSID
-        try{parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[4] = new ProgramParameter(new byte[4]);                               // error code
-        try{parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
+        pc.setThreadSafe(false); // The called API is not documented to be thread-safe, and it must run in same thread as that in which the temporary user space was created.  (Each different thread gets a different QTEMP library.)  So we'll force it to run in the job of the Remote Command Host Server.
         byte[] buf = null;
-        synchronized(USER_SPACE_NAME)       
+
+        synchronized(USERSPACE_QUALIFIED_NAME)       
         {
-            UserSpace us = new UserSpace(system_, USER_SPACE_PATH);
-            us.setMustUseProgramCall(true);
-            us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+          UserSpace us = new UserSpace(system_, USERSPACE_PATH);
+          us.setMustUseProgramCall(true);
+          us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+          try
+          {
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
-            try
+            if (!pc.run())
             {
-                if (!pc.run())
-                {
-                    throw new AS400Exception(pc.getMessageList());
-                }
-                int size = us.getLength();
-                buf = new byte[size];
-                us.read(buf, 0);
+              throw new AS400Exception(pc.getMessageList());
             }
-            finally
-            {
-                us.close();
-            }
+            int size = us.getLength();
+            buf = new byte[size];
+            us.read(buf, 0);
+          }
+          finally
+          {
+            us.close();
+          }
         }
         int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);      
         int numEntries = BinaryConverter.byteArrayToInt(buf, 132);
@@ -202,18 +203,23 @@ public class PTFGroup
         int offset = 0;
         for (int i=0; i<numEntries; ++i)
         {
-            offset = startingOffset + (i*entrySize);
-            relatedPTFGroupName_ = conv.byteArrayToString(buf, offset, 60);
-            offset += 60;
-            PTFgroupDescription_ = conv.byteArrayToString(buf, offset, 100);
-            offset += 100;
-            PTFGroupLevel_ = BinaryConverter.byteArrayToInt(buf, offset);
-            offset += 4;
-            PTFGroupStatus_ = BinaryConverter.byteArrayToInt(buf, offset);
-            offset +=4;
-            ptfs[i] = new PTFGroup(system_, relatedPTFGroupName_, PTFgroupDescription_, PTFGroupLevel_, PTFGroupStatus_);
+          offset = startingOffset + (i*entrySize);
+          relatedPTFGroupName_ = conv.byteArrayToString(buf, offset, 60);
+          offset += 60;
+          PTFgroupDescription_ = conv.byteArrayToString(buf, offset, 100);
+          offset += 100;
+          PTFGroupLevel_ = BinaryConverter.byteArrayToInt(buf, offset);
+          offset += 4;
+          PTFGroupStatus_ = BinaryConverter.byteArrayToInt(buf, offset);
+          offset +=4;
+          ptfs[i] = new PTFGroup(system_, relatedPTFGroupName_, PTFgroupDescription_, PTFGroupLevel_, PTFGroupStatus_);
         }
         return ptfs;
+      }
+      catch (PropertyVetoException pve) { // will never happen, but the compiler doesn't know that
+        Trace.log(Trace.ERROR, pve);
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
+      }
     }
 
     /**
@@ -317,35 +323,35 @@ public class PTFGroup
     IOException,
     ObjectDoesNotExistException
     {
-
+      try
+      {
         int len = 73;
         int ccsid = system_.getCcsid();
         ConvTable conv = ConvTable.getTable(ccsid, null);
 
         ProgramParameter[] parms = new ProgramParameter[5];
-        parms[0] = new ProgramParameter(conv.stringToByteArray(USER_SPACE_NAME));        //qualified user space name
-        try{parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));        //qualified user space name
+        parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         byte[] groupInfo = new byte[69];
         AS400Text text60 = new AS400Text(60, ccsid, system_);
-        AS400Text text1 = new AS400Text(1, ccsid, system_);
         BinaryConverter.intToByteArray(69, groupInfo, 0);
         text60.toBytes(PTFGroupName_, groupInfo, 4);
         BinaryConverter.intToByteArray(ccsid, groupInfo, 64);
         groupInfo[68] = includeRelatedPTFGroups_ ? (byte)0xF1 : (byte)0xF0; // '1' or '0'
         parms[1] = new ProgramParameter(groupInfo);       // PTF group information
-        try{parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[2] = new ProgramParameter(conv.stringToByteArray("GRPR0300"));            //FORMAT
-        try{parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(ccsid));     //CCSID
-        try{parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         parms[4] = new ProgramParameter(new byte[4]);                               // error code
-        try{parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);}catch (PropertyVetoException pve){}
+        parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
         byte[] buf = null;
-        synchronized(USER_SPACE_NAME)       
+        synchronized(USERSPACE_QUALIFIED_NAME)       
         {
-            UserSpace us = new UserSpace(system_, USER_SPACE_PATH);
+            UserSpace us = new UserSpace(system_, USERSPACE_PATH);
             us.setMustUseProgramCall(true);
             us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
@@ -407,5 +413,10 @@ public class PTFGroup
             ptfs[i] = new PTF(system_, PTFId_, productId_, release_, productOption_, productLoadId_, minimumLevel_, maximumLevel_, loadedStatus_, IPLaction_, actionPending_, actionRequired_, coverLetterStatus_, onOrderStatus_, saveFileStatus_, saveFileName_, saveFileLibraryName_, supersededByPTFId_, latestSupersedingPTFId_, productStatus_);
         }
         return ptfs;
+      }
+      catch (PropertyVetoException pve) { // will never happen, but the compiler doesn't know that
+        Trace.log(Trace.ERROR, pve);
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
+      }
     }
 }
