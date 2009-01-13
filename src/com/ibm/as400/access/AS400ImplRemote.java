@@ -581,7 +581,7 @@ class AS400ImplRemote implements AS400Impl
             }
             catch (PropertyVetoException e)
             {
-                Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+                Trace.log(Trace.ERROR, e);
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
             }
         }
@@ -706,7 +706,7 @@ class AS400ImplRemote implements AS400Impl
             }
             catch (PropertyVetoException e)
             {
-                Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+                Trace.log(Trace.ERROR, e);
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
             }
         }
@@ -732,7 +732,7 @@ class AS400ImplRemote implements AS400Impl
         if (ccsid_ != 0) return ccsid_;
         if (signonInfo_ != null) ccsid_ = signonInfo_.serverCCSID;
         if (ccsid_ != 0) return ccsid_;
-        try { ccsid_ = getCcsidFromServer(); } catch (Exception e) {}
+        ccsid_ = getCcsidFromServer();
         if (ccsid_ != 0) return ccsid_;
         ccsid_ = ExecutionEnvironment.getBestGuessAS400Ccsid();
         return ccsid_;
@@ -746,8 +746,10 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Get CCSID from central server or current job if native.
-    public int getCcsidFromServer() throws AS400SecurityException, IOException, InterruptedException
+    public int getCcsidFromServer()
     {
+      try
+      {
         NLSImpl impl = (NLSImpl)loadImpl("com.ibm.as400.access.NLSImplNative", "com.ibm.as400.access.NLSImplRemote");
 
         // Get the ccsid from the central server or current job.
@@ -755,6 +757,12 @@ class AS400ImplRemote implements AS400Impl
         impl.connect();
         impl.disconnect();
         return impl.getCcsid();
+      }
+      catch (Exception e) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Error when attempting to get CCSID from server.", e);
+        return 0;
+      }
+
     }
 
     // Get connection for FTP.
@@ -1819,7 +1827,7 @@ class AS400ImplRemote implements AS400Impl
                 // Generate token errors: can not obtain the EIM registry name.
                 return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME, messageList);
             case 0x00070004:
-                // Generate token errors: no mapping exists between the WebSphere Portal user identity and an i5/OS user profile.
+                // Generate token errors: no mapping exists between the WebSphere Portal user identity and an IBM i user profile.
                 return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_NO_MAPPING, messageList);
             default:
                 // Internal errors or unexpected return codes.
@@ -2029,11 +2037,7 @@ class AS400ImplRemote implements AS400Impl
                 signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null : new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(data, 8)/*year*/, (int)(data[10] - 1)/*month convert to zero based*/, (int)(data[11])/*day*/, (int)(data[12])/*hour*/, (int)(data[13])/*minute*/, (int)(data[14])/*second*/);
 
                 signonInfo_.version = AS400.nativeVRM;
-                try
-                {
-                    signonInfo_.serverCCSID = getCcsidFromServer();
-                }
-                catch (InterruptedException e) {}
+                signonInfo_.serverCCSID = getCcsidFromServer();
             }
             catch (NativeException e)
             {
