@@ -29,7 +29,7 @@ import java.beans.PropertyVetoException;
  This class allows the user to query and modify the state and configuration
  of the NetServer.
  <p>
- If the NetServer job on the i5/OS system is not started, the "list" methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use the {@link #start() start} method.
+ If the NetServer job on the IBM i system is not started, the "list" methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use the {@link #start() start} method.
 <P>
 Note: The first call to one of the attribute "getter" methods will cause an implicit call to
 {@link #refresh() refresh}, if refresh() hasn't yet been explicitly called.
@@ -121,13 +121,13 @@ implements Serializable
 
   /**
    Value of the NetServer "authentication method" attribute, indicating that the system authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
-   <br>Note: This value is valid only for i5/OS release V5R3 and higher.
+   <br>Note: This value is valid only for IBM i release V5R3 and higher.
    **/
   public final static int NETWORK_AUTHENTICATION_OR_PASSWORDS = 2;
 
   /**
    Value of the NetServer "authentication method" attribute, indicating that the system authenticates with Network authentication when possible, but it allows clients to use encrypted passwords when needed.
-   <br>Note: This value is valid only for i5/OS release V5R3 and higher.
+   <br>Note: This value is valid only for IBM i release V5R3 and higher.
    @deprecated Renamed to NETWORK_AUTHENTICATION_OR_PASSWORDS
    **/
   public final static int KERBEROS_OR_PASSWORDS = NETWORK_AUTHENTICATION_OR_PASSWORDS;
@@ -348,7 +348,6 @@ implements Serializable
     if (desc == null) { desc = ""; }
 
     final int ccsid = system_.getCcsid();
-    final CharConverter conv = new CharConverter(ccsid);
     final AS400Text text12 = new AS400Text(12, ccsid);
     final AS400Text text50 = new AS400Text(50, ccsid);
 
@@ -495,7 +494,6 @@ implements Serializable
     }
 
     final int ccsid = system_.getCcsid();
-    final CharConverter conv = new CharConverter(ccsid);
     final AS400Text text12 = new AS400Text(12, ccsid);
     final AS400Text text10 = new AS400Text(10, ccsid);
     final AS400Text text50 = new AS400Text(50, ccsid);
@@ -710,7 +708,7 @@ implements Serializable
         parms[0].setOutputDataLength(totalBytesExpected);
         parms[1].setInputData(BinaryConverter.intToByteArray(totalBytesExpected));
       }
-      catch (PropertyVetoException pve) {}  // this will never happen
+      catch (PropertyVetoException e) {Trace.log(Trace.ERROR, e);} // this will never happen
 
       // Call the program again.
       if (!pc.run()) {
@@ -1054,7 +1052,7 @@ implements Serializable
     String userProfileName = conv.byteArrayToString(data,offset+15,10).trim();
     int numberOfConnections = BinaryConverter.byteArrayToInt(data, offset+28);
     int numberOfFilesOpen = BinaryConverter.byteArrayToInt(data, offset+32);
-    int numberOfSessions = BinaryConverter.byteArrayToInt(data, offset+36);
+    //int numberOfSessions = BinaryConverter.byteArrayToInt(data, offset+36);
     int sessionTime = BinaryConverter.byteArrayToInt(data, offset+40);
     int sessionIdleTime = BinaryConverter.byteArrayToInt(data, offset+44);
     String logonType = conv.byteArrayToString(data,offset+48,1).trim();
@@ -1246,7 +1244,7 @@ implements Serializable
   /**
    Returns the value of the "authentication method" attribute.
    This attribute indicates the method used to authenticate users.
-   <i>Note: This attribute is available only if the i5/OS system is at release <b>V5R2</b> or higher.</i>
+   <i>Note: This attribute is available only if the system is at release <b>V5R2</b> or higher.</i>
    @return  The value of the "authentication method" attribute.
    Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #NETWORK_AUTHENTICATION NETWORK_AUTHENTICATION}, and {@link #NETWORK_AUTHENTICATION_OR_PASSWORDS NETWORK_AUTHENTICATION_OR_PASSWORDS}.
    **/
@@ -1285,7 +1283,7 @@ implements Serializable
   /**
    Sets the value of the "authentication method" attribute.
    This attribute indicates the authentication method used to authenticate users.
-   <i>Note: This attribute is available only if the i5/OS system is at release <b>V5R2</b> or higher.</i>
+   <i>Note: This attribute is available only if the system is at release <b>V5R2</b> or higher.</i>
    @param value The value of the "authentication method" attribute.
    Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #NETWORK_AUTHENTICATION NETWORK_AUTHENTICATION}, and {@link #NETWORK_AUTHENTICATION_OR_PASSWORDS NETWORK_AUTHENTICATION_OR_PASSWORDS}.
    **/
@@ -1601,7 +1599,7 @@ implements Serializable
    Returns the value of the "LAN Manager authentication" attribute.
    This attribute represents the level of restriction on the use of the LANMAN password hash for authentication.
    Possible values are {@link #PASSWORD_STRONGER PASSWORD_STRONGER} and {@link #PASSWORD_STRONGER_OR_MISMATCH PASSWORD_STRONGER_OR_MISMATCH}.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The value of the "LAN Manager authentication" attribute.
    **/
   public int getLANManagerAuthentication()
@@ -1612,7 +1610,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "LAN Manager authentication" attribute.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The pending value of the "LAN Manager authentication" attribute.
    @see #getLANManagerAuthentication()
    **/
@@ -1626,7 +1624,7 @@ implements Serializable
    Sets the value of the "LAN Manager authentication" attribute.
    This attribute represents the level of restriction on the use of the LANMAN password hash for authentication.
    Possible values are {@link #PASSWORD_STRONGER PASSWORD_STRONGER} and {@link #PASSWORD_STRONGER_OR_MISMATCH PASSWORD_STRONGER_OR_MISMATCH}.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @param value  The value of the "LAN Manager authentication" attribute.
    **/
   public void setLANManagerAuthentication(int value)
@@ -1682,7 +1680,7 @@ implements Serializable
    Returns the value of the "message authentication" attribute.
    This attribute represents the status of message authentication.
    Possible values are {@link #MSG_AUTH_NOT_SUPPORTED MSG_AUTH_NOT_SUPPORTED}, {@link #MSG_AUTH_NEGOTIATED MSG_AUTH_NEGOTIATED}, and {@link #MSG_AUTH_REQUIRED MSG_AUTH_REQUIRED}.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The value of the "message authentication" attribute.
    **/
   public int getMessageAuthentication()
@@ -1693,7 +1691,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "message authentication" attribute.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The pending value of the "message authentication" attribute.
    @see #getMessageAuthentication()
    **/
@@ -1707,7 +1705,7 @@ implements Serializable
    Sets the value of the "message authentication" attribute.
    This attribute represents the status of message authentication.
    Possible values are {@link #MSG_AUTH_NOT_SUPPORTED MSG_AUTH_NOT_SUPPORTED}, {@link #MSG_AUTH_NEGOTIATED MSG_AUTH_NEGOTIATED}, and {@link #MSG_AUTH_REQUIRED MSG_AUTH_REQUIRED}.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @param value  The value of the "message authentication" attribute.
    **/
   public void setMessageAuthentication(int value)
@@ -1721,7 +1719,7 @@ implements Serializable
    Returns the value of the "minimum message severity" attribute.
    This attribute represents the minimum message severity of administrative alerts to send to users of the system.
    A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The value of the "minimum message severity" attribute.
    **/
   public int getMinimumMessageSeverity()
@@ -1732,7 +1730,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "minimum message severity" attribute.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The pending value of the "minimum message severity" attribute.
    @see #getMinimumMessageSeverity()
    **/
@@ -1746,7 +1744,7 @@ implements Serializable
    Sets the value of the "minimum message severity" attribute.
    This attribute represents the minimum message severity of administrative alerts to send to users of the system.
    A value of ({@link #NO_ADMIN_ALERTS NO_ADMIN_ALERTS}) indicates that administrative alert messages are not sent.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @param value  The value of the "minimum message severity" attribute.
    **/
   public void setMinimumMessageSeverity(int value)
@@ -1801,7 +1799,7 @@ implements Serializable
    This attribute represents the amount of time, in seconds, that the system will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
    A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
    The default value is 30 seconds.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The value of the "opportunistic lock timeout" attribute.
    **/
   public int getOpportunisticLockTimeout()
@@ -1812,7 +1810,7 @@ implements Serializable
 
   /**
    Returns the pending value of the "opportunistic lock timeout" attribute.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @return  The pending value of the "opportunistic lock timeout" attribute.
    @see #getOpportunisticLockTimeout()
    **/
@@ -1827,7 +1825,7 @@ implements Serializable
    This attribute represents the amount of time, in seconds, that the system will wait for a response to a break lock request sent to a lock holder, before forcefully removing the lock.
    A value of ({@link #OPP_LOCK_DISABLED OPP_LOCK_DISABLED}) indicates that opportunistic locking is disabled.
    The default value is 30 seconds.
-   <br><em>Note: This attribute is not supported prior to the i5/OS release following V5R3.</em>
+   <br><em>Note: This attribute is not supported prior to IBM i release V5R4.</em>
    @param value  The value of the "opportunistic lock timeout" attribute.
    **/
   public void setOpportunisticLockTimeout(int value)
@@ -1999,8 +1997,6 @@ implements Serializable
   public void refresh()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.refresh()");
-
     // Refresh the "autostart" attribute value.
     retrieveAutostart();
     changedAutoStartSinceRefresh_ = false;
@@ -2041,7 +2037,6 @@ implements Serializable
   public void commitChanges()
     throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.commitChanges()");
     if (!userHasSpecialAuthority()) {
       Trace.log(Trace.ERROR, "*IOSYSCFG authority is required in order to change NetServer attributes.");
       throw new AS400SecurityException(AS400SecurityException.SPECIAL_AUTHORITY_INSUFFICIENT);
@@ -2217,7 +2212,6 @@ implements Serializable
   private void retrieveAutostart()
     throws IOException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.retrieveAutostart()");
     String retrievedValue;
     if (!userHasSpecialAuthority()) {
       retrievedValue = "*NO";
@@ -2263,8 +2257,6 @@ implements Serializable
   private void changeServerGuest()
     throws IOException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.changeServerGuest()");
-
     // Compose the arguments for the API.
 
     final AS400Text text10 = new AS400Text(10, system_.getCcsid());
@@ -2286,17 +2278,12 @@ implements Serializable
   private void changeServerInfo()
     throws IOException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.changeServerInfo()");
-
     // Compose the arguments for the API.
 
     final int ccsid = system_.getCcsid();
     final CharConverter conv = new CharConverter(ccsid);
-    final AS400Text text5 = new AS400Text(5, ccsid);
     final AS400Text text15 = new AS400Text(15, ccsid);
     final AS400Text text224 = new AS400Text(224, ccsid);
-
-    boolean userChangedAuthMethod = userChangedAttribute_[AUTHENTICATION_METHOD];  // short-hand
 
     ProgramParameter[] parms = new ProgramParameter[4];
 
@@ -2365,8 +2352,6 @@ implements Serializable
   private void changeServerName()
     throws IOException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.changeServerName()");
-
     // Compose the arguments for the API.
 
     final int ccsid = system_.getCcsid();
@@ -2402,8 +2387,6 @@ implements Serializable
   private void openListOfServerInfo()
     throws IOException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException
   {
-    if (DEBUG) System.out.println("DEBUG: ISeriesNetServer.openListOfServerInfo()");
-
     // Compose the arguments for the API.
 
     final int ccsid = system_.getCcsid();
@@ -2426,9 +2409,9 @@ implements Serializable
       throw new AS400Exception(pc.getMessageList());
     }
 
-    byte[] listInfo = parms[2].getOutputData();
-
-    if (DEBUG) {
+    if (DEBUG)
+    {
+      byte[] listInfo = parms[2].getOutputData();
       int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
       int numRecords = BinaryConverter.byteArrayToInt(listInfo, 4);
       int recLen = BinaryConverter.byteArrayToInt(listInfo, 8);
@@ -2538,7 +2521,9 @@ implements Serializable
         // User belongs to, has SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION authority
         foundAuth = user.hasSpecialAuthority(User.SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION);//@A1A
       }
-      catch (Exception e) {} // This will never happen.  The User constructor doesn't actually throw any exceptions anymore.
+      catch (Exception e) { // This will never happen.  The User constructor doesn't actually throw any exceptions anymore.
+        Trace.log(Trace.ERROR, e);
+      }
       if (!foundAuth) {
         Trace.log(Trace.WARNING, "User " + system_.getUserId() + " does not have *IOSYSCFG authority.");
       }
@@ -2550,7 +2535,7 @@ implements Serializable
 
 
   /**
-   Ends the NetServer job on the i5/OS system.
+   Ends the NetServer job on the IBM i system.
    <br>This method requires *IOSYSCFG special authority on the system.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -2662,7 +2647,7 @@ implements Serializable
 
 
   /**
-   Indicates whether or not the NetServer job on the i5/OS system is started.
+   Indicates whether or not the NetServer job on the system is started.
    @return  <tt>true</tt> if the NetServer job is started; <tt>false</tt> otherwise.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -2681,7 +2666,7 @@ implements Serializable
       list.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE, Boolean.TRUE);
       list.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ, Boolean.FALSE);
       list.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_OUTQ, Boolean.FALSE);
-    } catch (PropertyVetoException e) {} // this will never happen
+    } catch (PropertyVetoException e) {Trace.log(Trace.ERROR, e);} // this will never happen
     list.load();
     boolean foundActiveJob;
     if (list.getLength() != 0) {
@@ -2709,7 +2694,7 @@ implements Serializable
       jobList.addJobSelectionCriteria(JobList.SELECTION_JOB_NAME, "QSERVER");
       jobList.addJobSelectionCriteria(JobList.SELECTION_USER_NAME, "QSYS");
       jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE, Boolean.TRUE);
-    } catch (PropertyVetoException e) {} // this will never happen
+    } catch (PropertyVetoException e) {Trace.log(Trace.ERROR, e);} // this will never happen
     jobList.load();
     boolean foundActiveJob;
     if (jobList.getLength() != 0) foundActiveJob = true;
@@ -2721,7 +2706,7 @@ implements Serializable
 
 
   /**
-   Starts the NetServer job on the i5/OS system.
+   Starts the NetServer job on the system.
    If the NetServer is already started, this method does nothing.
    This method requires *IOSYSCFG special authority on the system.
    If the QSERVER subsystem is not running, this method will attempt to start the subsystem.
@@ -2738,7 +2723,7 @@ implements Serializable
   }
 
   /**
-   Starts the NetServer job on the i5/OS system, and (optionally) resets it.
+   Starts the NetServer job on the system, and (optionally) resets it.
    If the NetServer is already started, this method does nothing.
    This method requires *IOSYSCFG special authority on the system.
    If the QSERVER subsystem is not running, this method will attempt to start it.
@@ -2778,7 +2763,7 @@ implements Serializable
     // to take effect, replacing the (former) "current" attribute values.
     refreshedSinceStart_ = false;
 
-    // Start the NetServer job (QZLSSERVER) on the i5/OS.
+    // Start the NetServer job (QZLSSERVER) on the system.
 
     // Compose the arguments for the API.
 
