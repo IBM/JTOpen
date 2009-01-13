@@ -36,9 +36,9 @@ import java.util.*;
 **/
 public class ObjectDescription
 {  
-  private static final String USERSPACE_NAME = "JT4WCLOBJLQTEMP     ";                    // New for QWCLOBJL API
+  private static final String USERSPACE_QUALIFIED_NAME = "JT4WCLOBJLQTEMP     ";                    // New for QWCLOBJL API
   private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4WCLOBJL.USRSPC";   // New for QWCLOBJL API
-  private static final String QWCLOBJL_FORMAT_NAME = "OBJL0100";                          // New for QWCLOBJL API
+  private static final String FORMAT_NAME = "OBJL0100";  // New for QWCLOBJL API
   private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);   // New for QWCLOBJL API
 
   
@@ -1440,8 +1440,8 @@ public class ObjectDescription
 
    ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 6 : 9];  // Allow optional parameters if ASP device name is set
 
-   parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));       //Qualified user space name
-   parms[1] = new ProgramParameter(conv.stringToByteArray(QWCLOBJL_FORMAT_NAME)); // Format Name
+   parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));       //Qualified user space name
+   parms[1] = new ProgramParameter(conv.stringToByteArray(FORMAT_NAME)); // Format Name
    StringBuffer objectNameBuff = new StringBuffer("                    ");        // initialize to 20 blanks
    objectNameBuff.replace(0,  name_.length(),    name_);                          
    objectNameBuff.replace(10, 10+library_.length(), library_);                    
@@ -1463,19 +1463,19 @@ public class ObjectDescription
      parms[8] = new ProgramParameter(conv.stringToByteArray(aspDeviceNameBuff.toString()));    // Optional parm - Qualified ASP Name
    }
    
-   // QWCLOBJL is the API that is being used to get the list of object locks into a user space. 
+   // QWCLOBJL is the API used to get the list of object locks into a user space. 
    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWCLOBJL.PGM", parms);
-   pc.setThreadSafe(false); // The QWCLOBJL API is not documented to be thread-safe, (and it must run in same thread as /QTEMP.LIB/JT4SYLOBJA.USRSPC was created).
+   pc.setThreadSafe(false); // The called API is not documented to be thread-safe, and it must run in same thread as that in which the temporary user space was created.  (Each different thread gets a different QTEMP library.)  So we'll force it to run in the job of the Remote Command Host Server.
    byte[] buf = null;
 
-   synchronized (USERSPACE_NAME)
+   synchronized (USERSPACE_QUALIFIED_NAME)
    {
      // Create a user space in QTEMP to receive output.
      UserSpace space = new UserSpace(system_, USERSPACE_PATH);
      try
      {
        space.setMustUseProgramCall(true);
-       space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+       space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library.
        space.create(256*1024, true, "", (byte)0, "User space for UserObjectsOwnedList", "*EXCLUDE");
        // Note: User Spaces by default are auto-extendible (by QUSCRTUS API)
        //       So it will always have enough space available.
@@ -1517,7 +1517,8 @@ public class ObjectDescription
    //    - Programming -> API Concepts -> User spaces and receiver variables -> User spaces
    // --------------------------------------------------------------------------------------------
    // Parse the list data returned in the user space.
-   int headerOffset   = BinaryConverter.byteArrayToInt(buf, 116);       // General header - Offset to header section      
+
+   //int headerOffset   = BinaryConverter.byteArrayToInt(buf, 116);       // General header - Offset to header section      
    int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);       // General header - Offset to list data section      
    int numEntries     = BinaryConverter.byteArrayToInt(buf, 132);       // General header - Number of list entries
    int entrySize      = BinaryConverter.byteArrayToInt(buf, 136);       // General header - Size of each entry  
@@ -1761,9 +1762,7 @@ public class ObjectDescription
         parms[0].setOutputDataLength(newval);
         parms[1].setInputData(BinaryConverter.intToByteArray(newval));
       }
-      catch (PropertyVetoException pve)
-      {
-      }
+      catch (PropertyVetoException pve) {Trace.log(Trace.ERROR, pve);}
       if (!pc.run())
       {
         throw new AS400Exception(pc.getMessageList());
