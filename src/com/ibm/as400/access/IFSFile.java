@@ -41,7 +41,7 @@ import java.util.StringTokenizer;            //@D4A
 
 /**
   * The IFSFile class represents
-  * an object in the integrated file system of OS/400 or i5/OS.
+  * an object in the integrated file system of OS/400 or IBM i.
   * As in java.io.File, IFSFile is designed to work
   * with the object as a whole.  For example, use IFSFile
   * to delete or rename a file, to access the
@@ -58,7 +58,7 @@ import java.util.StringTokenizer;            //@D4A
   *
   * <p>
   * IFSFile objects are capable of generating file events that call the
-  * following FileListener methods: fileDeleted() and fileModified().
+  * following {@link FileListener FileListener} methods: {@link FileListener#fileDeleted fileDeleted()} and {@link FileListener#fileModified fileModified()}.
   * <p>
   * The following example demonstrates the use of IFSFile:
   * <UL>
@@ -88,8 +88,13 @@ import java.util.StringTokenizer;            //@D4A
   * </pre>
   * </UL>
   *
-  *<P>Note: Because of a host server restriction, you cannot use this class to
+  * <P>Note: Because of a host server restriction, you cannot use this class to
   * access files in <tt>QTEMP.LIB</tt>.
+
+  * <p>Note: Support for <b>"large files"</b> (files larger than 2 gigabytes) was added
+  * to the File Server in IBM i V6R1, and was not PTF'd back to prior IBM i versions.
+  * The Toolbox's IFS classes rely on the File Server to access and
+  * manipulate files in the integrated file system.
   *
   * @see IFSJavaFile
   * @see com.ibm.as400.access.FileEvent
@@ -440,7 +445,7 @@ public class IFSFile
   /**
    Determines if the applet or application can read from the integrated file system
    object represented by this object.
-   Note that i5/OS <i>directories</i> are never readable; only <i>files</i> can be readable.
+   Note that IBM i <i>directories</i> are never readable; only <i>files</i> can be readable.
    @return true if the object exists and is readable by the application; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -460,8 +465,6 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; // @A7D Unnecessary assignment
-      ///throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -479,7 +482,7 @@ public class IFSFile
   /**
    Determines if the applet or application can write to the integrated file system
    object represented by this object.
-   Note that i5/OS <i>directories</i> are never writable; only <i>files</i> can be writable.
+   Note that IBM i <i>directories</i> are never writable; only <i>files</i> can be writable.
    @return true if the object exists and is writeable by the application; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -500,8 +503,6 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      //returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
-      ///throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1149,7 +1150,7 @@ public class IFSFile
 
 
   /**
-   Determines the amount of unused storage space that is available to the user.
+   Returns the amount of unused storage space that is available to the user.
    @return The number of bytes of storage available.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1168,6 +1169,43 @@ public class IFSFile
         chooseImpl();
 
       return impl_.getFreeSpace();
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+  }
+
+
+  /**
+   Returns the amount of unused storage space that is available to the user.
+   @param system The system of interest.
+   @return The number of bytes of storage available.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+
+   **/
+  public static long getFreeSpace(AS400 system)
+    throws IOException
+  {
+    if (system == null) {
+      throw new NullPointerException("system");
+    }
+
+    try
+    {
+      IFSFileImpl impl = (IFSFileImpl) system.loadImpl2
+        ("com.ibm.as400.access.IFSFileImplRemote",
+         "com.ibm.as400.access.IFSFileImplProxy");
+      system.connectService(AS400.FILE);
+      impl.setSystem(system.getImpl());
+      impl.setPath("/");
+      return impl.getFreeSpace();
     }
     catch (AS400SecurityException e)
     {
@@ -2769,7 +2807,7 @@ public class IFSFile
     // Validate arguments.
     if (time < -1)  // @B8c
     {
-      throw new ExtendedIllegalArgumentException("time + (" +
+      throw new ExtendedIllegalArgumentException("time (" +
                                                  Long.toString(time) + ")",
                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -2825,7 +2863,7 @@ public class IFSFile
     // Validate arguments.
     if (length < 0)
     {
-      throw new ExtendedIllegalArgumentException("length + (" +
+      throw new ExtendedIllegalArgumentException("length (" +
                                                  Integer.toString(length) + ")",
                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -2974,6 +3012,11 @@ public class IFSFile
     }
 
     AS400 system=permission.getSystem();
+    if (system == null)
+    {
+      throw new ExtendedIllegalArgumentException("permission.system (null)",
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
 
     if (system.equals(system_))
     {
@@ -2989,17 +3032,15 @@ public class IFSFile
       }
       else
       {
-        throw new ExtendedIllegalArgumentException("permission.objectPath + (" +
+        throw new ExtendedIllegalArgumentException("permission.objectPath (" +
                                                    permission.getObjectPath() + ")",
                          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       }
     }
     else
     {
-      String systemName = null;
-      if (system != null)
-        systemName = system.getSystemName();
-      throw new ExtendedIllegalArgumentException("permission.system + (" +
+      String systemName = system.getSystemName();
+      throw new ExtendedIllegalArgumentException("permission.system (" +
                                          systemName + ")",
                        ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
