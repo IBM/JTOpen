@@ -67,7 +67,7 @@ public class JobLog implements Serializable
     
     // Header size for the api qgygtle 80 bytes for Message Selection
     // Information and 1 byte for the message queue name 
-    private final int qgygtleHeaderLength_ = 81;
+    private static final int qgygtleHeaderLength_ = 81;
 
     // Shared error code parameter.
     private static final ProgramParameter ERROR_CODE = new ProgramParameter(new byte[8]);
@@ -1125,7 +1125,7 @@ public class JobLog implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'messageFile' is null.");
             throw new NullPointerException("messageFile");
         }
-        QSYSObjectPathName verify = new QSYSObjectPathName(messageFile, "MSGF");
+        QSYSObjectPathName.validatePath(messageFile, "MSGF");
         sendProgramMessage(system, messageID, messageFile, null, messageType, false);
     }
 
@@ -1179,7 +1179,7 @@ public class JobLog implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'messageFile' is null.");
             throw new NullPointerException("messageFile");
         }
-        QSYSObjectPathName verify = new QSYSObjectPathName(messageFile, "MSGF");
+        QSYSObjectPathName.validatePath(messageFile, "MSGF");
         sendProgramMessage(system, messageID, messageFile, substitutionData, messageType, false);
     }
 
@@ -1233,7 +1233,7 @@ public class JobLog implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'messageFile' is null.");
             throw new NullPointerException("messageFile");
         }
-        QSYSObjectPathName verify = new QSYSObjectPathName(messageFile, "MSGF");
+        QSYSObjectPathName.validatePath(messageFile, "MSGF");
         sendProgramMessage(system, messageID, messageFile, substitutionData, messageType, onThread);
     }
 
