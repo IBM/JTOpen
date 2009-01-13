@@ -492,6 +492,16 @@ public class Subsystem
   }
 
   /**
+   Returns a hash code value for the object.
+   @return A hash code value for this object.
+   **/
+  public int hashCode()
+  {
+    // We must conform to the invariant that equal objects must have equal hashcodes.
+    return (system_.hashCode() + library_.hashCode() + name_.hashCode());
+  }
+
+  /**
    Determines if the subsystem currently exists on the system.
    <br>More precisely, this method reports if the subsystem <em>description</em> exists on the system.
    @return true if the subsystem exists; false if the subsystem does not exist.
@@ -751,7 +761,7 @@ public class Subsystem
         parms[0].setOutputDataLength(outputSize);
         parms[1].setInputData(BinaryConverter.intToByteArray(outputSize));
       }
-      catch (PropertyVetoException pve) {} // this will never happen
+      catch (PropertyVetoException pve) {Trace.log(Trace.ERROR,pve);} // this will never happen
       if (!pc.run())
       {
         throw new AS400Exception(pc.getMessageList());
@@ -761,8 +771,8 @@ public class Subsystem
       bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
     }
     int offset = BinaryConverter.byteArrayToInt(data, 8);
-    int numEntries = BinaryConverter.byteArrayToInt(data, 12); // This had better be 1.
-    int entrySize = BinaryConverter.byteArrayToInt(data, 16);
+    //int numEntries = BinaryConverter.byteArrayToInt(data, 12); // This had better be 1.
+    //int entrySize = BinaryConverter.byteArrayToInt(data, 16);
     name_ = conv.byteArrayToString(data, offset, 10).trim();
     library_ = conv.byteArrayToString(data, offset+10, 10).trim();
     extendedStatus_ = conv.byteArrayToString(data, offset+20, 12).trim();
@@ -797,7 +807,7 @@ public class Subsystem
         parms[0].setOutputDataLength(outputSize);
         parms[1].setInputData(BinaryConverter.intToByteArray(outputSize));
       }
-      catch (PropertyVetoException pve) {} // this will never happen
+      catch (PropertyVetoException pve) {Trace.log(Trace.ERROR,pve);} // this will never happen
       if (!pc.run())
       {
         throw new AS400Exception(pc.getMessageList());
