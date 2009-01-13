@@ -624,6 +624,24 @@ public class SystemPool
     }
   }
 
+  /**
+   Returns a hash code value for the object.
+   @return A hash code value for this object.
+   **/
+  public int hashCode()
+  {
+    // We must conform to the invariant that equal objects must have equal hashcodes.
+    int hash = 0;
+
+    if (system_ != null)           hash += system_.hashCode();
+    if (poolName_ != null)         hash += poolName_.hashCode();
+    if (subsystemLibrary_ != null) hash += subsystemLibrary_.hashCode();
+    if (subsystemName_ != null)    hash += subsystemName_.hashCode();
+    if (poolIdentifier_ != null)   hash += poolIdentifier_.hashCode(); 
+
+    return hash;
+  }
+
 
     /**
      * Gets the value for the specified field out of the
@@ -1348,6 +1366,8 @@ public class SystemPool
      }
 
 
+  private final static String TEN_BLANKS = "          ";
+
   /**
    * Creates a parameter list for the call to QWCRSSTS.
   **/
@@ -1424,7 +1444,7 @@ public class SystemPool
       StringBuffer sharedPoolName = new StringBuffer(indicatedSharedPool_ ? poolName_ : "");
       if (sharedPoolName.length() < 10) {
         int numPadBytes = 10 - sharedPoolName.length();
-        sharedPoolName.append(new String("          ").substring(10-numPadBytes));  // pad field to a length of 10 chars
+        sharedPoolName.append(TEN_BLANKS.substring(10-numPadBytes));  // pad field to a length of 10 chars
       }
 
       int systemPoolIdentifier = (indicatedSharedPool_ ? 0 : poolIdentifier_.intValue());
