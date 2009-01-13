@@ -15,7 +15,7 @@
 //                    characters to be interpretted as a single character.
 //                    This would have resulted in potential length errors
 //                    being reported by toolbox code.  Therefore, some toolbox
-//                    length verification has been removed.  The i5/OS API's
+//                    length verification has been removed.  The IBM i API's
 //                    will report an error if the data length is invalid.
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
@@ -38,8 +38,6 @@ import java.net.UnknownHostException;
  **/
 class DataAreaImplRemote implements DataAreaImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2007 International Business Machines Corporation and others.";
-
     private AS400ImplRemote system_;  // The system where the data area is located.
     private String library_;  // The library that contains the data area.
     private String name_;  // The name of the data area.
@@ -54,7 +52,7 @@ class DataAreaImplRemote implements DataAreaImpl
 
     private int length_;  // The maximum number of bytes the data area can contain.
 
-    private boolean attributesRetrieved_;  // Flag indicating if this data area object contains current information regarding its corresponding i5/OS data area.
+    private boolean attributesRetrieved_;  // Flag indicating if this data area object contains current information regarding its corresponding IBM i data area.
     private int dataAreaType_ = DataArea.UNINITIALIZED;  // Type of data area object.
     private static final QSYSObjectPathName PROGRAM_NAME = new QSYSObjectPathName("/QSYS.LIB/QWCRDTAA.PGM");
     private static final int RETURNED_DATA_FIXED_HEADER_LENGTH = 36; // length of fixed part of returned data from QWCRDTAA
@@ -80,7 +78,7 @@ class DataAreaImplRemote implements DataAreaImpl
         // Build the string for the write.
         // In the case of Character Data Area and Local Data Area,
         // if a substring starting position and length aren't specified,
-        // the i5/OS API assumes '*ALL' for the starting position and hence
+        // the IBM i API assumes '*ALL' for the starting position and hence
         // performs an overwrite of the remainder of the data area using
         // all blanks.
         String clrcmd = null;
@@ -582,7 +580,6 @@ class DataAreaImplRemote implements DataAreaImpl
      }
 
      // The rest of the receiver array is the retrieved data.
-     byte[] bytes = new byte[numBytesReturned];
      System.arraycopy(dataReceived, 36, data, dataBufferOffset, numBytesReturned);
      return numBytesReturned;
    }
@@ -696,7 +693,7 @@ class DataAreaImplRemote implements DataAreaImpl
 
     /**
      Refreshes the attributes of the data area.
-     This method should be called if the underlying i5/OS data area has changed and it is desired that this object should reflect those changes.
+     This method should be called if the underlying IBM i data area has changed and it is desired that this object should reflect those changes.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IllegalObjectTypeException  If the system object is not the required type.
