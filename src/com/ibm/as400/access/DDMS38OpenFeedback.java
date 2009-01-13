@@ -21,8 +21,6 @@ import java.io.IOException;
 **/
 class DDMS38OpenFeedback
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   // offsets and byte lengths of the various portions of the feedback structure
   // that we are interested in
   private static final int FILE_OPEN_TYPE = 10;
@@ -405,7 +403,8 @@ class DDMS38OpenFeedback
     catch(Exception e)
     { // This should never happen; the AS400 object is connected when
       // it is provided to us on the constructor.  Need to shut up the compiler.
-      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      Trace.log(Trace.ERROR, e);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
     }
     return str.toString();
   }
