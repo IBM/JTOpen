@@ -27,8 +27,6 @@ import java.beans.PropertyChangeSupport;
 **/
 public class PanelGroup implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
   /**
    *  This class uses the QUHRHLPT system API to retrieve the help text.
    **/
@@ -63,7 +61,7 @@ public class PanelGroup implements Serializable
     if (path == null)
       throw new NullPointerException("path");
 
-    QSYSObjectPathName verify = new QSYSObjectPathName(path, "PNLGRP");
+    QSYSObjectPathName.validatePath(path, "PNLGRP");
 
     system_ = system;
     path_ = path;
@@ -114,7 +112,6 @@ public class PanelGroup implements Serializable
     CharConverter conv = new CharConverter(system_.getCcsid());
     int numHelpIDs = keywords.length;
     int outputLength = 28 + 200*numHelpIDs;
-    //int docLength = 113152;
     int docLength = 8192;
 
     ProgramParameter[] parms = new ProgramParameter[8];
@@ -167,11 +164,6 @@ public class PanelGroup implements Serializable
     int bytesAvailable = BinaryConverter.byteArrayToInt(outputData, 4);
 //    int docBytesReturned = BinaryConverter.byteArrayToInt(docData, 0);
 //    int docBytesAvailable = BinaryConverter.byteArrayToInt(docData, 4);
-//    System.out.println("bytes returned = "+bytesReturned);
-//    System.out.println("bytes available = "+bytesAvailable);
-//    System.out.println("doc bytes returned = "+docBytesReturned);
-//    System.out.println("doc bytes available = "+docBytesAvailable);
-//    System.out.println("doc data = "+docData.length);
 
     if (bytesReturned < bytesAvailable)
     {
@@ -188,15 +180,11 @@ public class PanelGroup implements Serializable
           throw new AS400Exception(pc.getMessageList());
 
         outputData = parms[0].getOutputData();
-        bytesReturned = BinaryConverter.byteArrayToInt(outputData, 0);
+//        bytesReturned = BinaryConverter.byteArrayToInt(outputData, 0);
 //        docData = parms[5].getOutputData();
 //        docBytesReturned = BinaryConverter.byteArrayToInt(docData, 0);
-//        System.out.println("Re-retrieved doc bytes returned = "+docBytesReturned);
-//        System.out.println("Re-retrieved doc data = "+docData.length);
       }
-      catch (java.beans.PropertyVetoException pve)
-      {
-      }
+      catch (java.beans.PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
     }
 
     //byte[] helpData = new byte[docBytesReturned];
@@ -326,9 +314,7 @@ public class PanelGroup implements Serializable
         docData = parms[5].getOutputData();
         docBytesReturned = BinaryConverter.byteArrayToInt(docData, 0);
       }
-      catch (java.beans.PropertyVetoException pve)
-      {
-      }
+      catch (java.beans.PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
     }
 
     //byte[] helpData = new byte[docBytesReturned];
@@ -405,7 +391,7 @@ public class PanelGroup implements Serializable
 
     synchronized(this)
     {
-      QSYSObjectPathName verify = new QSYSObjectPathName(path, "PNLGRP");
+      QSYSObjectPathName.validatePath(path, "PNLGRP");
 
       String old = path_;
       path_ = path;
