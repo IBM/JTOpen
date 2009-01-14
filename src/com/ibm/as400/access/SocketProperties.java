@@ -21,8 +21,6 @@ import java.io.Serializable;
  **/
 public class SocketProperties implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   static final long serialVersionUID = 6818790247993750518L;
 
     boolean keepAliveSet_ = false;
@@ -81,6 +79,17 @@ public class SocketProperties implements Serializable
       }
       catch (Throwable e) { return false; }
     }
+
+  /**
+   Returns a hash code value for the object.
+   @return A hash code value for this object.
+   **/
+  public int hashCode()
+  {
+    // We must conform to the invariant that equal objects must have equal hashcodes.
+    // Since we don't anticipate that instances of this class will ever get added into a HashMap/HashTable, we will simply return an arbitrary constant.
+    return 99;
+  }
 
     /**
      Indicates the value to which the SO_RCVBUF socket option is set.
