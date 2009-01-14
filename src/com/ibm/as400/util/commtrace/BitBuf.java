@@ -22,7 +22,7 @@ import java.io.StringWriter;
  * sequence of binary or hexadecimal digits.<br>
  * A new BitBuf can be constructed from another BitBuf or from a byte array.
  */
-class BitBuf {
+class BitBuf implements Cloneable {
     private byte data[];
     private int bitlen; // used if not a byte-boundary;
     private static StringBuffer binbyte = new StringBuffer("01234567");
