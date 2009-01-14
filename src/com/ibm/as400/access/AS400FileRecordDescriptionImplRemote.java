@@ -71,8 +71,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
   private String file_ = "";
   // Library name
   private String library_ = "";
-  // member name
-  private String member_ = "";
   // The IFS path name of the file
   private String name_ = "";
   // SequentialFile object representing the file whose record description
@@ -1083,16 +1081,6 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
     // Set the instance data as appropriate
     library_ = ifs.getLibraryName();
     file_ = ifs.getObjectName();
-    if(ifs.getObjectType().equals("FILE"))
-    { // No member specified; default member to *FIRST
-      member_ = "*FIRST";
-    }
-    else
-    { // Member specified; if special value %FILE% was specified, member name
-      // is the file name
-      member_ = (ifs.getMemberName().equalsIgnoreCase("*FILE") ? file_ :
-                 ifs.getMemberName());
-    }
     name_ = name;
   }
 
@@ -2156,7 +2144,6 @@ class QWHFDFMTFormat extends RecordFormat
     AS400Text txt10 = new AS400Text(10, ccsid);
     AS400Text txt13 = new AS400Text(13, ccsid);
     AS400Text txt50 = new AS400Text(50, ccsid);
-    AS400PackedDecimal p10 = new AS400PackedDecimal(1, 0);
     AS400PackedDecimal p30 = new AS400PackedDecimal(3, 0);
     AS400PackedDecimal p31 = new AS400PackedDecimal(3, 1);
     AS400PackedDecimal p41 = new AS400PackedDecimal(4, 1);
@@ -2222,7 +2209,6 @@ class QWHDRFFDFormat extends RecordFormat
     AS400Text txt1 = new AS400Text(1, ccsid);
     AS400Text txt2 = new AS400Text(2, ccsid);
     AS400Text txt4 = new AS400Text(4, ccsid);
-    AS400Text txt6 = new AS400Text(6, ccsid);
     AS400Text txt7 = new AS400Text(7, ccsid);
     AS400Text txt8 = new AS400Text(8, ccsid);
     AS400Text txt10 = new AS400Text(10, ccsid);
@@ -2231,12 +2217,8 @@ class QWHDRFFDFormat extends RecordFormat
     AS400Text txt30 = new AS400Text(30, ccsid);
     AS400Text txt32 = new AS400Text(32, ccsid);
     AS400Text txt50 = new AS400Text(50, ccsid);
-    AS400PackedDecimal p10 = new AS400PackedDecimal(1, 0);
-    AS400PackedDecimal p20 = new AS400PackedDecimal(2, 0);
     AS400PackedDecimal p30 = new AS400PackedDecimal(3, 0);
-    AS400PackedDecimal p40 = new AS400PackedDecimal(4, 0);
     AS400PackedDecimal p50 = new AS400PackedDecimal(5, 0);
-    AS400PackedDecimal p31 = new AS400PackedDecimal(3, 1);
     AS400PackedDecimal p41 = new AS400PackedDecimal(4, 1);
     AS400ZonedDecimal z20 = new AS400ZonedDecimal(2, 0);
     AS400ZonedDecimal z30 = new AS400ZonedDecimal(3, 0);
