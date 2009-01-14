@@ -854,8 +854,9 @@ implements Connection
      * This method returns the concurrent access resolution setting.
      * This method has no effect on IBM i V6R1 or earlier.
      * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} and 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
      * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
      * Setting this property to default exhibits the default behavior on the servers  
      * i.e., the semantic applied for read 
@@ -869,11 +870,15 @@ implements Connection
      * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
      * if enabled, and the server will wait for the commit or rollback of data in the process of
      * being updated.  
+     * 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
+     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
      *   
      * @return  The concurrent access resolution setting.    Possible return valuse:
      * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, or 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
      */
     public int getConcurrentAccessResolution ()
     {
@@ -2949,8 +2954,9 @@ implements Connection
      * URL properties.  This changes the setting for this connection only.  This method has no effect on
      * IBM i V6R1 or earlier.
      * The possible values for this property are {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED} and 
-     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME} and
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}, 
      * with the property defaulting to {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}.  
      * Setting this property to default exhibits the default behavior on the servers  
      * i.e., the semantic applied for read 
@@ -2964,11 +2970,15 @@ implements Connection
      * to server.  This will disable the CURRENTLY COMMITTED behavior at the server,
      * if enabled, and the server will wait for the commit or rollback of data in the process of
      * being updated.  
+     * 
+     * {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS} specifies that driver will flow SKIP LOCKS
+     * to server.  This directs the database manager to skip records in the case of record lock conflicts. 
      *   
      *  @param concurrentAccessResolution The current access resolution setting.  Possible valuse:
      *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_NOT_SET}, 
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED}, or
-     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_USE_CURRENTLY_COMMITTED},
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_WAIT_FOR_OUTCOME}, or
+     *  {@link com.ibm.as400.access.AS400JDBCDataSource#CONCURRENTACCESS_SKIP_LOCKS}
      */
     public void setConcurrentAccessResolution (int concurrentAccessResolution) throws SQLException
     {

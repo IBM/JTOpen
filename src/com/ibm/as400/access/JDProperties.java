@@ -451,6 +451,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         CONCURRENTACCESS_NOT_SET = "0";  //@cc1  default
     static final String         CONCURRENTACCESS_USE_CURRENTLY_COMMITTED = "1";  //@cc1
     static final String         CONCURRENTACCESS_WAIT_FOR_OUTCOME = "2"; //@cc1
+    static final String         CONCURRENTACCESS_SKIP_LOCKS = "3"; //@cc1
 
     
     
@@ -1332,10 +1333,11 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i] = new DriverPropertyInfo (CONCURRENT_ACCESS_RESOLUTION_, "");
         dpi_[i].description = "CONCURRENT_ACCESS_RESOLUTION_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[3];
+        dpi_[i].choices     = new String[4];
         dpi_[i].choices[0]  = CONCURRENTACCESS_NOT_SET;
         dpi_[i].choices[1]  = CONCURRENTACCESS_USE_CURRENTLY_COMMITTED;
         dpi_[i].choices[2]  = CONCURRENTACCESS_WAIT_FOR_OUTCOME;
+        dpi_[i].choices[3]  = CONCURRENTACCESS_SKIP_LOCKS;
         defaults_[i]  = CONCURRENTACCESS_NOT_SET;
       
         
