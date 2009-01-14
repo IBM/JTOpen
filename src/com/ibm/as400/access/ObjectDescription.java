@@ -1080,6 +1080,22 @@ public class ObjectDescription
   }
 
   /**
+   Returns a hash code value for the object.
+   @return A hash code value for this object.
+   **/
+  public int hashCode()
+  {
+    // We must conform to the invariant that equal objects must have equal hashcodes.
+    int hash =
+      system_.getSystemName().hashCode() +
+      getLibrary().hashCode() +
+      getName().hashCode() +
+      getType().hashCode();
+
+    return hash;
+  }
+
+  /**
    * Checks to see if this object currently exists on the system.
    * @return true if the object exists; false if the object or library do not exist.
   **/
@@ -1146,7 +1162,7 @@ public class ObjectDescription
   
   /**
    * Returns the library of this object.
-   * @return The object library.
+   * @return The object library.  Never null.
   **/
   public String getLibrary()
   {
@@ -1156,7 +1172,7 @@ public class ObjectDescription
 
   /**
    * Returns the name of this object.
-   * @return The object name.
+   * @return The object name.  Never null.
   **/
   public String getName()
   {
@@ -1186,7 +1202,7 @@ public class ObjectDescription
 
   /**
    * Returns the fully-qualified integrated file system path name of this object.
-   * @return The object path name.
+   * @return The object path name.  Never null.
   **/
   public String getPath()
   {
@@ -1240,7 +1256,7 @@ public class ObjectDescription
 
   /**
    * Returns the system.
-   * @return The system.
+   * @return The system.  Never null.
   **/
   public AS400 getSystem()
   {
@@ -1250,7 +1266,7 @@ public class ObjectDescription
 
   /**
    * Returns the type of this object.
-   * @return The object type.
+   * @return The object type.  Never null.
   **/
   public String getType()
   {
