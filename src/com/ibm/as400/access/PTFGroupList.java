@@ -20,13 +20,11 @@ import java.util.Date;
 
  
 /**
-* Allows you to retrieve a list of all PTF groups that are known to a system. You can then use PTFGroup to
+* Retrieves a list of all PTF groups that are known to a system. You can then use PTFGroup to
 * get detailed information for a specific PTF group.
 **/
 public class PTFGroupList
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private AS400 system_;  
 
                                                          
@@ -53,64 +51,70 @@ public class PTFGroupList
          IOException,
          ObjectDoesNotExistException
   {
-
-    int ccsid = system_.getCcsid();
-    ConvTable conv = ConvTable.getTable(ccsid, null);
-
-    ProgramParameter[] parms = new ProgramParameter[4];
-    parms[0] = new ProgramParameter(conv.stringToByteArray(PTFGroup.USER_SPACE_NAME));        //qualified user space name
-    try { parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-    parms[1] = new ProgramParameter(conv.stringToByteArray("LSTG0100"));        //Format name
-    try { parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-    parms[2] = new ProgramParameter(BinaryConverter.intToByteArray(ccsid));     //CCSID
-    try { parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-    parms[3] = new ProgramParameter(new byte[4]);                               // error code
-    try { parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-
-    ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroups", ServiceProgramCall.NO_RETURN_VALUE, parms);
-    byte[] buf = null;
-    synchronized(PTFGroup.USER_SPACE_NAME)        
+    try
     {
-      UserSpace us = new UserSpace(system_, PTFGroup.USER_SPACE_PATH);
-      us.setMustUseProgramCall(true);
-      us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
-      us.create(256*1024, true, "", (byte)0, "User space for PTF Group list", "*EXCLUDE");
-      try
+      int ccsid = system_.getCcsid();
+      ConvTable conv = ConvTable.getTable(ccsid, null);
+
+      ProgramParameter[] parms = new ProgramParameter[4];
+      parms[0] = new ProgramParameter(conv.stringToByteArray(PTFGroup.USERSPACE_QUALIFIED_NAME));        //qualified user space name
+      parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+      parms[1] = new ProgramParameter(conv.stringToByteArray("LSTG0100"));        //Format name
+      parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+      parms[2] = new ProgramParameter(BinaryConverter.intToByteArray(ccsid));     //CCSID
+      parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+      parms[3] = new ProgramParameter(new byte[4]);                               // error code
+      parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroups", ServiceProgramCall.NO_RETURN_VALUE, parms);
+      byte[] buf = null;
+      synchronized(PTFGroup.USERSPACE_QUALIFIED_NAME)        
       {
-        if (!pc.run())
+        UserSpace us = new UserSpace(system_, PTFGroup.USERSPACE_PATH);
+        us.setMustUseProgramCall(true);
+        us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+        us.create(256*1024, true, "", (byte)0, "User space for PTF Group list", "*EXCLUDE");
+        try
         {
-          throw new AS400Exception(pc.getMessageList());
+          if (!pc.run())
+          {
+            throw new AS400Exception(pc.getMessageList());
+          }
+          int size = us.getLength();
+          buf = new byte[size];
+          us.read(buf, 0);
         }
-        int size = us.getLength();
-        buf = new byte[size];
-        us.read(buf, 0);
+        finally
+        {
+          us.close();
+        }
       }
-      finally
+      int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);      
+      int numEntries = BinaryConverter.byteArrayToInt(buf, 132);
+      int entrySize = BinaryConverter.byteArrayToInt(buf, 136);
+      int entryCCSID = BinaryConverter.byteArrayToInt(buf, 140);
+      conv = ConvTable.getTable(entryCCSID, null);
+      int offset = 0;
+      PTFGroup[] ptfs = new PTFGroup[numEntries];
+      for (int i=0; i<numEntries; ++i)
       {
-        us.close();
+        offset = startingOffset + (i*entrySize);
+        String ptfGroupName = conv.byteArrayToString(buf, offset, 60);
+        offset += 60;
+        String ptfGroupDescription = conv.byteArrayToString(buf, offset, 100);
+        offset += 100;
+        int ptfGroupLevel = BinaryConverter.byteArrayToInt(buf, offset);
+        offset += 4;
+        int ptfGroupStatus = BinaryConverter.byteArrayToInt(buf, offset);
+        offset += 4;
+        ptfs[i] = new PTFGroup(system_, ptfGroupName, ptfGroupDescription, ptfGroupLevel, ptfGroupStatus);
       }
+      return ptfs;
     }
-    int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);      
-    int numEntries = BinaryConverter.byteArrayToInt(buf, 132);
-    int entrySize = BinaryConverter.byteArrayToInt(buf, 136);
-    int entryCCSID = BinaryConverter.byteArrayToInt(buf, 140);
-    conv = ConvTable.getTable(entryCCSID, null);
-    int offset = 0;
-    PTFGroup[] ptfs = new PTFGroup[numEntries];
-    for (int i=0; i<numEntries; ++i)
-    {
-      offset = startingOffset + (i*entrySize);
-      String ptfGroupName = conv.byteArrayToString(buf, offset, 60);
-      offset += 60;
-      String ptfGroupDescription = conv.byteArrayToString(buf, offset, 100);
-      offset += 100;
-      int ptfGroupLevel = BinaryConverter.byteArrayToInt(buf, offset);
-      offset += 4;
-      int ptfGroupStatus = BinaryConverter.byteArrayToInt(buf, offset);
-      offset += 4;
-      ptfs[i] = new PTFGroup(system_, ptfGroupName, ptfGroupDescription, ptfGroupLevel, ptfGroupStatus);
+    catch (PropertyVetoException pve) { // will never happen, but the compiler doesn't know that
+      Trace.log(Trace.ERROR, pve);
+      throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, pve.getMessage());
     }
-    return ptfs;
   }
   
   /**
