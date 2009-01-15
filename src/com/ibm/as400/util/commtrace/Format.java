@@ -88,7 +88,7 @@ import com.ibm.as400.access.Trace;
  * <b>java com.ibm.as400.commtrace.Format</b> [ options ]<br></pre></blockquote>
  * Options:
  * <dl>
- * The first arguement is the system to connect to
+ * The first argument is the system to connect to.
  * <dt><b>-u/-userID</b></dt><dd>The userID for the system</dd>
  * <dt><b>-p/-password</b></dt><dd>The password for the system</dd>
  * <dt><b>-t/-trace</b></dt><dd>The trace to parse</dd>
@@ -107,18 +107,18 @@ import com.ibm.as400.access.Trace;
  * </dl>
  */
 public class Format {
-	private final String ALL= "*ALL", NO= "*NO", CLASS="Format";
+	private static final String ALL= "*ALL", NO= "*NO", CLASS="Format";
 	private AS400 sys= null;
 	private boolean createdSys=false; // True if we created the system so we should close it
-	private InputStream file= null;
+	private InputStream file_= null;
 	private Progress progress= null;
 	// The progress dialog which display the format progress to the user
 	private byte[] data= null; // The raw data of a specific packet
 	private Prolog pro_= null;
 	// The prolog of this trace. Needed so we can get the title and date of this trace
 	private String filename= null, // The path and filename of the file to format
-					outfile= null, // The path and filename of the file to put the traced data to
-					fmtBroadcast= "Y"; // User wants to see broadcast frames
+                    outfilePath_= null; // The path and filename of the file to put the traced data to
+                   //fmtBroadcast= "Y"; // User wants to see broadcast frames
 
 	private BitBuf nxtRecLen;
 	private int ifsrecs= 0, // The number of records in this commtrace
@@ -126,7 +126,7 @@ public class Format {
 				numrecs= 0; // The number of records processed
 
 	private FormatProperties filter_;
-	private ObjectInputStream serin;
+	private ObjectInputStream serin_;
 
 	/**
 	 * Default constructor.
@@ -138,7 +138,7 @@ public class Format {
 	 * Creates a new Format.<br>
 	 * Initializes the MRI.<br>
 	 * Takes an AS400 object as an argument which will be used for 
-	 * all i5/OS operations.<br>
+	 * all IBM i operations.<br>
 	 * 
 	 * @param sys The system that this object should connect to.
 	 */
@@ -157,7 +157,7 @@ public class Format {
 	*/
 	public Format(FormatProperties prop, String outfile, String infile) {
 		this.filter_= prop;
-		this.outfile= outfile;
+		this.outfilePath_= outfile;
 		this.filename = infile;
 
 		// If the user didn't specify a file name gracefully exit
@@ -167,7 +167,7 @@ public class Format {
 		}
 		// Attempt to open a stream on the file
 		try {
-			file= new BufferedInputStream(new FileInputStream(infile));
+			file_= new BufferedInputStream(new FileInputStream(infile));
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".Format()" + "Error opening:" + infile, e);
@@ -245,7 +245,7 @@ public class Format {
 
 		// The name of the output file to save to
 		String outfile= arguments.getOptionValue("-outfile");
-		this.outfile= outfile;
+		this.outfilePath_= outfile;
 
 		// Enable debugging or not
 		String verbose= arguments.getOptionValue("-verbose");
@@ -253,7 +253,7 @@ public class Format {
 		String logfile= arguments.getOptionValue("-logfile");
 
 		// The language code
-		String language= arguments.getOptionValue("-language");
+		//String language= arguments.getOptionValue("-language");
 
 		// The country code
 		String country= arguments.getOptionValue("-country");
@@ -360,7 +360,7 @@ public class Format {
 			createdSys=true;
 			try {
 				// Opens a input stream on the file
-				file= new IFSFileInputStream(sys, filename);
+				file_= new IFSFileInputStream(sys, filename);
 			} catch (FileNotFoundException e) {
 				if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 					Trace.log(Trace.ERROR,CLASS + ".Format() " + "File " + filename + " not found", e);
@@ -380,7 +380,7 @@ public class Format {
 			// User wants to format a file on their local PC
 		} else if (system == null || uid == null || pwd == null) {
 			try {
-				file= new BufferedInputStream(new FileInputStream(filename));
+				file_= new BufferedInputStream(new FileInputStream(filename));
 			} catch (FileNotFoundException e) {
 				if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 					Trace.log(Trace.ERROR,CLASS + ".Format() " + "File " + filename + " not found", e);
@@ -393,7 +393,7 @@ public class Format {
 			createdSys=true;
 			try {
 				// Opens a input stream on the file
-				file= new IFSFileInputStream(sys, filename);
+				file_= new IFSFileInputStream(sys, filename);
 			} catch (FileNotFoundException e) {
 				if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 					Trace.log(Trace.ERROR,CLASS + ".Format() " + "File " + filename + " not found", e);
@@ -432,7 +432,7 @@ public class Format {
 			return;
 		}
 		try {
-			file= new BufferedInputStream(new FileInputStream(filename));
+			file_= new BufferedInputStream(new FileInputStream(filename));
 			// Opens a input stream on the local file
 		} catch (FileNotFoundException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
@@ -450,7 +450,7 @@ public class Format {
 	 * @param file The input stream to read the data off of.
 	 */
 	public Format(IFSFileInputStream file) {
-		this.file= file;
+		this.file_= file;
 		formatProlog();
 	}
 
@@ -471,15 +471,15 @@ public class Format {
 			String starttime= filter_.getStartTime();
 			String endtime= filter_.getEndTime();
 
-			if (starttime == null && endtime == null) { // If no time filters do nothing
-			} else if (endtime == null) { // If only start time initialize start time
+              if (starttime != null) {
 				// Set the property to the milliseconds since the epoc
 				filter_.setStartTime(Long.toString(df.parse(starttime).getTime()));
-			} else { // Initialize both
-				// Set the filter properties to the milliseconds since the epoc
-				filter_.setStartTime(Long.toString(df.parse(starttime).getTime()));
+			}
+              if (endtime != null) {
+				// Set the property to the milliseconds since the epoc
 				filter_.setEndTime(Long.toString(df.parse(endtime).getTime()));
 			}
+
 		} catch (ParseException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".setUpFilters() " + "Invalid Time argument", e);
@@ -500,7 +500,7 @@ public class Format {
 	 * @param outfile The file to open a OutputStream on.
 	 */
 	public void setOutFile(String outfile) {
-		this.outfile=outfile;
+		this.outfilePath_=outfile;
 	}
 	
 	/**
@@ -508,11 +508,11 @@ public class Format {
 	 * @param infile The open InputStream to read from.
 	 */
 	public void setInFileStream(InputStream infile) {
-		file=infile;
+		file_=infile;
 	}
 	
 	/**
-	 * Sets the system to use for all i5/OS connections.
+	 * Sets the system to use for all IBM i connections.
 	 * @param system The system to connect to.
 	 */
 	public void setSystem(AS400 system) {
@@ -523,55 +523,65 @@ public class Format {
 	 * Formats the trace and sends the output to an IFS text file on the system we are bound to. 
 	 * @return A error code if any.
 	 */
-	public int toIFSTxtFile() {
-		IFSTextFileOutputStream out;
-		if(sys==null) { // sys isn't specified
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error the system wasn't specified");
-			}
-			return 1;
-		}
-		if(outfile==null) { // outfile isn't specified
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error the out file wasn't specified");
-			}
-			return 1;
-		}
-			
-		try {
-			out= new IFSTextFileOutputStream(sys, outfile);
-			// Opens an output stream on the local file
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error opening " + outfile, e);
-			}
-			return 1;
-		} catch (AS400SecurityException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Security exception opening file", e);
-			}
-			return 1;
-		}
-		int recPrinted=0;
-		Frame rec;
-		try {
-			out.write(pro_.toString());
-			while ((rec= getNextRecord()) != null) {
-				if(recPrinted%5==0) {
-					out.write(addBanner());
-				}
-				out.write(rec.toString());
-				recPrinted++;
-			}
-			out.write(addEndBanner());
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error writing to " + filename, e);
-			}
-			return 1;
-		}
-		return 0;
-	}
+        public int toIFSTxtFile() {
+          if(sys==null) { // sys isn't specified
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error the system wasn't specified");
+            }
+            return 1;
+          }
+          if(outfilePath_==null) { // outfile isn't specified
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error the out file wasn't specified");
+            }
+            return 1;
+          }
+
+          IFSTextFileOutputStream out = null;
+          try
+          {
+            try {
+              out= new IFSTextFileOutputStream(sys, outfilePath_);
+              // Opens an output stream on the local file
+            } catch (IOException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error opening " + outfilePath_, e);
+              }
+              return 1;
+            } catch (AS400SecurityException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Security exception opening file", e);
+              }
+              return 1;
+            }
+            int recPrinted=0;
+            Frame rec;
+            try {
+              out.write(pro_.toString());
+              while ((rec= getNextRecord()) != null) {
+                if(recPrinted%5==0) {
+                  out.write(addBanner());
+                }
+                out.write(rec.toString());
+                recPrinted++;
+              }
+              out.write(addEndBanner());
+            } catch (IOException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSTxtFile() " +  "Error writing to " + filename, e);
+              }
+              return 1;
+            }
+          }
+          finally
+          {
+            if (out != null) {
+              try { out.close(); }
+              catch (IOException e) { Trace.log(Trace.ERROR,e); }
+            }
+          }
+          return 0;
+        }
 
 	/**
 	 * Formats the trace and sends the output to an IFS text file on the system we are bound to. 
@@ -580,7 +590,7 @@ public class Format {
 	public int toLclTxtFile() {
 		Writer out;
 
-		if(outfile==null) { // outfile isn't specified
+		if(outfilePath_==null) { // outfile isn't specified
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".toLclTxtFile() " +  "Error the out file wasn't specified");
 			}
@@ -588,11 +598,11 @@ public class Format {
 		}
 		
 		try {
-			out= new BufferedWriter(new FileWriter(outfile));
+			out= new BufferedWriter(new FileWriter(outfilePath_));
 			// Opens an output stream on the local file
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclTxtFile() " + "Error opening " + outfile, e);
+				Trace.log(Trace.ERROR,CLASS + ".toLclTxtFile() " + "Error opening " + outfilePath_, e);
 			}
 			return 1;
 		}
@@ -632,203 +642,210 @@ public class Format {
 	 * we are connected to.
 	 * @return A error code if any.
 	 */
-	public int toIFSBinFile() {
-		ObjectOutputStream out;
-		Frame rec;
+        public int toIFSBinFile() {
+          if(pro_==null) { // Constructed incorrectly
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error the prolog wasn't formatted");
+            }
+            return 1;
+          }
 
-		if(pro_==null) { // Constructed incorrectly
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error the prolog wasn't formatted");
-			}
-			return 1;
-		}
-		
-		if (pro_.invalidData()) { // If the prolog had invalid data return
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Not a valid i5/OS CommTrace");
-			}
-			return 1;
-		}
+          if (pro_.invalidData()) { // If the prolog had invalid data return
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Not a valid IBM i CommTrace");
+            }
+            return 1;
+          }
 
-		try {
-			out= new ObjectOutputStream(new IFSFileOutputStream(sys, outfile));
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error opening " + outfile, e);
-			}
-			return 1;
-		} catch (AS400SecurityException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Security exception opening file " + outfile, e);
-			}
-			return 1;
-		}
+          ObjectOutputStream out = null;
+          try
+          {
+            try {
+              out= new ObjectOutputStream(new IFSFileOutputStream(sys, outfilePath_));
+            } catch (IOException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error opening " + outfilePath_, e);
+              }
+              return 1;
+            } catch (AS400SecurityException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Security exception opening file " + outfilePath_, e);
+              }
+              return 1;
+            }
 
-		try {
-			out.writeUTF(pro_.toString());
-			out.writeInt(ifsrecs);
-			while ((rec= getNextRecord()) != null) {
-				String record= rec.toString(filter_);
-				if (record != "") {
-					out.writeUTF(record);
-				}
-			}
-			out.writeUTF(addEndBanner());
-		} catch (NotSerializableException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error object not serializable " + outfile, e);
-			}
-			return 1;
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error writing file " + outfile, e);
-			}
-			return 1;
-		}
-		try {
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error closing file " + outfile, e);
-			}
-			return 1;
-		}
-		return 0;
-	}
+            try {
+              out.writeUTF(pro_.toString());
+              out.writeInt(ifsrecs);
+              Frame rec = null;
+              while ((rec= getNextRecord()) != null) {
+                String record= rec.toString(filter_);
+                if (record.length() != 0) {
+                  out.writeUTF(record);
+                }
+              }
+              out.writeUTF(addEndBanner());
+            } catch (NotSerializableException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error object not serializable " + outfilePath_, e);
+              }
+              return 1;
+            } catch (IOException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error writing file " + outfilePath_, e);
+              }
+              return 1;
+            }
+          }
+          finally {
+            if (out != null) {
+              try { out.close(); }
+              catch (IOException e) {
+                if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                  Trace.log(Trace.ERROR,CLASS + ".toIFSBinFile() " + "Error closing file " + outfilePath_, e);
+                }
+                return 1;
+              }
+            }
+          }
+          return 0;
+        }
 
 	/**
 	 * Format the trace and write the results to a binary file on the local PC.
 	 * @return A error code if any.
 	 */
-	public int toLclBinFile() {
-		ObjectOutputStream out;
-		Frame rec;
+        public int toLclBinFile() {
+          if(pro_==null) { // Constructed incorrectly
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error the prolog wasn't formatted");
+            }
+            return 1;
+          }
 
-		if(pro_==null) { // Constructed incorrectly
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error the prolog wasn't formatted");
-			}
-			return 1;
-		}
-		
-		if (pro_.invalidData()) { // If the prolog had invalid data return
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Not a valid i5/OS CommTrace");
-			}
-			return 1;
-		}
+          if (pro_.invalidData()) { // If the prolog had invalid data return
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Not a valid IBM i CommTrace");
+            }
+            return 1;
+          }
 
-		String showprogress= filter_.getProgress();
-		if (showprogress != null && showprogress.equals(FormatProperties.TRUE)) {
-			// Start the progress bar 
-			progress= new Progress(("Formating " + filename), ifsrecs, " records");
-			Thread progThread= new Thread(progress, "ProgDiag");
-			progress.setThread(progThread);
-			progThread.start();
-		}
-		
-		// If no output file specified use the same as the current trace but append the extension onto it.
-		if(outfile==null) {
-			
-		}
+          String showprogress= filter_.getProgress();
+          if (showprogress != null && showprogress.equals(FormatProperties.TRUE)) {
+            // Start the progress bar 
+            progress= new Progress(("Formating " + filename), ifsrecs, " records");
+            Thread progThread= new Thread(progress, "ProgDiag");
+            progress.setThread(progThread);
+            progThread.start();
+          }
 
-		try {
-			out= new ObjectOutputStream(new FileOutputStream(outfile));
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error opening " + outfile, e);
-			}
-			return 1;
-		}
+          // If no output file specified use the same as the current trace but append the extension onto it.
+          //if(outfilePath_==null) {
+          //
+          //}
 
-		try {
-			out.writeUTF(pro_.toString());
-			out.writeInt(ifsrecs);
-			if (progress == null) {
-				while ((rec= getNextRecord()) != null) {
-					String record= rec.toString(filter_);
-					if (record != "") {
-						out.writeUTF(record);
-					}
-				}
-			} else {
-				while ((rec= getNextRecord()) != null && !progress.isCanceled()) {
-					String record= rec.toString(filter_);
-					if (record != "") {
-						out.writeUTF(record);
-					}
-				}
-			}
+          ObjectOutputStream out = null;
+          try
+          {
+            try {
+              out= new ObjectOutputStream(new FileOutputStream(outfilePath_));
+            } catch (IOException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error opening " + outfilePath_, e);
+              }
+              return 1;
+            }
 
-			out.writeUTF(addEndBanner());
-		} catch (NotSerializableException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error object not serializable " + outfile, e);
-			}
-			return 1;
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error writing file " + outfile, e);
-			}
-			return 1;
-		}
+            try {
+              out.writeUTF(pro_.toString());
+              out.writeInt(ifsrecs);
+              Frame rec = null;
+              if (progress == null) {
+                while ((rec= getNextRecord()) != null) {
+                  String record= rec.toString(filter_);
+                  if (record.length() != 0) {
+                    out.writeUTF(record);
+                  }
+                }
+              } else {
+                while ((rec= getNextRecord()) != null && !progress.isCanceled()) {
+                  String record= rec.toString(filter_);
+                  if (record.length() != 0) {
+                    out.writeUTF(record);
+                  }
+                }
+              }
 
-		try {
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error closing file " + outfile, e);
-			}
-			return 1;
-		}
-		return 0;
+              out.writeUTF(addEndBanner());
+            } catch (NotSerializableException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error object not serializable " + outfilePath_, e);
+              }
+              return 1;
+            } catch (IOException e) {
+              if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error writing file " + outfilePath_, e);
+              }
+              return 1;
+            }
+          }
+          finally {
+            if (out != null) {
+              try { out.close(); }
+              catch (IOException e) {
+                if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+                  Trace.log(Trace.ERROR,CLASS + ".toLclBinFile() " + "Error closing file " + outfilePath_, e);
+                }
+                return 1;
+              }
+            }
+          }
+          return 0;
 
-	}
+        }
 
-	/**
-	 * Formats the recs and writes them out.
-	 * @return An error code if any.
-	 */
-	private int toBinFile(ObjectOutputStream out) {
-		Frame rec;
-		try {
-			out.writeUTF(pro_.toString());
-			out.writeInt(ifsrecs);
-			while ((rec= getNextRecord()) != null) {
-				out.writeUTF(rec.toString());
-			}
-			out.writeUTF(addEndBanner());
-		} catch (NotSerializableException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".toBinFile() " + "Error object not serializable " + outfile, e);
-			}
-			return 1;
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR, CLASS + ".toBinFile() " + "Error writing file " + outfile, e);
-			}
-			return 1;
-		}
-		try {
-			out.flush();
-			out.close();
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR, CLASS + ".toBinFile() " + "Error closing file " + outfile, e);
-			}
-			return 1;
-		}
-		return 0;
-	}
+//	/**
+//	 * Formats the recs and writes them out.
+//	 * @return An error code if any.
+//	 */
+//	private int toBinFile(ObjectOutputStream out) {
+//		Frame rec;
+//		try {
+//			out.writeUTF(pro_.toString());
+//			out.writeInt(ifsrecs);
+//			while ((rec= getNextRecord()) != null) {
+//				out.writeUTF(rec.toString());
+//			}
+//			out.writeUTF(addEndBanner());
+//		} catch (NotSerializableException e) {
+//			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+//				Trace.log(Trace.ERROR,CLASS + ".toBinFile() " + "Error object not serializable " + outfilePath_, e);
+//			}
+//			return 1;
+//		} catch (IOException e) {
+//			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+//				Trace.log(Trace.ERROR, CLASS + ".toBinFile() " + "Error writing file " + outfilePath_, e);
+//			}
+//			return 1;
+//		}
+//		try {
+//			out.flush();
+//			out.close();
+//		} catch (IOException e) {
+//			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+//				Trace.log(Trace.ERROR, CLASS + ".toBinFile() " + "Error closing file " + outfilePath_, e);
+//			}
+//			return 1;
+//		}
+//		return 0;
+//	}
 
 	/**
 	 * Opens an ObjectInputStream and IFSFileInputStream on the file specified earlier. Used for displaying previously formatted traces.
 	 * @return An error code if any.
 	 */
 	public int openIFSFile() {
-		return openIFSFile(outfile);
+		return openIFSFile(outfilePath_);
 	}
 
 	/**
@@ -836,8 +853,8 @@ public class Format {
 	 * @return An error code if any.
 	 */
 	public int openIFSFile(String outfile) {
-		this.outfile= outfile;
-		if(outfile==null) { // Outfile wasn't set
+		this.outfilePath_= outfile;
+		if(outfilePath_==null) { // Outfile wasn't set
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".openIFSFile()" + "Outfile not specified");
 			}
@@ -845,15 +862,15 @@ public class Format {
 		}
 		
 		try {
-			serin= new ObjectInputStream(new IFSFileInputStream(sys, outfile));
+			serin_= new ObjectInputStream(new IFSFileInputStream(sys, outfilePath_));
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".openIFSFile()" + "Error opening " + outfile,e);
+				Trace.log(Trace.ERROR,CLASS + ".openIFSFile()" + "Error opening " + outfilePath_,e);
 			}
 			return 1;
 		} catch (AS400SecurityException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".openIFSFile()" + "Security exception opening file " + outfile,e);
+				Trace.log(Trace.ERROR,CLASS + ".openIFSFile()" + "Security exception opening file " + outfilePath_,e);
 			}
 			return 1;
 		}
@@ -865,7 +882,7 @@ public class Format {
 	 * @return An error code if any.
 	 */
 	public int openLclFile() {
-		return openLclFile(outfile);
+		return openLclFile(outfilePath_);
 	}
 
 	/**
@@ -874,9 +891,9 @@ public class Format {
 	 * @return int An error code if any.
 	 */
 	public int openLclFile(String outfile) {
-		this.outfile= outfile;
+		this.outfilePath_= outfile;
 		
-		if(outfile==null) { // Outfile wasn't set
+		if(outfilePath_==null) { // Outfile wasn't set
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".openLclFile() " + "Outfile not specified");
 			}
@@ -884,10 +901,10 @@ public class Format {
 		}
 		
 		try {
-			serin= new ObjectInputStream(new FileInputStream(outfile));
+			serin_= new ObjectInputStream(new FileInputStream(outfilePath_));
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".openLclFile() " + "Error opening " + outfile, e);
+				Trace.log(Trace.ERROR,CLASS + ".openLclFile() " + "Error opening " + outfilePath_, e);
 			}
 			return 1;
 		}
@@ -898,39 +915,40 @@ public class Format {
 	 * Closes this format object.
 	 * @return An error code if any.
 	 */
-	public int close() {
-		if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
-			Trace.log(Trace.INFORMATION,CLASS + ".close()");
-		}
+        public int close() {
+          if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
+            Trace.log(Trace.INFORMATION,CLASS + ".close()");
+          }
+          int result = 0;
 
-		try {
-			if (file != null) {
-				file.close();
-			}
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".close() " + "Error closing " + filename, e);
-			}
-			return 1;
-		}
-		try {
-			if (serin != null) {
-				serin.close();
-			}
-			if (sys != null && createdSys) {
-				sys.disconnectAllServices();
-			}
-		} catch (IOException e) {
-			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-				Trace.log(Trace.ERROR,CLASS + ".close() " + "Error closing " + outfile, e);
-			}
-			return 1;
-		}
-		if (progress != null) { // Close the progress Thread
-			progress.setThread(null);
-		}
-		return 0;
-	}
+          try {
+            if (file_ != null) {
+              file_.close();
+            }
+          } catch (Throwable e) {
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".close() " + "Error closing " + filename, e);
+            }
+            return 1;
+          }
+          try {
+            if (serin_ != null) {
+              serin_.close();
+            }
+            if (sys != null && createdSys) {
+              sys.disconnectAllServices();
+            }
+          } catch (Throwable e) {
+            if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+              Trace.log(Trace.ERROR,CLASS + ".close() " + "Error closing " + outfilePath_, e);
+            }
+            return 1;
+          }
+          if (progress != null) { // Close the progress Thread
+            progress.setThread(null);
+          }
+          return result;
+        }
 
 	/**
 	 * Reads a Frame from the input stream. Records are stored as Strings.
@@ -939,7 +957,7 @@ public class Format {
 	public String getRecFromFile() {
 		String utf= null;
 		try {
-			utf= serin.readUTF();
+			utf= serin_.readUTF();
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".getRecFromFile() " + "Error reading file", e);
@@ -961,7 +979,7 @@ public class Format {
 	public int getIntFromFile() {
 		int tmp= 0;
 		try {
-			tmp= serin.readInt();
+			tmp= serin_.readInt();
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".getIntFromFile() " + "Error reading file", e);
@@ -983,7 +1001,7 @@ public class Format {
 	 * @return true if this trace contains invalid data.
 	 */
 	public boolean formatProlog() {
-		if(file==null) {
+		if(file_==null) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".formatProlog() " + "Input file not opened");
 			}
@@ -1064,13 +1082,19 @@ public class Format {
 	 */
 	private void read(int off, int len) {
 		data= new byte[off + len];
+		int bytesRead = 0;
 		try {
-			file.read(data, off, len); // Reads and stores the input in the data array
+			bytesRead = file_.read(data, off, len); // Reads and stores the input in the data array
 		} catch (IOException e) {
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".read() " + "Error reading file",e);
 			}
 		}
+         if (bytesRead != len) {
+			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
+				Trace.log(Trace.ERROR,CLASS + ".read() " + "Incorrect number of bytes read: Requested " + len + ", got " + bytesRead);
+              }
+         }
 	}
 
 	/** 
