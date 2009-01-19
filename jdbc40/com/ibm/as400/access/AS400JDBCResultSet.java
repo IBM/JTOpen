@@ -5319,7 +5319,7 @@ implements ResultSet
                     {
                         // @K1A
                         convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
-                        String columnName = extendedDescriptors.getColumnDescriptors(i+1).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel
+                        String columnName = extendedDescriptors.getColumnDescriptors(i+1, convTable).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel //@SS1
                         if(columnName != null) {
                             if (((AS400JDBCConnection)connection_).getVRM() < JDUtilities.vrm540) { //@DELIMa
                               buffer.append(JDUtilities.stripOuterDoubleQuotes(columnName));  // if pre-V5R4, just strip outer quotes (no double-up necessary)

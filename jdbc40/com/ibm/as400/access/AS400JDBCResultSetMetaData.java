@@ -306,7 +306,7 @@ implements ResultSetMetaData
         if(extendedColumnDescriptors_ != null)                                  //@G1A
         {
             //@G1A
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA //@ss1
             if(dataFormat != null) //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
                 return dataFormat.getBaseTableSchemaName(convTable_);   //@G1A
         }                                                                        //@G1A
@@ -335,7 +335,7 @@ implements ResultSetMetaData
         // because we already have the information, we should return it to the user if they want it...
         if(extendedColumnDescriptors_ != null)
         {
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA //@ss1
             if(dataFormat != null)                                                                                      //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
                 return dataFormat.getBaseTableName(convTable_);                                                         //@KBA
             //@KBD return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableName(convTable_);       //K1C  use to call getBaseTableSchemaName
