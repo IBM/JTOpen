@@ -25,15 +25,12 @@ import java.beans.PropertyVetoException;
 
 
 /**
-  * The  PrintObjectList class is an
-  * abstract base class for the various types of network print object lists.
+  * Abstract base class for the various types of network print object lists.
   *
   **/
 public abstract class PrintObjectList
 implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-   
     static final long serialVersionUID = 4L;
 
     private static final String SYSTEM = "system";
@@ -470,7 +467,7 @@ implements java.io.Serializable
             if (impl_ == null) {
                 if (system_ == null) {                                           
                     // forewarn any listeners an error occurs.                  
-                    Exception e = new ExtendedIllegalStateException("system", 
+                    Exception e = new ExtendedIllegalStateException(SYSTEM, 
                         ExtendedIllegalStateException.PROPERTY_NOT_SET);        
                     firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e); 
                 }                                                               
@@ -529,7 +526,7 @@ implements java.io.Serializable
             if (impl_ == null) {
                if (system_ == null) {
                     // forewarn any listeners an error occurs.
-                    Exception e = new ExtendedIllegalStateException("system",
+                    Exception e = new ExtendedIllegalStateException(SYSTEM,
                         ExtendedIllegalStateException.PROPERTY_NOT_SET);
                     firePrintObjectList(PrintObjectListEvent.ERROR_OCCURRED, null, e);
                 }
@@ -713,18 +710,20 @@ implements java.io.Serializable
      **/
     void setImpl()
     {
-        int count = printObjectListListeners_.size();
+        // int count = printObjectListListeners_.size();
         // @A5D for (int i = 0; i < count; i++) {
         // @A5D     impl_.addPrintObjectListListener((PrintObjectListListener) printObjectListListeners_.elementAt(i));
         // @A5D }
         try {                                       
             system_.connectService(AS400.PRINT);    
-            impl_.setSystem(system_.getImpl());     
-            impl_.addPrintObjectListListener(dispatcher_); 
         }                                           
-        catch (Exception e) {                      
-            Trace.log(Trace.ERROR, "Error occurred connecting to Print service.");
+        catch (Exception e) {
+            // AS400.connectService() can throw either IOException or AS400SecurityException.
+            Trace.log(Trace.ERROR, "Error occurred connecting to Print service.", e);
+            throw new RuntimeException(e);
         }                      
+        impl_.setSystem(system_.getImpl());     
+        impl_.addPrintObjectListListener(dispatcher_); 
         impl_.setPrintObjectListAttrs(attrsToRetrieve_, idFilter_, 
                                       selection_, typeOfObject_);
     }
@@ -749,7 +748,7 @@ implements java.io.Serializable
         if( system == null )
         {
             Trace.log(Trace.ERROR, "setSystem: Parameter 'system' is null.");
-            throw new NullPointerException("system");
+            throw new NullPointerException(SYSTEM);
         }
 
         AS400 oldSystem = getSystem();
