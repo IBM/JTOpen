@@ -943,6 +943,25 @@ public class Trace
 
 
   /**
+    Logs a message and a String value in the specified category.  If the
+    category is disabled, nothing is logged.  The String value is appended
+    to the end of the message, preceded by two blanks.
+    @param  category  The message category [DATASTREAM, DIAGNOSTIC, ERROR,
+                      INFORMATION, WARNING, CONVERSION, PROXY, JDBC].
+    @param  message  The message to log.
+    @param  value  The String value to log.
+   **/
+  public static final void log(int category, String message, String value)
+  {
+    if (message == null)
+      throw new NullPointerException("message");
+    else
+      log(category, message + "  " + value);
+  }
+
+
+
+  /**
     Logs a message and an integer value in the specified category for the
     specified component.  If the
     category is disabled, nothing is logged.  The integer value is appended
