@@ -563,7 +563,15 @@ Sets the fetch size.
           }                    //@max1
           else
           {
-              endBlock = fetch (DBSQLRequestDS.FETCH_DIRECT, rowNumber);
+              if(cursor_.getCursorAttributeSensitive() == 0 && cursor_.getCursorAttributeUpdatable() == 0) //@abs3 fix: only use fetch-direct with insensitive read-only cursors
+              {
+                  endBlock = fetch (DBSQLRequestDS.FETCH_DIRECT, rowNumber);
+              }
+              else                          //@abs3
+              {                             //@abs3
+                  first (true);             //@abs3
+                  relative (rowNumber - 1); //@abs3
+              }                             //@abs3
           }
       }
       else if(rowNumber == 0)
@@ -879,7 +887,8 @@ Sets the fetch size.
         // move the system cursor only if we cached a block of records.
         // If only one record is in the cache then the two cursors
         // are already in sync.
-        if (cached_ > 1)                                            // @G1a
+        //Note:  relative and absolute call each other, but will not endless-loop since first() always fetches only one row and so cached_=1!
+        if (cached_ > 1)                                            // @G1a 
         {
           // @G1a
           if (cursorPositionOfFirstRowInCache_ > 0)                // @G1a
