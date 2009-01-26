@@ -358,11 +358,11 @@ implements ResultSetMetaData
         checkIndex(columnIndex);
         //return false; //@in1 add implementation instead of always returning false
 
-        Statement statement = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
         try
         {
-            PreparedStatement ps = con_.prepareStatement("SELECT identity_generation " +
+            ps = con_.prepareStatement("SELECT identity_generation " +
                     "FROM QSYS2" + getCatalogSeparator() + "SYSCOLUMNS" +
                     " WHERE identity_generation is not null" +
                     " AND column_name = ?" +
@@ -387,8 +387,8 @@ implements ResultSetMetaData
         {
             if(rs != null)
                 rs.close();   
-            if(statement != null)
-                statement.close();   
+            if(ps != null)
+                ps.close();   
         }
     }
 
