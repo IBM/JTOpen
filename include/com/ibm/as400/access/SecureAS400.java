@@ -25,7 +25,6 @@ import com.ibm.sslight.SSLightKeyRing;
  **/
 public class SecureAS400 extends AS400
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
     /**
      Constant indicating that encryption should only be done on the connection between the client and the proxy server.
@@ -198,7 +197,7 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Returns the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and i5/OS system are encrypted.
+     Returns the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and IBM i system are encrypted.
      @return  The proxy encryption mode.
      **/
     public int getProxyEncryptionMode()
@@ -223,7 +222,10 @@ public class SecureAS400 extends AS400
 
         String oldValue = useSSLConnection_.keyRingName_;
         String newValue = keyRingName;
-        vetoableChangeListeners_.fireVetoableChange("keyRingName", oldValue, newValue);
+        if (vetoableChangeListeners_ != null)
+        {
+          vetoableChangeListeners_.fireVetoableChange("keyRingName", oldValue, newValue);
+        }
 
         useSSLConnection_.keyRingName_ = keyRingName;
         try
@@ -237,7 +239,10 @@ public class SecureAS400 extends AS400
             throw new ExtendedIllegalArgumentException("keyRingName (" + keyRingName + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        propertyChangeListeners_.firePropertyChange("keyRingName", oldValue, newValue);
+        if (propertyChangeListeners_ != null)
+        {
+          propertyChangeListeners_.firePropertyChange("keyRingName", oldValue, newValue);
+        }
     }
 
     /**
@@ -257,7 +262,10 @@ public class SecureAS400 extends AS400
 
         String oldValue = useSSLConnection_.keyRingName_;
         String newValue = keyRingName;
-        vetoableChangeListeners_.fireVetoableChange("keyRingName", oldValue, newValue);
+        if (vetoableChangeListeners_ != null)
+        {
+          vetoableChangeListeners_.fireVetoableChange("keyRingName", oldValue, newValue);
+        }
 
         useSSLConnection_.keyRingName_ = keyRingName;
         useSSLConnection_.keyRingPassword_ = keyRingPassword;
@@ -272,7 +280,10 @@ public class SecureAS400 extends AS400
             throw new ExtendedIllegalArgumentException("keyRingName (" + keyRingName + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        propertyChangeListeners_.firePropertyChange("keyRingName", oldValue, newValue);
+        if (propertyChangeListeners_ != null)
+        {
+          propertyChangeListeners_.firePropertyChange("keyRingName", oldValue, newValue);
+        }
     }
 
     /**
@@ -292,10 +303,10 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and i5/OS system are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
+     Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and IBM i system are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
      <br>Valid proxy encryption modes are:
      <br>{@link #CLIENT_TO_PROXY_SERVER CLIENT_TO_PROXY_SERVER} - encrypt between client and proxy server.
-     <br>{@link #PROXY_SERVER_TO_SERVER PROXY_SERVER_TO_SERVER} - encrypt between proxy server and i5/OS system.
+     <br>{@link #PROXY_SERVER_TO_SERVER PROXY_SERVER_TO_SERVER} - encrypt between proxy server and IBM i system.
      <br>{@link #CLIENT_TO_SERVER CLIENT_TO_SERVER} - encrypt both portions of connection.
      @param  proxyEncryptionMode  The proxy encryption mode.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
@@ -318,10 +329,16 @@ public class SecureAS400 extends AS400
 
         Integer oldValue = new Integer(useSSLConnection_.proxyEncryptionMode_);
         Integer newValue = new Integer(proxyEncryptionMode);
-        vetoableChangeListeners_.fireVetoableChange("proxyEncryptionMode", oldValue, newValue);
+        if (vetoableChangeListeners_ != null)
+        {
+          vetoableChangeListeners_.fireVetoableChange("proxyEncryptionMode", oldValue, newValue);
+        }
 
         useSSLConnection_.proxyEncryptionMode_ = proxyEncryptionMode;
 
-        propertyChangeListeners_.firePropertyChange("proxyEncryptionMode", oldValue, newValue);
+        if (propertyChangeListeners_ != null)
+        {
+          propertyChangeListeners_.firePropertyChange("proxyEncryptionMode", oldValue, newValue);
+        }
     }
 }
