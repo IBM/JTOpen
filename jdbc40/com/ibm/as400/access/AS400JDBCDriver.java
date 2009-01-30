@@ -1311,10 +1311,15 @@ implements java.sql.Driver
                 sockProps = as400.getSocketProperties();
             sockProps.setSendBufferSize(jdProperties.getInt(JDProperties.SEND_BUFFER_SIZE));
         }
-        //timeout2
-        if(sockProps == null)
-            sockProps = as400.getSocketProperties();
-        sockProps.setSoTimeout(DriverManager.getLoginTimeout() * 1000);
+        
+        //@timeout2
+        //First get setting from DriverManager, then override with property updates
+        if(!as400.arePropertiesFrozen()) //@timeout3 AS400JDBCDriver.connect(clone=false) cannot update props. We don't know if DriverManager.setLoginTimeout() has been updated.
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            sockProps.setSoTimeout(DriverManager.getLoginTimeout() * 1000);
+        }
         
         //@timeout
         if( jdProperties.getString(JDProperties.LOGIN_TIMEOUT).equals("") == false)
