@@ -23,7 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Vector;
 
-import com.ibm.as400.resource.RJob;
+//import com.ibm.as400.resource.RJob;
 
 /**
  The ProgramCall class allows a user to call an i5/OS system program, pass parameters to it (input and output), and access data returned in the output parameters after the program runs.  Use ProgramCall to call programs.  To call service programs, use ServiceProgramCall.
@@ -325,28 +325,29 @@ public class ProgramCall implements Serializable
         }
     }
 
-    /**
-     Returns an RJob object which represents the server job in which the program will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
-     <br>Typical uses include:
-     <br>(1) before run() to identify the job before calling the program;
-     <br>(2) after run() to see what job the program ran under (to identify the job log, for example).
-     <p><b>Note:</b> This method is not supported in the Toolbox proxy environment.
-     @return  The job in which the program will be run.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
-     @deprecated  Use getServerJob() instead.
-     **/
-    public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
-        chooseImpl();
-        String jobInfo = impl_.getJobInfo(threadSafety_);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
-        // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
-        return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
-    }
+    // Removed this obsolete method.  Deprecated on 2003-01-22.
+//    /**
+//     Returns an RJob object which represents the server job in which the program will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
+//     <br>Typical uses include:
+//     <br>(1) before run() to identify the job before calling the program;
+//     <br>(2) after run() to see what job the program ran under (to identify the job log, for example).
+//     <p><b>Note:</b> This method is not supported in the Toolbox proxy environment.
+//     @return  The job in which the program will be run.
+//     @exception  AS400SecurityException  If a security or authority error occurs.
+//     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+//     @exception  IOException  If an error occurs while communicating with the system.
+//     @exception  InterruptedException  If this thread is interrupted.
+//     @deprecated  Use getServerJob() instead.
+//     **/
+//    public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+//    {
+//        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
+//        chooseImpl();
+//        String jobInfo = impl_.getJobInfo(threadSafety_);
+//        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
+//        // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
+//        return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
+//    }
 
     /**
      Returns the list of messages returned from running the program.  It will return an empty list if the program has not been run yet or if there are no messages.
