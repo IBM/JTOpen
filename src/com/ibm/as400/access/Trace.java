@@ -956,7 +956,7 @@ public class Trace
     if (message == null)
       throw new NullPointerException("message");
     else
-      log(category, message + "  " + value);
+      log(category, message + "  " + (value == null ? "null" : value));
   }
 
 
