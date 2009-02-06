@@ -1973,7 +1973,6 @@ public class AS400 implements Serializable
      This is similar in concept to "pinging" the system over the connection.
      <p>Note: This method is <b>not fully supported until the release following IBM i V6R1</b>.  If running to V6R1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
-     </ul>
      @return  true if the connection is still working; false otherwise.
      @see #isConnected
      @see AS400JPing
@@ -1985,6 +1984,39 @@ public class AS400 implements Serializable
       boolean alive;
       if (impl_ == null) alive = false;
       else               alive = impl_.isConnectionAlive();
+
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connection status:", alive);
+      return alive;
+    }
+
+
+    /**
+     Tests the connection to a service on the system, to verify that it is still working.
+     This is similar in concept to "pinging" the system over the connection.
+     <p>Note: This method is <b>not fully supported until the release following IBM i V6R1</b>.  If running to V6R1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
+     <p>Note: If the specified service is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>{@link #FILE FILE} - IFS file classes.
+     <li>{@link #PRINT PRINT} - print classes.
+     <li>{@link #COMMAND COMMAND} - command and program call classes.
+     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     <li>{@link #DATABASE DATABASE} - JDBC classes.
+     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     <li>{@link #CENTRAL CENTRAL} - licence management classes.
+     <li>{@link #SIGNON SIGNON} - sign-on classes.
+     </ul>
+     @return  true if the connection to the service is still working; false otherwise.
+     @see #isConnected
+     @see AS400JPing
+     **/
+    public boolean isConnectionAlive(int service)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Testing connection...");
+
+      boolean alive;
+      if (impl_ == null) alive = false;
+      else               alive = impl_.isConnectionAlive(service);
 
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connection status:", alive);
       return alive;

@@ -45,6 +45,8 @@ interface AS400Impl
     boolean isConnected(int service);
     // Check connection's current status.
     boolean isConnectionAlive();
+    // Check connection's current status.
+    boolean isConnectionAlive(int service);
     // Load converter into converter pool.
     void newConverter(int ccsid) throws UnsupportedEncodingException;
     // Remove the connection event dispatcher.

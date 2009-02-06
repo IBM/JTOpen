@@ -181,6 +181,19 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
       }
     }
 
+    // Check connection's current status.
+    public boolean isConnectionAlive(int service)
+    {
+        try
+        {
+            return connection_.callMethod(pxId_, "isConnectionAlive", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) }).getReturnValueBoolean();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow(e);
+        }
+    }
+
     // Load converter into converter pool.
     public void newConverter(int ccsid) throws UnsupportedEncodingException
     {

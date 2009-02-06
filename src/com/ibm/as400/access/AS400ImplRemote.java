@@ -144,6 +144,13 @@ class AS400ImplRemote implements AS400Impl
         dispatcher_ = listener;
     }
 
+    // Indicates if the native optimizations code can be used.
+    // Provided for internal use by other ImplRemote classes.
+    boolean canUseNativeOptimizations()
+    {
+      return canUseNativeOptimization_;
+    }
+
     // Map from CCSID to encoding string.
     public String ccsidToEncoding(int ccsid)
     {
@@ -1431,11 +1438,108 @@ class AS400ImplRemote implements AS400Impl
         }
         catch (Exception e)
         {
-          if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, e);
           isAlive = false;
         }
 
         if (!isAlive) { priorService_ = NO_PRIOR_SERVICE; }
+
+        return isAlive;
+    }
+
+
+    // Check connection's current status, for a specific service.
+    public boolean isConnectionAlive(int service)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking service connection's current alive status:", service);
+
+        if (!isConnected(service)) return false;
+
+        // The host server 'ping' request is supported starting in V7R1.
+        if (getVRM() < 0x00070100)
+        {
+          Trace.log(Trace.DIAGNOSTIC, "The IBM i version is V6R1 or lower, therefore isConnectionAlive() defaults to the behavior of isConnected().");
+          if (isConnected(service))
+          {
+            return true;
+          }
+          else
+          {
+            return false;
+          }
+        }
+
+        boolean isAlive = false;
+        try
+        {
+          AS400Server connectedServer = getConnectedServer(new int[] {service});
+
+          // If we have a connection to the specified service, send the ping request.
+          // If no exception gets thrown, report that the connection is alive.
+
+          if (connectedServer != null)
+          {
+
+            // Special handling for the DDM Server.
+            if (service == AS400.RECORDACCESS)
+            {
+              // For the DDM Server, simply return true.
+              // We don't have a way to ping the DDM server without creating an error entry in the host server's job log.
+              Trace.log(Trace.DIAGNOSTIC, "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
+              isAlive = true;
+            }
+
+            // Special handling for the File Server.
+            else if (service == AS400.FILE)
+            {
+              if (ifsPingRequest_ == null) {
+                ifsPingRequest_ = new IFSPingReq();  // a dummy request, just to get a reply
+              }
+              // We expect to get back a reply indicating "request not supported".
+              DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
+              // If no exception was thrown, then the ping succeeded.
+
+              isAlive = true;
+
+              if (DEBUG)
+              {
+                // Sanity-check the reply.
+                if (reply instanceof IFSReturnCodeRep)
+                {
+                  int returnCode = ((IFSReturnCodeRep)reply).getReturnCode();
+                  // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
+                  // That sort of error doesn't clutter the job log with error entries.
+                  if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED)
+                  {
+                    if (Trace.traceOn_) {
+                      Trace.log(Trace.DIAGNOSTIC, "Ping of File Server failed with unexpected return code " + returnCode);
+                    }
+                  }
+                }
+                else {
+                  Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
+                }
+              }
+            }
+
+            else  // It's a "common service", which will accept a Signon Ping Request.
+            {
+              if (signonPingRequest_ == null) {
+                signonPingRequest_ = new SignonPingReq(); // the above services all support "ping"
+              }
+              connectedServer.sendAndDiscardReply(signonPingRequest_);
+              // If no exception was thrown, then the ping succeeded.
+
+              isAlive = true;
+            }
+          }
+
+        }
+        catch (Exception e)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, e);
+          isAlive = false;
+        }
 
         return isAlive;
     }
