@@ -3348,6 +3348,28 @@ public class Job implements Serializable
      **/
     public void commitChanges() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+      commitChanges(false);
+    }
+
+    /**
+     Commits all uncommitted attribute changes.  Calling this method will set all uncommitted attribute changes to the job on the system.
+     When running on an IBM i system, and mustStayOnThread is true,
+     then the system API (QWTCHGJB) will be called on-thread, that is,
+     in the same thread as the JVM.
+     <br>Caution: The <tt>QWTCHGJB</tt> API is specified as "conditionally
+     threadsafe".  Please refer to the IBM i Programmer's Guide for details on
+     the threadsafety of specific attribute changes.  Note that this method
+     specifies format name JOBC0100 when calling QWTCHGJB.
+     <br>Note: This method behaves identically to {@link #commitChanges commitChanges()} if the Java application is running remotely, that is, is not running "natively" on an IBM i system.  When running remotely, the Toolbox submits all program calls through the Remote Command Host Server.
+     @param mustStayOnThread Whether the system API must be called on-thread. If false, this method behaves identically to {@link #commitChanges commitChanges()}.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public void commitChanges(boolean mustStayOnThread) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing job.");
         connect();
 
@@ -3438,7 +3460,18 @@ public class Job implements Serializable
             new ProgramParameter(new byte[8])  // Error code.
         };
 
+        // Note: QWTCHGJB is specified to be "conditionally threadsafe".
+        // If we call QWTCHGJB on-thread when changing certain attributes,
+        // the API call will fail and an AS400Exception will be returned.
+        // Therefore, we will disregard the setting of system property
+        // "ProgramCall.threadSafe" when calling this particular API.
         ProgramCall program = new ProgramCall(system_, "/QSYS.LIB/QWTCHGJB.PGM", parmList);
+        if (mustStayOnThread) {
+          program.setThreadSafe(true);
+        }
+        else {
+          program.setThreadSafe(false);  // make sure the system property is ignored
+        }
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting job information for job: " + toString());
         if (!program.run())
         {
