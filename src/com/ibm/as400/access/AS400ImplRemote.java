@@ -641,25 +641,26 @@ class AS400ImplRemote implements AS400Impl
                     // Generate the correct password based on the password encryption level of the system.
                     if (passwordType_ == false)
                     {
-                        // Prepend Q to numeric password.
+                        // Prepend Q to numeric password. A "numeric password" is
+                        // a password that starts with a numeric digit.
                         if (password.length > 0 && Character.isDigit(password[0]))
                         {
-                            boolean isAllNumeric = true;
-                            for (int i = 0; i < password.length; ++i)
-                            {
-                                if (password[i] < '\u0030' || password[i] > '\u0039')
-                                {
-                                    isAllNumeric = false;
-                                }
-                            }
-                            if (isAllNumeric)
-                            {
+//                            boolean isAllNumeric = true;
+//                            for (int i = 0; i < password.length; ++i)
+//                            {
+//                                if (password[i] < '\u0030' || password[i] > '\u0039')
+//                                {
+//                                    isAllNumeric = false;
+//                                }
+//                            }
+//                            if (isAllNumeric)
+//                            {
                                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
                                 char[] passwordWithQ = new char[password.length + 1];
                                 passwordWithQ[0] = 'Q';
                                 System.arraycopy(password, 0, passwordWithQ, 1, password.length);
                                 password = passwordWithQ;
-                            }
+//                            }
                         }
 
                         if (password.length > 10)
@@ -1177,25 +1178,26 @@ class AS400ImplRemote implements AS400Impl
             {
                 // Do DES encryption.
 
-                // Prepend Q to numeric password.
+                // Prepend Q to numeric password. A "numeric password" is
+                // a password that starts with a numeric digit.
                 if (password.length > 0 && Character.isDigit(password[0]))
                 {
-                    boolean isAllNumeric = true;
-                    for (int i = 0; i < password.length; ++i)
-                    {
-                        if (password[i] < '\u0030' || password[i] > '\u0039')
-                        {
-                            isAllNumeric = false;
-                        }
-                    }
-                    if (isAllNumeric)
-                    {
+//                    boolean isAllNumeric = true;
+//                    for (int i = 0; i < password.length; ++i)
+//                    {
+//                        if (password[i] < '\u0030' || password[i] > '\u0039')
+//                        {
+//                            isAllNumeric = false;
+//                        }
+//                    }
+//                    if (isAllNumeric)
+//                    {
                         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
                         char[] passwordWithQ = new char[password.length + 1];
                         passwordWithQ[0] = 'Q';
                         System.arraycopy(password, 0, passwordWithQ, 1, password.length);
                         password = passwordWithQ;
-                    }
+//                    }
                 }
 
                 if (password.length > 10)
