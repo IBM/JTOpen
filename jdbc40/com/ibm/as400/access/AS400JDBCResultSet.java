@@ -5741,9 +5741,15 @@ implements ResultSet
             //@cur return value from cursor attribues if exists else return value as done in pre 550                                                               
             if( statement_ != null )                                                     //@cur
             {                                                                            //@cur
-                if(statement_.cursor_.getCursorAttributeHoldable() == 0)                 //@cur
+                int vrm = 0;                                                             //@cur3
+                if(connection_ != null)                                                  //@cur3
+                    vrm = ((AS400JDBCConnection)connection_).getVRM();                   //@cur3
+                if(statement_.cursor_.getCursorAttributeHoldable() == 0 
+                        &&  (vrm <= JDUtilities.vrm610 
+                             || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() != 0)))                  //@cur //@cur3 *none is always hold
                     return ResultSet.CLOSE_CURSORS_AT_COMMIT;                            //@cur
-                else if(statement_.cursor_.getCursorAttributeHoldable() == 1)            //@cur
+                else if(statement_.cursor_.getCursorAttributeHoldable() == 1 
+                        || (vrm >= JDUtilities.vrm710 && statement_.cursor_.getCursorIsolationLevel() == 0))            //@cur //@cur3
                     return ResultSet.HOLD_CURSORS_OVER_COMMIT;                           //@cur
                 else                                                                     //@cur
                 {                                                                        //@cur
