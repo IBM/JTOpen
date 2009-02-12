@@ -110,19 +110,8 @@ implements SQLData
         else if(object instanceof Number)
         {
             // Set the value to the right type.
-            value_ = ((Number) object).doubleValue();
-
-            // Get the whole number portion of that value.
-            long value = (long) value_;                      // @D9a
-
-            // Get the original value as a long.  This is the
-            // largest precision we can test for for a truncation.
-            long truncTest = ((Number) object).longValue();  // @D9a
-
-            // If they are not equal, then we truncated significant
-            // data from the original value the user wanted us to insert.
-            if(truncTest != value)                          // @D9a
-                truncated_ = 1;                              // @D9a
+            //@bigdectrunc change to follow native driver
+            value_ = ((Number) object).doubleValue();   
         }
 
         else if(object instanceof Boolean)
