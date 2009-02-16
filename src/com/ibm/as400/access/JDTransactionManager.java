@@ -236,11 +236,6 @@ Return the current transaction isolation level.
 **/
   int getIsolation ()
   {
-    // If the level is NONE, report back READ_UNCOMMITTED so that no one can
-    // make the assumption that the driver does not support level NONE.   @C7A
-    if (currentIsolationLevel_ == Connection.TRANSACTION_NONE)  // @C7A
-      return Connection.TRANSACTION_READ_UNCOMMITTED;           // @C7A
-
     return currentIsolationLevel_;
   }
 
