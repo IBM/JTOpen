@@ -244,8 +244,8 @@ exception is thrown.
     {
       if (JDTrace.isTraceOn())
       {
-        JDTrace.logInformation(this, "Error in read");
-        e.printStackTrace(DriverManager.getLogStream());
+        JDTrace.logInformation(this, "Error in read" + e.getMessage()); //@pdc
+        //@pdd e.printStackTrace(DriverManager.getLogStream());
         closed_ = true;                                   
       }
       throw new IOException(e.getMessage());             
