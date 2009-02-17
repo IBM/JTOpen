@@ -3340,11 +3340,14 @@ public class Job implements Serializable
 
     /**
      Commits all uncommitted attribute changes.  Calling this method will set all uncommitted attribute changes to the job on the system.
+     <br>Note: To commit the changes, the Toolbox by default calls system API (QWTCHGJB)
+     <i>off-thread</i>, that is, via the Remote Command Host Server.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     @see #commitChanges(boolean)
      **/
     public void commitChanges() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -3353,22 +3356,24 @@ public class Job implements Serializable
 
     /**
      Commits all uncommitted attribute changes.  Calling this method will set all uncommitted attribute changes to the job on the system.
-     When running on an IBM i system, and mustStayOnThread is true,
-     then the system API (QWTCHGJB) will be called on-thread, that is,
-     in the same thread as the JVM.
+     <br>When running on an IBM i system: If callOnThread is true,
+     then the system API (QWTCHGJB) will be called on-thread, that is, in the same thread
+     as the JVM.  If callOnThread is false,
+     then the system API will be called off-thread, that is, in the thread
+     of the Remote Command Host Server job.
      <br>Caution: The <tt>QWTCHGJB</tt> API is specified as "conditionally
      threadsafe".  Please refer to the IBM i Programmer's Guide for details on
      the threadsafety of specific attribute changes.  Note that this method
      specifies format name JOBC0100 when calling QWTCHGJB.
      <br>Note: This method behaves identically to {@link #commitChanges commitChanges()} if the Java application is running remotely, that is, is not running "natively" on an IBM i system.  When running remotely, the Toolbox submits all program calls through the Remote Command Host Server.
-     @param mustStayOnThread Whether the system API must be called on-thread. If false, this method behaves identically to {@link #commitChanges commitChanges()}.
+     @param callOnThread Whether to call the system API on-thread or off-thread.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
-    public void commitChanges(boolean mustStayOnThread) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public void commitChanges(boolean callOnThread) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing job.");
         connect();
@@ -3466,7 +3471,7 @@ public class Job implements Serializable
         // Therefore, we will disregard the setting of system property
         // "ProgramCall.threadSafe" when calling this particular API.
         ProgramCall program = new ProgramCall(system_, "/QSYS.LIB/QWTCHGJB.PGM", parmList);
-        if (mustStayOnThread) {
+        if (callOnThread) {
           program.setThreadSafe(true);
         }
         else {
