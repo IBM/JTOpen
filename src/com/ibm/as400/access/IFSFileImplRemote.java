@@ -29,6 +29,7 @@ package com.ibm.as400.access;
 
 import java.io.InterruptedIOException;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Vector;
 import java.beans.PropertyVetoException;
 
@@ -261,7 +262,7 @@ implements IFSFileImpl
       case IFSListAttrsRep.FILE:
          answer = ((attributeList.getFixedAttributes() & IFSListAttrsRep.FA_DIRECTORY) != 0);
          break;
-//         /* Deleted the following case... treat as default (false)               @D8A
+//          * Deleted the following case... treat as default (false)               @D8A
 //          * For example, OUTQ, DSPF, PRTF, and TAPF objects are NOT directories  @D8A
 //          * LIB, PF, LF, SRCPF are returned as IFSListAttrsRep.DIRECTORY         @D8A
 //          * SAVF is returned as IFSListAttrsRep.FILE                             @D8A
@@ -300,7 +301,7 @@ implements IFSFileImpl
       case IFSListAttrsRep.FILE:
          answer = ((attributeList.getFixedAttributes() & IFSListAttrsRep.FA_DIRECTORY) == 0);
          break;
-//         /* Deleted the following case... treat as default (false)               @D8A
+//          * Deleted the following case... treat as default (false)               @D8A
 //          * For example, OUTQ, DSPF, PRTF, and TAPF objects are NOT files        @D8A
 //          * LIB, PF, LF, SRCPF are returned as IFSListAttrsRep.DIRECTORY         @D8A
 //          * SAVF is returned as IFSListAttrsRep.FILE                             @D8A
@@ -716,7 +717,7 @@ implements IFSFileImpl
 //    parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(follow));
 //
 //    ServiceProgramCall spc = new ServiceProgramCall(system, "/QSYS.LIB/QP0LLIB2.SRVPGM", "Qp0lGetAttr", ServiceProgramCall.RETURN_INTEGER, parms);
-//    pc.setThreadsafe(true);  // should check that the 'threadsafe' property isn't set
+//    pc.suggestThreadsafe(true);
 //
 //    if (!spc.run()) {
 //      throw new AS400Exception(spc.getMessageList());
@@ -769,11 +770,38 @@ implements IFSFileImpl
     // Convert the path name to the server CCSID.
     byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
-    // Send the List Attributes request.
-    byte[] extendedAttrName = fd_.converter_.stringToByteArray(".TYPE");
+    boolean needCodePage;
+    if (fd_.getSystemVRM() >= 0x00060100 &&
+        fd_.path_.indexOf("/QSYS.LIB") != -1) {
+      needCodePage = true;
+    }
+    else needCodePage = false;
+
+    // Prepare the List Attributes request.
+
+    // Set up the list of Extended Attributes Names.
+    byte[] eaName_TYPE = fd_.converter_.stringToByteArray(".TYPE");
+    int eaNameBytesLength;
+    byte[][] eaNamesList;
+    // Special handling for QSYS files, starting in V6R1.
+    // Starting in V6R1, for QSYS files, the ".TYPE" EA value field is returned in the CCSID of the object.
+    // Prior to V6R1, the field is always returned in EBCDIC.
+    if (needCodePage)
+    {
+      byte[] eaName_CODEPAGE = fd_.converter_.stringToByteArray(".CODEPAGE");
+      eaNameBytesLength = eaName_TYPE.length + eaName_CODEPAGE.length;
+      eaNamesList = new byte[][] { eaName_TYPE, eaName_CODEPAGE };
+    }
+    else  // not in QSYS, or pre-V6R1
+    {
+      eaNameBytesLength = eaName_TYPE.length;
+      eaNamesList = new byte[][] { eaName_TYPE };
+    }
+
     IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                               IFSListAttrsReq.NO_AUTHORITY_REQUIRED, NO_MAX_GET_COUNT,
-                              null, false, extendedAttrName, false, fd_.patternMatching_);  // @C3c
+                              null, false, eaNamesList, eaNameBytesLength, false, fd_.patternMatching_);  // @C3c
+
     Vector replys = fd_.listAttributes(req);
 
     // Verify that we got at least one reply.
@@ -790,11 +818,32 @@ implements IFSFileImpl
                   replys.size() + ")");
       }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-      byte[] subtypeAsBytes = reply.getExtendedAttributeValue(/*fd_.serverDatastreamLevel_*/);
+      Hashtable extendedAttributes = reply.getExtendedAttributeValues();
+      byte[] subtypeAsBytes = (byte[])extendedAttributes.get(".TYPE");
       if (subtypeAsBytes != null)
       {
-        // Note: The EA value field is always returned in EBCDIC (ccsid=37).
-        subtype = (new CharConverter(37)).byteArrayToString(subtypeAsBytes).trim();
+        int ccsid;
+        if (!needCodePage) {
+          ccsid = 37; // the returned bytes are in EBCDIC
+        }
+        else {
+          // Get the ".CODEPAGE" extended attribute value from the reply.
+          byte[] codepageAsBytes = (byte[])extendedAttributes.get(".CODEPAGE");
+          // The .CODEPAGE attribute is returned as 2 bytes in little-endian format.
+          // Therefore we need to swap the bytes.
+          byte[] swappedBytes = new byte[2];  // the codepage is returned in 2 bytes
+          swappedBytes[0] = codepageAsBytes[1];
+          swappedBytes[1] = codepageAsBytes[0];
+          ccsid = BinaryConverter.byteArrayToUnsignedShort(swappedBytes,0);
+          if (ccsid == 1400) ccsid = 1200;  // codepage 1400 corresponds to CCSID 1200
+        }
+        try {
+          subtype = (new CharConverter(ccsid)).byteArrayToString(subtypeAsBytes, 0).trim();
+        }
+        catch (java.io.UnsupportedEncodingException e) {
+          Trace.log(Trace.ERROR, "Unrecognized codepage returned: " + ccsid, e);
+          subtype = "??";
+        }
       }
     }
     return subtype;
@@ -998,14 +1047,14 @@ implements IFSFileImpl
       return false;
     }
 
-    /* Temporary workaround, until better File Server support is in place.
-     if (attributesReply_ != null)
-     {
-     System.out.println("DEBUG IFSFileImplRemote.isSymbolicLink(): attributesReply_ != null");
-     result = attributesReply_.isSymbolicLink(fd_.serverDatastreamLevel_);
-     }
-     else
-     */
+    // Temporary workaround, until better File Server support is in place.
+    // if (attributesReply_ != null)
+    // {
+    // System.out.println("DEBUG IFSFileImplRemote.isSymbolicLink(): attributesReply_ != null");
+    // result = attributesReply_.isSymbolicLink(fd_.serverDatastreamLevel_);
+    // }
+    // else
+    //
     if (!determinedIsSymbolicLink_)
     {
       // Note: As of V5R3, we can't get accurate symbolic link info by querying the attrs of a specific file.
@@ -1138,7 +1187,7 @@ implements IFSFileImpl
       // Send the List Attributes request.  Indicate that we want the "8-byte file size".
       IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                                                 IFSListAttrsReq.NO_AUTHORITY_REQUIRED, NO_MAX_GET_COUNT,
-                                                null, true, null, true, fd_.patternMatching_);  // @C3c
+                                                null, true, null, 0, true, fd_.patternMatching_);  // @C3c
       Vector replys = fd_.listAttributes(req);
 
       if (replys == null) {
@@ -1184,7 +1233,7 @@ implements IFSFileImpl
                                               IFSListAttrsReq.NO_AUTHORITY_REQUIRED, maxGetCount,               // @D4A
                                               restartNameOrID,                                       // @D4A @C3c
                                               isRestartName, // @C3a
-                                              null, false, fd_.patternMatching_);
+                                              null, 0, false, fd_.patternMatching_);
     
     if (sortList) req.setSorted(true);
     return fd_.listAttributes(req);  // Note: This does setFD() on each returned IFSListAttrsRep..

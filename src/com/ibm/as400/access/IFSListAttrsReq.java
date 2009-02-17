@@ -22,7 +22,6 @@ import java.io.InputStream;
 **/
 class IFSListAttrsReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 /**
 Construct a list attributes request.
@@ -75,8 +74,9 @@ Construct a 'list file attributes' request.
 @param restartNameOrID The restart name or ID, or null to return all entries.
 @param isRestartName  true: interpret restartNameOrID as a restart Name,
                       false: interpret restartNameOrID as a restart ID.
-@param extendedAttrName The extended attribute name, or null to return
+@param eaNames The list of extended attribute names, or null to return
                         no extended attributes.
+@param eaNameBytesLength The total number of bytes in the eaNames list.
 @param longFileSize true: return file size as 8-byte value (as optional field),
                     false: do not return 8-byte file-size field.
 **/
@@ -86,14 +86,15 @@ Construct a 'list file attributes' request.
                   int    maximumGetCount,                                      // @D2A
                   byte[] restartNameOrID,                                      // @D2A @C3C
                   boolean isRestartName,                                       // @C3a
-                  byte[] extendedAttrName,                                     // @A1a
+                  byte[][] eaNames,                                  // @A1a
+                  int eaNameBytesLength,
                   boolean longFileSize,                                        // @C1a
                   int patternMatching)
   {
     super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + name.length
          + ((restartNameOrID != null) ? (LLCP_LENGTH + restartNameOrID.length) : 0)    // @D2A @C3C
-         + ((extendedAttrName != null) ? (18 + extendedAttrName.length) : 0)); // @A1A
-                       // Note: 18 is length of fixed "header" of name-only EA structure.
+          + ((eaNames == null) ? 0 : (8 + 10*eaNames.length + eaNameBytesLength))); // @A1A
+                       // Note: EA list fixed header is 8 bytes; repeating header is 10 bytes for each name-only EA structure.
     setLength(data_.length);
     setTemplateLen(TEMPLATE_LENGTH);
     setReqRepID(0x000A);
@@ -149,18 +150,30 @@ Construct a 'list file attributes' request.
         offset += LLCP_LENGTH + restartNameOrID.length;  // next field     @A1a @C3c
     }                                                                                    // @D2A
 
-    // Set the "extended attribute name", if specified.             @A1a
-    if (extendedAttrName != null)
+    // Set the "extended attribute names", if specified.             @A1a
+    if (eaNames != null)
     {
-        set32bit(18 + extendedAttrName.length, offset+0); // EA name list length
-        set16bit(0x0008, offset+4);         // EA name list code point
-        set16bit(0x0001, offset+6);         // EA count
-        set16bit(fileNameCCSID, offset+8);  // ccsid for EA name
-        set16bit(extendedAttrName.length, offset+10); // length of EA name
-        set16bit(0x0000, offset+12);        // flags for the EA
-        set32bit(0x0000, offset+14);        // length of the EA value
-        System.arraycopy(extendedAttrName, 0, data_, offset + 18,
-                         extendedAttrName.length);         // @D2A
+      // Set EA List Length:
+      //     8 bytes for single fixed header for entire list
+      //  + 10 bytes for each repeating header (for each EA structure)
+      //  + total number of bytes for all EA names in list
+      int eaNameListLength = 8 + 10*eaNames.length + eaNameBytesLength;
+      set32bit(eaNameListLength, offset+0);        // EA name list length
+      set16bit(0x0008, offset+4);                  // EA name list code point
+      set16bit(eaNames.length & 0x00FF, offset+6); // EA count
+      // Advance the offset, to point to the start of first repeating EA struct.
+      offset += 8;
+      for (int i=0; i<eaNames.length; i++)
+      {
+        set16bit(fileNameCCSID, offset);       // ccsid for EA name
+        set16bit(eaNames[i].length, offset+2); // length of EA name
+        set16bit(0x0000, offset+4);            // flags for the EA (0)
+        set32bit(0x0000, offset+6);            // length of the EA value (0)
+        System.arraycopy(eaNames[i], 0, data_, offset + 10,
+                         eaNames[i].length);         // @D2A
+        offset += (10 + eaNames[i].length);
+        // Advance the offset, to point to the start of next EA struct.
+      }
     }
 
     setPatternMatching(patternMatching);

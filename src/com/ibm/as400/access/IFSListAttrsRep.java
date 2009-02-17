@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Hashtable;
 
 
 /**
@@ -116,63 +117,81 @@ Get the date/time that the file was created.
     return getDate(CREATE_DATE_OFFSET);
   }
 
-//@A3a
-/**
-Get the extended attribute value.
-Returns null if the reply contains no extended attribute.
-@return extended attribute value
-**/
-  byte[] getExtendedAttributeValue()
-  {
-    // The offset to the start of the "optional/variable section" depends on the datastream level.
 
+/**
+Get the extended attribute values, as a hashtable.
+@return The extended attribute values.
+**/
+  Hashtable getExtendedAttributeValues()
+  {
+    Hashtable results = new Hashtable();
+
+    // The offset to the start of the "optional/variable section" depends on the datastream level.
     int optionalSectionOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
 
     // Step through the optional fields, looking for the "EA list" field (code point 0x0009).
 
     int curLL_offset = optionalSectionOffset;
-    int curLL = get32bit(curLL_offset);
-    int curCP = get16bit(curLL_offset+4);
-    int eaOffset;  // offset to start of Extended Attr list
+    int curLL = get32bit(curLL_offset);   // list length
+    int curCP = get16bit(curLL_offset+4); // code point
+    int eaListOffset;  // offset to start of Extended Attr list
     while (curCP != 0x0009 && (curLL_offset+curLL+6 <= data_.length))
     {
       curLL_offset += curLL;
       curLL = get32bit(curLL_offset);
       curCP = get16bit(curLL_offset+4);
     }
+
     if (curCP == 0x0009)
     {
       // We found the start of the Extended Attributes list.
-      eaOffset = curLL_offset;
+      eaListOffset = curLL_offset;  // offset to "EA List Length" field
     }
     else
     {
       if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "No Extended Attributes were returned.");
-      return null;
+      return results;  // empty hashtable
     }      
 
     byte[] eaVal = null;
-    int eaCount = get16bit(eaOffset+6);
-    int eaCcsid = get16bit(eaOffset+8);
-    int eaNameLL= get16bit(eaOffset+10);
-    // Note: eaNameLL does *not* include length of the LL field itself.
-    int eaFlags = get16bit(eaOffset+12);
-    int eaValLL = get32bit(eaOffset+14);
-    // Note: eaValLL includes the 4 "mystery bytes" that precede the name.
-    byte[] eaName = new byte[eaNameLL];
-    System.arraycopy(data_, eaOffset+18, eaName, 0, eaNameLL);
-    if (eaValLL <= 4)
+    int eaCount = get16bit(eaListOffset+6);  // number of EA structures returned
+    if (DEBUG) System.out.println("DEBUG Number of EA structures returned: " + eaCount);
+
+    // Advance the offset, to point to the start of first repeating EA struct.
+    int offset = eaListOffset+8;
+
+    for (int i=0; i<eaCount; i++)
     {
-      if (DEBUG) System.out.println("DEBUG eaValLL<=4: " + eaValLL);
-    }
-    else
-    {
-      eaVal = new byte[eaValLL-4];
-      System.arraycopy(data_, eaOffset+18+eaNameLL+4, eaVal, 0, eaValLL-4);
+      int eaCcsid = get16bit(offset);      // The 2-byte CCSID for the EA name.
+      int eaNameLL= get16bit(offset+2);    // The 2-byte length of the EA name.
+      // Note: eaNameLL does *not* include length of the LL field itself.
+      //int eaFlags = get16bit(offset+4);  // The flags for the EA.
+      int eaValLL = get32bit(offset+6);    // The 4-byte length of the EA value.
+      // Note: eaValLL includes the 4 "mystery bytes" that precede the name.
+      byte[] eaName = new byte[eaNameLL];  // The EA name.
+      System.arraycopy(data_, offset+10, eaName, 0, eaNameLL);
+      if (eaValLL <= 4)
+      {
+        if (DEBUG) System.out.println("DEBUG Warning: eaValLL<=4: " + eaValLL);
+      }
+      else
+      {
+        eaVal = new byte[eaValLL-4];  // omit the 4 leading mystery bytes
+        System.arraycopy(data_, offset+10+eaNameLL+4, eaVal, 0, eaValLL-4);
+        try
+        {
+          String eaNameString = CharConverter.byteArrayToString(eaCcsid, eaName);
+          results.put(eaNameString, eaVal);
+        }
+        catch (java.io.UnsupportedEncodingException e) { Trace.log(Trace.ERROR, e); }
+      }
+      // Advance the offset, to point to the start of next EA struct.
+      offset += (10 + eaNameLL + eaValLL);
     }
 
-    return eaVal;
+    return results;
   }
+
 
 /**
 Get the fixed attributes.
