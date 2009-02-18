@@ -182,6 +182,7 @@ Get the extended attribute values, as a hashtable.
         {
           String eaNameString = CharConverter.byteArrayToString(eaCcsid, eaName);
           results.put(eaNameString, eaVal);
+          if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Extended Attribute returned: " + eaNameString, eaVal);
         }
         catch (java.io.UnsupportedEncodingException e) { Trace.log(Trace.ERROR, e); }
       }
