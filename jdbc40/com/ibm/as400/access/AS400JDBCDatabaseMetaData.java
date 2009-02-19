@@ -998,7 +998,7 @@ implements DatabaseMetaData
             cs.setString(2, normalize(schemaPattern));
             cs.setString(3, normalize(tablePattern));
             cs.setString(4, normalize(columnPattern));
-            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
             cs.execute();
 
             ResultSet rs = cs.getResultSet();  //@mdrs
@@ -3334,7 +3334,7 @@ implements DatabaseMetaData
             cs.setString(2, normalize(schemaPattern));
             cs.setString(3, normalize(procedurePattern));
             cs.setString(4, normalize(columnPattern));
-            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
             cs.execute();
 
             ResultSet rs = cs.getResultSet();  //@mdrs
@@ -4880,7 +4880,7 @@ implements DatabaseMetaData
             .prepareCall("CALL SYSIBM" +getCatalogSeparator() + "SQLGETTYPEINFO(?,?)");
 
             cs.setShort(1, (short) SQL_ALL_TYPES);
-            cs.setString(2, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.setString(2, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
             cs.execute();
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
@@ -5173,7 +5173,7 @@ implements DatabaseMetaData
             }
 
             cs.setString(4, typesString);
-            cs.setString(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1");
+            cs.setString(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@ver4
             cs.execute();
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
@@ -7723,7 +7723,7 @@ implements DatabaseMetaData
         cstmt.setString(2, normalize(schemaPattern));
         cstmt.setString(3, normalize(functionNamePattern));
         cstmt.setString(4, normalize(columnNamePattern));
-        cstmt.setObject(5, "DATATYPE='JDBC';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp
+        cstmt.setObject(5, "DATATYPE='JDBC';JDBCVER='4.0';DYNAMIC=0;REPORTPUBLICPRIVILEGES=1;CURSORHOLD=1"); //@mdsp //@ver
         cstmt.execute();//@mdrs
         ResultSet rs = cstmt.getResultSet();  //@mdrs
         if(rs != null)                        //@mdrs
