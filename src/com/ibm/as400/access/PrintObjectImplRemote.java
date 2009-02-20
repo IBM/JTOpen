@@ -129,11 +129,14 @@ implements PrintObjectImpl
                }
                else
                {
-                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not valid at this time.");
+                 throw new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attributeID), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                }
             }
         }
 
+        // if we haven't gotten a value and haven't already generated an exception it must mean that the server
+        // doesn't support the requested value
         if (aValue == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
@@ -202,11 +205,14 @@ implements PrintObjectImpl
                }
                else
                {
-                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not valid at this time.");
+                 throw new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attributeID), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                }
             }
         }
 
+        // if we haven't gotten a value and haven't already generated an exception it must mean that the server
+        // doesn't support the requested value
         if (aValue == null) 
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
@@ -274,11 +280,14 @@ implements PrintObjectImpl
                }
                else
                {
-                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not valid at this time.");
+                 throw new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attributeID), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                }
             }
         }
 
+        // if we haven't gotten a value and haven't already generated an exception it must mean that the server
+        // doesn't support the requested value
         if (aValue == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
@@ -346,11 +355,14 @@ implements PrintObjectImpl
                }
                else
                {
-                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not valid at this time.");
+                 throw new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attributeID), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                }
             }
         }
 
+        // if we haven't gotten a value and haven't already generated an exception it must mean that the server
+        // doesn't support the requested value
         if (str == null) 
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
@@ -418,11 +430,14 @@ implements PrintObjectImpl
                }
                else
                {
-                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not valid at this time.");
+                 throw new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attributeID), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                }
             }
         }
 
+        // if we haven't gotten a value and haven't already generated an exception it must mean that the server
+        // doesn't support the requested value
         if (aValue == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());
@@ -492,11 +507,14 @@ implements PrintObjectImpl
                }
                else
                {
-                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not in attrIDsToRetreive list.");
+                 Trace.log(Trace.ERROR, "PrintObjectImplRemote.java - Attribute " + attributeID + " requested but not valid at this time.");
+                 throw new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attributeID), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
                }
             }
         }
 
+        // if we haven't gotten a value and haven't already generated an exception it must mean that the server
+        // doesn't support the requested value
         if (str == null)
         {
             NPSystem npSystem = NPSystem.getSystem(getSystem());

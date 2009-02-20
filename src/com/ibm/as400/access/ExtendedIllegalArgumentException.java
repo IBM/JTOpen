@@ -50,7 +50,10 @@ public class ExtendedIllegalArgumentException  extends IllegalArgumentException 
       The return code indicating that the user ID or password contains a character that is not valid.
      **/
     public static final int SIGNON_CHAR_NOT_VALID = 6;
-
+    /**
+    The return code indicating that the data type requested is not valid.
+   **/
+  public static final int PARAMETER_VALUE_DATATYPE_NOT_VALID = 7;
     /**
       Constructs an ExtendedIllegalArgumentException object.  It indicates that a method has been passed an illegal argument.
       @param  argument  The type and value of the argument that was illegal.  It should be in the format: argument (value).  For example: library (mylib).
@@ -84,6 +87,8 @@ public class ExtendedIllegalArgumentException  extends IllegalArgumentException 
 		return "EXC_FIELD_NOT_FOUND";
 	    case SIGNON_CHAR_NOT_VALID:
 		return "EXC_SIGNON_CHAR_NOT_VALID";
+      case PARAMETER_VALUE_DATATYPE_NOT_VALID:
+    return "EXC_PARAMETER_VALUE_DATATYPE_NOT_VALID";
 	    default:
 		return "EXC_UNKNOWN";   // Bad return code was provided.
 	}

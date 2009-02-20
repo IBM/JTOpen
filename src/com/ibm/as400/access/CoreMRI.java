@@ -79,6 +79,7 @@ public class CoreMRI extends ListResourceBundle
       { "EXC_SIGNON_CHAR_NOT_VALID", "The user ID or password contains a character that is not valid." },
       { "EXC_SIGNON_ALREADY_IN_PROGRESS", "A sign-on is already in progress." },  // @F4A
       { "EXC_UNKNOWN", "An unknown problem has occurred." },
+      { "EXC_PARAMETER_VALUE_DATATYPE_NOT_VALID", "The data type requested is not valid for the parameter value." },  
 
       { "EXC_PROXY_SERVER_EVENT_NOT_FIRED", "The proxy server was not able to fire an event." },
       { "PROXY_SERVER_ALREADY_STARTED",     "Proxy server already started." },

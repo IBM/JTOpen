@@ -368,7 +368,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
                  rcString = attrString.get();
               } else {
                  throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
-                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+                    ExtendedIllegalArgumentException.PARAMETER_VALUE_DATATYPE_NOT_VALID));
               }
           }
        }
@@ -434,7 +434,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
              rcInt = new Integer(attrBin4.get());
           } else {
              throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
-                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_DATATYPE_NOT_VALID));
           }
        }
 
@@ -501,7 +501,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
              rcFloat = new Float(attrFloat.get());
           } else {
              throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
-                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_DATATYPE_NOT_VALID));
           }
        }
        return rcFloat;
