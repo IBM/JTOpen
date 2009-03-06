@@ -459,21 +459,8 @@ implements java.io.Serializable
     
     
     /**
-      * Returns an input stream merged with an AFP datastream that can be 
-      * used to read the contents of the spooled file.
-      * This method will fail with an AS400Exception if the spooled file is
-      * still being created (ATTR_SPLFSTATUS is *OPEN).
-      *
-      * @return The input stream object that can be used to read the contents
-      *         of this spooled file.
-      * @exception AS400Exception If the system returns an error message.
-      * @exception AS400SecurityException If a security or authority error occurs.
-      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the system.
-      * @exception InterruptedException If this thread is interrupted.
-      * @exception RequestNotSupportedException If the requested function is not supported
-      *                                         because the system operating system is not
-      *                                         at the correct level.
+      *  @deprecated Use getAFPInputStream() instead.
+      *  @see #getAFPInputStream
       **/
     public PrintObjectInputStream getInputACIFMergedStream(boolean acifB)
         throws AS400Exception,
@@ -495,6 +482,41 @@ implements java.io.Serializable
         return is;
     }
 
+    /**
+     * Returns an input stream that can be used to read the contents of an 
+     * AFP spooled file. The external resources referenced by the original 
+     * AFP spooled file will be included in this input stream. If you don't want 
+     * the external resources included use 
+     * {@link #getInputStream getInputStream} or
+     * {@link #getPageInputStream getPageInputStream}.
+     * This method will fail with an AS400Exception if the spooled file is
+     * still being created (ATTR_SPLFSTATUS is *OPEN) or if the spooled file
+     * doesn't contain AFDS data ie. ATTR_PRTDEVTYPE is not *AFPDS. 
+     *
+     * @return The input stream object that can be used to read the contents
+     *         of this spooled file.
+     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported
+     *                                         because the system operating system is not
+     *                                         at the correct level.
+     * @see #getInputStream
+     * @see #getPageInputStream
+     **/
+   public PrintObjectInputStream getAFPInputStream()
+       throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              IOException,
+              InterruptedException,
+              RequestNotSupportedException
+   {
+       PrintObjectInputStream is = new PrintObjectInputStream(this, null, "Y");
+       return is;
+   }
 
     /**
       * Returns the name of the job that created the spooled file.
