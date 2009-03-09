@@ -228,8 +228,11 @@ implements SQLData
     }
 
     public int getDisplaySize()
-    {
-        return maxLength_ / 2;
+    {    
+        if(ccsid_ == 65535)    //@bingra
+            return maxLength_; //@bingra
+        else
+            return maxLength_ / 2;
     }
 
     // JDBC 3.0

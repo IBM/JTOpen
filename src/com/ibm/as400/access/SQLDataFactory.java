@@ -533,12 +533,16 @@ class SQLDataFactory
                     return new SQLChar(length, settings);
 
             case 464:                           // Graphic (pure DBCS).
+                if(ccsid == 65535)     //@bingra
+                    return new SQLVargraphic((length-2)/2, settings, ccsid);  //@bingra
                 return new SQLVargraphic(length - 2, settings, ccsid); // @C1C @C4C @cca1
 
             case 472:                           // Graphic long (pure DBCS).
                 return new SQLLongVargraphic(length - 2, settings); // @C1C @C4C
 
             case 468:                           // Graphic fix (pure DBCS).
+                if(ccsid == 65535)     //@bingra
+                    return new SQLGraphic(length/2, settings, ccsid);  //@bingra
                 return new SQLGraphic(length, settings, ccsid); // @C1C @C4C @cca1
 
             case 480:                           // Float.
