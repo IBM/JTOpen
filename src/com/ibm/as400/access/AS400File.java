@@ -1178,6 +1178,17 @@ abstract public class AS400File implements Serializable
 
 
     /**
+     *Returns the library name.
+     *@return The library name.  If the integrated file system pathname has not
+     *been set for the object, an empty string is returned.
+     **/
+    public String getLibraryName()
+    {
+        return library_;
+    }
+
+
+    /**
      *Returns the member name.
      *@return The member name.  If the special value %FIRST% or %LAST% was specified
      *for the member portion of the file name and the file is not open, the special
