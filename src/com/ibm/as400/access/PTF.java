@@ -820,22 +820,22 @@ public class PTF
   }
 
  
-  /**
-   * Retrieves the list of preconditions for this PTF.
-   * @return The array of preconditions.
-  **/
-/*  public PTFPrecondition[] getPreconditions()
-  throws AS400Exception,
-         AS400SecurityException,
-         ErrorCompletingRequestException,
-         InterruptedException,
-         IOException,
-         ObjectDoesNotExistException
-  {
-    if (!loaded900_) refresh(900);
-    return preconditions_;
-  }
-*/
+  // /**
+  // * Retrieves the list of preconditions for this PTF.
+  // * @return The array of preconditions.
+  // **/
+  //public PTFPrecondition[] getPreconditions()
+  //throws AS400Exception,
+  //       AS400SecurityException,
+  //       ErrorCompletingRequestException,
+  //       InterruptedException,
+  //       IOException,
+  //       ObjectDoesNotExistException
+  //{
+  //  if (!loaded900_) refresh(900);
+  //  return preconditions_;
+  //}
+
 
   /**
    * Returns the product feature to which this PTF applies. This
@@ -1485,8 +1485,6 @@ public class PTF
     parms[4] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // error code
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QPZRTVFX.PGM", parms);
-    // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
-    //pc.setThreadSafe(false);
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
@@ -1740,40 +1738,40 @@ public class PTF
       }
       loaded800_ = true;
     }
-/*    else if (whichFormat == 900)
-    {
-      int offset = BinaryConverter.byteArrayToInt(output, 8);
-      if (offset == 0)
-      {
-        preconditions_ = new PTFPrecondition[0];
-      }
-      else
-      {
-      System.out.println("offset = "+offset);
-      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
-      offset += 4;
-      System.out.println("entryoffset = "+entryOffset);
-      int numConds = BinaryConverter.byteArrayToInt(output, offset);
-      offset += 4;
-      System.out.println("numConds = "+numConds);
-      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
-      System.out.println("entrylength = "+entryLength);
-      preconditions_ = new PTFPrecondition[numConds];
-      for (int i=0; i<numConds; ++i)
-      {
-        offset = entryOffset + (i*entryLength);
-        String preCondType = conv.byteArrayToString(output, offset, 10).trim();
-        offset += 10;
-        String preCondName = conv.byteArrayToString(output, offset, 10).trim();
-        offset += 10;
-        String preCondLib = conv.byteArrayToString(output, offset, 10).trim();
-//        String path = QSYSObjectPathName.toPath(preCondLib, preCondName, preCondType);
-        preconditions_[i] = new PTFPrecondition(preCondLib, preCondName, preCondType);
-      }
-      }
-      loaded900_ = true;
-    }
-*/    
+//    else if (whichFormat == 900)
+//  {
+//    int offset = BinaryConverter.byteArrayToInt(output, 8);
+//    if (offset == 0)
+//    {
+//      preconditions_ = new PTFPrecondition[0];
+//    }
+//    else
+//    {
+//    System.out.println("offset = "+offset);
+//    int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+//    offset += 4;
+//    System.out.println("entryoffset = "+entryOffset);
+//    int numConds = BinaryConverter.byteArrayToInt(output, offset);
+//    offset += 4;
+//    System.out.println("numConds = "+numConds);
+//    int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+//    System.out.println("entrylength = "+entryLength);
+//    preconditions_ = new PTFPrecondition[numConds];
+//    for (int i=0; i<numConds; ++i)
+//    {
+//      offset = entryOffset + (i*entryLength);
+//      String preCondType = conv.byteArrayToString(output, offset, 10).trim();
+//      offset += 10;
+//      String preCondName = conv.byteArrayToString(output, offset, 10).trim();
+//      offset += 10;
+//      String preCondLib = conv.byteArrayToString(output, offset, 10).trim();
+// //     String path = QSYSObjectPathName.toPath(preCondLib, preCondName, preCondType);
+//      preconditions_[i] = new PTFPrecondition(preCondLib, preCondName, preCondType);
+//    }
+//    }
+//    loaded900_ = true;
+//  }
+
 
   }
 

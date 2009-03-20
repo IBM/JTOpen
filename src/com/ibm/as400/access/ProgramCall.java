@@ -116,6 +116,11 @@ public class ProgramCall implements Serializable
     private static final int BY_PROPERTY = 1;
     private static final int BY_SET_METHOD = 2;
 
+    static final Boolean THREADSAFE_TRUE = CommandCall.THREADSAFE_TRUE;
+    static final Boolean THREADSAFE_FALSE = CommandCall.THREADSAFE_FALSE;
+
+    // Note: The following fields are package-scoped, to allow access by subclass ServiceProgramCall.
+
     // The system where the program is located.
     AS400 system_ = null;
     // The full IFS path name of the program.
@@ -129,13 +134,13 @@ public class ProgramCall implements Serializable
     // The messages returned by the program.
     AS400Message[] messageList_ = new AS400Message[0];
     // Thread safety of program.
-    boolean threadSafety_ = false;
+    Boolean threadSafety_ = THREADSAFE_FALSE;  // never null
     // How thread safety was determined.
     private int threadSafetyDetermined_ = BY_DEFAULT;
     // The number of messages to retrieve.
     int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
 
-    // Implemenation object shared with command call, interacts with server or native methods.
+    // Implementation object shared with command call, interacts with server or native methods.
     transient RemoteCommandImpl impl_ = null;
 
     // List of action completed event bean listeners.
@@ -363,9 +368,9 @@ public class ProgramCall implements Serializable
      Returns the option for how many messages will be retrieved.
      @return  A constant indicating how many messages will be retrieved.  Valid values are:
      <ul>
-     <li>AS400Message.MESSAGE_OPTION_UP_TO_10
-     <li>AS400Message.MESSAGE_OPTION_NONE
-     <li>AS400Message.MESSAGE_OPTION_ALL
+     <li>{@link AS400Message#MESSAGE_OPTION_UP_TO_10 MESSAGE_OPTION_UP_TO_10}
+     <li>{@link AS400Message#MESSAGE_OPTION_NONE MESSAGE_OPTION_NONE}
+     <li>{@link AS400Message#MESSAGE_OPTION_ALL MESSAGE_OPTION_ALL}
      </ul>
      **/
     public int getMessageOption()
@@ -406,7 +411,6 @@ public class ProgramCall implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @see #getJob
      **/
     public Job getServerJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -442,14 +446,9 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system thread.");
         chooseImpl();
-        Thread currentThread = impl_.getClass().getName().endsWith("ImplNative") ? Thread.currentThread() : null;
+        Thread currentThread = impl_.isNative() ? Thread.currentThread() : null;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System thread: " + currentThread);
         return currentThread;
-    }
-
-    static boolean isThreadSafetyPropertySet()
-    {
-        return getThreadSafetyProperty() != null;
     }
 
     static String getThreadSafetyProperty()
@@ -467,9 +466,9 @@ public class ProgramCall implements Serializable
         }
         else
         {
-            threadSafety_ = property.equalsIgnoreCase("true");
-            threadSafetyDetermined_ = BY_PROPERTY;
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " +  property);
+          threadSafety_ = (property.equalsIgnoreCase("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
+          threadSafetyDetermined_ = BY_PROPERTY;
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " +  property);
         }
     }
 
@@ -486,8 +485,8 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will actually get run on the current thread.");
         chooseImpl();
-        boolean isStayOnThread = (threadSafety_ && impl_.getClass().getName().endsWith("ImplNative"));
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Program will actually get run on the current thread: ", isStayOnThread);
+        boolean isStayOnThread = (threadSafety_ == THREADSAFE_TRUE && impl_.isNative());
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Will program actually get run on the current thread:", isStayOnThread);
         return isStayOnThread;
     }
 
@@ -495,12 +494,12 @@ public class ProgramCall implements Serializable
      Indicates whether or not the program will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.ProgramCall.threadSafe</code> property.
      <br>Note: If the program is run on-thread, it will run in a different job than if it were run off-thread.
      @return  true if the program will be assumed thread-safe; false otherwise.
-     @see  #isStayOnThread
+     @deprecated The name of this method is misleading. Use {@link #isStayOnThread isStayOnThread()} instead.
      **/
     public boolean isThreadSafe()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will be assumed thread-safe: " + threadSafety_);
-        return threadSafety_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will be assumed thread-safe.");
+        return threadSafety_.booleanValue();
     }
 
     // Deserializes and initializes the transient data.
@@ -520,13 +519,13 @@ public class ProgramCall implements Serializable
             String property = SystemProperties.getProperty(SystemProperties.PROGRAMCALL_THREADSAFE);
             if (property == null)  // Property is not set.
             {
-                threadSafety_ = false;
+                threadSafety_ = THREADSAFE_FALSE;
                 threadSafetyDetermined_ = BY_DEFAULT;
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, thread safety property changed to unspecified.");
             }
             else
             {
-                threadSafety_ = property.equalsIgnoreCase("true");
+                threadSafety_ = (property.equalsIgnoreCase("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
                 threadSafetyDetermined_ = BY_PROPERTY;
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " + property);
             }
@@ -692,24 +691,17 @@ public class ProgramCall implements Serializable
             throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
-            parameterList_ = parameterList;
-        }
-        else
-        {
-            ProgramParameter[] oldValue = parameterList_;
-            ProgramParameter[] newValue = parameterList;
+        ProgramParameter[] oldValue = parameterList_;
+        ProgramParameter[] newValue = parameterList;
 
-            if (vetoableChangeListeners_ != null)
-            {
-                vetoableChangeListeners_.fireVetoableChange("parameterList", oldValue, newValue);
-            }
-            parameterList_ = newValue;
-            if (propertyChangeListeners_ != null)
-            {
-                propertyChangeListeners_.firePropertyChange("parameterList", oldValue, newValue);
-            }
+        if (vetoableChangeListeners_ != null)
+        {
+          vetoableChangeListeners_.fireVetoableChange("parameterList", oldValue, newValue);
+        }
+        parameterList_ = newValue;
+        if (propertyChangeListeners_ != null)
+        {
+          propertyChangeListeners_.firePropertyChange("parameterList", oldValue, newValue);
         }
     }
 
@@ -740,31 +732,26 @@ public class ProgramCall implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'program' is null.");
             throw new NullPointerException("program");
         }
+        if (Trace.traceOn_ && program.length() == 0)
+        {
+            Trace.log(Trace.WARNING, "Parameter 'program' is has length of 0.");
+        }
         // Verify program is valid IFS path name.
         QSYSObjectPathName ifs = new QSYSObjectPathName(program, "PGM");
 
-        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
-            library_ = ifs.getLibraryName();
-            name_ = ifs.getObjectName();
-            program_ = program;
-        }
-        else
-        {
-            String oldValue = program_;
-            String newValue = program;
+        String oldValue = program_;
+        String newValue = program;
 
-            if (vetoableChangeListeners_ != null)
-            {
-                vetoableChangeListeners_.fireVetoableChange("program", oldValue, newValue);
-            }
-            library_ = ifs.getLibraryName();
-            name_ = ifs.getObjectName();
-            program_ = newValue;
-            if (propertyChangeListeners_ != null)
-            {
-                propertyChangeListeners_.firePropertyChange("program", oldValue, newValue);
-            }
+        if (vetoableChangeListeners_ != null)
+        {
+          vetoableChangeListeners_.fireVetoableChange("program", oldValue, newValue);
+        }
+        library_ = ifs.getLibraryName();
+        name_ = ifs.getObjectName();
+        program_ = newValue;
+        if (propertyChangeListeners_ != null)
+        {
+          propertyChangeListeners_.firePropertyChange("program", oldValue, newValue);
         }
     }
 
@@ -808,51 +795,56 @@ public class ProgramCall implements Serializable
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
-            system_ = system;
-        }
-        else
-        {
-            AS400 oldValue = system_;
-            AS400 newValue = system;
+        AS400 oldValue = system_;
+        AS400 newValue = system;
 
-            if (vetoableChangeListeners_ != null)
-            {
-                vetoableChangeListeners_.fireVetoableChange("system", oldValue, newValue);
-            }
-            system_ = newValue;
-            if (propertyChangeListeners_ != null)
-            {
-                propertyChangeListeners_.firePropertyChange("system", oldValue, newValue);
-            }
+        if (vetoableChangeListeners_ != null)
+        {
+          vetoableChangeListeners_.fireVetoableChange("system", oldValue, newValue);
+        }
+        system_ = newValue;
+        if (propertyChangeListeners_ != null)
+        {
+          propertyChangeListeners_.firePropertyChange("system", oldValue, newValue);
         }
     }
 
     /**
      Specifies whether or not the program should be assumed thread-safe.  The default is false.
+     <br>Note: This method has no effect if the Java application is running remotely, that is, is not running "natively" on an IBM i system.  When running remotely, the Toolbox submits all program calls through the Remote Command Host Server, regardless of the value of the <tt>threadSafe</tt> attribute.
      <br>Note: This method does not modify the actual program object on the system.
      <br>Note: If the program is run on-thread, it will run in a different job than if it were run off-thread.
      @param  threadSafe  true if the program should be assumed to be thread-safe; false otherwise.
      **/
     public void setThreadSafe(boolean threadSafe)
     {
+        // Note to maintenance programmer:
+        // Currently all host server jobs are single-threaded.  If that ever changes, then we'll need to communicate the threadsafety of the called program to the host server.
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
-        if (propertyChangeListeners_ == null)
-        {
-            threadSafety_ = threadSafe;
-            threadSafetyDetermined_ = BY_SET_METHOD;
-        }
-        else
-        {
-            Boolean oldValue = new Boolean(threadSafety_);
-            Boolean newValue = new Boolean(threadSafe);
+        Boolean newValue = (threadSafe ? THREADSAFE_TRUE : THREADSAFE_FALSE);
 
-            threadSafety_ = threadSafe;
-            threadSafetyDetermined_ = BY_SET_METHOD;
-
-            propertyChangeListeners_.firePropertyChange ("threadSafe", oldValue, newValue);
+        if (propertyChangeListeners_ != null)
+        {
+          Boolean oldValue = threadSafety_;
+          propertyChangeListeners_.firePropertyChange ("threadSafe", oldValue, newValue);
         }
+
+        threadSafety_ = newValue;
+        threadSafetyDetermined_ = BY_SET_METHOD;
+    }
+
+    /**
+     Specifies that the program should be assumed to be thread-safe.
+     If the "threadSafe" system property has been set, this method does nothing.
+     **/
+    public void suggestThreadsafe()
+    {
+      String property = getThreadSafetyProperty();
+      // Note: Unlike with CL commands, there's no way to lookup the threadsafety of an API.
+      if (property == null)
+      {
+        setThreadSafe(true);
+      }
     }
 
     /**

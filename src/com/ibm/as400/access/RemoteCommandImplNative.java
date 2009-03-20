@@ -18,7 +18,6 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
 
 
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
@@ -35,18 +34,30 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");
     }
 
-    protected void open(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    // Report whether the RemoteCommandImpl object is a native object.
+    public boolean isNative()
+    {
+      return true;
+    }
+
+    // Connects to the server.
+    // @param threadSafety  The assumed thread safety of the command/program.
+    protected void open(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+      if (threadSafety == LOOKUP_THREADSAFETY || threadSafety == OFF_THREAD) {
+        openOffThread();
+      }
+      else {
+        openOnThread();
+      }
+    }
+
+    protected void openOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object open.");
-      if (!threadSafety)
-      {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending native open request to super class.");
-        super.open(false);
-        return;
-      }
 
       // If converter was not set with a user override ccsid, set converter to job ccsid.
-      if (!ccsidIsUserOveride_)
+      if (!ccsidIsUserOveride_ && (converter_ == null))
       {
         converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
       }
@@ -55,7 +66,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         if (AS400.nativeVRM.vrm_ >= 0x00060100)
         {
           serverDataStreamLevel_ = 10;
-          unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
+          if (unicodeConverter_ == null) {
+            unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
+          }
         }
         else
         {
@@ -78,7 +91,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
           setNlvOnServer(secLibName);
         }
-        // Retain result, to avoid repeated lookups for same system object.
+        // Retain result, to avoid repeated library lookups for same system object.
         system_.setLanguageLibrary(secLibName);
         // Set to non-null, to indicate we already looked-up the value.
       }
@@ -122,7 +135,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
           // Call QSZRTVPR (Change System Library List) to add the library for the secondary language.
           // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system; so it can safely be called on-thread.
-          boolean succeeded = runProgram("QSYS", "QSZRTVPR", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
+          boolean succeeded = runProgramOnThread("QSYS", "QSZRTVPR", parameterList, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
           // Note: This method is only called from within open().
           // The final parm indicates that the on-thread open() has already been done (on this thread).
 
@@ -159,7 +172,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe.  However, the CL owner has indicated that this CL has actually been threadsafe all along, and that it cannot damage the system; so it can safely be called on-thread.
         // At worst, if system value QMLTTHDACN == 3, the system will simply refuse to execute the command.  In which case, the secondary language library won't get added.
         String cmd = "QSYS/CHGSYSLIBL LIB("+secondaryLibraryName+") OPTION(*ADD)";
-        boolean succeeded = runCommand(cmd, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
+        boolean succeeded = runCommandOnThread(cmd, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
         // Note: This method is only called from within open().
         // The final parm indicates that the on-thread open() has already been done (on this thread).
 
@@ -170,7 +183,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             if (messageList_[0].getID().equals("CPF2103")) // lib is already in list
             {
               // Tolerate this error.  It means that we're good to go.
-              // If this is the very native open() for this system_, set flag to indicate that the lib is already in list by default.  This will eliminate clutter in the job log, from subsequent attempts to set it.
+              // If this is the very first native open() for this system_, set flag to indicate that the lib is already in list by default.  This will eliminate clutter in the job log, from subsequent attempts to set it.
               if (system_.getLanguageLibrary() == null) { // null implies first native open
                 system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
               }
@@ -203,211 +216,88 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       }
     }
 
-    // Indicates whether or not the command will be considered thread-safe.
-    // @return  true if the command is declared to be thread-safe; false otherwise.
-    public boolean isCommandThreadSafe(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+
+    // This method is reserved for use by other Impl classes in this package.
+    public boolean runCommand(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object checking command thread safety.");
-        open(true);
+      // The caller didn't specify whether to call the command on- or off-thread.
+      // Base the decision on the setting the "threadSafe" system property.
 
-        // Isolate out the command name from the argument(s), as the first token.
-        StringTokenizer tokenizer = new StringTokenizer(command);
-        String cmdLibAndName = tokenizer.nextToken().toUpperCase();
-        String libName;
-        String cmdName;
-        // If there's a slash, parse out the library/commandName.
-        int slashPos = cmdLibAndName.indexOf('/');
-        if (slashPos == -1)  // No slash.
-        {
-            libName = "*LIBL";
-            cmdName = cmdLibAndName;
-        }
-        else
-        {
-            libName = cmdLibAndName.substring(0, slashPos);
-            cmdName = cmdLibAndName.substring(slashPos + 1);
-        }
+      if (shouldRunOnThread(command)) {
+        return runCommandOnThread(command, MESSAGE_OPTION_DEFAULT, false);
+      }
+      else {
+        return runCommandOffThread(command, MESSAGE_OPTION_DEFAULT);
+      }
+    }
 
-        // Fill the commandname array with blanks.
-        byte[] commandName = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
-        // The first 10 characters contain the name of the command.
-        converter_.stringToByteArray(cmdName, commandName);
-        // The second 10 characters contain the name of the library where the command is located.
-        converter_.stringToByteArray(libName, commandName, 10);
 
-        // Set up the parameter list for the program that we will use to retrieve the command information (QCDRCMDI).
-        // First parameter:  receiver variable - output - char(*).
-        // Second parameter:  length of receiver variable - input - binary(4).
-        // Third parameter:  format name - input - char(8).
-        // Set to EBCDIC "CMDI0100".
-        // Fourth parameter:  qualified command name - input - char(20).
-        // Fifth parameter:  error code - input/output - char(*).
-        // Eight bytes of zero's indicates to throw exceptions.
-        // Send as input because we are not interested in the output.
-        // Sixth parameter:  optional - follow proxy chain - input - char(1)							//@A1A
-		// Set to 1 - If the specified command is a proxy command, follow the proxy command 			//@A1A
-		// chain to the target non-proxy command and retrieve information for the target command. 		//@A1A
-		// If the command is not a proxy command, retrieve information for the specified command. 		//@A1A
-		int numParms;
-		if ((AS400.nativeVRM.vrm_ >= 0x00060100) ||
-		   (AS400.nativeVRM.vrm_ >= 0x00050400 && !system_.isMissingPTF())) {
-		   numParms = 6;	// @A1C - added support for proxy commands
-		}
-		else numParms = 5;
+    // Runs the command.
+    // @param threadSafety  The assumed thread safety of the command/program.
+    // @return  true if command is successful; false otherwise.
+    public boolean runCommand(String command, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+      boolean runOnThread;
 
-		ProgramParameter[] parameterList = new ProgramParameter[numParms];
-		parameterList[0] = new ProgramParameter(350);
-		parameterList[1] = new ProgramParameter(new byte[] { 0x00, 0x00, 0x01, 0x5e });
-		parameterList[2] = new ProgramParameter(new byte[] { (byte) 0xC3, (byte) 0xD4, (byte) 0xC4, (byte) 0xC9, (byte) 0xF0, (byte) 0xF1, (byte) 0xF0, (byte) 0xF0 });
-		parameterList[3] = new ProgramParameter(commandName);
-		parameterList[4] = new ProgramParameter(new byte[8]);
-		if (numParms > 5)											//@A1A
-			parameterList[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });		//@A1A
+      if (threadSafety == ON_THREAD) {
+        runOnThread = true;
+      }
+      else if (threadSafety == OFF_THREAD) {
+        runOnThread = false;
+      }
+      else // threadSafety == LOOKUP_THREADSAFETY
+      {
+        // Look up the command's indicated threadsafety on the system.
+        runOnThread = (getThreadsafeIndicator(command) == CommandCall.THREADSAFE_YES);
+      }
 
-        try
-        {
-          // Retrieve command information.  Failure is returned as a message list.
-          boolean succeeded = runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
-          if (!succeeded)
-          {
-            // If the exception is "MCH0802: Total parameters passed does not match number required" and we're running to V5R4, that means that the user hasn't applied PTF SI29629.  In that case, we will re-issue the program call, minus the new "follow proxy chain" parameter.
-            if (numParms > 5 &&
-                AS400.nativeVRM.vrm_ < 0x00060100 && AS400.nativeVRM.vrm_ >= 0x00050400 &&
-                messageList_[messageList_.length - 1].getID().equals("MCH0802"))
-            {
-              if (Trace.traceOn_) Trace.log(Trace.WARNING, "PTF SI29629 is not installed: (MCH0802) " + messageList_[messageList_.length - 1].getText());
-              // Retain result, to avoid repeated 6-parm attempts for same system object.
-              system_.setMissingPTF();
-              ProgramParameter[] shorterParmList = new ProgramParameter[5];
-              System.arraycopy(parameterList, 0, shorterParmList, 0, 5);
-              succeeded = runProgram("QSYS", "QCDRCMDI", shorterParmList, true, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
-            }
-            if (!succeeded)
-            {
-              Trace.log(Trace.ERROR, "Unable to retrieve command information.");
-              String id = messageList_[messageList_.length - 1].getID();
-              byte[] substitutionBytes = messageList_[messageList_.length - 1].getSubstitutionData();
-
-              // CPF9801 - Object &2 in library &3 not found.
-              if (id.equals("CPF9801") && cmdName.equals(converter_.byteArrayToString(substitutionBytes, 0, 10).trim()) && libName.equals(converter_.byteArrayToString(substitutionBytes, 10, 10).trim()) && "CMD".equals(converter_.byteArrayToString(substitutionBytes, 20, 7).trim()))
-              {
-                Trace.log(Trace.DIAGNOSTIC, "Command not found.");
-                return false;  // If cmd doesn't exist, it's not threadsafe.
-              }
-              // CPF9810 - Library &1 not found.
-              if (id.equals("CPF9810") && libName.equals(converter_.byteArrayToString(substitutionBytes).trim()))
-              {
-                Trace.log(Trace.DIAGNOSTIC, "Command library not found.");
-                return false;  // If cmd doesn't exist, it's not threadsafe.
-              }
-              throw new AS400Exception(messageList_);
-            }
-          }
-        }
-        catch (ObjectDoesNotExistException e)
-        {
-            Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
-        }
-
-        // Get the data returned from the program.
-        byte[] dataReceived = parameterList[0].getOutputData();
-        if (Trace.traceOn_)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "Command information retrieved:", dataReceived);
-
-            // Examine the "multithreaded job action" field.
-            // The "multithreaded job action" field is a single byte at offset 334.
-            // Multithreaded job action. The action to take when a command that is not threadsafe is called in a multithreaded job.  The possible values are:
-            // 0  Use the action specified in QMLTTHDACN system value.
-            // 1  Run the command. Do not send a message.
-            // 2  Send an informational message and run the command.
-            // 3  Send an escape message, and do not run the command.
-            // System value . . . . . :   QMLTTHDACN
-            // Description  . . . . . :   Multithreaded job action
-            // Interpretation:
-            // 1  Perform the function that is not threadsafe without sending a message.
-            // 2  Perform the function that is not threadsafe and send an informational message.
-            // 3  Do not perform the function that is not threadsafe.
-            Trace.log(Trace.DIAGNOSTIC, "Multithreaded job action: " + (dataReceived[334] & 0x0F));
-        }
-
-        // Examine the "threadsafe indicator" field.
-        // The "threadsafe indicator" field is a single byte at offset 333.
-        // Threadsafe indicator:  Whether the command can be used safely in a multithreaded job.
-        // The possible values are:
-        // 0   The command is not threadsafe and should not be used in a multithreaded job.
-        // 1   The command is threadsafe and can be used safely in a multithreaded job.
-        // 2   The command is threadsafe under certain conditions.  See the documentation for the command to determine the conditions under which the command can be used safely in a multithreaded job.
-        // If the threadsafe indicator is either threadsafe or conditionally threadsafe, the multithreaded job action value will be returned as 1.
-        switch (dataReceived[333] & 0x0F)
-        {
-            case 0:
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command not threadsafe: " + cmdLibAndName);
-                return false;
-            case 1:
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command threadsafe: " + cmdLibAndName);
-                return true;
-            case 2:
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Conditionally threadsafe: " + cmdLibAndName);
-                return false;
-        }
-        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Invalid threadsafe indicator: " + cmdLibAndName);
-        return false;  // Assume the command is not thread-safe.
+      if (runOnThread) {
+        return runCommandOnThread(command, MESSAGE_OPTION_DEFAULT, false);
+      }
+      else {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Delegating runCommand() to super class.");
+        return runCommandOffThread(command, messageOption);
+      }
     }
 
     // Runs the command.
     // @return  true if command is successful; false otherwise.
-    public boolean runCommand(String command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
-    {
-        return runCommand(command, threadSafety, messageOption, false);
-    }
-
-    // Runs the command.
-    // @return  true if command is successful; false otherwise.
-    private boolean runCommand(String command, boolean threadSafety, int messageOption, boolean alreadyOpenedOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommandOnThread(String command, int messageOption, boolean currentlyOpeningOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
-        if (!threadSafety)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
-            return super.runCommand(command, false, messageOption);
-        }
-        if (!alreadyOpenedOnThisThread) open(true);
+        if (!currentlyOpeningOnThisThread) openOnThread();
 
         if (AS400.nativeVRM.vrm_ >= 0x00060100)
         {
-            return runCommand(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
+            return runCommandOnThread(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
         }
-        return runCommand(converter_.stringToByteArray(command), messageOption, 0);
+        return runCommandOnThread(converter_.stringToByteArray(command), messageOption, 0);
     }
 
-    // Runs the command.
-    // @return  true if command is successful; false otherwise.
-    public boolean runCommand(byte[] command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(byte[] commandAsBytes, String commandAsString) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command:", command);
-        if (!threadSafety)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
-            return super.runCommand(command, false, messageOption);
-        }
+      // The caller didn't specify whether to call the command on- or off-thread.
+      // Base the decision on the setting the "threadSafe" system property.
 
-        open(true);
-
-        return runCommand(command, messageOption, 0);
+      if (shouldRunOnThread(commandAsString)) {
+        openOnThread();
+        return runCommandOnThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
+      }
+      else {
+        return runCommandOffThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
+      }
     }
 
-    private boolean runCommand(byte[] commandBytes, int messageOption, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommandOnThread(byte[] commandBytes, int messageOption, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
-        if (priorCallWasOnThread_ == FALSE)
+        if (priorCallWasOnThread_ == OFF_THREAD)
         {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
         }
-        priorCallWasOnThread_ = TRUE;
+        priorCallWasOnThread_ = ON_THREAD;
 
         try
         {
@@ -455,29 +345,45 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
     }
 
-    // Run the program.
-    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        return runProgram(library, name, parameterList, threadSafety, messageOption, false);
+      // The caller didn't specify whether to call the command on- or off-thread.
+      // Base the decision on the setting the "threadSafe" system property.
+
+      String property = ProgramCall.getThreadSafetyProperty();
+      if (property != null && property.equals("true")) {
+        // call the program on-thread
+        return runProgramOnThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT, false);
+      }
+      else {
+        // call the program off-thread
+        return runProgramOffThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT);
+      }
+    }
+
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+      // Note: We don't have a way to look up the thread safety of programs.
+      if (threadSafety == ON_THREAD) {
+        return runProgramOnThread(library, name, parameterList, messageOption, false);
+      }
+      else {
+        return runProgramOffThread(library, name, parameterList, messageOption);
+      }
     }
 
     // Run the program.
-    private boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption, boolean alreadyOpenedOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    protected boolean runProgramOnThread(String library, String name, ProgramParameter[] parameterList, int messageOption, boolean currentlyOpeningOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
-        if (!threadSafety)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending program to super class.");
-            return super.runProgram(library, name, parameterList, false, messageOption);
-        }
-        if (priorCallWasOnThread_ == FALSE)
+        if (priorCallWasOnThread_ == OFF_THREAD)
         {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
         }
-        priorCallWasOnThread_ = TRUE;
+        priorCallWasOnThread_ = ON_THREAD;
 
         // Run the program on-thread.
-        if (!alreadyOpenedOnThisThread) open(true);
+        if (!currentlyOpeningOnThisThread) openOnThread();
 
         if (AS400.nativeVRM.vrm_ < 0x00050300)
         {
@@ -745,6 +651,32 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             offset += BinaryConverter.byteArrayToInt(data, offset);
         }
         return messageList;
+    }
+
+
+    // Determines whether or not the command should be called on-thread.
+    private final boolean shouldRunOnThread(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+      boolean runOnThread;
+
+      // Check the threadSafe property, and apply it if set.
+      String property = CommandCall.getThreadSafetyProperty();
+
+      if ((property == null) || (property.equals("false"))) {
+        runOnThread = false;
+      }
+      else if (property.equals("true")) {
+        runOnThread = true;
+      }
+      else if (property.equals("lookup")) {
+        // Look it up on the system.
+        runOnThread = (getThreadsafeIndicator(command) == CommandCall.THREADSAFE_YES);
+      }
+      else {
+        runOnThread = false;
+        // Assume the utility method has logged a warning about unrecognized property value.
+      }
+      return runOnThread;
     }
 
     private native byte[] runCommandNative(byte[] command) throws NativeException;

@@ -26,7 +26,7 @@ import java.util.Date;
 public class PTFGroup
 {
     // Also use this to synchronize access to the user space
-    static final String USERSPACE_QUALIFIED_NAME = "JT4PTF    QTEMP     ";
+    static final String USERSPACE_NAME = "JT4PTF    QTEMP     ";
 
     static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC";
 
@@ -152,7 +152,7 @@ public class PTFGroup
         ConvTable conv = ConvTable.getTable(ccsid, null);
 
         ProgramParameter[] parms = new ProgramParameter[5];
-        parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));        //qualified user space name
+        parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));        //qualified user space name
         parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         byte[] groupInfo = new byte[69];
         AS400Text text60 = new AS400Text(60, ccsid, system_);
@@ -170,14 +170,31 @@ public class PTFGroup
         parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
-        pc.setThreadSafe(false); // The called API is not documented to be thread-safe, and it must run in same thread as that in which the temporary user space was created.  (Each different thread gets a different QTEMP library.)  So we'll force it to run in the job of the Remote Command Host Server.
+
+        // Determine the needed scope of synchronization.
+        Object lockObject;
+        boolean willRunProgramsOnThread = pc.isStayOnThread();
+        if (willRunProgramsOnThread) {
+          // The calls will run in the job of the JVM, so lock for entire JVM.
+          lockObject = USERSPACE_NAME;
+        }
+        else {
+          // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+          lockObject = system_;
+        }
+
         byte[] buf = null;
 
-        synchronized(USERSPACE_QUALIFIED_NAME)       
+        synchronized(lockObject)       
         {
           UserSpace us = new UserSpace(system_, USERSPACE_PATH);
           us.setMustUseProgramCall(true);
-          us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+          if (!willRunProgramsOnThread)
+          {
+            us.setMustUseSockets(true);
+            // Force the use of sockets when running natively but not on-thread.
+            // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+          }
           try
           {
             us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
@@ -191,7 +208,10 @@ public class PTFGroup
           }
           finally
           {
-            us.close();
+            try { us.close(); }
+            catch (Exception e) {
+              Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+            }
           }
         }
         int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);      
@@ -330,7 +350,7 @@ public class PTFGroup
         ConvTable conv = ConvTable.getTable(ccsid, null);
 
         ProgramParameter[] parms = new ProgramParameter[5];
-        parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));        //qualified user space name
+        parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));        //qualified user space name
         parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         byte[] groupInfo = new byte[69];
         AS400Text text60 = new AS400Text(60, ccsid, system_);
@@ -349,7 +369,7 @@ public class PTFGroup
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
         byte[] buf = null;
-        synchronized(USERSPACE_QUALIFIED_NAME)       
+        synchronized(USERSPACE_NAME)       
         {
             UserSpace us = new UserSpace(system_, USERSPACE_PATH);
             us.setMustUseProgramCall(true);

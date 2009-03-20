@@ -1661,7 +1661,7 @@ public class User implements Serializable
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSYRUSRI.PGM", parameters);
         // Note: QSYRUSRI is designated "Threadsafe: Yes".
         // But honor the ProgramCall.threadsafe property if set.
-        if (checkThreadSafetyProperty(true,PROGRAM_CALL)) pc.setThreadSafe(true);
+        pc.suggestThreadsafe();
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -2034,7 +2034,7 @@ public class User implements Serializable
         {
           chgUsrPrf_ = new CommandCall(system_);
           // CHGUSRPRF is not threadsafe, but honor the property if set.
-          chgUsrPrf_.setThreadSafe(checkThreadSafetyProperty(false,COMMAND_CALL));
+          chgUsrPrf_.suggestThreadsafe(false);
         }
         return chgUsrPrf_;
       }
@@ -2044,7 +2044,7 @@ public class User implements Serializable
         {
           chgUsrAud_ = new CommandCall(system_);
           // CHGUSRAUD is not threadsafe, but honor the property if set.
-          chgUsrAud_.setThreadSafe(checkThreadSafetyProperty(false,COMMAND_CALL));
+          chgUsrAud_.suggestThreadsafe(false);
         }
         return chgUsrAud_;
       }
@@ -3338,34 +3338,6 @@ public class User implements Serializable
         jobDateFormat_ = job.getDateFormat();
       }
       return jobDateFormat_;
-    }
-
-
-    /**
-     Utility method.  Checks the setting of the system properties that control whether we assume commands and programs are threadsafe.
-     @param defaultVal  The default value to return if the relevant property isn't set.
-     @param isCommandCall  Specifies whether we're interested in the CommandCall "threadSafe" property (versus the ProgramCall property).
-     @return If the relevant property is set, then this method returns the property value.
-     If the relevant property isn't set, then this method returns defaultVal.
-     **/
-    private static final boolean checkThreadSafetyProperty(boolean defaultVal, boolean isCommandCall)
-    {
-      boolean result;
-      String property = null;
-      if (isCommandCall) {
-        property = CommandCall.getThreadSafetyProperty();
-      }
-      else {
-        property = ProgramCall.getThreadSafetyProperty();
-      }
-
-      if (property == null) {
-        result = defaultVal;
-      }
-      else {
-        result = property.equalsIgnoreCase("true");
-      }
-      return result;
     }
 
 

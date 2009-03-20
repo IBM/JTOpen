@@ -102,7 +102,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the command.
-        if(!run(clrcmd, false))
+        if(!run(clrcmd)) // CHGDTAARA is known to be not threadsafe
         {
             // Throw AS400MessageList.
             processExceptions(getMessages());
@@ -141,7 +141,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String crtcmd = "QSYS/CRTDTAARA DTAARA(" + library_ + "/" + name_ + ") TYPE(*CHAR) LEN(" + String.valueOf(length_) + " " + ") VALUE('" + initialValue + "') TEXT('" + textDescription + "')" + " AUT(" + authority + ")";
 
         // Run the command.
-        if(!run(crtcmd, false))
+        if(!run(crtcmd)) // CRTDTAARA is known to be not threadsafe
         {
             // Throw AS400MessageList.
             processCreateExceptions(getMessages());
@@ -182,7 +182,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String crtcmd = "QSYS/CRTDTAARA DTAARA(" + library_ + "/" + name_ + ") TYPE(*DEC) LEN(" + String.valueOf(length_) + " " + String.valueOf(decimalPositions_) + ") VALUE(" + initialValue.toString() + ") TEXT('" + textDescription + "')" + " AUT(" + authority + ")";
 
         // Run the command.
-        if(!run(crtcmd, false))
+        if(!run(crtcmd)) // CRTDTAARA is known to be not threadsafe
         {
             // Throw AS400MessageList.
             processCreateExceptions(getMessages());
@@ -219,7 +219,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String crtcmd = "QSYS/CRTDTAARA DTAARA(" + library_ + "/" + name_ + ") TYPE(*LGL) LEN(1) VALUE('" + (initialValue ? "1" : "0") + "') TEXT('" + textDescription + "')" + " AUT(" + authority + ")";
 
         // Run the command.
-        if(!run(crtcmd, false))
+        if(!run(crtcmd)) // CRTDTAARA is known to be not threadsafe
         {
             // Throw AS400MessageList.
             processCreateExceptions(getMessages());
@@ -251,7 +251,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String dltcmd = "QSYS/DLTDTAARA DTAARA(" + library_ + "/" + name_ + ")";
 
         // Run the command.
-        if(!run(dltcmd, true))
+        if(!run(dltcmd)) // DLTDTAARA is known to be threadsafe
         {
             // Throw AS400MessageList.
             processExceptions(getMessages());
@@ -439,13 +439,6 @@ class DataAreaImplRemote implements DataAreaImpl
             throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
-        // Create the pgm call object
-        if (rmtCmd_ == null)
-        {
-          rmtCmd_ = new RemoteCommandImplRemote();
-          rmtCmd_.setSystem(system_);
-        }
-
         // Do the read
 
         // We expect to retrieve the fixed header, plus 1 byte.
@@ -536,13 +529,6 @@ class DataAreaImplRemote implements DataAreaImpl
    IOException,
    ObjectDoesNotExistException
    {
-     // Create the pgm call object
-     if (rmtCmd_ == null)
-     {
-       rmtCmd_ = new RemoteCommandImplRemote();
-       rmtCmd_.setSystem(system_);
-     }
-
      // Do the read
 
      // We expect to retrieve the fixed header, plus dataLength bytes.
@@ -659,9 +645,13 @@ class DataAreaImplRemote implements DataAreaImpl
       BinaryConverter.intToByteArray(0, errorCode, 0);
       parmlist[5] = new ProgramParameter(errorCode, 17);
 
+      // Create the pgm call object
+      if (rmtCmd_ == null) {
+        setupRemoteCommand();
+      }
+
       // Run the program.  Failure is returned as a message list.
-      boolean threadSafety = checkThreadSafetyProperty(false, PROGRAM_CALL);  // QWCRDTAA isn't threadsafe, but check property.
-      if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+      if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist))  // QWCRDTAA isn't threadsafe. $B1C
       {
         // Throw AS400MessageList
         processExceptions(rmtCmd_.getMessageList());
@@ -677,18 +667,6 @@ class DataAreaImplRemote implements DataAreaImpl
       }
 
       return dataReceived;
-    }
-
-    private static boolean checkThreadSafetyProperty(boolean defaultVal, boolean isCommandCall)
-    {
-      boolean result;
-      String property = null;
-      if (isCommandCall) property = CommandCall.getThreadSafetyProperty();
-      else               property = ProgramCall.getThreadSafetyProperty();
-
-      if (property == null) result = defaultVal;
-      else                  result = property.equalsIgnoreCase("true");
-      return result;
     }
 
     /**
@@ -751,13 +729,6 @@ class DataAreaImplRemote implements DataAreaImpl
         {
             Trace.log(Trace.ERROR, "Programming error: retrieve(int,int) was called when dataAreaType=" + dataAreaType_);
             throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-        }
-
-        // Create the pgm call object
-        if (rmtCmd_ == null)
-        {
-          rmtCmd_ = new RemoteCommandImplRemote();
-          rmtCmd_.setSystem(system_);
         }
 
         // Do the read
@@ -874,13 +845,6 @@ class DataAreaImplRemote implements DataAreaImpl
       // But since this is the only API available to us, we might as well
       // do a read of the data too.
 
-      // Create the pgm call object
-      if (rmtCmd_ == null)
-      {
-        rmtCmd_ = new RemoteCommandImplRemote();
-        rmtCmd_.setSystem(system_);
-      }
-
       // Do the read
 
       // We expect to retrieve the fixed header, plus a max of 24 digits from data area.
@@ -982,16 +946,13 @@ class DataAreaImplRemote implements DataAreaImpl
      @exception  ServerStartupException  If the host server cannot be started.
      @exception  UnknownHostException  If the system cannot be located.
      **/
-    private boolean run(String command, boolean threadSafe) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ServerStartupException, UnknownHostException
+    private boolean run(String command) throws AS400SecurityException, ConnectionDroppedException, ErrorCompletingRequestException, InterruptedException, IOException, ServerStartupException, UnknownHostException
     {
         boolean result = false;
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
+        if (rmtCmd_ == null) {
+          setupRemoteCommand();
         }
-        boolean threadSafety = checkThreadSafetyProperty(threadSafe, COMMAND_CALL);
-        result = rmtCmd_.runCommand(command, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);      // @B2C
+        result = rmtCmd_.runCommand(command);      // @B2C
         messageList_ = rmtCmd_.getMessageList();
 
         return result;
@@ -1073,6 +1034,30 @@ class DataAreaImplRemote implements DataAreaImpl
         dataAreaType_ = dataAreaType;
     }
 
+    // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+    protected synchronized void setupRemoteCommand() throws IOException
+    {
+      // If not already setup.
+      if (rmtCmd_ == null)
+      {
+        if (system_.canUseNativeOptimizations())
+        {
+          try {
+            rmtCmd_ = new RemoteCommandImplNative();
+          }
+          catch (Throwable e) {
+            // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
+            Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative .", e);
+          }
+        }
+        if (rmtCmd_ == null)
+        {
+          rmtCmd_ = new RemoteCommandImplRemote();
+        }
+        rmtCmd_.setSystem(system_);
+      }
+    }
+
 
     //$D2C
     /**
@@ -1130,14 +1115,13 @@ class DataAreaImplRemote implements DataAreaImpl
         // convert to get the actual number of bytes being written.  In mixed
         // environments a character can expand to more than one byte.  The
         // number of byte is passed on the command.
-        ConverterImplRemote ir = ConverterImplRemote.getConverter(system_.getCcsid(), system_); //@D1a
 
         // To allow bidi data to be written to a data area, each
         // part (the beginning of the command, the data, the end of the commmand)
         // must be converted into bytes and passed to command call.
         byte[] part1;                                                                                     //@D2A
-        byte[] part2 = ir.stringToByteArray(data, type);                                          //@D1a  //$D2C
-        byte[] part3 = ir.stringToByteArray("')");                                                        //@D2A
+        byte[] part2 = converter_.stringToByteArray(data, type);                                          //@D1a  //$D2C
+        byte[] part3 = converter_.stringToByteArray("')");                                                        //@D2A
         int dataLength = part2.length;                                                                    //@D2C
         int countSingleQuotePairs = 0;                       //@A2A
 
@@ -1166,11 +1150,11 @@ class DataAreaImplRemote implements DataAreaImpl
                 // End Changes ------------------------------------------- @A2A
 
                 //wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('" + data + "')"; //@D1c
-                part1 = ir.stringToByteArray("QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + (dataLength-countSingleQuotePairs)+ ")" + ") VALUE('");  //@D2C //@A2A
+                part1 = converter_.stringToByteArray("QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + (dataLength-countSingleQuotePairs)+ ")" + ") VALUE('");  //@D2C //@A2A
                 break;
             case DataArea.LOCAL_DATA_AREA:
                 //wrtcmd = "QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('" + data + "')";                                //@D1c
-                part1 = ir.stringToByteArray("QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('");                                 //@D2C
+                part1 = converter_.stringToByteArray("QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('");                                 //@D2C
                 break;
             default:
                 Trace.log(Trace.ERROR, "Programming error: write(String,int) was called as dataAreaType=" + dataAreaType_);
@@ -1185,20 +1169,17 @@ class DataAreaImplRemote implements DataAreaImpl
         System.arraycopy(part2,0,wrtcmd,part1.length,dataLength);                   //@D2A
         System.arraycopy(part3,0,wrtcmd,part1.length+dataLength,part3.length);      //@D2A
 
-        if (rmtCmd_ == null)                                    //$D2A
-        {                                                       //$D2A
-            rmtCmd_ = new RemoteCommandImplRemote();            //$D2A
-            rmtCmd_.setSystem(system_);                         //$D2A
-        }                                                       //$D2A
+        if (rmtCmd_ == null) {
+          setupRemoteCommand();
+        }
 
         if (Trace.isTraceOn())                                    //@A2A
         {                                                         //@A2A
-            String wrtcmd2 = ir.byteArrayToString(wrtcmd);        //@A2A
+            String wrtcmd2 = converter_.byteArrayToString(wrtcmd);        //@A2A
             Trace.log(Trace.DIAGNOSTIC, "wrtcmd2=["+wrtcmd2+"]"); //@A2A
         }                                                         //@A2A
         // Run the command as bytes
-        boolean threadSafety = checkThreadSafetyProperty(false, COMMAND_CALL);  // CHGDTAARA isn't threadsafe, but check property.
-        boolean result = rmtCmd_.runCommand(wrtcmd, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);     //@D2C
+        boolean result = rmtCmd_.runCommand(wrtcmd, "QSYS/CHGDTAARA");   //@D2C
         messageList_ = rmtCmd_.getMessageList();                //$D2A
 
         if(!result)                                             //$D2C
@@ -1233,7 +1214,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + ") VALUE(" + data.toString() + ")";
 
         // Run the command
-        if(!run(wrtcmd, false))
+        if(!run(wrtcmd)) // CHGDTAARA is known to be not threadsafe
         {
             // Throw AS400MessageList
             processExceptions(getMessages());
@@ -1264,7 +1245,7 @@ class DataAreaImplRemote implements DataAreaImpl
         String wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + ") VALUE('" + (data ? "1" : "0") + "')";
 
         // Run the command
-        if(!run(wrtcmd, false))
+        if(!run(wrtcmd)) // CHGDTAARA is known to be not threadsafe
         {
             // Throw AS400MessageList
             processExceptions(getMessages());
@@ -1318,18 +1299,15 @@ class DataAreaImplRemote implements DataAreaImpl
         " (" + (dataAreaOffset+1) + " " + dataLength + "))" +
         " VALUE(X'" + BinaryConverter.bytesToString(data, dataBufferOffset, dataLength) + "')";
 
-      if (rmtCmd_ == null)
-      {
-        rmtCmd_ = new RemoteCommandImplRemote();
-        rmtCmd_.setSystem(system_);
+      if (rmtCmd_ == null) {
+        setupRemoteCommand();
       }
 
       if (Trace.isTraceOn()) {
         Trace.log(Trace.DIAGNOSTIC, "wrtcmd=["+wrtcmd+"]");
       }
       // Run the command as bytes
-      boolean threadSafety = checkThreadSafetyProperty(false, COMMAND_CALL);  // CHGDTAARA isn't threadsafe, but check property.
-      boolean result = rmtCmd_.runCommand(wrtcmd, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);
+      boolean result = rmtCmd_.runCommand(wrtcmd);
       messageList_ = rmtCmd_.getMessageList();
 
       if(!result)

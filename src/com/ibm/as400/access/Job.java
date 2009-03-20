@@ -19,6 +19,7 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -60,6 +61,9 @@ public class Job implements Serializable
 
     private static final byte[] BLANKS16_ = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
 
+    private static final Boolean ON_THREAD = ProgramCall.THREADSAFE_TRUE;
+    private static final Boolean OFF_THREAD = ProgramCall.THREADSAFE_FALSE;
+
     private boolean cacheChanges_ = true;
 
     private boolean isConnected_ = false;
@@ -74,6 +78,12 @@ public class Job implements Serializable
 
     private transient PropertyChangeSupport propertyChangeListeners_;
     private transient VetoableChangeSupport vetoableChangeListeners_;
+
+    private transient CommandCall cmdCall_;
+    private transient ProgramCall pgmCall_;
+    private transient ProgramCall pgmCall_onThread_;
+    private transient ProgramCall pgmCall_offThread_;
+    private transient Object remoteCommandLock_ = new Object();
 
     /**
      Job attribute representing an identifier assigned to the job by the system to collect resource use information for the job when job accounting is active.  The user who is changing this field must have authority to the CHGACGCDE CL command.  If the user does not have the proper authority, this field is ignored and processing continues.  Possible values are:
@@ -3470,13 +3480,12 @@ public class Job implements Serializable
         // the API call will fail and an AS400Exception will be returned.
         // Therefore, we will disregard the setting of system property
         // "ProgramCall.threadSafe" when calling this particular API.
-        ProgramCall program = new ProgramCall(system_, "/QSYS.LIB/QWTCHGJB.PGM", parmList);
-        if (callOnThread) {
-          program.setThreadSafe(true);
-        }
-        else {
-          program.setThreadSafe(false);  // make sure the system property is ignored
-        }
+        ProgramCall program;
+        Boolean threadMode;
+        if (callOnThread) threadMode = ON_THREAD;
+        else threadMode = OFF_THREAD;
+        program = getProgramCall("/QSYS.LIB/QWTCHGJB.PGM", parmList, threadMode);
+
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting job information for job: " + toString());
         if (!program.run())
         {
@@ -3529,12 +3538,73 @@ public class Job implements Serializable
         }
         String toRun = buf.toString();
         // If the user wants to end the remote command server job that is servicing our connection, they are welcome to "shoot themselves in the foot".
-        CommandCall cmd = new CommandCall(system_, toRun);
+        CommandCall cmd = getCommandCall(toRun);
         if (!cmd.run())
         {
             throw new AS400Exception(cmd.getMessageList());
         }
     }
+
+    private final CommandCall getCommandCall(String cmd)
+    {
+      if (cmdCall_ == null) {
+        synchronized (remoteCommandLock_) {
+          if (cmdCall_ == null) {
+            cmdCall_ = new CommandCall(system_);
+          }
+        }
+      }
+      try { cmdCall_.setCommand(cmd); } catch (PropertyVetoException e) {}
+      return cmdCall_;
+    }
+
+    private final ProgramCall getProgramCall(String pgm, ProgramParameter[] parms)
+    {
+      return getProgramCall(pgm, parms, null);
+    }
+
+    private final ProgramCall getProgramCall(String pgm, ProgramParameter[] parms, Boolean callOnThread)
+    {
+      if (callOnThread == ON_THREAD)
+      {
+        if (pgmCall_onThread_ == null) {
+          synchronized (remoteCommandLock_) {
+            if (pgmCall_onThread_ == null) {
+              pgmCall_onThread_ = new ProgramCall(system_);
+              pgmCall_onThread_.setThreadSafe(true);  // force call to be on-thread
+            }
+          }
+        }
+        try { pgmCall_onThread_.setProgram(pgm, parms); } catch (PropertyVetoException e) {}
+        return pgmCall_onThread_;
+      }
+      else if (callOnThread == OFF_THREAD)
+      {
+        if (pgmCall_offThread_ == null) {
+          synchronized (remoteCommandLock_) {
+            if (pgmCall_offThread_ == null) {
+              pgmCall_offThread_ = new ProgramCall(system_);
+              pgmCall_offThread_.setThreadSafe(false);  // force call to be off-thread
+            }
+          }
+        }
+        try { pgmCall_offThread_.setProgram(pgm, parms); } catch (PropertyVetoException e) {}
+        return pgmCall_offThread_;
+      }
+      else  // don't specify threadsafety
+      {
+        if (pgmCall_ == null) {
+          synchronized (remoteCommandLock_) {
+            if (pgmCall_ == null) {
+              pgmCall_ = new ProgramCall(system_);
+            }
+          }
+        }
+        try { pgmCall_.setProgram(pgm, parms); } catch (PropertyVetoException e) {}
+        return pgmCall_;
+      }
+    }
+
 
     // Helper method.  Used to format some of the attributes that are date Strings into actual Date objects.
     private Date getAsDate(int key) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
@@ -3684,7 +3754,7 @@ public class Job implements Serializable
         parms[4] = new ProgramParameter(conv.stringToByteArray("JIDF0100"));
         parms[5] = new ProgramParameter(new byte[4]);
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWVRCSTK.PGM", parms);
+        ProgramCall pc = getProgramCall("/QSYS.LIB/QWVRCSTK.PGM", parms); // threadsafe
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -5186,7 +5256,7 @@ public class Job implements Serializable
         buf.append(" DUPJOBOPT(*MSG)");
         String toRun = buf.toString();
         // If the user wants to end the remote command server job that is servicing our connection, they are welcome to "shoot themselves in the foot".
-        CommandCall cmd = new CommandCall(system_, toRun);
+        CommandCall cmd = getCommandCall(toRun);
         if (!cmd.run())
         {
             throw new AS400Exception(cmd.getMessageList());
@@ -5707,6 +5777,16 @@ public class Job implements Serializable
         }
     }
 
+    // Called when this object is de-serialized
+    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "De-serializing Job object.");
+        in.defaultReadObject();
+
+        // Re-initialize transient variables.
+        remoteCommandLock_ = new Object();
+    }
+
     /**
      Releases this job.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -5727,7 +5807,7 @@ public class Job implements Serializable
         buf.append(name_);
         buf.append(") DUPJOBOPT(*MSG)");
         String toRun = buf.toString();
-        CommandCall cmd = new CommandCall(system_, toRun);
+        CommandCall cmd = getCommandCall(toRun);
         if (!cmd.run())
         {
             throw new AS400Exception(cmd.getMessageList());
@@ -5808,7 +5888,7 @@ public class Job implements Serializable
             parmList[6] = new ProgramParameter(new byte[] { (byte)0xF1 } );  // '1' to reset performance statistics.
         }
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSRJOBI.PGM", parmList);
+        ProgramCall pc = getProgramCall("/QSYS.LIB/QUSRJOBI.PGM", parmList); // conditionally threadsafe
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving job information for job: " + toString());
         if (!pc.run())
         {

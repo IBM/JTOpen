@@ -432,7 +432,7 @@ public class SystemPool
         if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
         CommandCall cmd = new CommandCall(system_, cmdBuf.toString());
         // CHGSHRPOOL is not thread safe.
-        if (!CommandCall.isThreadSafetyPropertySet()) cmd.setThreadSafe(false);
+        cmd.suggestThreadsafe(false);
         if (!cmd.run()) {
           throw new AS400Exception(cmd.getMessageList());
         }
@@ -510,8 +510,6 @@ public class SystemPool
         parmList[11] = new ProgramParameter(bin4.toBytes(obj));
 
         ProgramCall pgm = new ProgramCall(system_);
-        // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
-
         try
         {
           pgm.setProgram(prgName.getPath(), parmList);
@@ -1514,7 +1512,6 @@ public class SystemPool
     ProgramParameter[] parmList = buildParameterList();
 
     ProgramCall pgm = new ProgramCall(system_);
-    // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
     try
     {
       pgm.setProgram(prgName.getPath(), parmList);

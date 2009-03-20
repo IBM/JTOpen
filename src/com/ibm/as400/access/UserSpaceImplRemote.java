@@ -20,8 +20,6 @@ import java.io.IOException;
 // The UserSpaceImplRemote class is the remote implementation of the user space class.
 class UserSpaceImplRemote implements UserSpaceImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     // The server where the user space is located.
     protected AS400ImplRemote system_ = null;
     // The full path name of the user space.
@@ -40,7 +38,9 @@ class UserSpaceImplRemote implements UserSpaceImpl
     private ProgramParameter errorCodeParameter_ = null;
 
     // Impl object for remote command server delete, getAttributes, setAttributes.
-    protected RemoteCommandImplRemote remoteCommand_;
+    protected RemoteCommandImpl remoteCommand_;
+    // Whether to call remote programs on-thread or off-thread.
+    protected Boolean threadSafety_ = RemoteCommandImpl.ON_THREAD;
     // The integrated file system object used for read and write.
     private IFSRandomAccessFileImplRemote file_;
 
@@ -133,9 +133,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
         };
 
         // Setup for remote program call.
-        setupRemoteCommand();
+        if (remoteCommand_ == null) {
+          setupRemoteCommand();
+        }
         // Run create user space (QUSCRTUS) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSCRTUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        if (!remoteCommand_.runProgram("QSYS", "QUSCRTUS", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
         {
             // Throw the returned messages.
             throw buildException();
@@ -171,9 +173,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
         };
 
         // Setup for remote program call.
-        setupRemoteCommand();
+        if (remoteCommand_ == null) {
+          setupRemoteCommand();
+        }
         // Run delete user space (QUSDLTUS) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSDLTUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        if (!remoteCommand_.runProgram("QSYS", "QUSDLTUS", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
         {
             // Throw the returned messages.
             throw buildException();
@@ -224,9 +228,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
         };
 
         // Setup for remote program call.
-        setupRemoteCommand();
+        if (remoteCommand_ == null) {
+          setupRemoteCommand();
+        }
         // Run retrieve user space attributes (QUSRUSAT) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSRUSAT", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        if (!remoteCommand_.runProgram("QSYS", "QUSRUSAT", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
         {
             // Throw the returned messages.
             throw buildException();
@@ -258,9 +264,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
             };
 
             // Setup for remote program call.
-            setupRemoteCommand();
+            if (remoteCommand_ == null) {
+              setupRemoteCommand();
+            }
             // Run retrieve user space (QUSRTVUS) API.
-            if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+            if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
             {
                 String id = remoteCommand_.getMessageList()[0].getID();
                 if (!id.equals("CPF3C14") && !id.equals("CPD3C14"))
@@ -281,7 +289,7 @@ class UserSpaceImplRemote implements UserSpaceImpl
                     Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
                     throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
                 }
-                if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+                if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
                 {
                     // Throw the returned messages.
                     throw buildException();
@@ -351,9 +359,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
         };
 
         // Setup for remote program call.
-        setupRemoteCommand();
+        if (remoteCommand_ == null) {
+          setupRemoteCommand();
+        }
         // Run change user space attributes (QUSCUSAT) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSCUSAT", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        if (!remoteCommand_.runProgram("QSYS", "QUSCUSAT", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
         {
             // Throw the returned messages.
             throw buildException();
@@ -448,14 +458,37 @@ class UserSpaceImplRemote implements UserSpaceImpl
     // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
     protected synchronized void setupRemoteCommand() throws IOException
     {
-        // If not already setup.
+      // If not already setup.
+      if (remoteCommand_ == null)
+      {
+        if (system_.canUseNativeOptimizations())
+        {
+          try {
+            remoteCommand_ = new RemoteCommandImplNative();
+          }
+          catch (Throwable e) {
+            // This would be unexpected, since canUseNativeOptions() returned true.
+            Trace.log(Trace.WARNING, "Class RemoteCommandImplNative was not found.", e);
+          }
+
+          // We will use this remote cmd object only to call threadsafe API's.
+          // So set to run "on thread" unless the properties say otherwise.
+          String threadSafetyProperty = ProgramCall.getThreadSafetyProperty();
+          if (threadSafetyProperty == null ||
+              threadSafetyProperty.equalsIgnoreCase("true"))
+          {
+            threadSafety_ = RemoteCommandImpl.ON_THREAD;
+          }
+          else {
+            threadSafety_ = RemoteCommandImpl.OFF_THREAD;
+          }
+        }
         if (remoteCommand_ == null)
         {
-            // Create the remote command implementation object
-            remoteCommand_ = new RemoteCommandImplRemote();
-            // Set the system object into it.
-            remoteCommand_.setSystem(system_);
+          remoteCommand_ = new RemoteCommandImplRemote();
         }
+        remoteCommand_.setSystem(system_);
+      }
     }
 
     // Remote implementation of write.
@@ -487,9 +520,11 @@ class UserSpaceImplRemote implements UserSpaceImpl
             };
 
             // Setup for remote program call.
-            setupRemoteCommand();
+            if (remoteCommand_ == null) {
+              setupRemoteCommand();
+            }
             // Run change user space (QUSCHGUS) API.
-            if (!remoteCommand_.runProgram("QSYS", "QUSCHGUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+            if (!remoteCommand_.runProgram("QSYS", "QUSCHGUS", parameters, threadSafety_, RemoteCommandImpl.MESSAGE_OPTION_DEFAULT))
             {
                 // Throw the returned messages.
                 throw buildException();

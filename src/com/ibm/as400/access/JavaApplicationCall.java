@@ -899,10 +899,8 @@ public class JavaApplicationCall implements Serializable
         openSocketsThread_.start();
 
         command_ = new CommandCall(getSystem());
-        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
-        {
-          command_.setThreadSafe(false); // JAVA cmd isn't threadsafe.  @A1A
-        }
+        command_.suggestThreadsafe(false); // JAVA cmd isn't threadsafe.  @A1A
+
         // Construct commandstring
         // 1.  CLASS
         // 2.  PARM

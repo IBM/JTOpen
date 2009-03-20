@@ -256,13 +256,8 @@ public class UDFS
     private void runCommand(String command) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         CommandCall cmd = new CommandCall(system_, command);
-        // If the thread safety property is not set.
-        if (!CommandCall.isThreadSafetyPropertySet())
-        {
-            // CRTUDFS, DLTUDFS, ADDMFS, RMVMFS are not thread safe.
-            cmd.setThreadSafe(false);
-        }
-
+        // CRTUDFS, DLTUDFS, ADDMFS, RMVMFS are not thread safe.
+        cmd.suggestThreadsafe(false);
         if (!cmd.run())
         {
             throw new AS400Exception(cmd.getMessageList());

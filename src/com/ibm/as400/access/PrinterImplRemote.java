@@ -33,6 +33,9 @@ implements PrinterImpl
     private static boolean fAttrIDsToRtvBuilt_ = false;
     private static final String NAME = "name";
 
+    // Impl object for remote command server requests.
+    private RemoteCommandImpl remoteCommand_;
+
 
     private synchronized void buildAttrIDsToRtv()
     {
@@ -130,20 +133,6 @@ implements PrinterImpl
     }
 
 
-    // Determines if the CommandCall.threadSafe property has been set.
-    // The CommandCall "threadSafe" property provides a way for the application to force the Toolbox to call commands either on-thread or off-thread, regardless of the documented thread-safety of the command.
-    // If property is set, this method returns the value of the property.
-    // If property is not set, this method returns defaultVal.
-    private static boolean checkThreadSafetyProperty(boolean defaultVal)
-    {
-      boolean result;
-      String property = CommandCall.getThreadSafetyProperty();
-      if (property == null) result = defaultVal;
-      else                  result = property.equalsIgnoreCase("true");
-      return result;
-    }
-
-
     // This method implements an abstract method of the superclass
     NPCPAttributeIDList getAttrIDsToRetrieve()
     {
@@ -203,13 +192,15 @@ implements PrinterImpl
 
          desc = prepareForSingleQuotes(desc); // double any embedded single-quotes
          String cmdText = "CHGDEVPRT DEVD(" + printerName + ") TEXT('" + desc + "')";
-         RemoteCommandImplRemote cmd = new RemoteCommandImplRemote();
-         cmd.setSystem(getSystem());
-         boolean threadSafety = checkThreadSafetyProperty(false);
-         boolean result = cmd.runCommand(cmdText, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);
+
+         // Setup for remote program call.
+         if (remoteCommand_ == null) {
+           setupRemoteCommand();
+         }
+         boolean result = remoteCommand_.runCommand(cmdText);
          if (!result) {
            Trace.log(Trace.ERROR, "Error when changing printer attributes.");
-           throw new AS400Exception(cmd.getMessageList());
+           throw new AS400Exception(remoteCommand_.getMessageList());
          }
        }
 
@@ -260,13 +251,14 @@ implements PrinterImpl
            cmdBuf.append(" SEPDRAWER(" + stringVal + ")");
          }
 
-         RemoteCommandImplRemote cmd = new RemoteCommandImplRemote();
-         cmd.setSystem(getSystem());
-         boolean threadSafety = checkThreadSafetyProperty(false);
-         boolean result = cmd.runCommand(cmdBuf.toString(), threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10);
+         // Setup for remote program call.
+         if (remoteCommand_ == null) {
+           setupRemoteCommand();
+         }
+         boolean result = remoteCommand_.runCommand(cmdBuf.toString());
          if (!result) {
            Trace.log(Trace.ERROR, "Error when changing printer attributes.");
-           throw new AS400Exception(cmd.getMessageList());
+           throw new AS400Exception(remoteCommand_.getMessageList());
          }
 
        }
@@ -281,6 +273,31 @@ implements PrinterImpl
        }
 
        attrs.addUpdateAttributes(cpNewAttrs);
+     }
+
+     // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+     protected synchronized void setupRemoteCommand() throws IOException
+     {
+       // If not already setup.
+       if (remoteCommand_ == null)
+       {
+         AS400ImplRemote system = getSystem();
+         if (system.canUseNativeOptimizations())
+         {
+           try {
+             remoteCommand_ = new RemoteCommandImplNative();
+           }
+           catch (Throwable e) {
+             // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
+             Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative .", e);
+           }
+         }
+         if (remoteCommand_ == null)
+         {
+           remoteCommand_ = new RemoteCommandImplRemote();
+         }
+         remoteCommand_.setSystem(system);
+       }
      }
 
 

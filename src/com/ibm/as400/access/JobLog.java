@@ -1370,7 +1370,7 @@ public class JobLog implements Serializable
         };
 
         ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QMHSNDPM.PGM", parameters);
-        pc.setThreadSafe(onThread); // The QMHSNDPM is threadsafe, but we only want to stay on-thread
+        if (onThread) pc.suggestThreadsafe(); // The QMHSNDPM is threadsafe, but we only want to stay on-thread
         // if the user wants to write to the current job log instead of the
         // remote command server's job log.
         if (!pc.run())

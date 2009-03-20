@@ -205,7 +205,7 @@ public class CommandList implements Serializable
 
             CharConverter textConv = new CharConverter(sys_.getCcsid());
             ProgramCall pgm = new ProgramCall(sys_, "/QSYS.LIB/QUSLOBJ.PGM", parms);
-            pgm.setThreadSafe(true);
+            pgm.suggestThreadsafe();
 
             // call the program
             if (!pgm.run())

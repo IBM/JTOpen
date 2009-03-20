@@ -36,7 +36,7 @@ import java.util.*;
 **/
 public class ObjectDescription
 {  
-  private static final String USERSPACE_QUALIFIED_NAME = "JT4WCLOBJLQTEMP     ";                    // New for QWCLOBJL API
+  private static final String USERSPACE_NAME = "JT4WCLOBJLQTEMP     ";                    // New for QWCLOBJL API
   private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4WCLOBJL.USRSPC";   // New for QWCLOBJL API
   private static final String FORMAT_NAME = "OBJL0100";  // New for QWCLOBJL API
   private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);   // New for QWCLOBJL API
@@ -1440,7 +1440,7 @@ public class ObjectDescription
   /**
   Returns a list of all ObjectLockListEntry objects representing possible Object Locks on this ObjectDescription.   
   <p>This method retrieves the list of locks from the system via a call to the List Object Locks (QWCLOBJL) API.  
-  Note: The QWCLOBJL API is not thread safe and will be called with ProgramCall.setThreadSafe(false)
+  Note: The QWCLOBJL API is not thread safe.
   @return An array of ObjectLockListEntry representing any Object Locks. If no locks are found, an empty array is returned.
  **/
  public ObjectLockListEntry[] getObjectLockList()
@@ -1456,7 +1456,7 @@ public class ObjectDescription
 
    ProgramParameter[] parms = new ProgramParameter[(aspDeviceName_ == null) ? 6 : 9];  // Allow optional parameters if ASP device name is set
 
-   parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));       //Qualified user space name
+   parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));       //Qualified user space name
    parms[1] = new ProgramParameter(conv.stringToByteArray(FORMAT_NAME)); // Format Name
    StringBuffer objectNameBuff = new StringBuffer("                    ");        // initialize to 20 blanks
    objectNameBuff.replace(0,  name_.length(),    name_);                          
@@ -1479,19 +1479,39 @@ public class ObjectDescription
      parms[8] = new ProgramParameter(conv.stringToByteArray(aspDeviceNameBuff.toString()));    // Optional parm - Qualified ASP Name
    }
    
-   // QWCLOBJL is the API used to get the list of object locks into a user space. 
+   // QWCLOBJL is the API used to get the list of object locks into a user space.
+   // Note: QWCLOBJL is not documented to be thread-safe.
+   // But if the user has indicated they want all programs to be called on-thread
+   // (by setting the ProgramCall.threadSafe property), we will do as they wish.
    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWCLOBJL.PGM", parms);
-   pc.setThreadSafe(false); // The called API is not documented to be thread-safe, and it must run in same thread as that in which the temporary user space was created.  (Each different thread gets a different QTEMP library.)  So we'll force it to run in the job of the Remote Command Host Server.
+
+   // Determine the needed scope of synchronization.
+   Object lockObject;
+   boolean willRunProgramsOnThread = pc.isStayOnThread();
+   if (willRunProgramsOnThread) {
+     // The calls will run in the job of the JVM, so lock for entire JVM.
+     lockObject = USERSPACE_NAME;
+   }
+   else {
+     // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+     lockObject = system_;
+   }
+
    byte[] buf = null;
 
-   synchronized (USERSPACE_QUALIFIED_NAME)
+   synchronized (lockObject)
    {
      // Create a user space in QTEMP to receive output.
      UserSpace space = new UserSpace(system_, USERSPACE_PATH);
      try
      {
-       space.setMustUseProgramCall(true);
-       space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library.
+       space.setMustUseProgramCall(true);  // need to use same job as the ProgramCall object
+       if (!willRunProgramsOnThread)
+       {
+         space.setMustUseSockets(true);
+         // Force the use of sockets when running natively but not on-thread.
+         // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+       }
        space.create(256*1024, true, "", (byte)0, "User space for UserObjectsOwnedList", "*EXCLUDE");
        // Note: User Spaces by default are auto-extendible (by QUSCRTUS API)
        //       So it will always have enough space available.
@@ -1569,17 +1589,17 @@ public class ObjectDescription
        // Extract format OBJL0100 fields
        offset = startingOffset + (i*entrySize); // offset to start of list entry
 
-       /*    0   0  CHAR(10)   Job name
-     10  0A  CHAR(10)   Job user name
-     20  14  CHAR(6)    Job number
-     26  1A  CHAR(10)   Lock state
-     36  24  BINARY(4)  Lock status
-     40  28  BINARY(4)  Lock type
-     44  2C  CHAR(10)   Member name
-     54  36  CHAR(1)    Share
-     55  37  CHAR(1)    Lock scope
-     56  38  CHAR(8)    Thread identifier
-        */
+       // 0   0  CHAR(10)   Job name
+       //10  0A  CHAR(10)   Job user name
+       //20  14  CHAR(6)    Job number
+       //26  1A  CHAR(10)   Lock state
+       //36  24  BINARY(4)  Lock status
+       //40  28  BINARY(4)  Lock type
+       //44  2C  CHAR(10)   Member name
+       //54  36  CHAR(1)    Share
+       //55  37  CHAR(1)    Lock scope
+       //56  38  CHAR(8)    Thread identifier
+
        jobName = conv.byteArrayToString(buf, offset, 10).trim();      // Job Name (10)
        offset += 10;
        jobUserName = conv.byteArrayToString(buf, offset, 10).trim();  // Job User Name (10)
@@ -1761,7 +1781,7 @@ public class ObjectDescription
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSROBJD.PGM", parms); // retrieve object description
     // QUSROBJD is thread safe.
-    if (!ProgramCall.isThreadSafetyPropertySet()) pc.setThreadSafe(true);
+    pc.suggestThreadsafe();
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
@@ -1901,7 +1921,7 @@ public class ObjectDescription
 	  }
 	  aspSearchType_ = aspSearchType;
   }
-  
+
   /** 
    * Returns a String representation of this ObjectDescription.
    * @return The object path name.

@@ -35,17 +35,6 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         super.setProperties(system, path, name, library, true);
     }
 
-    // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
-    protected synchronized void setupRemoteCommand() throws IOException
-    {
-        // If not setup.
-        if (remoteCommand_ == null)
-        {
-            remoteCommand_ = new RemoteCommandImplNative();
-            remoteCommand_.setSystem(system_);
-        }
-    }
-
     // declare constants for the attribute type.  These types
     // are used on getAttrs and setAttrs.  *** Warning *** these
     // values are duplicated in the "C" code.  Since there is no

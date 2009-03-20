@@ -18,20 +18,38 @@ import java.io.IOException;
 // RemoteCommandImpl defines the implementation interface for the CommandCall and ProgramCall objects.
 interface RemoteCommandImpl
 {
+    static final Boolean ON_THREAD = CommandCall.THREADSAFE_TRUE;
+    static final Boolean OFF_THREAD = CommandCall.THREADSAFE_FALSE;
+    static final Boolean LOOKUP_THREADSAFETY = CommandCall.THREADSAFE_LOOKUP;
+
+    static final int MESSAGE_OPTION_DEFAULT = AS400Message.MESSAGE_OPTION_UP_TO_10;
+
     // Get job name, user, job number for the correct job.
-    public String getJobInfo(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
-    // Check command object's thread safety.
-    public boolean isCommandThreadSafe(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+    public String getJobInfo(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+    // Report whether the command is designated as threadsafe on the system.
+    public int getThreadsafeIndicator(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+    // Report whether the RemoteCommandImpl object is a native object.
+    public boolean isNative();
     // Get the message list from the implementation object.
     public AS400Message[] getMessageList();
     // Run the command on the implementation object.
-    public boolean runCommand(String command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+    public boolean runCommand(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
     // Run the command on the implementation object.
-    public boolean runCommand(byte[] command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+    public boolean runCommand(String command, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+
+    // Run the command on the implementation object.
+    public boolean runCommand(byte[] commandAsBytes, String commandAsString) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+
+    // Run the command on the implementation object.
+    public boolean runCommand(byte[] command, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
+
     // Run the program call on the implementation object.
-    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
+
+    // Run the program call on the implementation object.
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
     // Run the service program call on the implementation object.
-    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, boolean threadSafety, int procedureNameCCSID, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
+    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, Boolean threadSafety, int procedureNameCCSID, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
     // Set the AS400Impl into the implementation object.
     public void setSystem(AS400Impl system) throws IOException;
 }

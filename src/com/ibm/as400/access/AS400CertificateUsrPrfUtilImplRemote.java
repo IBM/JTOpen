@@ -79,7 +79,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall.setThreadSafe(true);  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -166,7 +166,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall.setThreadSafe(true);  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -337,7 +337,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall.setThreadSafe(true);  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -432,7 +432,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      pgmCall.setThreadSafe(true);  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)

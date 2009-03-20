@@ -908,10 +908,7 @@ public class AS400FTP
                   Trace.log(Trace.DIAGNOSTIC,"command string " + command);
 
                try { c.setCommand(command); } catch (PropertyVetoException pve) {}
-               if (!CommandCall.isThreadSafetyPropertySet()) // property not set
-               {
-                 c.setThreadSafe(false);  // CRTSAVF is not threadsafe.  @A1A
-               }
+               c.suggestThreadsafe(false);  // CRTSAVF is not threadsafe.  @A1A
 
                try
                {

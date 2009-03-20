@@ -127,7 +127,7 @@ public class AS400DateTimeConverter
 
             // Set the program name and parameter list
             pgm.setProgram( progName, parmlist );
-            pgm.setThreadSafe(true);  // QWCCVTDT is thread-safe.  @B1A
+            pgm.suggestThreadsafe();  // QWCCVTDT is thread-safe.  @B1A
 
             // Run the program
             if (pgm.run()!=true)

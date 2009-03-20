@@ -170,17 +170,34 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
 
     // QSYLOBJA is the API that is being used to get the object list into a user space. 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSYLOBJA.PGM", parms);
-    pc.setThreadSafe(false); // The QSYLOBJA API is documented to be thread-safe, however it must run in same thread as /QTEMP.LIB/JT4SYLOBJA.USRSPC was created.
+
+    // Determine the needed scope of synchronization.
+    Object lockObject;
+    boolean willRunProgramsOnThread = pc.isStayOnThread();
+    if (willRunProgramsOnThread) {
+      // The calls will run in the job of the JVM, so lock for entire JVM.
+      lockObject = USERSPACE_NAME;
+    }
+    else {
+      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+      lockObject = system_;
+    }
+
     byte[] buf = null;
 
-    synchronized (USERSPACE_NAME)
+    synchronized (lockObject)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
       try
       {
         space.setMustUseProgramCall(true);
-        space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+        if (!willRunProgramsOnThread)
+        {
+          space.setMustUseSockets(true);
+          // Force the use of sockets when running natively but not on-thread.
+          // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+        }
         space.create(256*1024, true, "", (byte)0, "User space for UserObjectsOwnedList", "*EXCLUDE");
         // Note: User Spaces by default are auto-extendible (by QUSCRTUS API)
         //       So it will always have enough space available.

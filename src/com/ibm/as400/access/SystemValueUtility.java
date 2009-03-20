@@ -260,7 +260,7 @@ class SystemValueUtility
 
         ProgramCall prog = new ProgramCall(system, isNetA ? "/QSYS.LIB/QWCRNETA.PGM" : "/QSYS.LIB/QWCRSVAL.PGM", parameters);
         // Both QWCRNETA and QWCRSVAL are threadsafe.
-        if (!ProgramCall.isThreadSafetyPropertySet()) prog.setThreadSafe(true);
+        prog.suggestThreadsafe();
 
         if (!prog.run())
         {
@@ -410,7 +410,7 @@ class SystemValueUtility
 
         CommandCall cmd = new CommandCall(system, command);
         // Neither CHGSYSVAL nor CHGNETA is threadsafe.
-        if (!CommandCall.isThreadSafetyPropertySet()) cmd.setThreadSafe(false);
+        cmd.suggestThreadsafe(false);
 
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Running system value command: " + command);
 

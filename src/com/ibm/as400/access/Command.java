@@ -1239,7 +1239,7 @@ public class Command implements Serializable
       parms[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });	// @A1A Follow proxy chain, input CHAR(1)
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDI.PGM", parms);
-    pc.setThreadSafe(true);
+    pc.suggestThreadsafe();
 
     boolean succeeded = pc.run();
     if (!succeeded)
@@ -1418,7 +1418,7 @@ public class Command implements Serializable
     parms[5] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDD.PGM", parms);
-    pc.setThreadSafe(true);
+    pc.suggestThreadsafe();
 
     if (!pc.run())
     {

@@ -137,7 +137,7 @@ public class DateTimeConverter
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
 
-    program_.setThreadSafe(true);  //@A2A
+    program_.suggestThreadsafe();  //@A2A
 
     // Run the program
     if (!program_.run())
@@ -452,7 +452,7 @@ public class DateTimeConverter
   }
 
 
-  ///**
+  // /**
   // * Specifies the 16-byte character date and time value format returned
   // * on the QWCCVTDT API.
   //**/

@@ -153,7 +153,7 @@ public class PanelGroup implements Serializable
     parms[7] = new ProgramParameter(4);
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUHRHLPT.PGM", parms);
-    pc.setThreadSafe(true);
+    pc.suggestThreadsafe();
 
     if (!pc.run())
       throw new AS400Exception(pc.getMessageList());
