@@ -1634,6 +1634,43 @@ public class FileAttributes
         setAttributes(setEffectiveGroupId, (byte)0x01, (byte)0x2D);
     }
 
+    // Whether the objects in the UDFS are temporary system objects.
+    boolean containsTemporaryObjects_;
+    /**
+     Returns whether the objects in the user-defined file system (UDFS) are temporary system objects.
+     <p>Note: This method is not supported until the release following IBM i V6R1.  For IBM i V6R1 and earlier, this method always returns false.
+     @return  true if the objects in the UDFS are temporary system objects; false if the objects in the UDFS are permanent system objects.
+     If the file system represented by this object is not a UDFS, this method returns false.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public boolean containsTemporaryObjects() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        getAttributes();
+        return containsTemporaryObjects_;
+    }
+
+    // Whether the object is a temporary system object.
+    boolean temporaryObject_;
+    /**
+     Returns whether the object is a temporary system object.
+     <p>Note: This method is not supported until the release following IBM i V6R1.  For IBM i V6R1 and earlier, this method always returns false.
+     @return  true if the object is a temporary system object; false if the object is a permanent system object.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public boolean isTemporaryObject() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        getAttributes();
+        return temporaryObject_;
+    }
+
     /**
      Refreshes the attributes from the system.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -1892,6 +1929,12 @@ public class FileAttributes
                         break;
                     case 42:
                         systemUse_ = buffer[offset + 16];
+                        break;
+                    case 43:
+                        temporaryObject_ = buffer[offset + 16] == 0x01;
+                        break;
+                    case 44:
+                        containsTemporaryObjects_ = buffer[offset + 16] == 0x01;
                         break;
                     case 300:
                         setEffectiveUserId_ = buffer[offset + 16] == 0x01;
