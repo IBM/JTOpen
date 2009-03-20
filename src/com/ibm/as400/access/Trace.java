@@ -645,7 +645,10 @@ public class Trace
           }
         }
       }
-      catch (Throwable t) {}
+      catch (Throwable t) {
+        String message = "Unable to determine load path for class " + className;
+        logData(null, ERROR, message, t);
+      }
 
       String message = "Class " + className + " was loaded from " + loadPath;
       logData(null, DIAGNOSTIC, message, null);
