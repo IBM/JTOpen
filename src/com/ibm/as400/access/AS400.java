@@ -786,6 +786,7 @@ public class AS400 implements Serializable
      **/
     public boolean authenticate(String userId, String password) throws AS400SecurityException, IOException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authenticating signon information:", userId);
         return validateSignon(userId, password);
     }
 
@@ -802,7 +803,7 @@ public class AS400 implements Serializable
         }
         catch (Exception e)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations, unexpected exception while loading native version:", e);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations; unexpected exception while loading native version:", e);
             AS400.nativeVersion = 0;
         }
         return AS400.nativeVersion;
@@ -817,7 +818,32 @@ public class AS400 implements Serializable
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
             return true;
         }
-        return false;
+        else
+        {
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations. Reason follows:");
+            if (!AS400.onAS400) {
+              Trace.log(Trace.DIAGNOSTIC, "onAS400: " + AS400.onAS400);
+            }
+            if (mustUseSockets_) {
+              Trace.log(Trace.DIAGNOSTIC, "mustUseSockets: " + mustUseSockets_);
+            }
+            if (!systemNameLocal_) {
+              Trace.log(Trace.DIAGNOSTIC, "systemNameLocal: " + systemNameLocal_);
+            }
+            if (proxyServer_.length() != 0) {
+              Trace.log(Trace.DIAGNOSTIC, "proxyServer: " + proxyServer_);
+            }
+            if (byteType_ != AUTHENTICATION_SCHEME_PASSWORD) {
+              Trace.log(Trace.DIAGNOSTIC, "byteType: " + byteType_);
+            }
+            if (getNativeVersion() != 2) {
+              Trace.log(Trace.DIAGNOSTIC, "nativeVersion: " + getNativeVersion());
+            }
+          }
+          return false;
+        }
     }
 
     /**
@@ -2082,6 +2108,7 @@ public class AS400 implements Serializable
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Comparing local address " + localInet + " to " + remoteInet[i]);
                     if (localInet.equals(remoteInet[i]))
                     {
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is local: " + systemName);
                         return true;
                     }
                 }
@@ -2091,7 +2118,7 @@ public class AS400 implements Serializable
                 Trace.log(Trace.ERROR, "Error retrieving host address information:", e);
             }
         }
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is not local.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is not local: " + systemName);
         return false;
     }
 
@@ -3117,10 +3144,10 @@ public class AS400 implements Serializable
      **/
     public void setMustUseSockets(boolean mustUseSockets)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting must use sockets:", mustUseSockets);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting 'must use sockets':", mustUseSockets);
         if (propertiesFrozen_)
         {
-            Trace.log(Trace.ERROR, "Cannot set must use sockets after connection has been made.");
+            Trace.log(Trace.ERROR, "Cannot set 'must use sockets' after connection has been made.");
             throw new ExtendedIllegalStateException("mustUseSockets", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
         mustUseSockets_ = mustUseSockets;
@@ -3142,10 +3169,10 @@ public class AS400 implements Serializable
      **/
     public void setMustUseNetSockets(boolean mustUseNetSockets)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting must use net sockets:", mustUseNetSockets);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting 'must use net sockets':", mustUseNetSockets);
         if (propertiesFrozen_)
         {
-            Trace.log(Trace.ERROR, "Cannot set must use net sockets after connection has been made.");
+            Trace.log(Trace.ERROR, "Cannot set 'must use net sockets' after connection has been made.");
             throw new ExtendedIllegalStateException("mustUseNetSockets", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
         mustUseNetSockets_ = mustUseNetSockets;
@@ -3167,10 +3194,10 @@ public class AS400 implements Serializable
      **/
     public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting must use supplied profile:", mustUseSuppliedProfile);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting 'must use supplied profile':", mustUseSuppliedProfile);
         if (propertiesFrozen_)
         {
-            Trace.log(Trace.ERROR, "Cannot set must use supplied profile after connection has been made.");
+            Trace.log(Trace.ERROR, "Cannot set 'must use supplied profile' after connection has been made.");
             throw new ExtendedIllegalStateException("mustUseSuppliedProfile", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
         mustUseSuppliedProfile_ = mustUseSuppliedProfile;
@@ -3627,7 +3654,10 @@ public class AS400 implements Serializable
 
             // Note: A user-supplied sign-on handler isn't necessarily GUI-based.
             promptSignon();
-            if (!keepConnection) impl_.disconnect(AS400.SIGNON);
+            if (!keepConnection) {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting temporary connection for validating signon info.");
+              impl_.disconnect(AS400.SIGNON);
+            }
         }
     }
 
@@ -3817,9 +3847,13 @@ public class AS400 implements Serializable
         return validateSignon(userId.toUpperCase(), store(password));
     }
 
-    // Internal version of validate sign-on takes checked user ID and twiddled password bytes.
+    // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
+    // If the signon info is not valid, an exception is thrown.
     private boolean validateSignon(String userId, byte[] bytes) throws AS400SecurityException, IOException
     {
+      if (Trace.traceOn_) {
+        Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
+      }
         AS400 validationSystem = new AS400(systemName_, userId, bytes);
         validationSystem.proxyServer_ = proxyServer_;
         // proxyClientConnection_ is not needed.
@@ -3828,7 +3862,7 @@ public class AS400 implements Serializable
         validationSystem.useDefaultUser_ = false;
         // showCheckboxes_ is not needed.
         validationSystem.useSSLConnection_ = useSSLConnection_;
-        validationSystem.mustUseSockets_ = true;
+        validationSystem.mustUseSockets_ = true;  // force the use of the Signon Server
         validationSystem.mustUseNetSockets_ = mustUseNetSockets_;
         validationSystem.mustUseSuppliedProfile_ = mustUseSuppliedProfile_;
         // threadUsed_ is not needed.
@@ -3844,7 +3878,7 @@ public class AS400 implements Serializable
         // impl_ is not copied.
         // signonInfo_ is not copied.
 
-        validationSystem.signon(false);
+        validationSystem.signon(false); // signon(false) calls disconnect() when done
         return true;
     }
     
