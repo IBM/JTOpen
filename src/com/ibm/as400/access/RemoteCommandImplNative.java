@@ -31,7 +31,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
     static
     {
-        System.load("/QSYS.LIB/QYJSPART.SRVPGM");
+        try{
+            System.load("/QSYS.LIB/QYJSPART.SRVPGM");
+        }catch(Throwable e)
+        {
+            Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
+        }
     }
 
     // Report whether the RemoteCommandImpl object is a native object.

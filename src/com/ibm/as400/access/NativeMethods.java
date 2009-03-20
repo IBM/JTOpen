@@ -49,7 +49,12 @@ public class NativeMethods
         }    
         
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native non-PASE methods ");  //@pase1
-        System.load("/QSYS.LIB/QYJSPART.SRVPGM");  //if j9, then socket functions in this lib are overridden        
+        try{
+            System.load("/QSYS.LIB/QYJSPART.SRVPGM");  //if j9, then socket functions in this lib are overridden        
+        } catch(Throwable e)
+        {
+                Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
+        }
     }
 
     static void load()

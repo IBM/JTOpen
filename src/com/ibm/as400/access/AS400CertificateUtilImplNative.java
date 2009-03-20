@@ -29,7 +29,12 @@ class AS400CertificateUtilImplNative  extends AS400CertificateUtilImpl
    // load the service program.
    static
    {
-      System.load("/QSYS.LIB/QYJSPART.SRVPGM");
+      try{
+          System.load("/QSYS.LIB/QYJSPART.SRVPGM");
+      } catch(Throwable e)
+      {
+              Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
+      }
    }
 
 
