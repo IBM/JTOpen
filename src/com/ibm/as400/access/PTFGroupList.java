@@ -57,7 +57,7 @@ public class PTFGroupList
       ConvTable conv = ConvTable.getTable(ccsid, null);
 
       ProgramParameter[] parms = new ProgramParameter[4];
-      parms[0] = new ProgramParameter(conv.stringToByteArray(PTFGroup.USERSPACE_QUALIFIED_NAME));        //qualified user space name
+      parms[0] = new ProgramParameter(conv.stringToByteArray(PTFGroup.USERSPACE_NAME));        //qualified user space name
       parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
       parms[1] = new ProgramParameter(conv.stringToByteArray("LSTG0100"));        //Format name
       parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
@@ -67,12 +67,30 @@ public class PTFGroupList
       parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
       ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroups", ServiceProgramCall.NO_RETURN_VALUE, parms);
+
+      // Determine the needed scope of synchronization.
+      Object lockObject;
+      boolean willRunProgramsOnThread = pc.isStayOnThread();
+      if (willRunProgramsOnThread) {
+        // The calls will run in the job of the JVM, so lock for entire JVM.
+        lockObject = PTFGroup.USERSPACE_NAME;
+      }
+      else {
+        // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+        lockObject = system_;
+      }
+
       byte[] buf = null;
-      synchronized(PTFGroup.USERSPACE_QUALIFIED_NAME)        
+      synchronized(lockObject)        
       {
         UserSpace us = new UserSpace(system_, PTFGroup.USERSPACE_PATH);
         us.setMustUseProgramCall(true);
-        us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
+        if (!willRunProgramsOnThread)
+        {
+          us.setMustUseSockets(true);
+          // Force the use of sockets when running natively but not on-thread.
+          // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+        }
         us.create(256*1024, true, "", (byte)0, "User space for PTF Group list", "*EXCLUDE");
         try
         {
@@ -86,7 +104,10 @@ public class PTFGroupList
         }
         finally
         {
-          us.close();
+          try { us.close(); }
+          catch (Exception e) {
+            Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+          }
         }
       }
       int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);      
