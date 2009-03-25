@@ -84,9 +84,6 @@ import java.util.ResourceBundle;
  **/
 public class JPing
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   
    // These are the temp variables for the option values passed in
    // via the command line.  To eliminate the need of using static variables
    // throughout the class, I needed to create some temporary static
@@ -174,7 +171,7 @@ public class JPing
       // Get the system that the user wants to ping.
       sys_ = arguments.getOptionValue("");
 
-      // Get the specific i5/OS service the user wants to ping.
+      // Get the specific IBM i service the user wants to ping.
       s = arguments.getOptionValue("-service");
       if (s != null)
       {
