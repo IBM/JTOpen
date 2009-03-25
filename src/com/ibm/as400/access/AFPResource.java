@@ -19,7 +19,7 @@ import java.beans.PropertyVetoException;
 /**
  * The AFPResource class represents a system AFP resource.
  * An instance of this class can be used to manipulate an individual
- * i5/OS AFP resource.
+ * IBM i AFP resource.
  *
  * See <a href="doc-files/AFPResourceAttrs.html">AFP Resource Attributes</a> for
  * valid attributes.
@@ -29,8 +29,6 @@ import java.beans.PropertyVetoException;
 public class AFPResource extends PrintObject
 implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     public static final String  STR_FNTRSC  = "FNTRSC";

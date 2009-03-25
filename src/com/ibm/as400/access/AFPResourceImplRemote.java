@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 /**
  * The AFPResource class represents a server AFP resource.
  * An instance of this class can be used to manipulate an individual
- * i5/OS AFP resource.
+ * IBM i AFP resource.
  *
  * See <a href="{@docRoot}/com/ibm/as400/access/doc-files/AFPResourceAttrs.html">AFP Resource Attributes</a> for
  * valid attributes.
@@ -25,8 +25,6 @@ package com.ibm.as400.access;
 
 class AFPResourceImplRemote extends PrintObjectImplRemote
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
 

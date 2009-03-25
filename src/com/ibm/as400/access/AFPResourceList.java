@@ -17,7 +17,7 @@ import java.util.Vector;
 import java.beans.PropertyVetoException;
 
 /**
-  * The AFPResourceList class is used to build a list of i5/OS AFP resource objects of type AFPResource.
+  * The AFPResourceList class is used to build a list of IBM i AFP resource objects of type AFPResource.
   * The list can be filtered by library and resource name,
   * by resource type and by spooled file (list only resources
   * used by a particular spooled file).  In addition,
@@ -33,8 +33,6 @@ import java.beans.PropertyVetoException;
 public class AFPResourceList extends PrintObjectList
 implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     private SpooledFile spooledFileFilter_;

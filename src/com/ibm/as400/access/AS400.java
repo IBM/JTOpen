@@ -35,8 +35,8 @@ import java.util.Vector;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
- Represents the authentication information and a set of connections to the i5/OS host servers.
- <p>If running on i5/OS or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
+ Represents the authentication information and a set of connections to the IBM i host servers.
+ <p>If running on IBM i or an older version of that operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
  <p>If running on another operating system, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running on another operating system.
  <p>For example:
  <pre>
@@ -126,7 +126,7 @@ public class AS400 implements Serializable
      **/
     public static final int GSS_OPTION_NONE = 2;
 
-    // Determine if we are running on i5/OS.
+    // Determine if we are running on IBM i.
     static boolean onAS400 = false;
     // VRM from system property, if we are native.
     static ServerVersion nativeVRM = null;
@@ -368,7 +368,7 @@ public class AS400 implements Serializable
     
     /**
      Constructs an AS400 object.
-     <p>If running on i5/OS, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     <p>If running on IBM i, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
      <p>If running on another operating system, a sign-on prompt may be displayed.  The user is then able to specify the system name, user ID, and password.
      **/
     public AS400()
@@ -382,7 +382,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name.
-     <p>If running on i5/OS to another system or to itself, the user ID and password of the current job are used.
+     <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
      <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
      @param  systemName  The name of the system.  Use localhost to access data locally.
      **/
@@ -404,7 +404,7 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
      @param  systemName  The name of the system.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
     {
@@ -463,8 +463,8 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId, String password)
     {
@@ -538,8 +538,8 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.  If running on i5/OS, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      **/
     public AS400(String systemName, String userId, String password, String proxyServer)
@@ -1009,12 +1009,12 @@ public class AS400 implements Serializable
     // Common code for all the constuctors and readObject.
     private void construct()
     {
-        // See if we are running on i5/OS.
+        // See if we are running on IBM i.
         if (AS400.onAS400)
         {
-            // OK, we are running on i5/OS.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on i5/OS.");
-            // Running on i5/OS, don't prompt.
+            // OK, we are running on IBM i.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on IBM i.");
+            // Running on IBM i, don't prompt.
             guiAvailable_ = false;
         }
     }
@@ -2650,7 +2650,7 @@ public class AS400 implements Serializable
     // If connecting to local system, make systemName "localhost".
     static String resolveSystem(String systemName)
     {
-        // First, see if we are running on i5/OS.
+        // First, see if we are running on IBM i.
         if (AS400.onAS400)
         {
             // If system name is null, then make it a localhost.
@@ -3022,7 +3022,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then error conditions or missing information will result in exceptions.  Applications that are running as i5/OS applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
+     Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then error conditions or missing information will result in exceptions.  Applications that are running as IBM i applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
      @param  guiAvailable  true to prompt; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      @see SignonHandler
@@ -3725,7 +3725,7 @@ public class AS400 implements Serializable
     // Determine if user ID matches current user ID.
     private static boolean userIdMatchesLocal(String userId, boolean mustUseSuppliedProfile)
     {
-        // First, see if we are running on i5/OS.
+        // First, see if we are running on IBM i.
         if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
         {
             String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
