@@ -1709,6 +1709,17 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.FULL_OPEN);
     }
 
+    //@dmy
+    /**
+    *  Indicates whether the temporary fix for JVM 1.6 is enabled.
+    *  @return true if enabled; false otherwise.
+    *  The default value is true.
+    **/
+    public boolean isJvm16Synchronize()
+    {
+        return properties_.getBoolean(JDProperties.JVM16_SYNCHRONIZE);
+    }
+
     // @A1A
     /**
     *  Indicates whether to delay closing cursors until subsequent requests.
@@ -2875,6 +2886,29 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             properties_.setString(JDProperties.HOLD_STATEMENTS, TRUE_);
         else
             properties_.setString(JDProperties.HOLD_STATEMENTS, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
+    }
+    
+    //@dmy
+    /**
+    *  Indicates whether the temporary fix for JVM 1.6 is enabled.
+    *  @param value true if JVM 1.6 fix is enabled; false otherwise.
+    *  The default value is true.
+    **/
+    public void setJvm16Synchronize(boolean value)
+    {
+        String property = "jvm16 synchronize";
+        Boolean oldValue = new Boolean(isJvm16Synchronize());
+        Boolean newValue = new Boolean(value);
+
+        if (value)
+            properties_.setString(JDProperties.JVM16_SYNCHRONIZE, TRUE_);
+        else
+            properties_.setString(JDProperties.JVM16_SYNCHRONIZE, FALSE_);
 
         changes_.firePropertyChange(property, oldValue, newValue);
 

@@ -157,12 +157,13 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              IGNORE_WARNINGS            = 77; //@igwrn
     static final int              SECURE_CURRENT_USER        = 78; //@pw3
     static final int              CONCURRENT_ACCESS_RESOLUTION  = 79; //@cc1
+    static final int              JVM16_SYNCHRONIZE          = 80; //@dmy
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 80;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 81;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1
+                                                               // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY
 
 
     // Property names.
@@ -248,7 +249,7 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String IGNORE_WARNINGS_ = "ignore warnings"; //@igwrn
     private static final String SECURE_CURRENT_USER_ = "secure current user"; //@pw3 (switch to turn on/off old code. see @pw1)
     private static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
-    
+    private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy 
 
 
 
@@ -1339,6 +1340,16 @@ class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[2]  = CONCURRENTACCESS_WAIT_FOR_OUTCOME;
         dpi_[i].choices[3]  = CONCURRENTACCESS_SKIP_LOCKS;
         defaults_[i]  = CONCURRENTACCESS_NOT_SET;
+      
+        // Jvm16 Synchronize  //@dmy
+        i = JVM16_SYNCHRONIZE;
+        dpi_[i] = new DriverPropertyInfo (JVM16_SYNCHRONIZE_, "");
+        dpi_[i].description = "JVM16_SYNCHRONIZE_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = TRUE_;
+        dpi_[i].choices[1]  = FALSE_;
+        defaults_[i]  = TRUE_;
       
         
     }

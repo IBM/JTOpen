@@ -48,6 +48,7 @@ class SystemProperties
     public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
     public static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
     public static final String JDBC_SECURE_CURRENT_USER = ACCESS_PREFIX + "JDBC.secureCurrentUser"; //@pw3 not documented in html
+    public static final String JDBC_JVM16_SYNCHRONIZE = ACCESS_PREFIX + "JDBC.jvm16Synchronize"; //@dmy temp fix for jvm 1.6 memory stomping
     //  *** Note: ***
     //
     // If you add a new system property, remember to also add it to the
