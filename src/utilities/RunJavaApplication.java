@@ -34,7 +34,7 @@ import java.util.Vector;
   * <P>
   * RunJavaApplication demonstrates the use of com.ibm.as400.access.JavaApplicationCall.
   * It gathers information from the user about the class to run, then uses a
-  * JavaApplicationCall object to run the program on the i5/OS system's JVM.  It
+  * JavaApplicationCall object to run the program on the IBM i system's JVM.  It
   * uses the capabilities of JavaApplicationCall to send input to the Java
   * program and displays output the Java program writes to standard out and
   * standard error.
@@ -52,7 +52,7 @@ import java.util.Vector;
   * Once started, four commands can be run:
   * <UL>
   * <li><i>set</i> - set options to define the JVM environment on the system.
-  * <li><i>java</i> - run a Java application on i5/OS system.
+  * <li><i>java</i> - run a Java application on IBM i system.
   * <li><i>help</i> - display help.
   * <li><i>quit</i> - end the application.
   * </UL>
@@ -67,7 +67,7 @@ import java.util.Vector;
   * <li>FindPort - Indicates to search for a port if the specified port is in use
   * <li>Interpret - Indicates if all Java class files should be run interpretively.
   * <li>Optimize - Optimization level of the Java classes that are not already optimized.
-  * <li>Options - Options to pass to the i5/OS system's JVM.
+  * <li>Options - Options to pass to the IBM i system's JVM.
   * <li>SecurityCheckLevel - The level of warnings for writable directories in CLASSPATH.
   * <li>GarbageCollectionFrequency  - The relative frequency that garbage collection runs.
   * <li>GarbageCollectionInitialSize - The initial size, in kilobytes, of the garbage collection heap.
@@ -86,8 +86,6 @@ import java.util.Vector;
 
 public class RunJavaApplication
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     private static JavaApplicationCall runMain_ = null;
     // Where MRI comes from.
     private static ResourceBundle resources_ = ResourceBundle.getBundle("utilities.UTMRI");
@@ -100,7 +98,7 @@ public class RunJavaApplication
     private static String[] option_ = {"*NONE"};
 
     /**
-      * Runs Java programs on the i5/OS system's JVM.
+      * Runs Java programs on the IBM i system's JVM.
       * @param parameters The command line parameters.  See the prolog
       *                   of this class for information on the command line parameters.
      **/
@@ -172,7 +170,7 @@ public class RunJavaApplication
 
                        else if (inputString.startsWith("SET "))   // set properties
                        {
-                           String pair = is.substring((new String("SET ")).length());
+                           String pair = is.substring("SET ".length());
                            String property = null;
                            String value = null;
                            int index = pair.indexOf("=");
@@ -233,7 +231,7 @@ public class RunJavaApplication
 
            } // end of the loop
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
            e.printStackTrace();
         }
@@ -244,9 +242,11 @@ public class RunJavaApplication
     **/
     private static void displayProperties()
     {
-        String optionString = "";
-        for (int i = 0 ; i < option_.length ; i++)
-            optionString = optionString + option_[i] + " ";
+        StringBuffer optionString = new StringBuffer();
+        for (int i = 0 ; i < option_.length ; i++) {
+            optionString.append(option_[i]);
+            optionString.append(" ");
+        }
 
         System.out.println(getMRIResource().getString("REMOTE_D_LINE1"));
         System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE2")  + runMain_.getSecurityCheckLevel());
@@ -257,7 +257,7 @@ public class RunJavaApplication
         System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE7")  + runMain_.getGarbageCollectionPriority());
         System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE8")  + runMain_.getInterpret());
         System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE9")  + runMain_.getOptimization());
-        System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE10") + optionString);
+        System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE10") + optionString.toString());
         System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE11") + runMain_.getDefaultPort());
         System.out.println("   "+getMRIResource().getString("REMOTE_D_LINE12") + runMain_.isFindPort());
 
@@ -401,7 +401,7 @@ public class RunJavaApplication
                 {
                     try
                     {
-                        int len = new String("-D").length();
+                        int len = "-D".length();
                         String prop =env.substring(len);
                         int index = prop.indexOf("=");
                         if (!(prop.endsWith("=") || index <=0))
@@ -553,7 +553,7 @@ public class RunJavaApplication
                                       + getMRIResource().getString("REMOTE_SET_PROPERTY_2"));
            }
         }
-        catch (Exception e)
+        catch (Throwable e)
         {
             System.out.println(e);
         }
