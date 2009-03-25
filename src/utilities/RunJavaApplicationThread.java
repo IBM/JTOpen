@@ -25,8 +25,6 @@ import java.util.ResourceBundle;
 **/
 class RunJavaApplicationThread extends Thread
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Indicates which thread should be started.
     final static int RUN_APPLICATION = 1;
     final static int OUTPUT = 2;
@@ -137,7 +135,7 @@ class RunJavaApplicationThread extends Thread
                 }
                 catch (Exception e)
                 {
-                    Trace.log(Trace.ERROR, e.toString(), e);
+                    Trace.log(Trace.ERROR, e);
                 }
                 delay();
             }
@@ -147,6 +145,6 @@ class RunJavaApplicationThread extends Thread
     private void delay()
     {
        try { sleep(100); }
-       catch (Exception e) {}
+       catch (Exception e) { Trace.log(Trace.ERROR, e); }
     }
 }
