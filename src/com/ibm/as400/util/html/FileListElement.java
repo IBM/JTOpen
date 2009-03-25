@@ -317,7 +317,6 @@ import com.ibm.as400.util.servlet.RowDataException;
 **/
 public class FileListElement implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
   static final long serialVersionUID = 6247154241289547698L;
 
   private AS400     system_;
@@ -383,7 +382,7 @@ public class FileListElement implements java.io.Serializable
 
 
   /**
-   *  Constructs an FileListElement for an i5/OS file system
+   *  Constructs an FileListElement for an IBM i file system
    *  using the pathInfo from the specified <i>request</i>, and 
    *  the designated <i>system</i>.
    *
@@ -404,7 +403,7 @@ public class FileListElement implements java.io.Serializable
 
   //@CRS
   /**
-   *  Constructs an FileListElement for an i5/OS file system
+   *  Constructs an FileListElement for an IBM i file system
    *  using the pathInfo from the specified <i>request</i>, and 
    *  the designated <i>system</i>.
    *
@@ -451,7 +450,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system at the network share point.  
    *
-   *  @param system    The i5/OS system.
+   *  @param system    The IBM i system.
    *  @param request   The Http servlet request.
    *  @param shareName The NetServer share name.
    *  @param sharePath The NetServer share path.
@@ -476,7 +475,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system at the network share point.  
    *
-   *  @param system    The i5/OS system.
+   *  @param system    The IBM i system.
    *  @param request   The Http servlet request.
    *  @param shareName The NetServer share name.
    *  @param sharePath The NetServer share path.
