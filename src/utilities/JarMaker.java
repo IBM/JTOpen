@@ -39,6 +39,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import sun.misc.BASE64Encoder;
 
 
 /**
@@ -603,10 +604,8 @@ public class JarMaker
                                                String entryName)
      throws IOException
    {
-     String line1 = new String("Name: " + entryName);
-     String line2 = new String("Digest-Algorithms: SHA MD5");
-     String line3 = null;  // SHA-Digest: <value>
-     String line4 = null;  // MD5-Digest: <value>
+     String lineSHA = null;  // SHA-Digest: <value>
+     String lineMD5 = null;  // MD5-Digest: <value>
 
      byte[] fileContents = getBytes(file); // read file into byte array
 
@@ -616,7 +615,8 @@ public class JarMaker
        {
          MessageDigest shaMD = MessageDigest.getInstance("SHA");
          byte[] shaDigest = shaMD.digest(fileContents);
-         line3 = new String("SHA-Digest: " + shaDigest);
+         String encodedStr = (new BASE64Encoder()).encodeBuffer(shaDigest);
+         lineSHA = "SHA-Digest: " + encodedStr;
        }
        catch (NoSuchAlgorithmException e) {
          noSHA_ = true;
@@ -634,7 +634,8 @@ public class JarMaker
        {
          MessageDigest md5MD = MessageDigest.getInstance("MD5");
          byte[] md5Digest = md5MD.digest(fileContents);
-         line4 = new String("MD5-Digest: " + md5Digest);
+         String encodedStr = (new BASE64Encoder()).encodeBuffer(md5Digest);
+         lineMD5 = "MD5-Digest: " + encodedStr;
        }
        catch (NoSuchAlgorithmException e) {
          noMD5_ = true;
@@ -646,22 +647,23 @@ public class JarMaker
        }
      }
 
-     if ((line1 != null && line2 != null) &&
-         (line3 != null || line4 != null))
+     if (lineSHA != null || lineMD5 != null)
      {
-       buffer.append(line1);
+       buffer.append("Name: " + entryName + "\n");
+       buffer.append("Digest-Algorithms:");
+       if (lineSHA != null) buffer.append(" SHA");
+       if (lineMD5 != null) buffer.append(" MD5");
        buffer.append('\n');
-       buffer.append(line2);
-       buffer.append('\n');
-       if (line3 != null)
+       if (lineSHA != null)
        {
-         buffer.append(line3);
-         buffer.append('\n');
+         buffer.append(lineSHA);
+         // Note: BASE64Encoder.encodeBuffer() likes to append a newline.
+         if (!lineSHA.endsWith("\n")) { buffer.append('\n'); }
        }
-       if (line4 != null)
+       if (lineMD5 != null)
        {
-         buffer.append(line4);
-         buffer.append('\n');
+         buffer.append(lineMD5);
+         if (!lineMD5.endsWith("\n")) { buffer.append('\n'); }
        }
        buffer.append('\n'); // terminate the section with a zero-length line
      }
@@ -757,7 +759,7 @@ public class JarMaker
       }
       finally
       {
-        if (source != null) { source.close(); }
+        if (source != null) { try { source.close(); } catch (Throwable t) {} }
         if (destination != null) { destination.close(); }
       }
     }
@@ -909,6 +911,7 @@ public class JarMaker
     }
 
     BufferedOutputStream destinationFile = null;
+    InputStream inStream = null;
     String basePath = outputDirectory.getAbsolutePath();
     JarMap jarMap = null;
 
@@ -970,7 +973,7 @@ public class JarMaker
           ZipEntry entry = jarMap.getEntry(entryName);
           if (entry == null)
             throw new FileNotFoundException(entryName);
-          InputStream inStream = jarMap.getInputStream(entry);
+          inStream = jarMap.getInputStream(entry);
 
           // Design note: Experimentation reveals that ZipFile.getInputStream()
           // actually returns a java.util.zip.InflaterInputStream object,
@@ -993,10 +996,10 @@ public class JarMaker
           }
           // Copy the referenced file to the destination.
           copyBytes(inStream, destinationFile, entry.getSize());
-          destinationFile.flush();
           destinationFile.close();
           destinationFile = null;
           inStream.close();
+          inStream = null;
         }
       }  // ... while
     }
@@ -1017,13 +1020,16 @@ public class JarMaker
     finally
     {
       if (DEBUG) System.out.println();
-      if (jarMap != null) { jarMap.close(); }
+      if (jarMap != null) {
+        try { jarMap.close(); } catch (Throwable t) {}
+      }
 
-      if (destinationFile != null)
-      {
-        if (verbose_ || DEBUG)
-          System.out.println("Closing destination file");
-        destinationFile.close();
+      if (destinationFile != null) {
+        try { destinationFile.close(); } catch (Throwable t) {}
+      }
+
+      if (inStream != null) {
+        try { inStream.close(); } catch (Throwable t) {}
       }
     }
 
@@ -1332,19 +1338,25 @@ public class JarMaker
     if (finalSlashPos != -1)
       contextPackageName =
         entryName.substring(0, finalSlashPos).replace('/','.');
-    InputStream inStream = jarMap.getInputStream(entry);
-    Vector classIndexes = prescanForClassIndexes(inStream,
-                                                  contextPackageName,
-                                                  jarMap);
-    inStream.close();
-    inStream = jarMap.getInputStream(entry);
-    Vector referenced = processBytecodeStream(inStream,
-                                               contextPackageName,
-                                               jarMap,
-                                               classIndexes);
-    inStream.close();
+    InputStream inStream = null;
+    try
+    {
+      inStream = jarMap.getInputStream(entry);
+      Vector classIndexes = prescanForClassIndexes(inStream,
+                                                   contextPackageName,
+                                                   jarMap);
+      inStream.close();
+      inStream = jarMap.getInputStream(entry);
+      Vector referenced = processBytecodeStream(inStream,
+                                                contextPackageName,
+                                                jarMap,
+                                                classIndexes);
+      inStream.close();
+      inStream = null;
+      return referenced;
+    }
+    finally { if (inStream != null) inStream.close(); }
 
-    return referenced;
   }
 
 
@@ -1528,7 +1540,7 @@ public class JarMaker
    **/
   private static Vector insertDirectoryEntries(Vector oldList)
   {
-    String priorPrefix = new String("");
+    String priorPrefix = "";
     Vector newList = new Vector(oldList.size());
     Enumeration e = oldList.elements();
     while (e.hasMoreElements())
@@ -1661,6 +1673,7 @@ public class JarMaker
     ManifestMap manifestMap = null;  // Map of the source JAR's manifest.
                                      // (If ZIP file, the map will be empty.)
     ZipOutputStream zipOutStream = null;  // Stream for writing destination file.
+    InputStream inStream = null;
     BufferedOutputStream bufferedOutStream = null;
 
     try
@@ -1789,7 +1802,7 @@ public class JarMaker
           }
           else
           {
-            InputStream inStream = jarMap.getInputStream(entry);
+            inStream = jarMap.getInputStream(entry);
             // Design note - ZipFile.getInputStream() returns a 
             // java.util.zip.InflaterInputStream object.  Therefore
             // the current implementation causes each ZIP entry to be
@@ -1806,6 +1819,7 @@ public class JarMaker
             zipOutStream.closeEntry();
             bufferedOutStream.flush(); // this might be overkill
             inStream.close();
+            inStream = null;
           }
         }
       }  // ... while
@@ -1851,7 +1865,7 @@ public class JarMaker
         // It should not be interpreted as an absolute time."
         entry.setTime(file.lastModified());
 
-        InputStream inStream =
+        inStream =
           new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
         // Copy the entry to the destination file.
         zipOutStream.putNextEntry(entry);
@@ -1861,6 +1875,7 @@ public class JarMaker
         zipOutStream.closeEntry();
         bufferedOutStream.flush(); // this might be overkill
         inStream.close();
+        inStream = null;
       }
     }
     catch (ZipException e) {
@@ -1879,19 +1894,20 @@ public class JarMaker
     }
     finally
     {
-      if (DEBUG) System.out.println();
-      if (manifestMap != null) { manifestMap.close(); }
-      if (jarMap != null) { jarMap.close(); }
-
-      if (zipOutStream != null)
-      {
-        if (verbose_ || DEBUG)
-          System.out.println("Closing destination file");
-        try { zipOutStream.close(); } catch (Exception e) {}  // @A1c
+      if (manifestMap != null) {
+        try { manifestMap.close(); } catch (Throwable e) {}
       }
-      if (bufferedOutStream != null)
-      {
-        try { bufferedOutStream.close(); } catch (Exception e) {} // @A1c
+      if (jarMap != null) {
+        try { jarMap.close(); } catch (Throwable e) {}
+      }
+      if (zipOutStream != null) {
+        try { zipOutStream.close(); } catch (Throwable e) {}  // @A1c
+      }
+      if (bufferedOutStream != null) {
+        try { bufferedOutStream.close(); } catch (Throwable e) {} // @A1c
+      }
+      if (inStream != null) {
+        try { inStream.close(); } catch (Throwable e) {}
       }
 
     }
@@ -2725,7 +2741,7 @@ public class JarMaker
       long cumulativeSize = baseMetadataPerZip;
 
       Vector directoriesSoFar = new Vector();
-      Vector dirsToAddForThisEntry = new Vector();
+      Vector dirsToAddForThisEntry = null;
 
       Enumeration e = jarMap.elements();
       while (e.hasMoreElements())
@@ -2811,7 +2827,9 @@ public class JarMaker
                                         baseMetadataPerZipEntry); 
           }
           entriesToWriteNext.addElement(entryName);
-          copyVector(dirsToAddForThisEntry, directoriesSoFar, NO_CHECK_DUPS);  // @A3c
+          if (dirsToAddForThisEntry != null) {
+            copyVector(dirsToAddForThisEntry, directoriesSoFar, NO_CHECK_DUPS);  // @A3c
+          }
           cumulativeSize += (entrySize + entryMetadataSize +
                              directoriesMetadataSize);
         }
@@ -2849,9 +2867,12 @@ public class JarMaker
     }
     finally
     {
-      if (DEBUG) System.out.println();
-      if (manifestMap != null) { manifestMap.close(); }
-      if (jarMap != null) { jarMap.close(); }
+      if (manifestMap != null) {
+        try { manifestMap.close(); } catch (Throwable t) {}
+      }
+      if (jarMap != null) {
+        try { jarMap.close(); } catch (Throwable t) {}
+      }
 
     }
 
@@ -3062,6 +3083,7 @@ public class JarMaker
           zipOutStream.closeEntry();
           bufferedOutStream.flush(); // this might be overkill
           inStream.close();
+          inStream = null;
 
           // If this is a directory entry, remember that we've seen it.
           if (entry.isDirectory())
@@ -3090,9 +3112,15 @@ public class JarMaker
     }
     finally
     {
-      if (inStream != null) { inStream.close(); }
-      if (zipOutStream != null) { zipOutStream.close(); }
-      if (bufferedOutStream != null) { bufferedOutStream.close(); }
+      if (inStream != null) {
+        try { inStream.close(); } catch (Throwable t) {}
+      }
+      if (zipOutStream != null) {
+        try { zipOutStream.close(); } catch (Throwable t) {}
+      }
+      if (bufferedOutStream != null) {
+        try { bufferedOutStream.close(); } catch (Throwable t) {}
+      }
     }
   }
 
@@ -3637,7 +3665,7 @@ public class JarMaker
     // Never null.
     private Vector entryList_ = new Vector();
 
-    private File jarFile_;
+    //private File jarFile_;
     private boolean verbose_;
 
     // Length of the zipfile comment in the Central Directory Record.
@@ -3660,7 +3688,7 @@ public class JarMaker
 
       if (DEBUG) System.out.println("Debug: Creating ZipFile");
       zipFile_ = new ZipFile(jarFile);
-      jarFile_ = jarFile;
+      //jarFile_ = jarFile;
       verbose_ = verbose;
 
       if (DEBUG) System.out.println("Debug: Getting manifest");
@@ -3670,17 +3698,29 @@ public class JarMaker
       // since this can take a very long time if there are many
       // entries in the source zip or JAR file.
       if (DEBUG) System.out.println("Debug: Gathering entry names");
-      InputStream inStream =
-        new BufferedInputStream(new FileInputStream(jarFile), BUFFER_SIZE);
-      ZipInputStream zipInStream = new ZipInputStream(inStream);
-      ZipEntry entry = zipInStream.getNextEntry();
-      while (entry != null)
+      InputStream inStream = null;
+      ZipInputStream zipInStream = null;
+      try
       {
-        entryList_.addElement(entry.getName());
-        entry = zipInStream.getNextEntry();
+        inStream =
+          new BufferedInputStream(new FileInputStream(jarFile), BUFFER_SIZE);
+        zipInStream = new ZipInputStream(inStream);
+        ZipEntry entry = zipInStream.getNextEntry();
+        while (entry != null)
+        {
+          entryList_.addElement(entry.getName());
+          entry = zipInStream.getNextEntry();
+        }
       }
-      zipInStream.close();
-      inStream.close();
+      finally
+      {
+        if (zipInStream != null) {
+          try { zipInStream.close(); inStream = null; } catch (Throwable t) {}
+        }
+        if (inStream != null) {
+          try { inStream.close(); } catch (Throwable t) {}
+        }
+      }
 
       // Design note: ZipFile.entries() does not preserve the
       // original sequencing of the ZIP entries.
@@ -3806,67 +3846,74 @@ public class JarMaker
                             "  No manifest will be created.");
       else
       {
-        // Set up for reading.  We must use a reader because we
-        // are dealing with text.
-        BufferedReader reader = new BufferedReader(new InputStreamReader(jarMap.getInputStream(manifestEntry)));
-
-        // Read the manifest file.
-        if (DEBUG) System.out.println("Debug: Analyzing manifest");
-        boolean alreadySawVersion = false;
-        boolean alreadySawRequiredVersion = false;
-        String line;
-        while (reader.ready())
+        BufferedReader reader = null;
+        try
         {
-          line = reader.readLine();
-          if (line != null)         // @A1a
+          // Set up for reading.  We must use a reader because we
+          // are dealing with text.
+          reader = new BufferedReader(new InputStreamReader(jarMap.getInputStream(manifestEntry)));
+
+          // Read the manifest file.
+          if (DEBUG) System.out.println("Debug: Analyzing manifest");
+          boolean alreadySawVersion = false;
+          boolean alreadySawRequiredVersion = false;
+          String line;
+          while (reader.ready())
           {
-            if (line.startsWith(MANIFEST_NAME_KEYWORD)) // is this a "name" line
+            line = reader.readLine();
+            if (line != null)         // @A1a
             {
-              StringBuffer buffer = new StringBuffer();
-              String entryName = line.substring(MANIFEST_NAME_KEYWORD.length()).trim();
-              if (DEBUG_MANIFEST) System.out.println("Manifest entry: ");
-              if (DEBUG_MANIFEST) System.out.println(line);
-              buffer.append(line);
-              buffer.append('\n');
-              // Copy the rest of this manifest section.
-              // (sections are terminated by zero-length line)
-              while (reader.ready() && (line.length() != 0))
+              if (line.startsWith(MANIFEST_NAME_KEYWORD)) // is this a "name" line
               {
-                line = reader.readLine();
+                StringBuffer buffer = new StringBuffer();
+                String entryName = line.substring(MANIFEST_NAME_KEYWORD.length()).trim();
+                if (DEBUG_MANIFEST) System.out.println("Manifest entry: ");
                 if (DEBUG_MANIFEST) System.out.println(line);
-                if (line != null)  // @A1a
+                buffer.append(line);
+                buffer.append('\n');
+                // Copy the rest of this manifest section.
+                // (sections are terminated by zero-length line)
+                while (reader.ready() && (line.length() != 0))
                 {
-                  buffer.append(line);
-                  buffer.append('\n');
+                  line = reader.readLine();
+                  if (DEBUG_MANIFEST) System.out.println(line);
+                  if (line != null)  // @A1a
+                  {
+                    buffer.append(line);
+                    buffer.append('\n');
+                  }
                 }
+                String string = buffer.toString();
+                entryMap_.put(entryName, string);
+                entryList_.addElement(entryName); // this will preserve the sequence
               }
-              String string = buffer.toString();
-              entryMap_.put(entryName, string);
-              entryList_.addElement(entryName); // this will preserve the sequence
-            }
-            else if (!alreadySawVersion &&
-                     line.startsWith(MANIFEST_VERSION_KEYWORD))
-            {                                       // "Manifest-Version:"
-              alreadySawVersion = true;
-              if (DEBUG_MANIFEST) {
-                String version = line.substring(MANIFEST_VERSION_KEYWORD.length()).trim();
-                System.out.println("Manifest version: " + version);
+              else if (!alreadySawVersion &&
+                       line.startsWith(MANIFEST_VERSION_KEYWORD))
+              {                                       // "Manifest-Version:"
+                alreadySawVersion = true;
+                if (DEBUG_MANIFEST) {
+                  String version = line.substring(MANIFEST_VERSION_KEYWORD.length()).trim();
+                  System.out.println("Manifest version: " + version);
+                }
+                entryMap_.put(MANIFEST_VERSION_KEYWORD, line + '\n');
               }
-              entryMap_.put(MANIFEST_VERSION_KEYWORD, line + '\n');
-            }
-            else if (!alreadySawRequiredVersion &&
-                     line.startsWith(MANIFEST_REQVERS_KEYWORD))
-            {                                       // "Required-Version:"
-              alreadySawRequiredVersion = true;
-              if (DEBUG_MANIFEST) {
-                String version = line.substring(MANIFEST_REQVERS_KEYWORD.length()).trim();
-                System.out.println("Required version: " + version);
+              else if (!alreadySawRequiredVersion &&
+                       line.startsWith(MANIFEST_REQVERS_KEYWORD))
+              {                                       // "Required-Version:"
+                alreadySawRequiredVersion = true;
+                if (DEBUG_MANIFEST) {
+                  String version = line.substring(MANIFEST_REQVERS_KEYWORD.length()).trim();
+                  System.out.println("Required version: " + version);
+                }
+                entryMap_.put(MANIFEST_REQVERS_KEYWORD, line + '\n');
               }
-              entryMap_.put(MANIFEST_REQVERS_KEYWORD, line + '\n');
             }
-          }
-        }  // ... while
-        reader.close();
+          }  // ... while
+        }
+        finally
+        {
+          if (reader != null) { reader.close(); }
+        }
       }
     }
 
