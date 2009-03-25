@@ -62,9 +62,7 @@ import javax.swing.border.*;
 
 public class VRunJavaApplication
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private VJavaApplicationCall vJavaAppCall = null;
+    //private VJavaApplicationCall vJavaAppCall = null;
     private static ResourceBundle resources_ = null;
 
     /**
