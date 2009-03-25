@@ -61,12 +61,8 @@ import javax.servlet.http.HttpServletRequest;
 *  fileList.setRenderer(new myFileListRenderer(request));
 *  </PRE>
 **/
-public class FileListRenderer
+public class FileListRenderer implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-    private HttpServletRequest request_;
     private String uri_;
     private String reqPath_;              
     private StringBuffer sharePath_;            // @B1A
