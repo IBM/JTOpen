@@ -809,9 +809,15 @@ public class AS400 implements Serializable
         return AS400.nativeVersion;
     }
 
-    // Indicates if the native optimizations code can be used.
-    // return true if you are running on this system, the user has not told us specifically to use the host servers, we are not using proxy, and the version of the native code matches the version we expect; false otherwise.
-    boolean canUseNativeOptimizations()
+    /**
+     Indicates if this AS400 object is enabled to exploit Toolbox native optimizations.  This requires that the native optimization classes are available on the classpath, and this AS400 object represents the local system and is configured to allow the native optimizations to be used.
+     Note: If the authentication scheme is other than {@link #AUTHENTICATION_SCHEME_PASSWORD AUTHENTICATION_SCHEME_PASSWORD}, native optimizations will not be used.
+     @return true if the native optimizations can be used; false otherwise.
+     @see #isLocal
+     @see #isMustUseSockets
+     @see #getAuthenticationScheme
+     **/
+    public boolean canUseNativeOptimizations()
     {
         if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && getNativeVersion() == 2)
         {
