@@ -241,6 +241,8 @@ public class UserSpace implements Serializable
 
     /**
      Closes the user space and releases any system resources associated with the stream.
+     Note: Closing the user space does not delete it.  It simply closes this UserSpace object's file stream connection to the user space.
+     @see #delete
      **/
     public synchronized void close() throws IOException
     {
