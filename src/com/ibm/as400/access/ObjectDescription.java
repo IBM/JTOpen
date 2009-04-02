@@ -1490,7 +1490,7 @@ public class ObjectDescription
    boolean willRunProgramsOnThread = pc.isStayOnThread();
    if (willRunProgramsOnThread) {
      // The calls will run in the job of the JVM, so lock for entire JVM.
-     lockObject = USERSPACE_NAME;
+     lockObject = USERSPACE_PATH;
    }
    else {
      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
@@ -1503,15 +1503,16 @@ public class ObjectDescription
    {
      // Create a user space in QTEMP to receive output.
      UserSpace space = new UserSpace(system_, USERSPACE_PATH);
+     space.setMustUseProgramCall(true);  // need to use same job as the ProgramCall object
+     if (!willRunProgramsOnThread)
+     {
+       space.setMustUseSockets(true);
+       // Force the use of sockets when running natively but not on-thread.
+       // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+     }
+
      try
      {
-       space.setMustUseProgramCall(true);  // need to use same job as the ProgramCall object
-       if (!willRunProgramsOnThread)
-       {
-         space.setMustUseSockets(true);
-         // Force the use of sockets when running natively but not on-thread.
-         // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
-       }
        space.create(256*1024, true, "", (byte)0, "User space for UserObjectsOwnedList", "*EXCLUDE");
        // Note: User Spaces by default are auto-extendible (by QUSCRTUS API)
        //       So it will always have enough space available.
@@ -1533,9 +1534,10 @@ public class ObjectDescription
      }
 
      finally {
-       try { space.close(); }
+       // Delete the temporary user space, to allow other threads to re-create and use it.
+       try { space.delete(); }
        catch (Exception e) {
-         Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+         Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
        }
      }
    }

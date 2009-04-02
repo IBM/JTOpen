@@ -54,7 +54,7 @@ implements Serializable
   private static final int EXISTENCE_YES     = 1;  // save file exists on system
   private static final int EXISTENCE_NO      = 2;  // save file doesn't exist
 
-  private static final String USERSPACE_QUALIFIED_NAME = "JT4USRSPC QTEMP     ";
+  private static final String USERSPACE_NAME = "JT4USRSPC QTEMP     ";
   private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4USRSPC.USRSPC";
 
   private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
@@ -615,7 +615,7 @@ implements Serializable
 
     ProgramParameter[] parms = new ProgramParameter[7];
 
-    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));
+    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));
     parms[1] = new ProgramParameter(conv.stringToByteArray("SAVF0200"));
     parms[2] = new ProgramParameter(conv.stringToByteArray(getNameAndLib()));
     parms[3] = new ProgramParameter(conv.stringToByteArray("*ALL      "));
@@ -624,16 +624,35 @@ implements Serializable
     parms[6] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSRLSAVF.PGM", parms);
+
+    // Determine the needed scope of synchronization.
+    Object lockObject;
+    boolean willRunProgramsOnThread = pc.isStayOnThread();
+    if (willRunProgramsOnThread) {
+      // The calls will run in the job of the JVM, so lock for entire JVM.
+      lockObject = USERSPACE_PATH;
+    }
+    else {
+      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+      lockObject = system_;
+    }
+
     byte[] buf = null;
 
-    synchronized (USERSPACE_QUALIFIED_NAME)
+    synchronized (lockObject)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
+      space.setMustUseProgramCall(true);
+      if (!willRunProgramsOnThread)
+      {
+        space.setMustUseSockets(true);
+        // Force the use of sockets when running natively but not on-thread.
+        // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+      }
+
       try
       {
-        space.setMustUseProgramCall(true);
-        space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
         space.create(256*1024, true, "", (byte)0, "User space for SaveFile", "*EXCLUDE");
 
         if (!pc.run()) {
@@ -647,9 +666,10 @@ implements Serializable
       }
 
       finally {
-        try { space.close(); }
+        // Delete the temporary user space, to allow other threads to re-create and use it.
+        try { space.delete(); }
         catch (Exception e) {
-          Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+          Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
         }
       }
     }
@@ -751,22 +771,41 @@ implements Serializable
 
     ProgramParameter[] parms = new ProgramParameter[4];
 
-    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_QUALIFIED_NAME));
+    parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));
     parms[1] = new ProgramParameter(conv.stringToByteArray("PRDL0100"));
     parms[2] = new ProgramParameter(conv.stringToByteArray(getNameAndLib()));
     parms[3] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QLPLPRDS.PGM", parms);
+
+    // Determine the needed scope of synchronization.
+    Object lockObject;
+    boolean willRunProgramsOnThread = pc.isStayOnThread();
+    if (willRunProgramsOnThread) {
+      // The calls will run in the job of the JVM, so lock for entire JVM.
+      lockObject = USERSPACE_PATH;
+    }
+    else {
+      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+      lockObject = system_;
+    }
+
     byte[] buf = null;
 
-    synchronized (USERSPACE_QUALIFIED_NAME)
+    synchronized (USERSPACE_NAME)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
+      space.setMustUseProgramCall(true);
+      if (!willRunProgramsOnThread)
+      {
+        space.setMustUseSockets(true);
+        // Force the use of sockets when running natively but not on-thread.
+        // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+      }
+
       try
       {
-        space.setMustUseProgramCall(true);
-        space.setMustUseSockets(true);  // Must use sockets when running natively. We have to do it this way since UserSpace will otherwise make a native ProgramCall.
         space.create(256*1024, true, "", (byte)0, "User space for SaveFile", "*EXCLUDE");
 
         if (!pc.run())
@@ -796,9 +835,10 @@ implements Serializable
       }
 
       finally {
-        try { space.close(); }
+        // Delete the temporary user space, to allow other threads to re-create and use it.
+        try { space.delete(); }
         catch (Exception e) {
-          Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+          Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
         }
       }
     }
