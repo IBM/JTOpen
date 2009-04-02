@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 /**
- The AS400Message class represents a message returned from an i5/OS system.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
+ The AS400Message class represents a message returned from an IBM i system.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
 <br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the system, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
  @see  com.ibm.as400.access.AS400Exception
  @see  com.ibm.as400.access.CommandCall
@@ -429,6 +429,12 @@ public class AS400Message implements Serializable
         if (libraryName_ == null || fileName_ == null || libraryName_.trim().length() == 0 || fileName_.trim().length() == 0)
         {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No message file associated with this message: " + toString());
+          return;
+        }
+
+        if (system_ == null)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Unable to load message file, because system was not specified when AS400Message was created.");
           return;
         }
 
