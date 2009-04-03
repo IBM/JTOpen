@@ -27,10 +27,8 @@ import java.util.Date;
 **/
 public class Product
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-  // Also use this to synchronize access to the user space
-  private static final String userSpace_ = "JT4PTF    QTEMP     ";
+  private static final String USERSPACE_NAME = "JT4PTF    QTEMP     ";
+  private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC";
 
   private boolean loaded_ = false; // Have we retrieved values from the system yet
   private boolean partiallyLoaded_ = false; // Were we constructed from a ProductList
@@ -1038,37 +1036,62 @@ public class Product
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
     ProgramParameter[] parms = new ProgramParameter[4];
-    parms[0] = new ProgramParameter(conv.stringToByteArray(userSpace_));
-    try { parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-    byte[] prodInfo = new byte[50];
-    AS400Text text4 = new AS400Text(4, ccsid, system_);
-    AS400Text text6 = new AS400Text(6, ccsid, system_);
-    AS400Text text7 = new AS400Text(7, ccsid, system_);
-    AS400Text text10 = new AS400Text(10, ccsid, system_);
-    text7.toBytes(productID_, prodInfo, 0);
-    text6.toBytes(getReleaseLevel(), prodInfo, 7);
-    text4.toBytes(productOption_, prodInfo, 13);
-    if (loadID_ == null) refresh(100);
-    text10.toBytes((loadID_.equals(PRODUCT_FEATURE_CODE) ? "*ALL" : loadID_), prodInfo, 17);
-    //text10.toBytes("*ALL", prodInfo, 17);
-    prodInfo[27] = includeSupersededPTFs ? (byte)0xF1 : (byte)0xF0; // '1' or '0'
-    parms[1] = new ProgramParameter(prodInfo);
-    try { parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-    parms[2] = new ProgramParameter(conv.stringToByteArray("PTFL0100"));
-    try { parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
-    parms[3] = new ProgramParameter(new byte[4]); // error code
-    try { parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE); } catch(PropertyVetoException pve) {}
+    try
+    {
+      parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME));
+      parms[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+      byte[] prodInfo = new byte[50];
+      AS400Text text4 = new AS400Text(4, ccsid, system_);
+      AS400Text text6 = new AS400Text(6, ccsid, system_);
+      AS400Text text7 = new AS400Text(7, ccsid, system_);
+      AS400Text text10 = new AS400Text(10, ccsid, system_);
+      text7.toBytes(productID_, prodInfo, 0);
+      text6.toBytes(getReleaseLevel(), prodInfo, 7);
+      text4.toBytes(productOption_, prodInfo, 13);
+      if (loadID_ == null) refresh(100);
+      text10.toBytes((loadID_.equals(PRODUCT_FEATURE_CODE) ? "*ALL" : loadID_), prodInfo, 17);
+      //text10.toBytes("*ALL", prodInfo, 17);
+      prodInfo[27] = includeSupersededPTFs ? (byte)0xF1 : (byte)0xF0; // '1' or '0'
+      parms[1] = new ProgramParameter(prodInfo);
+      parms[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+      parms[2] = new ProgramParameter(conv.stringToByteArray("PTFL0100"));
+      parms[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+      parms[3] = new ProgramParameter(new byte[4]); // error code
+      parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+    }
+    catch (PropertyVetoException pve) { // will never happen
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, pve);
+    }
 
     ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZLSTFX.SRVPGM", "QpzListPTF", ServiceProgramCall.NO_RETURN_VALUE, parms);
+
+    // Determine the needed scope of synchronization.
+    Object lockObject;
+    boolean willRunProgramsOnThread = pc.isStayOnThread();
+    if (willRunProgramsOnThread) {
+      // The calls will run in the job of the JVM, so lock for entire JVM.
+      lockObject = USERSPACE_PATH;
+    }
+    else {
+      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+      lockObject = system_;
+    }
+
     byte[] buf = null;
-    synchronized(userSpace_)
+
+    synchronized(lockObject)
     {
       UserSpace us = new UserSpace(system_, "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC");
       us.setMustUseProgramCall(true);
-      us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
-      us.create(256*1024, true, "", (byte)0, "User space for PTF list", "*EXCLUDE");
+      if (!willRunProgramsOnThread)
+      {
+        us.setMustUseSockets(true);
+        // Force the use of sockets when running natively but not on-thread.
+        // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+      }
       try
       {
+        us.create(256*1024, true, "", (byte)0, "User space for PTF list", "*EXCLUDE");
         if (!pc.run())
         {
           AS400Message[] messages = pc.getMessageList();
@@ -1086,7 +1109,11 @@ public class Product
       }
       finally
       {
-        us.close();
+        // Delete the temporary user space, to allow other threads to re-create and use it.
+        try { us.delete(); }
+        catch (Exception e) {
+          Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
+        }
       }
     }
     int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);
