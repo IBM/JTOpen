@@ -17,7 +17,7 @@ import java.io.IOException;
 
  
 /**
-Allows you to retrieve a list of i5/OS objects that a user is authorized to and/or list of i5/OS objects that the user owns.  
+Allows you to retrieve a list of IBM i objects that a user is authorized to and/or list of IBM i objects that the user owns.  
 <br>Refer to the QSYLOBJA API for additional information.
 <p>
 The list of authorized objects only includes objects the user is specifically authorized to. 
@@ -59,12 +59,12 @@ public class UserObjectsOwnedList
   private static final String CONTINUATION_HANDLE_BLANKS = "                    "; // 20 Blanks
 
   /**
-  Selection value indicating to select i5/OS objects that reside in the QSYS library based file system.
+  Selection value indicating to select IBM i objects that reside in the QSYS library based file system.
    **/
   public  static final int    SELECTION_FILE_SYSTEM_LIBRARY      = 0;
   private static final String SELECTION_FILE_SYSTEM_LIBRARY_0300 = "OBJA0300";
   /**
-  Selection value indicating to select i5/OS objects that reside in a directory (non-QSYS) based file system.
+  Selection value indicating to select IBM i objects that reside in a directory (non-QSYS) based file system.
    **/
   public  static final int    SELECTION_FILE_SYSTEM_DIRECTORY      = 1;
   private static final String SELECTION_FILE_SYSTEM_DIRECTORY_0310 = "OBJA0310";
@@ -88,7 +88,7 @@ public class UserObjectsOwnedList
    **/
   private static final String SELECTION_OBJECT_TYPE_ALL_PRIV = "*ALL      ";
 
-  private final static ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
+  private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
 
   private AS400  system_;
@@ -138,7 +138,7 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
 }
 
   /**
-   Returns a list of all UserObjectsOwnedListEntry i5/OS objects based on the current 
+   Returns a list of all UserObjectsOwnedListEntry IBM i objects based on the current 
    selection criteria for the file system and object relation.
    <p>This method retrieves the list of objects from the system based on the selection critera set via the constructor or
    modified by any of the set methods.
@@ -176,7 +176,7 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
     boolean willRunProgramsOnThread = pc.isStayOnThread();
     if (willRunProgramsOnThread) {
       // The calls will run in the job of the JVM, so lock for entire JVM.
-      lockObject = USERSPACE_NAME;
+      lockObject = USERSPACE_PATH;
     }
     else {
       // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
@@ -212,11 +212,12 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
         buf = new byte[size];
         space.read(buf, 0);
       }
-
-      finally {
-        try { space.close(); }
+      finally
+      {
+        // Delete the temporary user space, to allow other threads to re-create and use it.
+        try { space.delete(); }
         catch (Exception e) {
-          Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+          Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
         }
       }
     }
@@ -456,8 +457,8 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
    {@link #getObjectList() getObjectList()} method to retrieve a different list of objects.
    @param selectionFileSystem The format name.  Valid values:
    <ul>
-     <li>{@link #SELECTION_FILE_SYSTEM_LIBRARY SELECTION_FILE_SYSTEM_LIBRARY} - objects that reside in an i5/OS library
-     <li>{@link #SELECTION_FILE_SYSTEM_DIRECTORY SELECTION_FILE_SYSTEM_DIRECTORY} - objects that reside in an i5/OS directory
+     <li>{@link #SELECTION_FILE_SYSTEM_LIBRARY SELECTION_FILE_SYSTEM_LIBRARY} - objects that reside in an IBM i library
+     <li>{@link #SELECTION_FILE_SYSTEM_DIRECTORY SELECTION_FILE_SYSTEM_DIRECTORY} - objects that reside in an IBM i directory
    </ul>
   **/
   public void setSelectionFileSystem(int selectionFileSystem)
@@ -485,8 +486,8 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
   Returns the current selection criteria for the file system from which to retrieve the list of objects that a user is authorized to or list of objects the user owns.
   @return the selection file system.  Possible values:
    <ul>
-     <li>{@link #SELECTION_FILE_SYSTEM_LIBRARY SELECTION_FILE_SYSTEM_LIBRARY} - objects that reside in an i5/OS library
-     <li>{@link #SELECTION_FILE_SYSTEM_DIRECTORY SELECTION_FILE_SYSTEM_DIRECTORY} - objects that reside in an i5/OS directory
+     <li>{@link #SELECTION_FILE_SYSTEM_LIBRARY SELECTION_FILE_SYSTEM_LIBRARY} - objects that reside in an IBM i library
+     <li>{@link #SELECTION_FILE_SYSTEM_DIRECTORY SELECTION_FILE_SYSTEM_DIRECTORY} - objects that reside in an IBM i directory
    </ul>
   **/
   public int getSelectionFileSystem()
