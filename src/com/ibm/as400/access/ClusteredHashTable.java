@@ -19,14 +19,14 @@ import java.util.*;
 import java.beans.*;
 
 /**
-The ClusteredHashTable class provides access to an i5/OS highly available Clustered Hash Table.
-A Clustered Hash Table is represented as an i5/OS server job.
+The ClusteredHashTable class provides access to an IBM i highly available Clustered Hash Table.
+A Clustered Hash Table is represented as an IBM i server job.
 A Clustered Hash Table is a container for small to medium-sized non-persistent data that is
 replicated to the Clustered Hash Table domain. The Clustered Hash Table domain is comprised of
 nodes defined in a cluster. The Clustered Hash Table domain is defined using the STRCHTSVR CL command.
 
 <p>For further details on a cluster, see the Cluster Resource Services APIs and the Clustering
-topic in the i5/OS Information Center.
+topic in the IBM i Information Center.
 
 <p>The purpose of this class is to provide interfaces to the Clustered Hash Table APIs.
 An instance of this class can be used to {@link #put put()} and {@link #get get()}
@@ -97,6 +97,8 @@ implements java.io.Serializable
   **/
 
   static final long serialVersionUID = 5L;
+  private static final String USERSPACE_NAME = "QCSTCHT   QTEMP     ";
+  private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/QCSTCHT.USRSPC";
 
   /**
     Entry status value to limit retrieved entries to only those which are consistent between nodes.
@@ -146,7 +148,7 @@ implements java.io.Serializable
 
 
   /**
-   Constructs a ClusteredHashTable object that represents the i5/OS clustered hash table server.
+   Constructs a ClusteredHashTable object that represents the IBM i clustered hash table server.
    @param system The system that contains the clustered hash table server.
    @param name The name of an clustered hash table server.
                This is a 10-byte string that identifies the Clustered Hash Table server to use.
@@ -324,7 +326,7 @@ implements java.io.Serializable
 
   /**
      Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries.
-    This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
+    This method will create a temporary user space on the system in the QTEMP library.  If the user space exists, it will be deleted and recreated.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
@@ -340,7 +342,7 @@ implements java.io.Serializable
 
 
   /**
-    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
+    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QTEMP library.  If the user space exists, it will be deleted and recreated.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
@@ -411,87 +413,104 @@ implements java.io.Serializable
 
     AS400Bin4 bin4 = new AS400Bin4();
 
+    // Create the user space
+    // initial name and path for the userspace
+    // Construct the ServiceProgramCall object.
+    ServiceProgramCall sPGMCall = new ServiceProgramCall(system_);
+
     // Construct the parameter list.  It contains the single parameter to the service program.
     ProgramParameter[] parameterList = new ProgramParameter[7];
+
+    try
+    {
+      // input -- Qualified userspace name
+      AS400Text text20 = new AS400Text(20, system_.getCcsid(), system_);
+      parameterList[0] = new ProgramParameter(text20.toBytes(USERSPACE_NAME));
+
+      parameterList[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // input -- format name
+      AS400Text text8 = new AS400Text(8, system_.getCcsid(), system_);
+      parameterList[1] = new ProgramParameter(text8.toBytes("CHTL0100"));
+      parameterList[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // input -- cht server connection handle
+      parameterList[2] = new ProgramParameter(connectionHandle_);
+      parameterList[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // input -- key selection info
+      AS400Text text10 = new AS400Text(10, system_.getCcsid(), system_);
+      byte[] keyInfo = new byte[SIZE_OF_CHTI0100];
+      bin4.toBytes(status, keyInfo, 0);
+      text10.toBytes(lastModifiedProfile, keyInfo, 4);
+      text10.toBytes(userProfile, keyInfo, 14);
+
+      parameterList[3] = new ProgramParameter(keyInfo);
+      parameterList[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // input -- key selection info size
+      parameterList[4] = new ProgramParameter(bin4.toBytes(SIZE_OF_CHTI0100));
+      parameterList[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // input -- key selection info format
+      parameterList[5] = new ProgramParameter(text8.toBytes("CHTI0100"));
+      parameterList[5].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // i/o -- make an array to hold the i/o for the error code
+      byte [] errorCode = new byte[SIZE_OF_QUS_EC_T];
+      parameterList[6] = new ProgramParameter(errorCode, SIZE_OF_QUS_EC_T);
+      parameterList[6].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+      // Set the fully qualified service program and the parameter list.
+      sPGMCall.setProgram("/QSYS.LIB/QCSTCHT.SRVPGM", parameterList);
+
+      // Set the procedure to call in the service program.
+      sPGMCall.setProcedureName("QcstListCHTKeys");
+
+      // Set the format of returned value.  The program we call returns an integer.
+      sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
+
+      // Set the call to be thread safe
+      sPGMCall.suggestThreadsafe();
+    }
+    catch (PropertyVetoException pve)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, pve);
+    } // Won't ever happen; just quiet the compiler
 
     // array to return at the end
     ClusteredHashTableEntry[] entries = null;
 
-    // create a user space to work with, dont handle exceptions from this call
-    synchronized(userSpaceLock_)
+    // Determine the needed scope of synchronization.
+    Object lockObject;
+    boolean willRunProgramsOnThread = sPGMCall.isStayOnThread();
+    if (willRunProgramsOnThread) {
+      // The calls will run in the job of the JVM, so lock for entire JVM.
+      lockObject = USERSPACE_PATH;
+    }
+    else {
+      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+      lockObject = system_;
+    }
+
+    // create a user space to work with, don't handle exceptions from this call
+    synchronized(lockObject)
     {
+      UserSpace usrSpc = new UserSpace(system_, USERSPACE_PATH);
+      usrSpc.setMustUseProgramCall(true); // Need this to make sure we use the same job as the ServiceProgramCall
+      if (!willRunProgramsOnThread)
+      {
+        usrSpc.setMustUseSockets(true);
+        // Force the use of sockets when running natively but not on-thread.
+        // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+      }
+
       try
       {
-        // Create the user space
-        // initial name and path for the userspace
-        // Construct the ServiceProgramCall object.
-        ServiceProgramCall sPGMCall = new ServiceProgramCall(system_);
-
-        String jobNumber = sPGMCall.getServerJob().getNumber();
-        String userSpacePath = "/QSYS.LIB/QUSRSYS.LIB/QCHT"+jobNumber+".USRSPC";
-        UserSpace usrSpc = new UserSpace(system_, userSpacePath);
-        usrSpc.setMustUseProgramCall(true); // Need this to make sure we use the same job as the ServiceProgramCall
-
         // create the user space, automatically overwrite any existing one
-        byte[] b = new byte[1];  // generic filler
-        usrSpc.create(1, true, " ", b[0], "CHT Wrapper Space", "*ALL");
-        if (!usrSpc.isAutoExtendible()) usrSpc.setAutoExtendible(true);
-        usrSpc.close();
-
-        // set the parameter list
-        // input -- Qualified userspace name
-        StringBuffer tempName = new StringBuffer(20);
-        tempName.append(usrSpc.getName());
-        for (int i = usrSpc.getName().length(); i < 10; ++i)  // pad to 10 characters
-          tempName.append(' ');
-        tempName.append("QUSRSYS");
-        AS400Text text20 = new AS400Text(20, system_.getCcsid(), system_);
-        parameterList[0] = new ProgramParameter(text20.toBytes(tempName.toString()));
-        parameterList[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // input -- format name
-        AS400Text text8 = new AS400Text(8, system_.getCcsid(), system_);
-        parameterList[1] = new ProgramParameter(text8.toBytes("CHTL0100"));
-        parameterList[1].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // input -- cht server connection handle
-        parameterList[2] = new ProgramParameter(connectionHandle_);
-        parameterList[2].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // input -- key selection info
-        AS400Text text10 = new AS400Text(10, system_.getCcsid(), system_);
-        byte[] keyInfo = new byte[SIZE_OF_CHTI0100];
-        bin4.toBytes(status, keyInfo, 0);
-        text10.toBytes(lastModifiedProfile, keyInfo, 4);
-        text10.toBytes(userProfile, keyInfo, 14);
-
-        parameterList[3] = new ProgramParameter(keyInfo);
-        parameterList[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // input -- key selection info size
-        parameterList[4] = new ProgramParameter(bin4.toBytes(SIZE_OF_CHTI0100));
-        parameterList[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // input -- key selection info format
-        parameterList[5] = new ProgramParameter(text8.toBytes("CHTI0100"));
-        parameterList[5].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // i/o -- make an array to hold the i/o for the error code
-        byte [] errorCode = new byte[SIZE_OF_QUS_EC_T];
-        parameterList[6] = new ProgramParameter(errorCode, SIZE_OF_QUS_EC_T);
-        parameterList[6].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
-
-        // Set the fully qualified service program and the parameter list.
-        sPGMCall.setProgram("/QSYS.LIB/QCSTCHT.SRVPGM", parameterList);
-
-        // Set the procedure to call in the service program.
-        sPGMCall.setProcedureName("QcstListCHTKeys");
-
-        // Set the format of returned value.  The program we call returns an integer.
-        sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
-
-        // Set the call to be thread safe
-        sPGMCall.suggestThreadsafe();
+        usrSpc.create(1, true, " ", (byte)0, "CHT Wrapper Space", "*ALL");
+        // Note: User Spaces by default are auto-extendible (by QUSCRTUS API)
+        //       So it will always have enough space available.
 
         // Call the service program.  If true is returned the program was successfully called.  If
         // false is returned the program could not be started.  A list of messages is returned when
@@ -531,14 +550,15 @@ implements java.io.Serializable
           byte[] bb = new byte[1];  // dummy data
           entries[i] = new ClusteredHashTableEntry(key,bb,60,0,0);
         }
-
-        // clean up left over storage
-        usrSpc.close();
-        usrSpc.delete();
       }
-      catch (PropertyVetoException pve)
+      finally
       {
-      } // Won't ever happen; just quiet the compiler
+        // clean up left over storage
+        try { usrSpc.delete(); }
+        catch (Exception e) {
+          Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
+        }
+      }
     }
 
     // return list of generated entries only key info correct
@@ -634,7 +654,7 @@ implements java.io.Serializable
   This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server must be active on the i5/OS system.
+    <li>The Clustered Hash table server must be active on the IBM i system.
     </ul>
     <p>For information on the authority considerations, see the Clustered Hash Table APIs.
     @param key The key to use to return information.
