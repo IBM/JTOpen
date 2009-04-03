@@ -176,7 +176,7 @@ public class PTFGroup
         boolean willRunProgramsOnThread = pc.isStayOnThread();
         if (willRunProgramsOnThread) {
           // The calls will run in the job of the JVM, so lock for entire JVM.
-          lockObject = USERSPACE_NAME;
+          lockObject = USERSPACE_PATH;
         }
         else {
           // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
@@ -208,9 +208,10 @@ public class PTFGroup
           }
           finally
           {
-            try { us.close(); }
+            // Delete the temporary user space, to allow other threads to re-create and use it.
+            try { us.delete(); }
             catch (Exception e) {
-              Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+              Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
             }
           }
         }
@@ -368,26 +369,49 @@ public class PTFGroup
         parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
+
+        // Determine the needed scope of synchronization.
+        Object lockObject;
+        boolean willRunProgramsOnThread = pc.isStayOnThread();
+        if (willRunProgramsOnThread) {
+          // The calls will run in the job of the JVM, so lock for entire JVM.
+          lockObject = USERSPACE_PATH;
+        }
+        else {
+          // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+          lockObject = system_;
+        }
+
         byte[] buf = null;
-        synchronized(USERSPACE_NAME)       
+
+        synchronized(lockObject)       
         {
             UserSpace us = new UserSpace(system_, USERSPACE_PATH);
             us.setMustUseProgramCall(true);
-            us.setMustUseSockets(true); // We have to do it this way since UserSpace will otherwise make a native ProgramCall.
-            us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
+            if (!willRunProgramsOnThread)
+            {
+              us.setMustUseSockets(true);
+              // Force the use of sockets when running natively but not on-thread.
+              // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+            }
             try
             {
-                if (!pc.run())
-                {
-                    throw new AS400Exception(pc.getMessageList());
-                }
-                int size = us.getLength();
-                buf = new byte[size];
-                us.read(buf, 0);
+              us.create(256*1024, true, "", (byte)0, "User space for PTF Group", "*EXCLUDE");
+              if (!pc.run())
+              {
+                throw new AS400Exception(pc.getMessageList());
+              }
+              int size = us.getLength();
+              buf = new byte[size];
+              us.read(buf, 0);
             }
             finally
             {
-                us.close();
+              // Delete the temporary user space, to allow other threads to re-create and use it.
+              try { us.delete(); }
+              catch (Exception e) {
+                Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
+              }
             }
         }
         int startingOffset = BinaryConverter.byteArrayToInt(buf, 124);      

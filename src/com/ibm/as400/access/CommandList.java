@@ -46,6 +46,7 @@ import java.io.Serializable;
 public class CommandList implements Serializable
 {
     static final long serialVersionUID = 6L;
+    private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/CMDLST.USRSPC";
 
     /**
      *  Constant used to retrieve all commands in a given library.
@@ -57,7 +58,7 @@ public class CommandList implements Serializable
     private String cmd_;
 
     // Program Call parameters. These are always the same, so we hardcode them.
-    // Parm0: "CMDLST    TEMP      "
+    // Parm0: "CMDLST    QTEMP     "
     private static final ProgramParameter parm0_ = new ProgramParameter(new byte[] { (byte)0xC3, (byte)0xD4, (byte)0xC4, (byte)0xD3, (byte)0xE2, (byte)0xE3, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0xD8, (byte)0xE3, (byte)0xC5, (byte)0xD4, (byte)0xD7, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40});
     // Parm1: "OBJL0200"
     private static final ProgramParameter parm1_ = new ProgramParameter(new byte[] { (byte)0xD6, (byte)0xC2, (byte)0xD1, (byte)0xD3, (byte)0xF0, (byte)0xF2, (byte)0xF0, (byte)0xF0});
@@ -182,71 +183,103 @@ public class CommandList implements Serializable
         if (cmd_ == null)
             throw new ExtendedIllegalStateException("command", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-        synchronized(sys_) // Synchronize so we don't step on our own user space.
+        CharConverter conv37_ = new CharConverter(37);
+        StringBuffer commandString = new StringBuffer(cmd_.toUpperCase().trim());
+        while (commandString.length() < 10) commandString.append(' ');
+        StringBuffer libraryString = new StringBuffer(lib_.toUpperCase().trim());
+        while (libraryString.length() < 10) libraryString.append(' ');
+
+        // Create the program parameters for the list object program call.
+        ProgramParameter[] parms = new ProgramParameter[]
+        {
+          parm0_, parm1_,
+          new ProgramParameter(conv37_.stringToByteArray(commandString.toString()+libraryString.toString())),
+          parm3_, parm4_
+        };
+
+        CharConverter textConv = new CharConverter(sys_.getCcsid());
+        ProgramCall pgm = new ProgramCall(sys_, "/QSYS.LIB/QUSLOBJ.PGM", parms);
+        pgm.suggestThreadsafe();
+
+        // Determine the needed scope of synchronization.
+        Object lockObject;
+        boolean willRunProgramsOnThread = pgm.isStayOnThread();
+        if (willRunProgramsOnThread) {
+          // The calls will run in the job of the JVM, so lock for entire JVM.
+          lockObject = USERSPACE_PATH;
+        }
+        else {
+          // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
+          lockObject = sys_;
+        }
+
+        byte[] bytes = new byte[140];
+        int offsetOfList = 0;
+        int numberOfListEntries = 0;
+        int sizeOfListEntry = 0;
+
+        synchronized(lockObject) // Synchronize so we don't step on our own user space.
         {
             // The userspace that is used to store the help data before the transformation.
-            UserSpace us = new UserSpace(sys_, "/QSYS.LIB/QTEMP.LIB/CMDLST.USRSPC");
+            UserSpace us = new UserSpace(sys_, USERSPACE_PATH);
             us.setMustUseProgramCall(true);
-            us.create(140, true, " ", (byte)0, "", "*ALL");
-
-            CharConverter conv37_ = new CharConverter(37);
-            StringBuffer commandString = new StringBuffer(cmd_.toUpperCase().trim());
-            while (commandString.length() < 10) commandString.append(' ');
-            StringBuffer libraryString = new StringBuffer(lib_.toUpperCase().trim());
-            while (libraryString.length() < 10) libraryString.append(' ');
-
-            // Create the program parameters for the list object program call.
-            ProgramParameter[] parms = new ProgramParameter[]
+            if (!willRunProgramsOnThread)
             {
-                parm0_, parm1_,
-                new ProgramParameter(conv37_.stringToByteArray(commandString.toString()+libraryString.toString())),
-                parm3_, parm4_
-            };
-
-            CharConverter textConv = new CharConverter(sys_.getCcsid());
-            ProgramCall pgm = new ProgramCall(sys_, "/QSYS.LIB/QUSLOBJ.PGM", parms);
-            pgm.suggestThreadsafe();
-
-            // call the program
-            if (!pgm.run())
+              us.setMustUseSockets(true);
+              // Force the use of sockets when running natively but not on-thread.
+              // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
+            }
+            try
             {
+              us.create(140, true, " ", (byte)0, "", "*ALL");
+
+              // call the program
+              if (!pgm.run())
+              {
                 AS400Message[] messages = pgm.getMessageList();
                 throw new AS400Exception(messages);
+              }
+
+              // Read from the userspace.
+              us.read(bytes, 0, 0, 140);
+
+              offsetOfList = BinaryConverter.byteArrayToInt(bytes, 124);
+              numberOfListEntries = BinaryConverter.byteArrayToInt(bytes, 132);
+              sizeOfListEntry = BinaryConverter.byteArrayToInt(bytes, 136);
+              int neededSize = offsetOfList+(numberOfListEntries*sizeOfListEntry);
+
+              // Read from the userspace.
+              bytes = new byte[neededSize];
+              us.read(bytes, 0, 0, neededSize);
             }
-
-            // Read from the userspace.
-            byte[] bytes = new byte[140];
-            us.read(bytes, 0, 0, 140);
-
-            int offsetOfList = BinaryConverter.byteArrayToInt(bytes, 124);
-            int numberOfListEntries = BinaryConverter.byteArrayToInt(bytes, 132);
-            int sizeOfListEntry = BinaryConverter.byteArrayToInt(bytes, 136);
-            int neededSize = offsetOfList+(numberOfListEntries*sizeOfListEntry);
-
-            // Read from the userspace.
-            bytes = new byte[neededSize];
-            us.read(bytes, 0, 0, neededSize);
-            us.close();
-
-            // Initialize the string data we plan to retrieve.
-            Command[]  cmdList = new Command[numberOfListEntries];
-            int offset = offsetOfList;
-
-            // Fill in the string arrays for each command mathing the search criteria.
-            for (int i=0; i<numberOfListEntries; ++i)
+            finally
             {
-                String command = textConv.byteArrayToString(bytes, offset, 10).trim();
-                String library = textConv.byteArrayToString(bytes, offset+10, 10).trim();
-                String desc = textConv.byteArrayToString(bytes, offset+41, 50).trim();
-                String path = QSYSObjectPathName.toPath(library, command, "CMD");
-                cmdList[i] = new Command(sys_, path, desc);
-
-                offset += sizeOfListEntry;
+              // Delete the temporary user space, to allow other threads to re-create and use it.
+              try { us.delete(); }
+              catch (Exception e) {
+                Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
+              }
             }
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Successfully generated command list with "+numberOfListEntries+" entries.");
-
-            return cmdList;
         }
+
+        // Initialize the string data we plan to retrieve.
+        Command[]  cmdList = new Command[numberOfListEntries];
+        int offset = offsetOfList;
+
+        // Fill in the string arrays for each command mathing the search criteria.
+        for (int i=0; i<numberOfListEntries; ++i)
+        {
+          String command = textConv.byteArrayToString(bytes, offset, 10).trim();
+          String library = textConv.byteArrayToString(bytes, offset+10, 10).trim();
+          String desc = textConv.byteArrayToString(bytes, offset+41, 50).trim();
+          String path = QSYSObjectPathName.toPath(library, command, "CMD");
+          cmdList[i] = new Command(sys_, path, desc);
+
+          offset += sizeOfListEntry;
+        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Successfully generated command list with "+numberOfListEntries+" entries.");
+
+        return cmdList;
     }
 
 
