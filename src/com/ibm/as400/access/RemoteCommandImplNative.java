@@ -253,6 +253,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       else // threadSafety == LOOKUP_THREADSAFETY
       {
         // Look up the command's indicated threadsafety on the system.
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
         runOnThread = (getThreadsafeIndicator(command) == CommandCall.THREADSAFE_YES);
       }
 
@@ -269,7 +270,11 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @return  true if command is successful; false otherwise.
     private boolean runCommandOnThread(String command, int messageOption, boolean currentlyOpeningOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
+        if (Trace.traceOn_)
+        {
+          Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
+          Trace.log(Trace.DIAGNOSTIC, "Running command ON-THREAD: " + command);
+        }
         if (!currentlyOpeningOnThisThread) openOnThread();
 
         if (AS400.nativeVRM.vrm_ >= 0x00060100)
@@ -286,9 +291,11 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
       if (shouldRunOnThread(commandAsString)) {
         openOnThread();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running command ON-THREAD: " + commandAsString);
         return runCommandOnThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
       }
       else {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running command OFF-THREAD: " + commandAsString);
         return runCommandOffThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
       }
     }
@@ -380,7 +387,11 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // Run the program.
     protected boolean runProgramOnThread(String library, String name, ProgramParameter[] parameterList, int messageOption, boolean currentlyOpeningOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
+        if (Trace.traceOn_)
+        {
+          Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
+          Trace.log(Trace.DIAGNOSTIC, "Running program ON-THREAD: " + library + "/" + name);
+        }
         if (priorCallWasOnThread_ == OFF_THREAD)
         {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
@@ -675,6 +686,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       }
       else if (property.equals("lookup")) {
         // Look it up on the system.
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
         runOnThread = (getThreadsafeIndicator(command) == CommandCall.THREADSAFE_YES);
       }
       else {

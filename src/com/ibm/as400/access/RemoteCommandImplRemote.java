@@ -380,7 +380,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // The "threadSafety" parameter is disregarded in the ImplRemote implementation of this method.
     protected boolean runCommandOffThread(String command, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running command: " + command);
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.INFORMATION, "Remote implementation running command: " + command);
+        Trace.log(Trace.DIAGNOSTIC, "Running command OFF-THREAD: " + command);
+      }
 
         // Connect to server.
         openOffThread();
@@ -474,7 +478,12 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     protected boolean runProgramOffThread(String library, String name, ProgramParameter[] parameterList, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running program: " + library + "/" + name);
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.INFORMATION, "Remote implementation running program: " + library + "/" + name);
+        Trace.log(Trace.DIAGNOSTIC, "Running program OFF-THREAD: " + library + "/" + name);
+      }
+
         if (priorCallWasOnThread_ == ON_THREAD)
         {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was on-thread, but this call is off-thread, so different job.");
