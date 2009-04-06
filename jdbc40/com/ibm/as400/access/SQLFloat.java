@@ -112,16 +112,16 @@ implements SQLData
             value_ = ((Number) object).doubleValue();   // @D9c
 
             // Get the whole number portion of that value.
-            long value = (long) value_;                 // @D9a
+            //long value = (long) value_;                 // @D9a //@bigdectrunc change to follow native driver
 
             // Get the original value as a long.  This is the
             // largest precision we can test for for a truncation.
-            long truncTest = ((Number) object).longValue();  // @D9a
+           // long truncTest = ((Number) object).longValue();  // @D9a //@bigdectrunc 
 
             // If they are not equal, then we truncated significant
             // data from the original value the user wanted us to insert.
-            if(truncTest != value)                          // @D9a
-                truncated_ = 1;
+            //if(truncTest != value)                          // @D9a //@bigdectrunc
+                //truncated_ = 1; //@bigdectrunc 
         }
 
         else if(object instanceof Boolean)
