@@ -48,8 +48,6 @@ transaction.
 **/
 public class AS400JDBCClobLocator implements Clob
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private ConvTable converter_;
   JDLobLocator locator_;
 
@@ -60,13 +58,13 @@ public class AS400JDBCClobLocator implements Clob
   private int cacheOffset_;
   private static final char[] INIT_CACHE = new char[0];
 
-  private int truncate_ = -1;
+  //private int truncate_ = -1;
   private int maxLength_; // The max length in LOB-characters. See JDLobLocator.
 
   /**
   Constructs an AS400JDBCClob object.  The data for the
   CLOB will be retrieved as requested, directly from the
-  i5/OS system, using the locator handle.
+  IBM i system, using the locator handle.
   
   @param  locator             The locator.
   @param  converter           The text converter.
@@ -551,7 +549,8 @@ Returns the handle to this CLOB locator in the database.
       {
         JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
       }
-      truncate_ = length;
+      //truncate_ = length;
+
       // The host server does not currently provide a way for us
       // to truncate the temp space used to hold the locator data,
       // so we just keep track of it ourselves.  This should work,

@@ -41,9 +41,6 @@ transaction.
 **/
 public class AS400JDBCBlobLocator implements Blob
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   JDLobLocator locator_; 
   Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
   int savedScale_; // This is our length that goes with our savedObject_.
@@ -56,7 +53,7 @@ public class AS400JDBCBlobLocator implements Blob
 /**
 Constructs an AS400JDBCBlobLocator object.  The data for the
 BLOB will be retrieved as requested, directly from the
-i5/OS system, using the locator handle.
+IBM i system, using the locator handle.
 
 @param  locator             The locator.
 **/

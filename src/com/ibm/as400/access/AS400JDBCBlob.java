@@ -41,14 +41,12 @@ import java.sql.SQLException;
 **/
 public class AS400JDBCBlob implements Blob
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   private byte[] data_;
   private int maxLength_;
 
 /**
 Constructs an AS400JDBCBlob object.  The data is contained
-in the raw byte array.  No further communication with the i5/OS system
+in the raw byte array.  No further communication with the IBM i system
 is necessary.
 
 @param  data     The BLOB data.

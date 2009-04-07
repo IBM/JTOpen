@@ -41,8 +41,6 @@ import javax.sql.PooledConnection;
 **/
 public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource implements ConnectionPoolDataSource, Referenceable, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     //@B2D private transient AS400JDBCConnectionPool connectionPool_;  //@A2A
@@ -65,7 +63,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified <i>serverName</i>.
-    *  @param serverName The i5/OS system name.
+    *  @param serverName The IBM i system name.
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName)
     {
@@ -75,7 +73,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information.
-    *  @param serverName The i5/OS system name.
+    *  @param serverName The IBM i system name.
     *  @param user The user id.
     *  @param password The password.
     **/
@@ -89,7 +87,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information
     *  to use for SSL communications with the system.
-    *  @param serverName The i5/OS system name.
+    *  @param serverName The IBM i system name.
     *  @param user The user id.
     *  @param password The password.
     *  @param keyRingName The key ring class name to be used for SSL communications with the system.
@@ -182,7 +180,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
 
     /**
-  *  Returns a pooled connection that is connected to the i5/OS system.
+  *  Returns a pooled connection that is connected to the IBM i system.
   *  @return A pooled connection.
   *  @exception SQLException If a database error occurs.
   **/
@@ -212,7 +210,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     }
 
     /**
-    *  Returns a pooled connection that is connected to the i5/OS system.
+    *  Returns a pooled connection that is connected to the IBM i system.
     *  @param user The userid for the connection.
     *  @param password The password for the connection.
     *  @return A pooled connection.

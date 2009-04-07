@@ -54,8 +54,6 @@ public class AS400JDBCCallableStatement
 extends AS400JDBCPreparedStatement
 implements CallableStatement
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     private static final int    NO_VALIDATION_  = -9999;
 
     private int[]               registeredTypes_; // array of types to track what the user registers the output parm as
@@ -224,7 +222,7 @@ implements CallableStatement
                 }
                 else // using system naming
                 {
-                  // Retrieve the library list from the i5/OS - Use ROI Retrieve Library List.
+                  // Retrieve the library list from the IBM i - Use ROI Retrieve Library List.
                   ResultSet rs1 = JDUtilities.getLibraries(this, connection_, null, true);
                   Vector libListV = new Vector();
                   while(rs1.next()) {
@@ -320,12 +318,12 @@ implements CallableStatement
     // JDBC 2.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 for i5/OS does not support arrays.
+    DB2 for IBM i does not support arrays.
     
     @param  parameterIndex  The parameter index (1-based).
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray(int parameterIndex)
     throws SQLException
@@ -337,12 +335,12 @@ implements CallableStatement
     //@G4A JDBC 3.0
     /**
     Returns the value of an SQL ARRAY output parameter as an Array value.
-    DB2 for i5/OS does not support arrays.
+    DB2 for IBM i does not support arrays.
         
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray(String parameterName)
     throws SQLException
@@ -611,7 +609,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
     // does not support that.
     //
     public boolean getBoolean(int parameterIndex)
@@ -686,7 +684,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
     // does not support that.
     //
     public boolean getBoolean(String parameterName)
@@ -712,7 +710,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i
     // does not support that.
     //
     public byte getByte(int parameterIndex)
@@ -785,7 +783,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS 
+    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i 
     // does not support that.
     //
     public byte getByte(String parameterName)
@@ -1372,7 +1370,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i
     // does not support that until V4R5.
     //
     public long getLong(int parameterIndex)
@@ -1455,7 +1453,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS 
+    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i 
     // does not support that until V4R5.
     //
     public long getLong(String parameterName)
@@ -1602,12 +1600,12 @@ implements CallableStatement
     // JDBC 2.0
     /**
     Returns the value of an SQL REF output parameter as a Ref value.
-    DB2 for i5/OS does not support structured types.
+    DB2 for IBM i does not support structured types.
     
     @param  parameterIndex  The parameter index (1-based).
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     **/
     public Ref getRef(int parameterIndex)
     throws SQLException
@@ -1619,12 +1617,12 @@ implements CallableStatement
     //@G4A  JDBC 3.0
     /**
     Returns the value of an SQL REF output parameter as a Ref value.
-    DB2 for i5/OS does not support structured types.
+    DB2 for IBM i does not support structured types.
     
     @param  parameterName   The parameter name.
     @return                 The parameter value or 0 if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     **/
     public Ref getRef(String parameterName)
     throws SQLException
@@ -2494,7 +2492,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS 
+    // The spec defines this in terms of SQL BIT, but DB2 for IBM i 
     // does not support that.
     //
     public void setBoolean(String parameterName, boolean parameterValue) 
@@ -2524,7 +2522,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS 
+    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i 
     // does not support that.
     //
     public void setByte(String parameterName, byte parameterValue) 
@@ -2756,7 +2754,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS 
+    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i 
     // does not support that until V4R5.
     //
     public void setLong(String parameterName, long parameterValue) 
@@ -2826,7 +2824,7 @@ implements CallableStatement
     this to a value of an SQL type, depending on the type of the
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
-    SQL type is not supported by DB2 for i5/OS, the
+    SQL type is not supported by DB2 for IBM i, the
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a> 
     is used.
     <br>If proxy support is in use, the Object must be serializable.
