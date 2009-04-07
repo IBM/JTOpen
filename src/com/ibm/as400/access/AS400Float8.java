@@ -18,10 +18,6 @@ package com.ibm.as400.access;
  **/
 public class AS400Float8 implements AS400DataType
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    
-
     static final long serialVersionUID = 4L;
 
 
@@ -54,7 +50,7 @@ public class AS400Float8 implements AS400DataType
 
     /**
      * Returns the byte length of the data type.
-     * @return Eight (8), the number of bytes in the i5/OS representation of the data type.
+     * @return Eight (8), the number of bytes in the IBM i representation of the data type.
      **/
     public int getByteLength()
     {
@@ -89,9 +85,9 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object to i5/OS format.
+     * Converts the specified Java object to IBM i format.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Double.
-     * @return The i5/OS representation of the data type.
+     * @return The IBM i representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
@@ -101,9 +97,9 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified double to i5/OS format.
-     * @param doubleValue The value to be converted to i5/OS format.
-     * @return The i5/OS representation of the data type.
+     * Converts the specified double to IBM i format.
+     * @param doubleValue The value to be converted to IBM i format.
+     * @return The IBM i representation of the data type.
      **/
     public byte[] toBytes(double doubleValue)
     {
@@ -113,10 +109,10 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into i5/OS format in the specified byte array.
+     * Converts the specified Java object into IBM i format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Double.
-     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     * @return Eight (8), the number of bytes in the i5/OS representation of the data type.
+     * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     * @return Eight (8), the number of bytes in the IBM i representation of the data type.
     **/
     public int toBytes(Object javaValue, byte[] as400Value)
     {
@@ -126,10 +122,10 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified double into i5/OS format in the specified byte array.
-     * @param doubleValue The value to be converted to i5/OS format.
-     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     * @return Eight (8), the number of bytes in the i5/OS representation of the data type.
+     * Converts the specified double into IBM i format in the specified byte array.
+     * @param doubleValue The value to be converted to IBM i format.
+     * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     * @return Eight (8), the number of bytes in the IBM i representation of the data type.
     **/
     public int toBytes(double doubleValue, byte[] as400Value)
     {
@@ -139,11 +135,11 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into i5/OS format in the specified byte array.
+     * Converts the specified Java object into IBM i format in the specified byte array.
      * @param javaValue The object corresponding to the data type. It must be an instance of Double.
-     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
-     * @return Eight(8), the number of bytes in the i5/OS representation of the data type.
+     * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
+     * @return Eight(8), the number of bytes in the IBM i representation of the data type.
     **/
     public int toBytes(Object javaValue, byte[] as400Value, int offset)
     {
@@ -153,11 +149,11 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified double into i5/OS format in the specified byte array.
-     * @param doubleValue The value to be converted to i5/OS format.
-     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     * @param offset The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
-     * @return Eight (8), the number of bytes in the i5/OS representation of the data type.
+     * Converts the specified double into IBM i format in the specified byte array.
+     * @param doubleValue The value to be converted to IBM i format.
+     * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     * @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
+     * @return Eight (8), the number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(double doubleValue, byte[] as400Value, int offset)
     {
@@ -167,8 +163,8 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified i5/OS data type to a double.
-     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
+     * Converts the specified IBM i data type to a double.
+     * @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
      * @return The double corresponding to the data type.
      **/
     public double toDouble(byte[] as400Value)
@@ -178,9 +174,9 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified i5/OS data type to a double.
-     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     * Converts the specified IBM i data type to a double.
+     * @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      * @return The double corresponding to the data type.
      **/
     public double toDouble(byte[] as400Value, int offset)
@@ -190,8 +186,8 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified i5/OS data type to a Java object.
-     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
+     * Converts the specified IBM i data type to a Java object.
+     * @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
      * @return The Double object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value)
@@ -201,9 +197,9 @@ public class AS400Float8 implements AS400DataType
     }
 
     /**
-     * Converts the specified i5/OS data type to a Java object.
-     * @param as400Value the array containing the data type in i5/OS format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
+     * Converts the specified IBM i data type to a Java object.
+     * @param as400Value the array containing the data type in IBM i format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
      * @return The Double object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value, int offset)

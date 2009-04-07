@@ -21,8 +21,8 @@ import java.beans.*;
 
 
 /**
- * The AS400FTP class represents a client for the i5/OS FTP server.
- * It is written to take advantage of i5/OS features.
+ * The AS400FTP class represents a client for the IBM i FTP server.
+ * It is written to take advantage of IBM i features.
  * Use the parent class, FTP, if you need a generic
  * client.
  *
@@ -34,10 +34,10 @@ import java.beans.*;
  * the system name, userid, and password in both the FTP class and other
  * Toolbox classes.
  * <P>
- * One restriction when the client is an i5/OS system --
+ * One restriction when the client is an IBM i system --
  * the userid and password must be
  * set on the AS400 object in this environment.  That is, *CURRENT
- * will not work when connecting from one i5/OS system to another i5/OS system.
+ * will not work when connecting from one IBM i system to another IBM i system.
  * <P><LI>
  * Automatically setting the current directory to the
  * root directory on the system when a connection is made. If the
@@ -52,7 +52,7 @@ import java.beans.*;
  * to the system.  If you use the FTP class, you have to
  * do the extra steps.  The extra processing is done only
  * if the extension of the file is .savf and the file will be
- * put into an i5/OS library.
+ * put into an IBM i library.
  * <P>
  * The extra processing includes internally using Toolbox CommandCall
  * to create the save file on the system.  The default *Public authority
