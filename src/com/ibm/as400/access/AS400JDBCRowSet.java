@@ -557,12 +557,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 for i5/OS does not support arrays.
+    *  DB2 for IBM i does not support arrays.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray (int columnIndex) throws SQLException
     {
@@ -572,12 +572,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 for i5/OS does not support arrays.
+    *  DB2 for IBM i does not support arrays.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray (String columnName) throws SQLException
     {
@@ -891,7 +891,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native i5/OS format.  This is not supported for
+    *  native IBM i format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnIndex     The column index (1-based).
@@ -917,7 +917,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native i5/OS format.  This is not supported for
+    *  native IBM i format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnName  The column name.
@@ -1551,12 +1551,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 for i5/OS does not support structured types.
+    *  DB2 for IBM i does not support structured types.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public Ref getRef (int columnIndex) throws SQLException
     {
@@ -1567,12 +1567,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 for i5/OS does not support structured types.
+    *  DB2 for IBM i does not support structured types.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public Ref getRef (String columnName) throws SQLException
     {
@@ -3142,8 +3142,8 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     /**
     *  Sets the type map to be used for distinct and structured types.
     *
-    *  Note: Distinct types are supported by DB2 for i5/OS, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
-    *  behave as if they are the underlying type. Structured types are not supported by DB2 for i5/OS. Consequently, this driver does not support the type map.
+    *  Note: Distinct types are supported by DB2 for IBM i, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
+    *  behave as if they are the underlying type. Structured types are not supported by DB2 for IBM i. Consequently, this driver does not support the type map.
     *
     *  @param map The type map.
     *  @exception SQLException If a database error occurs.
@@ -3233,12 +3233,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 for i5/OS does not support arrays.
+    DB2 for IBM i does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -3252,12 +3252,12 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 for i5/OS does not support arrays.
+    DB2 for IBM i does not support arrays.
     
     @param  columnName    The column name.
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -4090,7 +4090,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4122,7 +4122,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4153,7 +4153,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4187,7 +4187,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4238,13 +4238,13 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 for i5/OS does not support structured types.
+    DB2 for IBM i does not support structured types.
        
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -4258,13 +4258,13 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 for i5/OS does not support structured types.
+    DB2 for IBM i does not support structured types.
        
     @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException

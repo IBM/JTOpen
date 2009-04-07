@@ -1630,13 +1630,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
     // JDBC 2.0
     /**
-    Sets an input parameter to an Array value.  DB2 for i5/OS
+    Sets an input parameter to an Array value.  DB2 for IBM i
     does not support arrays.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
   
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public void setArray (int parameterIndex, Array parameterValue)
     throws SQLException
@@ -1926,7 +1926,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL BIT, but DB2 for IBM i
     // does not support that.
     //
     public void setBoolean (int parameterIndex, boolean parameterValue)
@@ -1958,7 +1958,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL TINYINT, but DB2 for IBM i
     // does not support that.
     //
     public void setByte (int parameterIndex, byte parameterValue)
@@ -2355,7 +2355,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
+    // The spec defines this in terms of SQL BIGINT, but DB2 for IBM i
     // does not support that until V4R5.
     //
     public void setLong (int parameterIndex, long parameterValue)
@@ -2405,7 +2405,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     }
 
 
-    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to i5/OS.
+    // @B4 - Added for JDK 2.0RC1 - typeName can be ignored, since it is not relevant to IBM i.
     /**
     Sets an input parameter to SQL NULL.
   
@@ -2435,7 +2435,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     this to a value of an SQL type, depending on the type of the
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
-    SQL type is not supported by DB2 for i5/OS, the
+    SQL type is not supported by DB2 for IBM i, the
     <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     <br>If proxy support is in use, the Object must be serializable.
@@ -2573,13 +2573,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
     // JDBC 2.0
     /**
-    Sets an input parameter to a Ref value.  DB2 for i5/OS
+    Sets an input parameter to a Ref value.  DB2 for IBM i
     does not support structured types.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
   
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public void setRef (int parameterIndex, Ref parameterValue)
     throws SQLException

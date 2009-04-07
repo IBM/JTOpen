@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
 
 /**
 <p>The AS400JDBCDriver class is a JDBC 2.0 driver that accesses
-DB2 for i5/OS databases.
+DB2 for IBM i databases.
 
 <p>To use this driver, the application or caller must register 
 the driver with the JDBC DriverManager.  This class also registers 
@@ -44,7 +44,7 @@ jdbc:as400://<em>system-name</em>/<em>default-schema</em>;<em>properties</em>
 </pre>
 
 <p>The driver uses the specified system name to connect
-to a corresponding i5/OS system.  If a system name is not
+to a corresponding IBM i system.  If a system name is not
 specified, then the user will be prompted.  
 
 <p>The default SQL schema is optional and the driver uses it to resolve 
@@ -369,7 +369,7 @@ implements java.sql.Driver
 	</pre></blockquote>
 	
 	
-	@param  system   The i5/OS system to connect.
+	@param  system   The IBM i system to connect.
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
 					to the database.
@@ -406,7 +406,7 @@ implements java.sql.Driver
 	</pre></blockquote>
 	
 	
-	@param  system   The i5/OS system to connect.
+	@param  system   The IBM i system to connect.
         @param  clone    True if the AS400 object should be cloned, false otherwises
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
@@ -442,7 +442,7 @@ implements java.sql.Driver
 	</pre></blockquote>
 	
 	
-	@param  system   The i5/OS system to connect.
+	@param  system   The IBM i system to connect.
         @param  info     The connection properties.
         @param  schema   The default SQL schema or null meaning no default SQL schema specified.
         @param  clone    True if the AS400 object should be cloned, false otherwises
@@ -621,7 +621,7 @@ implements java.sql.Driver
 	Connection c = d.connect (o, p, mySchema);
 	</pre></blockquote>
 	
-	@param  system  The i5/OS system to connect.
+	@param  system  The IBM i system to connect.
 	@param  info    The connection properties.
 	@param  schema  The default SQL schema or null meaning no default SQL schema specified.
 	@return         The connection to the database or null if

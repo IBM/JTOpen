@@ -45,7 +45,7 @@ implements ResultSetMetaData
     // Searchable constants 
     //@G1A @G2C
     private static final int SQL_UNSEARCHABLE       = 0xF0;  // isSearchable = false
-    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our i5/OS system
+    private static final int SQL_LIKE_ONLY          = 0xF1;  // will not be returned by our IBM i system
     private static final int SQL_ALL_EXCEPT_LIKE    = 0xF2;  // isSearchable = true   
     private static final int SQL_SEARCHABLE         = 0xF3;  // isSearchable = true
 
@@ -53,7 +53,7 @@ implements ResultSetMetaData
     //@G1A @G2C
     private static final int SQL_READ_ONLY          = 0xF0;  // isReadOnly = true, isWriteable = false
     private static final int SQL_WRITE_CAPABLE      = 0xF1;  // isReadOnly = false, isWriteable = true
-    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our i5/OS system
+    private static final int SQL_READ_WRITE_UNKNOWN = 0xF2;  // will not be returned by our IBM i system
 
     // Private data.
     private String              catalog_;
@@ -404,7 +404,7 @@ implements ResultSetMetaData
     {
         checkIndex(columnIndex);
 
-        // In DB2 for i5/OS, all text types
+        // In DB2 for IBM i, all text types
         // are case sensitive.
         return row_.getSQLType(columnIndex).isText();
     }
@@ -412,7 +412,7 @@ implements ResultSetMetaData
     /**
     Indicates if the column is a currency value.
     @param  columnIndex     The column index (1-based).
-    @return                 Always false.  DB2 for i5/OS
+    @return                 Always false.  DB2 for IBM i
                             does not directly support currency
                             values.
     @exception  SQLException    If the column index is not valid.
