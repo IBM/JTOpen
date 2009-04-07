@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateVldlUtilImplRemote provides the implementation of the remote methods for accessing certificates in an i5/OS validation list object.
+   <p>The AS400CertificateVldlUtilImplRemote provides the implementation of the remote methods for accessing certificates in an IBM i validation list object.
 **/
 class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 {
@@ -70,7 +70,6 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       parmlist[4] = new ProgramParameter(pathlenB);
 
 	 // 6 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ 7 ];
       parmlist[5] = new ProgramParameter( 7 );
 
       	 // 7 parameter: input/output, is the return code
@@ -105,7 +104,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[5].getOutputData();
+	      byte[] errorInfoB = parmlist[5].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
@@ -162,7 +161,6 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       parmlist[5] = new ProgramParameter(certTypeB);
 
 	 // 7 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ 7 ];
       parmlist[6] = new ProgramParameter( 7 );
 
       	 // 8 parameter: input/output, is the return code
@@ -197,7 +195,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[6].getOutputData();
+	      byte[] errorInfoB = parmlist[6].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
@@ -333,7 +331,6 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       parmlist[6] = new ProgramParameter(attrbytes);
 
 	 // 8 parameter: output, is the number certs found
-      byte[] numberCertificatesFoundB = new byte[4];
       parmlist[7] = new ProgramParameter(4);
 
 
@@ -384,7 +381,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	  }
 
 	  //return output parms, 1st get number of certs found
-	  numberCertificatesFoundB = parmlist[7].getOutputData();
+	  byte[] numberCertificatesFoundB = parmlist[7].getOutputData();
 	  numberCertificatesFound_  =
 	    BinaryConverter.byteArrayToInt(numberCertificatesFoundB, 0);
 
@@ -440,7 +437,6 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       parmlist[5] = new ProgramParameter(certTypeB);
 
         // 7 parameter: output, is cert present indicator
-      byte[] presentB = new byte[4];
       parmlist[6] = new ProgramParameter( 4 );
 
 	 // 8 parameter: output, is the cpf error id array
@@ -485,7 +481,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 	  }
 
 	   //return output parm, cert present indicator
-	  presentB = parmlist[6].getOutputData();
+	  byte[] presentB = parmlist[6].getOutputData();
 	  present_  =
 	    BinaryConverter.byteArrayToInt(presentB, 0);
       }

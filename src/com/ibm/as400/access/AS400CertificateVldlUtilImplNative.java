@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 
 
 /**
-   <p>The AS400CertificateVldlUtilImplNative provides the implementation of the native methods for accessing certificates in an i5/OS validation list object.
+   <p>The AS400CertificateVldlUtilImplNative provides the implementation of the native methods for accessing certificates in an IBM i validation list object.
 **/
 class AS400CertificateVldlUtilImplNative  extends AS400CertificateVldlUtilImpl
 {

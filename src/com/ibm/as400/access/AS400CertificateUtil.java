@@ -28,7 +28,7 @@ import java.beans.VetoableChangeListener;
 
 /**
    <p>The AS400CertificateUtil class provides the methods common to AS400CertificateVldlUtil and AS400CertificateUserProfileUtil.
-  * The following example demonstrates the use of AS400CertificateUtil, AS400CertificateVldlUtil, and AS400CertificateUserProfileUtil. It copies an arbitrary number of X.509 certificates from an i5/OS user profile to an i5/OS validation list (vldl) object. The user profile certificates are first placed into a user space and then added to the validation list:<br>
+  * The following example demonstrates the use of AS400CertificateUtil, AS400CertificateVldlUtil, and AS400CertificateUserProfileUtil. It copies an arbitrary number of X.509 certificates from an IBM i user profile to an IBM i validation list (vldl) object. The user profile certificates are first placed into a user space and then added to the validation list:<br>
   * <PRE>
       // Get certificates from the local system
     AS400 as400 = new AS400();
@@ -149,10 +149,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   // Object's fully qualified IFS name
   String ifsPathName_;
 
-  // 10 char i5/OS lib name
+  // 10 char IBM i lib name
   String libName_;
 
-  // 10 char i5/OS object name
+  // 10 char IBM i object name
   String objectName_;
 
   // IFS object type.
@@ -161,7 +161,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   // User space 20 char "object || lib" name
   String usrSpaceName_;
 
-  // The i5/OS connection information
+  // The IBM i connection information
   AS400 system_ = null;
 
   transient  boolean connected_ = false;
@@ -197,7 +197,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   final static int INTERNAL_ERR_EXCP    = 5;
   final static int SUCCESS         = 0;
 
-  // Free form additional information about this i5/OS Object.
+  // Free form additional information about this IBM i Object.
   private String info_;
 
 
@@ -246,10 +246,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate already added and  other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificate already added and  other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   abstract public void addCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -311,10 +311,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate not found and  other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificate not found and  other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   abstract public void deleteCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -331,14 +331,14 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * Deletes the certificate from the repository. Throws ExtendedIOException
    * if the certificate is not present in the repository.
    *
-   * @param certificatehandle The i5/OS certificate handle of the certificate to be deleted from the repository.
+   * @param certificatehandle The IBM i certificate handle of the certificate to be deleted from the repository.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
-   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   abstract public void deleteCertificateByHandle(byte[] certificatehandle)
     throws AS400SecurityException,
@@ -365,10 +365,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate, firstCertificateToReturn set to more than the total number of certificates in user space, and other invalid input parameters.
-   * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   public AS400Certificate [] getCertificates(
                          String userSpaceName,
@@ -436,17 +436,17 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
 
 
   /**
-   * Returns the i5/OS certificate handle which uniquely identifies this certificate.
+   * Returns the IBM i certificate handle which uniquely identifies this certificate.
    *
-   * @return  The i5/OS certificate handle.
+   * @return  The IBM i certificate handle.
    *
    * @param certificate The ASN.1 Certificate used to generate the handle.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-   * @exception ExtendedIOException If invalid certificate and  other i5/OS certificate access errors.
+   * @exception ExtendedIOException If invalid certificate and  other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   public byte[] getCertificateHandle(byte[] certificate)
     throws AS400SecurityException,
@@ -520,10 +520,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate and other invalid input parameters.
-   * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   public AS400Certificate [] getFirstCertificates(String userSpaceName,
                                 int buffSize)
@@ -587,9 +587,9 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
 
 
   /**
-    *Returns the name of the i5/OS certificate repository.
+    *Returns the name of the IBM i certificate repository.
     *
-    *@return  The i5/OS object name.  If the name has not been set, an empty string is returned.
+    *@return  The IBM i object name.  If the name has not been set, an empty string is returned.
     **/
   public String getName()
   {
@@ -615,10 +615,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate.
-   * @exception ExtendedIOException If certificates are not in "CERT0100" format in the user space, user space and initial certificate to return are not set by calling getCertificates or getFirstCertificates, and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificates are not in "CERT0100" format in the user space, user space and initial certificate to return are not set by calling getCertificates or getFirstCertificates, and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   public AS400Certificate [] getNextCertificates(int buffSize)
     throws AS400SecurityException,
@@ -698,9 +698,9 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
 
 
   /**
-    *Returns the integrated file system path name of the i5/OS certificate repository.
+    *Returns the integrated file system path name of the IBM i certificate repository.
     *
-    *@return  The fully qualified i5/OS object name.  If the name as not been set, an empty string is returned.
+    *@return  The fully qualified IBM i object name.  If the name as not been set, an empty string is returned.
     **/
   public String getPath()
   {
@@ -727,7 +727,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * Returns certificates which match the specified attributes in the specified existing user space.
    *   The underlying certificate repositories are not locked during the listCertificates operation.
    *   Certificates are stored into the user space with CERT0100 format.
-   *   See the i5/OS QsyListVldlCertificates (QSYLSTVC) and QsyListUserCertificates (QSYLSTUC) API's for further information.
+   *   See the IBM i QsyListVldlCertificates (QSYLSTVC) and QsyListUserCertificates (QSYLSTUC) API's for further information.
    *
    * @param certificateAttributes  The list of attributes the certificate must match.
    *   A value of null places all certificates from the repository into the user space.
@@ -744,10 +744,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
-   * @exception ExtendedIOException If i5/OS certificate access error.
+   * @exception ExtendedIOException If IBM i certificate access error.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
   abstract public int listCertificates(
                  AS400CertificateAttribute[] certificateAttributes,
@@ -923,7 +923,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
 
 
     /**
-     * Sets instance variable, usrSpacename_, in i5/OS format, "10 char user space name || 10 char user space lib name". Checks for non-null values.
+     * Sets instance variable, usrSpacename_, in IBM i format, "10 char user space name || 10 char user space lib name". Checks for non-null values.
      *
      * @param userSpaceName  The ifs path name of the user space.
      *
@@ -949,7 +949,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
      uSpaceLib = ifs.getLibraryName();
      uSpaceName = ifs.getObjectName();
 
-        // get 20 char "object || lib" i5/OS name
+        // get 20 char "object || lib" IBM i name
      usrSpaceName_ = uSpaceName + "          ";
      usrSpaceName_ = usrSpaceName_.substring(0, 10) + uSpaceLib +
        "          ";
@@ -963,10 +963,10 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
 
 
     /**
-     * Returns user space name in i5/OS format, "10 char user space name || 10 char user space lib name". Checks for non-null values.
+     * Returns user space name in IBM i format, "10 char user space name || 10 char user space lib name". Checks for non-null values.
      *
      * @param userSpaceName  The ifs path name of the user space.
-     * @return The user space name in i5/OS format.
+     * @return The user space name in IBM i format.
      *
      * @exception Various exceptions are thrown based on the input.
      */
@@ -990,7 +990,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
      uSpaceLib = ifs.getLibraryName();
      uSpaceName = ifs.getObjectName();
 
-        // get 20 char "object || lib" i5/OS name
+        // get 20 char "object || lib" IBM i name
      as400usrSpaceName = uSpaceName + "          ";
      as400usrSpaceName = as400usrSpaceName.substring(0, 10) + uSpaceLib +
        "          ";
@@ -1051,7 +1051,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
                 break forloop;
             }
 
-           //save the i5/OS attr. as400Attrs array is order dependent.
+           //save the IBM i attr. as400Attrs array is order dependent.
             as400AttrS_[0] = (String) attributes[i].getAttributeValue();
            }
 
@@ -1151,7 +1151,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
                break forloop;
               }
 
-                //save the i5/OS attr. as400AttrB array is order dependent.
+                //save the IBM i attr. as400AttrB array is order dependent.
               as400AttrB_[0] = (byte[]) attributes[i].getAttributeValue();
           }
 

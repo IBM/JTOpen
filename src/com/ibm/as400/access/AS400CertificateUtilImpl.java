@@ -21,10 +21,7 @@ import java.io.IOException;
 **/
 abstract class AS400CertificateUtilImpl  implements AS400CertificateUtilImplConstants
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-  Converter converter_;        // The string to i5/OS data converter. @C0C @C1C
+  Converter converter_;        // The string to IBM i data converter. @C0C @C1C
   AS400 system_ = null; 
 
   // Output parms for native methods    

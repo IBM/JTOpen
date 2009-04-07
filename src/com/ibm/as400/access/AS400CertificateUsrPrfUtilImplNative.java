@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 
 
 /**
-   <p>The AS400CertificateUsrPrfUtilImplNative provides the implementation of the native methods for accessing certificates in an i5/OS user profile object.
+   <p>The AS400CertificateUsrPrfUtilImplNative provides the implementation of the native methods for accessing certificates in an IBM i user profile object.
 **/
 class AS400CertificateUsrPrfUtilImplNative  extends AS400CertificateUsrPrfUtilImpl
 {

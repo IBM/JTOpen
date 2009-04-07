@@ -23,7 +23,7 @@ import java.util.Vector;
 
 
 /**
-   <p>The AS400CertificateVldlUtil class provides the implementation of the methods for accessing certificates in an i5/OS validation list object.
+   <p>The AS400CertificateVldlUtil class provides the implementation of the methods for accessing certificates in an IBM i validation list object.
 **/
 public class AS400CertificateVldlUtil extends AS400CertificateUtil implements java.io.Serializable
 {
@@ -125,10 +125,10 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate already added and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificate already added and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
    public void addCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -175,10 +175,10 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If other i5/OS certificate access errors.
+   * @exception ExtendedIOException If other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
    public boolean checkCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -219,17 +219,17 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
   /**
    * Determines if a certificate matching the handle exists in the validation list.
    *
-   * @param certificateHandle The i5/OS certificate handle matching the certificate.
+   * @param certificateHandle The IBM i certificate handle matching the certificate.
    *
    * @return true if a certificate matching the handle is found in the validation list; false otherwise.
    *
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
-   * @exception ExtendedIOException If other i5/OS certificate access errors.
+   * @exception ExtendedIOException If other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
    public boolean checkCertificateByHandle(byte[] certificateHandle)
     throws AS400SecurityException,
@@ -274,10 +274,10 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate.
-   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
    public void deleteCertificate(byte[] certificate)
     throws AS400SecurityException,
@@ -318,14 +318,14 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
   /**
    * Deletes the certificate matching the certificate handle from the validation list. Throws ExtendedIOException if the certificate is not present in the repository.
    *
-   * @param certificateHandle The i5/OS certificate handle matching the certificate to be deleted from the repository.
+   * @param certificateHandle The IBM i certificate handle matching the certificate to be deleted from the repository.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
-   * @exception ExtendedIOException If certificate not found and other i5/OS certificate access errors.
+   * @exception ExtendedIOException If certificate not found and other IBM i certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
    public void deleteCertificateByHandle(byte[] certificateHandle)
     throws AS400SecurityException,
@@ -366,14 +366,14 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
   /**
    * Lists certificates which match the specified attributes are copied from the validation list into the specified user space.
    * The validation list is not locked during the listCertificates operation.
-   * Certificates are stored into the user space with CERT0100 format. See the i5/OS QsyListVldlCertificates (QSYLSTVC) and QsyListUserCertificates (QSYLSTUC) API's for further information.
+   * Certificates are stored into the user space with CERT0100 format. See the IBM i QsyListVldlCertificates (QSYLSTVC) and QsyListUserCertificates (QSYLSTUC) API's for further information.
    *
    * @param certificateAttributes  The list of attributes the certificate should match.
    *    A value of null places all certificates from the validation list into the user space.
    *    An empty String or empty byte array search attribute will search for certificates that do not have this attribute.
    *    For example, SUBJECT_ORGANIZATION = new String("") will search for certificates without the subject organization field.
    *    Null search attributes are ignored.
-   * @param userSpaceName  The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC. The 10 char i5/OS library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * @param userSpaceName  The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC. The 10 char IBM i library of the user space may also be specified as %CURLIB% or %LIBL%.
    * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    *
    * @return  The number of certificates found.
@@ -381,10 +381,10 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
-   * @exception ExtendedIOException If i5/OS certificate access error.
+   * @exception ExtendedIOException If IBM i certificate access error.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with the system.
-   * @exception ObjectDoesNotExistException If the i5/OS object does not exist.
+   * @exception ObjectDoesNotExistException If the IBM i object does not exist.
    */
 
    public int listCertificates(
@@ -408,7 +408,7 @@ public class AS400CertificateVldlUtil extends AS400CertificateUtil implements ja
       //orders and saves the user's search attrs
     boolean[] parmsEntered = setSearchAttributes(certificateAttributes);
 
-      //get usrSpaceName in i5/OS format. check for nonnull values.
+      //get usrSpaceName in IBM i format. check for nonnull values.
     as400usrSpaceName = getAS400UserSpaceName(userSpaceName);
 
        //makes either remote or local call

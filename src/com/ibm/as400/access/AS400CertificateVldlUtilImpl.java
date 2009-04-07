@@ -17,13 +17,11 @@ import java.io.IOException;
 
 
 /**
-   <p>The AS400CertificateVldlUtilImpl provides the base class for the implementation of the methods for accessing certificates in an i5/OS validation list object.  
+   <p>The AS400CertificateVldlUtilImpl provides the base class for the implementation of the methods for accessing certificates in an IBM i validation list object.  
 **/
 abstract class AS400CertificateVldlUtilImpl implements AS400CertificateUtilImplConstants
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-  Converter converter_;        // The string to i5/OS data converter. @C0C @C1C
+  Converter converter_;        // The string to IBM i data converter. @C0C @C1C
   AS400 system_ = null;
 
   // Output parms for native methods

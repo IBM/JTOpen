@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateUsrPrfUtilImplRemote provides the implementation of the remote methods for accessing certificates in an i5/OS user profile object.
+   <p>The AS400CertificateUsrPrfUtilImplRemote provides the implementation of the remote methods for accessing certificates in an IBM i user profile object.
  **/
 class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilImpl
 {
@@ -65,7 +65,6 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       parmlist[3] = new ProgramParameter(usrprfPathB);
 
 	 // 5 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ 7 ];
       parmlist[4] = new ProgramParameter( 7 );
 
       	 // 6 parameter: input/output, is the return code
@@ -100,7 +99,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[4].getOutputData();
+	      byte[] errorInfoB = parmlist[4].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
@@ -152,7 +151,6 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       parmlist[4] = new ProgramParameter(certTypeB);
 
 	 // 6 parameter: output, is the cpf error id array
-      byte[] errorInfoB = new byte[ 7];
       parmlist[5] = new ProgramParameter( 7 );
 
       	 // 7 parameter: input/output, is the return code
@@ -187,7 +185,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	      //unexpected error
 	      if (-1 == rc) return rc;
 	      //get cpf error id
-	      errorInfoB = parmlist[5].getOutputData();
+	      byte[] errorInfoB = parmlist[5].getOutputData();
 	      cpfError_ = converter_.byteArrayToString(errorInfoB, 0).trim();
 	      return rc;
 	  }
@@ -318,7 +316,6 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       parmlist[5] = new ProgramParameter(attrbytes);
 
 	 // 7 parameter: output, is the number certs found
-      byte[] numberCertificatesFoundB = new byte[4];
       parmlist[6] = new ProgramParameter(4);
 
 
@@ -367,7 +364,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  }
 
 	  //return output parms, 1st get number of certs found
-	  numberCertificatesFoundB = parmlist[6].getOutputData();
+	  byte[] numberCertificatesFoundB = parmlist[6].getOutputData();
 	  numberCertificatesFound_ =
 	    BinaryConverter.byteArrayToInt(numberCertificatesFoundB, 0);
 
@@ -409,7 +406,6 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       parmlist[2] = new ProgramParameter(certlenB);
 
 	 // 4 parameter: output, is user profile
-      byte[] usrprfPathB = new byte[10];
       parmlist[3] = new ProgramParameter(10);
 
 	 // 5 parameter: input, is certificate type
@@ -459,7 +455,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  }
 
 	   //return output parm, 10 char user name
-	  usrprfPathB = parmlist[3].getOutputData();
+	  byte[] usrprfPathB = parmlist[3].getOutputData();
 	  userName_ = converter_.byteArrayToString(usrprfPathB, 0);
 
       }
