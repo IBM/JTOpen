@@ -18,20 +18,17 @@ package com.ibm.as400.access;
  **/
 public class BinaryConverter
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   // Don't allow instances of this class.
   private BinaryConverter()
   {
   }
 
   /**
-    Convert the specified short into i5/OS format in the specified byte array.
+    Convert the specified short into IBM i format in the specified byte array.
     The converted value will occupy 2 bytes.
-    @param  shortValue  The value to be converted to i5/OS format.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  shortValue  The value to be converted to IBM i format.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void shortToByteArray(short shortValue, byte[] serverValue, int offset)
   {
@@ -40,9 +37,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified short into i5/OS format in a byte array.
-    @param  shortValue  The value to be converted to i5/OS format.
-    @return  An array (of length 2) with the data type in i5/OS format.
+    Convert the specified short into IBM i format in a byte array.
+    @param  shortValue  The value to be converted to IBM i format.
+    @return  An array (of length 2) with the data type in IBM i format.
    **/
   public static byte[] shortToByteArray(short shortValue)
   {
@@ -52,9 +49,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to a short.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to a short.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  a short corresponding to the data type.
    **/
   public static short byteArrayToShort(byte[] serverValue, int offset)
@@ -64,11 +61,11 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into i5/OS format in the specified byte array.
+    Convert the specified int into IBM i format in the specified byte array.
     The converted value will occupy 4 bytes.
-    @param  intValue  The value to be converted to i5/OS format.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  intValue  The value to be converted to IBM i format.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void intToByteArray(int intValue, byte[] serverValue, int offset)
   {
@@ -79,9 +76,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into i5/OS format in a byte array.
-    @param  intValue  The value to be converted to i5/OS format.
-    @return  An array (of length 4) with the data type in i5/OS format.
+    Convert the specified int into IBM i format in a byte array.
+    @param  intValue  The value to be converted to IBM i format.
+    @return  An array (of length 4) with the data type in IBM i format.
    **/
   public static byte[] intToByteArray(int intValue)
   {
@@ -91,9 +88,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to an int.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to an int.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  an int corresponding to the data type.
    **/
   public static int byteArrayToInt(byte[] serverValue, int offset)
@@ -105,11 +102,11 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into i5/OS format in the specified byte array.
+    Convert the specified float into IBM i format in the specified byte array.
     The converted value will occupy 4 bytes.
-    @param  floatValue  The value to be converted to i5/OS format.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  floatValue  The value to be converted to IBM i format.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void floatToByteArray(float floatValue, byte[] serverValue, int offset)
   {
@@ -121,9 +118,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into i5/OS format in a byte array.
-    @param  floatValue  The value to be converted to i5/OS format.
-    @return  An array (of length 4) with the data type in i5/OS format.
+    Convert the specified float into IBM i format in a byte array.
+    @param  floatValue  The value to be converted to IBM i format.
+    @return  An array (of length 4) with the data type in IBM i format.
     @deprecated  Use floatToByteArray(float) instead.
    **/
   public static byte[] floatToByteArray(int floatValue)
@@ -134,9 +131,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified float into i5/OS format in a byte array.
-    @param  floatValue  The value to be converted to i5/OS format.
-    @return  An array (of length 4) with the data type in i5/OS format.
+    Convert the specified float into IBM i format in a byte array.
+    @param  floatValue  The value to be converted to IBM i format.
+    @return  An array (of length 4) with the data type in IBM i format.
    **/
   public static byte[] floatToByteArray(float floatValue)
   {
@@ -146,9 +143,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to a float.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to a float.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  a float corresponding to the data type.
    **/
   public static float byteArrayToFloat(byte[] serverValue, int offset)
@@ -161,11 +158,11 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified double into i5/OS format in the specified byte array.
+    Convert the specified double into IBM i format in the specified byte array.
     The converted value will occupy 8 bytes.
-    @param  doubleValue  The value to be converted to i5/OS format.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  doubleValue  The value to be converted to IBM i format.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void doubleToByteArray(double doubleValue, byte[] serverValue, int offset)
   {
@@ -186,9 +183,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified double into i5/OS format in a byte array.
-    @param  doubleValue  The value to be converted to i5/OS format.
-    @return  An array (of length 8) with the data type in i5/OS format.
+    Convert the specified double into IBM i format in a byte array.
+    @param  doubleValue  The value to be converted to IBM i format.
+    @return  An array (of length 8) with the data type in IBM i format.
    **/
   public static byte[] doubleToByteArray(double doubleValue)
   {
@@ -198,9 +195,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to a double.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to a double.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  a double corresponding to the data type.
    **/
   public static double byteArrayToDouble(byte[] serverValue, int offset)
@@ -219,11 +216,11 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into i5/OS format in the specified byte array.
+    Convert the specified int into IBM i format in the specified byte array.
     The converted value will occupy 2 bytes.
-    @param  intValue  The value to be converted to i5/OS format.  The integer should be greater than or equal to zero and representable in two bytes.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  intValue  The value to be converted to IBM i format.  The integer should be greater than or equal to zero and representable in two bytes.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void unsignedShortToByteArray(int intValue, byte[] serverValue, int offset)
   {
@@ -232,9 +229,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified int into i5/OS format in a byte array.
-    @param  intValue  The value to be converted to i5/OS format.  The integer should be greater than or equal to zero and representable in two bytes.
-    @return  An array (of length 2) with the data type in i5/OS format.
+    Convert the specified int into IBM i format in a byte array.
+    @param  intValue  The value to be converted to IBM i format.  The integer should be greater than or equal to zero and representable in two bytes.
+    @return  An array (of length 2) with the data type in IBM i format.
    **/
   public static byte[] unsignedShortToByteArray(int intValue)
   {
@@ -244,9 +241,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to an int.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to an int.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  an int corresponding to the data type.
    **/
   public static int byteArrayToUnsignedShort(byte[] serverValue, int offset)
@@ -256,11 +253,11 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into i5/OS format in the specified byte array.
+    Convert the specified long into IBM i format in the specified byte array.
     The converted value will occupy 4 bytes.
-    @param  longValue  The value to be converted to i5/OS format.  The long should be greater than or equal to zero and representable in four bytes.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  longValue  The value to be converted to IBM i format.  The long should be greater than or equal to zero and representable in four bytes.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void unsignedIntToByteArray(long longValue, byte[] serverValue, int offset)
   {
@@ -273,9 +270,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into i5/OS format in a byte array.
-    @param  longValue  The value to be converted to i5/OS format.  The long should be greater than or equal to zero and representable in four bytes.
-    @return  An array (of length 4) with the data type in i5/OS format.
+    Convert the specified long into IBM i format in a byte array.
+    @param  longValue  The value to be converted to IBM i format.  The long should be greater than or equal to zero and representable in four bytes.
+    @return  An array (of length 4) with the data type in IBM i format.
    **/
   public static byte[] unsignedIntToByteArray(long longValue)
   {
@@ -285,9 +282,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to a long.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to a long.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  a long corresponding to the data type.
    **/
   public static long byteArrayToUnsignedInt(byte[] serverValue, int offset)
@@ -299,11 +296,11 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into i5/OS format in the specified byte array.
+    Convert the specified long into IBM i format in the specified byte array.
     The converted value will occupy 8 bytes.
-    @param  longValue  The value to be converted to i5/OS format.
-    @param  serverValue  The array to receive the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    @param  longValue  The value to be converted to IBM i format.
+    @param  serverValue  The array to receive the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
    **/
   public static void longToByteArray(long longValue, byte[] serverValue, int offset)
   {
@@ -323,9 +320,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified long into i5/OS format in a byte array.
-    @param  longValue  The value to be converted to i5/OS format.
-    @return  An array (of length 8) with the data type in i5/OS format.
+    Convert the specified long into IBM i format in a byte array.
+    @param  longValue  The value to be converted to IBM i format.
+    @return  An array (of length 8) with the data type in IBM i format.
    **/
   public static byte[] longToByteArray(long longValue)
   {
@@ -335,9 +332,9 @@ public class BinaryConverter
   }
 
   /**
-    Convert the specified i5/OS data type to a long.
-    @param  serverValue  The array containing the data type in i5/OS format.
-    @param  offset  The offset into the byte array for the start of the i5/OS value.
+    Convert the specified IBM i data type to a long.
+    @param  serverValue  The array containing the data type in IBM i format.
+    @param  offset  The offset into the byte array for the start of the IBM i value.
     @return  a long corresponding to the data type.
    **/
   public static long byteArrayToLong(byte[] serverValue, int offset)

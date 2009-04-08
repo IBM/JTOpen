@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 /**
- The AS400Text class provides character set conversion between Java String objects and i5/OS code pages.
+ The AS400Text class provides character set conversion between Java String objects and IBM i code pages.
  <P>Note that in the past few releases, several constructors were deprecated because they did not accept a system object as an argument.  Due to recent changes in the behavior of the character conversion routines, this system object is no longer necessary, except when the AS400Text object is to be passed as a parameter on a Toolbox Proxy connection.  Since this case is extremely rare, it is more beneficial not to have the constructors issue deprecation warnings.
  @see  com.ibm.as400.access.CharConverter
  **/
@@ -35,7 +35,7 @@ public class AS400Text implements AS400DataType
     /**
      Constructs an AS400Text object.
      It uses the most likely CCSID based on the default locale.
-     @param  length  The byte length of the i5/OS text.  It must be greater than or equal to zero.
+     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
      **/
     public AS400Text(int length)
     {
@@ -49,8 +49,8 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs an AS400Text object.
-     @param  length  The byte length of the i5/OS text.  It must be greater than or equal to zero.
-     @param  ccsid  The CCSID of the i5/OS text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
+     @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
      **/
     public AS400Text(int length, int ccsid)
     {
@@ -70,7 +70,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs AS400Text object.
-     @param  length  The byte length of the i5/OS text.  It must be greater than or equal to zero.
+     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
      @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
      **/
     public AS400Text(int length, String encoding)
@@ -91,7 +91,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs an AS400Text object.  The CCSID used for conversion will be the CCSID of the <i>system</i> object.
-     @param  length  The byte length of the i5/OS text.  It must be greater than or equal to zero.
+     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
      @param  system  The system with which to determine the CCSID.
      */
     public AS400Text(int length, AS400 system)
@@ -102,8 +102,8 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs an AS400Text object.
-     @param  length  The byte length of the i5/OS text.  It must be greater than or equal to zero.
-     @param  ccsid  The CCSID of the i5/OS text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+     @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
+     @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
      @param  system  The system from which the conversion table may be downloaded.
      */
     public AS400Text(int length, int ccsid, AS400 system)
@@ -148,7 +148,7 @@ public class AS400Text implements AS400DataType
         }
         length_ = length;
         ccsid_ = ccsid;
-        // Notice that we have not filled in the Converter object.  We can't do that because we don't know if this object will in the end be used on the public side (Converter) or on the i5/OS side (ConverterImpl).
+        // Notice that we have not filled in the Converter object.  We can't do that because we don't know if this object will in the end be used on the public side (Converter) or on the IBM i side (ConverterImpl).
         // We also can't do that yet since the Converter ctor will connect to the system.
     }
 
@@ -171,7 +171,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Returns the byte length of the data type.
-     @return  The number of bytes in the i5/OS representation of the data type.
+     @return  The number of bytes in the IBM i representation of the data type.
      **/
     public int getByteLength()
     {
@@ -307,9 +307,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object to i5/OS format.
+     Converts the specified Java object to IBM i format.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @return  The i5/OS representation of the data type.
+     @return  The IBM i representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
@@ -319,10 +319,10 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into i5/OS format in the specified byte array.
+     Converts the specified Java object into IBM i format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     @return  The number of bytes in the i5/OS representation of the data type.
+     @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     @return  The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue)
     {
@@ -330,11 +330,11 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into i5/OS format in the specified byte array.
+     Converts the specified Java object into IBM i format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     @param  offset  The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
-     @return  The number of bytes in the i5/OS representation of the data type.
+     @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
+     @return  The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset)
     {
@@ -349,12 +349,12 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into i5/OS format in the specified byte array.
+     Converts the specified Java object into IBM i format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     @param  offset  The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
-     @return  The number of bytes in the i5/OS representation of the data type.
+     @return  The number of bytes in the IBM i representation of the data type.
      @see  com.ibm.as400.access.BidiStringType
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset, int type)
@@ -363,12 +363,12 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into i5/OS format in the specified byte array.
+     Converts the specified Java object into IBM i format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     @param  offset  The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @param  properties  The bidi conversion properties.
-     @return  The number of bytes in the i5/OS representation of the data type.
+     @return  The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset, BidiConversionProperties properties)
     {
@@ -484,8 +484,8 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified i5/OS data type to a Java object.
-     @param  serverValue  The array containing the data type in i5/OS format.  The entire data type must be represented.
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
      @return  The String object corresponding to the data type.
      **/
     public Object toObject(byte[] serverValue)
@@ -501,9 +501,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified i5/OS data type to a Java object.
-     @param  serverValue  The array containing the data type in i5/OS format.  The entire data type must be represented.
-     @param  offset  The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
      @return  The String object corresponding to the data type.
      **/
     public Object toObject(byte[] serverValue, int offset)
@@ -519,9 +519,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified i5/OS data type to a Java object.
-     @param  serverValue  The array containing the data type in i5/OS format.  The entire data type must be represented.
-     @param  offset  The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
      @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  The String object corresponding to the data type.
      @see com.ibm.as400.access.BidiStringType
@@ -532,9 +532,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified i5/OS data type to a Java object.
-     @param  serverValue  The array containing the data type in i5/OS format.  The entire data type must be represented.
-     @param  offset  The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
      @param  properties  The bidi conversion properties.
      @return  The String object corresponding to the data type.
      **/

@@ -18,14 +18,12 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 /**
- A character set converter between Java String objects and i5/OS native code pages.
+ A character set converter between Java String objects and IBM i native code pages.
  <P>Note that in the past few releases, several constructors were deprecated because they did not accept a system object as an argument.  Due to recent changes in the behavior of the character conversion routines, this system object is no longer necessary.
  @see  com.ibm.as400.access.AS400Text
  **/
 public class CharConverter implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     private static boolean faultTolerantConversion_ = false;
@@ -52,7 +50,7 @@ public class CharConverter implements Serializable
 
     /**
      Constructs a CharConverter object using the specified CCSID.
-     @param  ccsid  The CCSID of the i5/OS text.
+     @param  ccsid  The CCSID of the IBM i text.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
      */
     public CharConverter(int ccsid) throws UnsupportedEncodingException
@@ -62,7 +60,7 @@ public class CharConverter implements Serializable
 
     /**
      Constructs a CharConverter object using the specified CCSID and system.
-     @param  ccsid  The CCSID of the i5/OS text.
+     @param  ccsid  The CCSID of the IBM i text.
      @param  system  The system object representing the system with which to connect.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
      */
@@ -153,7 +151,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified bytes into a String.
-     @param  ccsid   The CCSID of the i5/OS text.
+     @param  ccsid   The CCSID of the IBM i text.
      @param  system  The system object representing the system with which to connect.
      @param  source  The bytes to convert.
      @return  The resultant String.
@@ -166,7 +164,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified bytes into a String.  If the Toolbox does not possess a table for the given CCSID, nor does the JVM, an UnsupportedEncodingException is thrown.
-     @param  ccsid   The CCSID of the i5/OS text.
+     @param  ccsid   The CCSID of the IBM i text.
      @param  source  The bytes to convert.
      @return  The resultant String.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
@@ -189,7 +187,7 @@ public class CharConverter implements Serializable
      </pre>
      That is not how the user profile name is stored in QSYS.  The 0x4A codepoint should really be a 0x5B codepoint.  So in this case, the command server will return an error message indicating the user profile was not found.
      <p>The solution is to use this method to replace the variant codepoints with codepoints that will correctly convert given the host server job CCSID.  When given the string "CASH$FLOW" and the CCSID 285, this method will return the string "CASH\u00A3FLOW".  If the CommandCall is issued with the string "DLTUSRPRF CASH\u00A3FLOW" and the job CCSID of the remote command host server is 285, it will correctly convert the pound sterling '\u00A3' into codepoint 0x5B, which is how the user profile name "CASH$FLOW" is actually stored in QSYS.
-     <p>For more information, please see <A HREF="http://publib.boulder.ibm.com/pubs/html/as400/v4r5/ic2924/info/RBAM6NAMEINCOM.HTM">i5/OS Information Center: CL and APIs: Control Language (CL): Naming within commands</A>.
+     <p>For more information, please see <A HREF="http://publib.boulder.ibm.com/pubs/html/as400/v4r5/ic2924/info/RBAM6NAMEINCOM.HTM">IBM i Information Center: CL and APIs: Control Language (CL): Naming within commands</A>.
      @see #convertJobPathnameToIFSQSYSPathname
      @param  qsysData  The String in which to substitute variant QSYS characters.
      @param  jobCCSID  The CCSID of the job in which to convert the variant characters.
@@ -373,7 +371,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified String into bytes.
-     @param  ccsid  The CCSID of the i5/OS text.
+     @param  ccsid  The CCSID of the IBM i text.
      @param  system  The system object representing the system with which to connect.
      @param  source  The String to convert.
      @return  The destination byte array.
@@ -386,7 +384,7 @@ public class CharConverter implements Serializable
 
     /**
      Converts the specified String into bytes.  If the Toolbox does not possess a table for the given CCSID, nor does the JVM, an UnsupportedEncodingException is thrown.
-     @param  ccsid  The CCSID of the i5/OS text.
+     @param  ccsid  The CCSID of the IBM i text.
      @param  source  The String to convert.
      @return  The destination byte array.
      @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.

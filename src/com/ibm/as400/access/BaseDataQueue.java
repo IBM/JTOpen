@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 
 /**
- The BaseDataQueue class represents an i5/OS data queue object.
+ The BaseDataQueue class represents an IBM i data queue object.
  **/
 public abstract class BaseDataQueue implements Serializable
 {
@@ -214,7 +214,7 @@ public abstract class BaseDataQueue implements Serializable
         // Connect to data queue server.
         boolean opened = impl_ == null;
         chooseImpl();
-        if (opened && objectListeners_ != null) fireObjectEvent(ObjectEvent.OBJECT_OPENED);
+        if (opened) fireObjectEvent(ObjectEvent.OBJECT_OPENED);
     }
 
     // Connects to the system and retrieves client/server attributes.
@@ -259,7 +259,7 @@ public abstract class BaseDataQueue implements Serializable
         open();
         // Send clear request.
         impl_.clear(null);
-        if (dataQueueListeners_ != null) fireDataQueueEvent(DataQueueEvent.DQ_CLEARED);
+        fireDataQueueEvent(DataQueueEvent.DQ_CLEARED);
     }
 
     /**
@@ -281,7 +281,7 @@ public abstract class BaseDataQueue implements Serializable
         impl_.delete();
         // Indicate that the existing attribute instance variables are invalid since the data queue no longer exists.  If someone re-creates it, it may have different attributes.
         attributesRetrieved_ = false;
-        if (objectListeners_ != null) fireObjectEvent(ObjectEvent.OBJECT_DELETED);
+        fireObjectEvent(ObjectEvent.OBJECT_DELETED);
     }
 
     /**
@@ -313,6 +313,8 @@ public abstract class BaseDataQueue implements Serializable
     // Fire data queue events.
     void fireDataQueueEvent(int id)
     {
+        if (dataQueueListeners_ == null) return;
+
         Vector targets = (Vector)dataQueueListeners_.clone();
         DataQueueEvent event = new DataQueueEvent(this, id);
         for (int i = 0; i < targets.size(); ++i)
@@ -339,6 +341,8 @@ public abstract class BaseDataQueue implements Serializable
     // Fire object events.
     void fireObjectEvent(int id)
     {
+        if (objectListeners_ == null) return;
+
         Vector targets = (Vector)objectListeners_.clone();
         ObjectEvent event = new ObjectEvent(this);
         for (int i = 0; i < targets.size(); i++)

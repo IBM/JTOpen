@@ -19,7 +19,7 @@ import java.util.*;
 import java.beans.*;
 
 /**
-The ClusteredHashTableEntry class represents an entry in an i5/OS highly available
+The ClusteredHashTableEntry class represents an entry in an IBM i highly available
 Clustered Hash Table. This class is only intended to be used with the
 {@link com.ibm.as400.access.ClusteredHashTable  ClusteredHashTable} class.
 <p>
@@ -28,8 +28,6 @@ Note: This class uses APIs that are available only when connecting to systems ru
 **/
 public class ClusteredHashTableEntry implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
   /**
      Constants
   **/

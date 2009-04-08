@@ -21,13 +21,7 @@ import java.math.BigInteger;
  **/
 public class AS400PackedDecimal implements AS400DataType
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
-
-
 
     private int digits;
     private int scale;
@@ -78,7 +72,7 @@ public class AS400PackedDecimal implements AS400DataType
 
     /**
      * Returns the byte length of the data type.
-     * @return The number of bytes in the i5/OS representation of the data type.
+     * @return The number of bytes in the IBM i representation of the data type.
      **/
     public int getByteLength()
     {
@@ -154,9 +148,9 @@ public class AS400PackedDecimal implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object to i5/OS format.
+     * Converts the specified Java object to IBM i format.
      * @param javaValue The object corresponding to the data type.  It must be an instance of BigDecimal and the BigDecimal must have a less than or equal to number of digits and a less than or equal to number of decimal places.
-     * @return The i5/OS representation of the data type.
+     * @return The IBM i representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
@@ -166,10 +160,10 @@ public class AS400PackedDecimal implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into i5/OS format in the specified byte array.
+     * Converts the specified Java object into IBM i format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of BigDecimal and the BigDecimal must have a less than or equal to number of digits and a less than or equal to number of decimal places.
-     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     * @return The number of bytes in the i5/OS representation of the data type.
+     * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     * @return The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] as400Value)
     {
@@ -177,11 +171,11 @@ public class AS400PackedDecimal implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into i5/OS format in the specified byte array.
+     * Converts the specified Java object into IBM i format in the specified byte array.
      * @param javaValue An object corresponding to the data type.  It must be an instance of BigDecimal and the BigDecimal must have a less than or equal to number of digits and a less than or equal to number of decimal places.
-     * @param as400Value The array to receive the data type in i5/OS format.  There must be enough space to hold the i5/OS value.
-     * @param offset The offset into the byte array for the start of the i5/OS value. It must be greater than or equal to zero.
-     * @return The number of bytes in the i5/OS representation of the data type.
+     * @param as400Value The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
+     * @param offset The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
+     * @return The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] as400Value, int offset)
     {
@@ -249,13 +243,13 @@ public class AS400PackedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified Java object to i5/OS format.
+     * Converts the specified Java object to IBM i format.
      *
-     * @param doubleValue   The value to be converted to i5/OS format.  If the decimal part
+     * @param doubleValue   The value to be converted to IBM i format.  If the decimal part
      *                      of this value needs to be truncated, it will be rounded towards
      *                      zero.  If the integral part of this value needs to be truncated,
      *                      an exception will be thrown.
-     * @return              The i5/OS representation of the data type.
+     * @return              The IBM i representation of the data type.
      **/
     public byte[] toBytes(double doubleValue)
     {
@@ -266,16 +260,16 @@ public class AS400PackedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified Java object into i5/OS format in 
+     * Converts the specified Java object into IBM i format in 
      * the specified byte array.
      *
-     * @param doubleValue   The value to be converted to i5/OS format.  If the decimal part
+     * @param doubleValue   The value to be converted to IBM i format.  If the decimal part
      *                      of this value needs to be truncated, it will be rounded towards
      *                      zero.  If the integral part of this value needs to be truncated,
      *                      an exception will be thrown.
-     * @param as400Value    The array to receive the data type in i5/OS format.  There must 
-     *                      be enough space to hold the i5/OS value.
-     * @return              The number of bytes in the i5/OS representation of the data type.
+     * @param as400Value    The array to receive the data type in IBM i format.  There must 
+     *                      be enough space to hold the IBM i value.
+     * @return              The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(double doubleValue, byte[] as400Value)
     {
@@ -284,18 +278,18 @@ public class AS400PackedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified Java object into i5/OS format in 
+     * Converts the specified Java object into IBM i format in 
      * the specified byte array.
      *
-     * @param doubleValue   The value to be converted to i5/OS format.  If the decimal part
+     * @param doubleValue   The value to be converted to IBM i format.  If the decimal part
      *                      of this value needs to be truncated, it will be rounded towards
      *                      zero.  If the integral part of this value needs to be truncated,
      *                      an exception will be thrown.
-     * @param as400Value    The array to receive the data type in i5/OS format.  
-     *                      There must be enough space to hold the i5/OS value.
-     * @param offset        The offset into the byte array for the start of the i5/OS value. 
+     * @param as400Value    The array to receive the data type in IBM i format.  
+     *                      There must be enough space to hold the IBM i value.
+     * @param offset        The offset into the byte array for the start of the IBM i value. 
      *                      It must be greater than or equal to zero.
-     * @return              The number of bytes in the i5/OS representation of the data type.
+     * @return              The number of bytes in the IBM i representation of the data type.
      **/
     public int toBytes(double doubleValue, byte[] as400Value, int offset)
     {
@@ -399,14 +393,14 @@ public class AS400PackedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified i5/OS data type to a Java double value.  If the
+     * Converts the specified IBM i data type to a Java double value.  If the
      * decimal part of the value needs to be truncated to be represented by a
      * Java double value, then it is rounded towards zero.  If the integral
      * part of the value needs to be truncated to be represented by a Java
      * double value, then it converted to either Double.POSITIVE_INFINITY
      * or Double.NEGATIVE_INFINITY.
      * 
-     * @param as400Value The array containing the data type in i5/OS format.  
+     * @param as400Value The array containing the data type in IBM i format.  
      *                   The entire data type must be represented.
      * @return           The Java double value corresponding to the data type.
      **/
@@ -417,16 +411,16 @@ public class AS400PackedDecimal implements AS400DataType
 
     // @E0A
     /**
-     * Converts the specified i5/OS data type to a Java double value.  If the
+     * Converts the specified IBM i data type to a Java double value.  If the
      * decimal part of the value needs to be truncated to be represented by a
      * Java double value, then it is rounded towards zero.  If the integral
      * part of the value needs to be truncated to be represented by a Java
      * double value, then it converted to either Double.POSITIVE_INFINITY
      * or Double.NEGATIVE_INFINITY.
      * 
-     * @param as400Value The array containing the data type in i5/OS format.  
+     * @param as400Value The array containing the data type in IBM i format.  
      *                   The entire data type must be represented.
-     * @param offset     The offset into the byte array for the start of the i5/OS value.  
+     * @param offset     The offset into the byte array for the start of the IBM i value.  
      *                   It must be greater than or equal to zero.
      * @return           The Java double value corresponding to the data type.
      **/
@@ -476,8 +470,8 @@ public class AS400PackedDecimal implements AS400DataType
     }
 
     /**
-     * Converts the specified i5/OS data type to a Java object.
-     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented.
+     * Converts the specified IBM i data type to a Java object.
+     * @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented.
      * @return The BigDecimal object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value)
@@ -486,9 +480,9 @@ public class AS400PackedDecimal implements AS400DataType
     }
 
     /**
-     * Converts the specified i5/OS data type to a Java object.
-     * @param as400Value The array containing the data type in i5/OS format.  The entire data type must be represented and the data type must have valid packed decimal format.
-     * @param offset The offset into the byte array for the start of the i5/OS value.  It must be greater than or equal to zero.
+     * Converts the specified IBM i data type to a Java object.
+     * @param as400Value The array containing the data type in IBM i format.  The entire data type must be represented and the data type must have valid packed decimal format.
+     * @param offset The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      * @return The BigDecimal object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value, int offset)
