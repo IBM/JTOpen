@@ -17,15 +17,13 @@ import com.ibm.as400.access.AS400Message;
 /**
  * The SwapFailedException class represents an exception
  * issued when errors occur while attempting to change
- * thread identity on the i5/OS system.
+ * thread identity on the IBM i system.
  *
  * <p> If available, one or more AS400Message objects
  * may be included in the exception.
  */
 public class SwapFailedException extends AS400AuthenticationException {
 
-
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
 
 

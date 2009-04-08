@@ -16,7 +16,7 @@ package com.ibm.as400.security.auth;
 import java.security.Principal;
 
 /**
- * The AS400BasicAuthenticationPrincipal interface defines i5/OS
+ * The AS400BasicAuthenticationPrincipal interface defines IBM i
  * principals that can be exploited by authentication services
  * that rely on basic user and password authentication.
  *
@@ -32,7 +32,7 @@ public interface AS400BasicAuthenticationPrincipal extends Principal {
  */
 public String getUserProfileName();
 /**
- * Initializes a principal for the local i5/OS system
+ * Initializes a principal for the local IBM i system
  * based on the given user profile name.
  *
  * @param name

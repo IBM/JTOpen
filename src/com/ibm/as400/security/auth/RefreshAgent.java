@@ -28,7 +28,6 @@ import com.ibm.as400.access.Trace;
  */
 class RefreshAgent extends Thread implements ConnectionListener {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 	private int refreshInterval_, maxRefreshes_ = 0;
 	private AS400Credential target_ = null;
 	private Exception failure_ = null;

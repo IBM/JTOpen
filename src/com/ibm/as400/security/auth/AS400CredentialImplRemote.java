@@ -28,7 +28,6 @@ import com.ibm.as400.access.Trace;
  */
 class AS400CredentialImplRemote implements AS400CredentialImpl {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 	private AS400Credential credential_ = null;
 /**
  * Constructs an implementation object to receive
@@ -165,7 +164,7 @@ public void setCredential(AS400Credential credential) {
 	credential_ = credential;
 }
 /**
- * Attempts to swap the OS/400 thread identity based on this
+ * Attempts to swap the IBM i thread identity based on this
  * credential.
  *
  * @param genRtnCr

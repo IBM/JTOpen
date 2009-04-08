@@ -20,17 +20,16 @@ import com.ibm.as400.access.Trace;
  */
 class ProfileHandleImplRemote extends AS400CredentialImplRemote implements ProfileHandleImpl {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Generates and returns a profile handle based on
- * the current OS/400 thread identity.
+ * the current IBM i thread identity.
  *
  * <p> The remote implementation always throws an
  * exception. The ProfileHandleCredential has little use
  * in remote environments and is introduced in a
  * limited capacity to support reestablishing thread
  * identity after performing a swap based on another
- * credential. Swapping the OS/400 thread ID is not
+ * credential. Swapping the IBM i thread ID is not
  * supported in remote environments.
  *
  * @return

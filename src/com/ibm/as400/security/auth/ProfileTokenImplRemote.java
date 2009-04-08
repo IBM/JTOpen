@@ -24,8 +24,6 @@ import java.util.Random;
 class ProfileTokenImplRemote extends AS400CredentialImplRemote 
         implements ProfileTokenImpl {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     /**
     * Destroy or clear sensitive information maintained
     * by the credential implementation.
@@ -33,7 +31,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
     * <p> Subsequent requests may result in a NullPointerException.
     *
     * <p> This class will also attempt to remove the associated
-    * profile token from the i5/OS system.
+    * profile token from the IBM i system.
     *
     * @exception DestroyFailedException
     *		If errors occur while destroying or clearing
@@ -102,7 +100,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 		    AuthenticationSystem.handleUnexpectedException(ioe); }
         
         // Use the AS400 object to obtain the token.
-        // This will obtain the token by interacting with the i5/OS 
+        // This will obtain the token by interacting with the IBM i 
         // system signon server and avoid transmitting a cleartext password.
         byte[] tkn = null;
         try {
@@ -283,7 +281,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
             int timeoutInterval) throws RetrieveFailedException {
 
         // Use the AS400 object to obtain the token.
-        // This will obtain the token by interacting with the i5/OS 
+        // This will obtain the token by interacting with the IBM i 
         // system signon server and avoid transmitting a cleartext password.
         byte[] tkn = null;
         try {
@@ -428,7 +426,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
     }
 
     /**
-    * Removes the token from the i5/OS system.
+    * Removes the token from the IBM i system.
     *
     * @exception DestroyFailedException
     *		If errors occur while removing the credential.

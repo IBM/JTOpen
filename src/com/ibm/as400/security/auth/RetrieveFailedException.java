@@ -27,7 +27,6 @@ import com.ibm.as400.access.AS400Message;
  */
 public class RetrieveFailedException extends AS400AuthenticationException {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
 
     /**

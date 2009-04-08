@@ -25,7 +25,6 @@ import java.beans.PropertyDescriptor;
  */
 public class UserProfilePrincipalBeanInfo extends SimpleBeanInfo
 {
-   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
    // Class this bean info represents.
    private final static Class beanClass = UserProfilePrincipal.class;
 

@@ -18,12 +18,12 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
 import java.beans.PropertyVetoException;
 /**
- * Represents an i5/OS system profile handle.
+ * Represents an IBM i system profile handle.
  *
  * <p> This credential does not support all possible behavior
- * for i5/OS system profile handles. It is provided to fill a secondary
+ * for IBM i system profile handles. It is provided to fill a secondary
  * role in support of other credentials when running on the
- * local i5/OS system. A profile handle credential provides the ability
+ * local IBM i system. A profile handle credential provides the ability
  * to store the current thread identity and restore that
  * identity after performing a swap based on another
  * credential (i.e. ProfileTokenCredential).
@@ -33,6 +33,7 @@ import java.beans.PropertyVetoException;
  *
  */
 public final class ProfileHandleCredential extends AS400Credential {
+
     static final long serialVersionUID = 4L;
 
 
@@ -72,7 +73,7 @@ public boolean equals(Object o) {
 }
 /**
  * Returns the actual bytes for the handle as it exists
- * on the i5/OS system.
+ * on the IBM i system.
  *
  * @return
  *    The handle bytes; null if not set.
@@ -102,7 +103,7 @@ public int hashCode() {
 /**
  * Returns the name of the class providing an implementation
  * for code delegated by the credential that performs native
- * optimization when running on an i5/OS system.
+ * optimization when running on an IBM i system.
  *
  * @return
  *		The qualified class name for native optimizations;
@@ -153,14 +154,14 @@ void invalidateProperties() {
  * invoking this method.
  *
  * <p> If successful, this method results in a new profile
- * handle being created on the i5/OS system.
+ * handle being created on the IBM i system.
  *
  * <p> This property cannot be changed once a request
  * initiates a connection for the object to the
- * i5/OS system.
+ * IBM i system.
  *
  * @exception AS400SecurityException
- *		If an i5/OS system security or authentication error occurs.
+ *		If an IBM i system security or authentication error occurs.
  *
  * @exception PropertyVetoException
  *		If the change is vetoed.
@@ -185,7 +186,7 @@ public void setHandle() throws PropertyVetoException, AS400SecurityException {
 }
 /**
  * Sets the actual bytes for the handle as it exists
- * on the i5/OS system.
+ * on the IBM i system.
  *
  * <p> This method allows a credential to be constructed
  * based on an existing handle (i.e. previously created using the
@@ -193,7 +194,7 @@ public void setHandle() throws PropertyVetoException, AS400SecurityException {
  *
  * <p> This property cannot be changed once a request
  * initiates a connection for the object to the
- * i5/OS system.
+ * IBM i system.
  *
  * @param bytes
  *		The handle bytes.

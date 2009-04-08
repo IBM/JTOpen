@@ -22,7 +22,6 @@ import com.ibm.as400.access.Trace;
 // Common point of access for system information used during authentication of server principals and credentials.
 class AuthenticationSystem
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     private static AS400 system_ = null;
     private static boolean onAS400_ = false;
 
@@ -63,7 +62,7 @@ class AuthenticationSystem
         throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
     }
 
-    // Indicates if the given i5/OS system and its user ID match the current environment.
+    // Indicates if the given IBM i system and its user ID match the current environment.
     // @return  true if matched; false otherwise.
     static boolean isLocal(AS400 system)
     {
@@ -77,10 +76,10 @@ class AuthenticationSystem
         return AuthenticationSystem.system_;
     }
 
-    // Resets services for the local host; ignored if not running on an i5/OS system.  Since the cached system is always intended to represent the current system and user, it is always affected when a swap occurs.  A reset is also required to allow the correct evaluation of when to use native optimizations.
+    // Resets services for the local host; ignored if not running on an IBM i system.  Since the cached system is always intended to represent the current system and user, it is always affected when a swap occurs.  A reset is also required to allow the correct evaluation of when to use native optimizations.
     static void resetLocalHost()
     {
-        // Ignore if not running on i5/OS.
+        // Ignore if not running on IBM i.
         if (!AuthenticationSystem.onAS400_) return;
 
         // Reset services for the cached system started under the old identity.

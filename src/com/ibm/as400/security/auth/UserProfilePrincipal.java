@@ -18,19 +18,13 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.Trace;
 import java.beans.PropertyVetoException;
 /**
- * The UserProfilePrincipal class represents an i5/OS system user profile.
+ * The UserProfilePrincipal class represents an IBM i system user profile.
  *
  * @see AS400Principal
  *
  */
 public class UserProfilePrincipal extends AS400Principal implements AS400BasicAuthenticationPrincipal {
-
-
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
-
-
 
 	static final private int maxLen_ = 10; // Maximum profile length
 
@@ -127,7 +121,7 @@ public int hashCode() {
 	return hash;
 }
 /**
- * Initializes a principal for the local i5/OS system
+ * Initializes a principal for the local IBM i system
  * based on the given user profile name.
  *
  * @param name

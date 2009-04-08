@@ -19,8 +19,6 @@ import java.util.EventObject;
  */
 public class AS400CredentialEvent extends EventObject {
 
-
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
 
 	/**

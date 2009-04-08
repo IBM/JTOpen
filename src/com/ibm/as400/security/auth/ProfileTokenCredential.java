@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 import java.util.Random;
 
 /**
- * The ProfileTokenCredential class represents an i5/OS system profile token.
+ * The ProfileTokenCredential class represents an IBM i system profile token.
  *
  * <p> A profile token provides a timed credential representing an
  * authenticated system user profile and password. A profile token can be
@@ -31,10 +31,10 @@ import java.util.Random;
  * (running on the target system) context. Once created, it may be
  * serialized or distributed as required by the application.
  *
- * <p> When referenced from a running process on the associated i5/OS system,
+ * <p> When referenced from a running process on the associated IBM i system,
  * a profile token can be used to modify or <i>swap</i> the thread
  * identity and perform a specific task or tasks on behalf of the
- * authenticated user. However, a profile token generated on one i5/OS
+ * authenticated user. However, a profile token generated on one IBM i
  * system cannot be used to swap thread identity on any other system.
  *
  * <p> An application of this support would be in a single tier
@@ -47,7 +47,7 @@ import java.util.Random;
  * <p> Another application of this support might be in a two tier
  * application, with authentication of a user profile and password being
  * performed by a graphical user interface on the first tier (i.e. a PC) and
- * work being performed for that user on the second tier (the i5/OS system).
+ * work being performed for that user on the second tier (the IBM i system).
  * By utilizing ProfileTokenCredentials, the application can avoid directly
  * passing the user ID and password over the network. The profile token can
  * be distributed as required to the program on the second tier, which can
@@ -62,15 +62,15 @@ import java.util.Random;
  * behalf of that user. It is ultimately the responsibility of the
  * application to ensure that credentials are accessed in a secure manner.
  *
- * <p> Profile tokens are only supported for i5/OS systems
+ * <p> Profile tokens are only supported for IBM i systems
  * at release V4R5M0 or greater.
  *
  * <p> The following example demonstrates the use of a ProfileTokenCredential
- * when run on the <b>local</b> i5/OS system. (Note: swap() is an
+ * when run on the <b>local</b> IBM i system. (Note: swap() is an
  * unsupported remote operation.)
  *
  * <pre>
- *  // Prepare to work with the local i5/OS system.
+ *  // Prepare to work with the local IBM i system.
  *   AS400 system = new AS400("localhost", "*CURRENT", "*CURRENT");
  *
  *  // Create a single-use ProfileTokenCredential with a 60 second timeout.
@@ -186,7 +186,6 @@ import java.util.Random;
 public final class ProfileTokenCredential extends AS400Credential 
         implements AS400BasicAuthenticationCredential {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
 
     private byte[] addr_ = new byte[9]; // Encode/decode adder
@@ -275,7 +274,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * @param token
     *        The actual bytes for the token as it exists on the
-    *        i5/OS system.
+    *        IBM i system.
     *
     * @param tokenType
     *        The type of token provided.
@@ -378,7 +377,7 @@ public final class ProfileTokenCredential extends AS400Credential
 
     /**
     * Returns the actual bytes for the token as it exists
-    * on the i5/OS system.
+    * on the IBM i system.
     *
     * @return
     *    The token bytes; null if not set.
@@ -440,7 +439,7 @@ public final class ProfileTokenCredential extends AS400Credential
     /**
     * Returns the name of the class providing an implementation
     * for code delegated by the credential that performs native
-    * optimization when running on an i5/OS system.
+    * optimization when running on an IBM i system.
     *
     * @return
     *        The qualified class name for native optimizations;
@@ -465,7 +464,7 @@ public final class ProfileTokenCredential extends AS400Credential
     }
 
     /**
-    * Initializes and validates a credential for the local i5/OS system.
+    * Initializes and validates a credential for the local IBM i system.
     *
     * @param principal
     *        The principal identifying the authenticated user.
@@ -624,7 +623,7 @@ public final class ProfileTokenCredential extends AS400Credential
     * and <i>timeoutInterval</i>.
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     */
     public void refresh() throws AS400SecurityException {
@@ -663,7 +662,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        The number of seconds before expiration (1-3600).
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception ExtendedIllegalArgumentException
     *        If a parameter value is out of range.
@@ -719,7 +718,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param seconds
     *    The number of seconds to expiration (1-3600).
@@ -755,7 +754,7 @@ public final class ProfileTokenCredential extends AS400Credential
 
     /**
     * Sets the actual bytes for the token as it exists
-    * on the i5/OS system.
+    * on the IBM i system.
     *
     * <p> This method allows a credential to be constructed
     * based on an existing token (i.e. previously created using the
@@ -766,7 +765,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param bytes
     *        The token bytes.
@@ -788,7 +787,12 @@ public final class ProfileTokenCredential extends AS400Credential
         validatePropertyChange("token");
 
         // Validate parms
-        if ((bytes != null) && (bytes.length != TOKEN_LENGTH)) {
+        if (bytes == null) {
+            Trace.log(Trace.ERROR, "Token byte array is null");
+            throw new ExtendedIllegalArgumentException(
+                "bytes", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (bytes.length != TOKEN_LENGTH) {
             Trace.log(Trace.ERROR, "Token of length " + bytes.length + 
                 " not valid ");
             throw new ExtendedIllegalArgumentException(
@@ -808,13 +812,13 @@ public final class ProfileTokenCredential extends AS400Credential
     * invoking this method.
     *
     * <p> If successful, this method results in a new token being created
-    * on the i5/OS system. The new token is generated using the
+    * on the IBM i system. The new token is generated using the
     * previously established <i>tokenType</i> and <i>timeoutInterval</i>
     * settings.
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @deprecated As of V5R3, replaced 
     * by {@link #setTokenExtended(AS400Principal,String)} for password strings
@@ -840,7 +844,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        </ul>
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception PropertyVetoException
     *        If the change is vetoed.
@@ -865,13 +869,13 @@ public final class ProfileTokenCredential extends AS400Credential
     * invoking this method.
     *
     * <p> If successful, this method results in a new token being created
-    * on the i5/OS system. The new token is generated using the
+    * on the IBM i system. The new token is generated using the
     * previously established <i>tokenType</i> and <i>timeoutInterval</i>
     * settings.
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @deprecated As of V5R3, replaced
     * by {@link #setTokenExtended(String,String)} for password strings
@@ -897,7 +901,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        </ul>
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception PropertyVetoException
     *        If the change is vetoed.
@@ -965,13 +969,13 @@ public final class ProfileTokenCredential extends AS400Credential
     * <p> The <i>system</i> property must be set prior to invoking this method.
     *
     * <p> If successful, this method results in a new token being created
-    * on the i5/OS system. The new token is generated using the
+    * on the IBM i system. The new token is generated using the
     * previously established <i>tokenType</i> and <i>timeoutInterval</i>
     * settings.
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param principal
     *        The principal identifying the user profile for
@@ -996,7 +1000,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        </ul>
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception PropertyVetoException
     *        If the change is vetoed.
@@ -1026,13 +1030,13 @@ public final class ProfileTokenCredential extends AS400Credential
     * <p> The <i>system</i> property must be set prior to invoking this method.
     *
     * <p> If successful, this method results in a new token being created
-    * on the i5/OS system. The new token is generated using the
+    * on the IBM i system. The new token is generated using the
     * previously established <i>tokenType</i> and <i>timeoutInterval</i>
     * settings.
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param name
     *        The name of the user profile for which the token
@@ -1057,7 +1061,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        </ul>
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception PropertyVetoException
     *        If the change is vetoed.
@@ -1127,13 +1131,13 @@ public final class ProfileTokenCredential extends AS400Credential
     * invoking this method.
     *
     * <p> If successful, this method results in a new token being created
-    * on the i5/OS system. The new token is generated using the
+    * on the IBM i system. The new token is generated using the
     * previously established <i>tokenType</i> and <i>timeoutInterval</i>
     * settings.
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param principal
     *        The principal identifying the user profile for
@@ -1143,7 +1147,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        The user profile password. 
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception PropertyVetoException
     *        If the change is vetoed.
@@ -1169,13 +1173,13 @@ public final class ProfileTokenCredential extends AS400Credential
     * invoking this method.
     *
     * <p> If successful, this method results in a new token being created
-    * on the i5/OS system. The new token is generated using the
+    * on the IBM i system. The new token is generated using the
     * previously established <i>tokenType</i> and <i>timeoutInterval</i>
     * settings.
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param name
     *        The name of the user profile for which the token
@@ -1185,7 +1189,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *        The user profile password. 
     *
     * @exception AS400SecurityException
-    *        If an i5/OS system security or authentication error occurs.
+    *        If an IBM i system security or authentication error occurs.
     *
     * @exception PropertyVetoException
     *        If the change is vetoed.
@@ -1250,7 +1254,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * <p> This property cannot be changed once a request
     * initiates a connection for the object to the
-    * i5/OS system (for example, refresh).
+    * IBM i system (for example, refresh).
     *
     * @param type
     *        The type of token.

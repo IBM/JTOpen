@@ -22,8 +22,6 @@ import com.ibm.as400.access.AS400SecurityException;
  */
 public class AS400AuthenticationException extends AS400SecurityException {
 
-
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
 
 	private AS400Message[] msgList_ = null;
