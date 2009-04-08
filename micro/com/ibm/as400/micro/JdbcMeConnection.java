@@ -19,7 +19,7 @@ import java.io.*;
 
 /**
  *  The JdbcMeConnection class provides a JDBC connection
- *  to a specific DB2 for OS/400 database.  Use
+ *  to a specific DB2 for IBM i database.  Use
  *  DriverManager.getConnection() to create new JdbcMeConnection objects.
  *
  *  <p>There are many optional properties that can be specified

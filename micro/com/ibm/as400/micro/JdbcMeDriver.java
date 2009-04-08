@@ -18,7 +18,7 @@ import java.io.*;
 
 
 /**
- *  The JdbcMeDriver class is a driver that accesses DB2 for i5/OS databases.
+ *  The JdbcMeDriver class is a driver that accesses DB2 for IBM i databases.
  *
  *  <p>This class registers itself automatically when it is loaded.  To use the
  *  IBM Developer Kit for Java Native JDBC driver, specify the "driver=native" on the url.
@@ -72,8 +72,6 @@ import java.io.*;
  **/
 public class JdbcMeDriver
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     private static AS400 system_;
 
 
