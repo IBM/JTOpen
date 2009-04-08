@@ -16,14 +16,14 @@
 </head>
 <body>
 
-Provides user profile swapping using iSeries or AS/400 profile token and credential classes.
+Provides user profile swapping using IBM i profile token and credential classes.
 
 <P>
-These classes interact with the security services provided by OS/400. Specifically,
+These classes interact with the security services provided by IBM i. Specifically,
 support is provided to authenticate a user identity, sometimes referred to as a
-<I>principal</I>, and password against the native OS/400 user registry. A credential
+<I>principal</I>, and password against the native IBM i user registry. A credential
 representing the authenticated user can then be established. You can use the credential
-to alter the identity of the current OS/400 thread to perform work under the authorities
+to alter the identity of the current IBM i thread to perform work under the authorities
 and permissions of the authenticated user. In effect, this identity swap results in the
 thread acting as if a sign-on was performed by the authenticated user.
 </P>
@@ -35,7 +35,7 @@ OS/400 release V4R5M0 or greater.
 
 <P>
 The AS400 class in the com.ibm.as400.access package now provides authentication for
-a given user profile and password against the iSeries or AS/400 system. You can also retrieve
+a given user profile and password against the IBM i system. You can also retrieve
 credentials representing authenticated user profiles and passwords for the system.
 These credentials, known as profile tokens, represent an authenticated user profile
 and password for a specific system. Profile tokens expire based on time, up to
@@ -56,9 +56,9 @@ that credentials are accessed in a secure manner.
 
 For overviews, tutorials, examples, guides, and tool documentation, please see:
 <ul>
-  <li><a href="http://www.ibm.com/servers/eserver/iseries/toolbox">IBM Toolbox for Java official web site</a>
-  <LI><A HREF="http://jt400.sourceforge.net/">JTOpen (open source Toolbox) official Web site</A>
-  <LI><A HREF="http://as400service.ibm.com/j_dir/JTOpen.nsf/By+Date?OpenView">Toolbox/JTOpen official web forum</A>
+  <li><a href="http://www.ibm.com/systems/i/software/toolbox">IBM Toolbox for Java official web site</a>
+  <LI><A HREF="http://sourceforge.net/projects/jt400">JTOpen (open source Toolbox) official Web site</A>
+  <LI><A HREF="http://www-912.ibm.com/j_dir/JTOpen.nsf">Toolbox/JTOpen official web forum</A>
   <LI>The IBM Toolbox for Java Programmer's Guide
 </ul>
 
