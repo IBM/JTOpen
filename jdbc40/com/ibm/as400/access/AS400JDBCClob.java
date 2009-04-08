@@ -53,7 +53,7 @@ public class AS400JDBCClob implements Clob
 
 /**
 Constructs an AS400JDBCClob object.  The data is contained
-in the String.  No further communication with the i5/OS system is necessary.
+in the String.  No further communication with the IBM i system is necessary.
 
 @param  data     The CLOB data.
 **/

@@ -639,7 +639,7 @@ implements Statement
 
 
     /**
-    Executes an SQL statement on the i5/OS system.
+    Executes an SQL statement on the IBM i system.
     
     @param  sqlStatement    The SQL statement.
     @param  resultRow       The result row or null if none.
@@ -1126,7 +1126,7 @@ implements Statement
 
 
     /**
-    Prepares (pre-compiles) the SQL statement on the i5/OS system.
+    Prepares (pre-compiles) the SQL statement on the IBM i system.
     
     @param   sqlStatement   The SQL statement.
     @return                 The result row or null if none.
@@ -1776,7 +1776,7 @@ implements Statement
   both.
   
   <p>This method requires OS/400 V5R2  
-  or i5/OS.  If connecting to OS/400 V5R1 or earlier, an exception 
+  or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception 
   will be thrown.
   
   @param  sql               The SQL statement.
@@ -2218,7 +2218,7 @@ implements Statement
     This closes the current result set and clears warnings
     before executing the new SQL statement.
     <p>This method requires OS/400 V5R2 or
-    or i5/OS.  If connecting to OS/400 V5R1 or earlier, an exception 
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception 
     will be thrown.
   
     
@@ -2659,7 +2659,7 @@ implements Statement
     //@G4A JDBC 3.0
     /**
     Retrieves any auto-generated keys created as a result of executing this Statement object. 
-    Currently DB2 for i5/OS supports returning only one auto-generated key to the Toolbox JDBC driver
+    Currently DB2 for IBM i supports returning only one auto-generated key to the Toolbox JDBC driver
     -- the key for the last inserted row.  Be aware that the generated key returned is not 
     guaranteed to be unique unless a unique constraint is created on the table.  
     
@@ -2668,7 +2668,7 @@ implements Statement
     IBM i Information Center, and search on the phrase "identity column".
 
     
-    <p>This method requires OS/400 V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
+    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, 
     an exception will be thrown. 
     
     <p>This method will return null if the user did not request auto-generated keys
@@ -2939,7 +2939,7 @@ implements Statement
 
     //@F10A
     /**
-    Will return the value of the last syntax error that came back from the i5/OS system.
+    Will return the value of the last syntax error that came back from the IBM i system.
     
     @return     The value of the character of the last syntax error from the system,
                 or 0 if no errors occurred or the value is not known.
@@ -3037,7 +3037,7 @@ implements Statement
                 <code> cursor hold </code> 
                 <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
                 Full functionality of #1 and #2 requires OS/400 v5r2
-                or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
+                or IBM i.  If connecting to OS/400 V5R1 or earlier, 
                 the value specified on these two methods will be ignored and the default holdability
                 will be the value of #3.
           
@@ -3420,7 +3420,7 @@ implements Statement
     /**
     Sets the escape processing mode.  When processing escape
     clauses, the JDBC driver substitutes escape clauses
-    in SQL statements with DB2 for i5/OS SQL grammar elements.
+    in SQL statements with DB2 for IBM i SQL grammar elements.
     If escape processing is not needed, then setting the escape
     processing mode to false improves performance.
     
@@ -3608,7 +3608,7 @@ implements Statement
     Sets the query timeout limit.  The query timeout limit
     is the number of seconds that the driver will wait for a
     SQL statement to execute.
-    Beginning with Version 6 Release 1 of i5/OS., you must have *JOBCTL special authority.
+    Beginning with Version 6 Release 1 of IBM i, you must have *JOBCTL special authority.
     
     @param  queryTimeout    The query timeout limit (in seconds)
                             or 0 for no limit.  The default is the job's query timeout limit

@@ -44,11 +44,6 @@ warning SQL states and message string resources.
 //
 final class JDError
 {
-  private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
-
-
-
-
   // Constants for SQL states.
   static final String EXC_ACCESS_MISMATCH              = "42505";
   static final String EXC_ATTRIBUTE_VALUE_INVALID      = "HY024";
@@ -127,7 +122,7 @@ Returns the reason text based on a SQL state.
 
 // @E2C
 /**
-Returns the message text for the last operation on the i5/OS system.
+Returns the message text for the last operation on the IBM i system.
 
 @param  connection  Connection to the system.
 @param  id          Id for the last operation.
@@ -238,7 +233,7 @@ Returns the message text for the last operation on the i5/OS system.
 
 
 /**
-Returns the SQL state for the last operation on the i5/OS system.
+Returns the SQL state for the last operation on the IBM i system.
 
 @param  connection  Connection to the system.
 @param  id          Id for the last operation.
@@ -302,7 +297,7 @@ error table.
 **/
   public static SQLWarning getSQLWarning (String sqlState)
   {
-    // The DB2 for i5/OS SQL CLI manual says that
+    // The DB2 for IBM i SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the warning.
     //                                                                        
@@ -325,7 +320,7 @@ error table.
 
 /**
 Returns an SQL warning based on information
-retrieved from the i5/OS system.
+retrieved from the IBM i system.
 
 @param  connection  connection to the system.
 @param  id          id for the last operation.
@@ -391,7 +386,7 @@ error table.
   public static void throwSQLException (Object thrower, String sqlState)
   throws SQLException
   {
-    // The DB2 for i5/OS SQL CLI manual says that
+    // The DB2 for IBM i SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //      
@@ -476,7 +471,7 @@ trace for debugging purposes.
       buffer.append(')');
     }
 
-    // The DB2 for i5/OS SQL CLI manual says that
+    // The DB2 for IBM i SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
@@ -533,7 +528,7 @@ trace for debugging purposes.
       buffer.append(e.getClass());                                // @E3A
     buffer.append(')');                                             // @E7A
 
-    // The DB2 for i5/OS SQL CLI manual says that
+    // The DB2 for IBM i SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
@@ -583,7 +578,7 @@ trace for debugging purposes.
     buffer.append(m);
     buffer.append(')');                                             
 
-    // The DB2 for i5/OS SQL CLI manual says that
+    // The DB2 for IBM i SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
@@ -608,7 +603,7 @@ trace for debugging purposes.
 
 /**
 Throws an SQL exception based on information
-retrieved from the i5/OS system.
+retrieved from the IBM i system.
 
 @param  connection  connection to the system.
 @param  id          id for the last operation.
@@ -706,7 +701,7 @@ retrieved from the system.
           buffer.append(e.getClass());        
       buffer.append(')');             
       
-      // The DB2 for i5/OS SQL CLI manual says that
+      // The DB2 for IBM i SQL CLI manual says that
       // we should set the native error code to -99999
       // when the driver generates the error.
 
@@ -756,7 +751,7 @@ retrieved from the system.
               if (vendorCode == -30082) {
                   return new SQLInvalidAuthorizationSpecException(message, sqlState, vendorCode);
               } else {
-                  // All connection exceptions on iSeries on NonTransient
+                  // All connection exceptions on IBM i are NonTransient
                   return new SQLNonTransientConnectionException(message, sqlState, vendorCode);
               }
           default:

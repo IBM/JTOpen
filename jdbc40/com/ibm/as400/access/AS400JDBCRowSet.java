@@ -562,12 +562,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 for i5/OS does not support arrays.
+    *  DB2 for IBM i does not support arrays.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray (int columnIndex) throws SQLException
     {
@@ -577,12 +577,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as an Array object.
-    *  DB2 for i5/OS does not support arrays.
+    *  DB2 for IBM i does not support arrays.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public Array getArray (String columnName) throws SQLException
     {
@@ -896,7 +896,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native i5/OS format.  This is not supported for
+    *  native IBM i format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnIndex     The column index (1-based).
@@ -922,7 +922,7 @@ implements RowSet, Serializable             // @A3C
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native i5/OS format.  This is not supported for
+    *  native IBM i format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnName  The column name.
@@ -1556,12 +1556,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 for i5/OS does not support structured types.
+    *  DB2 for IBM i does not support structured types.
     *
     *  @param  columnIndex   The column index (1-based).
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public Ref getRef (int columnIndex) throws SQLException
     {
@@ -1572,12 +1572,12 @@ implements RowSet, Serializable             // @A3C
 
     /**
     *  Returns the value of a column as a Ref object.
-    *  DB2 for i5/OS does not support structured types.
+    *  DB2 for IBM i does not support structured types.
     *
     *  @param  columnName    The column name.
     *  @return               The column value or null if the value is SQL NULL.
     *
-    *  @exception  SQLException    Always thrown because DB2 for i5/OS does not support structured types.
+    *  @exception  SQLException    Always thrown because DB2 for IBM i does not support structured types.
     **/
     public Ref getRef (String columnName) throws SQLException
     {
@@ -3147,8 +3147,8 @@ implements RowSet, Serializable             // @A3C
     /**
     *  Sets the type map to be used for distinct and structured types.
     *
-    *  Note: Distinct types are supported by DB2 for i5/OS, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
-    *  behave as if they are the underlying type. Structured types are not supported by DB2 for i5/OS. Consequently, this driver does not support the type map.
+    *  Note: Distinct types are supported by DB2 for IBM i, but are not externalized by the IBM Toolbox for Java JDBC driver. In other words, distinct types
+    *  behave as if they are the underlying type. Structured types are not supported by DB2 for IBM i. Consequently, this driver does not support the type map.
     *
     *  @param map The type map.
     *  @exception SQLException If a database error occurs.
@@ -3238,12 +3238,12 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 for i5/OS does not support arrays.
+    DB2 for IBM i does not support arrays.
     
     @param  columnIndex   The column index (1-based).
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     @since Modification 5
     **/
     public void updateArray (int columnIndex, Array columnValue)
@@ -3257,12 +3257,12 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Array value.
-    DB2 for i5/OS does not support arrays.
+    DB2 for IBM i does not support arrays.
     
     @param  columnName    The column name.
     @param  columnValue   The column value or null if the value is SQL NULL.
     
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support arrays.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support arrays.
     **/
     public void updateArray (String columnName, Array columnValue)
     throws SQLException
@@ -4095,7 +4095,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4127,7 +4127,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4158,7 +4158,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4192,7 +4192,7 @@ implements RowSet, Serializable             // @A3C
     *  The driver converts this to a value of an SQL type, depending on
     *  the type of the specified value.  The JDBC specification defines
     *  a standard mapping from Java types to SQL types.  In the cases
-    *  where an SQL type is not supported by DB2 for i5/OS, the
+    *  where an SQL type is not supported by DB2 for IBM i, the
     *  <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     *  is used.
     *
@@ -4243,13 +4243,13 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 for i5/OS does not support structured types.
+    DB2 for IBM i does not support structured types.
        
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     @since Modification 5
     **/
     public void updateRef (int columnIndex, Ref columnValue)
@@ -4263,13 +4263,13 @@ implements RowSet, Serializable             // @A3C
     //@G4A JDBC 3.0
     /**
     Updates a column in the current row using an Ref value.
-    DB2 for i5/OS does not support structured types.
+    DB2 for IBM i does not support structured types.
        
     @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
         
-    @exception  SQLException    Always thrown because DB2 for i5/OS does not support REFs.
+    @exception  SQLException    Always thrown because DB2 for IBM i does not support REFs.
     **/
     public void updateRef (String columnName, Ref columnValue)
     throws SQLException
@@ -4722,7 +4722,7 @@ implements RowSet, Serializable             // @A3C
        <code> cursor hold </code> 
        <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
        Full functionality of #1 and #2 requires OS/400 v5r2
-       or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
+       or IBM i.  If connecting to OS/400 V5R1 or earlier, 
        the value specified on these two methods will be ignored and the default holdability
        will be the value of #3.
      * @throws SQLException if a database error occurs

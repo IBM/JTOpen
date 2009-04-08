@@ -34,7 +34,7 @@ import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for i5/OS database connections.
+*  The AS400JDBCDataSource class represents a factory for IBM i database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
@@ -52,7 +52,7 @@ import javax.naming.StringRefAddr;                // JNDI
 *  <P>The following example registers an AS400JDBCDataSource object with JNDI and then
 *  uses the object returned from JNDI to obtain a database connection.
 *  <pre><blockquote>
-*  // Create a data source to the i5/OS database.
+*  // Create a data source to the IBM i database.
 *  AS400JDBCDataSource dataSource = new AS400JDBCDataSource();
 *  dataSource.setServerName("myAS400");
 *
@@ -110,8 +110,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @J2d private String databaseName_ = "";                // Database name. @A6C
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
-    private JDProperties properties_;                         // i5/OS connection properties.
-    private SocketProperties sockProps_;                      // i5/OS socket properties @F1A
+    private JDProperties properties_;                         // IBM i connection properties.
+    private SocketProperties sockProps_;                      // IBM i socket properties @F1A
     transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
     transient private EventLog log_;       //@C7c
 
@@ -223,7 +223,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Constructs an AS400JDBCDataSource object to the specified <i>serverName</i>.
-    *  @param serverName The name of the i5/OS system.
+    *  @param serverName The name of the IBM i system.
     **/
     public AS400JDBCDataSource(String serverName)
     {
@@ -234,7 +234,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information.
-    *  @param serverName The name of the i5/OS system.
+    *  @param serverName The name of the IBM i system.
     *  @param user The user id.
     *  @param password The user password.
     **/
@@ -266,7 +266,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information
     *  to use for SSL communications with the system.
-    *  @param serverName The name of the i5/OS system.
+    *  @param serverName The name of the IBM i system.
     *  @param user The user id.
     *  @param password The user password.
        *  @param keyRingName The key ring class name to be used for SSL communications with the system.
@@ -792,7 +792,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Returns the i5/OS date format used in date literals within SQL statements.
+    *  Returns the IBM i date format used in date literals within SQL statements.
     *  @return The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -814,7 +814,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Returns the i5/OS date separator used in date literals within SQL statements.
+    *  Returns the IBM i date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @return The date separator.
@@ -855,7 +855,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
      
     /**
-    *  Returns the i5/OS decimal separator used in numeric literals within SQL statements.
+    *  Returns the IBM i decimal separator used in numeric literals within SQL statements.
     *  @return The decimal separator.
     *  <p>Valid values include:
     *  <ul>
@@ -897,8 +897,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an OS/400 or i5/OS Java Virtual
-    * Machine.
+    * environment is not an IBM i Java Virtual Machine.
     *  <p>Valid values include:
     *  <ul>
     *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
@@ -913,7 +912,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Returns the amount of detail for error messages originating from
-    *  the i5/OS system.
+    *  the IBM i system.
     *  @return The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -923,7 +922,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Returns the i5/OS system libraries to add to the server job's library list.
+    *  Returns the IBM i system libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -957,7 +956,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Returns the timeout value in seconds.
     *  Note: This value is not used or supported.
-    *  The timeout value is determined by the i5/OS system.
+    *  The timeout value is determined by the IBM i system.
     *  @return the maximum time in seconds that this data source can wait while attempting to connect to a database. 
     **/
     public int getLoginTimeout()
@@ -1132,7 +1131,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Returns the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @return The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or i5/OS object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or IBM i object description).
     *  The default value is "system".
     **/
     public String getRemarks()
@@ -1162,7 +1161,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     
      
     /**
-    *  Returns the name of the i5/OS system.
+    *  Returns the name of the IBM i system.
     *  @return The system name.
     **/
     public String getServerName()
@@ -1392,8 +1391,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     //@540
     /**                                                               
-    *  Returns the goal the i5/OS system should use with optimization of queries.  
-    *  @return the goal the i5/OS system should use with optimization of queries.
+    *  Returns the goal the IBM i system should use with optimization of queries.  
+    *  @return the goal the IBM i system should use with optimization of queries.
     *  <p>Valid values include:
     *  <ul>
     *  <li>0 = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used</li>
@@ -1410,8 +1409,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@550
     /**
     * Returns the storage limit in megabytes, that should be used for statements executing a query in a connection.
-    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
-    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.
+    * Note, this setting is ignored when running to i5/OS V5R4 or earlier
+    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
     **/
@@ -1643,7 +1642,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @C3A
     /**
     *  Indicates whether the driver should request extended metadata from the
-    *  i5/OS system.  If this property is set to true, the accuracy of the information 
+    *  IBM i system.  If this property is set to true, the accuracy of the information 
     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -1654,7 +1653,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  For example, without this property turned on, isSearchable(int) will 
     *  always return true even though the correct answer may be false because 
     *  the driver does not have enough information from the system to make a judgment.  Setting 
-    *  this property to true forces the driver to get the correct data from the i5/OS system.
+    *  this property to true forces the driver to get the correct data from the IBM i system.
     *
     *  @return true if extended metadata will be requested; false otherwise.
     *  The default value is false.
@@ -1668,7 +1667,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@dup
     /**
      *  Indicates whether the driver should request extended metadata from the
-     *  i5/OS system.  If this property is set to true, the accuracy of the information 
+     *  IBM i system.  If this property is set to true, the accuracy of the information 
      *  that is returned from ResultSetMetaData methods getColumnLabel(int),
      *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
      *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -1679,7 +1678,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      *  For example, without this property turned on, isSearchable(int) will 
      *  always return true even though the correct answer may be false because 
      *  the driver does not have enough information from the system to make a judgment.  Setting 
-     *  this property to true forces the driver to get the correct data from the i5/OS system.
+     *  this property to true forces the driver to get the correct data from the IBM i system.
      *
      *  @return true if extended metadata will be requested; false otherwise.
      *  The default value is false.
@@ -1694,7 +1693,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     // @W1a
     /**
-    *  Indicates whether the i5/OS system fully opens a file when performing a query.
+    *  Indicates whether the IBM i system fully opens a file when performing a query.
     *  By default the system optimizes opens so they perform better.  In
     *  certain cases an optimized open will fail.  In some
     *  cases a query will fail when a database performance monitor
@@ -1758,7 +1757,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Indicates whether a subset of the SQL package information is cached in client memory.  
     *  Caching SQL packages locally
-    *  reduces the amount of communication to the i5/OS system for prepares and describes.  This
+    *  reduces the amount of communication to the IBM i system for prepares and describes.  This
     *  property has no effect unless the extended dynamic property is set to true.
     *  @return true if caching is used; false otherwise.
     *  The defalut value is false.
@@ -1796,7 +1795,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Indicates whether the user is prompted if a user name or password is
-    *  needed to connect to the i5/OS system.  If a connection can not be made
+    *  needed to connect to the IBM i system.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail throwing an exception.
     *  @return true if the user is prompted for signon information; false otherwise.
@@ -1837,7 +1836,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <P>
     *  If the password is saved, it is up to the application to protect
     *  the serialized form of the object because it contains all necessary
-    *  information to connect to the i5/OS system.  The default is false.  It
+    *  information to connect to the IBM i system.  The default is false.  It
     *  is a security risk to save the password with the rest of the
     *  properties so by default the password is not saved.  If the programmer
     *  chooses to accept this risk, call setSavePasswordWhenSerialized(true)
@@ -1858,7 +1857,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Indicates whether a Secure Socket Layer (SSL) connection is used to communicate
-    *  with the i5/OS system.  SSL connections are only available when connecting to systems
+    *  with the IBM i system.  SSL connections are only available when connecting to systems
     *  at V4R4 or later.
     *  @return true if Secure Socket Layer connection is used; false otherwise.
     *  The default value is false.
@@ -2221,7 +2220,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets the criteria for retrieving data from the i5/OS system in
+    *  Sets the criteria for retrieving data from the IBM i system in
     *  blocks of records.  Specifying a non-zero value for this property
     *  will reduce the frequency of communication to the system, and
     *  therefore increase performance.
@@ -2249,7 +2248,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets the block size in kilobytes to retrieve from the i5/OS system and
+    *  Sets the block size in kilobytes to retrieve from the IBM i system and
     *  cache on the client.  This property has no effect unless the block criteria
     *  property is non-zero.  Larger block sizes reduce the frequency of
     *  communication to the system, and therefore may increase performance.
@@ -2660,7 +2659,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets how the i5/OS system sorts records before sending them to the client.
+    *  Sets how the IBM i system sorts records before sending them to the client.
     *  @param sort The sort value.
     *  <p>Valid values include:
     *  <ul>
@@ -2698,7 +2697,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the amount of detail to be returned in the message for errors
-    *  occurring on the i5/OS system.
+    *  occurring on the IBM i system.
     *  @param errors The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -2721,7 +2720,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Sets whether to use extended dynamic support.  Extended dynamic
     *  support provides a mechanism for caching dynamic SQL statements on
-    *  the i5/OS system.  The first time a particular SQL statement is prepared, it is
+    *  the IBM i system.  The first time a particular SQL statement is prepared, it is
     *  stored in an SQL package on the system.  
     *  If the package does not exist, it will be automatically created.
     *  On subsequent prepares of the
@@ -2751,10 +2750,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @C3A
     /**
     *  Sets whether the driver should request extended metadata from the
-    *  i5/OS system.  This property is ignored when connecting to systems
+    *  IBM i system.  This property is ignored when connecting to systems
     *  running OS/400 V5R1 and earlier. 
     *  If this property is set to true and connecting to a system running
-    *  OS/400 V5R2 or i5/OS, the accuracy of the information 
+    *  OS/400 V5R2 or IBM i, the accuracy of the information 
     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -2789,10 +2788,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@dup
     /**
      *  Sets whether the driver should request extended metadata from the
-     *  i5/OS system.  This property is ignored when connecting to systems
+     *  IBM i system.  This property is ignored when connecting to systems
      *  running OS/400 V5R1 and earlier. 
      *  If this property is set to true and connecting to a system running
-     *  OS/400 V5R2 or i5/OS, the accuracy of the information 
+     *  OS/400 V5R2 or IBM i, the accuracy of the information 
      *  that is returned from ResultSetMetaData methods getColumnLabel(int),
      *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
      *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -2818,7 +2817,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @W1a new method
     /**
     *  Sets whether to fully open a file when performing a query.
-    *  By default the i5/OS system optimizes opens so they perform better.
+    *  By default the IBM i system optimizes opens so they perform better.
     *  In most cases optimization functions correctly and improves
     *  performance.  Running a query repeatedly
     *  when a database performance monitor is turned on may fail
@@ -2968,7 +2967,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
-    *  communication to the i5/OS system.  Larger LOB thresholds will reduce
+    *  communication to the IBM i system.  Larger LOB thresholds will reduce
     *  the frequency of communication to the system, but will download
     *  more LOB data, even if it is not used.  Smaller LOB thresholds may
     *  increase frequency of communication to the system, but will only
@@ -3110,7 +3109,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the base name of the SQL package.  Note that only the
-    *  first seven characters are used to generate the name of the SQL package on the i5/OS system.  
+    *  first seven characters are used to generate the name of the SQL package on the IBM i system.  
     *  This property has no effect unless
     *  the extended dynamic property is set to true.  In addition, this property
     *  must be set if the extended dynamic property is set to true.
@@ -3158,7 +3157,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Sets whether to cache a subset of the SQL package information in client memory.  
     *  Caching SQL packages locally
-    *  reduces the amount of communication to the i5/OS system for prepares and describes.  This
+    *  reduces the amount of communication to the IBM i system for prepares and describes.  This
     *  property has no effect unless the extended dynamic property is set to true.
     *  @param cache If caching is used; false otherwise.  The default value is false.
     **/
@@ -3315,7 +3314,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets whether the user should be prompted if a user name or password is
-    *  needed to connect to the i5/OS system.  If a connection can not be made
+    *  needed to connect to the IBM i system.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail.
     *  @param prompt true if the user is prompted for signon information; false otherwise.
@@ -3658,7 +3657,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @param remarks The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or i5/OS object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or IBM i object description).
     *  The default value is "system".
     **/
     public void setRemarks(String remarks)
@@ -3703,7 +3702,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the secondary URL to be used for a connection on the middle-tier's
     *  DriverManager in a multiple tier environment, if it is different than
     *  already specified.  This property allows you to use this driver to connect
-    *  to databases other than DB2 for i5/OS. Use a backslash as an escape character
+    *  to databases other than DB2 for IBM i. Use a backslash as an escape character
     *  before backslashes and semicolons in the URL.
     *  @param url The secondary URL.
     **/
@@ -3726,7 +3725,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      *  Sets the secondary URL to be used for a connection on the middle-tier's
      *  DriverManager in a multiple tier environment, if it is different than
      *  already specified.  This property allows you to use this driver to connect
-     *  to databases other than DB2 for i5/OS. Use a backslash as an escape character
+     *  to databases other than DB2 for IBM i. Use a backslash as an escape character
      *  before backslashes and semicolons in the URL.
      *  @param url The secondary URL.
      *  Note:  this method is the same as setSecondaryUrl() so that it corresponds to the connection property name
@@ -3738,7 +3737,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets whether a Secure Socket Layer (SSL) connection is used to communicate
-    *  with the i5/OS system.  SSL connections are only available when connecting to systems
+    *  with the IBM i system.  SSL connections are only available when connecting to systems
     *  at V4R4 or later.
     *  @param secure true if Secure Socket Layer connection is used; false otherwise.
     *  The default value is false.
@@ -3795,7 +3794,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     
     
     /**
-    *  Sets the i5/OS system name.
+    *  Sets the IBM i system name.
     *  @param serverName The system name.
     **/
     public void setServerName(String serverName)
@@ -3827,7 +3826,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Enables tracing of the JDBC server job.
     *  If tracing is enabled, tracing is started when
-    *  the client connects to the i5/OS system, and ends when the connection
+    *  the client connects to the IBM i system, and ends when the connection
     *  is disconnected.  Tracing must be started before connecting to
     *  the system since the client enables tracing only at connect time.
     *
@@ -3879,7 +3878,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
      *  Enables tracing of the JDBC server job.
      *  If tracing is enabled, tracing is started when
-     *  the client connects to the i5/OS system, and ends when the connection
+     *  the client connects to the IBM i system, and ends when the connection
      *  is disconnected.  Tracing must be started before connecting to
      *  the system since the client enables tracing only at connect time.
      *
@@ -3924,8 +3923,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an OS/400 or i5/OS Java Virtual
-    * Machine.
+    * environment is not an IBM i Java Virtual Machine.
     * param driver The driver value.
     *  <p>Valid values include:
     *  <ul>
@@ -3958,7 +3956,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  <P>  
     *  If the password is saved, it is up to the application to protect
     *  the serialized form of the object because it contains all necessary
-    *  information to connect to the i5/OS system.  The default is false.  It
+    *  information to connect to the IBM i system.  The default is false.  It
     *  is a security risk to save the password with the rest of the
     *  properties so by default the password is not saved.  If the application
     *  programmer chooses to accept this risk, set this property to true
@@ -4006,7 +4004,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the library and file name of a sort sequence table stored on the
-    *  i5/OS system.
+    *  IBM i system.
     *  This property has no effect unless the sort property is set to "table".
     *  The default is an empty String ("").
     *  @param table The qualified sort table name.
@@ -4026,7 +4024,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Sets how the i5/OS system treats case while sorting records.  This property 
+    *  Sets how the IBM i system treats case while sorting records.  This property 
     *  has no effect unless the sort property is set to "language".
     *  @param sortWeight The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
@@ -4174,7 +4172,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
 
     /**
-    *  Sets the i5/OS system's transaction isolation.
+    *  Sets the IBM i system's transaction isolation.
     *  @param transactionIsolation The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>
@@ -4439,7 +4437,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A - added support for sending statements in UTF-16 and storing them in a UTF-16 package
     /**
     * Gets the package CCSID property, which indicates the
-    * CCSID in which statements are sent to the i5/OS system and
+    * CCSID in which statements are sent to the IBM i system and
     * also the CCSID of the package they are stored in.
     * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
     * Default value: 13488
@@ -4453,7 +4451,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@dup
     /**
      * Gets the package CCSID property, which indicates the
-     * CCSID in which statements are sent to the i5/OS system and
+     * CCSID in which statements are sent to the IBM i system and
      * also the CCSID of the package they are stored in.
      * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
      * Default value: 13488
@@ -4468,7 +4466,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Sets the package CCSID property, which indicates the
-    * CCSID in which statements are sent to the i5/OS system and
+    * CCSID in which statements are sent to the IBM i system and
     * also the CCSID of the package they are stored in.
     * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
     * Default value: 13488
@@ -4494,7 +4492,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@dup
     /**
      * Sets the package CCSID property, which indicates the
-     * CCSID in which statements are sent to the i5/OS system and
+     * CCSID in which statements are sent to the IBM i system and
      * also the CCSID of the package they are stored in.
      * Valid values:  1200 (UCS-2) and 13488 (UTF-16).  
      * Default value: 13488
@@ -4521,7 +4519,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Gets the maximum precision property. This property indicates the 
-    * maximum decimal precision the i5/OS system should use.
+    * maximum decimal precision the IBM i system should use.
     * Valid values: 31 or 63.  31 is default.
     * @return The maximum precision.
     **/
@@ -4533,7 +4531,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Gets the maximum scale property.  This property indicates the
-    * maximum decimal scale the i5/OS system should use.
+    * maximum decimal scale the IBM i system should use.
     * Valid values: 0-63.  31 is default.
     * @return The maximum scale.
     **/
@@ -4569,7 +4567,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Sets the maximum precision property. This property indicates the 
-    * maximum decimal precision the i5/OS system should use.
+    * maximum decimal precision the IBM i system should use.
     * Valid values: 31 or 63.  31 is default.
     * @param precision The maximum precision.
     **/
@@ -4593,7 +4591,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // @M0A
     /**
     * Sets the maximum scale property.  This property indicates the
-    * maximum decimal scale the i5/OS system should use.
+    * maximum decimal scale the IBM i system should use.
     * Valid values: 0-63.  31 is default.
     * @param scale The maximum scale.
     **/
@@ -4693,9 +4691,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
      
     /**                                                               
-    *  Sets the goal the i5/OS system should use with optimization of queries.  
+    *  Sets the goal the IBM i system should use with optimization of queries.  
     *  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  
-    *  Note, this setting is ignored when running to V5R3 i5/OS or earlier  
+    *  Note, this setting is ignored when running to V5R3 IBM i or earlier  
     *  @param goal - the optimization goal 
     *  <p>Valid values include:
     *  <ul>
@@ -4723,8 +4721,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@550
     /**
     * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
-    * Note, this setting is ignored when running to V5R4 i5/OS or earlier
-    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.
+    * Note, this setting is ignored when running to i5/OS V5R4 or earlier
+    * You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.
     * @param limit the storage limit (in megabytes)
     * <p> Valid values are -1 to MAX_STORAGE_LIMIT megabytes.  
     * The default value is -1 meaning there is no limit.
@@ -4750,7 +4748,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     //@540
     /**                                                               
     *  Sets whether lock sharing is allowed for loosely coupled transaction branches.
-    *  Note, this setting is ignored when running to V5R3 i5/OS or earlier.  
+    *  Note, this setting is ignored when running to V5R3 IBM i or earlier.  
     *  @param lcs - the "loosely coupled support" setting 
     *  <p>Valid values include:
     *  <ul>
@@ -4950,7 +4948,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
-    *  Serializes the i5/OS system and user information.
+    *  Serializes the IBM i system and user information.
     *  @param out The output stream.
     *  @exception IOException If a file I/O error occurs.
     **/

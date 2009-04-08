@@ -52,7 +52,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCClobLocator implements SQLX
     /**
     Constructs an AS400JDBCSQLXMLLocator object.  The data for the
     SQLXML will be retrieved as requested, directly from the
-    i5/OS system, using the locator handle.
+    IBM i system, using the locator handle.
     
     @param  locator             The locator.
     @param  converter           The text converter.

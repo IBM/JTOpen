@@ -45,7 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
 <p>The AS400JDBCConnection class provides a JDBC connection
-to a specific DB2 for i5/OS database.  Use
+to a specific DB2 for IBM i database.  Use
 DriverManager.getConnection() to create new AS400JDBCConnection
 objects.
 
@@ -68,14 +68,14 @@ statements.
 //
 //     The id is used as a convention for assigning each
 //     connection and statement its own ORS (Operation Result
-//     Set) on the i5/OS as well as assigning each statement
+//     Set) on the IBM i as well as assigning each statement
 //     its own RPB (Request Parameter Block).
 //
 //     Every communication to the database requires a connection
 //     and an id within that connection.
 //
 // 2.  It is a requirement that no finalize() methods need to
-//     receive a reply from the i5/OS system.  Because of the way the
+//     receive a reply from the IBM i system.  Because of the way the
 //     AS400Server class is implemented, certain scenarios where
 //     this is the case will result in deadlock.  The AS400Server
 //     class provides sendAndDiscardReply() specifically to avoid
@@ -94,7 +94,7 @@ implements Connection
 {
   private static final String copyright = "Copyright (C) 1997-2006 International Business Machines Corporation and others.";
 
-    // Turn this flag on to prevent this Connection object from establishing an actual connection to the i5/OS system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
+    // Turn this flag on to prevent this Connection object from establishing an actual connection to the IBM i system.  This is useful when doing multi-threaded stress testing on the Toolbox's built-in JDBC connection pool manager, where we create/delete massive numbers of connections.
     // For production, this flag _must_ be set to 'false'.
     private static final boolean TESTING_THREAD_SAFETY = false;             //@CPMa
 
@@ -130,7 +130,7 @@ implements Connection
 
     // This is a compile time flag for forcing the use of
     // extended datastream formats.  This can be useful when
-    // testing extended formats, but the i5/OS system is not reporting
+    // testing extended formats, but the IBM i system is not reporting
     // the correct VRM.
     //
     // The choices are:
@@ -140,7 +140,7 @@ implements Connection
     // @E9D private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
     
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
-    //        The i5/OS passes it along to database to enable correct package caching of
+    //        The IBM i passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
     private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V6R1M01   "; // @EDA F8c H2c pdc 610
 
@@ -427,7 +427,7 @@ implements Connection
     void checkOpen ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
         if (server_ == null)
             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
@@ -453,7 +453,7 @@ implements Connection
     Releases the connection's resources immediately instead of waiting
     for them to be automatically released.  This rolls back any active
     transactions, closes all statements that are running in the context
-    of the connection, and disconnects from the i5/OS system.
+    of the connection, and disconnects from the IBM i system.
     
     @exception SQLException If an error occurs.
     **/
@@ -680,7 +680,7 @@ implements Connection
     is more efficient to use prepareStatement().
     
     <p>Full functionality of this method requires support in OS/400 V5R2  
-    or i5/OS.  If connecting to OS/400 V5R1 or earlier, the value for 
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
     resultSetHoldability will be ignored.
         
     @param resultSetType            The result set type.  Valid values are:
@@ -790,13 +790,15 @@ implements Connection
         if (DEBUG_COMM_TRACE_ >= 2)
             reply.dump (System.out);
 
-        int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
         int returnCode = ((DBReplyRequestedDS) reply).getReturnCode();
 
         if (DEBUG_COMM_TRACE_ >= 1)
+        {
+            int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
             if ((errorClass != 0) || (returnCode != 0))
                 System.out.println ("Server error = " + errorClass + ":"
                                     + returnCode + ".");
+        }
     }
 
 
@@ -1005,7 +1007,7 @@ implements Connection
                 <li>2.  The value of the <code> cursor hold </code> 
                 <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>. </ul>  
                 Full functionality of #1 requires support in OS/400 
-                V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
+                V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, 
                 the value specified on this method will be ignored and the default holdability
                 will be the value of #2.
     
@@ -1161,7 +1163,7 @@ implements Connection
     // @E8A
     /**
     Returns the job identifier of the host server job corresponding to this connection.
-    Every JDBC connection is associated with a host server job on the i5/OS system.  The
+    Every JDBC connection is associated with a host server job on the IBM i system.  The
     format is:
     <ul>
       <li>10 character job name
@@ -1386,7 +1388,7 @@ implements Connection
     String getUserName ()
     throws SQLException // @EGA
     {
-        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
         {
           String userName = as400_.getUserId ();
           if (userName == null || userName.length() == 0) {
@@ -1457,7 +1459,7 @@ implements Connection
     public boolean isClosed ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) return false; // in certain testing modes, don't contact IBM i system
 
         if (server_ == null)                        // @EFC
             return true;                            // @EFA
@@ -1634,12 +1636,12 @@ implements Connection
     /**
     Returns the native form of an SQL statement without
     executing it. The JDBC driver converts all SQL statements
-    from the JDBC SQL grammar into the native DB2 for i5/OS
+    from the JDBC SQL grammar into the native DB2 for IBM i
     SQL grammar prior to executing them.
     
     @param  sql     The SQL statement in terms of the JDBC SQL grammar.
     @return         The translated SQL statement in the native
-                    DB2 for i5/OS SQL grammar.
+                    DB2 for IBM i SQL grammar.
     
     @exception      SQLException    If the SQL statement has a syntax error.
     **/
@@ -1769,7 +1771,7 @@ implements Connection
     stored procedure multiple times.
     
     <p>Full functionality of this method requires support in OS/400 V5R2  
-    or i5/OS.  If connecting to OS/400 V5R1 or earlier, the value for 
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
     resultSetHoldability will be ignored.
     
     @param sql                      The SQL statement.
@@ -1884,7 +1886,7 @@ implements Connection
     be used to efficiently execute this SQL statement
     multiple times.
     
-    <p>This method requires OS/400 V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, an exception will be 
+    <p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception will be 
     thrown. 
     
     <p>Result sets created using the statement will be type
@@ -2197,7 +2199,7 @@ implements Connection
     void processSavepointRequest(String savepointStatement)
     throws SQLException
     {                                                                       
-        // must be OS/400 v5r2 or i5/OS
+        // must be OS/400 v5r2 or IBM i
         if (vrm_ < JDUtilities.vrm520)
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
 
@@ -2270,7 +2272,7 @@ implements Connection
             }                                                                            // @J4a
         }
 
-        // @j1a clean up any i5/OS debug that is going on.  This entire block
+        // @j1a clean up any IBM i debug that is going on.  This entire block
         //      is new for @J1
         if (traceServer_ > 0 || databaseHostServerTrace_)                             // @2KRC
         {
@@ -2937,7 +2939,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
 
         transactionManager_.setAutoCommit (autoCommit);
 
@@ -3094,7 +3096,7 @@ implements Connection
     Sets the holdability of ResultSets created from this connection.
     
     <p>Full functionality of this method requires OS/400 V5R2
-    or i5/OS.  If connecting to OS/400 V5R1 or earlier, all
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, all
     cursors for the connection will be changed to the value of the variable
     <i>holdability</i>.
     
@@ -3110,7 +3112,7 @@ implements Connection
     throws SQLException
     {
         checkOpen ();
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
 
         if (!checkHoldabilityConstants(holdability))                            //@F3A
             JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
@@ -3133,7 +3135,7 @@ implements Connection
                         AS400 as400)
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
         {
           as400PublicClassObj_ = as400;
         }
@@ -3269,7 +3271,7 @@ implements Connection
             JDTrace.logInformation("JDBC Level: " + JDUtilities.JDBCLevel_);          // @F6a
         }                                                                             // @F6a
 
-        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact i5/OS system
+        if (!TESTING_THREAD_SAFETY) // in certain testing modes, we don't contact IBM i system
         {
           try
           {
@@ -3527,7 +3529,7 @@ implements Connection
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.                                                                              
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
+     * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      *
@@ -3548,7 +3550,7 @@ implements Connection
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.   
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
+     * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      * @param      name A String containing the name of the savepoint
@@ -3573,7 +3575,7 @@ implements Connection
             name = "T_JDBCINTERNAL_" + id;
 
         // When creating the savepoint specify retain cursors.  That is the
-        // only option supported by the i5/OS system at this time.  We have to specify
+        // only option supported by the IBM i system at this time.  We have to specify
         // it because the SQL default is close cursors.  Since we need to use 
         // an option other than the default we have to specify it on the statement.
         // Plus, the system will return an error if we don't specify it.  
@@ -3598,7 +3600,7 @@ implements Connection
     private void setServerAttributes ()
     throws SQLException
     {
-        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact i5/OS system
+        if (TESTING_THREAD_SAFETY) return; // in certain testing modes, don't contact IBM i system
         try
         {
             vrm_ = as400_.getVRM();                                     // @D0A @ECM
@@ -3951,7 +3953,7 @@ implements Connection
                 }
 
                 // Send an RDB name to the system only if connecting to 
-                // v5r2 and newer versions of i5/OS
+                // v5r2 and newer versions of IBM i
                 if (vrm_ >= JDUtilities.vrm520)                                                                   // @J2a
                 {
                     // @J2a
@@ -4099,9 +4101,9 @@ implements Connection
                 int m = (vrm_ & 0x000000ff);                                    // @D1A
                 JDTrace.logInformation (this, "JDBC driver major version = "    // @C2A
                                         + AS400JDBCDriver.MAJOR_VERSION_);      // @C2A
-                //Check version - V5R2 and earlier run on OS/400, V5R3 and later run on i5/OS
+                //Check version - V5R2 and earlier run on OS/400, V5R3 and later run on IBM i
                 if(((v==5) && (r>=3)) || (v>5))
-                    JDTrace.logInformation(this, "i5/OS VRM = V" + v
+                    JDTrace.logInformation(this, "IBM i VRM = V" + v
                                            + "R" + r + "M" + m);
                 else
                     JDTrace.logInformation (this, "OS/400 VRM = V" + v              // @C2A
@@ -4275,12 +4277,12 @@ implements Connection
     isolation level cannot be changed while in the middle of
     a transaction.
     
-    <p>JDBC and DB2 for i5/OS use different terminology for transaction
+    <p>JDBC and DB2 for IBM i use different terminology for transaction
     isolation levels.  The following table provides a terminology
     mapping:
     
     <p><table border>
-    <tr><th>i5/OS isolation level</th><th>JDBC transaction isolation level</th></tr>
+    <tr><th>IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
     <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
     <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
     <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
@@ -4319,10 +4321,10 @@ implements Connection
     Sets the type map to be used for distinct and structured
     types.
     
-    <p>Note: Distinct types are supported by DB2 for i5/OS, but
+    <p>Note: Distinct types are supported by DB2 for IBM i, but
     are not externalized by the IBM Toolbox for Java JDBC driver.
     In other words, distinct types behave as if they are the underlying
-    type.  Structured types are not supported by DB2 for i5/OS.
+    type.  Structured types are not supported by DB2 for IBM i.
     Consequently, this driver does not support the type map.
     
     @param typeMap  The type map.
@@ -4339,7 +4341,7 @@ implements Connection
 
     /**
     Returns the connection's catalog name.  This is the
-    name of the i5/OS system.
+    name of the IBM i system.
     
     @return     The catalog name.
     **/

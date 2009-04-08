@@ -266,7 +266,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog. Since DB2 for i5/OS does not support 
+    catalog, not the attributes catalog. Since DB2 for IBM i does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -559,9 +559,9 @@ implements DatabaseMetaData
     /**
     Returns the catalog name available in this database.  This
     will return a ResultSet with a single row, whose value is
-    the i5/OS system name.
+    the IBM i system name.
     
-    @return      The ResultSet containing the i5/OS system name.
+    @return      The ResultSet containing the IBM i system name.
     
     @exception  SQLException    If the connection is not open
                                 or an error occurs.
@@ -597,7 +597,7 @@ implements DatabaseMetaData
         boolean[][] nulls = {{false}};
         boolean[][] dataMappingErrors = {{false}};
 
-        // If running to a system running OS/400 v5r2 or i5/OS the list can contain more than just the system
+        // If running to a system running OS/400 v5r2 or IBM i the list can contain more than just the system
         // name (when IASPs are on the system).  Try to retrieve that list.  Note 
         // if getting the list fails we will still return a result set containing
         // one item -- the name of the system.  We just built that result set 
@@ -685,7 +685,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 for i5/OS SQL term for "catalog".
+    Returns the DB2 for IBM i SQL term for "catalog".
     
     @return     The term "System".
     
@@ -3726,7 +3726,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 for i5/OS SQL term for "procedure".
+    Returns the DB2 for IBM i SQL term for "procedure".
     
     @return     The term for "procedure".
     
@@ -3796,7 +3796,7 @@ implements DatabaseMetaData
 
 
     /**
-    Returns the DB2 for i5/OS SQL term for "schema".
+    Returns the DB2 for IBM i SQL term for "schema".
     
     @return     The term for schema.
     
@@ -3918,7 +3918,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog.  Since DB2 for i5/OS does not support 
+    catalog, not the attributes catalog.  Since DB2 for IBM i does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -3953,7 +3953,7 @@ implements DatabaseMetaData
     
     This method only applies to the attributes of a 
     structured type.  Distinct types are stored in the datatypes 
-    catalog, not the attributes catalog. Since DB2 for i5/OS does not support 
+    catalog, not the attributes catalog. Since DB2 for IBM i does not support 
     structured types at this time, an empty ResultSet will always be returned
     for calls to this method.
     
@@ -5743,7 +5743,7 @@ implements DatabaseMetaData
     to the LOB.
     
     @return     Always true.    Updateable lob methods update a copy of the LOB. 
-    ResultSet.updateRow() must be called to update the LOB in the DB2 for i5/OS database.
+    ResultSet.updateRow() must be called to update the LOB in the DB2 for IBM i database.
     
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6495,8 +6495,8 @@ implements DatabaseMetaData
     using the method Statement.getGeneratedKeys().
     
     @return     True if the user is connecting to a system running OS/400 V5R2      
-    or i5/OS, otherwise false.  Auto-generated keys are supported
-    only if connecting to a system running OS/400 V5R2 or i5/OS.
+    or IBM i, otherwise false.  Auto-generated keys are supported
+    only if connecting to a system running OS/400 V5R2 or IBM i.
         
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6937,8 +6937,8 @@ implements DatabaseMetaData
     types are ResultSet.HOLD_CURSORS_OVER_COMMIT and ResultSet.CLOSE_CURSORS_AT_COMMIT.
         
     @return     True if the user is connecting to a system running OS/400     
-    V5R2 or i5/OS, otherwise false.  Both types of result set 
-    holidability are supported if connecting to OS/400 V5R2 or i5/OS.
+    V5R2 or IBM i, otherwise false.  Both types of result set 
+    holidability are supported if connecting to OS/400 V5R2 or IBM i.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6959,8 +6959,8 @@ implements DatabaseMetaData
     Indicates if savepoints are supported.
         
     @return     True if the user is connecting to a system running 
-    OS/400 V5R2 or i5/OS, otherwise false.  Savepoints are supported
-    only if connecting to OS/400 V5R2 or i5/OS.
+    OS/400 V5R2 or IBM i, otherwise false.  Savepoints are supported
+    only if connecting to OS/400 V5R2 or IBM i.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5

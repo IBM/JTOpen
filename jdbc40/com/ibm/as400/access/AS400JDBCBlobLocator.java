@@ -55,7 +55,7 @@ public class AS400JDBCBlobLocator implements Blob
 /**
 Constructs an AS400JDBCBlobLocator object.  The data for the
 BLOB will be retrieved as requested, directly from the
-i5/OS system, using the locator handle.
+IBM i system, using the locator handle.
 
 @param  locator             The locator.
 **/

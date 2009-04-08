@@ -24,7 +24,7 @@ public class AS400JDBCNClobLocator extends AS400JDBCClobLocator implements NClob
     /**
     Constructs an AS400JDBCNClobLocator object.  The data for the
     CLOB will be retrieved as requested, directly from the
-    i5/OS system, using the locator handle.
+    IBM i system, using the locator handle.
     
     @param  locator             The locator.
     @param  converter           The text converter.

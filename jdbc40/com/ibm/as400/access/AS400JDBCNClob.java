@@ -29,7 +29,7 @@ public class AS400JDBCNClob extends AS400JDBCClob implements NClob
 
     /**
      * Constructs an AS400JDBCNClob object. The data is contained in the String.
-     * No further communication with the i5/OS system is necessary.
+     * No further communication with the IBM i system is necessary.
      * 
      * @param data
      *            The NClob data.
@@ -43,7 +43,7 @@ public class AS400JDBCNClob extends AS400JDBCClob implements NClob
 
     /**
      * Constructs an AS400JDBCNClob object. The data is contained in the char array.
-     * No further communication with the i5/OS system is necessary.
+     * No further communication with the IBM i system is necessary.
      * 
      * @param data
      *            The NClob data.

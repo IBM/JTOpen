@@ -1120,7 +1120,7 @@ implements Connection
   //@pd2 add missing proxy method.  This is needed for various testcases that use jobid.
   /**
   Returns the job identifier of the host server job corresponding to this connection.
-  Every JDBC connection is associated with a host server job on the i5/OS system.  The
+  Every JDBC connection is associated with a host server job on the IBM i system.  The
   format is:
   <ul>
     <li>10 character job name

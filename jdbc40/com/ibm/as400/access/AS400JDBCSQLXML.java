@@ -53,7 +53,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
 
     /**
      Constructs an AS400JDBCSQLXML object.  The data is contained
-     in the String.  No further communication with the i5/OS system is necessary.
+     in the String.  No further communication with the IBM i system is necessary.
 
      @param  data     The SQLXML data.
      @param maxLength Max length.
@@ -65,7 +65,7 @@ public class AS400JDBCSQLXML extends AS400JDBCClob implements SQLXML
 
     /**
      Constructs an AS400JDBCSQLXML object.  The data is contained
-     in the String.  No further communication with the i5/OS system is necessary.
+     in the String.  No further communication with the IBM i system is necessary.
 
      @param  data     The SQLXML data.
      **/

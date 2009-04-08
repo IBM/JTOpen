@@ -496,7 +496,7 @@ implements Connection //@A5A
                 <li>2.  The value of the <code> cursor hold </code> 
                 <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>. </ul>  
                 Full functionality of #1 requires support in OS/400 
-                V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, 
+                V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, 
                 the value specified on this method will be ignored and the default holdability
                 will be the value of #2.
     
@@ -699,12 +699,12 @@ implements Connection //@A5A
   /**
   *  Returns the native form of an SQL statement without
   *  executing it. The JDBC driver converts all SQL statements
-  *  from the JDBC SQL grammar into the native DB2 for i5/OS
+  *  from the JDBC SQL grammar into the native DB2 for IBM i
   *  SQL grammar prior to executing them.
   *
   *  @param  sql     The SQL statement in terms of the JDBC SQL grammar.
   *  @return         The translated SQL statement in the native
-  *                  DB2 for i5/OS SQL grammar.
+  *                  DB2 for IBM i SQL grammar.
   *
   *  @exception      SQLException    If the SQL statement has a syntax error.
   **/
@@ -803,7 +803,7 @@ implements Connection //@A5A
     stored procedure multiple times.
     
     <p>Full functionality of this method requires support in OS/400 V5R2  
-    or i5/OS.  If connecting to OS/400 V5R1 or earlier, the value for 
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, the value for 
     resultSetHoldability will be ignored.
     
     @param sql                      The SQL statement.
@@ -874,7 +874,7 @@ and stores it in a PreparedStatement object.  This object can
 be used to efficiently execute this SQL statement
 multiple times.
 
-<p>This method requires OS/400 V5R2 or i5/OS.  If connecting to OS/400 V5R1 or earlier, an exception will be 
+<p>This method requires OS/400 V5R2 or IBM i.  If connecting to OS/400 V5R1 or earlier, an exception will be 
 thrown. 
 
 <p>Result sets created using the statement will be type
@@ -1345,7 +1345,7 @@ ResultSet.CONCUR_READ_ONLY.
     Sets the holdability of ResultSets created from this connection.
     
     <p>Full functionality of this method requires OS/400 V5R2
-    or i5/OS.  If connecting to OS/400 V5R1 or earlier, all
+    or IBM i.  If connecting to OS/400 V5R1 or earlier, all
     cursors for the connection will be changed to the value of the variable
     <i>holdability</i>.
     
@@ -1429,7 +1429,7 @@ ResultSet.CONCUR_READ_ONLY.
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.                                                                              
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
+     * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      *
@@ -1452,7 +1452,7 @@ ResultSet.CONCUR_READ_ONLY.
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.   
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
+     * <LI>Savepoints require OS/400 V5R2 or IBM i.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      * @param      name A String containing the name of the savepoint
@@ -1482,12 +1482,12 @@ ResultSet.CONCUR_READ_ONLY.
   *  isolation level cannot be changed while in the middle of
   *  a transaction.
   *
-  *  <p>JDBC and DB2 for i5/OS use different terminology for transaction 
+  *  <p>JDBC and DB2 for IBM i use different terminology for transaction 
   *  isolation levels.  The following table provides a terminology 
   *  mapping:
   *
   *  <p><table border>
-  *  <tr><th>DB2 for i5/OS isolation level</th><th>JDBC transaction isolation level</th></tr>
+  *  <tr><th>DB2 for IBM i isolation level</th><th>JDBC transaction isolation level</th></tr>
   *  <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
   *  <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
   *  <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
@@ -1517,10 +1517,10 @@ ResultSet.CONCUR_READ_ONLY.
   /**
   *  Sets the type map to be used for distinct and structured types.
   *
-  *  <p>Note: Distinct types are supported by DB2 for i5/OS, but
+  *  <p>Note: Distinct types are supported by DB2 for IBM i, but
   *  are not externalized by the IBM Toolbox for Java JDBC driver.
   *  In other words, distinct types behave as if they are the underlying
-  *  type.  Structured types are not supported by DB2 for i5/OS.
+  *  type.  Structured types are not supported by DB2 for IBM i.
   *  Consequently, this driver does not support the type map.
   *
   *  @param typeMap  The type map.
@@ -1536,7 +1536,7 @@ ResultSet.CONCUR_READ_ONLY.
 
   /**
   *  Returns the connection's catalog name.  
-  *  This is the name of the i5/OS system.
+  *  This is the name of the IBM i system.
   *  @return     The catalog name.
   **/
   public String toString ()
