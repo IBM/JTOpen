@@ -23,8 +23,6 @@ import java.io.*;
  */
 class SystemClassLoader extends java.lang.ClassLoader
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException
   {
     return findSystemClass(name);

@@ -20,8 +20,6 @@ import java.io.PrintWriter;            // @A1A
 
 class ParseException extends Exception
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
 	Vector	m_messages = new Vector();
 
     ParseException()

@@ -20,8 +20,6 @@ import java.io.Serializable;
 import java.util.Vector;
 
 class PcmlDataVector extends Vector {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = -8169008879805188674L;	    // @C1A
 
     private PcmlData m_owner;         // PcmlData node that owns this vector

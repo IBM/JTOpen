@@ -14,9 +14,6 @@
 package com.ibm.as400.data;
 
 class PcmlAttribute extends Object {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     private String name;
     private String value;
     private boolean specified;

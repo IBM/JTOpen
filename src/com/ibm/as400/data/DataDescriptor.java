@@ -24,9 +24,6 @@ import com.ibm.as400.access.BidiStringType;
 
 class DataDescriptor extends DocNodeDescriptor
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     /* Constructor */
     public DataDescriptor(PcmlDocNode node)
     {

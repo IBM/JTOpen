@@ -14,9 +14,6 @@
 package com.ibm.as400.data;
 
 class RfmlData extends PcmlData {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     // New attributes should be added to the end of this array
     private static final String DATAATTRIBUTES[] = {
         "name",

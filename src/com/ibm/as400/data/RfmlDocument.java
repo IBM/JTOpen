@@ -29,9 +29,6 @@ import java.util.Enumeration;
 /**
 */
 class RfmlDocument extends PcmlDocument {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 5L;
 
     // New attributes should be added to the end of this array

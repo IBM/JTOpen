@@ -14,8 +14,6 @@
 package com.ibm.as400.data;
 
 final class PcmlNodeType {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     public static final int UNSUPPORTED	= 1;
     public static final int DOCUMENT 	= 1;
     public static final int PROGRAM 	= 2;

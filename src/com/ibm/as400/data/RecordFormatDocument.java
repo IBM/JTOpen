@@ -76,8 +76,6 @@ import java.util.MissingResourceException;
  **/
 public class RecordFormatDocument implements Serializable, Cloneable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 5L;       // @A6C
 
     static final String RFML_VERSION = "4.0"; // NOTE: This needs to match the current value for the "version" attribute for the <rfml> tag.  @A1a

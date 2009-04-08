@@ -20,8 +20,6 @@ import java.awt.Component;
  */
 public class XmlException extends Exception
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
 	private String         m_localizedMessage;
 	private Exception      m_exception;
 

@@ -27,8 +27,6 @@ import java.util.*;
  */
 class ResourceLoader extends Object
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     private ResourceBundle m_bundle = null;
 
     /**

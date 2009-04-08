@@ -14,9 +14,6 @@
 package com.ibm.as400.data;
 
 class RfmlStruct extends PcmlStruct {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     /***********************************************************
      Static Members
     ***********************************************************/

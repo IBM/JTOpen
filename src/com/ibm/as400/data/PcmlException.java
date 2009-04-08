@@ -22,9 +22,6 @@ import java.awt.Component;
  */
 public class PcmlException extends XmlException            // @C3C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     /**
      * Constructs a <code>PcmlException</code> without a
      * user message.

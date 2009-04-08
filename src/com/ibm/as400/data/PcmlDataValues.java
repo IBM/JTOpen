@@ -40,8 +40,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     private Object m_value;        // Java native value: (String, Short, Integer, Long, Float, Double, BigDecimal. byte[])
     private long   m_valueTs;      // Correlation id of Java native value from PcmlDocument.getCorrelationID()
-    private byte[] m_bytes;        // i5/OS bytes (ebcdic/big-endian)
-    private long   m_bytesTs;      // Correlation id of i5/OS bytes from PcmlDocument.getCorrelationID()
+    private byte[] m_bytes;        // IBM i bytes (ebcdic/big-endian)
+    private long   m_bytesTs;      // Correlation id of IBM i bytes from PcmlDocument.getCorrelationID()
     
     private int    m_bidiStringType;    // Type of string that is contained in the value @C6A
 
@@ -68,7 +68,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     {                                                               // @C1A
         synchronized (this)                                         // @C1A
         {                                                           // @C1A
-            // For input values, serialize only the i5/OS byte value 
+            // For input values, serialize only the IBM i byte value 
             // if it is current than the Java value
             if ( m_owner.getUsage() == PcmlDocNode.INPUT )          // @C1A
             {                                                       // @C1A
@@ -82,7 +82,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             }                                                       // @C1A
 
             // For ouput values, serialize only the Java value 
-            // if it is current than the i5/OS byte value
+            // if it is current than the IBM i byte value
             if ( m_owner.getUsage() == PcmlDocNode.OUTPUT )         // @C1A
             {
                 // If the byte value is more recent than the Java value
@@ -197,7 +197,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         m_valueTs = m_owner.getDoc().getCorrelationID();
     }
 
-    // Set i5/OS bytes
+    // Set IBM i bytes
     public void setBytes(byte[] ba) 
     {
         m_bytes = ba;
@@ -222,7 +222,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     }
 
-    // Convert i5/OS bytes to Java native value
+    // Convert IBM i bytes to Java native value
     private Object bytesToValue() throws PcmlException 
     {
         // If the byte value is more recent than the Java value
@@ -457,7 +457,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         }
     }
 
-    // Convert Java object i5/OS bytes
+    // Convert Java object IBM i bytes
     // Returns the number of bytes converted
     public int toBytes(OutputStream bytes, int offset) throws PcmlException 
     {
@@ -517,7 +517,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         return bytesConverted;                                      // @B2A
     } // public int toBytes(OutputStream bytes, int offset)
 
-    // Convert i5/OS bytes to Java Object
+    // Convert IBM i bytes to Java Object
     // Returns the Java Object
     public Object toObject(byte[] bytes) throws PcmlException
     {

@@ -18,8 +18,6 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 abstract class PcmlNode implements Serializable, Cloneable {        // @C2A
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = -2955209136470053178L;	    // @C1A
 
     private PcmlNode parent;

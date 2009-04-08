@@ -18,8 +18,6 @@ import org.xml.sax.SAXParseException;                               // @C1A
 
 class XMLErrorHandler extends Object implements ErrorHandler        // @C1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     private String			m_filename;
     private int				m_headerLineCount;
     private boolean			m_ignorePCML = false;

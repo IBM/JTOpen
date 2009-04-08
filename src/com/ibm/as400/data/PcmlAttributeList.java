@@ -17,12 +17,9 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 class PcmlAttributeList extends Object {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     private Vector v;
-    private String value;
-    private boolean specified;
+    //private String value;
+    //private boolean specified;
 
     PcmlAttributeList(int size) 
     {

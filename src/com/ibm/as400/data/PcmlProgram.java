@@ -528,7 +528,7 @@ class PcmlProgram extends PcmlDocNode
         m_pgmCCSID = as400.getCcsid();                              // @C2A
 
         //
-        // Convert all input parameters from Java objects to i5/OS data
+        // Convert all input parameters from Java objects to IBM i data
         //
         childNbr = 0;
         children = getChildren();
@@ -543,7 +543,7 @@ class PcmlProgram extends PcmlDocNode
             outputSize = 0;
 
             //
-            // Create a byte array for the parameter and convert the Java objects to i5/OS data
+            // Create a byte array for the parameter and convert the Java objects to IBM i data
             //
             bSupportedAtVRM = false;                                // @A2A
             bytes = null;                                           // @A2A
@@ -765,7 +765,7 @@ class PcmlProgram extends PcmlDocNode
             children = getChildren();
         }
 
-        // Process children to parse i5/OS data
+        // Process children to parse IBM i data
         while (children.hasMoreElements())
         {
             child = (PcmlDocNode) children.nextElement();

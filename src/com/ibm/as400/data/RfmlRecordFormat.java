@@ -30,9 +30,6 @@ import com.ibm.as400.access.*;
 **/
 class RfmlRecordFormat extends PcmlDocNode
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 5L;
 
     private static final String RECORD_FORMAT_ATTRIBUTES[] = {
@@ -447,13 +444,13 @@ class RfmlRecordFormat extends PcmlDocNode
 
       int offsetIntoBuffer = 0;
 
-        // Convert all fields from Java objects to i5/OS data.
+        // Convert all fields from Java objects to IBM i data.
         Enumeration children = getChildren();  // children of this node.
         while (children.hasMoreElements())
         {
           PcmlDocNode child = (PcmlDocNode) children.nextElement();
 
-          // Create a FieldDescription for the node and convert the Java objects to i5/OS data.
+          // Create a FieldDescription for the node and convert the Java objects to IBM i data.
           if (child.getNodeType() == PcmlNodeType.DATA) {
             try {
               int bytesConsumed = ((RfmlData) child).parseBytes(bytes, offsetIntoBuffer, offsetStack, noDimensions);

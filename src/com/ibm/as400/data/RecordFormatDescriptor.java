@@ -21,9 +21,6 @@ package com.ibm.as400.data;
 
 class RecordFormatDescriptor extends DocNodeDescriptor
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     /* Constructor */
     public RecordFormatDescriptor(PcmlDocNode node)
     {

@@ -26,9 +26,6 @@ import com.ibm.as400.access.Trace;                                  // @A1A
 
 abstract class DocNodeDescriptor implements Descriptor
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     protected PcmlDocNode m_docNode;            // The PcmlDocNode object that is described by this Descriptor
 
     /* Constructor */

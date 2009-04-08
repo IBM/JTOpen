@@ -21,9 +21,6 @@ package com.ibm.as400.data;
 
 class PcmlDescriptor extends DocNodeDescriptor
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    
     /* Constructor */
     public PcmlDescriptor(PcmlDocNode node)
     {

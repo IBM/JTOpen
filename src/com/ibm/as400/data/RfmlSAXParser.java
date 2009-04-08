@@ -39,9 +39,6 @@ import com.ibm.as400.access.Trace;
 
 class RfmlSAXParser extends DefaultHandler implements EntityResolver
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   private transient RfmlDocument m_rootNode;
   private transient PcmlDocNode  m_currentNode;
   private transient String       m_docName;

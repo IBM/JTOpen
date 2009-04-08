@@ -27,8 +27,6 @@ import com.ibm.as400.access.Trace;
 // CLASSPATH).
 class XPCMLHelper
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     /**
       doTransform -- Transforms one XML stream to another.  Inputs are transform file
                      (.xsl file), XML input stream, and XML output stream containing

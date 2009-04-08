@@ -18,9 +18,6 @@ import java.util.Hashtable;
 // This class implements the root node for the PcmlDocument
 
 abstract class PcmlDocRoot extends PcmlDocNode {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
     // Serial verion unique identifier
     static final long serialVersionUID = 8045487976295209373L;      // @C2A
 

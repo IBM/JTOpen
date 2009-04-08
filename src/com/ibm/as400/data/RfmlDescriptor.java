@@ -21,9 +21,6 @@ package com.ibm.as400.data;
 
 class RfmlDescriptor extends PcmlDescriptor
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     /** Constructor. **/
     public RfmlDescriptor(PcmlDocNode node)
     {

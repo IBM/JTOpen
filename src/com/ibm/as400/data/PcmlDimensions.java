@@ -19,9 +19,6 @@ import java.util.Vector;
 
 class PcmlDimensions extends Object implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = -8169008879805188674L;	    // @C1A
 
     private Vector v;

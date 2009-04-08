@@ -20,8 +20,6 @@ import java.util.*;
 
 class SystemResourceFinder
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   public static final String  m_pcmlExtension = ".pcml";
   public static final String  m_pcmlSerializedExtension = ".pcml.ser";
   public static final String  m_rfmlExtension = ".rfml";                          // @B2A
@@ -179,6 +177,7 @@ class SystemResourceFinder
       }
       catch (IOException e)
       {
+        Trace.log(Trace.PCML, "Error when reading input stream in getPCMLHeader", e);
       }
 
       // Get the stream again
