@@ -16,12 +16,10 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- The DataQueue class represents an i5/OS sequential data queue object.
+ The DataQueue class represents an IBM i sequential data queue object.
  **/
 public class DataQueue extends BaseDataQueue
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     /**

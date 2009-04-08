@@ -27,8 +27,6 @@ import java.util.Hashtable;
 **/
 class DDMRequestDataStream extends DDMDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   /**
    *Constructs request data stream with defaults:
    *  Don't continue on error, not chained, GDS id = D0, type = RQSDSS,
@@ -995,7 +993,7 @@ class DDMRequestDataStream extends DDMDataStream
             // characters in the datastream, but nevertheless, they need to be there in
             // order for subsequent key fields in the datastream to work.
             text.setConverter(conv); // Set the converter into the AS400Text object (side effect of proxification)
-            fieldAsBytes = text.toBytes(toWrite); // Convert the Java String to i5/OS EBCDIC bytes using AS400Text, which will blank pad to the length of the field for us.
+            fieldAsBytes = text.toBytes(toWrite); // Convert the Java String to IBM i EBCDIC bytes using AS400Text, which will blank pad to the length of the field for us.
 
             if (varLength) // If we are variable length, need to write the 2-byte length header
             {

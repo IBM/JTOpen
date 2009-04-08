@@ -35,10 +35,6 @@ import java.util.Vector;
 **/
 abstract public class FieldDescription implements Serializable
 {  
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -58,7 +54,7 @@ abstract public class FieldDescription implements Serializable
   // COLHDG keyword
   String columnHeading_ = "";
   // AS400DataType object containing the description of the data as well
-  // as methods to convert the data to and from its i5/OS format.
+  // as methods to convert the data to and from its IBM i format.
   AS400DataType dataType_ = null;
   // The DDS name of the field
   String ddsName_ = "";

@@ -20,7 +20,7 @@ import java.util.Vector;
 
 /**
  *Represents the S38MSGRM DDM data stream.  This reply stream is returned
- *when an error has occurred for which there is an i5/OS error message(s).
+ *when an error has occurred for which there is an IBM i error message(s).
  *Format:
  *  Bytes      Description
  * ----------  -------------------------------------------------------
@@ -37,16 +37,14 @@ import java.util.Vector;
 **/
 class DDMAS400MessageReply extends DDMReplyDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   ConverterImplRemote conv; //@B5C
   Vector messages_ = new Vector();
   String msgId_ = null;
-  String msgFile_ = null;
-  String msgReplData_ = null;
+  //String msgFile_ = null;
+  //String msgReplData_ = null;
   String msgText_ = null;
-  int msgType_ = -1;  // Set msgType_ to -1 to indicate that it has not been set
-  String srvDiagnostic_ = null;
+  //int msgType_ = -1;  // Set msgType_ to -1 to indicate that it has not been set
+  //String srvDiagnostic_ = null;
   int svrCode_ = -1;  // Set svrCode_ to -1 to indicate that it has not been set
 
   /**

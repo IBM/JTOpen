@@ -329,7 +329,7 @@ public class FileAttributes
     String objectOwner_;
     /**
      Returns the name of the user profile that is the owner of the object.
-     @return  The name of the user profile that is the owner of the object or the special value "*NOUSRPRF" which is an indication by the Network File System that there is no user profile on the local i5/OS system with a user ID (UID) matching the UID of the remote object.
+     @return  The name of the user profile that is the owner of the object or the special value "*NOUSRPRF" which is an indication by the Network File System that there is no user profile on the local IBM i system with a user ID (UID) matching the UID of the remote object.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -468,7 +468,7 @@ public class FileAttributes
     // The date the object was last used.
     Date lastUsedDate_;
     /**
-     Returns the date the object was last used.  If the object has not been used or if usage data is not maintained for the i5/OS type or the file system to which an object belongs, null is returned.
+     Returns the date the object was last used.  If the object has not been used or if usage data is not maintained for the IBM i type or the file system to which an object belongs, null is returned.
      @return  The date the object was last used.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -696,7 +696,7 @@ public class FileAttributes
      @return  The format of the stream file (*STMF).  Possible values are:
      <ul>
      <li>{@link #FILE_FORMAT_TYPE1 FILE_FORMAT_TYPE1} - The object has the same format as *STMF objects created on releases prior to Version 4 Release 4.  It has a minimum object size of 4096 bytes and a maximum object size of approximately 128 gigabytes.
-     <li>{@link #FILE_FORMAT_TYPE2 FILE_FORMAT_TYPE2} - The *STMF has high performance file access and was new in Version 4 Release 4 of i5/OS (OS/400).  It has a minimum object size of 4096 bytes and a maximum object size of approximately one terabyte in the "root" (/), QOpenSys and user-defined file systems.  Otherwise, the maximum is approximately 256 gigabytes.  A *TYPE2 *STMF is capable of memory mapping as well as the ability to specify an attribute to optimize disk storage allocation.
+     <li>{@link #FILE_FORMAT_TYPE2 FILE_FORMAT_TYPE2} - The *STMF has high performance file access and was new in OS/400 V4R4.  It has a minimum object size of 4096 bytes and a maximum object size of approximately one terabyte in the "root" (/), QOpenSys and user-defined file systems.  Otherwise, the maximum is approximately 256 gigabytes.  A *TYPE2 *STMF is capable of memory mapping as well as the ability to specify an attribute to optimize disk storage allocation.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -726,8 +726,8 @@ public class FileAttributes
      Returns the default file format of stream files (*STMF) created in the user-defined file system.
      @return  The default file format of stream files (*STMF) created in the user-defined file system.  Possible values are:
      <ul>
-     <li>{@link #UDFS_DEFAULT_TYPE1 UDFS_DEFAULT_TYPE1} - The stream file (*STMF) has the same format as *STMF's created on releases prior to Version 4 Release 4 of i5/OS (OS/400).  It has a minimum object size of 4096 bytes and a maximum object size of approximately 256 gigabytes.
-     <li>{@link #UDFS_DEFAULT_TYPE2 UDFS_DEFAULT_TYPE2} - A *TYPE2 *STMF has high performance file access and was new in Version 4 Release 4 of i5/OS (OS/400).  It has a minimum object size of 4096 bytes and a maximum object size of approximately one terabyte in the "root" (/), QOpenSys and user-defined file systems.  Otherwise, the maximum is approximately 256 gigabytes.  A *TYPE2 *STMF is capable of memory mapping as well as the ability to specify an attribute to optimize disk storage allocation.
+     <li>{@link #UDFS_DEFAULT_TYPE1 UDFS_DEFAULT_TYPE1} - The stream file (*STMF) has the same format as *STMF's created on releases prior to OS/400 V4R4.  It has a minimum object size of 4096 bytes and a maximum object size of approximately 256 gigabytes.
+     <li>{@link #UDFS_DEFAULT_TYPE2 UDFS_DEFAULT_TYPE2} - A *TYPE2 *STMF has high performance file access and was new in OS/400 V4R4.  It has a minimum object size of 4096 bytes and a maximum object size of approximately one terabyte in the "root" (/), QOpenSys and user-defined file systems.  Otherwise, the maximum is approximately 256 gigabytes.  A *TYPE2 *STMF is capable of memory mapping as well as the ability to specify an attribute to optimize disk storage allocation.
      </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -801,11 +801,11 @@ public class FileAttributes
         setAttributes(ccsid, (byte)27);
     }
 
-    // Whether the object has an i5/OS digital signature.
+    // Whether the object has an IBM i digital signature.
     boolean signed_;
     /**
-     Returns whether the object has an i5/OS digital signature.  This attribute is only returned for *STMF objects.
-     @return  true if the object does have an i5/OS digital signature; false otherwise.
+     Returns whether the object has an IBM i digital signature.  This attribute is only returned for *STMF objects.
+     @return  true if the object does have an IBM i digital signature; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -835,10 +835,10 @@ public class FileAttributes
         return systemSigned_;
     }
 
-    // Whether the object has more than one i5/OS digital signature.
+    // Whether the object has more than one IBM i digital signature.
     boolean multipleSignatures_;
     /**
-     Returns whether the object has more than one i5/OS digital signature.  This attribute is only returned for *STMF objects.
+     Returns whether the object has more than one IBM i digital signature.  This attribute is only returned for *STMF objects.
      @return  true if the object has more than one digital signature; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.

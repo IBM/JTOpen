@@ -33,9 +33,6 @@ class DataAreaImplProxy
 extends AbstractProxyImpl
 implements DataAreaImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
   DataAreaImplProxy ()
   {
     super ("DataArea");
@@ -390,7 +387,7 @@ implements DataAreaImpl
 
    /**
    Refreshes the attributes of the data area.
-   This method should be called if the underlying i5/OS data area has changed
+   This method should be called if the underlying IBM i data area has changed
    and it is desired that this object should reflect those changes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.

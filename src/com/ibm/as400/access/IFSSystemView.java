@@ -22,7 +22,7 @@ import javax.swing.Icon;
 
 
 /**
-  * IFSSystemView provides a gateway to the i5/OS integrated file system,
+  * IFSSystemView provides a gateway to the IBM i integrated file system,
   * for use when constructing javax.swing.JFileChooser objects.
   * <p>JFileChooser is a standard Java way to build dialogs for navigating
   * and choosing files.
@@ -232,7 +232,7 @@ public class IFSSystemView extends FileSystemView
 
     /**
      Returns the home directory.
-     <br>The i5/OS integrated file system has one home directory, the "/" directory.
+     <br>The IBM i integrated file system has one home directory, the "/" directory.
      @return the home directory.
      **/
     public File getHomeDirectory()
@@ -266,7 +266,7 @@ public class IFSSystemView extends FileSystemView
 
     /**
      Returns all root partitions on this system.
-     <br>The i5/OS integrated file system has one root partition, the "/" directory.
+     <br>The IBM i integrated file system has one root partition, the "/" directory.
      @return all root partitions on this system.
      **/
     public File[] getRoots()
@@ -289,7 +289,7 @@ public class IFSSystemView extends FileSystemView
     }
 
     /**
-     * Always returns an icon representing an i5/OS system.
+     * Always returns an icon representing an IBM i system.
      **/
     public Icon getSystemIcon(File f)
     {
@@ -376,7 +376,7 @@ public class IFSSystemView extends FileSystemView
 
     /**
      Determines if the given file is a root in the navigatable tree(s).
-     <br>The i5/OS integrated file system has one root, the "/" directory.
+     <br>The IBM i integrated file system has one root, the "/" directory.
      @param file A File object representing a directory.
      @return true if file is a root in the navigatable tree.
      **/

@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /**
- The EnvironmentVariableList class represents a list of i5/OS system-level environment variables.
+ The EnvironmentVariableList class represents a list of IBM i system-level environment variables.
  <p>This class can only access system-level environment variables.  You must have *JOBCTL special authority to add, change, or delete system-level environment variables.
  <p>This example gets the list of environment variables as a java.util.Properties object:
  <pre>
@@ -48,8 +48,6 @@ import java.util.Vector;
 // * There is currently no API to get a list of job-level environment variables.  This is not available since C programs can get the list via the ENVIRON environment variable.
 public class EnvironmentVariableList implements Serializable
 {
-    private static final String copyright = "Copyright (C) 2000-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     private AS400 system_ = null;

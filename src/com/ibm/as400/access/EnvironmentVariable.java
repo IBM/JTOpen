@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- The EnvironmentVariable class represents an i5/OS system-level environment variable.  An environment variable is uniquely identified by the system and the environment variable name.  Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
+ The EnvironmentVariable class represents an IBM i system-level environment variable.  An environment variable is uniquely identified by the system and the environment variable name.  Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
  <p>This class can only access system-level environment variables.  You must have *JOBCTL special authority to add, change, or delete system-level environment variables.
  <p>Every environment variable has a CCSID associated with it which describes the CCSID in which its contents are stored.  The default CCSID is that of the current job.
  <p>Note that environment variables are different than system values, although they are often used for the same purpose.  See <a href="SystemValue.html">SystemValue</a> for more information on how to access system values.
@@ -41,8 +41,6 @@ import java.io.Serializable;
 // * This is probably not a major limitation, since job-level environment variables would only be valid to the program call job.  However, if the ServiceProgramCall support improves in the future, then it may be worth adding the job-level support here.
 public class EnvironmentVariable implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // Service program return codes.
@@ -393,6 +391,22 @@ public class EnvironmentVariable implements Serializable
     {
         stringType_ = stringType;
         return getValue();
+    }
+
+    // Help de-serialize the object.
+    private void readObject(java.io.ObjectInputStream ois)
+      throws IOException, ClassNotFoundException
+    {
+      // Restore the non-static and non-transient fields.
+      ois.defaultReadObject();
+
+      // Initialize the transient fields.
+      spc_ = null;
+      converter_ = null;
+      value_ = null;
+      valueBytes_ = null;
+      ccsid_ = 0;
+      propertyChangeListeners_ = null;
     }
 
     /**

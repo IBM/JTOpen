@@ -27,12 +27,12 @@ import java.net.MalformedURLException;
 
 /**
  * The IFSJavaFile class represents a file in the
- * integrated file system of an i5/OS system.
+ * integrated file system of an IBM i system.
  * <br>
  *
  * IFSJavaFile extends the java.io.File class and allows programs
  * to be written for the java.io.File interface and still access
- * the i5/OS integrated file system.
+ * the IBM i integrated file system.
  *
  * IFSFile should be considered as an alternate to java.io.File class.
  * <p>
@@ -43,21 +43,21 @@ import java.net.MalformedURLException;
  * java.io.File, is needed.  For example, you have written code
  * that accesses the native file system.  Now you want to move
  * the design to a networked file system.  More particularly,
- * you need to move the code to the i5/OS integrated file system.
- * When a program is being ported and needs to use the i5/OS
+ * you need to move the code to the IBM i integrated file system.
+ * When a program is being ported and needs to use the IBM i
  * integrated file system, IFSJavaFile is a good choice.
  * IFSJavaFile also provides SecurityManager features defined in
  * java.io.File.
  * <p>
  * <li>
- * If you need to take full advantage of the i5/OS integrated file
+ * If you need to take full advantage of the IBM i integrated file
  * system, {@link IFSFile IFSFile} is more useful.  IFSFile is written to
- * handle more of the specific i5/OS integrated file system details.
+ * handle more of the specific IBM i integrated file system details.
  * <p>
  * <li>
- * java.io.File can be used to access the i5/OS file system
- * if you use a product like System i5 Access for Windows to map a local drive
- * to the i5/OS integrated file system.
+ * java.io.File can be used to access the IBM i file system
+ * if you use a product like IBM i Access for Windows to map a local drive
+ * to the IBM i integrated file system.
  * <p>
  * </ul>
  *
@@ -78,14 +78,14 @@ import java.net.MalformedURLException;
  *     java.io.File than IFSFile.  It is designed to enable
  *     a plug-in fit for previously written java.io.File code.
  * <li>IFSJavaFile always implements a SecurityManager using
- *     i5/OS security.  The SecurityManager provides authority
+ *     IBM i security.  The SecurityManager provides authority
  *     checks.  It throws security exceptions when illegal access
  *     attempts are made.
  * </ol>
  *
  * <p>
  * The following example demonstrates the use of IFSJavaFile.  It shows how a few lines
- * of platform specific code enable the creation of a file on either the i5/OS system or
+ * of platform specific code enable the creation of a file on either the IBM i system or
  * the local client.
  * <pre>
  *     int location            = ON_THE_AS400;
@@ -138,9 +138,6 @@ import java.net.MalformedURLException;
 **/
 public class IFSJavaFile extends java.io.File implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
   private IFSFile ifsFile_ = new IFSFile();
@@ -465,6 +462,30 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return getPath().compareTo(file.getPath());
   }
 
+/**
+ * Compares this object with another object.
+ *
+ * @param   object The object to be compared.
+ *
+ * @return  <code>0</code> if this IFSJavaFile path equals the argument's path;
+ *          a value less than <code>0</code> if this IFSJavaFile path is less than the argument's
+ *          path; and a value greater than <code>0</code> if this IFSJavaFile path is greater
+ *          than the argument's path.
+ *
+ * @exception ClassCastException if the specified object's type prevents it from being compared to this Object.
+ * @since JDK1.2
+**/
+  public int compareTo(Object obj)
+  {
+    if (obj instanceof IFSJavaFile) return compareTo((IFSJavaFile)obj);
+    else if (obj instanceof File) return compareTo((File)obj);
+    else if (obj instanceof IFSFile) return compareTo((IFSFile)obj);
+    else {
+      String classname = (obj == null ? "null" : obj.getClass().getName());
+      throw new ClassCastException(classname);
+    }
+  }
+
 
   /**
    * Atomically create a new, empty file.  The file is
@@ -472,7 +493,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    * check for existence and the file creation is a
    * single atomic operation.
    * @return true if the file is created, false otherwise.
-   * @exception IOException If an I/O error occurs while communicating with the i5/OS system.
+   * @exception IOException If an I/O error occurs while communicating with the IBM i system.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean createNewFile()
@@ -620,7 +641,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return an IFSJavaFile object based on the canonical path name
  *         of the current object.
  *
- * @exception IOException If an I/O error occurs while communicating with the i5/OS system.
+ * @exception IOException If an I/O error occurs while communicating with the IBM i system.
  * @see #getCanonicalPath
 **/
   // @D1 - new method because of changes to java.io.file in Java 2.
@@ -639,7 +660,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return The canonical path name for this IFSJavaFile.
  *
- * @exception IOException If an I/O error occurs while communicating with the i5/OS system.
+ * @exception IOException If an I/O error occurs while communicating with the IBM i system.
 **/
   public String getCanonicalPath() throws IOException
   {
@@ -883,7 +904,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 
 /**
- * Indicates if the IFSJavaFile is hidden.  On the i5/OS system, a file is
+ * Indicates if the IFSJavaFile is hidden.  On the IBM i system, a file is
  * hidden if its hidden attribute is set.
  *
  * @return <code>true</code> if the file is hidden; <code>false</code> otherwise.
@@ -1204,8 +1225,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the i5/OS system.  This means attribute information may
- * become inconsistent with the i5/OS system.
+ * will not be refreshed from the IBM i system.  This means attribute information may
+ * become inconsistent with the IBM i system.
  * @return An array of objects in the directory.
  * This list does not include the current directory
  * or the parent directory.  If this IFSJavaFile is not
@@ -1223,8 +1244,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the i5/OS system.  This means attribute information may
- * become inconsistent with the i5/OS system.
+ * will not be refreshed from the IBM i system.  This means attribute information may
+ * become inconsistent with the IBM i system.
  *
  * @param   filter The file name filter.
  *
@@ -1308,8 +1329,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the i5/OS system.  This means attribute information may
- * become inconsistent with the i5/OS system.
+ * will not be refreshed from the IBM i system.  This means attribute information may
+ * become inconsistent with the IBM i system.
  *
  * @param   filter The file filter.
  *
@@ -1386,8 +1407,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in the IFSJavaFile directory that satisfy <i>file name filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the i5/OS system.  This means attribute information may
- * become inconsistent with the i5/OS system.
+ * will not be refreshed from the IBM i system.  This means attribute information may
+ * become inconsistent with the IBM i system.
  * @param   filter The file name filter.
  *
  * @return  An array of objects in the directory that
@@ -1430,8 +1451,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i> and
  * <i>pattern</i>.  With the use of this function, attribute information is cached and
- * will not be refreshed from the i5/OS system.  This means attribute information may
- * become inconsistent with the i5/OS system.
+ * will not be refreshed from the IBM i system.  This means attribute information may
+ * become inconsistent with the IBM i system.
  *
  * <p>Note:<br>If the file does not match <i>pattern</i>, it will not be processed by <i>filter</i>.
  *
@@ -1481,8 +1502,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that match <i>pattern</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the i5/OS system.  This means attribute information may
- * become inconsistent with the i5/OS system.
+ * will not be refreshed from the IBM i system.  This means attribute information may
+ * become inconsistent with the IBM i system.
  *
  * @param   pattern The pattern that all filenames must match.
  *          Acceptable characters are wildcards (* - matches
@@ -1508,12 +1529,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Lists the file system roots for the integrated file system
- * of the i5/OS system.  The i5/OS integrated file system has
+ * of the IBM i system.  The IBM i integrated file system has
  * only one root -- "/".
  *
  * @return  An array of IFSJavaFile objects that represent the
  *          file system roots of the integrated file system
- *          of the i5/OS system.  Since the i5/OS integrated file system
+ *          of the IBM i system.  Since the IBM i integrated file system
  *          has only one root, the returned
  *          array contains only one element.
 **/
@@ -1753,7 +1774,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Marks the file named by this IFSJavaFile object so that only
- * read operations are allowed.  On the i5/OS system, a file is marked
+ * read operations are allowed.  On the IBM i system, a file is marked
  * read only by setting the read only attribute of the file.
  *
  * @return <code>true</code> if the read only attribute is set; <code>false</code> otherwise.
@@ -1816,8 +1837,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Converts the abstract path name into a <code>file:</code> URL.
- * The i5/OS file/directory will be accessed and if it is a directory the
- * resulting URL will end with the i5/OS separator character
+ * The IBM i file/directory will be accessed and if it is a directory the
+ * resulting URL will end with the IBM i separator character
  * (forward slash).  The system name will be obtained from
  * the AS400 object.  If the path name or AS400 object has
  * not been set, a NullPointerException will be thrown.

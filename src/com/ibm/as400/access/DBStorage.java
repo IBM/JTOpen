@@ -23,11 +23,6 @@ repeatedly.
 **/
 final class DBStorage //@P0C
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
-
   byte[] data_ = new byte[1024]; //@P0C
   //@P0D private int     id_;
 
@@ -41,9 +36,9 @@ Constructs a DBStorage object.
 //@P0D  DBStorage (int id)
 //@P0D  {
     // Initialize to 63 KB.  This used to be 64K 
-    // The i5/OS JVM adds 24 bytes of
+    // The IBM i JVM adds 24 bytes of
     // overhead to each object so a 64K byte array really
-    // takes 64K + 24 bytes.  The i5/OS JVM has a boundry
+    // takes 64K + 24 bytes.  The IBM i JVM has a boundary
     // at 64K.  Objects 64K or smaller go into the 64K 
     // segment pool.  Objects 64K + 1 byte or larger go into the
     // 1 meg pool.  We used to allocate a 64K byte array

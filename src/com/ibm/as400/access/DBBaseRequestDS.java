@@ -40,11 +40,11 @@ import java.sql.SQLException;
 //    Template: This is fixed length data that is required.
 //              Each request has it's own template format and may vary
 //              depending on both the request id and client/server id.
-//              The operational results are stored on the i5/OS
+//              The operational results are stored on the IBM i
 //              system and can be received at a later time.
 //                Bitmap: Used to identify the operation results to
 //                        return.  Bit 1 is the left-most bit when it
-//                        arrives at the i5/OS system
+//                        arrives at the IBM i system
 //                        Bit 1: 1=reply should be sent immediately to
 //                                 the client application
 //                               0=reply is not sent and the rest of
@@ -191,9 +191,6 @@ import java.sql.SQLException;
 abstract class DBBaseRequestDS
 extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   // Private data.
   private int                    currentOffset_;
   private int                    lockedLength_;

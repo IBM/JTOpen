@@ -27,8 +27,8 @@ import java.util.Vector;
 //import com.ibm.as400.resource.RJob;
 
 /**
- Represents an i5/OS command object.  This class allows the user to call any non-interactive CL command.  Results of the command are returned in a message list.
- <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent i5/OS API or program, and use {@link ProgramCall ProgramCall} instead.
+ Represents an IBM i command object.  This class allows the user to call any non-interactive CL command.  Results of the command are returned in a message list.
+ <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent IBM i API or program, and use {@link ProgramCall ProgramCall} instead.
  <P>The following example demonstrates the use of CommandCall:
  <br>
  <pre>
@@ -706,7 +706,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Runs the command on the system.  This method takes the command to run as a byte array instead of a String.  The most common use of CommandCall is to supply the command to run as a String and let the Toolbox convert the string to i5/OS format (EBCDIC) before sending it to the system for processing.  Use this method if the default conversion of the command to EBCDIC is not correct.  In certain cases, especially bi-directional languages, the Toolbox conversion may not be correct.  In this case the application can construct their own command and supply it to CommandCall as a byte array.
+     Runs the command on the system.  This method takes the command to run as a byte array instead of a String.  The most common use of CommandCall is to supply the command to run as a String and let the Toolbox convert the string to IBM i format (EBCDIC) before sending it to the system for processing.  Use this method if the default conversion of the command to EBCDIC is not correct.  In certain cases, especially bi-directional languages, the Toolbox conversion may not be correct.  In this case the application can construct their own command and supply it to CommandCall as a byte array.
      <p>Unlike the run method that takes a string, this method cannot look up the thread safety of the command, and will assume that the command is not thread-safe.  If this command is to be run on-thread when running on the system's JVM, setThreadSafe(true) must be called by the application.
      <br>Note: Interactive (screen-oriented) results are not returned.
      @param  command  The command to run.

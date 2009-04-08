@@ -33,11 +33,11 @@ import java.io.PrintStream;
 //    Template: This is fixed length data that is required.
 //              Each reply has it's own template format and may vary
 //              depending on both the request id and client/server id.
-//              The operational results are stored on the i5/OS
+//              The operational results are stored on the IBM i
 //              system and can be received at a later time.
 //                Bitmap: Used to identify the operation results to
 //                        return.  Bit 1 is the left-most bit when it
-//                        arrives at the i5/OS system
+//                        arrives at the IBM i system
 //                        Bit 1: 1=reply should be sent immediately to
 //                                 the client application
 //                               0=reply is not sent and the rest of
@@ -118,7 +118,7 @@ import java.io.PrintStream;
   should inherit from this class.
 
   Here are the steps needed to handle a reply data stream
-  from the i5/OS system.
+  from the IBM i system.
 
     1.  Add a prototype reply data stream to the collection
       of reply prototypes.  There must be a prototype reply
@@ -190,11 +190,6 @@ import java.io.PrintStream;
 abstract class DBBaseReplyDS
 extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
-
   // Constants.
   private static final String     NODATA_             = "0";
   private static final int      TEMPLATE_LENGTH_    = 20;

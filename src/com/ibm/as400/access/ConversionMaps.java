@@ -18,8 +18,6 @@ import java.util.Hashtable;
 
 abstract class ConversionMaps
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     // To prevent rehashing of a Hashtable as it's being built, we construct it with a certain number of entries.  However, the default load factor for a table is .75, meaning that when it becomes 3/4 full, the table is automatically increased in size and rehashed.  We could specify a load factor of 1.0 on the constructor, since that would efficiently utilize memory and prevent rehashing, but we might get ineffective hashing since the algorithm might not be good, so instead, we leave the load factor at the default .75 and just use a size of hash table big enough to accommodate the number of entries we have without rehashing.  This is a pretty good tradeoff between lookup time and memory footprint.
 
     // If we ever pre-req Java 2, we should use HashMaps for these instead of Hashtables.  Hashtables are synchronized which makes the table lookup slow, especially if multiple threads bottleneck on these static tables.  HashMaps are not synchronized yet provide the same function.
@@ -40,7 +38,7 @@ abstract class ConversionMaps
         return (String)ccsidEncoding_.get(String.valueOf(ccsid));
     }
 
-    // This is a table that maps all Java encodings to OS/400 CCSIDs.  Some encodings could map to more than one CCSID, so they are not included in the table.  When a lookup is performed, it will then return null.  Some encodings are supported by the i5/OS but not by the Toolbox.  The ConvTable code handles this.
+    // This is a table that maps all Java encodings to IBM i CCSIDs.  Some encodings could map to more than one CCSID, so they are not included in the table.  When a lookup is performed, it will then return null.  Some encodings are supported by the IBM i but not by the Toolbox.  The ConvTable code handles this.
     // Based on http://java.sun.com/products/jdk/1.2/docs/guide/internat/encoding.doc.html
     // V5R1 JVM encodings: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/fileenc.htm
     // V5R1 JVM locales: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/locales.htm
@@ -168,8 +166,8 @@ abstract class ConversionMaps
         // encodingCcsid_.put("ISO2022CN_CNS", "965");  // Java doesn't support this one?
         // encodingCcsid_.put("ISO2022CN_GB",  "9575");  // Java doesn't support this one?
 
-        encodingCcsid_.put("ISO2022JP", "5054"); // Could be 956 also, but the OS/400 JVM uses 5054.
-        encodingCcsid_.put("ISO2022KR", "25546"); // Could be 17354 also, but the OS/400 JVM uses 25546.
+        encodingCcsid_.put("ISO2022JP", "5054"); // Could be 956 also, but the IBM i JVM uses 5054.
+        encodingCcsid_.put("ISO2022KR", "25546"); // Could be 17354 also, but the IBM i JVM uses 25546.
 
         encodingCcsid_.put("ISO8859_2", "912");
         encodingCcsid_.put("ISO8859_3", "913");
@@ -183,7 +181,7 @@ abstract class ConversionMaps
         // encodingCcsid_.put("ISO8859_15_FDIS", ???); // Don't know the CCSID; FYI, this codepage is ISO 28605.
 
         // The Toolbox does not directly support JIS.
-        encodingCcsid_.put("JIS0201",       "897"); // Could be 895, but the OS/400 JVM uses 897.
+        encodingCcsid_.put("JIS0201",       "897"); // Could be 895, but the IBM i JVM uses 897.
         encodingCcsid_.put("JIS0208",       "952");
         encodingCcsid_.put("JIS0212",       "953");
         // encodingCcsid_.put("JISAutoDetect", ???); // Can't do this one. Would need to look at the bytes to determine the CCSID.
@@ -213,8 +211,8 @@ abstract class ConversionMaps
         encodingCcsid_.put("MacTurkish", "1281");
         // encodingCcsid_.put("MacUkraine", ???); // Don't know.
 
-        encodingCcsid_.put("SJIS", "932"); // Could be 943, but the OS/400 JVM uses 932.
-        encodingCcsid_.put("TIS620", "874"); // OS/400 JVM uses 874.
+        encodingCcsid_.put("SJIS", "932"); // Could be 943, but the IBM i JVM uses 932.
+        encodingCcsid_.put("TIS620", "874"); // IBM i JVM uses 874.
     }
 
     // With the encodingCcsid map, we try to assign a CCSID to every Java encoding. With the ccsidEncoding map, the reverse happens...
@@ -228,7 +226,7 @@ abstract class ConversionMaps
             ccsidEncoding_.put(encodingCcsid_.get(key), key);
         }
 
-        ccsidEncoding_.put("17584", "UTF-16BE"); // i5/OS doesn't support this, but other people use it.
+        ccsidEncoding_.put("17584", "UTF-16BE"); // IBM i doesn't support this, but other people use it.
 
         // Any other ccsids that are used for which we know no encoding will have their encoding set to equal their ccsid.
 
