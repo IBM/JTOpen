@@ -310,16 +310,16 @@ public class Prolog {
      * @return	    Returns a string representation of this Prolog.
      */
     public String toString() {
-	    StringBuffer formatedData = new StringBuffer(256000); // The formatted data
+	    StringBuffer formattedData = new StringBuffer(256000); // The formatted data
 		String ctsfpros = ctsfpro.toString(); // The line protocol
 		String ctsfprofs;
 		if(ctsfpros.equals("E") || ctsfpros.equals("C")) { // Tokenring or Ethernet? 
-		    formatedData.append(PTITLE + "\n");
+		    formattedData.append(PTITLE + "\n");
 	
 		    Calendar cal = new GregorianCalendar(); // Get the current time
 		    cal.setTime((new Date(System.currentTimeMillis())));
 		    date =(cal.getTime()).toString() + "\n"; 
-		    formatedData.append(date); // Append the current time to the file header
+		    formattedData.append(date); // Append the current time to the file header
 	
 		    if(ctsfpros.equals("C")) {
 				ctsfprofs = (ETH);
@@ -333,21 +333,21 @@ public class Prolog {
 				ctsfotyp,
 				ctsfprofs};
 
-			formatedData.append(Formatter.jsprintf(
+			formattedData.append(Formatter.jsprintf(
 				PTRACDES + "    {0,20,L}\n" +
 				PCFGOBJ + "    {1,10,L}\n" +
 				POTYPE + "    {2,13,L}" + POTYPEH + "\n" +
 				POBJPROT + "    {3,13,L}\n",args));
 
-		    formatedData.append(PSTRTIME);
+		    formattedData.append(PSTRTIME);
 
 		    Time start = new Time(Long.parseLong((ctsfsttm.toString()))); // Convert the timestamp into a readable date
-		    formatedData.append("    " + start.toString() + "\n");
+		    formattedData.append("    " + start.toString() + "\n");
 
-		    formatedData.append(PENDTIME);
+		    formattedData.append(PENDTIME);
 
 		    Time end = new Time(Long.parseLong((ctsfsptm.toString())));
-		    formatedData.append("    " + end.toString() + "\n");
+		    formattedData.append("    " + end.toString() + "\n");
 	  
 		    String ctsfstrbs = ctsfstrb.toString(),
 				   ctsfendbs = ctsfendb.toString();
@@ -372,7 +372,7 @@ public class Prolog {
 				ALL_,
 				fmtBroadcast};
 
-		    formatedData.append(Formatter.jsprintf(
+		    formattedData.append(Formatter.jsprintf(
 				PBYTECOL + "    {0,13,L}\n" +
 				PBUFSIZ + "    {1,13,L}" + PBUFSIZH + "\n" +
 				PDATDIR + "    {2,13,L}" + PDATDIRH + "\n" +
@@ -388,10 +388,10 @@ public class Prolog {
 				PIPPORT + "    {10,13,L}" + PIPADDRH + "\n" +
 				PBDCAST + "    {11,13,L}" + PFMTOH + "\n",args2));
 		} else {
-		    formatedData.append(ResourceBundleLoader_ct.getText("NotSupported"));
+		    formattedData.append(ResourceBundleLoader_ct.getText("NotSupported"));
 		    invalidData = true;
 		}
-		return formatedData.toString();
+		return formattedData.toString();
     }
 
     /**

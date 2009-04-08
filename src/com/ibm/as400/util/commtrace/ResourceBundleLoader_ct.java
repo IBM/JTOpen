@@ -21,9 +21,6 @@ import java.util.ResourceBundle;
 // A class representing the ResourceBundleLoader_ct object which is used to load the resource bundle.
 class ResourceBundleLoader_ct 
 {
-  private static final String copyright = "Copyright (C) 2002 International Business Machines Corporation and others.";
-
-
     private static MissingResourceException resourceException_;  // Set if there is an exception during the loading of the resource bundle
     private static ResourceBundle coreResources_;  // Core toolbox resources @B2A
 

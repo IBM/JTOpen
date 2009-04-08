@@ -1148,7 +1148,7 @@ public class Format {
 	}
 
 	/**
-	 * Returns the number of records that have been formated.
+	 * Returns the number of records that have been formatted.
 	 */
 	public int getRecsProcessed() {
 		return numrecs;

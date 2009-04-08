@@ -52,7 +52,7 @@ import com.ibm.as400.vaccess.IFSFileDialog;
 
 /**
  * FormatDisplay is used to format traces. The actual formatting is done by the Format class.<br>
- * FormatDisplay is also used to display formated traces from disk.<br>
+ * FormatDisplay is also used to display formatted traces from disk.<br>
  */
 class FormatDisplay extends WindowAdapter implements Runnable {
 	private final String ALL = "*ALL",
@@ -82,7 +82,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 	/** Run a format operation and displays the output */
 	public final static int FMT = 3; 
 	
-	private final static String SAVEEXT = ".bin"; // The extension to append to our formated trace output
+	private final static String SAVEEXT = ".bin"; // The extension to append to our formatted trace output
     private int ifsrecs=0, // The number of records in this commtrace 
 				recsdisp=0, // The number of records displayed so far
 				page=0, // The page we are showing. 0 - current, 1 - lastPage, 2 - slastPage
@@ -136,13 +136,13 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 	}
 
     /**
-	 * Displays a formated trace. Used to display a file remotely.
+	 * Displays a formatted trace. Used to display a file remotely.
      */
     public FormatDisplay(String path,String file,AS400 sys,int oper) {
 		this.oper = oper;
 		this.sys = sys;
 
-		// The path and file that the user just remotely formated if available
+		// The path and file that the user just remotely formatted if available
 		this.path = path; 
 		this.file = file;
 
@@ -155,7 +155,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
      * Runs the specified FormatDisplay operation. 
      */
     public void run() {
-		// True until we have formated/displayed the file the user specified
+		// True until we have formatted/displayed the file the user specified
 		boolean fmt=true; 
 		Thread myThread = Thread.currentThread();
 		while(fmtThread==myThread) {
@@ -578,7 +578,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
     }
 
 	/**
-	 * Opens a formated file for reading.<br>
+	 * Opens a formatted file for reading.<br>
 	 * Can be either a local file or a remote IFS file.
 	 */
 	public void open() {

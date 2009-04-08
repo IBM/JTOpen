@@ -24,7 +24,7 @@ import java.io.IOException;
 import javax.swing.JOptionPane;
 
 /**
- * The Read class is used to read an IFS file down from an i5/OS system and store it 
+ * The Read class is used to read an IFS file down from an IBM i system and store it 
  * in the local PC.<br>
  * A Progress Dialog is displayed and updated so the user is kept current as to
  * the progression of the download.

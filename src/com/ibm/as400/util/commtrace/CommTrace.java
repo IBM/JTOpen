@@ -74,7 +74,7 @@ import com.ibm.as400.vaccess.IFSFileDialog;
  * 
  * <p>
  * If Remote is selected:<br>
- * The file will be formated remotely on the i5/OS using 
+ * The file will be formatted remotely on the IBM i system using 
  * JavaCommandCall. The output file will be an IFS file in the same directory as the trace but with a .bin extension 
  * appended. The progress of the format operation is not relayed to the 
  * Commtrace program unless the -verbose option is specified. A dialog will appear when the format has completed.<br>
@@ -87,7 +87,7 @@ import com.ibm.as400.vaccess.IFSFileDialog;
  * The file must be transfered to the local PC using the transfer methods 
  * described above. A progress dialog will appear showing the transfer as it 
  * progresses.<br>
- * The file can then be formated by selecting the Format button or menu option.<br>
+ * The file can then be formatted by selecting the Format button or menu option.<br>
  * A progress dialog will appear when formatting and display the progress 
  * of the format.<br>
  * After the formatting is complete the trace will be displayed as described 
@@ -433,7 +433,7 @@ public class CommTrace extends WindowAdapter {
     }
 
 	/**
-	 * Disconnects from the previously connected i5/OS system.
+	 * Disconnects from the previously connected IBM i system.
 	 */
 	void disconnect() {
 		sys_.disconnectAllServices(); 
@@ -446,7 +446,7 @@ public class CommTrace extends WindowAdapter {
 	 * retrieved.<br>
 	 * If the user pressed OK a FileDialog is presented to allow the user to 
 	 * specify a place to save the file.<br>
-     * Then transfers the file from the i5/OS system.
+     * Then transfers the file from the IBM i system.
      */
     void transfer() {
 		if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
@@ -485,7 +485,7 @@ public class CommTrace extends WindowAdapter {
     }
 
 	/**
-	 * Opens up a previously saved trace that was formated with this program.
+	 * Opens up a previously saved trace that was formatted with this program.
 	 */
 	void open() {
 		if(format!=null) {
