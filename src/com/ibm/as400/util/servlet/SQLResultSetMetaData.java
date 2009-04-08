@@ -48,7 +48,6 @@ import java.sql.Types;
 **/
 public class SQLResultSetMetaData implements RowMetaData, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = 6743260415904796964L;
 
    transient private ResultSetMetaData metadata_;     // The result set metadata.

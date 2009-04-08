@@ -35,7 +35,6 @@ import com.ibm.as400.access.Trace;
   **/
 public class AuthenticationServlet extends HttpServlet
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     static final long serialVersionUID = 3761917964251765027L;
 
     /**
@@ -133,7 +132,7 @@ public class AuthenticationServlet extends HttpServlet
 
 
     /**
-     * Retrieve the realm that was used for the authentication.  For the i5/OS system, the realm is the
+     * Retrieve the realm that was used for the authentication.  For the IBM i system, the realm is the
      * system name.
      *
      * @return     The realm.
@@ -382,7 +381,7 @@ public class AuthenticationServlet extends HttpServlet
 
 
     /**
-      * Set the realm that will be used for the authentication.  For the i5/OS system, the realm is the
+      * Set the realm that will be used for the authentication.  For the IBM i system, the realm is the
       * system name.
       *
       * @param realm The realm, which refers to the system name.

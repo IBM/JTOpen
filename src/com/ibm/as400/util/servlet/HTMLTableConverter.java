@@ -65,7 +65,6 @@ import java.util.Vector;
 **/
 public class HTMLTableConverter extends StringConverter implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     static final long serialVersionUID = 9154342923705960360L;
 
     private HTMLTable htmlTable_;    // The html table.

@@ -47,7 +47,6 @@ import java.util.Vector;
 **/
 public abstract class RowData implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = -5356418530948608994L;
 
     // @B3C

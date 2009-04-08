@@ -23,9 +23,6 @@ import com.ibm.as400.access.Log;                                  //$A1C
 
 public class ServletEventLog implements Log	                     //$A1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-	
    private ServletContext context_;
 	
 	

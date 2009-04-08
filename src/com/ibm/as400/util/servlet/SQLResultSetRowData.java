@@ -56,7 +56,6 @@ import java.util.Vector;
 **/
 public class SQLResultSetRowData extends RowData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = 1069177903929009287L;
 
   private static final String CHK_POSITION = "Attempting to check the list position";

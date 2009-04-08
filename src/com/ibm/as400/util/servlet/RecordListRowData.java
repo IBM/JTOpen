@@ -31,7 +31,7 @@ import java.util.Vector;
 *    <LI>An entry in a data queue.</LI>
 *    <LI>The parameter data provided to or returned by a program call.</LI>
 *    <LI>A record to be written to or read from a file.</LI>
-*    <LI>Any data returned from the i5/OS system that needs to be converted between i5/OS
+*    <LI>Any data returned from the IBM i system that needs to be converted between IBM i
 *    format and Java format.</LI>
 *  </UL>
 *
@@ -79,7 +79,6 @@ import java.util.Vector;
 **/
 public class RecordListRowData extends RowData implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = 7785461189425222072L;
 
   private RecordFormat recordFormat_;            // The record format.

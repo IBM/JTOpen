@@ -53,7 +53,6 @@ import java.io.Serializable;
 **/
 public class RecordFormatMetaData implements RowMetaData, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = 5676240820170682074L;
 
    private RecordFormat recordFormat_;          // The record format.

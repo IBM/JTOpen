@@ -17,8 +17,6 @@ import java.util.Vector;
 
 class SectionCompletedSupport
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
    transient private Vector sectionListeners_;      // The list of row listeners.
    transient private Object source_;
 

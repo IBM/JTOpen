@@ -43,7 +43,6 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 
 public abstract class AS400Servlet extends AuthenticationServlet
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = 8682226107563431693L;
 
    private String head_ = "<html>\n<body>\n";

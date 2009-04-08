@@ -138,7 +138,6 @@ import java.util.Vector;
 
 public class HTMLFormConverter extends StringConverter implements Serializable, HTMLConstants
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = -6301275216248287290L;
 
    private HTMLTable htmlTable_;                    // HTMLTable used to represent form.

@@ -20,8 +20,6 @@ import com.ibm.as400.access.Copyright;
 **/
 public class RowDataException extends Exception 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
    private Exception exception_;
 
    /**

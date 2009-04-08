@@ -27,8 +27,6 @@ import java.beans.BeanInfo;
 **/
 public class ListMetaDataBeanInfo extends SimpleBeanInfo
 {   
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Class this bean info represents.
     private final static Class beanClass = ListMetaData.class;
 

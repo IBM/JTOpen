@@ -81,7 +81,6 @@ import java.util.Vector;
  */
 public class ResourceListRowData extends RowData implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
   static final long serialVersionUID = 1081925300369525536L;
 
    private ResourceListMetaData  metadata_;               // The metadata.

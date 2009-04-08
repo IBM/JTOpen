@@ -18,8 +18,6 @@ package com.ibm.as400.util.servlet;
 **/
 public class RowMetaDataType
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
    /**
    *  java.lang.Byte array data type.
    **/
