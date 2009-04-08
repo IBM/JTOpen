@@ -25,7 +25,7 @@ The AS400JDBCXADataSource class represents a factory for
 AS400JDBCXAConnection objects.
 
 <p>
-This support is only available when connecting to systems running OS/400 V5R1 or later ori5/OS.
+This support is only available when connecting to systems running OS/400 V5R1 or later, or IBM i.
 
 <p>The following example creates an AS400JDBCXADataSource 
 object and creates a connection to the database.
@@ -66,7 +66,7 @@ Constructs a default AS400JDBCXADataSource object.
 /**
 Constructs an AS400JDBCXADataSource with the specified <i>serverName</i>.
 
-@param serverName The name of the i5/OS system.
+@param serverName The name of the IBM i system.
 **/
    public AS400JDBCXADataSource(String serverName)
    {
@@ -78,7 +78,7 @@ Constructs an AS400JDBCXADataSource with the specified <i>serverName</i>.
 /**
 Constructs an AS400JDBCXADataSource with the specified signon information.
    
-@param serverName The name of the i5/OS system.
+@param serverName The name of the IBM i system.
 @param user The user id.
 @param password The password.
 **/
@@ -91,9 +91,9 @@ Constructs an AS400JDBCXADataSource with the specified signon information.
 //@A1A
 /**
 Constructs an AS400JDBCXADataSource with the specified signon information 
-to use for SSL communications with the i5/OS system.
+to use for SSL communications with the IBM i system.
    
-@param serverName The name of the i5/OS system.
+@param serverName The name of the IBM i system.
 @param user The user id.
 @param password The password.
 @param keyRingName The key ring class name to be used for SSL communications with the system.
@@ -117,7 +117,7 @@ to use for SSL communications with the i5/OS system.
 
 
 /**
-Returns an XA connection to i5/OS.
+Returns an XA connection to IBM i.
    
 @return An XA connection.
 @exception SQLException If a database error occurs.
@@ -132,7 +132,7 @@ Returns an XA connection to i5/OS.
 
 
 /**
-Returns an XA connection to i5/OS.
+Returns an XA connection to IBM i.
 
 @param user The userid for the connection.
 @param password The password for the connection.

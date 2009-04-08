@@ -26,7 +26,7 @@ import java.sql.SQLException;
 The AS400JDBCXAResource class represents a resource manager
 for use in XA transaction management.
 
-<p>This support is only available when connecting to systems running OS/400 V5R1 or later, or i5/OS.
+<p>This support is only available when connecting to systems running OS/400 V5R1 or later, or IBM i.
 
 <p>The following example creates an AS400JDBCXAResource object
 that can be used to work with the XA resource manager.
@@ -259,7 +259,7 @@ Commits a global transaction.
       // Mark the transaction state.
       transactionManager_.markGlobalTransactionBoundary();
 
-      //@KKB resend the transaction isolation since i5/OS gets reset somehow
+      //@KKB resend the transaction isolation since IBM i gets reset somehow
       transactionManager_.resetXAServer();
       
       if ((connection_.transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE )//@XAC
@@ -786,7 +786,7 @@ Rolls back a transaction branch.
       // Mark the transaction state.
       transactionManager_.markGlobalTransactionBoundary();
 
-      //@KKB resend the transaction isolation since i5/OS gets reset somehow
+      //@KKB resend the transaction isolation since IBM i gets reset somehow
       transactionManager_.resetXAServer();
       
       //@pda throw XAException for return codes not thrown in processXAReturnCode()
