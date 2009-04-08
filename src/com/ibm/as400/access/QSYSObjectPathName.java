@@ -134,6 +134,7 @@ public class QSYSObjectPathName implements Serializable
     private String objectType_ = "";
     // Object ASP name
     private String aspName_    = "";   //@A1A
+    private transient QSYSObjectPathName verified_ = null;  // to quiet the static analyzer
 
     // List of property change event bean listeners.
     private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
@@ -188,7 +189,7 @@ public class QSYSObjectPathName implements Serializable
      </pre>
      @param  libraryName  The library in which the object exists.  It must be 1-10 characters.
      @param  objectName  The name of the object.  It must be 1-10 characters.
-     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the IBM i system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      **/
     public QSYSObjectPathName(String libraryName, String objectName, String objectType)
     {
@@ -554,7 +555,7 @@ public class QSYSObjectPathName implements Serializable
     }
 
     /**
-     Returns type of object this path name represents.  Type is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     Returns type of object this path name represents.  Type is the IBM i system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      @return  The type of the object.   If the object type has not been set, an empty string is returned.
      **/
     public String getObjectType()
@@ -970,7 +971,7 @@ public class QSYSObjectPathName implements Serializable
 
     /**
      Sets type of object this path name represents.  If the type is not MBR, the member name property will be set to an empty string.  The value will be uppercased.  This is a bound and constrained property.  Note that changes to this property also affect the memberName and pathName properties.
-     @param  objectType  The type of the object. It must be 1-6 characters.  This is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     @param  objectType  The type of the object. It must be 1-6 characters.  This is the IBM i system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      @exception  PropertyVetoException  If the change was vetoed.
      **/
     public void setObjectType(String objectType) throws PropertyVetoException
@@ -1082,7 +1083,7 @@ public class QSYSObjectPathName implements Serializable
      Builds an integrated file system path name to represent the object.
      @param  libraryName  The library the object is in. It must be 1-10 characters.
      @param  objectName  The name of the object.  It must be 1-10 characters.
-     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the i5/OS system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
+     @param  objectType  The type of the object.  It must be 1-6 characters.  This is the IBM i system abbreviation for the type of object, for example, LIB for library, or CMD for command.  Types can be found by prompting for the OBJTYPE parameter on commands such as WRKOBJ.
      @return  The integrated file system name for the object.
      **/
     public static String toPath(String libraryName, String objectName, String objectType)
@@ -1158,7 +1159,7 @@ public class QSYSObjectPathName implements Serializable
    }
 
     /**
-     Utility method for selectively uppercasing the characters in a string, for use as an i5/OS *NAME value.  This method is used, for example, when uppercasing object names, library names, and member names.  Characters within double-quotes are left as-is.
+     Utility method for selectively uppercasing the characters in a string, for use as an IBM i *NAME value.  This method is used, for example, when uppercasing object names, library names, and member names.  Characters within double-quotes are left as-is.
      @param  name  The name to be uppercased.
      @return  The *NAME value, selectively uppercased.
      **/
@@ -1194,7 +1195,7 @@ public class QSYSObjectPathName implements Serializable
     static final void validatePath(String path, String objectType)
     {
         // The constructor will throw an exception if the path is not valid.
-        QSYSObjectPathName verify = new QSYSObjectPathName(path, objectType);
+        verified_ = new QSYSObjectPathName(path, objectType);
     }
 
 }

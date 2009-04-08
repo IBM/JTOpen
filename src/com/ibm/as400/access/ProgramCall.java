@@ -26,7 +26,7 @@ import java.util.Vector;
 //import com.ibm.as400.resource.RJob;
 
 /**
- The ProgramCall class allows a user to call an i5/OS system program, pass parameters to it (input and output), and access data returned in the output parameters after the program runs.  Use ProgramCall to call programs.  To call service programs, use ServiceProgramCall.
+ The ProgramCall class allows a user to call an IBM i system program, pass parameters to it (input and output), and access data returned in the output parameters after the program runs.  Use ProgramCall to call programs.  To call service programs, use ServiceProgramCall.
  <P>The following example demonstrates the use of Program Call:
  <br>
  <pre>
