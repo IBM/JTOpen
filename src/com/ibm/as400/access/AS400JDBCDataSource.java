@@ -896,8 +896,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an OS/400 or IBM i Java Virtual
-    * Machine.
+    * environment is not an IBM i Java Virtual Machine.
     *  <p>Valid values include:
     *  <ul>
     *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
@@ -1131,7 +1130,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Returns the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @return The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or IBM i object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
     *  The default value is "system".
     **/
     public String getRemarks()
@@ -3657,7 +3656,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @param remarks The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or IBM i object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
     *  The default value is "system".
     **/
     public void setRemarks(String remarks)
@@ -3923,8 +3922,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an OS/400 or IBM i Java Virtual
-    * Machine.
+    * environment is not an IBM i Java Virtual Machine.
     * param driver The driver value.
     *  <p>Valid values include:
     *  <ul>
