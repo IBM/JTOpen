@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * The OutputQueue class represents a server output queue.
  * An instance of this class can be used to manipulate an individual
- * i5/OS output queue (hold, release, clear, and so on).
+ * IBM i output queue (hold, release, clear, and so on).
  *
  * See <a href="OutputQueueAttrs.html">Output Queue Attributes</a> for
  * valid attributes.
@@ -28,8 +28,6 @@ import java.io.IOException;
 class OutputQueueImplRemote extends PrintObjectImplRemote
 implements OutputQueueImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
 

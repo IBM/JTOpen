@@ -29,9 +29,6 @@ import java.beans.PropertyVetoException;
 **/
 class PermissionAccessQSYS extends PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     /**
      * Constructs a PermissionAccessQSYS object.
      *
@@ -81,7 +78,7 @@ class PermissionAccessQSYS extends PermissionAccess
 
     // @B3a - New method.
     /**
-     * Prepares the object name for parsing by the i5/OS Command Analyzer.
+     * Prepares the object name for parsing by the IBM i Command Analyzer.
      * @param objName The name of an object.
      * @return A version of the name that is parsable by the Command Analyzer.
      *
@@ -97,7 +94,7 @@ class PermissionAccessQSYS extends PermissionAccess
      * If the name contains double-quotes, wraps the name in three sets of single-quotes.
      * For example, we would end up with '''The"Name'''.
      * Otherwise, simply wraps the name in single-quotes.
-     * This prepares the name for parsing by the i5/OS Command Analyzer.
+     * This prepares the name for parsing by the IBM i Command Analyzer.
      * @param objName The name of an object.
      * @return A version of the name that is parsable by the Command Analyzer.
      *

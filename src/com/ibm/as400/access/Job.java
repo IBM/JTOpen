@@ -1967,7 +1967,7 @@ public class Job implements Serializable
      <li>The routing step ends on the source system.  The routing step ends when the job ends or when the job is rerouted to another routing step.
      <li>The Reclaim Distributed Data Management Conversation (RCLDDMCNV) command or the Reclaim Resources (RCLRSC) command runs.
      <li>A communications failure or an internal failure occurs.
-     <li>A DRDA connection to an application server not running on an i5/OS system ends.
+     <li>A DRDA connection to an application server not running on an IBM i system ends.
      </ul>
      @see  #KEEP_DDM_CONNECTIONS_ACTIVE
      **/
@@ -3992,7 +3992,7 @@ public class Job implements Serializable
      <li>The routing step ends on the source system.  The routing step ends when the job ends or when the job is rerouted to another routing step.
      <li>The Reclaim Distributed Data Management Conversation (RCLDDMCNV) command or the Reclaim Resources (RCLRSC) command runs.
      <li>A communications failure or an internal failure occurs.
-     <li>A DRDA connection to an application server not running on an i5/OS system ends.
+     <li>A DRDA connection to an application server not running on an IBM i system ends.
      </ul>
      <li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE_DROP KEEP_DDM_CONNECTIONS_ACTIVE_DROP} - The system ends a DDM connection when there are no users.  Examples include when an application closes a DDM file, or when a DRDA application runs an SQL DISCONNECT statement.
      </ul>
@@ -6151,7 +6151,7 @@ public class Job implements Serializable
      <li>The routing step ends on the source system.  The routing step ends when the job ends or when the job is rerouted to another routing step.
      <li>The Reclaim Distributed Data Management Conversation (RCLDDMCNV) command or the Reclaim Resources (RCLRSC) command runs.
      <li>A communications failure or an internal failure occurs.
-     <li>A DRDA connection to an application server not running on an i5/OS system ends.
+     <li>A DRDA connection to an application server not running on an IBM i system ends.
      </ul>
      <li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE_DROP KEEP_DDM_CONNECTIONS_ACTIVE_DROP} - The system ends a DDM connection when there are no users.  Examples include when an application closes a DDM file, or when a DRDA application runs an SQL DISCONNECT statement.
      </ul>

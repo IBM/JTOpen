@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  *
- * Represents an i5/OS or OS/400 job description.
+ * Represents an IBM i job description.
  * <P>
  * Note that calling any of the attribute getters for the first time will
  * result in an implicit call to {@link #refresh()}.
@@ -25,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 
 public class JobDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 2005-2005 International Business Machines Corporation and others.";
   static final long serialVersionUID = 4L;
 
   private static final int VRM520 = AS400.generateVRM(5, 2, 0);

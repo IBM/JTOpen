@@ -26,8 +26,6 @@ import java.util.Vector;
 **/
 abstract class PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     AS400 as400_;
     private int ccsid_;         // @A4A
     private boolean gotCcsid_;  // @A4A
@@ -78,7 +76,7 @@ abstract class PermissionAccess
 
     // @B3a - New Method.
     /**
-     * Prepares the object name for parsing by the i5/OS Command Analyzer.
+     * Prepares the object name for parsing by the IBM i Command Analyzer.
      * @param objName The name of an object.
      * @return A version of the name that is parsable by the Command Analyzer.
      *

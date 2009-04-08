@@ -519,7 +519,7 @@ public class MRI2 extends ListResourceBundle
       // Localized object types - These are used in QSYSObjectTypeTable.
       //
       // #TRANNOTE ################################################################
-      // #TRANNOTE i5/OS object types.
+      // #TRANNOTE IBM i object types.
       // #TRANNOTE
       // #TRANNOTE These are MRI for object types and subtypes.  They will be
       // #TRANNOTE concatenated with a hyphen in the form "Type - Subtype".

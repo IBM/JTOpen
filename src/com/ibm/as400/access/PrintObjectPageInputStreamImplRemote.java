@@ -22,7 +22,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectPageInputStream class is used to read data out of an
-i5/OS spooled file one page at a time.  The page of data may be
+IBM i spooled file one page at a time.  The page of data may be
 transformed, depending on the
 <a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
@@ -42,8 +42,6 @@ Not all spooled file formats are supported for transform.
 class PrintObjectPageInputStreamImplRemote
 implements PrintObjectPageInputStreamImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Private data
     private NPConversation  conversation_;       // conversation with Network Print Server
     private NPCPAttribute   cpCPFMsg_;           // CPF message code point

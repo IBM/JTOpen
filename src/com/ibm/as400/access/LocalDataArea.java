@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.beans.PropertyVetoException;
 import java.net.UnknownHostException;
 
-// There is always a local data area associated with the current i5/OS job.
+// There is always a local data area associated with the current IBM i job.
 // It is 1024 bytes in length and is accessed using the name "*LDA". Its text
 // description is "*LDA FOR JOB jobnumber/username/jobname".
-// i5/OS allows only read and write operations on a local data area.
+// IBM i allows only read and write operations on a local data area.
 
 /**
 The LocalDataArea class represents a local data area on the system.
@@ -30,7 +30,7 @@ A local data area exists as a character data area on the system. It is
 automatically associated with a job and cannot be accessed from another
 job; hence, it cannot be directly created or deleted by the user.
 <p>
-Care must be taken when using local data areas so that the i5/OS job
+Care must be taken when using local data areas so that the IBM i job
 is not ended prematurely. When the job ends, its local data area is
 automatically deleted, at which point the LocalDataArea object that
 is referencing it will no longer be valid.
@@ -62,11 +62,6 @@ See {@link AS400#getCcsid AS400.getCcsid()}.
 
 public class LocalDataArea extends DataArea implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-  
-
-
     static final long serialVersionUID = 4L;
 
    /**

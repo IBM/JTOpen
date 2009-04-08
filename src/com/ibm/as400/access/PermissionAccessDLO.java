@@ -25,9 +25,6 @@ import java.net.UnknownHostException;
 **/
 class PermissionAccessDLO extends PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     /**
      * Constructs a PermissionAccessDLO object.
      *
@@ -77,7 +74,7 @@ class PermissionAccessDLO extends PermissionAccess
 
     // @B3a - New Method.
     /**
-     * Prepares the object name for parsing by the i5/OS Command Analyzer.
+     * Prepares the object name for parsing by the IBM i Command Analyzer.
      * @param objName The name of an object.
      * @return A version of the name that is parsable by the Command Analyzer.
      *
@@ -92,7 +89,7 @@ class PermissionAccessDLO extends PermissionAccess
     /**
      * If the name contains single-quotes, doubles up the single-quotes.
      * Regardless, encloses the entire name in single-quotes.
-     * This prepares the name for parsing by the i5/OS Command Analyzer.
+     * This prepares the name for parsing by the IBM i Command Analyzer.
      * @param objName The name of an object.
      * @return A version of the name that is parsable by the Command Analyzer.
      *

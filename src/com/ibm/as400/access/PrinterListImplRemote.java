@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The PrinterList class is used to build a list of i5/OS printer objects of type Printer.
+ * The PrinterList class is used to build a list of IBM i printer objects of type Printer.
  * The list can be filtered by printer name.
  *
  *@see Printer
@@ -22,8 +22,6 @@ package com.ibm.as400.access;
 
 class PrinterListImplRemote extends PrintObjectListImplRemote
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // static private binary data for default attribute to
     // retrieve on a printer when listing printer devices
     // format is:

@@ -37,8 +37,6 @@ Not all spooled file formats are supported for transform.
 class PrintObjectTransformedInputStreamImplRemote
 implements PrintObjectTransformedInputStreamImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // Private data
     private NPConversation  conversation_;       // conversation with Network Print Server
     private NPCPAttribute   cpCPFMsg_;           // CPF message code point
@@ -109,8 +107,8 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
                 cidConv = true;
                 // prepare the 'CPxxxx' (where xxxx is the actual code page) to be 'Cpxxx'
                 convTarget = tempTarget.replace('P', 'p');
-                /* table of target ASCII CCSIDs can be found in the "i5/OS Workstation 
-                   Customization Reference" that can be found on the i5/OS Information Center. */
+                /* table of target ASCII CCSIDs can be found in the "IBM i Workstation 
+                   Customization Reference" that can be found on the IBM i Information Center. */
                 switch (ccsid) //    @B2A  "Euro Phase 2 = EP2 "
                 {
                 case 37:                       /* US           @B2A */

@@ -112,8 +112,6 @@ import java.util.Vector;                                        // @A2A
 
 public class ProductLicense implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     /**
     *   Value for license usage type, concurrent usage license type.
     **/
@@ -524,7 +522,7 @@ public class ProductLicense implements java.io.Serializable
     /**
     *   Release this license.  This method must be called to release the license.  Failure
     *   to do so may result in incorrect license usage count. Calling this method will
-    *   disconnect from the i5/OS Optimized License Management server.
+    *   disconnect from the IBM i Optimized License Management server.
     *   @exception  IOException  If an error occurs while communicating with the system.
     *   @exception  InterruptedException  If this thread is interrupted.
     *   @exception  LicenseException  If a license error occurs.
