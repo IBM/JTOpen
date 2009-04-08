@@ -52,7 +52,7 @@ import java.util.Vector;
  *<li>The parameter data provided to or returned by a program call.
  *<li>A record to be written to or read from a file on the system.
  *<li>Any data returned from the system that needs to be converted
- *between i5/OS format and Java format.
+ *between IBM i format and Java format.
  *</ul>
  *Record objects generate the following events:
  *<ul>
@@ -186,7 +186,7 @@ public class Record implements Serializable
    *provided for
    *the data for the field must equal the maximum field length for the field.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents)
     throws UnsupportedEncodingException
@@ -206,7 +206,7 @@ public class Record implements Serializable
    *the data for the field must equal the maximum field length for the field.
    *@param recordName The name to assign to the record.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents, String recordName)
     throws UnsupportedEncodingException
@@ -228,7 +228,7 @@ public class Record implements Serializable
    *@param offset The offset in <i>contents</i> at which to start.  The <i>offset</i> cannot
    *be less than zero.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents, int offset)
     throws UnsupportedEncodingException
@@ -334,7 +334,7 @@ public class Record implements Serializable
    *be less than zero.
    *@param recordName The name to assign to the record.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents, int offset, String recordName)
     throws UnsupportedEncodingException
@@ -486,7 +486,7 @@ public class Record implements Serializable
   }
 
   /**
-   *Returns the contents of this record as a byte array of i5/OS data.
+   *Returns the contents of this record as a byte array of IBM i data.
    *Each field's contents will be placed into the byte array
    *based on the field description for the
    *field that is provided by the record format specified on construction of this object.
@@ -501,9 +501,9 @@ public class Record implements Serializable
    *@see Record#setRecordFormat
    *@return The contents of this record.
    *@exception CharConversionException If an error occurs when converting
-   *the contents of a field to i5/OS data.
+   *the contents of a field to IBM i data.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the contents of a field to i5/OS data.
+   *the contents of a field to IBM i data.
   **/
   public byte[] getContents()
     throws CharConversionException,
@@ -612,7 +612,7 @@ public class Record implements Serializable
    *             be between 0 and getNumberOfFields() - 1 inclusive.
    *@return The contents of the requested field.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Object getField(int index)
     throws UnsupportedEncodingException
@@ -693,7 +693,7 @@ public class Record implements Serializable
    *@param name The name of the field.
    *@return The contents of the requested field.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Object getField(String name)
     throws UnsupportedEncodingException
@@ -816,7 +816,7 @@ public class Record implements Serializable
    *@return The values of the fields in the record.  An array of size zero is
    *returned if the record format has not been set.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Object[] getFields()
     throws UnsupportedEncodingException
@@ -840,7 +840,7 @@ public class Record implements Serializable
    *An array of length 0 is returned if the record format has not been set
    *or if no key fields exist.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public Object[] getKeyFields()
     throws UnsupportedEncodingException
@@ -1282,7 +1282,7 @@ public class Record implements Serializable
    *@see Record#setRecordFormat
    *@param contents The data with which to set the contents of this record.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public void setContents(byte[] contents)
     throws UnsupportedEncodingException
@@ -1308,7 +1308,7 @@ public class Record implements Serializable
    *@param contents The data with which to set the contents of this record.
    *@param offset The offset in <i>contents</i> at which to start.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the i5/OS data to a Java Object.
+   *the IBM i data to a Java Object.
   **/
   public void setContents(byte[] contents, int offset)
     throws UnsupportedEncodingException

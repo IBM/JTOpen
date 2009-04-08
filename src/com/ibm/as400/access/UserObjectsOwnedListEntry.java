@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 
 /**
- This entry represents a single i5/OS object that a user owns or is authorized to. 
+ This entry represents a single IBM i object that a user owns or is authorized to. 
  <p>Each entry corresponds to an entry from the QSYLOBJA API (format OBJA0300 or OBJA0310).<br>  
  Instances of this class are created by the {@link UserObjectsOwnedList#getObjectList() UserObjectsOwnedList.getObjectList()} method.
 **/
@@ -385,7 +385,7 @@ public class UserObjectsOwnedListEntry
   
   /**
   Indicates if this UserObjectsOwnedListEntry is for a QSYS library based object vs an IFS directory based object.
-  A QSYS library based objects resides in a library in the QSYS file system.  Other i5/OS objects would
+  A QSYS library based objects resides in a library in the QSYS file system.  Other IBM i objects would
   reside in an IFS directory based file system.
   <p>Some fields are not valid for QSYS vs IFS directory based objects.  Refer to:
   <ul>

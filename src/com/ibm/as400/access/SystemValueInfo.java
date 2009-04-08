@@ -22,7 +22,7 @@ class SystemValueInfo implements Serializable
 
     // The name of this system value.
     String name_ = null;
-    // The i5/OS data type of this system value.
+    // The IBM i data type of this system value.
     // Valid values are SystemValueList.SERVER_TYPE_BINARY and SERVER_TYPE_CHAR.
     byte serverDataType_ = (byte)'\0';
     // The size in bytes of this system value on the system.
@@ -92,6 +92,12 @@ class SystemValueInfo implements Serializable
         if (obj == null || !(obj instanceof SystemValueInfo)) return false;
 
         SystemValueInfo target = (SystemValueInfo)obj;
-        return name_.equals(target.name_);
+        return (name_ != null && name_.equals(target.name_));
+    }
+
+    // hashCode method, to complement the equals() method.
+    public int hashCode()
+    {
+      return (name_ == null ? super.hashCode() : name_.hashCode());
     }
 }

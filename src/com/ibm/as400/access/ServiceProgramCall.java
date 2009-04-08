@@ -21,7 +21,7 @@ import java.io.IOException;
  <p>ServiceProgramCall subclasses ProgramCall.  Much of the setup to call the service program is done via methods inherited from ProgramCall.  For example setSystem() and getSystem() are methods inherited from ProgramCall.
  <p>Limitations of this class:
  <ul>
- <li>The service program must be on an i5/OS system running V4R4 or later.
+ <li>The service program must be on an IBM i system running V4R4 or later.
  <li>Up to seven parameters can be passed to the service program.
  <li>The return value must be void or numeric.  This class does not support calling service programs that return a pointer.
  <li>Parameters can be "pass by reference" or "pass by value".
@@ -81,8 +81,6 @@ import java.io.IOException;
  **/
 public class ServiceProgramCall extends ProgramCall
 {
-    private static final String copyright = "Copyright (C) 1998-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     /**

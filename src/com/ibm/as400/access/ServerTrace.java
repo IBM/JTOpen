@@ -54,8 +54,6 @@ package com.ibm.as400.access;
 
 class ServerTrace
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     private static int     JDBCServerTraceCategories_ = 0;
 
 
@@ -94,8 +92,8 @@ class ServerTrace
     /**
       Save SQL information.
       The numeric value of this constant is 32.  This
-      option is valid when connecting to OS/400 V5R1 and
-      newer versions of OS/400 and i5/OS.
+      option is valid when connecting to V5R1 and
+      newer versions of IBM i.
      **/
     static final int JDBC_SAVE_SQL_INFORMATION = 32;
 
@@ -104,7 +102,7 @@ class ServerTrace
       Start the database host server trace.
       The numeric value of this constant is 64.
       This option is valid when connecting to V5R3 and
-      newer versions of i5/OS.
+      newer versions of IBM i.
     **/
     static final int JDBC_TRACE_DATABASE_HOST_SERVER = 64;      //@540
 
@@ -147,7 +145,7 @@ class ServerTrace
             catch (Exception e)
             {
                 if (JDTrace.isTraceOn())   
-                   JDTrace.logInformation( new String("ServerTrace"), "Value " + value + " for JDBCServerTrace is not valid.");
+                   JDTrace.logInformation("ServerTrace", "Value " + value + " for JDBCServerTrace is not valid.");
             }
         }
 

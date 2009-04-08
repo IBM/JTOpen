@@ -33,8 +33,6 @@ import java.io.IOException;
 class SpooledFileImplRemote extends PrintObjectImplRemote
 implements SpooledFileImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
     private static final int CMD_SEND_NET = 1;
@@ -249,7 +247,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES_SPLF); // number of bytes contained w/in splf
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMRSC_LIB_ENT);// Number of user resource library list entries
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OFFICEVISION);  // OfficeVision
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OS4_CRT_AFP);   // i5/OS created AFPDS
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OS4_CRT_AFP);   // IBM i created AFPDS
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPTY);        // Output priority
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPUTBIN);     // Output bin
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);        // Output queue

@@ -29,8 +29,6 @@ various conditions.
 **/
 class SQLDataFactory
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     // @C2A
     /**
     Converts a String representation of a number in scientific 
@@ -285,7 +283,7 @@ class SQLDataFactory
 
         String toString = value.unscaledValue().toString(); //value.toString(); 1.6 returns "123E+4", 1.4 returns "1230000"
 
-        int pointIndex = value.scale();//@rnd1 toString.indexOf('.');     
+        //int pointIndex = value.scale();//@rnd1 toString.indexOf('.');     
 
         if(toString.charAt(0) == '-')
             toString = toString.substring(1); 
@@ -332,7 +330,7 @@ class SQLDataFactory
     Return a SQLData object corresponding to a
     a SQL type code defined in java.sql.Types.
     In the case where a SQL type code specifies a
-    type that is not supported in DB2 for i5/OS, then
+    type that is not supported in DB2 for IBM i, then
     it will map to the next closest type.
     
     @param  sqlType     SQL type code defined in java.sql.Types.
@@ -340,7 +338,7 @@ class SQLDataFactory
     @param  precision   Precision of data.
     @param  scale       Scale of data.
     @param  settings    The conversion settings.
-    @param  vrm         The OS/400 or i5/OS Version, Release, and Modification.
+    @param  vrm         The OS/400 or IBM i Version, Release, and Modification.
     @return             A SQLData object.
     
     @exception  SQLException    If no valid type can be
@@ -452,11 +450,11 @@ class SQLDataFactory
 
     /**
     Return a SQLData object corresponding to the
-    specific i5/OS native type identifier.
+    specific IBM i native type identifier.
     
     @param  connection      The connection.
     @param  id              The id.                                   
-    @param  nativeType      An i5/OS native type identifier.
+    @param  nativeType      An IBM i native type identifier.
     @param  length          Length of data (in bytes).
     @param  precision       Precision of data.
     @param  scale           Scale of data.
@@ -609,9 +607,9 @@ class SQLDataFactory
 
     /**
     Return a SQLData object corresponding to the
-    specific i5/OS native type string.
+    specific IBM i native type string.
     
-    @param  nativeType  An i5/OS native type.
+    @param  nativeType  An IBM i native type.
     @param  length      Length of data (in bytes).
     @param  precision   Precision of data.
     @param  scale       Scale of data.

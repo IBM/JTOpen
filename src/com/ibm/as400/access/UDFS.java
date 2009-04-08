@@ -119,7 +119,7 @@ public class UDFS
      <li>QIBM_QP0L_SCAN_OPEN - Integrated File System Scan on Open Exit Program
      <li>QIBM_QP0L_SCAN_CLOSE - Integrated File System Scan on Close Exit Program
      </ul>
-     <p>For details on these exit points, see the System API Reference information in the i5/OS Information Center at http://www.ibm.com/systems/i/infocenter.
+     <p>For details on these exit points, see the System API Reference information in the IBM i Information Center at http://www.ibm.com/systems/i/infocenter.
      <p>Even though this attribute can be set for user-defined file systems, only objects which are in *TYPE2 directories in that user-defined file system will actually be scanned, no matter what value is set for this attribute.
      <p>Possible values are:
      <ul>
@@ -130,28 +130,28 @@ public class UDFS
      <li>"*CHGONLY" - After an object is created in the user-defined file system, the object will be scanned according to the rules described in the scan-related exit programs only if the object has been modified since the last time the object was scanned.  It will not be scanned if the scanning software has been updated.  This attribute only takes effect if the Scan file systems control (QSCANFSCTL) system value has *USEOCOATR specified.  Otherwise, it will be treated as if the attribute is *YES.
      <p>Note: If the Scan file systems control (QSCANFSCTL) value *NOPOSTRST is not specified when an object with this attribute is restored, the object will be scanned at least once after the restore.
      </ul>
-     <p>This parameter is ignored on Version 5 Release 2 and earlier of i5/OS.
+     <p>This parameter is ignored on Version 5 Release 2 and earlier of IBM i.
      @param  specialRestrictions  Specifies whether special restrictions apply for rename and unlink operations performed on objects within the root directory of the user-defined file system.  This attribute is equivalent to the S_ISVTX mode bit for this directory.  true if objects within the root directory of the user-defined file system may be renamed or unlinked only if one or more of the following are true for the user performing the operation:
      <ul>
      <li>The user is the owner of the object.
      <li>The user is the owner of the directory.
      <li>The user has all object (*ALLOBJ) special authority.
      </ul>
-     <p>false if no additional restrictions for renaming or unlinking objects from the root directory of the user-defined file system.  This parameter is ignored on Version 5 Release 2 and earlier of i5/OS.
+     <p>false if no additional restrictions for renaming or unlinking objects from the root directory of the user-defined file system.  This parameter is ignored on Version 5 Release 2 and earlier of IBM i.
      @param  defaultDiskStorageOption  Specifies how auxiliary storage will be allocated by the system for the stream files (*STMF) created in this user-defined file system.  This option will be ignored for *TYPE1 stream files.  Possible values are:
      <ul>
      <li>"*NORMAL" - The auxiliary storage will be allocated normally.  That is, as additional auxiliary storage is required, it will be allocated in logically sized extents to accommodate the current space requirement, and anticipated future requirements, while minimizing the number of disk I/O operations.
      <li>"*MINIMIZE" - The auxiliary storage will be allocated to minimize the space used by the object.  That is, as additional auxiliary storage is required, it will be allocated in small sized extents to accommodate the current space requirement.  Accessing an object composed of many small extents may increase the number of disk I/O operations for that object.
      <li>"*DYNAMIC" - The system will dynamically determine the optimal auxiliary storage allocation for the object, balancing space used versus disk I/O operations.  For example, if a file has many small extents, yet is frequently being read and written, then future auxiliary storage allocations will be larger extents to minimize the number of disk I/O operations.  Or, if a file is frequently truncated, then future auxiliary storage allocations will be small extents to minimize the space used.  Additionally, information will be maintained on the stream file sizes for this system and its activity.  This file size information will also be used to help determine the optimal auxiliary storage allocations for this object as it relates to the other objects' sizes.
      </ul>
-     <p>This parameter is ignored on Version 5 Release 4 and earlier of i5/OS.
+     <p>This parameter is ignored on Version 5 Release 4 and earlier of IBM i.
      @param  defaultMainStorageOption  Specifies how main storage is allocated and used by the system for the stream files (*STMF) created in this user-defined file system.  Possible values are:
      <ul>
      <li>"*NORMAL" - The main storage will be allocated normally.  That is, as as much main storage as possible will be allocated and used.  This minimizes the number of disk I/O operations since the information is cached in main storage.
      <li>"*MINIMIZE" - The main storage will be allocated to minimize the space used by the object.  That is, as little main storage as possible will be allocated and used.  This minimizes main storage usage while increasing the number of disk I/O operations since less information is cached in main storage.
      <li>"*DYNAMIC" - The system will dynamically determine the optimal main storage allocation for the object depending on other system activity and main storage contention.  That is, when there is little main storage contention, as much storage as possible will be allocated and used to minimize the number of disk I/O operations.  When there is significant main storage contention, less main storage will be allocated and used to minimize the main storage contention.  This option only has an effect when the storage pool's paging option is *CALC.  When the storage pool's paging option is *FIXED, the behavior is the same as *NORMAL.  When the object is accessed through a file server, this option has no effect.  Instead, its behavior is the same as *NORMAL.
      </ul>
-     <p>This parameter is ignored on Version 5 Release 4 and earlier of i5/OS.
+     <p>This parameter is ignored on Version 5 Release 4 and earlier of IBM i.
      @param  caseSensitivity  Specifies the case sensitivity of this file system.  Possible values are:
      <ul>
      <li>"*MONO" - The file system will not be case sensitive.  For example, the names FileA and filea refer to the same object.
@@ -159,8 +159,8 @@ public class UDFS
      </ul>
      @param  defaultFileFormat  Specifies the format of stream files (*STMF) created in this user-defined file system.  Possible values are:
      <ul>
-     <li>"*TYPE2" - A *TYPE2 *STMF has high performance file access and was new in Version 4 Release 4 of i5/OS.  It has a minimum object size of 4096 bytes and a maximum object size of approximately 1 terabyte.  A *TYPE2 stream file is capable of memory mapping as well as the ability to specify an attribute to optimize disk storage allocation.
-     <li>"*TYPE1" - A *TYPE1 *STMF has the same format as *STMF objects created on releases prior to Version 4 Release 4 of i5/OS.  It has a minimum size of 4096 bytes and a maximum object size of approximately 256 gigabytes.
+     <li>"*TYPE2" - A *TYPE2 *STMF has high performance file access and was new in Version 4 Release 4 of IBM i.  It has a minimum object size of 4096 bytes and a maximum object size of approximately 1 terabyte.  A *TYPE2 stream file is capable of memory mapping as well as the ability to specify an attribute to optimize disk storage allocation.
+     <li>"*TYPE1" - A *TYPE1 *STMF has the same format as *STMF objects created on releases prior to Version 4 Release 4 of IBM i.  It has a minimum size of 4096 bytes and a maximum object size of approximately 256 gigabytes.
      </ul>
      @param  description  Text description for the user-defined file system.  Possible values are:
      <ul>
@@ -218,7 +218,7 @@ public class UDFS
      @param  mountPoint  Specifies the path name of the existing directory that the file system will be mounted over.  This directory gets 'covered' by the mounted file system.  This directory must exist.
      <p>Multiple file systems can be mounted over the same directory, one on top of the other.  However, only the topmost mounted file system is accessible, and the file systems must later be unmounted in the opposite order from which they were mounted (last-in first-out order).
      @param  rwOption  This option specifies the protection for the mounted file system.  true if read-write, false if read-only.
-     @param  suidOption  This option specifies whether setuid execution is allowed.  true if suid is specified and setuid execution is allowed.  This means that bits other than the permission bits may be set.  false if nosuid is specified, setuid execution is not allowed.  This parameter is ignored on Version 5 Release 2 and earlier of i5/OS.
+     @param  suidOption  This option specifies whether setuid execution is allowed.  true if suid is specified and setuid execution is allowed.  This means that bits other than the permission bits may be set.  false if nosuid is specified, setuid execution is not allowed.  This parameter is ignored on Version 5 Release 2 and earlier of IBM i.
      **/
     public void mount(String mountPoint, boolean rwOption, boolean suidOption) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -244,12 +244,13 @@ public class UDFS
         int arrayLength = array.length;
         if (arrayLength == 0) return "*INDIR";
         if (arrayLength == 1) return array[0];
-        String string = array[0];
+        StringBuffer buf = new StringBuffer(array[0]);
         for (int i = 1; i < arrayLength; ++i)
         {
-            string += " " + array[i];
+            buf.append(" ");
+            buf.append(array[i]);
         }
-        return string;
+        return buf.toString();
     }
 
     // Common code for running the commands.

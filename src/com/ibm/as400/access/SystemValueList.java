@@ -504,7 +504,7 @@ public class SystemValueList implements Serializable
         // Get the group vector.
         Vector infos = SystemValueList.groups[group];
 
-        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the i5/OS release is V5R1M0 or below, we fix up the group here.
+        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the IBM i release is V5R1M0 or below, we fix up the group here.
         if (system_.getVRM() <= VRM510)
         {
             switch (group)

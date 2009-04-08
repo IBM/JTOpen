@@ -30,11 +30,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**
- *The RecordFormat class represents the format of data returned from an i5/OS system.
+ *The RecordFormat class represents the format of data returned from an IBM i system.
  *It contains FieldDescription objects that describe the
  *data returned from a system.  The RecordFormat class is used to generate a Record
  *object that can be used to access the data returned from the system as Java objects or
- *as byte arrays of i5/OS data.
+ *as byte arrays of IBM i data.
  *For instance, the entries on a data queue
  *may have a specific format.  This format could be represented by a
  *RecordFormat object. The RecordFormat object could be used to generate a Record
@@ -87,10 +87,6 @@ import java.beans.PropertyVetoException;
 **/
 public class RecordFormat implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
 

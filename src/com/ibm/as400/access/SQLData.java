@@ -217,7 +217,7 @@ extends Cloneable
     public abstract int getMinimumScale();
 
     /**
-    Returns the native i5/OS identifier for the type.
+    Returns the native IBM i identifier for the type.
     @return     the native type.
     **/
     public abstract int getNativeType();

@@ -328,7 +328,7 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Returns the supported release for this system value.  The returned value is the earliest version of i5/OS under which the system value is supported.  If the system value is supported in a release prior to V4R2M0, then V4R2M0 is returned.
+     Returns the supported release for this system value.  The returned value is the earliest version of IBM i under which the system value is supported.  If the system value is supported in a release prior to V4R2M0, then V4R2M0 is returned.
      @see  AS400#generateVRM
      @return  The release.
      **/
@@ -408,7 +408,7 @@ public class SystemValue implements Serializable
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
-     @exception  RequestNotSupportedException  If the i5/OS release level of the system does not support the system value.
+     @exception  RequestNotSupportedException  If the IBM i release level of the system does not support the system value.
      **/
     public Object getValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
     {
@@ -592,7 +592,7 @@ public class SystemValue implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
-     @exception  RequestNotSupportedException  If the i5/OS release level of the system does not support the system value.
+     @exception  RequestNotSupportedException  If the IBM i release level of the system does not support the system value.
      **/
     public void setValue(Object value) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException
     {

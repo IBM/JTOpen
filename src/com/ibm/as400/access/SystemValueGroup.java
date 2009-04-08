@@ -129,7 +129,7 @@ public class SystemValueGroup implements Serializable
 
     /**
      Constructs a SystemValueGroup object.  The group of system value names is initialized to contain all of the system value names in the system-defined group <i>groupIndicator</i>.  For example, specifying SystemValueList.GROUP_ALL for <i>groupIndicator</i> would result in this group of system value names being initialized to contain all system value and network attribute names.
-     <p>Note:  This constructor now makes a connection to the <I>system</I> in order to retrieve the i5/OS release level of the system.
+     <p>Note:  This constructor now makes a connection to the <I>system</I> in order to retrieve the IBM i release level of the system.
      @param  system  The system that this group of system values references.
      @param  groupName  The user-defined group name to be used.
      @param  groupDescription  The user-defined group description to be used.

@@ -17,7 +17,7 @@ import java.io.IOException;                                          // @A2a
 
 /**
 <P>The QSYSPermission class represents the permissions for the specified user 
-of an object in the traditional i5/OS library structure stored in QSYS.LIB.  
+of an object in the traditional IBM i library structure stored in QSYS.LIB.  
 <P>A object stored in QSYS.LIB can set its authorities by setting a single
  object authority value or by setting the individual object and data authorities.
 <P>Use <i>getObjectAuthority()</i> to display the current object authority or
@@ -45,7 +45,7 @@ automatically turn on the appropriate detailed authorities.  Likewise, selecting
  various detailed authorities will change the appropriate single authority values.
 
 
-<P>For more information on object authority commands, refer to i5/OS CL 
+<P>For more information on object authority commands, refer to IBM i CL 
 commands GRTOBJAUT (Grant object authority) and EDTOBJAUT (Edit object authority).
 **/
 

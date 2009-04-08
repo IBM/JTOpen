@@ -134,7 +134,7 @@ public class QSYSObjectPathName implements Serializable
     private String objectType_ = "";
     // Object ASP name
     private String aspName_    = "";   //@A1A
-    private transient QSYSObjectPathName verified_ = null;  // to quiet the static analyzer
+    private static QSYSObjectPathName verified_ = null;  // to quiet the static analyzer
 
     // List of property change event bean listeners.
     private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
