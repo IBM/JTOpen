@@ -14,12 +14,10 @@
 package com.ibm.as400.access;
 
 /**
- The IllegalObjectTypeException class represents an exception that indicates that the i5/OS system object is not the required type.
+ The IllegalObjectTypeException class represents an exception that indicates that the IBM i system object is not the required type.
  **/
 public class IllegalObjectTypeException extends Exception implements ReturnCodeException
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // Return code associated with this exception.

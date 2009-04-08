@@ -34,9 +34,6 @@ import java.sql.SQLException;
 //
 class JDLobLocator
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
   private AS400JDBCConnection     connection_;
   private boolean                 dataCompression_;        
   private int                     id_;
@@ -182,7 +179,7 @@ Retrieves part of the contents of the lob.
                                              + DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
         request.setLOBLocatorHandle(handle_);
         request.setRequestedSize(length);
-        request.setStartOffset((int)offset); // Some day the i5/OS will support 8-byte offsets.
+        request.setStartOffset((int)offset); // Some day the IBM i will support 8-byte offsets.
         request.setCompressionIndicator(dataCompression_ ? 0xF1 : 0xF0);
         request.setReturnCurrentLengthIndicator(0xF1);
         // If a column index has not been set for this locator, then do not pass
@@ -309,7 +306,7 @@ Writes part of the contents of the lob.
         request.setLobTruncation(truncate);          //Do not truncate   @K1A
         request.setLOBLocatorHandle(handle_);
         request.setRequestedSize(lengthToUse);
-        request.setStartOffset((int)lobOffset); // Some day the i5/OS will support 8-byte offsets.
+        request.setStartOffset((int)lobOffset); // Some day the IBM i will support 8-byte offsets.
         request.setCompressionIndicator(0xF0); // No compression for now.
         request.setLOBData(data, offset, length);
         if (JDTrace.isTraceOn())

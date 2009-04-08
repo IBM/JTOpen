@@ -20,12 +20,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
-The JavaProgram class represents an OS/400 or i5/OS Java program.   This is supported
-only when connecting to systems running OS/400 V5R1 or later, or systems running i5/OS.
+The JavaProgram class represents an IBM i Java program.   This is supported
+only when connecting to systems running OS/400 V5R1 or later, or systems running IBM i.
 
-In the context of this discussion, a "Java program" is the OS/400 or i5/OS executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
+In the context of this discussion, a "Java program" is the IBM i executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 <br>
-Using the JavaProgram class, you can obtain the following information about an OS/400 or i5/OS Java program:
+Using the JavaProgram class, you can obtain the following information about an IBM i Java program:
 <ul>
 <li>Adopted authority profile</li>
 <li>File change date</li>
@@ -241,7 +241,7 @@ public class JavaProgram implements Serializable
     }
 
     /**
-    Returns the OS/400 or i5/OS version the Java program was created for.
+    Returns the IBM i version the Java program was created for.
 
     @return the version
     **/
@@ -597,7 +597,7 @@ public class JavaProgram implements Serializable
     }
 
     /**
-    Gets the OS/400 or i5/OS version.
+    Gets the IBM i version.
     **/
     private String getVersion(char[] version)
     {

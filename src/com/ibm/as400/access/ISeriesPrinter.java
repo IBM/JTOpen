@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- Represents a printer attached to an i5/OS system.  This class provides access to the specified printer's attributes via the QGYRPRTA system API.
+ Represents a printer attached to an IBM i system.  This class provides access to the specified printer's attributes via the QGYRPRTA system API.
  <p>This class uses the remote command host server to obtain printer information.  Use the {@link com.ibm.as400.access.Printer Printer} class to retrieve similer information using the network print host server.
  <p>Example:
  <pre>
@@ -34,7 +34,7 @@ import java.util.Date;
  @see  com.ibm.as400.access.Printer
  **/
 // TBD: Add the following javadoc when ConfigurationDescriptionList class is created:
-//<p>To determine a list of printer device descriptions on the i5/OS system, use the {@link com.ibm.as400.access.config.ConfigurationDescriptionList ConfigurationDescriptionList} class.
+//<p>To determine a list of printer device descriptions on the IBM i system, use the {@link com.ibm.as400.access.config.ConfigurationDescriptionList ConfigurationDescriptionList} class.
 // TBD: Add the following javadoc when config classes are created:
 // @see  com.ibm.as400.access.config.ConfigurationDescriptionList
 // @see  com.ibm.as400.access.config.PrinterDeviceDescription

@@ -19,16 +19,11 @@ import java.sql.SQLException;
 
 
 /**
-This class implements a cursor on the i5/OS system.  NOTE: Creating this
+This class implements a cursor on the IBM i system.  NOTE: Creating this
 object does not explicitly create the cursor on the system.
 **/
 class JDCursor
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
-
   // Open attributes.
   private static final int    OPEN_READONLY_      = 0x80;
   private static final int    OPEN_ALL_           = 0xF0;

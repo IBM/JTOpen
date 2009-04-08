@@ -23,15 +23,10 @@ import java.util.Vector;
 /**
 <p>This class represents an escape clause in a SQL statement.
 It is used to translate SQL statements with JDBC escape
-syntax to DB2 for i5/OS format.
+syntax to DB2 for IBM i format.
 **/
 class JDEscapeClause
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
-
     // String constants.  These will hopefully help performance
     // slightly - assuming a similar optimization does not
     // already take place.
