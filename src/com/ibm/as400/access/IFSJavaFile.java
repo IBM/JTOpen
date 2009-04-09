@@ -461,29 +461,34 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return getPath().compareTo(file.getPath());
   }
 
-/**
- * Compares this object with another object.
- *
- * @param   obj The object to be compared.
- *
- * @return  <code>0</code> if this IFSJavaFile path equals the argument's path;
- *          a value less than <code>0</code> if this IFSJavaFile path is less than the argument's
- *          path; and a value greater than <code>0</code> if this IFSJavaFile path is greater
- *          than the argument's path.
- *
- * @exception ClassCastException if the specified object's type prevents it from being compared to this Object.
- * @since JDK1.2
-**/
-  public int compareTo(Object obj)
-  {
-    if (obj instanceof IFSJavaFile) return compareTo((IFSJavaFile)obj);
-    else if (obj instanceof File) return compareTo((File)obj);
-    else if (obj instanceof IFSFile) return compareTo((IFSFile)obj);
-    else {
-      String classname = (obj == null ? "null" : obj.getClass().getName());
-      throw new ClassCastException(classname);
-    }
-  }
+
+// Note: The JDK 6.0 compiler doesn't like the following method signature.
+// It causes the following error:
+// "name clash: compareTo(java.lang.Object) in IFSJavaFile and compareTo(T) in Comparable<java.io.File> have the same erasure, yet neither overrides the other"
+
+// /**
+// * Compares this object with another object.
+// *
+// * @param   obj The object to be compared.
+// *
+// * @return  <code>0</code> if this IFSJavaFile path equals the argument's path;
+// *          a value less than <code>0</code> if this IFSJavaFile path is less than the argument's
+// *          path; and a value greater than <code>0</code> if this IFSJavaFile path is greater
+// *          than the argument's path.
+// *
+// * @exception ClassCastException if the specified object's type prevents it from being compared to this Object.
+// * @since JDK1.2
+//**/
+//  public int compareTo(Object obj)
+//  {
+//    if (obj instanceof IFSJavaFile) return compareTo((IFSJavaFile)obj);
+//    else if (obj instanceof File) return compareTo((File)obj);
+//    else if (obj instanceof IFSFile) return compareTo((IFSFile)obj);
+//    else {
+//      String classname = (obj == null ? "null" : obj.getClass().getName());
+//      throw new ClassCastException(classname);
+//    }
+//  }
 
 
   /**
