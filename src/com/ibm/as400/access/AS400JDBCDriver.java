@@ -27,8 +27,7 @@ import java.util.ResourceBundle;
 
 
 /**
-<p>The AS400JDBCDriver class is a JDBC 2.0 driver that accesses
-DB2 for IBM i databases.
+This class is a JDBC 3.0 driver that accesses DB2 for IBM i databases.
 
 <p>To use this driver, the application or caller must register 
 the driver with the JDBC DriverManager.  This class also registers 
