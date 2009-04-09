@@ -26,8 +26,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 /**
- * The IFSJavaFile class represents a file in the
- * integrated file system of an IBM i system.
+ * Represents a file in the integrated file system of an IBM i system.
  * <br>
  *
  * IFSJavaFile extends the java.io.File class and allows programs
@@ -88,11 +87,11 @@ import java.net.MalformedURLException;
  * of platform specific code enable the creation of a file on either the IBM i system or
  * the local client.
  * <pre>
- *     int location            = ON_THE_AS400;
+ *     int location            = ON_THE_SERVER;  // on the IBM i system
  *     java.io.File file       = null;
  *     java.io.OutputStream os = null;
  *<br>
- *     if (location == ON_THE_AS400)
+ *     if (location == ON_THE_SERVER)
  *       file = new IFSJavaFile(new AS400("enterprise"), path); // Work with the file on the system "enterprise".
  *     else
  *       file = new java.io.File(path);                       // Work with the file on the local file system.
@@ -106,7 +105,7 @@ import java.net.MalformedURLException;
  *     if (file.delete() == false)
  *       System.err.println("Unable to delete file.");         // Display the error message.
  *<br>
- *     if (location == ON_THE_AS400)
+ *     if (location == ON_THE_SERVER)
  *       os = (OutputStream)new IFSFileOutputStream((IFSJavaFile)file);
  *     else
  *       os = new FileOutputStream(file);
@@ -142,7 +141,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
   private IFSFile ifsFile_ = new IFSFile();
   private static final char AS400_SEPARATOR = '/';
-  private static final String strFile = "file";
+  private static final String URL_PROTOCOL = "file";
 
   private static final boolean replace_ = (AS400_SEPARATOR != separatorChar); //@P2A
 
@@ -465,7 +464,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Compares this object with another object.
  *
- * @param   object The object to be compared.
+ * @param   obj The object to be compared.
  *
  * @return  <code>0</code> if this IFSJavaFile path equals the argument's path;
  *          a value less than <code>0</code> if this IFSJavaFile path is less than the argument's
@@ -1859,7 +1858,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      else
         objectName = getAbsolutePath();
 
-     return new URL(strFile, getSystem().getSystemName(), objectName);
+     return new URL(URL_PROTOCOL, getSystem().getSystemName(), objectName);
   }
 
 
