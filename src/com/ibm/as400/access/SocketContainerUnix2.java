@@ -165,6 +165,11 @@ class SocketContainerUnix2 extends SocketContainer
             {
                 throw createSocketException(e);
             }
+            finally //@socket2
+            { 
+                sd_ = null; //@socket2
+                closed_ = true; //@socket2 //add this so if close fails, we don't keep trying to close a broken socket
+            }
         }
     }
 
@@ -194,7 +199,12 @@ class SocketContainerUnix2 extends SocketContainer
         try
         {
             Trace.log(Trace.ERROR, "Error with unix domain socket, errno: " + e.errno_, e);
-            int jobCCSID = JobCCSIDNative.retrieveCcsid();
+            int jobCCSID; //@socket2
+            if(NativeMethods.paseLibLoaded)
+                jobCCSID = 367; //pase is ascii
+            else
+                jobCCSID = JobCCSIDNative.retrieveCcsid();
+
             Converter conv = new Converter(jobCCSID);
             return new SocketException(conv.byteArrayToString(e.data));
         }

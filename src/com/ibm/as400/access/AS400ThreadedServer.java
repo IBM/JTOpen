@@ -385,18 +385,19 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
                 }
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): Threads notified after RuntimeException.");
             }
-            finally
-            {
+            //@socket2 removed finally close because we were doing double closes. 
+            //@socket2finally
+            //@socket2{
               // Since we've fallen out of the while loop, we can reasonably assume that the socket is broken (based on the loop condition).
               // Ensure the socket doesn't get left open.
-              if (!isConnected())  // Check it this way, in case we change the meaning of isConnected() in the future.
-              {
-                try { socket_.close(); }
-                catch (Throwable t) {
-                  Trace.log(Trace.ERROR, "Socket close failed:", t);
-                }
-              }
-            }
+              //@socket2 if (!isConnected())  // Check it this way, in case we change the meaning of isConnected() in the future.
+              //{
+                //@socket2 try { socket_.close(); }
+                //@socket2 catch (Throwable t) {
+                //@socket2  Trace.log(Trace.ERROR, "Socket close failed:", t);
+                //@socket2 }
+              //@socket2 }
+            //@socket2}
         }
     }
 
