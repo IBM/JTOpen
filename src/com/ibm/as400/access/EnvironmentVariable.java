@@ -76,7 +76,7 @@ public class EnvironmentVariable implements Serializable
         try
         {
             spc.setProgram("/QSYS.LIB/QP0ZSYSE.SRVPGM");
-            spc.suggestThreadsafe();
+            //spc.suggestThreadsafe();
             spc.setReturnValueFormat(ServiceProgramCall.RETURN_INTEGER);
         }
         catch (PropertyVetoException e)

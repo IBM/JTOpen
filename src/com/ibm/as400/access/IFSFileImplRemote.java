@@ -717,7 +717,7 @@ implements IFSFileImpl
 //    parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(follow));
 //
 //    ServiceProgramCall spc = new ServiceProgramCall(system, "/QSYS.LIB/QP0LLIB2.SRVPGM", "Qp0lGetAttr", ServiceProgramCall.RETURN_INTEGER, parms);
-//    pc.suggestThreadsafe(true);
+//    //pc.suggestThreadsafe(true);
 //
 //    if (!spc.run()) {
 //      throw new AS400Exception(spc.getMessageList());

@@ -28,8 +28,6 @@ import java.io.UnsupportedEncodingException;
 
 public class AS400DateTimeConverter
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     /**
        The system.
     **/
@@ -127,7 +125,7 @@ public class AS400DateTimeConverter
 
             // Set the program name and parameter list
             pgm.setProgram( progName, parmlist );
-            pgm.suggestThreadsafe();  // QWCCVTDT is thread-safe.  @B1A
+            //pgm.suggestThreadsafe();  // QWCCVTDT is thread-safe.  @B1A
 
             // Run the program
             if (pgm.run()!=true)

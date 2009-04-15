@@ -1661,7 +1661,7 @@ public class User implements Serializable
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSYRUSRI.PGM", parameters);
         // Note: QSYRUSRI is designated "Threadsafe: Yes".
         // But honor the ProgramCall.threadsafe property if set.
-        pc.suggestThreadsafe();
+        //pc.suggestThreadsafe();
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());

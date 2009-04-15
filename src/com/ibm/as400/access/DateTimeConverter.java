@@ -137,7 +137,7 @@ public class DateTimeConverter
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
 
-    program_.suggestThreadsafe();  //@A2A
+    //program_.suggestThreadsafe();  //@A2A
 
     // Run the program
     if (!program_.run())

@@ -1783,7 +1783,7 @@ public class ObjectDescription
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSROBJD.PGM", parms); // retrieve object description
     // QUSROBJD is thread safe.
-    pc.suggestThreadsafe();
+    //pc.suggestThreadsafe();
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());

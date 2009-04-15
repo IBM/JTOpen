@@ -260,7 +260,7 @@ class SystemValueUtility
 
         ProgramCall prog = new ProgramCall(system, isNetA ? "/QSYS.LIB/QWCRNETA.PGM" : "/QSYS.LIB/QWCRSVAL.PGM", parameters);
         // Both QWCRNETA and QWCRSVAL are threadsafe.
-        prog.suggestThreadsafe();
+        //prog.suggestThreadsafe();
 
         if (!prog.run())
         {

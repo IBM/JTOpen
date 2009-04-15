@@ -262,7 +262,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 		    programCall.setProgram(
 		        QSYSObjectPathName.toPath(
 		        "QSYS", "QSYGENPT", "PGM"), parmlist);
-		    programCall.suggestThreadsafe();
+		    //programCall.suggestThreadsafe();
 		    if (!programCall.run()) {
 			    Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
 			    throw new RetrieveFailedException(

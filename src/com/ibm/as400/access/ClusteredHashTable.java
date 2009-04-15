@@ -245,7 +245,7 @@ implements java.io.Serializable
         sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
         // Set the call to be thread safe
-        sPGMCall.suggestThreadsafe();
+        //sPGMCall.suggestThreadsafe();
 
         // Call the service program.  If true is returned the program was successfully called.  If
         // false is returned the program could not be started.  A list of messages is returned when
@@ -471,7 +471,8 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      sPGMCall.suggestThreadsafe();
+      //sPGMCall.suggestThreadsafe();
+      // Note: The program _must_ be allowed to run in the same job as is used for the UserSpace operations, otherwise a different QTEMP library will be used.
     }
     catch (PropertyVetoException pve)
     {
@@ -622,7 +623,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      sPGMCall.suggestThreadsafe();
+      //sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
@@ -731,7 +732,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      sPGMCall.suggestThreadsafe();
+      //sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
@@ -910,7 +911,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      sPGMCall.suggestThreadsafe();
+      //sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
@@ -1070,7 +1071,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      sPGMCall.suggestThreadsafe();
+      //sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when

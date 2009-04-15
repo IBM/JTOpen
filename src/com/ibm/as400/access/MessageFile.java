@@ -550,7 +550,7 @@ public class MessageFile implements Serializable
         
         // Call the program.
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHRTVM.PGM", parameters);
-        pc.suggestThreadsafe();
+        //pc.suggestThreadsafe();
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList()[0]);
