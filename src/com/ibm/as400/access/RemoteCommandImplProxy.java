@@ -160,11 +160,11 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     }
 
     // Run the service program on the proxy server.
-    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] parameterList, Boolean threadSafety, int procedureNameCCSID, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] parameterList, Boolean threadSafety, int procedureNameCCSID, int messageCount, boolean alignOn16Bytes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.class, Integer.TYPE, Integer.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, threadSafety, new Integer(procedureNameCCSID), new Integer(messageCount) }, new boolean[] { false, false, false, false, true, false, false, false }, true);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.class, Integer.TYPE, Integer.TYPE, Boolean.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, threadSafety, new Integer(procedureNameCCSID), new Integer(messageCount), new Boolean(alignOn16Bytes) }, new boolean[] { false, false, false, false, true, false, false, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
             for (int i = 0; i < parameterList.length; ++i)
             {

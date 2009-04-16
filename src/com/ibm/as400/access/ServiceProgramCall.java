@@ -108,6 +108,9 @@ public class ServiceProgramCall extends ProgramCall
     // The ccsid of the entry point.  This is set at service program compile time.  For all Rochester delivered service programs this is 37 so that is the default.  The customer can override the default with the setProcedureName method.
     private int procedureNameCCSID_ = 37;
 
+    // Whether to align the first parameter of the service program, on a 16-byte boundary.
+    private boolean alignOn16Bytes_ = false;
+
     /**
      Constructs a ServiceProgramCall object.  A default ServiceProgramCall object is created.  The <i>system</i>, <i>program name</i>, <i>procedure name</i> and <i>parameters</i>, must be set before calling the program.
      **/
@@ -287,7 +290,7 @@ public class ServiceProgramCall extends ProgramCall
         }
 
         // Run the service program.
-        returnValue_ = impl_.runServiceProgram(library_, name_, procedureName_, rvf, parameterList_, threadSafety_, procedureNameCCSID_, messageOption_);
+        returnValue_ = impl_.runServiceProgram(library_, name_, procedureName_, rvf, parameterList_, threadSafety_, procedureNameCCSID_, messageOption_, alignOn16Bytes_);
 
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
@@ -358,6 +361,18 @@ public class ServiceProgramCall extends ProgramCall
         setReturnValueFormat(returnValueFormat);
         setParameterList(parameterList);
         return run();
+    }
+
+    /**
+     Sets whether to align the first parameter on a 16-byte boundary.
+     Some service programs require that the "receiver variable" (typically the first parameter) be aligned on a 16-byte boundary.
+     By default, no alignment is done.
+     @param  align Whether to align the first parameter on a 16-byte boundary.
+     **/
+    public void setAlignOn16Bytes(boolean align)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting alignment: " + align);
+        alignOn16Bytes_ = align;
     }
 
     /**

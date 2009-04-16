@@ -547,7 +547,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
-    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, Boolean threadSafety, int procedureNameCCSID, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, Boolean threadSafety, int procedureNameCCSID, int messageOption, boolean alignOn16Bytes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running service program: " + library + "/" + name + " procedure name: " + procedureName);
 
@@ -570,10 +570,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         // Second parameter:  export name - input - char(*).
         ConverterImplRemote procedureNameConverter = ConverterImplRemote.getConverter(procedureNameCCSID, system_);
-        byte[] procedureNameBytes = procedureNameConverter.stringToByteArray(procedureName);
-        byte[] procedureNameBytesNullTerminated = new byte[procedureNameBytes.length + 1];
-        System.arraycopy(procedureNameBytes, 0, procedureNameBytesNullTerminated, 0, procedureNameBytes.length);
-        programParameterList[1] = new ProgramParameter(procedureNameBytesNullTerminated);
+        byte[] procedureNameBytesUnterminated = procedureNameConverter.stringToByteArray(procedureName);
+        // Add a null terminator to the end.
+        byte[] procedureNameBytes = new byte[procedureNameBytesUnterminated.length + 1];
+        System.arraycopy(procedureNameBytesUnterminated, 0, procedureNameBytes, 0, procedureNameBytesUnterminated.length);
+        programParameterList[1] = new ProgramParameter(procedureNameBytes);
 
         // Third parameter:  return value format - input - binary(4).
         byte[] returnValueFormatBytes = new byte[4];
@@ -602,11 +603,39 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         // Sixth parameter:  error code - input/output - char(*).
         // Eight bytes of zero's indicates to throw exceptions.
         // Send as input because we are not interested in the output.
-        programParameterList[5] = new ProgramParameter(new byte[8]);
+
+        // Note: Some service programs (such as QjoRetrieveJournalEntries)
+        // require that the receiver variable be aligned on a 16-byte boundary.
+        // Therefore, if data will be returned, we may need to pad
+        // the "error code"  parameter with extra bytes, so that the
+        // parameter after the "Return Value" parameter starts on
+        // a 16-byte boundary.
+        int errorCodeParmLength = 8; // length of Error Code parm
+        int returnValueParmLength = ((returnValueFormat == ServiceProgramCall.NO_RETURN_VALUE) ? 4 : 8); // length of Return Value parm
+        if (alignOn16Bytes && serviceParameterList.length != 0)
+        {
+          int parmsByteCount = 0;  // total number of bytes occupied by parms
+          parmsByteCount += serviceProgramBytes.length;   // 1: Svc Pgm Name
+          parmsByteCount += procedureNameBytes.length;    // 2: Export Name
+          parmsByteCount += returnValueFormatBytes.length;// 3: Return Value Format
+          parmsByteCount += parameterFormatBytes.length;  // 4: Parm Formats
+          parmsByteCount += parameterNumberBytes.length;  // 5: Number of Parms
+          parmsByteCount += errorCodeParmLength;          // 6: Error Code
+          parmsByteCount += returnValueParmLength;        // 7: Return Value
+          // Calculate number of bytes we're beyond a 16-byte boundary.
+          int remainder = parmsByteCount % 16;
+          if (remainder != 0)
+          {
+            // Pad the "error code" parm so that we get to a 16-byte boundary.
+            errorCodeParmLength += (16 - remainder);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "To achieve 16-byte alignment, padding 'error code' parameter to length " + errorCodeParmLength);
+          }
+        }
+        programParameterList[5] = new ProgramParameter(errorCodeParmLength);
 
         // Seventh parameter:  return value - output - char(*).
         // Define the return value length, even though the service program returns void the API middle-man we call (QZRUCLSP) still returns four bytes.  If we don't get this right the output buffers will be off by four bytes corrupting data.
-        programParameterList[6] = new ProgramParameter((returnValueFormat == ServiceProgramCall.NO_RETURN_VALUE) ? 4 : 8);
+        programParameterList[6] = new ProgramParameter(returnValueParmLength);
 
         // Combines the newly created programParameterList with the value of serviceParameterList input by user to form the perfect parameter list that will be needed in the method runProgram.
         System.arraycopy(serviceParameterList, 0, programParameterList, 7, serviceParameterList.length);

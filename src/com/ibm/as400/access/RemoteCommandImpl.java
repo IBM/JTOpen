@@ -49,7 +49,7 @@ interface RemoteCommandImpl
     // Run the program call on the implementation object.
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
     // Run the service program call on the implementation object.
-    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, Boolean threadSafety, int procedureNameCCSID, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
+    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, Boolean threadSafety, int procedureNameCCSID, int messageOption, boolean alignOn16Bytes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;
     // Set the AS400Impl into the implementation object.
     public void setSystem(AS400Impl system) throws IOException;
 }
