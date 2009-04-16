@@ -91,9 +91,9 @@ public class PTFGroupList
           // Force the use of sockets when running natively but not on-thread.
           // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
         }
-        us.create(256*1024, true, "", (byte)0, "User space for PTF Group list", "*EXCLUDE");
         try
         {
+          us.create(256*1024, true, "", (byte)0, "User space for PTF Group list", "*EXCLUDE");
           if (!pc.run())
           {
             throw new AS400Exception(pc.getMessageList());
@@ -104,9 +104,10 @@ public class PTFGroupList
         }
         finally
         {
-          try { us.close(); }
+          // Delete the temporary user space, to allow other threads to re-create and use it.
+          try { us.delete(); }
           catch (Exception e) {
-            Trace.log(Trace.ERROR, "Exception while closing temporary userspace", e);
+            Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
           }
         }
       }
