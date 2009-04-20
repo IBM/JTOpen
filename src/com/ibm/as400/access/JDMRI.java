@@ -218,7 +218,7 @@ public class JDMRI extends ListResourceBundle
       { "IGNORE_WARNINGS_DESC", "Specifies a list of SQL states for which the driver should not create warning objects."}, //@igwrn
       { "SECURE_CURRENT_USER_DESC", "Specifies whether to disallow \"\" and *current as user name and password."}, //@pw3
       { "CONCURRENT_ACCESS_RESOLUTION_DESC", "Specifies whether \"currently committed\" access is used on the connection."}, //@cc1
-      { "PROP_NAME_JVM16_SYNCHRONIZE_DESC", "Specifies whether to enable temporary workaround fix for JVM 1.6."}, //@dmy
+      { "JVM16_SYNCHRONIZE_DESC", "Specifies whether to enable temporary workaround fix for JVM 1.6."}, //@dmy
       
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
