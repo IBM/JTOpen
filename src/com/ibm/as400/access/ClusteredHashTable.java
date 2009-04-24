@@ -97,8 +97,6 @@ implements java.io.Serializable
   **/
 
   static final long serialVersionUID = 5L;
-  private static final String USERSPACE_NAME = "QCSTCHT   QTEMP     ";
-  private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/QCSTCHT.USRSPC";
 
   /**
     Entry status value to limit retrieved entries to only those which are consistent between nodes.
@@ -326,7 +324,7 @@ implements java.io.Serializable
 
   /**
      Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries.
-    This method will create a temporary user space on the system in the QTEMP library.  If the user space exists, it will be deleted and recreated.
+    This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
@@ -342,7 +340,7 @@ implements java.io.Serializable
 
 
   /**
-    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QTEMP library.  If the user space exists, it will be deleted and recreated.
+    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retrieve all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
@@ -418,15 +416,24 @@ implements java.io.Serializable
     // Construct the ServiceProgramCall object.
     ServiceProgramCall sPGMCall = new ServiceProgramCall(system_);
 
+    // Note: The QcstListCHTKeys service program doesn't accept QTEMP for the library.  Therefore we'll create the temporary user space in QUSRSYS, and try to come up with a unique name for the user space.
+    String jobNumber = sPGMCall.getServerJob().getNumber();
+    String userSpacePath = "/QSYS.LIB/QUSRSYS.LIB/QCHT"+jobNumber+".USRSPC";
+    UserSpace usrSpc = new UserSpace(system_, userSpacePath);
+
     // Construct the parameter list.  It contains the single parameter to the service program.
     ProgramParameter[] parameterList = new ProgramParameter[7];
 
     try
     {
       // input -- Qualified userspace name
+      StringBuffer tempName = new StringBuffer(20);
+      tempName.append(usrSpc.getName());
+      for (int i = usrSpc.getName().length(); i < 10; ++i)  // pad to 10 characters
+        tempName.append(' ');
+      tempName.append("QUSRSYS");
       AS400Text text20 = new AS400Text(20, system_.getCcsid(), system_);
-      parameterList[0] = new ProgramParameter(text20.toBytes(USERSPACE_NAME));
-
+      parameterList[0] = new ProgramParameter(text20.toBytes(tempName.toString()));
       parameterList[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
       // input -- format name
@@ -472,7 +479,6 @@ implements java.io.Serializable
 
       // Set the call to be thread safe
       //sPGMCall.suggestThreadsafe();
-      // Note: The program _must_ be allowed to run in the same job as is used for the UserSpace operations, otherwise a different QTEMP library will be used.
     }
     catch (PropertyVetoException pve)
     {
@@ -482,30 +488,9 @@ implements java.io.Serializable
     // array to return at the end
     ClusteredHashTableEntry[] entries = null;
 
-    // Determine the needed scope of synchronization.
-    Object lockObject;
-    boolean willRunProgramsOnThread = sPGMCall.isStayOnThread();
-    if (willRunProgramsOnThread) {
-      // The calls will run in the job of the JVM, so lock for entire JVM.
-      lockObject = USERSPACE_PATH;
-    }
-    else {
-      // The calls will run in the job of the Remote Command Host Server, so lock on the connection.
-      lockObject = system_;
-    }
-
     // create a user space to work with, don't handle exceptions from this call
-    synchronized(lockObject)
+    synchronized(userSpaceLock_)
     {
-      UserSpace usrSpc = new UserSpace(system_, USERSPACE_PATH);
-      usrSpc.setMustUseProgramCall(true); // Need this to make sure we use the same job as the ServiceProgramCall
-      if (!willRunProgramsOnThread)
-      {
-        usrSpc.setMustUseSockets(true);
-        // Force the use of sockets when running natively but not on-thread.
-        // We have to do it this way since UserSpace will otherwise make a native ProgramCall, and will use a different QTEMP library than that used by the host server.
-      }
-
       try
       {
         // create the user space, automatically overwrite any existing one
@@ -555,7 +540,7 @@ implements java.io.Serializable
       finally
       {
         // clean up left over storage
-        try { usrSpc.delete(); }
+        try { if (usrSpc != null) usrSpc.delete(); }
         catch (Exception e) {
           Trace.log(Trace.ERROR, "Exception while deleting temporary user space", e);
         }
