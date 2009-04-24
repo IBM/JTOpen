@@ -418,7 +418,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     {
         if (priorCallWasOnThread_ == ON_THREAD)
         {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was on-thread, but this call is off-thread, so different job.");
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was on-thread, but this call is off-thread, so different job.");
         }
         priorCallWasOnThread_ = OFF_THREAD;
 
@@ -486,7 +486,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         if (priorCallWasOnThread_ == ON_THREAD)
         {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was on-thread, but this call is off-thread, so different job.");
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was on-thread, but this call is off-thread, so different job.");
         }
         priorCallWasOnThread_ = OFF_THREAD;
 

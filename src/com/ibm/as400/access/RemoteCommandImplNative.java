@@ -307,7 +307,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
         if (priorCallWasOnThread_ == OFF_THREAD)
         {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
         }
         priorCallWasOnThread_ = ON_THREAD;
 
@@ -394,7 +394,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         if (priorCallWasOnThread_ == OFF_THREAD)
         {
-          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Prior call was off-thread, but this call is on-thread, so different job.");
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
         }
         priorCallWasOnThread_ = ON_THREAD;
 
