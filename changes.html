@@ -5,30 +5,41 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2008 International Business Machines Corporation and
+Copyright (C) 1997-2009 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: December 8, 2008
+Last updated: May 6, 2009
+
+The term "JTOpen" refers to the open source software product
+"IBM Toolbox for Java" plus any additional enhancements provided by
+the open source community. JTOpen, which is supported by IBM and
+governed by the IBM Public License, as well as its Java source code,
+is contained in the open source repository located off of:
+<A HREF="http://sourceforge.net/projects/jt400">http://sourceforge.net/projects/jt400</A>.
+
+The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
+"IBM Toolbox for Java" which is supported by IBM and can be obtained from the
+IBM Toolbox for Java web site:
+<A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
+</PRE>
+<!-- On 2009-05-05: cvs log -rJTOpen_6_4:JTOpen_6_5 -N -d>2008-12-08 -->
 <!-- On 2008-12-08: cvs log -rJTOpen_6_3:JTOpen_6_4 -N -d>2008-08-13 -->
 <!-- On 2008-08-13: cvs log -rJTOpen_6_2:JTOpen_6_3 -N -d>2008-04-25 -->
 <!-- On 2008-04-25: cvs log -rJTOpen_6_1:JTOpen_6_2 -N -d>2007-12-14 -->
 
-The term "JTOpen" refers to the open source software product
-"IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
-enhancements provided by the open source community. JTOpen, which is supported
-by IBM and governed by the IBM Public License, as well as its Java source code,
-is contained in the open source repository located off of:
-<A HREF="http://jt400.sourceforge.net/">http://jt400.sourceforge.net/</A>.
-
-The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program
-Product "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") which is
-supported by IBM and can be obtained from the IBM Toolbox for Java web site:
-<A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
+<H4>Known deficiencies</H4>
+<PRE>
+Several Toolbox methods have parameters or return values that are of type Date,
+Calendar, or GregorianCalendar. Some of these methods assume that the client
+Java application is running in the same time zone as the IBM i server.
+This behavior is long-standing, and will be corrected in a future Toolbox release.
 </PRE>
+
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#65">Fixes and enhancements in JTOpen 6.5</A><BR>
 <A HREF="#64">Fixes and enhancements in JTOpen 6.4</A><BR>
 <A HREF="#63">Fixes and enhancements in JTOpen 6.3</A><BR>
 <A HREF="#62">Fixes and enhancements in JTOpen 6.2</A><BR>
@@ -55,13 +66,96 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <P>
 
 <HR>
+<H3><A NAME="65">Fixes and enhancements in JTOpen 6.5</A> <i>(released 2009-05-08)</i></H3>
+<PRE>
+- INCOMPATIBLE CHANGE:
+  The getJob() method is eliminated from classes CommandCall and ProgramCall.
+  Applications that reference this method will no longer compile or execute.
+  Use method getServerJob() instead.
+
+- BEHAVIOR CHANGE:
+  Formerly, when running natively on IBM i, by default the Toolbox looked-up
+  the designated thread-safety of CL commands, and called thread-safe CL's
+  on-thread to optimize performance. This introduced problems where successive CL's
+  and programs would be called in 2 different jobs (on-thread versus off-thread).
+  The new default is to simply call all CL's via the Remote Command Host Server.
+  To restore the previous behavior, set Java system property:
+  com.ibm.as400.access.CommandCall.threadSafe=lookup
+
+- <i>Various:</i>: Changes to support modified default command thread-safety behavior.
+- <i>Various:</i> Javadoc updates.
+- <i>Various:</i> Renamed private constant names and variables for better readability.
+- <i>Various:</i> Enhancements suggested by static analysis:
+                  - Added hashCode() methods.
+                  - Eliminated redundant String.toString() calls.
+                  - Eliminated unnecessary null-checks.
+                  - Eliminated unused variables.
+                  - Improved synchronization.
+                  - Ensure that opened streams get closed.
+                  - Streamlined try/catch logic.
+                  - Trace all caught exceptions.
+- Build: Added JPing to jt400Native.jar
+- Command call: Removed method getJob(). Method was deprecated on 2003-01-22.
+- Command call: Added tracing to track on/off-thread calls, and CL thread-safety lookups.
+- Command call: Eliminated default thread-safety lookup when calling CL commands natively.
+- Command call: Changed trace category of the 'on/off thread toggle' message to DIAGNOSTIC.
+- Connection pool: Tolerate null password on constructor.
+- Connection: Relaxed definition of 'numeric password' when prepending 'Q'.
+- Connection: Added trace messages.
+- Connection: Added method: AS400.isConnectionAlive(service).
+- Connection: Check for null, before dereferencing listeners.
+- Connection: Fix PASE socket close(), so it is not called twice.
+- Connection: Fix PASE socket pair leak.
+- Connection: Fix native library load when running with multiple war files and classloaders.
+- Connection: Made 'public' the method AS400.canUseNativeOptimizations().
+- Connection: Temporarily disable PASE optimizations until socket issues can be resolved.
+- IFS: Added methods to FileAttributes: containsTemporaryObjects() and isTemporaryObject().
+- IFS: Added static getFreeSpace() method.
+- IFS: For IFSFile.getSubtype(): Retrieve codepage of extended attribute values.
+- IFS: Trace the returned extended attribute values.
+- JDBC: Add 'skip locks' option to concurrent access property.
+- JDBC: Add new JDBC 4.0 flag for sysibm stored procedure metadata source.
+- JDBC: Fix AS400JDBCDriver.connect() with clone set to false.
+- JDBC: Fix JDBC 4.0 getHoldability() method to check for isolation level of *NONE.
+- JDBC: Fix ResultSet.updateRow() method when CCSID is not known.
+- JDBC: Fix commit/rollback to not close cursors when isolation level is *none.
+- JDBC: Fix erroneous NullPointerException in JDBC trace.
+- JDBC: Fix for 'fetch direct' only if cursor is read-only and insensitive.
+- JDBC: Fix for JDBC Graphic datatype length with ccsid 65535.
+- JDBC: Fix getIsolation() method to return *none if it is really *none.
+- JDBC: Fix isAutoIncrement() method to close correct PreparedStatement.
+- JDBC: Fix to get updated date info in getVersionColumns() method.
+- JDBC: Fix to search 'system' part of library list when calling stored procedures.
+- JDBC: Fix truncation error when inserting large BigDecimal into double column.
+- JDBC: Fix truncation error when setting BigDecimal in float/real columns.
+- JDBC: Fix when to prevent incorrect NullPointerException while trace is on.
+- JDBC: Temporary workaround for known Sun Hotspot 1.6 JIT defect.
+- JarMaker: Generate digests correctly. Close all streams when done.
+- JavaApplicationCall: Added trace call.
+- Job: Added method: commitChanges(boolean mustStayOnThread).
+- Message: Eliminate NullPointerException if load() called on internally-created AS400Message.
+- Print: Added getAFPInputStream.  Deprecated getInputACIPMergedStream.
+- Print: Enhance Error Diagnosis.
+- Print: Throw exception if fail to connect to Print Server.
+- Program call: Added new method: ServiceProgramCall.setAlignOn16Bytes().
+- Program call: Removed method getJob(). Method was deprecated on 2003-01-22.
+- Proxy: Eliminated calls to System.gc() and runFinalizersOnExit().
+- RLA: Added method: getLibraryName()
+- Trace: Added error message in logLoadPath().
+- Trace: Added method: log(int,String,String).
+- Trace: Check for null argument in new log() method.
+- Trace: Made the printByteArray() methods package-scoped.
+</PRE>
+
+<HR>
 <H3><A NAME="64">Fixes and enhancements in JTOpen 6.4</A> <i>(released 2008-12-12)</i></H3>
 <PRE>
 - <i>Various:</i> Javadoc updates.
 - <i>Various:</i> Enhancements suggested by static analysis.
 - Command call: Log a warning if sequential calls switch between on-thread and off-thread.
 - Connection pool: Enhance AS400ConnectionPool to support ProfileTokenCredentials.
-- Connection pool: Fix pool maintenance daemon so as to disconnect active connections, only when a connection exceeds its maxUseTime limit.
+- Connection pool: Fix pool maintenance daemon so as to disconnect active connections,
+  only when a connection exceeds its maxUseTime limit.
 - Connection: Added method AS400.isConnectionAlive().
 - Connection: Fix bug in portmapper port.
 - Data conversion: Eliminated possible arithmetic overflow.
@@ -179,7 +273,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Data conversion: Eliminated possible ArrayIndexOutOfBoundsException in ConvTableReader.fillCache(), for example when incorrect data CCSID is specified.
 - Data conversion: Made the Mlog class non-public.
 - IFS: Modifications for IFSFile.clearCachedAttributes() to clear all cached attributes.
-- IFS: Enable operation on files larger than 2GB: IFSFileOutputStreamImplRemote.write(), IFSRandomAccessFile.seek().
+- IFS: Enable operation on files larger than 2 gigabytes: IFSFileOutputStreamImplRemote.write(), IFSRandomAccessFile.seek().
 - IFS: Updates to IFSFile.java and IFSJavaFile.java for symbolic link objects.
 - JDBC: Add text "Connection.rollback()" to "autocommit exception" property description.
 - JDBC: Add text "rollback" to "autocommit exception" property description and javadoc.
@@ -412,7 +506,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - FTP:  Added support so FTP datastreams use CRLF.
 - IFS:  Added new IFSFile methods:  setSorted() and getOwnerName().
 - IFS:  Un-deprecated classes IFSTextFileInputStream and IFSTextFileOutputStream.
-- IFS:  Added support for files larger than 4 gigabytes.  This support is only available when running to the i5/OS release after V5R4.
+- IFS:  Added support for files larger than 2 gigabytes.  This support is only available when running to V6R1 or higher.
 - JarMaker:  Deprecated class AS400ToolboxJarMaker; replaced by ToolboxJarMaker.
 - JDBC:  Added new classes AS400JDBCManagedConnectionPoolDataSource and AS400JDBCManagedDataSource. 
 - JDBC:  Added self-managed pooling JDBC datasource.
@@ -731,7 +825,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Data conversion: Directly support CCSID 1208 (UTF-8).
 - Data queue: Updates to allow user to write to a data queue without having read authority.
 - HTML: Properly allow multiple options to be selected in a SelectFormElement.
-- IFS: Fixed list attribute calls on files larger than 2GB.
+- IFS: Fixed list attribute calls on files larger than 2 gigabytes.
 - IFS: Changed VRM check.
 - JDBC: Added a JDBC trace category; log to the Toolbox trace, log stream, and log writer separately.
 - JDBC: Changed major driver version to 6.0.
