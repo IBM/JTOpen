@@ -776,6 +776,7 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_SPADCT_UK",                   "UK English" },
       { "TYPE_SPADCT_US",                   "US English" },
       { "TYPE_SQLPKG",                      "SQL package" },
+      { "TYPE_SQLXSR",                      "SQL XML schema repository" },
       { "TYPE_SQLUDT",                      "User-defined SQL type" },
       { "TYPE_SRVPGM",                      "Service program" },
       { "TYPE_SRVPGM_CLE",                  "C" },

@@ -20,7 +20,7 @@ import java.util.Vector;
 
 
 /**
-The QSYSObjectTypeTable class maintains a list of object types
+Maintains a list of object types
 and extended attributes for objects on the system.
 
 <p>For example, to list all possible extended attributes for
@@ -43,10 +43,6 @@ System.out.println(QSYSObjectTypeTable.getLocalizedObjectType("FILE", extendedAt
 //
 public class QSYSObjectTypeTable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
     private static final String[] noAttributes_ = new String[0];
     private static Hashtable table_ = new Hashtable();
     private static Vector typesAsVector_ = new Vector();
@@ -163,6 +159,7 @@ public class QSYSObjectTypeTable
                                      "NEDERLND", "NEDPLUS", "NORBOK", "NORNYN", "PORTUGAL",
                                      "RUSSIAN", "SUOMI", "SVENSK", "UK", "US" });
         add("SQLPKG");
+        add("SQLXSR");  // v7r1
         add("SQLUDT");
         add("SRVPGM", new String[] { "", "CLE", "CLLE", "RPGLE", "CBLLE", "CPPLE" });
         add("SSND");
