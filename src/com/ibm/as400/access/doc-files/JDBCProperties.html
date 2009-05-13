@@ -8,7 +8,7 @@
 
 <h2>IBM Toolbox for Java JDBC properties</h2>
 
-<P>Many properties can be specified when connecting to DB2 for i5/OS using 
+<P>Many properties can be specified when connecting to DB2 for IBM i using 
   JDBC. All properties are optional and can be specified either as part of the 
   URL or in a java.util.Properties object. If a property is set in both the URL 
   and a Properties object, the value in the URL will be used.</P>
@@ -128,7 +128,6 @@ attributes. The tables organize the properties into the following categories:</P
 	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java program requests from the database.</li>
 	<li>ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.</li>
 	</ul>
-	<p>This property is ignored when connecting to systems running to OS/400 V5R1 and earlier.</p>
     </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">
@@ -142,8 +141,7 @@ attributes. The tables organize the properties into the following categories:</P
       name&quot;</a></TD>
     <TD HEADERS="t2"> 
       <p>Specifies the database to use for the connection, including one stored 
-        in an independent auxiliary storage pool. This 
-        property applies only when connecting to OS/400 V5R2 or i5/OS. 
+        in an independent auxiliary storage pool. 
         When you specify a database name, the name must exist in the relational 
         database directory on the system. The following criteria determine which 
         database is accessed:</p>
@@ -169,7 +167,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;decfloat rounding mode&quot;</TD>
     <TD HEADERS="t2"> 
       <p>Specifies the rounding mode to use when working with decfloat data type. 
-      Note, this property is ignored when connecting to systems running i5/OS V5R4 and earlier.
+      Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.
     </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;half even&quot;<BR>
@@ -310,7 +308,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;XA loosely coupled support&quot;</TD>
     <TD HEADERS="t2">Specifies whether lock sharing is allowed for loosely coupled transaction branches.
-	Note, this property is ignored when connecting to systems running to i5/OS V5R3 and earlier.  
+	Note, this property is ignored when connecting to systems running to IBM i V5R3 and earlier.  
 	This option can be set to 0 to indicate to not share locks or 1 to share locks.  </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;0&quot; (Do not share locks.)<BR>
@@ -596,7 +594,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;qaqqinilib&quot;</TD>
-    <TD HEADERS="t2">Specifies a QAQQINI library name.  Used to specify the library that contains the qaqqini file to use.  A qaqqini file contains all of the attributes that can potentially impact the performance of the DB2 for i5/OS database engine.</TD>
+    <TD HEADERS="t2">Specifies a QAQQINI library name.  Used to specify the library that contains the qaqqini file to use.  A qaqqini file contains all of the attributes that can potentially impact the performance of the DB2 for IBM i database engine.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;QAQQINI library name&quot;<BR>
     </TD>
@@ -604,7 +602,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;query optimize goal&quot;</TD>
-    <TD HEADERS="t2">Specifies the goal the system should use with optimization of queries.  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  Note, this property is ignored when connecting to systems running to i5/OS V5R3 and earlier.</TD>
+    <TD HEADERS="t2">Specifies the goal the system should use with optimization of queries.  This setting corresponds with the system's QAQQINI option called OPTIMIZATION_GOAL.  Note, this property is ignored when connecting to systems running to IBM i V5R3 and earlier.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;0&quot; = Optimize query for first block of data (*ALLIO) when extended dynamic packages are used; Optimize query for entire result set (*FIRSTIO) when packages are not used<BR>
     &quot;1&quot; = Optimize query for first block of data (*FIRSTIO)<BR>
@@ -614,22 +612,22 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;query storage limit&quot;</TD>
     <TD HEADERS="t2">Specifies the query storage limit to be used when statements in a connection are executed.  
-    Valid values are -1 to 2147352578 megabytes.  Note, this property is ignored when connecting to systems running i5/OS V5R4 and earlier.<BR>
-    You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of i5/OS.</TD>
+    Valid values are -1 to 2147352578 megabytes.  Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.<BR>
+    You must have *JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;-1 (no limit)&quot; - &quot;2147352578&quot;</TD>
     <TD HEADERS="t5">&quot;-1&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
-    <TD HEADERS="t2">Specifies the buffer size used to receive data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="t2">Specifies the buffer size used to receive data through the socket connection between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size.  It is only used as a hint by the underlying socket code.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="t5">(platform dependent)</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
-    <TD HEADERS="t2">Specifies the buffer size used to send data through the socket connection between the front-end driver and the i5/OS system.  <br>NOTE: This does not specify the actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
+    <TD HEADERS="t2">Specifies the buffer size used to send data through the socket connection between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;1&quot; - max size</TD>
     <TD HEADERS="t5">(platform dependent)</TD>
@@ -796,7 +794,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat6"><A NAME="driver">&quot;driver&quot;</A></TD>
     <TD HEADERS="t2">Specifies the JDBC driver implementation. The IBM Toolbox 
       for Java JDBC driver can use different JDBC driver implementations based 
-      on the environment. If the environment is an i5/OS JVM on the same system 
+      on the environment. If the environment is an IBM i JVM on the same system 
       as the database to which the program is connecting, the native IBM Developer 
       Kit for Java JDBC driver can be used. In any other environment, the IBM 
       Toolbox for Java JDBC driver is used. This property has no effect if the 
@@ -836,7 +834,7 @@ attributes. The tables organize the properties into the following categories:</P
       always returns "true" because because the driver does not have enough information 
       from the system to make a judgment. Turning on this property (true) forces 
       the driver to get the correct data from the system.</P>
-	  <P>You can use extended metadata only when connecting to a system running OS/400 V5R2 or i5/OS.</P></TD>
+    </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;true&quot;<br>&quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;false&quot;</TD>
@@ -943,7 +941,7 @@ attributes. The tables organize the properties into the following categories:</P
       returned by DatabaseMetaData methods.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;sql&quot; (SQL object comment)<BR>
-      &quot;system&quot; (i5/OS object description)</TD>
+      &quot;system&quot; (IBM i object description)</TD>
     <TD HEADERS="t5">&quot;system&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
@@ -951,7 +949,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t2">Specifies the URL to be used for a connection on the middle-tier's 
       DriverManager in a multiple tier environment, if it is different than already 
       specified. This property allows you to use this driver to connect to databases 
-      other than DB2 for i5/OS. Use a backslash as an escape character 
+      other than DB2 for IBM i. Use a backslash as an escape character 
       before backslashes and semicolons in the URL.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">JDBC URL</TD>
@@ -960,8 +958,7 @@ attributes. The tables organize the properties into the following categories:</P
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;secure&quot;</TD>
     <TD HEADERS="t2">Specifies whether a Secure Sockets Layer (SSL) connection 
-      is used to communicate with the system. SSL connections are only available 
-      when connecting to systems at V4R4 or later.</TD>
+      is used to communicate with the system.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;true&quot; (encrypt all client/server communication)<BR>
       &quot;false&quot; (encrypt only the password)</TD>
