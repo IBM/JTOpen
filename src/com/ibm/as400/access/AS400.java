@@ -2981,6 +2981,7 @@ public class AS400 implements Serializable
             gssName_ = "";
             bytes_ = null;
             byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+            signonInfo_ = null;
         }
     }
 
@@ -3024,6 +3025,7 @@ public class AS400 implements Serializable
             gssCredential_ = null;
             bytes_ = null;
             byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+            signonInfo_ = null;
         }
     }
 
