@@ -94,6 +94,7 @@ public class JDMRI2 extends ListResourceBundle
       { "JD3B501", "Savepoint already exists." },                                // @E10a     
       { "JD3B502", "Savepoint does not exist." },                                // @E10a
       { "JD01G00", "1000 open statements on this connection."},                 //@K1A
+      { "JD2200M", "XML parsing error."},  //@xml2
 
 
 
