@@ -21,8 +21,7 @@ public class NativeMethods
     {
         // Check to see which version of native code to use                 //@pase1
         String osVersion = System.getProperty("os.version");                //"V5" or lower we do not try to load pase
-        //disable pase code until socket descriptor issues are worked out.
-        if (false && (System.getProperty("java.vm.name").indexOf("Classic VM") < 0)  
+        if ((System.getProperty("java.vm.name").indexOf("Classic VM") < 0)  
                 && (osVersion.indexOf("V5") == -1) )                        //@pase1
         {                                                                   //@pase1
             try{                                                            //@pase1
