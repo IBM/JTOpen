@@ -284,12 +284,14 @@ implements PrinterImpl
          AS400ImplRemote system = getSystem();
          if (system.canUseNativeOptimizations())
          {
-           try {
-             remoteCommand_ = new RemoteCommandImplNative();
+           try
+           {
+             remoteCommand_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
+             // Avoid direct reference - it can cause NoClassDefFoundError at class loading time on Sun JVM's.
            }
            catch (Throwable e) {
              // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
-             Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative .", e);
+             Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative.", e);
            }
          }
          if (remoteCommand_ == null)

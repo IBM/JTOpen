@@ -47,7 +47,7 @@ class DataAreaImplRemote implements DataAreaImpl
     private ConverterImplRemote converter_;  // The ccsid converter for this system.
 
     private int ccsid_;  // The ccsid for this system.
-    private RemoteCommandImplRemote rmtCmd_;  // Impl object for remote command host server.
+    private RemoteCommandImpl rmtCmd_;  // Impl object for remote command host server.
     private AS400Message[] messageList_;  // The message list for the command object.
 
     private int length_;  // The maximum number of bytes the data area can contain.
@@ -1042,12 +1042,14 @@ class DataAreaImplRemote implements DataAreaImpl
       {
         if (system_.canUseNativeOptimizations())
         {
-          try {
-            rmtCmd_ = new RemoteCommandImplNative();
+          try
+          {
+            rmtCmd_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
+            // Avoid direct reference - it can cause NoClassDefFoundError at class loading time on Sun JVM's.
           }
           catch (Throwable e) {
             // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
-            Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative .", e);
+            Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative.", e);
           }
         }
         if (rmtCmd_ == null)
