@@ -401,7 +401,13 @@ public class FileAttributes
     short asp_;
     /**
      Returns the auxiliary storage pool in which the object is stored.
-     @return  The auxiliary storage pool in which the object is stored.
+     @return  The auxiliary storage pool (ASP) in which the object is stored.
+     Possible values are:
+     <ul>
+     <li>1: the system ASP (QASP01, also known as the system disk pool)
+     <li>2 to 32: user ASPs (QASP02 to QASP32)
+     <li>33 to 255: independent ASPs
+     </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
