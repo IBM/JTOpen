@@ -19,21 +19,14 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * The UserPermission class represents the authority
- * of a specific user.
- * Instances of UserPermission are returned by {@link Permission#getUserPermission(String) getUserPermission()}
+ * Represents the authority of a specific user.
+ * Instances of UserPermission are returned by {@link Permission#getUserPermission(String) Permission.getUserPermission()}
 **/
 public class UserPermission 
        implements  Cloneable,
                    Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
-
-
 
     /**
      * Constant indicating that no operation has been done.
@@ -62,7 +55,7 @@ public class UserPermission
 
     /**
      * Constant indicating that this user is neither a user nor a group.
-     * It may be a *PUBLIC, *NTWIRF, or * NTWEFF.
+     * It may be a *PUBLIC, *NTWIRF, or *NTWEFF.
     **/
     public final static int GROUPINDICATOR_SPECIALVALUE = 0;
 
