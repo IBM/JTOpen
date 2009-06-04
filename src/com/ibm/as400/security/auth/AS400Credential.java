@@ -13,6 +13,7 @@
 package com.ibm.as400.security.auth;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Exception;
 import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.BinaryConverter;
@@ -1445,7 +1446,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     // 5 - Error code - I/O - Char *
     // Threadsafe: Yes
 
-    CharConverter conv = new CharConverter(37, system);   //TBD
+    CharConverter conv = new CharConverter(37, system);
 
     // Set up the parameter list.
 
@@ -1517,20 +1518,15 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     // Prepare to call the API.
     ProgramCall pgm = new ProgramCall();
     pgm.setSystem(system);
-    pgm.setThreadSafe(true); // The spec says this API is threadsafe.
+    pgm.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
 
     // Retrieve Product Information.  Failure is returned as a message list.
     if(!pgm.run("/QSYS.LIB/QSZRTVPR.PGM", parmList))
     {
       if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
         Trace.log(Trace.ERROR, "Unable to retrieve command information.");
-        // Trace the messages.
-        AS400Message[] messageList = pgm.getMessageList();
-        for (int msg = 0; msg < messageList.length; msg++)
-          Trace.log(Trace.ERROR, messageList[msg].toString());
       }
-      // TBD - Throw an InternalErrorException???
-      return 0;  //TBD
+      throw new AS400Exception(pgm.getMessageList());
     }
 
 

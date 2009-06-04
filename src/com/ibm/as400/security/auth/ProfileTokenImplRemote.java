@@ -221,7 +221,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 		    programCall.setProgram(
 		            QSYSObjectPathName.toPath("QSYS", "QSYGENPT", "PGM"),
 		            parmlist);
-		    programCall.setThreadSafe(true);
+		    programCall.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
 		    if (!programCall.run()) {
 			    Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
 			    throw new RetrieveFailedException(
@@ -323,7 +323,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 	    try {
 	        programCall.setProgram(QSYSObjectPathName.toPath("QSYS",
 	                "QSYGETPT", "PGM"), parmlist);
-		    programCall.setThreadSafe(true);  //@A1A
+		    programCall.suggestThreadsafe(); // Run on-thread if possible.
 		    if (!programCall.run()) {
 			    Trace.log(Trace.ERROR, "Call to QSYGETPT failed.");
 			    throw new RetrieveFailedException();
@@ -401,7 +401,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 	    try {
 		    programCall.setProgram(QSYSObjectPathName.toPath("QSYS",
 		            "QSYGENFT", "PGM"), parmlist);
-		    programCall.setThreadSafe(true);  //@A1A
+		    programCall.suggestThreadsafe(); // Run on-thread if possible.
 		    if (!programCall.run()) {
 			    Trace.log(Trace.ERROR, "Call to QSYGENFT failed.");
 			    throw new RefreshFailedException();
@@ -448,7 +448,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 	    try {
 		    programCall.setProgram(QSYSObjectPathName.toPath("QSYS",
 		        "QSYRMVPT", "PGM"), parmlist);
-		    programCall.setThreadSafe(true);  //@A1A
+		    programCall.suggestThreadsafe(); // Run on-thread if possible.
 		    if (!programCall.run()) {
 			    Trace.log(Trace.ERROR, "Call to QSYRMVPT failed.");
 			    throw new DestroyFailedException();

@@ -262,13 +262,16 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 		    programCall.setProgram(
 		        QSYSObjectPathName.toPath(
 		        "QSYS", "QSYGENPT", "PGM"), parmlist);
-		    //programCall.suggestThreadsafe();
+		    programCall.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
 		    if (!programCall.run()) {
 			    Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
 			    throw new RetrieveFailedException(
 			        programCall.getMessageList());
 		    }
 	    }
+	    catch (RetrieveFailedException e) {
+		    throw e; // just rethrow
+		}
 	    catch (java.io.IOException ioe) {
 	        Trace.log(Trace.ERROR, "Unexpected IOException: ", ioe);
 	        throw new InternalErrorException(
@@ -285,6 +288,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 	            InternalErrorException.UNEXPECTED_EXCEPTION);
 	    }
 	    catch (Exception e) {
+	        Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
 		    throw new RetrieveFailedException(); 
 		}
 
