@@ -16,6 +16,8 @@ package com.ibm.as400.security.auth;
 import java.beans.PropertyVetoException;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.AS400Exception;
+import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.InternalErrorException;
 import com.ibm.as400.access.Trace;
 
@@ -59,6 +61,12 @@ class AuthenticationSystem
     static void handleUnexpectedException(Throwable t)
     {
         Trace.log(Trace.ERROR, "Unexpected Exception:", t);
+        if (t instanceof AS400Exception)
+        {
+          AS400Message[] messageList = ((AS400Exception)t).getAS400MessageList();
+          for (int msg = 0; msg < messageList.length; msg++)
+            Trace.log(Trace.ERROR, messageList[msg].toString());
+        }
         throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
     }
 
