@@ -463,12 +463,14 @@ class UserSpaceImplRemote implements UserSpaceImpl
       {
         if (system_.canUseNativeOptimizations())
         {
-          try {
-            remoteCommand_ = new RemoteCommandImplNative();
+          try
+          {
+            remoteCommand_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
+            // Avoid direct reference - it can cause NoClassDefFoundError at class loading time on Sun JVM's.
           }
           catch (Throwable e) {
-            // This would be unexpected, since canUseNativeOptions() returned true.
-            Trace.log(Trace.WARNING, "Class RemoteCommandImplNative was not found.", e);
+            // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
+            Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative.", e);
           }
 
           // Note: All the API's we call from this class, are threadsafe API's.
