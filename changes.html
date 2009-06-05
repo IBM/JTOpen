@@ -34,6 +34,11 @@ Several Toolbox methods have parameters or return values that are of type Date,
 Calendar, or GregorianCalendar. Some of these methods assume that the client
 Java application is running in the same time zone as the IBM i server.
 This behavior is long-standing, and will be corrected in a future Toolbox release.
+
+The constructor for class RecordFormatDocument fails on Sun's 1.4.2 JVM,
+with the following error:
+  "org.xml.sax.SAXNotRecognizedException:
+   Feature: http://apache.org/xml/features/continue-after-fatal-error"
 </PRE>
 
 
@@ -69,6 +74,7 @@ This behavior is long-standing, and will be corrected in a future Toolbox releas
 <HR>
 <H3><A NAME="65_1">Fixes and enhancements in JTOpen 6.5.1</A> <i>(released 2009-05-20)</i></H3>
 <PRE>
+- Connection: Re-enable default on-thread execution of ProfileToken calls. (Added 2009-06-05)
 - Data area:  Fixed breakage in JTOpen 6.5: NoClassDefFoundError on Sun JVM's.
 - Print:      Fixed breakage in JTOpen 6.5: NoClassDefFoundError on Sun JVM's.
 - User space: Fixed breakage in JTOpen 6.5: NoClassDefFoundError on Sun JVM's.
@@ -124,9 +130,9 @@ This behavior is long-standing, and will be corrected in a future Toolbox releas
 - Connection: Check for null, before dereferencing listeners.
 - Connection: Fix PASE socket close(), so it is not called twice.
 - Connection: Fix PASE socket pair leak.
+- Connection: Temporarily disable PASE optimizations until socket issues can be resolved.
 - Connection: Fix native library load when running with multiple war files and classloaders.
 - Connection: Made 'public' the method AS400.canUseNativeOptimizations().
-- Connection: Temporarily disable PASE optimizations until socket issues can be resolved.
 - IFS: Added methods to FileAttributes: containsTemporaryObjects() and isTemporaryObject().
 - IFS: Added static getFreeSpace() method.
 - IFS: For IFSFile.getSubtype(): Retrieve codepage of extended attribute values.
