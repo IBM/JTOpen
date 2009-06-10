@@ -1224,7 +1224,7 @@ public class Trace
 
 
   // Logs data from a byte array starting at offset for the length specified.
-  // Output sixteen bytes per line, two hexidecimal digits per byte, one
+  // Output sixteen bytes per line, two hexadecimal digits per byte, one
   // space between bytes.
   static void printByteArray(PrintWriter pw, byte[] data, int offset, int length)
   {
@@ -1252,8 +1252,17 @@ public class Trace
   }
 
 
+  // Logs data from a byte array.
+  // Output sixteen bytes per line, two hexadecimal digits per byte, one
+  // space between bytes.
+  static void printByteArray(StringBuffer buf, byte[] data)
+  {
+    printByteArray(buf, data, 0, data.length);
+  }
+
+
   // Logs data from a byte array starting at offset for the length specified.
-  // Output sixteen bytes per line, two hexidecimal digits per byte, one
+  // Output sixteen bytes per line, two hexadecimal digits per byte, one
   // space between bytes.
   static void printByteArray(StringBuffer buf, byte[] data, int offset, int length)
   {
