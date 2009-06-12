@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 
 /**
  A ConvTableReader represents a Toolbox converter that uses stateful character conversion.  That is, it wraps an underlying InputStream and reads/caches the appropriate number of bytes to return the requested number of Unicode characters.  This is especially useful for mixed byte tables where the number of converted Unicode characters is almost never the same as the number of underlying EBCDIC bytes.  This class exists primarily for use with the IFSText classes, but other components are free to use it as well.
@@ -58,6 +59,8 @@ public class ConvTableReader extends InputStreamReader
 
     private int nextRead_ = 0;  // Cache needs to be filled when nextRead_ >= nextWrite_
     private int nextWrite_ = 0;
+    private boolean isXML_ = false;      //@xml3 true if this data originated from a native XML column type //@xml4
+    private boolean isFirstRead_ = true; //@xml3
 
     /**
      Creates a ConvTableReader that uses the default character encoding.  The CCSID this reader uses may be set if a known mapping exists for this platform's default character encoding.
@@ -105,6 +108,20 @@ public class ConvTableReader extends InputStreamReader
         initializeTable();
     }
 
+    //@xml3 new constructor
+    /**
+    Creates a ConvTableReader that uses the specified CCSID.
+    @param  in  The InputStream from which to read characters.
+    @param  ccsid  The CCSID.
+    @param  isXML  flag that stream is from an XML column type (needed to strip xml declaration)
+    @exception  UnsupportedEncodingException  If the specified CCSID or its corresponding character encoding is not supported.
+    **/
+   public ConvTableReader(InputStream in, int ccsid, boolean isXML) throws UnsupportedEncodingException
+   {
+        this(in, ccsid);
+        isXML_ = isXML;
+   }
+   
     /**
      Creates a ConvTableReader that uses the specified CCSID and bi-directional string type.
      @param  in  The InputStream from which to read characters.
@@ -117,6 +134,22 @@ public class ConvTableReader extends InputStreamReader
         this(in, ccsid, new BidiConversionProperties(bidiStringType));
     }
 
+    //@xml3 new constructor
+    /**
+    Creates a ConvTableReader that uses the specified CCSID and bi-directional string type.
+    @param  in  The InputStream from which to read characters.
+    @param  ccsid  The CCSID.
+    @param  bidiStringType  The {@link com.ibm.as400.access.BidiStringType bi-directional string type}.
+    @param  isXML  flag that stream is from an XML column type (needed to strip xml declaration)
+    @exception  UnsupportedEncodingException  If the specified CCSID or its corresponding character encoding is not supported.
+    **/
+   public ConvTableReader(InputStream in, int ccsid, int bidiStringType, boolean isXML) throws UnsupportedEncodingException
+   {
+       this(in, ccsid, new BidiConversionProperties(bidiStringType));
+       isXML_ = isXML;
+   }
+
+   
     /**
      Creates a ConvTableReader that uses the specified CCSID and bi-directional string type.
      @param  in  The InputStream from which to read characters.
@@ -384,6 +417,29 @@ public class ConvTableReader extends InputStreamReader
             {
                 // This should never happen, but the javadoc for InputStream is unclear if the read(byte[],int,int) method will sometimes return 0 or always read at least 1 byte.
                 return fillCache();
+            }
+            //@xml3 trim xml declaration if needed "<?xml "..."?>"
+            //read from stream until declaration is matched.
+            if(isXML_ && isFirstRead_)
+            {
+                String s = String.copyValueOf(cache_,0, nextWrite_);
+                int origLen = s.length();
+                try{
+                    s = JDUtilities.stripXMLDeclaration(s);
+                    //here, we know s has no declaration (to begin with or after strip)
+                    //next shift chars after declaration to index 0
+                    s.getChars(0, s.length(), cache_, 0);
+                    int trimmed = origLen - s.length();
+                    nextWrite_ -= trimmed;
+                    isFirstRead_ = false;
+                }catch(SQLException e){
+                    //here we know that start was found, but no ending
+                    //get some more data and remove any chars after "<?xml " in cache
+                    nextRead_ = 0;
+                    nextWrite_ = 6; //keep first 6 chars in cache for next iteration: "<?xml "
+                    fillCache(); //keep reading
+                    //after calling fillCache(), it will finally resolve when it finds the ending of the declaration
+                }
             }
             return true;
         }
@@ -667,6 +723,8 @@ public class ConvTableReader extends InputStreamReader
                 r = read(buf);
                 if (r > 0) total += r;
             }
+            if((r!=total) && (length > (total-r))) //@xml5 (if length is > than the total read from previous reads (skips))
+                nextRead_ = (int)(length - (total-(long)r));//@xml5 (set nextRead_ to offset that could be after reading in first buffer of chars)
         }
         return total;
     }

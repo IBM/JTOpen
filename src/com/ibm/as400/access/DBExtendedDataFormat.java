@@ -350,4 +350,16 @@ when it was not previously set by the constructor.
   {
 	  csRsData_ = csRsData;
   }
+  
+  //@xml3 This isn't included in the Extended Data Stream Format
+  public int getXMLCharType(int fieldIndex)                     
+  {
+      return -1;
+  }
+  
+  //@array - This isn't included in the Extended Data Stream Format
+  public int getArrayType(int fieldIndex)                     
+  {
+      return -1;
+  }
 }

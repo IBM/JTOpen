@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -439,7 +440,7 @@ final class SQLClobLocator implements SQLLocator
 
     public int getMaximumPrecision()
     {
-        return 2147483646; // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
+        return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3 // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
     }
 
     public int getMaximumScale()
@@ -754,6 +755,13 @@ final class SQLClobLocator implements SQLLocator
             JDError.throwSQLException(JDError.EXC_INTERNAL, e);
             return null;
         }
+    }
+
+    // @array
+    public Array getArray() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 

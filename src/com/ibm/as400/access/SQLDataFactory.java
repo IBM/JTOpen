@@ -345,6 +345,7 @@ class SQLDataFactory
                                 mapped.
     **/
 
+    //Note:  this method is not used anywhere.  I am tempted to remove it, but it has a nice history of mapping of sqlTypes to SQLData objects
     static SQLData newData(int sqlType,
                            int maxLength,
                            int precision,
@@ -463,11 +464,16 @@ class SQLDataFactory
                             be translated.
     @param  settings        The conversion settings.
     @param  lobMaxSize      The lob max size.                                      @C3A
+    @param  columnIndex     The columnIndex
+    @param  dateFormat      The dateFormat
+    @param  timeFormat      The timeFormat
+    @param  compositeContentType The compositeContentType (type of data in composite type (array, structs or associative-array) NativeType specifies if array or struct etc.
     @return                 A SQLData object.
     
     @exception  SQLException    If no valid type can be
                                 mapped.
     **/
+    //@array comment: we are assuming here that all of the metadata parms (except sqlType) is for the array content type
     static SQLData newData(AS400JDBCConnection connection,
                            int id,
                            int nativeType,
@@ -480,7 +486,9 @@ class SQLDataFactory
                            int lobMaxSize,                                 // @C3A
                            int columnIndex,     //@F2A
                            int dateFormat,		// @550A
-                           int timeFormat) 		// @550A
+                           int timeFormat, 		// @550A
+                           int compositeContentType,    //@array this corresponds to the nativeType numbering system
+                           int xmlCharType) //@xml3 SB or DB XML
     throws SQLException
     {
         switch(nativeType)
@@ -598,7 +606,27 @@ class SQLDataFactory
                     return new SQLDecFloat16(settings, connection.getVRM(), connection.getProperties() );     //@DFA
                 else
                     return new SQLDecFloat34(settings, connection.getVRM(), connection.getProperties() );     //@DFA
+            case SQLData.NATIVE_ARRAY:                                //@array
+                return new SQLArray( length, newData( connection, 
+                                                        id, 
+                                                        compositeContentType, 
+                                                        length, 
+                                                        precision, 
+                                                        scale,
+                                                        ccsid, 
+                                                        translateBinary, 
+                                                        settings, 
+                                                        lobMaxSize, 
+                                                        columnIndex, 
+                                                        dateFormat, 
+                                                        timeFormat, 
+                                                        0, 0) , connection.getVRM());   //@array   create SQLData array wrapper of actual datatype 
 
+            case 2452: //@xml3 xml returned in bloblocator
+                if(ccsid == 65535)
+                    xmlCharType = 2; //sb=0 or db=1 binary=2
+                return new SQLXMLLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex, xmlCharType); //@xml3
+                        
             default:
                 JDError.throwSQLException(JDError.EXC_INTERNAL, new IllegalArgumentException(Integer.toString(nativeType))); // @E3C
                 return null;
@@ -814,6 +842,15 @@ class SQLDataFactory
 
         else if(nativeType.equals("VARGRAPHIC"))
             return new SQLVargraphic(length, settings, ccsid); //@KKB @cca1
+        else if(nativeType.equals("ARRAY"))
+            return new SQLArray( length, newData( nativeType,
+                                        length,
+                                        precision,
+                                        scale,
+                                        ccsid,              
+                                        settings,
+                                        vrm,                   
+                                        properties) , vrm);   //@array   create SQLData array wrapper of actual datatype //length is element length
 
         else
         {

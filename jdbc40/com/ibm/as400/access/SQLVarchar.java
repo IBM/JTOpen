@@ -19,6 +19,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -685,6 +686,13 @@ implements SQLData
         // handle truncating to the max field size if needed.
         truncated_ = 0;
         return new AS400JDBCSQLXML(getString().toCharArray());     
+    }
+
+    // @array
+    public Array getArray() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 

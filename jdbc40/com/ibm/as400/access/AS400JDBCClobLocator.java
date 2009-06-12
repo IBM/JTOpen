@@ -59,9 +59,10 @@ public class AS400JDBCClobLocator implements Clob
 
   //private int truncate_ = -1;
   protected int maxLength_; // The max length in LOB-characters. See JDLobLocator.  //@pdc jdbc40
+  private boolean isXML_ = false;      //@xml3 true if this data originated from a native XML column type
 
   /**
-  Constructs an AS400JDBCClob object.  The data for the
+  Constructs an AS400JDBCClobLocator object.  The data for the
   CLOB will be retrieved as requested, directly from the
   IBM i system, using the locator handle.
   
@@ -75,6 +76,25 @@ public class AS400JDBCClobLocator implements Clob
     savedObject_ = savedObject;
     savedScale_ = savedScale;
     maxLength_ = locator_.getMaxLength();
+  }
+  
+  //@xml3 new constructor
+  /**
+  Constructs an AS400JDBCClobLocator object.  The data for the
+  CLOB will be retrieved as requested, directly from the
+  IBM i system, using the locator handle.
+  If this clob has a source of a columne of type XML, then any getX method that returns xml as string will trim the xml declaration.
+  
+  @param  locator             The locator.
+  @param  converter           The text converter.
+  @param  savedObject         Input data
+  @param  savedScale          Inpuat scale of data
+  @param  isXML               Flag that stream is from an XML column type (needed to strip xml declaration)
+  **/
+  AS400JDBCClobLocator(JDLobLocator locator, ConvTable converter, Object savedObject, int savedScale, boolean isXML)
+  {
+    this(locator, converter, savedObject, savedScale);
+    isXML_ = isXML;
   }
 
 
@@ -96,7 +116,8 @@ public class AS400JDBCClobLocator implements Clob
     {
       try
       {
-        return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_), 819); // ISO 8859-1.
+        //@xml3 if xml column, remove xml declaration via ConvTableReader
+        return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_), 819); // ISO 8859-1.  //@xml3
       }
       catch (UnsupportedEncodingException e)
       {
@@ -124,7 +145,8 @@ public class AS400JDBCClobLocator implements Clob
     {
       try
       {
-        return new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_);
+        //@xml3 if xml column, remove xml declaration via ConvTableReader
+        return new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml3
       }
       catch (UnsupportedEncodingException e)
       {
@@ -179,9 +201,32 @@ Returns the handle to this CLOB locator in the database.
       if (lengthToUse < 0) return "";
       if (lengthToUse > length) lengthToUse = length;
 
-      DBLobData data = locator_.retrieveData(offset, lengthToUse);
-      int actualLength = data.getLength();
-      return converter_.byteArrayToString(data.getRawBytes(), data.getOffset(), actualLength);
+     
+     
+      //@xml4 if xml column, remove xml declaration via ConvTableReader
+      if(isXML_)
+      {
+          ConvTableReader r = null;
+    	  try{
+    		  r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml4
+    		  r.skip(offset);                     //@xml4 ConvTableReader will already have skipped XML header if column is XML type
+    		  return r.read(lengthToUse);         //@xml4
+    	  }
+    	  catch ( Exception e)
+    	  {
+    		  JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+    		  return null;
+    	  }
+    	  finally{
+    	      try{
+    	          r.close();
+    	      }catch(Exception ee){}
+    	  }
+      }
+      
+      DBLobData data = locator_.retrieveData(offset, lengthToUse); 
+      int actualLength = data.getLength();                          
+      return converter_.byteArrayToString(data.getRawBytes(), data.getOffset(), actualLength); 
     }
   }
 
@@ -598,7 +643,8 @@ Returns the handle to this CLOB locator in the database.
 
           try
           {
-              r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_);
+              //@xml3 if xml column, remove xml declaration via ConvTableReader
+              r = new ConvTableReader(new AS400JDBCInputStream( locator_), converter_.getCcsid(), converter_.bidiStringType_, isXML_); //@xml3
               r.skip(pos); 
               return r;
           }

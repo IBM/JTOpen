@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -479,6 +480,13 @@ implements SQLData
 
     public InputStream  getUnicodeStream()
     throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+    
+    // @array
+    public Array getArray() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;

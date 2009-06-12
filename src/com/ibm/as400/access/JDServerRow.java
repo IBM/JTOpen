@@ -51,6 +51,7 @@ implements JDRow
     private boolean                 wasCompressed = false;   // set to true if variable length field compression is used
     private Hashtable               insensitiveColumnNames_; // @PDA maps strings to column indexes
     boolean                         containsLob_;     //@re-prep 
+    boolean                         containsArray_;     //@array 
 
     /**
     Constructs a JDServerRow object.  Use this constructor
@@ -177,6 +178,7 @@ implements JDRow
             translated_ = new boolean[count];
             insensitiveColumnNames_ = null;  //@PDA
             containsLob_ = false;   //@re-prep
+            containsArray_ = false; //@array
 
             // Compute the offsets, lengths, and SQL data for
             // each field.
@@ -194,25 +196,34 @@ implements JDRow
                     ccsids_[i] = serverFormat_.getFieldCCSID (i);
                     dataOffset_[i] = offset;
                     dataLength_[i] = serverFormat_.getFieldLength (i);
+                    //@array (if array type) here we do not know the array length, just the element length, but that is okay since the elem length is fed into the sqlDataTemplate in SQLArray.  (for reply result, setRowIndex() will later re-populate the dataLength_ and dataOffset_ arrays anyways.)
                     lobLocatorHandles_[i] = serverFormat_.getFieldLOBLocator (i);    // @C2C                    
                     offset += dataLength_[i];
                     scales_[i] = serverFormat_.getFieldScale (i);
                     precisions_[i] = serverFormat_.getFieldPrecision (i);
                     sqlTypes_[i] = serverFormat_.getFieldSQLType (i);
+                    int compositeContentType = -1;
+                    if( serverFormat_.getArrayType (i) == 1)          //@array
+                    {
+                        compositeContentType = sqlTypes_[i] & 0xFFFE; //@array
+                        sqlTypes_[i] =  SQLData.NATIVE_ARRAY;   //@array not a hostserver number, since we only get a 1 bit array flag for the type    
+                    }
+                    //@array comment: we are assuming here that all of the metadata above (except sqlType) is for the array content type
                     
                     //@re-prep check if lob or locator type here
                     //hostserver cannot know beforehand if type will be a lob or a locator.  This is on a per-connection basis.
                     int fieldType = sqlTypes_[i] & 0xFFFE;    //@re-prep
                     if(fieldType ==  404 || fieldType ==  960 || fieldType ==  408 || fieldType == 964 || fieldType == 412 || fieldType == 968)  //@re-prep
                         containsLob_ = true;                  //@re-prep
-
+                    else if(fieldType == SQLData.NATIVE_ARRAY)          //@array
+                        containsArray_ = true;           //@array
                         
                     int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);    // @C2C
-
+                    int xmlCharType = serverFormat_.getXMLCharType(i); //@xml3 sb=0 or db=1
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
-                                                          sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
+                                                          fieldType, dataLength_[i], precisions_[i], 
                                                           scales_[i], ccsids_[i], translateBinary, settings,
-                                                          maxLobSize, (i+1), dateFormat, timeFormat);    //@F1C                                               // @C2C @550C
+                                                          maxLobSize, (i+1), dateFormat, timeFormat, compositeContentType, serverFormat_.getXMLCharType(i));    //@F1C // @C2C @550C @array //@xml3  
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
@@ -267,6 +278,7 @@ implements JDRow
         try
         {
             rawBytes_   = serverData_.getRawBytes ();
+            //@array all parsed variable array data from host is inside of DBVariableData (serverData_)
         }
         catch(DBDataStreamException e)
         {
@@ -293,7 +305,26 @@ implements JDRow
             if(serverData_ != null)
             {
                 rowDataOffset_ = serverData_.getRowDataOffset (rowIndex_);
-                if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
+                //@array calculate data offsets for arrays (result data from host)
+                if(this.containsArray_ && rowDataOffset_ != -1)                     //@array array data not VLC but variable in length
+                {  
+                    //Here if reply is VariableData needed for Arrays.              //@array
+                    //@array set input array lengths of data
+                    int offset = 0;                                                 //@array
+                    int numOfFields = serverFormat_.getNumberOfFields();            //@array
+                    int[] dataLengths = ((DBVariableData)serverData_).getDataLengthsFromHost(); //@array
+                    for(int j=0; j<numOfFields; j++)                                 //@array
+                    {                                                               //@array
+                        String typeName = sqlData_[j].getTypeName();                //@array
+                        int length = 0;                                             //@array
+                        dataOffset_[j] = offset;                                    //@array
+                        length = dataLengths[j];                                    //@array  
+                        
+                        offset += length;                                           //@array
+                        dataLength_[j] = length;                                    //@array //set full array length here if array
+                    }                                                               //@array        
+                }                                                                   //@array
+                else if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
                 {                                                              //@K54
                     wasCompressed = true;
                     int offset = 0;                                                 //@K54
@@ -511,9 +542,29 @@ implements JDRow
                 // If there are bytes, then do a translation.
                 if(rawBytes_ != null)
                 {
-                    sqlData_[index0].convertFromRawBytes (rawBytes_,
+                    //set array length so convertFromRawBytes knows how many to convert
+                    if(sqlData_[index0].getType() == java.sql.Types.ARRAY)                                          //@array
+                    {                                                                                               //@array
+                        int arrayCount = ((DBVariableData)serverData_).getIndicatorCountsFromHost()[index0] ;
+                        ((SQLArray)sqlData_[index0]).setArrayCount( arrayCount );        //@array indicatorCountsFromHost will be array count if array type
+                        //SQLArray.convertFromRawBytes will create array elements and iterate calling convertFromRayBytes and it knows array length from above call
+                        sqlData_[index0].convertFromRawBytes (rawBytes_,
+                                                           rowDataOffset_ + dataOffset_[index0],
+                                                           ccsidConverter);                                       //@array
+                        //We need to set null values into the array elements here since there is not JDBC wasNull method like there is for ResultSet.
+                        //For an array elements, a null value is just a null array element.
+                        for(int i = 0; i < arrayCount; i++)                                                       //@array
+                        {                                                                                         //@array
+                            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, index0, i) == -1))   //@array
+                                ((SQLArray)sqlData_[i]).setElementNull(i);                                        //@array
+                        }                                                                                         //@array
+                    }                                                                                             //@array
+                    else
+                    {
+                        sqlData_[index0].convertFromRawBytes (rawBytes_,
                                                           rowDataOffset_ + dataOffset_[index0],
                                                           ccsidConverter);
+                    }
                     translated_[index0] = true;
                 }
 

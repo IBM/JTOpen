@@ -105,6 +105,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //@re-prep move to statement JDServerRow    JDServerRow         parameterRow_;          // private protected
     Vector              batchParameterRows_;    // private protected            @G9A
     private int                 parameterTotalSize_;
+    private int                 indicatorTotalSize_; //@array Used with array containing data only.  Is total size of all indicators (including array element indicators)
+    private int                 headerTotalSize_; //@array Used to calculate size of stream header
     boolean[]           parameterSet_;          // private protected
     private boolean             prepared_;
     private JDServerRow         resultRow_;
@@ -290,7 +292,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     if (sqlType == SQLData.CLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.BLOB_LOCATOR ||          //@KBA
                         sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBA  //@pdc jdbc40
-                        sqlType == SQLData.NCLOB_LOCATOR)                   //@pda jdbc40
+                        sqlType == SQLData.NCLOB_LOCATOR ||                 //@pda jdbc40
+                        sqlType == SQLData.XML_LOCATOR)                     //@xml3
                     {                                               //@KBA
                         containsLocator_ = LOCATOR_FOUND;           //@KBA
                     }                                               //@KBA
@@ -374,15 +377,36 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 SQLData sqlData = parameterRow_.getSQLData (i+1);
 
                 parameterMarkerDataFormat.setFieldDescriptionLength (i);
-                parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]);
+                if(sqlData.getNativeType() == SQLData.NATIVE_ARRAY)    //@array
+                {                                                      //@array
+                    int arrayLen =  ((SQLArray)sqlData).getArrayCount();                              //@array
+                    if(arrayLen > 0)                                                                  //@array
+                        parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]/arrayLen);  //@array
+                    else                                                                              //@array
+                        parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]);           //@array
+                }                                                                                     //@array
+                else                                                                                  //@array
+                {
+                    parameterMarkerDataFormat.setFieldLength (i, parameterLengths_[i]);
+                }
                 parameterMarkerDataFormat.setFieldCCSID (i, parameterRow_.getCCSID (i+1));
 
                 parameterMarkerDataFormat.setFieldNameLength (i, 0);
                 parameterMarkerDataFormat.setFieldNameCCSID (i, 0);
                 parameterMarkerDataFormat.setFieldName (i, "", connection_.converter_); //@P0C
 
-                parameterMarkerDataFormat.setFieldSQLType (i,
-                                                           (short) (sqlData.getNativeType() | 0x0001));
+                //@array (arrays sent in as the element type and zda will know they are arrays)
+                if(sqlData.getNativeType() == SQLData.NATIVE_ARRAY)    //@array
+                {                                                      //@array
+                    parameterMarkerDataFormat.setFieldSQLType (i,
+                                                       (short) (((SQLArray)sqlData).getElementNativeType() | 0x0001));  //@array
+                }                                                       //@array
+                else
+                {
+                    parameterMarkerDataFormat.setFieldSQLType (i,
+                                                               (short) (sqlData.getNativeType() | 0x0001));
+                }
+                
                 parameterMarkerDataFormat.setFieldScale (i,
                                                          (short) sqlData.getScale());
                 parameterMarkerDataFormat.setFieldPrecision (i,
@@ -587,11 +611,34 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 // We just use the information that came in the parameter
                 // marker format from reply for the prepare.
                 parameterTotalSize_ = 0;
+                indicatorTotalSize_ = 0;   //@array
+                headerTotalSize_ = 2; //@array start with 2 since column count is 2 bytes 
                 for(int i = 0; i < parameterCount_; ++i)
                 {
-                    parameterLengths_[i] = parameterRow_.getLength (i+1);
+                    SQLData sqlData = parameterRow_.getSQLData(i+1);    //@array
+                    int arrayLen = 1;  //@array 1 by default so size can be multiplied for non arrays also
+                    boolean arrayIndicatorSet = false; //@array
+                    if(sqlData.getType() == java.sql.Types.ARRAY)       //@array
+                    {
+                        arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array
+                        if (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])  //@array
+                            headerTotalSize_ += 4; //@array space for x9911ffff 
+                        else
+                            headerTotalSize_ += 12;  //@array (array column requires 12 bytes in header x9911) //@array2
+                    }
+                    else
+                    {
+                        //non array value
+                        headerTotalSize_ += 8;  //@array (assuming row has array.  x9912 is length 8)
+                    }
+                    //@array set input (to host) array lengths of data
+                    //@array if null array or 0 length array, then data length is 0
+                    parameterLengths_[i] = parameterRow_.getLength (i+1) * arrayLen;  //@array 0, 1, or more datatype-length blocks 
                     parameterOffsets_[i] = parameterTotalSize_;
                     parameterTotalSize_ += parameterLengths_[i];
+                    
+                    indicatorTotalSize_ += (arrayLen*2);//@array
+                    
                     if(isjvm16Synchronizer)
                         dummyPrint.print("!!!commonExecuteBefore:  Parameter " + (i+1) + " length = " + parameterLengths_[i] );
                 }
@@ -629,7 +676,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                         // This is the amount of space for all of the rows' data and indicators        @G9A
                         DBData parameterMarkerData;
                         int rowCount = batchExecute_ ? batchParameterRows_.size() : 1;
-                        if(connection_.useExtendedFormats ())
+                        //@array create new x382f here if parms contain array
+                        if(parameterRow_.containsArray_)  //@array
+                        {                                 //@array
+                            parameterMarkerData = new DBVariableData(parameterCount_, 2, headerTotalSize_, indicatorTotalSize_, parameterTotalSize_); //@array x382f codepoint
+                        }                                 //@array
+                        else if(connection_.useExtendedFormats ())
                         {
                             parameterMarkerData = new DBExtendedData(rowCount, parameterCount_, 2, parameterTotalSize_);
                         }
@@ -684,15 +736,56 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                         else if ( parameterUnassigned_[i] )                 //@EIA
                                             indicatorValue = INDICATOR_UNASSIGNED;          //@EIA
                                     }                                                       //@EIA
-                                    parameterMarkerData.setIndicator(rowLoop, i, indicatorValue);    // @G1a @G9C @EIC
-                                    byte[] parameterData = parameterMarkerData.getRawBytes();           // @G1a
-                                    int parameterDataOffset = rowDataOffset + parameterOffsets_[i];   // @G1a
-                                    int parameterDataLength = parameterLengths_[i] + parameterDataOffset;
-                                    for(int z=parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00);
+                                    
+                                    SQLData sqlData = parameterRow_.getSQLType(i+1);                   //@array
+ 
+                                    //@array Don't set indicator here for null array, since setting header below will set it
+                                    if(sqlData.getType() != java.sql.Types.ARRAY)                   
+                                        parameterMarkerData.setIndicator(rowLoop, i, indicatorValue);    // @G1a @G9C @EIC
+                                    
+                                    //@array only zero-out data on non-arrays
+                                    //If the whole array is null, then we do not even include blank data in the stream since a null array has space for values (just 0X9911ffff in header of 0X382f)
+                                    if(sqlData.getType() != java.sql.Types.ARRAY)  //@array
+                                    {
+                                        byte[] parameterData = parameterMarkerData.getRawBytes();           // @G1a
+                                        int parameterDataOffset = rowDataOffset + parameterOffsets_[i];   // @G1a
+                                        int parameterDataLength = parameterLengths_[i] + parameterDataOffset;
+                                        for(int z=parameterDataOffset; z < parameterDataLength; parameterData[z++] = 0x00);
+                                    }
+                                    
+                                    //@array If the row contains an array, then we must also set the columnInfo in stream header
+                                    if(parameterRow_.containsArray_) //@array
+                                    {                                                         //@array
+                                        int arrayLen = -1;                                   //@array
+                                        int elementType = -1;                                //@array
+                                        int size = -1;                                       //@array
+                                        if(sqlData.getType() == java.sql.Types.ARRAY)        //@array
+                                        {                                                    //@array
+                                            arrayLen = ((SQLArray)sqlData).getArrayCount();  //@array
+                                            elementType = ((SQLArray)sqlData).getElementNativeType(); //@array
+                                            size = parameterRow_.getLength(i+1);             //@array  
+                                        }                                                       //@array
+                                        ((DBVariableData)parameterMarkerData).setHeaderColumnInfo(i, (short)sqlData.getNativeType(), (short)indicatorValue, (short)elementType, size, (short)arrayLen); //@array
+                                    }                                                        //@array
                                 }
                                 else
                                 {
-                                    parameterMarkerData.setIndicator(rowLoop, i, (short) 0);     // @G9C
+                                    SQLData sqlData = parameterRow_.getSQLType(i+1);                   //@array
+                                    //Setting array null value here for elements inside of array)
+                                    if(sqlData.getType() == java.sql.Types.ARRAY)                      //@array
+                                    {                                                                  //@array 
+                                        //iterate through elements and set null indicators.  Array as a whole null is not set here (see above)
+                                        for (int e = 0 ; e < ((SQLArray)sqlData).getArrayCount() ; e++) //@array 
+                                        {                                                        //@array 
+                                            if(((SQLArray)sqlData).isElementNull(e))             //@array 
+                                                parameterMarkerData.setIndicator(0, i, -1);      //@array 
+                                            else                                                 //@array 
+                                                parameterMarkerData.setIndicator(0, i, 0);       //@array 
+                                        }                                                        //@array 
+                                    }else
+                                    {
+                                        parameterMarkerData.setIndicator(rowLoop, i, (short) 0);     // @G9C
+                                    }
                                     ConvTable ccsidConverter = connection_.getConverter (parameterRow_.getCCSID (i+1)); //@P0C
 
                                     // Convert the data to bytes into the parameter marker data.    // @BAA
@@ -713,7 +806,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                         setValue(i+1, parameters[i], null, -1);
                                     }
 
-                                    SQLData sqlData = parameterRow_.getSQLType(i+1);                        // @BAC @P0C @G9C
+                                    //SQLData sqlData = parameterRow_.getSQLType(i+1);                        // @BAC @P0C @G9C //@array move above
 
                                     try
                                     {
@@ -721,12 +814,30 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                         sqlData.convertToRawBytes(parameterMarkerData.getRawBytes(), rowDataOffset + parameterOffsets_[i], ccsidConverter);
                                         if(ccsidConverter.getCcsid() == 5035) //@trnc this is not caught at setX() time
                                             testDataTruncation(i+1, sqlData); //@trnc
+                                        
+                                        //@array If the row contains an array, then we must also set the columnInfo in stream header
+                                        if(parameterRow_.containsArray_) //@array
+                                        {                                                         //@array
+                                            //Set the stream header info for each column in addition to data in rawbytes above.
+                                            int arrayLen = -1;                                   //@array
+                                            int elementType = -1;                                //@array
+                                            int size = parameterRow_.getLength(i+1);             //@array
+                                            if(sqlData.getType() == java.sql.Types.ARRAY)        //@array
+                                            {                                                    //@array
+                                                arrayLen = ((SQLArray)sqlData).getArrayCount();  //@array
+                                                elementType = ((SQLArray)sqlData).getElementNativeType(); //@array
+                                            }                                                    //@array
+                                            ((DBVariableData)parameterMarkerData).setHeaderColumnInfo(i, (short)sqlData.getNativeType(), (short)0, (short)elementType, size, (short)arrayLen); //@array
+                                        }                                                        //@array
+                                        
                                     }
                                     catch(SQLException e)
                                     {
                                         if(e.getSQLState().trim().equals("HY000"))      //AN INTERNAL DRIVER ERROR
                                         {
                                             //Check error to see if it was thrown from another error
+                                            if(parameterRow_.containsArray_) //@array always use prepare/describe lengths
+                                                throw e;                     //@array
                                             if(e.getMessage().indexOf("Change Descriptor") != -1){
                                                 correctLength = sqlData.getPrecision();                     // @BAA
                                             }
@@ -1636,7 +1747,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     // JDBC 2.0
     /**
     Sets an input parameter to an Array value.  DB2 for IBM i
-    does not support arrays.
+    only supports arrays in stored procedures.
   
     @param  parameterIndex  The parameter index (1-based).
     @param  parameterValue  The parameter value.
@@ -1646,7 +1757,19 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     public void setArray (int parameterIndex, Array parameterValue)
     throws SQLException
     {
-        JDError.throwSQLException (this, JDError.EXC_PARAMETER_TYPE_INVALID);
+        //@array new support
+        if(JDTrace.isTraceOn())
+        {
+            JDTrace.logInformation (this, "setArray()");         
+            if(parameterValue == null)  
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL"); 
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: Array type " + parameterValue.getBaseTypeName()); 
+        }
+
+        if(!sqlStatement_.isProcedureCall())                                     //@array
+            JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID); //@array
+
+        setValue (parameterIndex, parameterValue, null, -1);
     }
 
 
@@ -1721,10 +1844,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                        sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                    int sqlType = sqlData.getSQLType();  //@xml3
+                    if(sqlType == SQLData.CLOB_LOCATOR ||
+                       sqlType == SQLData.BLOB_LOCATOR ||
+                       sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                       sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -2082,10 +2207,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             {
 
                 // If the data is a locator, then set its handle.
-                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                    sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                int sqlType = sqlData.getSQLType();  //@xml3
+                if(sqlType == SQLData.CLOB_LOCATOR ||
+                   sqlType == SQLData.BLOB_LOCATOR ||
+                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
                 {
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -2872,10 +2999,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                        sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                    int sqlType = sqlData.getSQLType();  //@xml3
+                    if(sqlType == SQLData.CLOB_LOCATOR ||
+                       sqlType == SQLData.BLOB_LOCATOR ||
+                       sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                       sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -2993,7 +3122,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 if((sqlType == SQLData.CLOB_LOCATOR ||
                     sqlType == SQLData.BLOB_LOCATOR ||
                     sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                    sqlType == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                    sqlType == SQLData.NCLOB_LOCATOR ||                   //@pda jdbc40
+                    sqlType == SQLData.XML_LOCATOR))                      //@xml3
                 {                                                        // @B6A
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));   // @B6A
@@ -3344,7 +3474,13 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
      {
          if(JDTrace.isTraceOn())
          {              
-             int len = xmlObject.getString().length();  //no length() method yet in jdbc.
+             int len;  
+            
+             if(xmlObject == null)
+                 len = 0;
+             else 
+                 len = xmlObject.getString().length();  //no length() method yet in jdbc.
+                     
              JDTrace.logInformation (this, "setSQLXML()");                  
              if(xmlObject == null)                                   
                  JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  
@@ -3657,10 +3793,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 try
                 {
                     // If the data is a locator, then set its handle.
-                    if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                        sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                        sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                        sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                    int sqlType = sqlData.getSQLType();  //@xml3
+                    if(sqlType == SQLData.CLOB_LOCATOR ||
+                       sqlType == SQLData.BLOB_LOCATOR ||
+                       sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                       sqlType == SQLData.XML_LOCATOR)                      //@xml3
                     {
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
@@ -3814,10 +3952,12 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             {
 
                 // If the data is a locator, then set its handle.
-                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                    sqlData.getSQLType() == SQLData.NCLOB_LOCATOR))                   //@pda jdbc40
+                int sqlType = sqlData.getSQLType();  //@xml3
+                if(sqlType == SQLData.CLOB_LOCATOR ||
+                   sqlType == SQLData.BLOB_LOCATOR ||
+                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
                 {
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));

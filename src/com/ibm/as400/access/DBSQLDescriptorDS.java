@@ -60,6 +60,9 @@ extends DBBaseRequestDS
    void setParameterMarkerDataFormat (DBDataFormat value)
 		throws DBDataStreamException
    {
+        //@array Note that if parm is array, then we cannot send in array length in 381e and there is no new format for arrays.
+        //@array hostserver will retain knowledge that parm is an array during prep/desc.  So just create descriptor as a normal 
+        //@array non-array datatype for arrays. (see PreparedStatement.changeDescriptor())
         if (value instanceof DBOriginalDataFormat)
             addParameter (0x3801, value);
         else if (value instanceof DBExtendedDataFormat)

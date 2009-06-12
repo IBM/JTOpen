@@ -364,6 +364,8 @@ extends DBBaseRequestDS
     		addParameter (0x3811, value);
         else if (value instanceof DBExtendedData)
             addParameter (0x381F, value);
+        else if (value instanceof DBVariableData)               //@array 
+            addParameter (0x382F, value);                       //@array
         else
             throw new DBDataStreamException ();
 	}

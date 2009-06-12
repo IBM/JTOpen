@@ -35,5 +35,23 @@ public class AS400JDBCNClobLocator extends AS400JDBCClobLocator implements NClob
     {
         super(locator, converter, savedObject, savedScale);
     }
+    
+    //@xml4 new constructor
+    /**
+    Constructs an AS400JDBCNClobLocator object.  The data for the
+    CLOB will be retrieved as requested, directly from the
+    IBM i system, using the locator handle.
+    If this clob has a source of a column of type XML, then any getX method that returns xml as string will trim the xml declaration.
+      
+    @param  locator             The locator.
+    @param  converter           The text converter.
+    @param  savedObject         The input savedOjbect.
+    @param  savedScale          The saved scale.
+    @param  isXML               Flag that stream is from an XML column type (needed to strip xml declaration)
+    **/
+    AS400JDBCNClobLocator(JDLobLocator locator, ConvTable converter, Object savedObject, int savedScale,  boolean isXML)
+    {
+        super(locator, converter, savedObject, savedScale, isXML);
+    }
 
 }

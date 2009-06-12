@@ -129,6 +129,8 @@ implements DatabaseMetaData
     private static final String SYNONYM       = "SYNONYM";       //@mdsp
     private static final String FAKE_VALUE    = "QCUJOFAKE";     //@mdsp
     private static final int  SQL_ALL_TYPES   = 0;               //@mdsp
+    
+    static final int MAX_LOB_LENGTH           = 2147483646;      //@xml3
 
 
 
@@ -4980,8 +4982,8 @@ implements DatabaseMetaData
         if (connection_.getVRM() >= JDUtilities.vrm440)
         {       // @B4D B5A @D0C
             typeSamples.addElement(new SQLDatalink(32717, settings_));
-            typeSamples.addElement(new SQLBlob(2147483646, settings_));           // @B4D B5A @D0C
-            typeSamples.addElement(new SQLClob(2147483646, settings_));           // @B4D B5A @D0C @E1C
+            typeSamples.addElement(new SQLBlob(MAX_LOB_LENGTH, settings_));           // @B4D B5A @D0C      //@xml3
+            typeSamples.addElement(new SQLClob(MAX_LOB_LENGTH, settings_));           // @B4D B5A @D0C @E1C //@xml3
             typeSamples.addElement(new SQLDBClob(1073741822, settings_));
         }                                                                       // @B4D B5A 
         

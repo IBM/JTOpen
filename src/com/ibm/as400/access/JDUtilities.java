@@ -663,4 +663,10 @@ Reads an input stream and returns its data as a String.
     }    
 
 
+    //@xml3
+    //stub jdbc40 method
+    static final String stripXMLDeclaration(String xml) throws SQLException
+    {
+       return null;
+    }
 }

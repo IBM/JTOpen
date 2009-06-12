@@ -319,5 +319,18 @@ when it was not previously set by the constructor.
     public void setAliasCount(int aliases){        //@K3A
         aliasCount_ = aliases;
     }
+    
+    //@array
+    //Returns indicator
+    public int getIndicator (int rowIndex, int columnIndex, int arrayIndex){
+        return -9999;  //valid in DBVariableData 
+    }
+
+    //@array
+    //returns size footprint of data in column
+    public int getDataTotalSize (int colIndex){
+        return -9999; //valid in DBVariableData 
+    }
+  
 }
 

@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -389,7 +390,8 @@ final class SQLDBClobLocator implements SQLLocator
             SQLXML xml = (SQLXML)object;
            
             String stringVal = xml.getString();
-            locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);           
+            
+            locator_.writeData(0L, converter_.stringToByteArray(stringVal), 0, stringVal.length()*2, true); //@xml4           
         }
         else
         {
@@ -836,10 +838,26 @@ final class SQLDBClobLocator implements SQLLocator
     }
 
     //@pda jdbc40
-    public SQLXML getSQLXML() throws SQLException
+      public SQLXML getSQLXML() throws SQLException
     {
         truncated_ = 0;
-        return new AS400JDBCSQLXML( getString().toCharArray() );        
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCSQLXML(value_, maxLength_); //@loch
+        }                       //@loch
+        
+        //return new AS400JDBCSQLXML( getString().toCharArray() );  
+        return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, false); //@xml3 //@xml4
+    }
+
+    // @array
+    public Array getArray() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
  
 }

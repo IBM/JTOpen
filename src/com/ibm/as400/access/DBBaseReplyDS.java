@@ -894,6 +894,21 @@ Parses the datastream.
                   Trace.log(Trace.DIAGNOSTIC, "Received empty cursor attributes.");  //@79jqev
           }
           break;
+         
+        case 0x3901: //@array
+          // Variable result data. (used when getting output parms from stored procedure if a parm is an array)
+          if (parmLength != 6)
+          {
+              //ouput parms
+              resultData_ = new DBVariableData(); // x3901 codepoint
+              resultData_.overlay (data_, offset + 6);
+          }
+          else                                    //@79jqev
+          {
+              if (Trace.traceOn_)                 //@79jqev
+                  Trace.log(Trace.DIAGNOSTIC, "Received empty extended result data.");  //@79jqev
+          }
+          break;
           
           //README:  When adding a new codepoint, please add any needed initializations 
           //of references to the initialize() method since this object gets reused.

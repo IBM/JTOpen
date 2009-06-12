@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -267,29 +268,37 @@ final class SQLNClobLocator implements SQLLocator
                         bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());     
 
                         ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); 
-                        byte[] byteBuffer = new byte[blockSize];
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 && totalBytesRead < length)
-                        {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
-                            totalBytesRead += bytesRead;
-                            int bytesRemaining = length - totalBytesRead;
-                            if(bytesRemaining < blockSize)
-                            {
-                                blockSize = bytesRemaining;
-                                if(stream.available() == 0 && blockSize != 0)
-                                {
-                                    stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
-                                }
-                            }
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
+                        try{
+                            byte[] byteBuffer = new byte[blockSize];
 
-                        if(totalBytesRead < length)
-                        {
-                            // a length longer than the stream was specified
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                            int totalBytesRead = 0;
+                            int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                            while(bytesRead > -1 && totalBytesRead < length)
+                            {
+                                locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
+                                totalBytesRead += bytesRead;
+                                int bytesRemaining = length - totalBytesRead;
+                                if(bytesRemaining < blockSize)
+                                {
+                                    blockSize = bytesRemaining;
+                                    if(stream.available() == 0 && blockSize != 0)
+                                    {
+                                        stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
+                                    }
+                                }
+                                bytesRead = stream.read(byteBuffer, 0, blockSize);
+                            }
+
+
+                            if(totalBytesRead < length)
+                            {
+                                // a length longer than the stream was specified
+                                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                            }
+                        }finally{
+                            try{
+                                stream.close();
+                            }catch(Exception e){}
                         }
 
                     }
@@ -451,7 +460,7 @@ final class SQLNClobLocator implements SQLLocator
 
     public int getMaximumPrecision()
     {
-        return 2147483646; // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
+        return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3 // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
     }
 
     public int getMaximumScale()
@@ -854,9 +863,22 @@ final class SQLNClobLocator implements SQLLocator
     public SQLXML getSQLXML() throws SQLException
     {
         truncated_ = 0;
+        if(savedObject_ != null)//@loch
+        {                       //@loch
+            //get value from RS.updateX(value)
+            doConversion();     //@loch
+            truncated_ = 0;     //@loch
+            return new AS400JDBCSQLXML(value_, maxLength_); //@loch
+        }                       //@loch
         return new AS400JDBCSQLXML( getString().toCharArray() );        
     }
-    
+
+    // @array
+    public Array getArray() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
 }
 
 

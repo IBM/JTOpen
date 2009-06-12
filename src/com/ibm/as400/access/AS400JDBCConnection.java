@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -2095,12 +2096,12 @@ implements Connection
      * be used to efficiently execute this SQL statement
      * multiple times.
      *
-     * <p><B>This method is not supported when connecting to i5/OS V5R4 or earlier systems.</B>
+     * <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
      *
      * @param  sql     The SQL statement.                                  
      * @param  columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
      * @return         The prepared statement object.
-     * @exception      java.sql.SQLException - If connecting to i5/OS V5R4 or earlier systems, 
+     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
      *                 the connection is not open,
      *                 the maximum number of statements for this connection has been reached,
      *                 or an error occurs.
@@ -2141,12 +2142,12 @@ implements Connection
      * be used to efficiently execute this SQL statement
      * multiple times.
      *
-     * <p><B>This method is not supported when connecting to i5/OS V5R4 or earlier systems.</B>
+     * <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
      *
      * @param  sql     The SQL statement.                                  
      * @param  columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
      * @return         The prepared statement object.
-     * @exception      java.sql.SQLException - If connecting to i5/OS V5R4 or earlier systems, 
+     * @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
      *                 the connection is not open,
      *                 the maximum number of statements for this connection has been reached,
      *                 or an error occurs.
@@ -3020,7 +3021,7 @@ implements Connection
     /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
-    eWLM correlators require i5/OS V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
+    eWLM correlators require IBM i V5R3 or later systems.  This request is ignored when running to OS/400 V5R2 or earlier systems.
     
     @param bytes The eWLM correlator value
     **/
@@ -3807,7 +3808,7 @@ implements Connection
                         }
 
                     }
-                    else if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
+                    else if(vrm_ >= JDUtilities.vrm540){                         //@540 for IBM i V5R4 and later, 128 byte column names are supported
                         //@540 - Client support information - indicate our support for ROWID data type, true autocommit
                         // and 128 byte column names
                         request.setClientSupportInformation(0xE0000000);
@@ -3818,7 +3819,7 @@ implements Connection
                         }
 
                     }
-                    else if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For i5/OS V5R3 and later true auto commit support is supported.
+                    else if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For IBM i V5R3 and later true auto commit support is supported.
                     {
                         // @KBA - Client support information - indicate our support for ROWID data type and
                         // true auto-commit
@@ -4681,11 +4682,31 @@ implements Connection
         props.setProperty(clientProgramIDPropertyName_, clientProgramID_); //@pda
         return props;
     }
+    
+    //@PDA //@array
+    /**
+     * Factory method for creating Array objects.
+     *
+     * @param typeName the SQL name of the type the elements of the array map to. The typeName is a
+     * database-specific name which may be the name of a built-in type, a user-defined type or a standard  SQL type supported by this database. This
+     *  is the value returned by <code>Array.getBaseTypeName</code>
+     *  For Toolbox, the typeName will correspond to a typename in java.sql.Types.
+     *  
+     * @param elements the elements that populate the returned object
+     * @return an Array object whose elements map to the specified SQL type
+     * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
+     * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
+     */
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException
+    {
+        //@array            
+        return new AS400JDBCArray(typeName, elements, this.vrm_, this);
+    }
 
     //@2KRA
     /**
      * Starts or stops the Database Host Server trace for this connection.
-     * Note:  This method is only supported when running to i5/OS V5R3 or later 
+     * Note:  This method is only supported when running to IBM i V5R3 or later 
      * and is ignored if you specified to turn on database host server tracing
      * using the 'server trace' connection property.
      * @param trace true to start database host server tracing, false to end it.

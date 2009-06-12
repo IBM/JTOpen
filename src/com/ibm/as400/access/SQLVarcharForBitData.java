@@ -21,6 +21,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -540,6 +541,13 @@ implements SQLData
             JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
             return null;
         }
+    }
+    
+    // @array
+    public Array getArray() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 

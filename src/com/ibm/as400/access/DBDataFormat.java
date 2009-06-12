@@ -44,6 +44,13 @@ extends DBOverlay
     
     public abstract boolean getCSRSData();		// @550A
 
+
+    public int getXMLCharType(int fieldIndex)  //@xml3
+        throws DBDataStreamException;          //@xml3
+    
+    public abstract int getArrayType(int fieldIndex)          // @array
+        throws DBDataStreamException;                         // @array
+    
     public abstract int getNumberOfFields ()
         throws DBDataStreamException;
 

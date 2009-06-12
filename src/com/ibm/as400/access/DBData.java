@@ -76,4 +76,9 @@ extends DBOverlay
 
     public abstract boolean isVariableFieldsCompressed();      //@K54
 
+    public abstract int getIndicator (int rowIndex, int columnIndex, int arrayIndex); //@array
+    
+    public abstract int getDataTotalSize (int colIndex);  //@array
+    
+   
 }

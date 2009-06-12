@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -272,7 +273,7 @@ final class SQLNClob implements SQLData
 
     public int getMaximumPrecision()
     {
-        return 2147483646; // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
+        return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3 // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
     }
 
     public int getMaximumScale()
@@ -577,6 +578,13 @@ final class SQLNClob implements SQLData
         if(savedObject_ != null) doConversion();
         truncated_ = 0;
         return new AS400JDBCSQLXML(value_.toCharArray());     
+    }
+
+    // @array
+    public Array getArray() throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
     }
 }
 

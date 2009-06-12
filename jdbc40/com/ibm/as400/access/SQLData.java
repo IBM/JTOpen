@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
@@ -39,6 +40,12 @@ initialize the data.  That is done via the set() methods.
 interface SQLData
 extends Cloneable
 {
+    //NATIVE_ARRAY is defined here for the array type received from zda.  But zda does not have a visible array type.
+    //zda uses a bit that flags if the stream is an array.
+    //So we just define it here as 10000.  This number is not important; it just needs to be different from other native type numbers.
+    //This is used in SQLDataFactory and other array related classes.
+    public static final short NATIVE_ARRAY = 10000; //@array 
+    
     public static final int UNDEFINED = 0;
     public static final int BIGINT = 1;
     public static final int BINARY = 2;
@@ -78,6 +85,9 @@ extends Cloneable
     public static final int NVARCHAR = 36;      //@PDA jdbc40
     public static final int LONG_NVARCHAR = 37; //@pda jdbc40
     public static final int DECFLOAT = 38;      //@DFA 
+    public static final int ARRAY = 39;         //@array
+    public static final int XML_LOCATOR = 40;   //@xml3
+    
     /**
     Returns a clone of the SQLData object.  Use this sparingly
     so that we minimize the number of copies.
@@ -538,6 +548,15 @@ extends Cloneable
     public abstract RowId getRowId()
     throws SQLException;
     
-
+    
+    //@array
+    /**
+    Converts (returns) the data to a java.sql.Array object.
+    @return     the result of the conversion.
+    @exception  SQLException    If the conversion is not
+                                required or not possible.
+    **/
+    public abstract Array getArray()
+    throws SQLException;
 
 }

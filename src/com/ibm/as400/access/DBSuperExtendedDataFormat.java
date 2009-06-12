@@ -21,7 +21,7 @@ Super Extended Data Format
 consistency token - 4 bytes                 0
 # of fields - 4 bytes                       4
 RESERVED - 4 bytes                          8
-	In the release(s) after V5R4, the above reserved bytes are replaced with
+	In the release(s) after V5R4, the above reserved bytes are replaced with (unless this is a x3813 codepoint)
 	Date Format - 1 byte
 	Time Format - 1 byte
 	Date Separator - 1 byte
@@ -39,6 +39,9 @@ field CCSID - 2 bytes                       28
 RESERVED - 1 byte                           30              (field paramter type for parameter marker format)
 field Join Ref Position - 2 bytes           31
 RESERVED - 9 bytes                          33              (field lob locator for parameter marker fromat)
+field lob locator - 4 bytes                 33              (field lob locator for parameter marker fromat)
+field flags - 1 byte                        37              (field flags in x3813 for parameter marker fromat) (bits 3-5 xml)  //@xml3 (bit 2 is array bit) //@array
+field max cardinality of array - 4 bytes    38              (field max array size for parameter marker fromat)                      //@array
 field Lob max size - 4 bytes                42
 Reserved - 2 bytes (for alignment)          46
 Offset to variable length info - 4 bytes    48              // offset is based on the start of the fixed length info
@@ -186,7 +189,32 @@ when it was not previously set by the constructor.
   {                                                                       
     return BinaryConverter.byteArrayToInt (rawBytes_,                   
                                            offset_ + 33 + (fieldIndex * REPEATED_FIXED_LENGTH_));                
-  }                                                                       
+  }           
+  
+  //@xml3 return 0 if single, 1 if is doublebyte 
+  //Note: if 65535, then this is not applicable
+  public int getXMLCharType(int fieldIndex)                     
+  {
+      
+      int flag = BinaryConverter.byteArrayToInt (rawBytes_,                   
+              offset_ + 37 + (fieldIndex * REPEATED_FIXED_LENGTH_));
+      //flag is actually only 1 byte long
+      //array bit is bit #5
+      int isDBChar = (flag >> 27) & 0x00000001; 
+      return isDBChar;
+  }
+  
+  //@array return 1 if is array, 0 if not
+  public int getArrayType(int fieldIndex)                     
+  {
+      int flag = BinaryConverter.byteArrayToInt (rawBytes_,                   
+              offset_ + 37 + (fieldIndex * REPEATED_FIXED_LENGTH_));
+      //flag is actually only 1 byte long
+      //array bit is bit #2
+      int isArray = (flag >> 30) & 0x00000001; 
+      return isArray;
+      
+  }
 
   public int getFieldLOBMaxSize (int fieldIndex)                          
   {                                                                       

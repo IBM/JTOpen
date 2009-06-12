@@ -696,5 +696,28 @@ Reads an input stream and returns its data as a String.
         return name.toUpperCase();
     }
 
+  
+    //@xml3
+    //removes declaration (header)
+    //returns input string if there is no xml declaration
+    static final String stripXMLDeclaration(String xml) throws SQLException
+    {
+        //declaration starts with "<?xml " and ends with "?>"
+        if(xml.substring(0, 7).indexOf("<?xml ") == 0) //avoid having to search whole 2 gig
+        {
+            int end = xml.indexOf("?>") + 2; //if start is xml, then it will have a valid ending since hostserver created it!
+            if(end == 1)
+                JDError.throwSQLException(JDError.EXC_XML_PARSING_ERROR); //signal that decl starts, but does not end
+           
+            //next skip to start of xml (ie skip newline)
+            int nextStart = xml.indexOf("<", end);
+            if(nextStart == -1)
+                nextStart = end;
+            
+            return xml.substring(nextStart);
+        }
+        else
+            return xml;
+    }
 
 }
