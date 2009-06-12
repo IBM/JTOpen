@@ -23,7 +23,8 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- The UserSpace class represents a user space object in the System i operating system.  By default, when running on a system other than the system that contains the user space, the UserSpace class will make use of two separate host servers.  The file server will be used for read() and write() requests and the remote command server will be used for the other requests.  This behavior can be changed with the setMustUseProgramCall() method.  Although it is not recommended, applications using the QTEMP library might wish to set the mustUseProgramCall property to true. 
+ Represents a user space object in the IBM i operating system.
+ By default, the UserSpace class will make use of two distinct host servers.  The File Server will be used for read() and write() requests, and the Remote Command Host Server will be used for create() and other requests.  This behavior can be changed with the {@link #setMustUseProgramCall setMustUseProgramCall()} method.  For applications that access user spaces located in <tt>QTEMP</tt>, users are strongly advised to call <tt>setMustUseProgramCall(true)</tt>, since different jobs get different QTEMP libraries. 
  **/
 public class UserSpace implements Serializable
 {
@@ -774,8 +775,9 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Sets the method used to carry out user space read and write operations.  If false (the default) read and write requests are made via the file server.  Internally, an IFSRandomAccessFile object is used to perform read and write requests.  If true, internally a ProgramCall object is used to perform read and write requests.  In general, requests made via the file object are faster but the behavior of requests made via a ProgramCall object are more consistent with user space API's.  This option cannot be reset once a connection has been established.
-     @param  useProgramCall  Internally use ProgramCall to carry out read and write requests.
+     Sets the method used to perform user space read and write operations.  If false (the default), read and write requests are made via the File Server.  Internally, an IFSRandomAccessFile object is used to perform read and write requests.  If true, internally a ProgramCall object is used to perform read and write requests, which are made via the Remote Command Host Server.  In general, requests made via the File object are faster but the behavior of requests made via a ProgramCall object are more consistent with user space API's.  If accessing user spaces located in QTEMP, it is strongly advised that <tt>setMustUseProgramCall(true)</tt> be called.
+     <br>This option cannot be reset once a connection has been established.
+     @param  useProgramCall  Internally use ProgramCall to perform read and write requests.
      **/
     public void setMustUseProgramCall(boolean useProgramCall)
     {
