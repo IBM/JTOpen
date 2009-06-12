@@ -35,7 +35,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             System.load("/QSYS.LIB/QYJSPART.SRVPGM");
         }catch(Throwable e)
         {
-            Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
+            Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloaders
         }
     }
 
@@ -138,7 +138,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
           parameterList[4] = new ProgramParameter(new byte[4]); // error code
           parameterList[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information format name
 
-          // Call QSZRTVPR (Change System Library List) to add the library for the secondary language.
+          // Call QSZRTVPR (Retrieve Product Information) to retrieve the library for the secondary language.
           // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system; so it can safely be called on-thread.
           boolean succeeded = runProgramOnThread("QSYS", "QSZRTVPR", parameterList, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
           // Note: This method is only called from within open().
