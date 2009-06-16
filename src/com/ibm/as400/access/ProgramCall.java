@@ -457,6 +457,11 @@ public class ProgramCall implements Serializable
         return (val == null || val.length()==0 ? null : val.toLowerCase());
     }
 
+    static Boolean getDefaultThreadSafety()
+    {
+        return new Boolean(getThreadSafetyProperty());
+    }
+
     // Check thread safety system property.
     private void checkThreadSafetyProperty()
     {
