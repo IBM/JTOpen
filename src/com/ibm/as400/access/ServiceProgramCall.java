@@ -17,8 +17,7 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 /**
- The ServiceProgramCall class allows a user to call a service program, passing data via input parameters, then accessing data returned via output parameters.  ProgramParameter objects are used to pass data between the Java program and the service program.
- <p>ServiceProgramCall subclasses ProgramCall.  Much of the setup to call the service program is done via methods inherited from ProgramCall.  For example setSystem() and getSystem() are methods inherited from ProgramCall.
+ Allows a user to call an IBM i service program.  Input data is passed via input parameters, and output data is accessed via output parameters.  ProgramParameter objects are used to pass data between the Java program and the service program.
  <p>Limitations of this class:
  <ul>
  <li>The service program must be on an IBM i system running V4R4 or later.
@@ -94,7 +93,7 @@ public class ServiceProgramCall extends ProgramCall
     public static final int RETURN_INTEGER = 1;
 
     // Constant indicating the service program returns an integer and an error number.  Internally we will always use this constant instead of RETURN_INTEGER.  If the program is return-int, the errno will be 0 so returning both will still work.
-    private static final int RETURN_INTEGER_AND_ERRNO = 3;
+    static final int RETURN_INTEGER_AND_ERRNO = 3;
 
     // The variable represents the name of calling procedure.
     private String procedureName_ = "";
