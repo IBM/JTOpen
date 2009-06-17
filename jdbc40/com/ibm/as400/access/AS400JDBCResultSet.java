@@ -483,6 +483,9 @@ implements ResultSet
             if(deleteStatement_ != null)
                 deleteStatement_.close ();
 
+            if(isMetadataResultSet == true)  //@mdclose
+                statement_.close();          //@mdclose
+            
             if(JDTrace.isTraceOn())
                 JDTrace.logClose (this);
         }
@@ -3659,11 +3662,12 @@ implements ResultSet
         //@KBL if a locator is used, tell the statement associated with it
         SQLData sqlData = row_.getSQLType(columnIndex);             //@KBL
         int sqlType = sqlData.getSQLType();  //@xml3
-        if(sqlType == SQLData.CLOB_LOCATOR ||          //@KBL
+        if((sqlType == SQLData.CLOB_LOCATOR ||          //@KBL
              sqlType == SQLData.BLOB_LOCATOR ||          //@KBL
              sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBL   //@pdc jdbc40
              sqlType == SQLData.NCLOB_LOCATOR ||                 //@pda jdbc40
-             sqlType == SQLData.XML_LOCATOR)                   //@xml3
+             sqlType == SQLData.XML_LOCATOR) 
+             && statement_ != null) //@mdrs2                  //@xml3
             statement_.setAssociatedWithLocators(true);             //@KBL
 
         if(wasNull_ || wasDataMappingError_)

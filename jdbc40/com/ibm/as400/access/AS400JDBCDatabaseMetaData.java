@@ -386,6 +386,8 @@ implements DatabaseMetaData
             ResultSet rs = cstmt.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cstmt.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -587,6 +589,8 @@ implements DatabaseMetaData
             ResultSet rs = cstmt.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cstmt.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -771,6 +775,8 @@ implements DatabaseMetaData
             ResultSet rs = cstmt.executeQuery();
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cstmt.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -1007,6 +1013,9 @@ implements DatabaseMetaData
             if(rs != null)                        //@mdrs
             
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
+            
             return rs;  //@mdrs
 
             // Create an return the result set for the request.
@@ -1501,6 +1510,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -1963,6 +1974,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -2243,6 +2256,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -2515,6 +2530,8 @@ implements DatabaseMetaData
             ResultSet rs = cstmt.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cstmt.close(); //@mdrs2
             
             return rs;  //@mdrs
 
@@ -3140,6 +3157,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -3342,6 +3361,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
 
@@ -3585,6 +3606,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -3788,6 +3811,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -4047,6 +4072,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -4313,6 +4340,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
 
@@ -4796,6 +4825,8 @@ implements DatabaseMetaData
           ResultSet rs = cs.getResultSet();  //@mdrs
           if(rs != null)                        //@mdrs
               ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+          else
+              cs.close(); //@mdrs2
           
           return rs;  //@mdrs
         }
@@ -4887,6 +4918,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -5180,6 +5213,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -5480,6 +5515,8 @@ implements DatabaseMetaData
             ResultSet rs = cs.getResultSet();  //@mdrs
             if(rs != null)                        //@mdrs
                 ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+            else
+                cs.close(); //@mdrs2
             
             return rs;  //@mdrs
         }
@@ -7506,6 +7543,8 @@ implements DatabaseMetaData
         ResultSet rs = cstmt.getResultSet();  //@mdrs
         if(rs != null)                        //@mdrs
             ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+        else
+            cstmt.close(); //@mdrs2
         
         return rs;  //@mdrs
     }
@@ -7601,6 +7640,8 @@ implements DatabaseMetaData
         ResultSet rs = cstmt.getResultSet();  //@mdrs
         if(rs != null)                        //@mdrs
             ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+        else
+            cstmt.close(); //@mdrs2
         
         return rs;  //@mdrs
     }
@@ -7730,6 +7771,8 @@ implements DatabaseMetaData
         ResultSet rs = cstmt.getResultSet();  //@mdrs
         if(rs != null)                        //@mdrs
             ((AS400JDBCResultSet)rs).isMetadataResultSet = true;//@mdrs
+        else
+            cstmt.close(); //@mdrs2
         
         return rs;  //@mdrs
     }

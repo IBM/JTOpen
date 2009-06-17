@@ -479,6 +479,9 @@ public class AS400JDBCResultSet implements ResultSet
             if(deleteStatement_ != null)
                 deleteStatement_.close ();
 
+            if(isMetadataResultSet == true)  //@mdclose
+                statement_.close();          //@mdclose
+            
             if(JDTrace.isTraceOn())
                 JDTrace.logClose (this);
         }
@@ -3652,9 +3655,10 @@ public class AS400JDBCResultSet implements ResultSet
 
         //@KBL if a locator is used, tell the statement associated with it
         SQLData sqlData = row_.getSQLType(columnIndex);             //@KBL
-        if(sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||          //@KBL
+        if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||          //@KBL
            sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||          //@KBL
            sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR)          //@KBL
+           && statement_ != null) //@mdrs2
             statement_.setAssociatedWithLocators(true);             //@KBL
 
         if(wasNull_ || wasDataMappingError_)
