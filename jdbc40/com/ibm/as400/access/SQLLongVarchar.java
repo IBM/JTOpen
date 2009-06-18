@@ -455,6 +455,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+        if(calendar == null) //@dat1
+        {
+            //getter methods do not enforce strict conversion
+            calendar = Calendar.getInstance(); //@dat1
+        }
         return SQLDate.stringToDate(value_, settings_, calendar);
     }
 
@@ -591,6 +596,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+        if(calendar == null) //@dat1
+        {
+            //getter methods do not enforce strict conversion
+            calendar = Calendar.getInstance(); //@dat1
+        }
         return SQLTime.stringToTime(value_, settings_, calendar);
     }
 
@@ -598,6 +608,11 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
+        if(calendar == null) //@dat1
+        {
+            //getter methods do not enforce strict conversion
+            calendar = Calendar.getInstance(); //@dat1
+        }
         return SQLTimestamp.stringToTimestamp(value_, calendar);
     }
 

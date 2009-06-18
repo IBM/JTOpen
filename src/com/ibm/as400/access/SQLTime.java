@@ -69,7 +69,11 @@ implements SQLData
 
             // Parse the string according to the format and separator.
             // else if(format.equalsIgnoreCase(JDProperties.TIME_FORMAT_USA)) {
-            if(calendar == null) calendar = Calendar.getInstance(); //@P0A
+            if(calendar == null) 
+            {
+                calendar = Calendar.getInstance(); //@P0A
+                calendar.setLenient(false); //@dat1
+            }
             switch(settings.getTimeFormat())
             {                                          // @A0A
                 case SQLConversionSettings.TIME_FORMAT_USA:                                                  // @A0A
@@ -100,10 +104,11 @@ implements SQLData
                     break;
             }
 
-            calendar.set(Calendar.YEAR, 0);
-            calendar.set(Calendar.MONTH, 0);
-            calendar.set(Calendar.DAY_OF_MONTH, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
+            //@dat1 non-lenient does not allow 0s
+            //@dat1 calendar.set(Calendar.YEAR, 0);
+            //@dat1 calendar.set(Calendar.MONTH, 0);
+            //@dat1 calendar.set(Calendar.DAY_OF_MONTH, 0);
+            //@dat1 calendar.set(Calendar.MILLISECOND, 0);*/
         }
         catch(NumberFormatException e)
         {
@@ -116,7 +121,14 @@ implements SQLData
           JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
 
-        return new Time(calendar.getTime().getTime());
+        try //@dat1
+        {
+            return new Time(calendar.getTime().getTime());
+        }catch(Exception e){
+            if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing time "+s, e); //@dat1
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
+            return null; //@dat1
+        }
     }
 
     public static String timeToString(Time t,
@@ -302,7 +314,11 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
+        if(calendar == null) 
+        {
+            calendar = Calendar.getInstance(); //@P0A
+            calendar.setLenient(false); //@dat1
+        }
         if(object instanceof String)
         {
             stringToTime((String) object, settings_, calendar);

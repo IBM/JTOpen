@@ -80,8 +80,12 @@ implements SQLData
             // Ignore.  This just means the value is not NULL.
         }
 
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-
+        if(calendar == null) 
+        {
+            calendar = Calendar.getInstance(); //@P0A
+            calendar.setLenient(false); //@dat1
+        }
+        
         try
         {
             // Parse the string according to the format and separator.
@@ -177,7 +181,14 @@ implements SQLData
             JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
 
-        return new Date(calendar.getTime().getTime());
+        try //@dat1
+        {
+            return new Date(calendar.getTime().getTime());
+        }catch(Exception e){
+            if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e); //@dat1
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
+            return null; //@dat1
+        }
     }
 
     public static String dateToString(java.util.Date d,              // @F5C
@@ -386,7 +397,11 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
+        if(calendar == null) 
+        {
+            calendar = Calendar.getInstance(); //@P0A
+            calendar.setLenient(false); //@dat1
+        }
         if(object instanceof String)
         {
             stringToDate((String) object, settings_, calendar);

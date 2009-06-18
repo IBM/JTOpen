@@ -79,7 +79,11 @@ implements SQLData
             // Parse the string .
             // @E3D else {
 
-            if(calendar == null) calendar = Calendar.getInstance(); // @F5A
+            if(calendar == null)
+            {
+                calendar = Calendar.getInstance(); // @F5A
+                calendar.setLenient(false); //@dat1
+            }
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
             calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
@@ -87,7 +91,16 @@ implements SQLData
             calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
             calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
 
-            Timestamp ts = new Timestamp(calendar.getTime().getTime());
+            Timestamp ts = null;//@dat1
+            try //@dat1
+            {
+                ts = new Timestamp(calendar.getTime().getTime()); //@dat1
+            }catch(Exception e){
+                if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing timestamp "+s, e); //@dat1
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s); //@dat1
+                return null; //@dat1
+            }
+                
             // @F2A
             // Remember that the value for nanoseconds is optional.  If we don't check the 
             // length of the string before trying to handle nanoseconds for the timestamp, 
@@ -248,7 +261,11 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
+        if(calendar == null)
+        {
+            calendar = Calendar.getInstance(); // @F5A
+            calendar.setLenient(false); //@dat1
+        }
         if(object instanceof String)
         {
             Timestamp ts = stringToTimestamp((String) object, calendar);
