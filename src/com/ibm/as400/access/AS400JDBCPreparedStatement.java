@@ -127,7 +127,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     };
     private PrintWriter dummyPrint = new PrintWriter(dummyOutputStream, true); //@dmy
     
-    static final int LOB_BLOCK_SIZE = 262144;
+    // Any method that can deal with extremely large data values must be prepared
+    // to deal with them in blocks instead of as one giant unit.  This value is
+    // used to determine the size of each block.  Eventually, we might externalize
+    // this value so that users can set it as they see fit.
+    static final int LOB_BLOCK_SIZE = 1000000; //@pdc Match Native JDBC Driver for IBM i
 
     /**
     Constructs an AS400JDBCPreparedStatement object.
