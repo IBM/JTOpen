@@ -78,8 +78,6 @@ public class Permission
        implements Cloneable ,
                   Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
 
@@ -114,6 +112,7 @@ public class Permission
     private boolean ownerChanged_;                        // @B2a
     private boolean revokeOldAuthority_;                  // @B2a
     private boolean revokeOldGroupAuthority_;
+    private boolean followSymbolicLinks_ = true;
 
     // @B6 The name supplied by the application for QSYS objects on IASPs is
     //     "/aspName/QSYS.LIB/...".  For QSYS objects the asp name will 
@@ -135,8 +134,9 @@ public class Permission
     private int sensitivityLevel_;
     private int type_;
 
-    private transient Vector userPermissionsBuffer_;          
-    private transient Vector userPermissions_;               
+    private transient Vector userPermissionsBuffer_;
+    private transient Vector userPermissions_;
+    private transient Object userPermissionsLock_ = new Object();
 
     private transient PermissionAccess access_;
     private transient PropertyChangeSupport changes_;
@@ -165,7 +165,7 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {
-        this(file.getSystem(),file.getPath(), false);                  // @B6c
+        this(file.getSystem(),file.getPath(), false, true);                  // @B6c
     }
 
     
@@ -207,7 +207,55 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {
-        this(file.getSystem(),file.getPath(), pathMayStartWithIASP);               
+        this(file.getSystem(),file.getPath(), pathMayStartWithIASP, true);               
+    }
+
+    
+    
+    /**
+     * Constructs a Permission object.  
+     * <P>
+     *    Use the independent auxiliary storage pool (IASP) parameter to indicate 
+     *    if the path name can contain an IASP name.
+     *    If true, the name will be parsed as if the name starts with an IASP name.
+     *    If false, the name is treated as an ordinary path.  For example, suppose
+     *    the path is "/myIASP/QSYS.LIB/MYLIB.LIB".  If the IASP parameter is true
+     *    the object is treated as library "MYLIB" on IASP "myIASP".  If the IASP
+     *    parameter is false the object is treated as object "MYLIB.LIB" in
+     *    directory "/myIASP/QSYS.LIB" in the root file system.  Note the IASP
+     *    parameter is used only if the second component of the path is QSYS.LIB.
+     *    If the second component of the path is not QSYS.LIB, the parameter is ignored.
+     *        
+     * @param file The IFSFile object. For example, The IFSFile object which represents the object "QSYS.LIB/FRED.LIB".
+     * @param pathMayStartWithIASP True if the path may start with an  
+     *                independent auxiliary storage pool (IASP) name; false otherwise.
+     * @param followLinks Whether symbolic links are resolved.
+     * The default value is <tt>true</tt>; that is, symbolic links are always resolved.
+     * By default, if the IBM i object is a symbolic link, then the requested action
+     * is performed on the object that is ultimately <em>pointed to</em> by the symbolic link,
+     * rather than on the symbolic link itself.
+     * <br>Note: This parameter is effective only for IBM i release V5R4 and higher.
+     * For earlier releases, symbolic links are always resolved and this parameter is ignored.
+     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
+     *
+    **/
+    public Permission(IFSFile file, boolean pathMayStartWithIASP, boolean followLinks)
+            throws AS400Exception,
+                   AS400SecurityException,
+                   ConnectionDroppedException,
+                   ErrorCompletingRequestException,
+                   InterruptedException,
+                   IOException,
+                   ObjectDoesNotExistException,
+                   UnsupportedEncodingException
+    {
+        this(file.getSystem(),file.getPath(), pathMayStartWithIASP, followLinks);               
     }
                                                                                  
 
@@ -234,7 +282,7 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {   
-        this(as400, fileName, false);                    // @B6c logic moved to next c'tor
+        this(as400, fileName, false, true);                    // @B6c logic moved to next c'tor
     }
 
 
@@ -276,6 +324,55 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {   
+        this(as400, fileName, pathMayStartWithIASP, true);
+    }
+
+
+    /**                                                                     
+     * Constructs a Permission object.     
+     * <P>
+     *    Use the independent auxiliary storage pool (IASP) parameter to indicate 
+     *    if the path name can contain an IASP name.
+     *    If true, the name will be parsed as if the name starts with an IASP name.
+     *    If false, the name is treated as an ordinary path.  For example, suppose
+     *    the path is "/myIASP/QSYS.LIB/MYLIB.LIB".  If the IASP parameter is true
+     *    the object is treated as library "MYLIB" on IASP "myIASP".  If the IASP
+     *    parameter is false the object is treated as object "MYLIB.LIB" in
+     *    directory "/myIASP/QSYS.LIB" in the root file system.  Note the IASP
+     *    parameter is used only if the second component of the path is QSYS.LIB.
+     *    If the second component of the path is not QSYS.LIB, the parameter is ignored.
+     *        
+     * 
+     * @param as400 The system.
+     * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
+     * @param pathMayStartWithIASP True if the path may start with an  
+     *                independent auxiliary storage pool (IASP) name; false otherwise.
+     * @param followLinks Whether symbolic links are resolved.
+     * The default value is <tt>true</tt>; that is, symbolic links are always resolved.
+     * By default, if the IBM i object is a symbolic link, then the requested action
+     * is performed on the object that is ultimately <em>pointed to</em> by the symbolic link,
+     * rather than on the symbolic link itself.
+     * <br>Note: This parameter is effective only for IBM i release V5R4 and higher.
+     * For earlier releases, symbolic links are always resolved and this parameter is ignored.
+     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the system object does not exist.
+     *
+    **/
+    public Permission(AS400 as400, String fileName, boolean pathMayStartWithIASP, boolean followLinks)
+            throws AS400Exception,
+                   AS400SecurityException,
+                   ConnectionDroppedException,
+                   ErrorCompletingRequestException,
+                   InterruptedException,
+                   IOException,
+                   ObjectDoesNotExistException,
+                   UnsupportedEncodingException
+    {   
         if (as400 == null)
         {
             throw new NullPointerException("system");
@@ -291,6 +388,15 @@ public class Permission
         name_ = path_.substring(separator+1);
         type_ = parseType(path_, pathMayStartWithIASP);              // @B6c
 
+        // If 'followLinks' is false, check VRM, and if pre-V5R4 issue warning (and don't change flag).
+        if (!followLinks && (as400_.getVRM() < 0x050400))
+        {
+          if (Trace.traceOn_) {
+            Trace.log(Trace.WARNING, "followLinks(false): Parameter is ignored because system is not V5R4 or higher.");
+          }
+        }
+        else followSymbolicLinks_ = followLinks;
+
         switch(type_)
         {
             case TYPE_QSYS :
@@ -304,8 +410,9 @@ public class Permission
                 access_ = new PermissionAccessRoot(as400_);
                 break;
         }
+        access_.setFollowSymbolicLinks(followSymbolicLinks_);
 
-        Vector vector = null; 
+        Vector perms = null; 
         try 
         {  
           // @B6 If the QSYS object is on an ASP, prepend the ASP name
@@ -314,36 +421,40 @@ public class Permission
           // String path = path_;                          // @B6a //@A3D
           // if (asp_ != null)                             // @B6a //@A3D
           //    path = asp_ + path;                        // @B6a //@A3D
-          vector = access_.getAuthority(path_);          // @B6c
+          perms = access_.getAuthority(path_);             // @B6c
         }
         catch (PropertyVetoException e)
         {
-           Trace.log( Trace.ERROR, "unexpected exception, " + e.toString(), e );
+          Trace.log(Trace.ERROR, e); // should never happen
         }
 
         changes_ = new PropertyChangeSupport(this);
 
-        owner_ = (String)vector.elementAt(0);
-        primaryGroup_ = (String)vector.elementAt(1);
-        authorizationList_ = (String)vector.elementAt(2);
-        //autListChanged_ = false;                       // @B2d
-        sensitivityLevel_ = ((Integer)vector.elementAt(3)).intValue();
-        //sensitivityChanged_ = false;                   // @B2d
-
-        userPermissionsBuffer_ = new Vector ();
-        userPermissions_ = new Vector();
-        int count = vector.size();
-        for (int i=4;i<count;i++)
+        synchronized (userPermissionsLock_)
         {
-            UserPermission userPermission = (UserPermission)vector.elementAt(i);
+          owner_ = (String)perms.elementAt(0);
+          primaryGroup_ = (String)perms.elementAt(1);
+          authorizationList_ = (String)perms.elementAt(2);
+          //autListChanged_ = false;                       // @B2d
+          sensitivityLevel_ = ((Integer)perms.elementAt(3)).intValue();
+          //sensitivityChanged_ = false;                   // @B2d
+
+          userPermissionsBuffer_ = new Vector ();
+          userPermissions_ = new Vector();
+          int count = perms.size();
+          for (int i=4;i<count;i++)
+          {
+            UserPermission userPermission = (UserPermission)perms.elementAt(i);
             if (userPermission != null)
             {
-                userPermission.setCommitted(UserPermission.COMMIT_NONE);
-                userPermissionsBuffer_.addElement(userPermission);
-                userPermissions_.addElement(userPermission);
+              userPermission.setCommitted(UserPermission.COMMIT_NONE);
+              userPermissionsBuffer_.addElement(userPermission);
+              userPermissions_.addElement(userPermission);
             }
+          }
         }
     }
+
 
     /**
      * Adds an authorized user. The user added will have "*EXCLUDE" authorities 
@@ -357,43 +468,47 @@ public class Permission
             throw new NullPointerException("userProfileName");
         int index;
         String userName = userProfileName.trim().toUpperCase();
-        if (getUserIndex(userName,userPermissions_) != -1)
+
+        synchronized (userPermissionsLock_)
         {
+          if (getUserIndex(userName,userPermissions_) != -1)
+          {
             Trace.log(Trace.ERROR, "Permission already exists for user " + userProfileName);  // @B2a
             throw new ExtendedIllegalArgumentException("userProfileName",
-                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        } 
-        else
-        {
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+          } 
+          else
+          {
             index=getUserIndex(userName,userPermissionsBuffer_);
             if (index != -1)
             {
-                UserPermission usrAut = (UserPermission)
-                    userPermissionsBuffer_.elementAt(index);
-                usrAut.setCommitted(UserPermission.COMMIT_CHANGE);
-                userPermissions_.addElement(usrAut);
+              UserPermission usrAut = (UserPermission)
+                userPermissionsBuffer_.elementAt(index);
+              usrAut.setCommitted(UserPermission.COMMIT_CHANGE);
+              userPermissions_.addElement(usrAut);
             } 
             else
             {
-                UserPermission userPermission;
-                switch (type_)
-                {
-                    case TYPE_DLO : 
-                        userPermission = new DLOPermission(userName);
-                        break;
-                    case TYPE_QSYS : 
-                        userPermission = new QSYSPermission(userName);
-                        break;
-                    case TYPE_ROOT :
-                    default : 
-                        userPermission = new RootPermission(userName);
-                        break;
-                }
-                userPermission.setGroupIndicator(UserPermission.GROUPINDICATOR_USER);
-                userPermission.setCommitted(UserPermission.COMMIT_ADD);
-                userPermissionsBuffer_.addElement(userPermission);
-                userPermissions_.addElement(userPermission);
+              UserPermission userPermission;
+              switch (type_)
+              {
+                case TYPE_DLO : 
+                  userPermission = new DLOPermission(userName);
+                  break;
+                case TYPE_QSYS : 
+                  userPermission = new QSYSPermission(userName);
+                  break;
+                case TYPE_ROOT :
+                default : 
+                  userPermission = new RootPermission(userName);
+                  break;
+              }
+              userPermission.setGroupIndicator(UserPermission.GROUPINDICATOR_USER);
+              userPermission.setCommitted(UserPermission.COMMIT_ADD);
+              userPermissionsBuffer_.addElement(userPermission);
+              userPermissions_.addElement(userPermission);
             }
+          }
         }
     }
 
@@ -440,30 +555,32 @@ public class Permission
 
         String user = userPermission.getUserID();
 
-        int index;
-        if (getUserIndex(user,userPermissions_) != -1)
+        synchronized (userPermissionsLock_)
         {
+          if (getUserIndex(user,userPermissions_) != -1)
+          {
             Trace.log(Trace.ERROR, "Permission already exists for user " + user);  // @B2a
             throw new ExtendedIllegalArgumentException("userProfileName",
-                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        } 
-        else
-        {
-            index=getUserIndex(user,userPermissionsBuffer_);
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+          } 
+          else
+          {
+            int index=getUserIndex(user,userPermissionsBuffer_);
             if (index != -1)
             {
-                UserPermission usrAut = (UserPermission)
-                               userPermissionsBuffer_.elementAt(index);
-                userPermission.setCommitted(UserPermission.COMMIT_CHANGE);
-                userPermissionsBuffer_.setElementAt(userPermission,index);
-                userPermissions_.addElement(userPermission);
+              UserPermission usrAut = (UserPermission)
+                userPermissionsBuffer_.elementAt(index);
+              userPermission.setCommitted(UserPermission.COMMIT_CHANGE);
+              userPermissionsBuffer_.setElementAt(userPermission,index);
+              userPermissions_.addElement(userPermission);
             } 
             else
             {
-                userPermission.setCommitted(UserPermission.COMMIT_ADD);
-                userPermissionsBuffer_.addElement(userPermission);
-                userPermissions_.addElement(userPermission);
+              userPermission.setCommitted(UserPermission.COMMIT_ADD);
+              userPermissionsBuffer_.addElement(userPermission);
+              userPermissions_.addElement(userPermission);
             }
+          }
         }
     }
 
@@ -523,7 +640,7 @@ public class Permission
           }                                               // End try-block @A1A
           catch (AS400Exception e)                                      // @A1A
           {                                                             // @A1A
-            Trace.log (Trace.ERROR, "unexpected exception, " + e.toString(), e);
+            Trace.log(Trace.ERROR, e);
             if (numberOfCommitAttempts == 2)                            // @A1A
             {
               // Failure on second attempt... throw error.
@@ -538,40 +655,43 @@ public class Permission
             }
           }                                                   // end-catch @A1A
 
-          int count = userPermissionsBuffer_.size();
-          for (int i=count-1;i>=0;i--)
+          synchronized (userPermissionsLock_)
           {
-            UserPermission userPermission = (UserPermission)
-            userPermissionsBuffer_.elementAt(i);
-            switch(userPermission.getCommitted())
+            int count = userPermissionsBuffer_.size();
+            for (int i=count-1;i>=0;i--)
             {
-            case UserPermission.COMMIT_FROM_AUTL :
-              access_.setFromAuthorizationList(path_,userPermission.isFromAuthorizationList());
-              userPermission.setCommitted(UserPermission.COMMIT_NONE);
-              break;
-            case UserPermission.COMMIT_ADD :
-              access_.addUser(path_,userPermission);
-              userPermission.setCommitted(UserPermission.COMMIT_NONE);
-              break;
-            case UserPermission.COMMIT_CHANGE :
-              access_.setAuthority(path_,userPermission);
-              userPermission.setCommitted(UserPermission.COMMIT_NONE);
-              break;
-            case UserPermission.COMMIT_REMOVE :
-              // Removed code which prepended asp since the asp is already in the path_  @A4D
-              access_.removeUser(path_,userPermission.getUserID());     // @B6c //@A4C
-              userPermission.setCommitted(UserPermission.COMMIT_NONE);
-              userPermissionsBuffer_.removeElement(userPermission);
-              break;
-            case UserPermission.COMMIT_NONE :
-            default :
-              break;
+              UserPermission userPermission = (UserPermission)
+                userPermissionsBuffer_.elementAt(i);
+              switch(userPermission.getCommitted())
+              {
+                case UserPermission.COMMIT_FROM_AUTL :
+                  access_.setFromAuthorizationList(path_,userPermission.isFromAuthorizationList());
+                  userPermission.setCommitted(UserPermission.COMMIT_NONE);
+                  break;
+                case UserPermission.COMMIT_ADD :
+                  access_.addUser(path_,userPermission);
+                  userPermission.setCommitted(UserPermission.COMMIT_NONE);
+                  break;
+                case UserPermission.COMMIT_CHANGE :
+                  access_.setAuthority(path_,userPermission);
+                  userPermission.setCommitted(UserPermission.COMMIT_NONE);
+                  break;
+                case UserPermission.COMMIT_REMOVE :
+                  // Removed code which prepended asp since the asp is already in the path_  @A4D
+                  access_.removeUser(path_,userPermission.getUserID());     // @B6c //@A4C
+                  userPermission.setCommitted(UserPermission.COMMIT_NONE);
+                  userPermissionsBuffer_.removeElement(userPermission);
+                  break;
+                case UserPermission.COMMIT_NONE :
+                default :
+                  break;
+              }
             }
           }
         }
         catch (PropertyVetoException e)
         {
-          Trace.log (Trace.ERROR, "unexpected exception, " + e.toString(), e);
+          Trace.log(Trace.ERROR, e);
         }
       }                                 //end numberOfCommitAttempts loop @A1A
 
@@ -596,14 +716,17 @@ public class Permission
     **/
     public Enumeration getAuthorizedUsers()
     {
+      synchronized (userPermissionsLock_)
+      {
         int count = userPermissions_.size();
         Vector names = new Vector();
         for (int i=0;i<count;i++)
         {
-            UserPermission userPermission = (UserPermission)userPermissions_.elementAt(i);
-            names.addElement(userPermission.getUserID());
+          UserPermission userPermission = (UserPermission)userPermissions_.elementAt(i);
+          names.addElement(userPermission.getUserID());
         }
         return names.elements();
+      }
     }
 
     
@@ -732,13 +855,16 @@ public class Permission
     public UserPermission getUserPermission(String userProfileName)
     {
         String userName = userProfileName.toUpperCase();
-        int index = getUserIndex(userName,userPermissions_);
-
-        if (index != -1)
+        synchronized (userPermissionsLock_)
         {
+          int index = getUserIndex(userName,userPermissions_);
+
+          if (index != -1)
+          {
             return (UserPermission)userPermissions_.elementAt(index);
+          }
+          return null;
         }
-        return null;
     }
 
     /**
@@ -748,7 +874,10 @@ public class Permission
     **/
     public Enumeration getUserPermissions()
     {
+      synchronized (userPermissionsLock_)
+      {
         return userPermissions_.elements();
+      }
     }
 
     
@@ -759,43 +888,59 @@ public class Permission
     public boolean isCommitted()
     {
         boolean committed = true;
-        int count = userPermissionsBuffer_.size();
-        if (sensitivityChanged_ == true)
+        synchronized (userPermissionsLock_)
         {
+          int count = userPermissionsBuffer_.size();
+          if (sensitivityChanged_ == true)
+          {
             return false;
-        }
-        if (autListChanged_ == true)
-        {
+          }
+          if (autListChanged_ == true)
+          {
             return false;
-        }
-        if (ownerChanged_ == true)               // @B2a
-        {
+          }
+          if (ownerChanged_ == true)               // @B2a
+          {
             return false;
-        }
-        if (primaryGroupChanged_ == true)
-        {
+          }
+          if (primaryGroupChanged_ == true)
+          {
             return false;
-        }
-        for (int i=0;i<count;i++)
-        {
+          }
+          for (int i=0;i<count;i++)
+          {
             UserPermission userPermission = (UserPermission)
-                                        userPermissionsBuffer_.elementAt(i);
+              userPermissionsBuffer_.elementAt(i);
             if (userPermission.getCommitted() !=
                 UserPermission.COMMIT_NONE)
             {
-                    committed = false;
-                    break;
+              committed = false;
+              break;
             }
+          }
+          return committed;
         }
-        return committed;
+    }
+
+
+    /**
+     * Returns whether symbolic links are resolved when changing or retrieving permissions.
+     * @return Whether symbolic links are resolved.
+     *
+    **/
+    public boolean isFollowSymbolicLinks()
+    {
+      return followSymbolicLinks_;
     }
 
     /*
      Parses object's type by full path name.
     */
     private int parseType(String objectName, boolean pathMayStartWithIASP)      // @B6c
-    {         
-       Trace.log(Trace.INFORMATION, "IASP flag is: " + pathMayStartWithIASP + ", object name: " + objectName); 
+    {
+       if (Trace.traceOn_) {
+         Trace.log(Trace.INFORMATION, "IASP flag is: " + pathMayStartWithIASP + ", object name: " + objectName);
+       }
 
        if (pathMayStartWithIASP)                                                // @B6a
        {                                                                        // @B6a
@@ -889,8 +1034,9 @@ public class Permission
                 access_ = new PermissionAccessRoot(as400_);
                 break;
         }
+        access_.setFollowSymbolicLinks(followSymbolicLinks_);
 
-        
+        userPermissionsLock_ = new Object();
         userPermissionsBuffer_ = new Vector ();
         userPermissions_ = new Vector();
         size = ((Integer)s.readObject()).intValue();
@@ -957,29 +1103,32 @@ public class Permission
     {   
         if (permission == null)
             throw new NullPointerException("permission");
-        if (userPermissions_.indexOf(permission) == -1)
+        synchronized (userPermissionsLock_)
         {
+          if (userPermissions_.indexOf(permission) == -1)
+          {
             Trace.log(Trace.ERROR, "Permission does not exist for user " + permission.getUserID());  // @B2a
             throw new ExtendedIllegalArgumentException
-                 ("permission", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); // @B2c
-        } 
-        else
-        {
+              ("permission", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); // @B2c
+          } 
+          else
+          {
             switch (permission.getCommitted())
             {
-                case UserPermission.COMMIT_ADD :
-                    userPermissions_.removeElement(permission);
-                    userPermissionsBuffer_.removeElement(permission);
-                    permission.setCommitted(UserPermission.COMMIT_NONE);
-                    break;
-                case UserPermission.COMMIT_REMOVE :
-                case UserPermission.COMMIT_CHANGE :
-                case UserPermission.COMMIT_NONE :
-                default :
-                    permission.setCommitted(UserPermission.COMMIT_REMOVE);
-                    userPermissions_.removeElement(permission);
-                    break;
+              case UserPermission.COMMIT_ADD :
+                userPermissions_.removeElement(permission);
+                userPermissionsBuffer_.removeElement(permission);
+                permission.setCommitted(UserPermission.COMMIT_NONE);
+                break;
+              case UserPermission.COMMIT_REMOVE :
+              case UserPermission.COMMIT_CHANGE :
+              case UserPermission.COMMIT_NONE :
+              default :
+                permission.setCommitted(UserPermission.COMMIT_REMOVE);
+                userPermissions_.removeElement(permission);
+                break;
             }
+          }
         }
     }
 
@@ -1044,6 +1193,7 @@ public class Permission
         primaryGroupChanged_ = true;
     }
 
+
     /**
      * Sets the sensitivity level of the object.
      * @param sensitivityLevel The sensitivity level of the object.  The
@@ -1079,6 +1229,7 @@ public class Permission
      *
      * @param   system The system object.
      * @see     #getSystem
+     * @deprecated This method is of little (or no) known usefulness. If you require this method, please notify the Toolbox support team.
     **/
     public synchronized void setSystem(AS400 system)
     {   
@@ -1111,7 +1262,8 @@ public class Permission
                 access_ = new PermissionAccessRoot(as400_);
                 break;
         }
-
+        access_.setFollowSymbolicLinks(followSymbolicLinks_);
+        // Assume that, since we're (re)connecting to the same system we were originally connected to, that none of the permissions information needs to be re-retrieved.
     }
     
     /**
@@ -1124,18 +1276,21 @@ public class Permission
     {
         s.defaultWriteObject();
 
-        s.writeObject(new Integer(userPermissionsBuffer_.size()));
-        for (int i=0;i<userPermissionsBuffer_.size();i++)
+        synchronized (userPermissionsLock_)
         {
+          s.writeObject(new Integer(userPermissionsBuffer_.size()));
+          for (int i=0;i<userPermissionsBuffer_.size();i++)
+          {
             s.writeObject(userPermissionsBuffer_.elementAt(i));
-        }
-        s.writeObject(new Integer(userPermissions_.size()));
-        for (int i=0;i<userPermissions_.size();i++)
-        {
+          }
+          s.writeObject(new Integer(userPermissions_.size()));
+          for (int i=0;i<userPermissions_.size();i++)
+          {
             s.writeObject(userPermissions_.elementAt(i));
-        }
+          }
 
-        s.writeObject(null);
+          s.writeObject(null);
+        }
     }
     
 }

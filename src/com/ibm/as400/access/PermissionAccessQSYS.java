@@ -133,7 +133,9 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         catch(Exception e)
         {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          if (Trace.traceOn_) {
+            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          }
         }
         String command = "ADDAUTLE"
                          +" AUTL("+object+")"
@@ -182,7 +184,9 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         catch(Exception e)
         {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          if (Trace.traceOn_) {
+            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          }
         }
         if (objectType.equals("AUTL"))
         {
@@ -245,7 +249,9 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         catch(Exception e)
         {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          if (Trace.traceOn_) {
+            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          }
         }
         if (objectType.equals("AUTL"))
         {
@@ -282,7 +288,7 @@ class PermissionAccessQSYS extends PermissionAccess
      * @return The command to remove an authorized user.
      *
     **/
-    private static CommandCall getRmvCommand(AS400 sys, String objName,String userName)
+    private static CommandCall getRmvCommand(AS400 sys, String objName,String userName, boolean followSymbolicLinks)
     {
         String name = objName.toUpperCase();                              // @B6a
         String asp  = null;                                               // @B6a
@@ -297,7 +303,7 @@ class PermissionAccessQSYS extends PermissionAccess
 
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String objectType = objectPathName.getObjectType();
-        boolean threadSafe;      //@A2A
+//        boolean threadSafe;      //@A2A
         String command,object;
         if (objectType.equals("AUTL"))
         {
@@ -308,13 +314,15 @@ class PermissionAccessQSYS extends PermissionAccess
             }
             catch(Exception e)
             {
-              Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+              if (Trace.traceOn_) {
+                Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+              }
             }
 
             command = "RMVAUTLE"
                       +" AUTL("+object+")"
                       +" USER("+userName+")";
-            threadSafe = false; // RMVAUTLE isn't threadsafe.  @A2A @A3C
+//            threadSafe = false; // RMVAUTLE isn't threadsafe.  @A2A @A3C
         }
         else if (objectType.equals("MBR"))
         {
@@ -346,7 +354,11 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
-            threadSafe = true; //@A2A
+            if (!followSymbolicLinks)
+            {
+              command += " SYMLNK(*YES)";
+            }
+//            threadSafe = true; //@A2A
         }
         else
         {
@@ -369,7 +381,11 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
-            threadSafe = true; //@A2A
+            if (!followSymbolicLinks)
+            {
+              command += " SYMLNK(*YES)";
+            }
+//            threadSafe = true; //@A2A
         }
 
         CommandCall cmd = new CommandCall(sys, command); //@A2C
@@ -450,7 +466,7 @@ class PermissionAccessQSYS extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall removeUser = getRmvCommand(as400_,objName,userName);
+        CommandCall removeUser = getRmvCommand(as400_,objName,userName,followSymbolicLinks_);
 
         if (removeUser.run()!=true)
         {
@@ -548,7 +564,9 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         catch(Exception e)
         {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          if (Trace.traceOn_) {
+            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          }
         }
         // Add the ASPDEV() parameter if object is on IASP        //@A1A
         String aspParm = "";                                      //@A1A
@@ -629,7 +647,9 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         catch(Exception e)
         {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          if (Trace.traceOn_) {
+            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          }
         }
         // Add the ASPDEV() parameter if object is on IASP        //@A1A
         String aspParm = "";                                      //@A1A
@@ -665,31 +685,32 @@ class PermissionAccessQSYS extends PermissionAccess
 
 // For some reason, CHGOWN doesn't need the path name converted, but the other CL
 // commands do. So we don't need to override this.
-    /**
-     * This is so we correctly convert variant QSYS characters.
-    **/
-/*    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
-    throws AS400Exception,
-           AS400SecurityException,
-           ConnectionDroppedException,
-           ErrorCompletingRequestException,
-           InterruptedException,
-           IOException,
-           ServerStartupException,
-           UnknownHostException,
-           PropertyVetoException
-    {
-      try
-      {
-        objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
-      }
-      catch(Exception e)
-      {
-        Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
-      }
-      super.setOwner(objName, owner, revokeOldAuthority);
-    }
-*/
+//
+//    /**
+//     * This is so we correctly convert variant QSYS characters.
+//    **/
+//    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
+//    throws AS400Exception,
+//           AS400SecurityException,
+//           ConnectionDroppedException,
+//           ErrorCompletingRequestException,
+//           InterruptedException,
+//           IOException,
+//           ServerStartupException,
+//           UnknownHostException,
+//           PropertyVetoException
+//    {
+//      try
+//      {
+//        objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+//      }
+//      catch(Exception e)
+//      {
+//        Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+//      }
+//      super.setOwner(objName, owner, revokeOldAuthority);
+//    }
+
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.

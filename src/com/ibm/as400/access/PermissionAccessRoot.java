@@ -61,7 +61,7 @@ class PermissionAccessRoot extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall addUser= getChgCommand(as400_,objName,permission);
+        CommandCall addUser= getChgCommand(as400_,objName,permission,followSymbolicLinks_);
 
         if (addUser.run()!=true)
         {
@@ -123,7 +123,7 @@ class PermissionAccessRoot extends PermissionAccess
      * @return The command to remove a authorized user.
      *
     **/
-    private static CommandCall getChgCommand(AS400 sys,String objName,UserPermission permission)
+    private static CommandCall getChgCommand(AS400 sys,String objName,UserPermission permission, boolean followSymbolicLinks)
     {
         RootPermission rootPermission = (RootPermission)permission;
         String userProfile=rootPermission.getUserID();
@@ -154,6 +154,10 @@ class PermissionAccessRoot extends PermissionAccess
                          +" USER("+userProfile+")"
                          +" DTAAUT("+dataAuthority+")"
                          +" OBJAUT("+objAuthority+")";
+        if (!followSymbolicLinks)
+        {
+          command += " SYMLNK(*YES)";
+        }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
 //        cmd.setThreadSafe(true);   //@A2A
         return cmd;                //@A2C
@@ -166,7 +170,7 @@ class PermissionAccessRoot extends PermissionAccess
      * @return The command to remove a authorized user.
      *
     **/
-    private static CommandCall getRmvCommand(AS400 sys,String objName,String userName)
+    private static CommandCall getRmvCommand(AS400 sys,String objName,String userName, boolean followSymbolicLinks)
     {
         String dataAuthority="*NONE";
         String objAuthority="*NONE";
@@ -175,6 +179,10 @@ class PermissionAccessRoot extends PermissionAccess
                          +" USER("+userName+")"
                          +" DTAAUT("+dataAuthority+")"
                          +" OBJAUT("+objAuthority+")";
+        if (!followSymbolicLinks)
+        {
+          command += " SYMLNK(*YES)";
+        }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
 //        cmd.setThreadSafe(true);   //@A2A
         return cmd;                //@A2C
@@ -243,7 +251,7 @@ class PermissionAccessRoot extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall removeUser = getRmvCommand(as400_,objName,userName);
+        CommandCall removeUser = getRmvCommand(as400_,objName,userName,followSymbolicLinks_);
 
         if (removeUser.run()!=true)
         {
@@ -278,7 +286,7 @@ class PermissionAccessRoot extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall setAuthority = getChgCommand(as400_,objName,permission);
+        CommandCall setAuthority = getChgCommand(as400_,objName,permission,followSymbolicLinks_);
 
         if (setAuthority.run()!=true)
         {
@@ -319,6 +327,10 @@ class PermissionAccessRoot extends PermissionAccess
         String cmd="CHGAUT"
                    +" OBJ("+expandQuotes0(objName)+")"          // @B3c @B4c
                    +" AUTL("+autList+")";
+        if (!followSymbolicLinks_)
+        {
+          cmd += " SYMLNK(*YES)";
+        }
         setAUTL.setCommand(cmd);
 //        setAUTL.setThreadSafe(true);  //@A2A
         if (setAUTL.run()!=true)
@@ -359,17 +371,25 @@ class PermissionAccessRoot extends PermissionAccess
         CommandCall fromAUTL=new CommandCall(as400_);
         String cmd;
         if (fromAutl)
+        {
             cmd = "CHGAUT"
                   +" OBJ("+expandQuotes0(objName)+")"                   // @B3c @B4c
                   +" USER(*PUBLIC)"
                   +" DTAAUT(*AUTL)"
                   +" OBJAUT(*NONE)";
+        }
         else
+        {
             cmd = "CHGAUT"
                   +" OBJ("+expandQuotes0(objName)+")"                   // @B3c @B4c
                   +" USER(*PUBLIC)"
                   +" DTAAUT(*EXCLUDE)"
                   +" OBJAUT(*NONE)";
+        }
+        if (!followSymbolicLinks_)
+        {
+          cmd += " SYMLNK(*YES)";
+        }
         fromAUTL.setCommand(cmd);
 //        fromAUTL.setThreadSafe(true);  //@A2A
         if (fromAUTL.run()!=true)

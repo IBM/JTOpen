@@ -33,6 +33,8 @@ abstract class PermissionAccess
     //Default receiver length.
     private static final int DEFAULT_LENGTH=600;
 
+    protected boolean followSymbolicLinks_ = true;
+
     /**
      * Constructs a PermissionAccess object.
      *
@@ -143,9 +145,8 @@ abstract class PermissionAccess
         // Constructs ProgramParameters and ProgramCall.
         QSYSObjectPathName prgName=new QSYSObjectPathName("QSYS","QSYRTVUA","PGM");
 
-        ProgramParameter[] parmList=new ProgramParameter[8];
         int vrm = as400_.getVRM();
-        parmList=getParameters(DEFAULT_LENGTH, objName, vrm >= 0x050300);
+        ProgramParameter[] parmList= getParameters(DEFAULT_LENGTH, objName, vrm >= 0x050300);
 
         ProgramCall rtvUsersAUT=new ProgramCall(as400_);
         rtvUsersAUT.setProgram(prgName.getPath(),parmList);
@@ -310,8 +311,9 @@ abstract class PermissionAccess
     ProgramParameter[] getParameters(int length, String objName, boolean useUnicode)
       throws UnsupportedEncodingException
     {
+        final int numParms = (followSymbolicLinks_ ? 8 : 9); // to not follow links, need extra parm
+        ProgramParameter[] parmList=new ProgramParameter[numParms];
 
-        ProgramParameter[] parmList=new ProgramParameter[8];
         parmList[0]=new ProgramParameter(length);
 
         parmList[1]=new ProgramParameter(BinaryConverter.intToByteArray(length));
@@ -326,8 +328,7 @@ abstract class PermissionAccess
         if (!useUnicode)
         {
           // Old way.
-          if (Trace.traceOn_)
-          {
+          if (Trace.traceOn_) {
             Trace.log(Trace.DIAGNOSTIC, "PermissionAccess creating QSYRTVUA parameters using job CCSID.");
           }
 
@@ -344,7 +345,9 @@ abstract class PermissionAccess
             }
             catch(Exception e)
             {
-              Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+              if (Trace.traceOn_) {
+                Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+              }
             }
           }
           byte[] objnameBytes = CharConverter.stringToByteArray(getCcsid(), as400_, objName);
@@ -355,8 +358,7 @@ abstract class PermissionAccess
         else
         {
           // New way (V5R3 and higher).
-          if (Trace.traceOn_)
-          {
+          if (Trace.traceOn_) {
             Trace.log(Trace.DIAGNOSTIC, "PermissionAccess creating QSYRTVUA parameters using UTF-16 (CCSID 1200).");
           }
           // This allows us to pass a Unicode path so we can access permissions
@@ -372,7 +374,9 @@ abstract class PermissionAccess
             }
             catch(Exception e)
             {
-              Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+              if (Trace.traceOn_) {
+                Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+              }
             }
           }
           byte[] pathNameBytes = null;
@@ -382,8 +386,7 @@ abstract class PermissionAccess
           }
           catch(UnsupportedEncodingException uee)
           {
-            if (Trace.traceOn_)
-            {
+            if (Trace.traceOn_) {
               Trace.log(Trace.WARNING, "PermissionAccess could not load converter table for CCSID 1200. Manually converting path name.");
             }
             int pathLen = objName.length();
@@ -415,6 +418,17 @@ abstract class PermissionAccess
 
         byte[] errorInfo = new byte[32];
         parmList[7] = new ProgramParameter( errorInfo, 0 );
+
+        // If the caller wants to retrieve attributes for the link itself,
+        // specify optional parameter "Symbolic link" as "*YES".
+        if (!followSymbolicLinks_)
+        {
+          if (Trace.traceOn_) {
+            Trace.log(Trace.DIAGNOSTIC, "Adding 'Symbolic link: *YES' parameter for QSYRTVUA.");
+          }
+          AS400Text text10 = new AS400Text(10, getCcsid(), as400_);
+          parmList[8]= new ProgramParameter(text10.toBytes("*YES")); // default is *NO
+        }
 
         return parmList;
     }
@@ -461,6 +475,19 @@ abstract class PermissionAccess
     **/
     abstract public UserPermission getUserPermission(Record userRecord)
          throws UnsupportedEncodingException;
+
+
+    /**
+     * Returns whether symbolic links are resolved when changing or retrieving permissions.
+     * @return Whether symbolic links are resolved.
+     * @see #setFollowSymbolicLinks
+     *
+    **/
+    public boolean isFollowSymbolicLinks()
+    {
+      return followSymbolicLinks_;
+    }
+
 
     /**
      * Removes the authorized user.
@@ -612,6 +639,10 @@ abstract class PermissionAccess
         "OBJ("+expandQuotes(objName)+") " +                 // @B3c @B4c
         "NEWOWN("+owner+") " +
         "RVKOLDAUT("+revokeOldAut+")";
+      if (!followSymbolicLinks_)
+      {
+        cmdString += " SYMLNK(*YES)";
+      }
       cmd.setCommand(cmdString);
 //      cmd.setThreadSafe(false); // CHGOWN isn't threadsafe.
       if(cmd.run()!=true)
@@ -672,6 +703,27 @@ abstract class PermissionAccess
         AS400Message[] msgList=cmd.getMessageList();
         throw new AS400Exception(msgList);
       }
+    }
+
+
+    /**
+     * Sets whether to resolve symbolic links when changing or retrieving permissions.
+     * The default value is true; that is, symbolic links are always resolved.
+     * By default, if the IBM i object is a symbolic link, then the requested action
+     * is performed on the object ultimately <em>pointed to</em> by the symbolic link,
+     * rather than on the symbolic link itself.
+     * <br>Note: This method is effective only for IBM i release V5R4 and higher.
+     * For earlier releases, symbolic links are always resolved, and this method is ignored.
+     * @param followLinks Whether symbolic links are resolved.
+     * @see #isFollowSymbolicLinks
+     *
+    **/
+    public void setFollowSymbolicLinks(boolean followLinks)
+    {
+      // Assume that the caller has already verified that we're running to V5R4 or higher.
+      // Note to programmer: If this class ever becomes public, add a VRM check here,
+      // as in Permission.setFollowSymbolicLinks().
+      followSymbolicLinks_ = followLinks;
     }
 
 
