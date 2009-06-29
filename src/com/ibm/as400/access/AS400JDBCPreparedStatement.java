@@ -1084,16 +1084,16 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             int numSuccessful = 0; // Number of successfully executed statements in the batch.
 
             boolean canBatch = true;
-            boolean notInsert = false;
+            //boolean notInsert = false; //@blksql
 
             try
             {
                 // Only INSERTs can be batched, UPDATE statements must still be done one at a time.
-                if(!(sqlStatement_.isInsert_))
-                {
-                    canBatch = false;
-                    notInsert = true;
-                }
+                //if(!(sqlStatement_.isInsert_)) //@blksql
+                //{
+                //    canBatch = false;
+                //    notInsert = true;
+                //}
 
                 if(!(sqlStatement_.canBatch()))
                 {

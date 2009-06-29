@@ -90,6 +90,7 @@ class JDSQLStatement
     private static final String     UPDATE_         = "UPDATE";
     private static final String     VALUES_         = "VALUES";
     private static final String     WITH_           = "WITH";   // @B3A
+    private static final String     MERGE_          = "MERGE"; //@blksql
 
 
 
@@ -617,7 +618,12 @@ class JDSQLStatement
         }
         else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
         {
+            canBeBatched_ = true;   //@blksql
             isUpdateOrDelete_ = true;
+        }
+        else if(firstWord.equals(MERGE_)) //@blksql
+        {
+            canBeBatched_ = true;   //@blksql
         }
         else if(firstWord.equals(DECLARE_))
         {
