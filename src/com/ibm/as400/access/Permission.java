@@ -474,7 +474,7 @@ public class Permission
           if (getUserIndex(userName,userPermissions_) != -1)
           {
             Trace.log(Trace.ERROR, "Permission already exists for user " + userProfileName);  // @B2a
-            throw new ExtendedIllegalArgumentException("userProfileName",
+            throw new ExtendedIllegalArgumentException("userProfileName ("+userName+")",
                                                        ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
           } 
           else
@@ -560,7 +560,7 @@ public class Permission
           if (getUserIndex(user,userPermissions_) != -1)
           {
             Trace.log(Trace.ERROR, "Permission already exists for user " + user);  // @B2a
-            throw new ExtendedIllegalArgumentException("userProfileName",
+            throw new ExtendedIllegalArgumentException("userProfileName ("+user+")",
                                                        ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
           } 
           else
@@ -1072,7 +1072,7 @@ public class Permission
         }else
         {
             Trace.log(Trace.ERROR, "Permission does not exist for user " + userProfileName);  // @B2a
-            throw new ExtendedIllegalArgumentException("userProfileName",
+            throw new ExtendedIllegalArgumentException("userProfileName ("+userName+")",
                   ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
     }
@@ -1217,7 +1217,7 @@ public class Permission
     {
         if (sensitivityLevel < 0 || sensitivityLevel > 4)
         {
-            throw new ExtendedIllegalArgumentException("sensitivityLevel",
+            throw new ExtendedIllegalArgumentException("sensitivityLevel ("+sensitivityLevel+")",
                   ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID );
         }
         sensitivityLevel_ = sensitivityLevel;
