@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-// The RemoteCommandImplRemote class is the remote implementation of CommandCall and ProgramCall.
+// The remote implementation of CommandCall and ProgramCall.
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
     private static final String CLASSNAME = "com.ibm.as400.access.RemoteCommandImplRemote";
@@ -547,6 +547,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
+    public byte[] runServiceProgram(String library, String name, String procedureName, ProgramParameter[] serviceParameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+        return runServiceProgram(library, name, procedureName, ServiceProgramCall.RETURN_INTEGER_AND_ERRNO, serviceParameterList, ProgramCall.getDefaultThreadSafety(), 37, AS400Message.MESSAGE_OPTION_UP_TO_10, false);
+    }
+
     public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, Boolean threadSafety, int procedureNameCCSID, int messageOption, boolean alignOn16Bytes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running service program: " + library + "/" + name + " procedure name: " + procedureName);
@@ -634,7 +639,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         programParameterList[5] = new ProgramParameter(errorCodeParmLength);
 
         // Seventh parameter:  return value - output - char(*).
-        // Define the return value length, even though the service program returns void the API middle-man we call (QZRUCLSP) still returns four bytes.  If we don't get this right the output buffers will be off by four bytes corrupting data.
+        // Define the return value length. Even though the service program returns void, the API middle-man we call (QZRUCLSP) still returns four bytes.  If we don't get this right the output buffers will be off by four bytes, corrupting data.
         programParameterList[6] = new ProgramParameter(returnValueParmLength);
 
         // Combines the newly created programParameterList with the value of serviceParameterList input by user to form the perfect parameter list that will be needed in the method runProgram.
