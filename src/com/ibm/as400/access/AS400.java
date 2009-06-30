@@ -801,6 +801,11 @@ public class AS400 implements Serializable
                 AS400.nativeVersion = Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode();
             }
         }
+        catch (ClassNotFoundException e)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations; class 'NativeVersion' is not found.");
+            AS400.nativeVersion = 0;
+        }
         catch (Exception e)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations; unexpected exception while loading native version:", e);
