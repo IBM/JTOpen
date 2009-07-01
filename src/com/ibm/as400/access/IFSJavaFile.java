@@ -26,7 +26,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 /**
- * Represents a file in the integrated file system of an IBM i system.
+ * Represents an object in the IBM i integrated file system.
  * <br>
  *
  * IFSJavaFile extends the java.io.File class and allows programs
@@ -312,61 +312,70 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return directory;
   }
 
-/**
- * Indicates if the program can read from the IFSJavaFile.
- *
- * @return <code>true</code> if the object exists and is readable; <code>false</code> otherwise.
-**/
-  public boolean canRead()
+
+  /**
+   Tests whether the application can execute the file denoted by this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+   If the user profile has *ALLOBJ special authority (and system is V5R1 or higher), this method always returns true.
+
+   @return true if and only if the abstract pathname exists and the application is allowed to execute the file.
+   For consistency with the behavior of java.io.File on IBM i JVM's: If a security error occurs simply because the user profile isn't allowed to access the file, the error is traced and false is returned.
+   @exception SecurityException  If an unanticipated security error occurs.
+   **/
+  public boolean canExecute()
+    throws SecurityException
   {
     try
     {
-      int returnCode = ifsFile_.canRead0();
-      if ((returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY)
-      ||  (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST))
-      {
-        throw new SecurityException(ResourceBundleLoader.getText(mapRC(returnCode)));
-      }
-      return (returnCode == IFSReturnCodeRep.SUCCESS);
-    }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, e);
-      throw new SecurityException(e.getMessage());
+      return ifsFile_.canExecute();
     }
     catch (IOException e)
     {
       Trace.log(Trace.ERROR, e);
-      return false;
+      throw new SecurityException(e.getMessage());
+    }
+  }
+
+
+/**
+ * Indicates if the program can read from the file denoted by this abstract pathname.
+ *
+ * @return true if and only if the abstract pathname exists and the application is allowed to read the file.
+ * For consistency with the behavior of java.io.File on IBM i JVM's: If a security error occurs simply because the user profile isn't allowed to access the file, the error is traced and false is returned.
+ * @exception SecurityException  If an unanticipated security error occurs.
+**/
+  public boolean canRead()
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.canRead();
+    }
+    catch (IOException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
     }
   }
 
 /**
- * Indicates if the program can write to the IFSJavaFile.
+ * Indicates if the program can write to the file denoted by this abstract pathname.
  *
- * @return <code>true</code> if the object exists and is writeable; <code>false</code> otherwise.
+ * @return true if and only if the abstract pathname exists and the application is allowed to write the file.
+ * For consistency with the behavior of java.io.File on IBM i JVM's: If a security error occurs simply because the user profile isn't allowed to access the file, the error is traced and false is returned.
+ * @exception SecurityException  If an unanticipated security error occurs.
 **/
   public boolean canWrite()
+    throws SecurityException
   {
     try
     {
-      int returnCode = ifsFile_.canWrite0();
-      if ((returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY)
-      ||  (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST))
-      {
-        throw new SecurityException(ResourceBundleLoader.getText(mapRC(returnCode)));
-      }
-      return (returnCode == IFSReturnCodeRep.SUCCESS);
-    }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, e);
-      throw new SecurityException(e.getMessage());
+      return ifsFile_.canWrite();
     }
     catch (IOException e)
     {
       Trace.log(Trace.ERROR, e);
-      return false;
+      throw new SecurityException(e.getMessage());
     }
   }
 
@@ -515,8 +524,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return <code>true</code> if the file is successfully deleted;
  *         <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean delete()
+    throws SecurityException
   {
     try
     {
@@ -535,7 +546,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
   }
@@ -570,8 +581,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return <code>true</code> if the file specified by this object
  *         exists; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied read access to the file.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean exists()
+    throws SecurityException
   {
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
@@ -590,7 +604,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -675,6 +689,91 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     return pathString;
   }
+
+
+  /**
+   Returns the number of unallocated bytes in the partition named by this abstract path name.
+   <p>
+   The returned number of unallocated bytes is a hint, but not a guarantee, that it is possible to use most or any of these bytes. The number of unallocated bytes is most likely to be accurate immediately after this call. It is likely to be made inaccurate by any external I/O operations including those made on the system outside of this virtual machine. This method makes no guarantee that write operations to this file system will succeed.
+
+   @return The number of unallocated bytes on the partition; or 0L if the abstract pathname does not name a partition. This value will be less than or equal to the total file system size returned by getTotalSpace(). 
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public long getFreeSpace()
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.getFreeSpace0(false);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+      return 0L;
+    }
+  }
+
+
+  /**
+   Returns the size of the partition named by this abstract pathname.
+
+   @return The size, in bytes, of the partition; or 0L if this abstract pathname does not name a partition.
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public long getTotalSpace()
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.getTotalSpace0(false);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+      return 0L;
+    }
+  }
+
+
+  /**
+   Returns the number of bytes available to this virtual machine on the partition named by this abstract pathname. When possible, this method checks for write permissions and other operating system restrictions and will therefore usually provide a more accurate estimate of how much new data can actually be written than getFreeSpace().
+   <p>
+   The returned number of available bytes is a hint, but not a guarantee, that it is possible to use most or any of these bytes. The number of unallocated bytes is most likely to be accurate immediately after this call. It is likely to be made inaccurate by any external I/O operations including those made on the system outside of this virtual machine. This method makes no guarantee that write operations to this file system will succeed.
+   <p>
+   Note: If the user profile has a "maximum storage allowed" setting of *NOMAX, then getUsableSpace() returns the same value as {@link #getFreeSpace getFreeSpace()}.
+
+   @return The number of available bytes on the partition; or 0L if the abstract pathname does not name a partition. 
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public long getUsableSpace()
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.getFreeSpace0(true);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+      return 0L;
+    }
+  }
+
 
 /**
  * Returns the IFSFile object contained within this IFSJavaFile.
@@ -849,8 +948,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * Indicates if the IFSJavaFile is a directory.
  *
  * @return <code>true</code> if the IFSJavaFile exists and is a directory; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean isDirectory()
+    throws SecurityException
   {
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
@@ -869,7 +970,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -880,8 +981,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * A file is "normal" if it is not a directory or a container of other objects.
  *
  * @return <code>true</code> if the specified file exists and is a "normal" file; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean isFile()
+    throws SecurityException
   {
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
@@ -900,7 +1003,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -912,10 +1015,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * hidden if its hidden attribute is set.
  *
  * @return <code>true</code> if the file is hidden; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean isHidden()
+    throws SecurityException
   {
      try
      {
@@ -927,6 +1032,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      }
      catch (IOException e)
      {
+       if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
        return false;
      }
   }
@@ -938,8 +1044,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return The time (measured in milliseconds since
  * 01/01/1970 00:00:00 GMT) that the IFSJavaFile was
  * last modified, or <code>0</code> if it does not exist.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public long lastModified()
+    throws SecurityException
   {
     try
     {
@@ -952,7 +1060,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return 0L;
     }
   }
@@ -961,9 +1069,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * Indicates the length of this IFSJavaFile.
  *
  * @return The length, in bytes, of the IFSJavaFile,
- * or <code>0</code> if it does not exist.
+ * or <code>0</code>((IFSJavaFile) if it does not exist.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public long length()
+    throws SecurityException
   {
     try
     {
@@ -983,7 +1093,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return 0L;
     }
   }
@@ -998,8 +1108,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * If this IFSJavaFile is an empty directory,
  * an empty string array is returned.
  * @see #listFiles()
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public String[] list()
+    throws SecurityException
   {
     try
     {
@@ -1012,7 +1124,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1049,9 +1161,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  AcceptClass ac = new AcceptClass();
  *  file.list(ac);
  *</pre>
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #listFiles(FilenameFilter)
 **/
   public String[] list(FilenameFilter filter)
+    throws SecurityException
   {
     String names[] = null;
 
@@ -1066,7 +1180,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return null;
     }
 
@@ -1126,9 +1240,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  file.list(ac);
  *
  *</pre>
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #listFiles(IFSFileFilter)
 **/
   public String[] list(IFSFileFilter filter)
+    throws SecurityException
   {
     try
     {
@@ -1141,7 +1257,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1164,9 +1280,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          to the file name filter object have cached file attribute information.
  *          Maintaining references to these IFSFile objects after the list operation
  *          increases the chances that their file attribute information will not be valid.
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #listFiles(IFSFileFilter,String)
 **/
   public String[] list(IFSFileFilter filter, String pattern)
+    throws SecurityException
   {
     if (pattern == null)
       throw new NullPointerException("pattern");
@@ -1182,7 +1300,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1201,9 +1319,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          is not a directory, null is returned.  If this IFSJavaFile
  *          is an empty directory, or the pattern does not match any
  *          files, an empty string array is returned.
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #listFiles(String)
 **/
   public String[] list(String pattern)
+    throws SecurityException
   {
     if (pattern == null)
       throw new NullPointerException("pattern");
@@ -1219,7 +1339,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1237,9 +1357,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * a directory, null is returned.
  * If this IFSJavaFile is an empty directory,
  * an empty object array is returned.
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #list()
 **/
   public File[] listFiles()
+    throws SecurityException
   {
      return listFiles(null,"*");
   }
@@ -1280,9 +1402,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  AcceptClass ac = new AcceptClass();
  *  file.listFiles(ac);
  *</pre>
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #list(FilenameFilter)
 **/
   public File[] listFiles(FilenameFilter filter)
+    throws SecurityException
   {
     IFSFile[] files = null;
     try
@@ -1296,7 +1420,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return null;
     }
 
@@ -1365,8 +1489,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  AcceptClass ac = new AcceptClass();
  *  file.listFiles(ac);
  *</pre>
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public File[] listFiles(FileFilter filter)
+    throws SecurityException
   {
     IFSFile[] files = null;
     try
@@ -1380,7 +1506,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return null;
     }
 
@@ -1444,9 +1570,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  file.listFiles(ac);
  *
  *</pre>
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #list(IFSFileFilter)
 **/
   public File[] listFiles(IFSFileFilter filter)
+    throws SecurityException
   {
      return listFiles(filter,"*");
   }
@@ -1473,9 +1601,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          to the file name filter object has cached file attribute information.
  *          Maintaining references to these IFSFile objects after the list operation
  *          increases the chances that their file attribute information will not be valid.
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #list(IFSFileFilter,String)
 **/
   public File[] listFiles(IFSFileFilter filter, String pattern)
+    throws SecurityException
   {
     if (pattern == null)
       throw new NullPointerException("pattern");
@@ -1497,7 +1627,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return new IFSJavaFile[0];
     }
   }
@@ -1520,9 +1650,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          is not a directory, null is returned.  If this IFSJavaFile
  *          is an empty directory, or the pattern does not match any
  *          files, an empty string array is returned.
+ * @exception SecurityException  If the user is denied access to the file.
  * @see #list(String)
 **/
   public File[] listFiles(String pattern)
+    throws SecurityException
   {
     if (pattern == null)
       throw new NullPointerException("pattern");
@@ -1574,8 +1706,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return <code>true</code> if the directory could be created;
  *         <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean mkdir()
+    throws SecurityException
   {
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
@@ -1589,7 +1723,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -1602,8 +1736,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return <code>true</code> if the directory (or directories) could be
  *         created; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean mkdirs()
+    throws SecurityException
   {
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
@@ -1617,7 +1753,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -1631,8 +1767,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return  <code>true</code> if the renaming succeeds;
  *          <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean renameTo(IFSJavaFile dest)
+    throws SecurityException
   {
     if (dest == null)
       throw new NullPointerException("dest");
@@ -1655,7 +1793,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (PropertyVetoException e) {}  // will never happen
     catch (IOException e)
     {
-      Trace.log(Trace.ERROR, e);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -1671,8 +1809,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return  <code>true</code> if the renaming succeeds;
  *          <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   public boolean renameTo(File dest)
+    throws SecurityException
   {
     try {
       return renameTo((IFSJavaFile)dest);
@@ -1692,22 +1832,26 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *        00:00:00 GMT, January 1, 1970.
  *        If -1, sets the last modified time to the current system time.
  * @return <code>true</code> if the time is set; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
   // @D1 - new method because of changes to java.io.file in Java 2.
   // @B8c - Documented new behavior if argument is -1.
 
   public boolean setLastModified(long time)
+    throws SecurityException
   {
      try
      {
-        return ifsFile_.setLastModified(time);
+        return ifsFile_.setLastModified0(time);
+     }
+     catch (AS400SecurityException e)
+     {
+       Trace.log(Trace.ERROR, e);
+       throw new SecurityException(e.getMessage());
      }
      catch (IOException e)
      {
-        return false;
-     }
-     catch (PropertyVetoException e)
-     {
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
         return false;
      }
   }
@@ -1720,15 +1864,23 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    * of the file are undetermined.
    * @param length The new length, in bytes.
    * @return true if successful; false otherwise.
+   * @exception SecurityException  If the user is denied access to the file.
    **/
   public boolean setLength(int length)
+    throws SecurityException
   {
      try
      {
-        return ifsFile_.setLength(length);
+        return ifsFile_.setLength0(length);
+     }
+     catch (AS400SecurityException e)
+     {
+       Trace.log(Trace.ERROR, e);
+       throw new SecurityException(e.getMessage());
      }
      catch (IOException e)
      {
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
         return false;
      }
   }
@@ -1782,17 +1934,25 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * read only by setting the read only attribute of the file.
  *
  * @return <code>true</code> if the read only attribute is set; <code>false</code> otherwise.
+ * @exception SecurityException  If the user is denied access to the file.
 **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setReadOnly()
+    throws SecurityException
   {
      try
      {
-        return ifsFile_.setReadOnly(true);
+        return ifsFile_.setReadOnly0(true);
+     }
+     catch (AS400SecurityException e)
+     {
+       Trace.log(Trace.ERROR, e);
+       throw new SecurityException(e.getMessage());
      }
      catch (IOException e)
      {
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
         return false;
      }
   }
@@ -1822,6 +1982,149 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return true;
   }
 
+
+  /**
+   A convenience method to set the owner's execute permission for this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+   <p>
+   An invocation of this method of the form <tt>file.setExcutable(arg)</tt> behaves in exactly the same way as the invocation <tt>file.setExecutable(arg, true)</tt> 
+
+   @param executable  If true, sets the access permission to allow execute operations; if false, to disallow execute operations.
+   @return true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname.
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public boolean setExecutable(boolean executable)
+    throws SecurityException
+  {
+    return setExecutable(executable, true);
+  }
+
+
+  /**
+   Sets the owner's or everybody's execute permission for this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+
+   @param executable  If true, sets the access permission to allow execute operations; if false, to disallow execute operations.
+   @param ownerOnly  If true, the execute permission applies only to the owner's execute permission; otherwise, it applies to everybody.
+   @returns true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname.
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public boolean setExecutable(boolean executable,
+                               boolean ownerOnly)
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.setAccess(IFSFile.ACCESS_EXECUTE, executable, ownerOnly);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+      return false;
+    }
+  }
+
+
+  /**
+   A convenience method to set the owner's read permission for this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+   <p>
+   An invocation of this method of the form <tt>file.setReadable(arg)</tt> behaves in exactly the same way as the invocation <tt>file.setReadable(arg, true)</tt>
+
+   @param readable  If true, sets the access permission to allow read operations; if false, to disallow read operations.
+   @return true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname.
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public boolean setReadable(boolean readable)
+    throws SecurityException
+  {
+    return setReadable(readable, true);
+  }
+
+
+  /**
+   Sets the owner's or everybody's read permission for this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+
+   @param readable  If true, sets the access permission to allow read operations; if false, to disallow read operations.
+   @param ownerOnly  If true, the read permission applies only to the owner's read permission; otherwise, it applies to everybody.
+   @return true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname.
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public boolean setReadable(boolean readable,
+                             boolean ownerOnly)
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.setAccess(IFSFile.ACCESS_READ, readable, ownerOnly);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+      return false;
+    }
+  }
+
+
+  /**
+   A convenience method to set the owner's write permission for this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+   <p>
+   An invocation of this method of the form <tt>file.setWritable(arg)</tt> behaves in exactly the same way as the invocation <tt>file.setWritable(arg, true)</tt>
+
+   @param writable  If true, sets the access permission to allow write operations; if false to disallow write operations 
+   @return true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname. 
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public boolean setWritable(boolean writable)
+    throws SecurityException
+  {
+    return setWritable(writable, true);
+  }
+
+
+  /**
+   Sets the owner's or everybody's write permission for this abstract pathname.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+
+   @param writable  If true, sets the access permission to allow write operations; if false, to disallow write operations.
+   @param ownerOnly  If true, the write permission applies only to the owner's write permission; otherwise, it applies to everybody.
+   @return true  if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname. 
+   @exception SecurityException  If the user is denied access to the file.
+   **/
+  public boolean setWritable(boolean writable,
+                             boolean ownerOnly)
+    throws SecurityException
+  {
+    try
+    {
+      return ifsFile_.setAccess(IFSFile.ACCESS_WRITE, writable, ownerOnly);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, e);
+      return false;
+    }
+  }
+
+
+
 /**
  * Returns a string representation of this object.
  *
@@ -1833,7 +2136,9 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     {
       return ifsFile_.toString().replace(AS400_SEPARATOR, separatorChar); 
     }
-    return ifsFile_.toString();
+    else {
+      return ifsFile_.toString();
+    }
 
 //    return replace_ ? ifsFile_.toString().replace(AS400_SEPARATOR, separatorChar) : ifsFile_.toString(); //@P2C
   }

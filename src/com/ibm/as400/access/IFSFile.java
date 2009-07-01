@@ -40,8 +40,7 @@ import java.util.StringTokenizer;            //@D4A
 
 
 /**
-  * The IFSFile class represents
-  * an object in the integrated file system of OS/400 or IBM i.
+  * Represents an object in the IBM i integrated file system.
   * As in java.io.File, IFSFile is designed to work
   * with the object as a whole.  For example, use IFSFile
   * to delete or rename a file, to access the
@@ -133,6 +132,12 @@ public class IFSFile
   private final static String DOT = ".";    // @D4A
   private final static String DOTDOT = "..";// @D4A
 
+  // Constants used by QlgChmod and QlgAccess. Defined in system header file "stat.h".
+  // Note that these values are expressed in octal.
+  final static int ACCESS_EXECUTE = 001;
+  final static int ACCESS_WRITE   = 002;
+  final static int ACCESS_READ    = 004;
+
   /**
    Value for indicating that "POSIX" pattern-matching is used by the various <tt>list()</tt> and <tt>listFiles()</tt> methods.
    <br>Using POSIX semantics, all files are listed that match the pattern and do not begin with a period (unless the pattern begins with a period).  In that case, names beginning with a period are also listed.  Note that when no pattern is specified, the default pattern is "*".
@@ -157,6 +162,7 @@ public class IFSFile
   transient private VetoableChangeSupport vetos_;
   transient private Vector fileListeners_;
   transient private IFSFileImpl impl_;
+  transient private ServiceProgramCall servicePgm_;
 
   private AS400 system_;
   private String path_ = "";  // Note: This is never allowed to be null.
@@ -431,19 +437,50 @@ public class IFSFile
     vetos_.addVetoableChangeListener(listener);
   }
 
-//internal version of canRead()
-  int canRead0()
-    throws IOException, AS400SecurityException
-  {
-    if (impl_ == null)
-      chooseImpl();
 
-    return impl_.canRead();
+  /**
+   Determines if the application is allowed to execute the integrated file system
+   object represented by this object.
+   This method is supported for IBM i V5R1 and higher. For older releases, it simply returns false.
+   If the user profile has *ALLOBJ special authority (and system is V5R1 or higher), this method always returns true.
+   @return true if the object exists and is executable by the application; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+   **/
+  public boolean canExecute()
+    throws IOException
+  {
+    try
+    {
+      // Note: The called API (QlgAccess) is supported for V5R1 and higher.
+      if (impl_ == null)
+        chooseImpl();
+
+      return impl_.canExecute();
+    }
+    catch (AS400SecurityException e)
+    {
+      // If we got the exception simply because we don't have "execute" access, ignore it.
+      if (e.getReturnCode() == AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED)
+      {
+        // Assume it's already been traced.
+        return false;
+      }
+      else // some other return code
+      {
+        Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+        throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
+      }
+    }
   }
 
 
   /**
-   Determines if the applet or application can read from the integrated file system
+   Determines if the application can read from the integrated file system
    object represented by this object.
    Note that IBM i <i>directories</i> are never readable; only <i>files</i> can be readable.
    @return true if the object exists and is readable by the application; false otherwise.
@@ -457,30 +494,32 @@ public class IFSFile
   public boolean canRead()
     throws IOException
   {
-    int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
     {
-      returnCode = canRead0();
+      if (impl_ == null)
+        chooseImpl();
+
+      return impl_.canRead();
     }
     catch (AS400SecurityException e)
     {
-      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      // If we got the exception simply because we don't have "read" access, ignore it.
+      if (e.getReturnCode() == AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED)
+      {
+        // Assume it's already been traced.
+        return false;
+      }
+      else // some other return code
+      {
+        Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+        throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
+      }
     }
-    return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
 
-//internal version of canWrite()
-  int canWrite0()
-    throws IOException, AS400SecurityException
-  {
-    if (impl_ == null)
-      chooseImpl();
-
-    return impl_.canWrite();
-  }
 
   /**
-   Determines if the applet or application can write to the integrated file system
+   Determines if the application can write to the integrated file system
    object represented by this object.
    Note that IBM i <i>directories</i> are never writable; only <i>files</i> can be writable.
    @return true if the object exists and is writeable by the application; false otherwise.
@@ -495,16 +534,27 @@ public class IFSFile
   public boolean canWrite()
     throws IOException
   {
-    int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
     {
-      returnCode = canWrite0();
+      if (impl_ == null)
+        chooseImpl();
+
+      return impl_.canWrite();
     }
     catch (AS400SecurityException e)
     {
-      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      // If we got the exception simply because we don't have "write" access, ignore it.
+      if (e.getReturnCode() == AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED)
+      {
+        // Assume it's already been traced.
+        return false;
+      }
+      else // some other return code
+      {
+        Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+        throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
+      }
     }
-    return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
 
   /**
@@ -679,15 +729,9 @@ public class IFSFile
     {                                                           //D3a
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);            //D3a
       //return 0L;                                              //D3a @B6d
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }                                                           //D3a
   }                                                             //D3a
-
-
-
-
-
-
 
 
   /**
@@ -704,7 +748,6 @@ public class IFSFile
    @exception IOException If the user is not authorized to create the file.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
-
   public boolean createNewFile()
     throws IOException
   {
@@ -715,11 +758,26 @@ public class IFSFile
           chooseImpl();
 
         returnCode = impl_.createNewFile();
+        switch (returnCode)
+        {
+          case IFSReturnCodeRep.SUCCESS:
+            break;
+          case IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME:  // file already exists
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "File already exists: " + path_);
+            break;
+          case IFSReturnCodeRep.PATH_NOT_FOUND:  // directory doesn't exist
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Path not found: " + path_);
+            break;
+          default:
+            Trace.log(Trace.ERROR, "Return code " + returnCode + " from createNewFile().");
+            throw new ExtendedIOException(returnCode);
+            // Note: The return codes in IFSReturnCodeRep are replicated in ExtendedIOException.
+        }
      }
      catch (AS400SecurityException e)
      {
         Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-        throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+        throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
      }
      return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -785,7 +843,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -828,7 +886,7 @@ public class IFSFile
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
             //return null;      // @B6d
-            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+            throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -868,7 +926,7 @@ public class IFSFile
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
             //return null;  // @B6d
-            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+            throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -904,7 +962,7 @@ public class IFSFile
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
             // return null;  // @B6d
-            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+            throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -937,7 +995,7 @@ public class IFSFile
       catch (AS400SecurityException e) {
             Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
             // return null;  // @B6d
-            throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+            throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
       }
   }
 
@@ -1014,8 +1072,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1130,7 +1187,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
     return result;
   }
@@ -1168,12 +1225,12 @@ public class IFSFile
       if (impl_ == null)
         chooseImpl();
 
-      return impl_.getFreeSpace();
+      return impl_.getFreeSpace(true);
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
   }
 
@@ -1205,13 +1262,57 @@ public class IFSFile
       system.connectService(AS400.FILE);
       impl.setSystem(system.getImpl());
       impl.setPath("/");
-      return impl.getFreeSpace();
+      return impl.getFreeSpace(true);
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
+  }
+
+
+
+  /**
+   Returns the amount of unused storage space that is available to the user.
+   Note: If the user profile has a "maximum storage allowed" setting of *NOMAX, then getFreeSpace0(true) returns the same value as getFreeSpace0(false).
+   @return The number of bytes of storage available.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+
+   **/
+  long getFreeSpace0(boolean forUserOnly)
+    throws IOException, AS400SecurityException
+  {
+    if (impl_ == null)
+      chooseImpl();
+
+    return impl_.getFreeSpace(forUserOnly);
+  }
+
+
+  /**
+   Returns the total amount of storage space on the file system.
+   @return The total number of bytes on the file system.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+
+   **/
+  long getTotalSpace0(boolean forUserOnly)
+    throws IOException, AS400SecurityException
+  {
+    if (impl_ == null)
+      chooseImpl();
+
+    return impl_.getTotalSpace(forUserOnly);
   }
 
   IFSFileImpl getImpl()
@@ -1307,10 +1408,8 @@ public class IFSFile
    @exception ExtendedIOException If the file does not exist.
    **/
   public String getOwnerName()
-    throws AS400SecurityException,
-           ErrorCompletingRequestException,
-           InterruptedException,
-           IOException
+    throws IOException,
+           AS400SecurityException
   {
     // Design note: The File Server doesn't support changing the owner name.
     // It only supports retrieving it.  Hence we do not provide a setOwnerName() method.
@@ -1344,7 +1443,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
     return result;
   }
@@ -1373,7 +1472,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
     return result;
   }
@@ -1428,6 +1527,39 @@ public class IFSFile
   public String getPath()
   {
     return path_;
+  }
+
+
+  /**
+   Returns the path of the integrated file system object that is directly pointed to by the symbolic link represented by this object; or <tt>null</tt> if the file is not a symbolic link or does not exist.
+   <p>
+   This method is not supported for files in the following file systems:
+   <ul>
+   <li>QSYS.LIB
+   <li>Independent ASP QSYS.LIB
+   <li>QDLS
+   <li>QOPT
+   <li>QNTC
+   </ul>
+
+   @return The path directly pointed to by the symbolic link, or <tt>null</tt> if the IFS object is not a symbolic link or does not exist. Depending on how the symbolic link was defined, the path may be either relative or absolute.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+   @exception InterruptedException If this thread is interrupted.
+   @exception IOException If an error occurs while communicating with the system.
+   @exception ObjectDoesNotExistException If the object does not exist on the system.
+   **/
+  public String getPathPointedTo()
+    throws IOException, AS400SecurityException
+  {
+    // See if we've already determined that the file isn't a symbolic link.
+    if (cachedAttributes_ != null && !isSymbolicLink_) return null;
+
+    if (impl_ == null)
+      chooseImpl();
+
+    return impl_.getPathPointedTo();
   }
 
 
@@ -1602,8 +1734,8 @@ public class IFSFile
 
   /**
    Determines if the integrated file system object represented by this object is a
-   directory.<br>
-   Both isDirectory() and {@link #isFile() isFile} will return false
+   directory.
+   <br>Both isDirectory() and {@link #isFile() isFile} will return false
    for invalid symbolic links.
 
    @return true if the integrated file system object exists and is a directory; false otherwise.
@@ -1627,7 +1759,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;  //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1655,19 +1787,19 @@ public class IFSFile
 
   /**
    Determines if the integrated file system object represented by this object is a
-   "normal" file.<br>
-   A file is "normal" if it is not a directory or a container of other objects. <br>
+   "normal" file.
+   <br>A file is "normal" if it is not a directory or a container of other objects. <br>
    Both {@link #isDirectory() isDirectory} and isFile() will return false
    for invalid symbolic links.
 
    @return true if the specified file exists and is a "normal" file; false otherwise.
 
+   @see #isSymbolicLink()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the system.
    @exception InterruptedIOException If this thread is interrupted.
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
-
    **/
   public boolean isFile()
     throws IOException
@@ -1681,7 +1813,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;   //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -1720,9 +1852,8 @@ public class IFSFile
 
   /**
    Determines if the integrated file system object represented by this object is a
-   symbolic link.<br>
-   A file is "normal" if it is not a directory or a container of other objects. <br>
-   Note: Both {@link #isDirectory() isDirectory} and {@link #isFile() isFile} resolve symbolic links to their ultimate destination.  For example, if this object represents a symbolic link on the system, that resolves to a file object, then isSymbolicLink() will return true, isFile() will return true, and isDirectory() will return false. 
+   symbolic link.
+   <br>Note: Both {@link #isDirectory() isDirectory} and {@link #isFile() isFile} resolve symbolic links to their ultimate destination.  For example, if this object represents a symbolic link on the system, that resolves to a file object, then isSymbolicLink() will return true, isFile() will return true, and isDirectory() will return false. 
    <br>Note: If the system is V5R2 or earlier, this method always returns false, regardless of whether the system object is a link or not.
 
    @return true if the specified file exists and is a symbolic link; false otherwise.
@@ -1765,7 +1896,6 @@ public class IFSFile
    @exception UnknownHostException If the system cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
-
   public boolean isReadOnly()
     throws IOException, AS400SecurityException
   {
@@ -1834,7 +1964,7 @@ public class IFSFile
     {                                                           //D3a
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);            //D3a
       //return 0L;                                              //D3a @B6d
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }                                                           //D3a
   }                                                             //D3a
 
@@ -1887,7 +2017,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       //return 0L;  // @B6d
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -1940,7 +2070,7 @@ public class IFSFile
     {
        Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
        // return 0L;  // @B6d
-       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+       throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -2125,7 +2255,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // return null;  // @B6d
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -2250,7 +2380,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // return null;  // @B6d
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
   }
 
@@ -2451,7 +2581,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -2492,7 +2622,7 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
@@ -2620,9 +2750,47 @@ public class IFSFile
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       // returnCode = IFSReturnCodeRep.FILE_NOT_FOUND; //@A7D Unnecessary assignment.
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
+  }
+
+
+  /**
+   Sets the access mode of the integrated file system object.
+   This method is supported for IBM i V5R1 and higher. For older releases, it does nothing and returns false.
+   @param accessType The type of access to set on the file.  Valid values are:
+   <ul>
+   <li> {@link #ACCESS_READ ACCESS_READ}
+   <li> {@link #ACCESS_WRITE ACCESS_WRITE}
+   <li> {@link #ACCESS_EXECUTE ACCESS_EXECUTE}
+   </ul>
+   @param accessMode  If true, sets the access permission to allow the specified type of operation; if false, to disallow the operation.
+   @param ownerOnly  If true, the specified permission applies only to the owner's permission; otherwise, it applies to everybody.
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+   **/
+  boolean setAccess(int accessType, boolean enableAccess, boolean ownerOnly)
+    throws IOException, AS400SecurityException
+  {
+    // Note: The called API (QlgChmod) is supported for V5R1 and higher.
+    // The impl object will check the VRM.
+
+    if (accessType != ACCESS_READ && accessType != ACCESS_WRITE && accessType != ACCESS_EXECUTE)
+    {
+      throw new ExtendedIllegalArgumentException("accessType ("+accessType+")",
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+
+    if (impl_ == null)
+      chooseImpl();
+
+    return impl_.setAccess(accessType, enableAccess, ownerOnly);
   }
 
 
@@ -2649,7 +2817,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     if (success)
@@ -2696,29 +2864,29 @@ public class IFSFile
     // Validate arguments.
     if ((attributes & 0xFFFFFF00) != 0)
     {
-      throw new ExtendedIllegalArgumentException("attributes",
-                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("attributes ("+attributes+")",
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
-    if (impl_ == null)
     try
     {
-      chooseImpl();
+      if (impl_ == null)
+        chooseImpl();
+
+      boolean success = impl_.setFixedAttributes(attributes);
+
+      if (success)
+      {
+        cachedAttributes_ = null;
+      }
+
+      return success;
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
-
-    boolean success = impl_.setFixedAttributes(attributes);
-
-    if (success)
-    {
-      cachedAttributes_ = null;
-    }
-
-    return success;
   }
 
   /**
@@ -2732,7 +2900,6 @@ public class IFSFile
    @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
-
   public boolean setHidden()
     throws IOException
   {
@@ -2755,33 +2922,32 @@ public class IFSFile
    @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
-
   public boolean setHidden(boolean attribute)
     throws IOException
   {
-    if (impl_ == null)
     try
     {
-      chooseImpl();
+      if (impl_ == null)
+        chooseImpl();
+
+      boolean success = impl_.setHidden(attribute);
+
+      if (success)
+      {
+        cachedAttributes_ = null;
+
+        // Fire the file modified event.
+        if (fileListeners_.size() != 0) {
+          IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
+        }
+      }
+      return success;
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
-
-    boolean success = impl_.setHidden(attribute);
-
-    if (success)
-    {
-      cachedAttributes_ = null;
-
-      // Fire the file modified event.
-      if (fileListeners_.size() != 0) {
-        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
-      }
-    }
-    return success;
   }
 
 
@@ -2804,27 +2970,50 @@ public class IFSFile
   public boolean setLastModified(long time)
     throws IOException, PropertyVetoException
   {
+    // Fire a vetoable change event for lastModified.
+    vetos_.fireVetoableChange("lastModified", null, new Long(time));
+
+    try
+    {
+      return setLastModified0(time);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
+    }
+  }
+
+
+  /**
+   Changes the last modified time of the integrated file system object
+   represented by this object to <i>time</i>.
+   @param time The desired last modification time (measured in milliseconds
+   since January 1, 1970 00:00:00 GMT), or 0 to leave the last modification
+   time unchanged, or -1 to set the last modification time to the current system time.
+
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+   @exception PropertyVetoException If the change is vetoed.
+   **/
+  boolean setLastModified0(long time)
+    throws IOException, AS400SecurityException
+  {
     // Validate arguments.
     if (time < -1)  // @B8c
     {
       throw new ExtendedIllegalArgumentException("time (" +
                                                  Long.toString(time) + ")",
-                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-
-    // Fire a vetoable change event for lastModified.
-    vetos_.fireVetoableChange("lastModified", null, new Long(time));
 
     if (impl_ == null)
-    try
-    {
       chooseImpl();
-    }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
-    }
 
     boolean success = impl_.setLastModified(time);
 
@@ -2860,40 +3049,58 @@ public class IFSFile
   public boolean setLength(int length)
     throws IOException
   {
+    try
+    {
+      return setLength0(length);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
+    }
+  }
+
+  // @B8a
+  /**
+   Sets the length of the integrated file system object represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
+   @param length The new length, in bytes.
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+   **/
+  boolean setLength0(int length)
+    throws IOException, AS400SecurityException
+  {
     // Validate arguments.
     if (length < 0)
     {
       throw new ExtendedIllegalArgumentException("length (" +
                                                  Integer.toString(length) + ")",
-                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     // Note: The file system will not allow us to set the length of a file to a value larger than (2Gig minus 1), or 2147483647 (0x7FFFFFFF) bytes, which happens to be the maximum positive value which an 'int' will hold.  Therefore we do not provide a setLength(long) method.
 
-    try
+    if (impl_ == null)
+      chooseImpl();
+
+    boolean success = impl_.setLength(length);
+
+    if (success)
     {
-      if (impl_ == null)
-        chooseImpl();
-
-      boolean success = impl_.setLength(length);
-
-      if (success)
-      {
-        // Fire the file modified event.
-        if (fileListeners_.size() != 0) {
-          IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
-        }
-
-        // Clear any cached attributes.
-        cachedAttributes_ = null;
+      // Fire the file modified event.
+      if (fileListeners_.size() != 0) {
+        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
       }
 
-      return success;
+      // Clear any cached attributes.
+      cachedAttributes_ = null;
     }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
-    }
+
+    return success;
   }
 
   /**
@@ -2958,7 +3165,7 @@ public class IFSFile
     throws IOException
   {
     if (patternMatching < PATTERN_POSIX || patternMatching > PATTERN_OS2) {
-      throw new ExtendedIllegalArgumentException("patternMatching",
+      throw new ExtendedIllegalArgumentException("patternMatching ("+patternMatching+")",
                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     if (impl_ == null)
@@ -2969,7 +3176,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     impl_.setPatternMatching(patternMatching);
@@ -3059,7 +3266,6 @@ public class IFSFile
    @exception UnknownHostException If the system cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
-
   public boolean setReadOnly()
     throws IOException
   {
@@ -3087,16 +3293,40 @@ public class IFSFile
   public boolean setReadOnly(boolean attribute)
     throws IOException
   {
-    if (impl_ == null)
     try
     {
-      chooseImpl();
+      return setReadOnly0(attribute);
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
+  }
+
+
+  /**
+   Changes the read only attribute of the integrated file system object
+   represented by this object.
+   @param attribute True to set the read only attribute of the file such that
+                    the file cannot be changed.  False to set the read only
+                    attributes such that the file can be changed.
+
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the system.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the host server cannot be started.
+   @exception UnknownHostException If the system cannot be located.
+   **/
+
+  // @D1a new method because of changes to java.io.File in Java 2.
+  boolean setReadOnly0(boolean attribute)
+    throws IOException, AS400SecurityException
+  {
+    if (impl_ == null)
+      chooseImpl();
 
     boolean success = impl_.setReadOnly(attribute);
 
@@ -3133,7 +3363,7 @@ public class IFSFile
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+      throw new ExtendedIOException(path_, ExtendedIOException.ACCESS_DENIED);
     }
 
     impl_.setSorted(sort);
