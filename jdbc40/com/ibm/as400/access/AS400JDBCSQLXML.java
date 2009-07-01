@@ -709,9 +709,11 @@ public class AS400JDBCSQLXML implements SQLXML
                 break;
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.CLOB_LOCATOR:   
-                // In this case, we assume this was created using a UTF-16 string, so
-                // the encoding must be in Unicode.
-                is = clobLocatorValue_.getAsciiStream();
+                //This will also be the case for XML column data
+                if(isXML_) //@xml6 if xml column and thus also a locator, then get bytes from bloblocator code
+                    is = blobLocatorValue_.getBinaryStream();   //@xml6 (no trim of XML declaration because it is binary)
+                else
+                    is = clobLocatorValue_.getAsciiStream();
 
                 break;
             case SQLData.BLOB:  
