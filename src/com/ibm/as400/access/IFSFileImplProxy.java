@@ -35,22 +35,33 @@ implements IFSFileImpl
     super ("IFSFile");
   }
 
-  public int canRead()
+  public boolean canExecute()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "canRead");
+      return connection_.callMethodReturnsBoolean (pxId_, "canExecute");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public int canWrite()
+  public boolean canRead()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "canWrite");
+      return connection_.callMethodReturnsBoolean (pxId_, "canRead");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+  public boolean canWrite()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethodReturnsBoolean (pxId_, "canWrite");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -74,7 +85,7 @@ implements IFSFileImpl
     try
     {
       return ((Boolean)connection_.callMethod(pxId_, "copyTo",
-                                              new Class[] { String.class, Boolean.class },
+                                              new Class[] { String.class, Boolean.TYPE },
                                               new Object[] { path, new Boolean(replace) }).getReturnValue()).booleanValue();
     }
     catch (InvocationTargetException e)
@@ -142,11 +153,28 @@ implements IFSFileImpl
     }
   }
 
-  public long getFreeSpace()
+  public long getFreeSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "getFreeSpace").getReturnValueLong();
+      return connection_.callMethod (pxId_, "getFreeSpace",
+                              new Class[] { Boolean.TYPE },
+                              new Object[] { new Boolean(forUserOnly) })
+        .getReturnValueLong();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+  public long getTotalSpace(boolean forUserOnly)
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethod (pxId_, "getTotalSpace",
+                              new Class[] { Boolean.TYPE },
+                              new Object[] { new Boolean(forUserOnly) })
+        .getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -155,7 +183,7 @@ implements IFSFileImpl
 
 
   public String getOwnerName()
-    throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return (String)connection_.callMethod (pxId_, "getOwnerName").getReturnValue();
@@ -172,6 +200,18 @@ implements IFSFileImpl
   {
     try {
       return connection_.callMethod (pxId_, "getOwnerUID").getReturnValueLong();   // @C0c
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+  public String getPathPointedTo()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return (String)connection_.callMethod (pxId_, "getPathPointedTo")
+                                .getReturnValue();
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -309,8 +349,8 @@ implements IFSFileImpl
   {
     try {
       return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
-                              new Class[] { String.class, Integer.TYPE, String.class },     // @D4C
-                              new Object[] { directoryPath, new Integer(maxGetCount), restartName })    // @D4C
+                              new Class[] { String.class, String.class, Integer.TYPE, String.class },     // @D4C
+                              new Object[] { directoryPattern, directoryPath, new Integer(maxGetCount), restartName })    // @D4C
         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -329,8 +369,8 @@ implements IFSFileImpl
   {
     try {
       return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
-                              new Class[] { String.class, Integer.TYPE, byte[].class, Boolean.class },
-                              new Object[] { directoryPath, new Integer(maxGetCount), restartID, new Boolean(allowSortedRequests) })//@D7C
+                              new Class[] { String.class, String.class, Integer.TYPE, byte[].class, Boolean.TYPE },
+                              new Object[] { directoryPattern, directoryPath, new Integer(maxGetCount), restartID, new Boolean(allowSortedRequests) })//@D7C
         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -390,6 +430,20 @@ implements IFSFileImpl
       return ProxyClientConnection.rethrow (e);
   }
 
+  public boolean setAccess(int accessType, boolean enableAccess, boolean ownerOnly)
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethod (pxId_, "setAccess",
+                                     new Class[] { Integer.TYPE, Boolean.TYPE, Boolean.TYPE },
+                                     new Object[] { new Integer(accessType), new Boolean(enableAccess), new Boolean(ownerOnly) })
+        .getReturnValueBoolean();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
   public boolean setCCSID(int ccsid)
     throws IOException, AS400SecurityException
   {
@@ -407,7 +461,7 @@ implements IFSFileImpl
 
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setFixedAttributes(int attributes)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return connection_.callMethod (pxId_, "setFixedAttributes",
@@ -422,7 +476,7 @@ implements IFSFileImpl
 
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setHidden(boolean attribute)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return connection_.callMethod (pxId_, "setHidden",
@@ -436,7 +490,7 @@ implements IFSFileImpl
   }
 
   public boolean setLastModified(long time)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return connection_.callMethod (pxId_, "setLastModified",
@@ -468,7 +522,7 @@ implements IFSFileImpl
   {
     try {
       connection_.callMethod (pxId_, "setPatternMatching",
-                              new Class[] { Integer.class },
+                              new Class[] { Integer.TYPE },
                               new Object[] { new Integer(patternMatching) });
     }
     catch (InvocationTargetException e) {
@@ -478,7 +532,7 @@ implements IFSFileImpl
 
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setReadOnly(boolean attribute)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return connection_.callMethod (pxId_, "setReadOnly",
@@ -515,7 +569,7 @@ implements IFSFileImpl
   {
     try {
       connection_.callMethod (pxId_, "setSorted",
-                              new Class[] { Boolean.class },
+                              new Class[] { Boolean.TYPE },
                               new Object[] { new Boolean(sort) });
     }
     catch (InvocationTargetException e) {

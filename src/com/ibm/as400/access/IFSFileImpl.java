@@ -27,8 +27,9 @@ import java.io.IOException;
  **/
 interface IFSFileImpl
 {
-  int  canRead() throws IOException, AS400SecurityException;
-  int  canWrite() throws IOException, AS400SecurityException;
+  boolean canExecute() throws IOException, AS400SecurityException;
+  boolean  canRead() throws IOException, AS400SecurityException;
+  boolean  canWrite() throws IOException, AS400SecurityException;
   void clearCachedAttributes();                                        //@D8A
   boolean copyTo(String path, boolean replace) throws IOException, AS400SecurityException, ObjectAlreadyExistsException;
   long created() throws IOException, AS400SecurityException;           //@D3a
@@ -36,10 +37,12 @@ interface IFSFileImpl
   int  delete() throws IOException, AS400SecurityException;
   int  exists() throws IOException, AS400SecurityException;
 
-  long getFreeSpace() throws IOException, AS400SecurityException;
+  long getFreeSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
+  long getTotalSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   int getCCSID() throws IOException, AS400SecurityException;            //@A2a
-  String getOwnerName() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException;
+  String getOwnerName() throws IOException, AS400SecurityException;
   long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
+  String getPathPointedTo() throws IOException, AS400SecurityException;
   String getSubtype() throws IOException, AS400SecurityException;      //@B5a
   int isDirectory() throws IOException, AS400SecurityException;
   int isFile() throws IOException, AS400SecurityException;
@@ -72,12 +75,13 @@ interface IFSFileImpl
     throws IOException, AS400SecurityException;
 
   boolean setCCSID(int ccsid) throws IOException, AS400SecurityException;
-  boolean setFixedAttributes(int attributes) throws IOException;         //@D1a
-  boolean setHidden(boolean attribute) throws IOException;               //@D1a
-  boolean setLastModified(long time) throws IOException;
+  boolean setAccess(int accessType, boolean enableAccess, boolean ownerOnly) throws IOException, AS400SecurityException;
+  boolean setFixedAttributes(int attributes) throws IOException, AS400SecurityException;         //@D1a
+  boolean setHidden(boolean attribute) throws IOException, AS400SecurityException;               //@D1a
+  boolean setLastModified(long time) throws IOException, AS400SecurityException;
   boolean setLength(int length) throws IOException, AS400SecurityException;    //@B8a
   void setPatternMatching(int patternMatching);
-  boolean setReadOnly(boolean attribute) throws IOException;             //@D1a
+  boolean setReadOnly(boolean attribute) throws IOException, AS400SecurityException;             //@D1a
   void setPath(String path);
   void setSorted(boolean sort);
   void setSystem(AS400Impl system);

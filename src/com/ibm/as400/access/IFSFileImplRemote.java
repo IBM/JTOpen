@@ -49,6 +49,12 @@ implements IFSFileImpl
   private static final int     NO_MAX_GET_COUNT = -1;  // mnemonic
   private static final int     UNINITIALIZED = -1;
 
+  // Constants for QlgAccess(), from system definitions file "unistd.h"
+  //private static final int ACCESS_MODE_READ    = 0x04;  // R_OK: test for read permission
+  //private static final int ACCESS_MODE_WRITE   = 0x02;  // W_OK: test for write permission
+  private static final int ACCESS_MODE_EXECUTE = 0x01;  // X_OK: test for execute permission
+  //private static final int ACCESS_MODE_EXISTS  = 0x00;  // F_OK: test for existence of file
+
   // Static initialization code.
   static
   {
@@ -68,30 +74,336 @@ implements IFSFileImpl
   private boolean isSymbolicLink_;
   private boolean determinedIsSymbolicLink_;
   private boolean sortLists_;  // whether file-lists are returned from the File Server in sorted order
+  private RemoteCommandImpl servicePgm_;  // Impl object for remote command host server.
+
 
   /**
-   Determines if the applet or application can read from the integrated file system object represented by this object.
+   Determines if the application can execute the integrated file system object represented by this object.  If the file does not exist, returns false.
    **/
-  public int canRead()
+  public boolean canExecute()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    return (fd_.checkAccess(IFSOpenReq.READ_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
+    return canAccess(ACCESS_MODE_EXECUTE);
+  }
+
+
+  /**
+   Determines if the applet or application can read from the integrated file system object represented by this object.
+   **/
+  public boolean canRead()
+    throws IOException, AS400SecurityException
+  {
+    // Ensure that we are connected to the server.
+    fd_.connect();
+
+    int rc = fd_.checkAccess(IFSOpenReq.READ_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN);
+    return (rc == IFSReturnCodeRep.SUCCESS);
+    // Design note: The QlgAccess() API gives somewhat different results in certain scenarios.
+    // Using IFSOpenReq appears to be a bit more "thorough".
   }
 
 
   /**
    Determines if the applet or application can write to the integrated file system object represented by this object.
    **/
-  public int canWrite()
+  public boolean canWrite()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    return (fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
+    int rc = fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN);
+    return (rc == IFSReturnCodeRep.SUCCESS);
+    // Design note: The QlgAccess() API gives somewhat different results in certain scenarios.
+    // Using IFSOpenReq appears to be a bit more "thorough".
+  }
+
+
+  /**
+   Calls QlgAccess() to determine whether the current user can access the file in the specified mode.
+   If the file does not exist, returns false.
+   Note: The QlgAccess API was introduced in V5R1.
+   **/
+  private boolean canAccess(int accessMode)
+    throws IOException, AS400SecurityException
+  {
+    // Assume that the caller has already connected to the server.
+
+    if (fd_.getSystemVRM() < 0x00050100)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Server is pre-V5R1, so canAccess() is returning false.");
+      return false;
+    }
+
+    // We will call the QlgAccess API, to determine whether the current user can access the file in the specified mode.
+    // Note: According to the spec for QlgAccess: "If the [user profile] has *ALLOBJ special authority, access() will indicate success for R_OK, W_OK, or X_OK even if none of the permission bits are set."
+    // Note: QlgAccess() is only _conditionally_ threadsafe.
+
+    boolean result;
+    try
+    {
+      // Create the pgm call object
+      if (servicePgm_ == null) {
+        setupServiceProgram();
+      }
+
+      ProgramParameter[] parameters = new ProgramParameter[]
+      {
+        // Parameter 1: Qlg_Path_Name_T *Path_Name (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, createPathName()),
+        // Parameter 2: int amode (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_VALUE, BinaryConverter.intToByteArray(accessMode))
+      };
+
+      // Call the service program.
+      byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgAccess", parameters);
+      if (returnedBytes == null)
+      {
+        Trace.log(Trace.ERROR, "Call to QlgAccess() returned null.");
+        throw new AS400Exception(servicePgm_.getMessageList());
+      }
+
+      int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
+
+      switch (returnValue)
+      {
+        case -1:  // this indicates that we got an "errno" back
+          {
+            result = false;
+            int errno = BinaryConverter.byteArrayToInt(returnedBytes, 4);
+            switch (errno)
+            {
+              case 3025:  // ENOENT: "No such path or directory."
+                // Assume that we got this error because the file isn't a symlink.
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Received errno "+errno+" from QlgAccess() for file " + fd_.path_ + ". Assuming that the file does not exist.");
+                break;
+              case 3401:  // EACCES: "Permission denied."
+                // Assume that we got this error because we don't have the specified access.
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Received errno "+errno+" from QlgAccess() for file " + fd_.path_ + ". Assuming that the user does not have the specified access.");
+                break;
+              default:    // some other errno
+                Trace.log(Trace.ERROR, "Received errno "+errno+" from QlgAccess() for file " + fd_.path_);
+                throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR, errno);
+                // Note: An ErrnoException might be more appropriate, but the ErrnoException constructor requires an AS400 object, and we don't have one to give it.
+            }
+            break;
+          }
+
+        case 0:  // the call to QlgAccess() was successful.
+          {
+            result = true;
+            break;
+          }
+        default:  // This should never happen. The API spec says it only returns 0 or -1.
+          {
+            Trace.log(Trace.ERROR, "Received unexpected return value " + returnValue + " from QlgAccess() for file " + fd_.path_);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_RETURN_CODE, "QlgAccess()", returnValue);
+          }
+      }
+    }
+    catch (AS400SecurityException e) {
+      throw e;
+    }
+    catch (IOException e) {
+      throw e;
+    }
+    catch (Exception e) {
+      Trace.log(Trace.ERROR, "Error while determining accessibility of file.", e);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR);
+    }
+
+    return result;
+  }
+
+
+  /**
+   Calls QlgChmod() to reset the access mode for the file.
+   // If the file does not exist, returns false.
+   Note: The QlgChmod API was introduced in V5R1.
+   **/
+  public boolean setAccess(int accessType, boolean enableAccess, boolean ownerOnly)
+    throws IOException, AS400SecurityException
+  {
+    // Assume that the caller has already connected to the server.
+
+    // We will call the QlgChmod API, to determine whether the current user can access the file in the specified mode.
+    // Note: QlgChmod() is only _conditionally_ threadsafe.
+
+    if (fd_.getSystemVRM() < 0x00050100)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Server is pre-V5R1, so setAccess() is not supported.");
+      return false;
+    }
+
+    try
+    {
+      // Create the pgm call object
+      if (servicePgm_ == null) {
+        setupServiceProgram();
+      }
+
+      // Get the current access modes, so that we can selectively turn on/off the desired bit(s).
+      int oldAccessMode = getAccess();
+
+      int bitMask = accessType << 6;  // for example: 0000400 == [ 'read' for owner ] 
+      if (!ownerOnly) {
+        bitMask = bitMask | (accessType << 3) | accessType;
+        // for example: 0000444 == [ 'read' for owner, group, and other ]
+      }
+
+      int newAccessMode;
+      if (enableAccess) {
+        newAccessMode = oldAccessMode | bitMask;  // selectively turn bits _on_
+      }
+      else {  // disable access
+        newAccessMode = oldAccessMode & ~bitMask;  // selectively turn bits _off_
+      }
+      newAccessMode = newAccessMode & 0007777;  // QlgChmod can only set the low 12 bits
+
+      ProgramParameter[] parameters = new ProgramParameter[]
+      {
+        // Parameter 1: Qlg_Path_Name_T *Path_Name (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, createPathName()),
+        // Parameter 2: int amode (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_VALUE, BinaryConverter.intToByteArray(newAccessMode))
+      };
+
+      // Call the service program.
+      byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgChmod", parameters);
+      if (returnedBytes == null)
+      {
+        Trace.log(Trace.ERROR, "Call to QlgChmod() returned null.");
+        throw new AS400Exception(servicePgm_.getMessageList());
+      }
+
+      int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
+
+      switch (returnValue)
+      {
+        case -1:  // this indicates that we got an "errno" back
+          {
+            int errno = BinaryConverter.byteArrayToInt(returnedBytes, 4);
+            Trace.log(Trace.ERROR, "Received errno " + errno + " from QlgChmod() for file " + fd_.path_);
+            throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR, errno);
+          }
+
+        case 0:  // the call to QlgChmod() was successful.
+          {
+            break;
+          }
+        default:  // This should never happen. The API spec says it only returns 0 or -1.
+          {
+            Trace.log(Trace.ERROR, "Received unexpected return value " + returnValue + " from QlgChmod() for file " + fd_.path_);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_RETURN_CODE, "QlgChmod()", returnValue);
+          }
+      }
+    }
+    catch (AS400SecurityException e) {
+      throw e;
+    }
+    catch (IOException e) {
+      throw e;
+    }
+    catch (Exception e) {
+      Trace.log(Trace.ERROR, "Error while determining accessibility of file.", e);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR);
+    }
+
+    return true;
+  }
+
+
+  /**
+   Calls QlgStat() to get status information about the file.
+   If the file does not exist, returns null.
+   Note: The QlgStat API was introduced in V5R1.  Do not call this method without checking VRM.
+   **/
+  private int getAccess()
+    throws IOException, AS400SecurityException, ObjectDoesNotExistException
+  {
+    // Assume that the caller has already connected to the server.
+    // Assume that the caller has already verified that the server is V5R1 or higher.
+
+    // We will call the QlgStat API, to get status information about the file.
+    // Note: QlgStat() is only _conditionally_ threadsafe.
+
+    int statInfo = 0;
+    try
+    {
+      // Create the pgm call object
+      if (servicePgm_ == null) {
+        setupServiceProgram();
+      }
+
+      int bufferSizeProvided = 128;  // large enough to accommodate a 'stat' structure
+
+      ProgramParameter[] parameters = new ProgramParameter[]
+      {
+        // Parameter 1: Qlg_Path_Name_T *Path_Name (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, createPathName()),
+        // Parameter 2: struct stat *buf (output) :
+        new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, bufferSizeProvided),
+      };
+
+      // Call the service program.
+      byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgStat", parameters);
+      if (returnedBytes == null)
+      {
+        Trace.log(Trace.ERROR, "Call to QlgStat() returned null.");
+        throw new AS400Exception(servicePgm_.getMessageList());
+      }
+
+      int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
+
+      switch (returnValue)
+      {
+        case -1:  // this indicates that we got an "errno" back
+          {
+            int errno = BinaryConverter.byteArrayToInt(returnedBytes, 4);
+            switch (errno)
+            {
+              case 3025:  // ENOENT: "No such path or directory."
+                // Assume that we got this error because the file isn't a symlink.
+                Trace.log(Trace.ERROR, "Received errno "+errno+" from QlgStat() for file " + fd_.path_ + ". Assuming that the file does not exist.");
+                throw new ObjectDoesNotExistException(fd_.path_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+              case 3401:  // EACCES: "Permission denied."
+                // Assume that we got this error because we don't have the specified access.
+                Trace.log(Trace.ERROR, "Received errno "+errno+" from QlgStat() for file " + fd_.path_ + ". Assuming that the user does not have permission to access the file.");
+                throw new AS400SecurityException(fd_.path_, AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
+              default:    // some other errno
+                Trace.log(Trace.ERROR, "Received errno " + errno + " from QlgStat() for file " + fd_.path_);
+                throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR, errno);
+            }
+          }
+
+        case 0:  // the call to QglStat() was successful.
+          {
+            // Parse the "file modes" from the returned stat structure (second parameter).
+            statInfo = parseStatInfo(parameters[1].getOutputData());
+            break;
+          }
+        default:  // This should never happen. The API spec says it only returns 0 or -1.
+          {
+            Trace.log(Trace.ERROR, "Received unexpected return value " + returnValue + " from QlgStat() for file " + fd_.path_);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_RETURN_CODE, "QlgStat()", returnValue);
+          }
+      }
+    }
+    catch (AS400SecurityException e) {
+      throw e;
+    }
+    catch (IOException e) {
+      throw e;
+    }
+    catch (Exception e) {
+      Trace.log(Trace.ERROR, "Error while determining accessibility of file.", e);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR);
+    }
+
+    return statInfo;
   }
 
   /**
@@ -152,7 +464,7 @@ implements IFSFileImpl
 
 
   /**
-   If files does not exist, create it.  If the files
+   If file does not exist, create it.  If the file
    does exist, return an error.  The goal is to atomically
    create a new file if and only if the file does not
    yet exist.
@@ -343,25 +655,20 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    // @A8D if (attributesReply_ == null)
-    // @A8D {
-      returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
-      // Attempt to list the attributes of the specified file.
-      try
-      {
-        IFSListAttrsRep attrs = getAttributeSetFromServer(name);
-        if (attrs != null)
-        {
-          returnCode = IFSReturnCodeRep.SUCCESS;
-          attributesReply_ = attrs;
-        }
-      }
-      catch (AS400SecurityException e)
-      {
-        returnCode = IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY;
-      }
-    // @A8D }
+    returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
+    // Attempt to list the attributes of the specified file.
+    IFSListAttrsRep attrs = getAttributeSetFromServer(name);
+    if (attrs != null)
+    {
+      returnCode = IFSReturnCodeRep.SUCCESS;
+      attributesReply_ = attrs;
+    }
+
     return (returnCode);
+    // Design note:
+    // The QlgAccess() API gives somewhat different results in certain scenarios.
+    // For example, in one test it returned 'true' when the directory didn't exist.
+    // Using IFSListAttrsReq appears to be more reliable.
   }
 
 
@@ -412,45 +719,126 @@ implements IFSFileImpl
   }
 
 
+  private static final boolean SPACE_AVAILABLE  = true;
+  private static final boolean SPACE_TOTAL      = false;
   /**
    Determines the amount of unused storage space in the file system.
+   @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
    @return The number of bytes of storage available.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
-
    **/
-  public long getFreeSpace()
+  public long getFreeSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
   {
-    // Ensure that we are connected to the server.
-    try
-    {
-      fd_.connect();
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    long spaceAvailable = getAmountOfSpace(forUserOnly, SPACE_AVAILABLE);
 
-    // The File Server team advises us to make two queries:
+    // Design note:  When querying the space available for a specific user,
+    // the File Server team advises us to make two queries:
     // First query the space available to the user (within the user profile's "Maximum Storage Allowed" limit).
     // Then query the total space available in the file system.
     // The smaller of the two values is what we should then report to the application.
+    if (forUserOnly)
+    {
+      long spaceAvailableInFileSystem = getAmountOfSpace(false, SPACE_AVAILABLE);
+      spaceAvailable = Math.min(spaceAvailable, spaceAvailableInFileSystem);
+    }
 
-    long freeSpaceForUser = 0L;  // free space available to the user profile
-    long freeSpaceInFileSystem = 0L; // actual total free space in file system
+    return spaceAvailable;
+  }
 
-    // First, query the free space available to the user within their limit.
 
+  /**
+   Determines the total amount of storage space in the file system.
+   @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
+   @return The number of bytes of storage.
+   **/
+  public long getTotalSpace(boolean forUserOnly)
+    throws IOException, AS400SecurityException
+  {
+    return getAmountOfSpace(forUserOnly, SPACE_TOTAL);
+  }
+
+
+  /**
+   Returns the amount of storage space.
+   @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
+   @param availableSpaceOnly Whether to report only the space available. If false, report total space, rather than just available space.
+   @return The number of bytes of storage.
+   **/
+  private long getAmountOfSpace(boolean forUserOnly, boolean availableSpaceOnly)
+    throws IOException, AS400SecurityException
+  {
+    // Ensure that we are connected to the server.
+    fd_.connect();
+
+    long amountOfSpace = 0L;
+    int directoryHandle;
     ClientAccessDataStream ds = null;
+    int rc = 0;
+
+    if (forUserOnly)  // prepare to get space info for specific user
+    {
+      // Special value for file handle, indicating that space attributes for the user should be retrieved, rather than space attributes of the file system.
+      // According to the PWSI Datastream Spec:
+      // "When the client sends 0 as the working directory handle ... the space characteristics of the user are returned instead of the characteristics of the system."
+      directoryHandle = 0;
+    }
+    else  // prepare to get space info for the entire file system
+    {
+      // To query the file system, we need to specify a "working directory handle" to the directory.  So first, get a handle.
+      String path = fd_.path_;
+      if (isDirectory() != IFSReturnCodeRep.SUCCESS) {
+        path = IFSFile.getParent(fd_.path_);
+      }
+      byte[] pathname = fd_.getConverter().stringToByteArray(path);
+      try
+      {
+        // Issue a Create Working Directory Handle request.
+        IFSCreateDirHandleReq req = new IFSCreateDirHandleReq(pathname, fd_.preferredServerCCSID_);
+        ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+      }
+      catch(ConnectionDroppedException e)
+      {
+        Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+        fd_.connectionDropped(e);
+      }
+      catch(InterruptedException e)
+      {
+        Trace.log(Trace.ERROR, "Interrupted");
+        throw new InterruptedIOException(e.getMessage());
+      }
+
+      // Verify that we got a handle back.
+      rc = 0;
+      if (ds instanceof IFSCreateDirHandleRep)
+      {
+        directoryHandle = ((IFSCreateDirHandleRep) ds).getHandle();
+      }
+      else if (ds instanceof IFSReturnCodeRep)
+      {
+        rc = ((IFSReturnCodeRep) ds).getReturnCode();
+        if (rc != IFSReturnCodeRep.SUCCESS)
+        {
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+        }
+        throw new ExtendedIOException(fd_.path_, rc);
+      }
+      else
+      {
+        // Unknown data stream.
+        Trace.log(Trace.ERROR, "Unknown reply data stream ",
+                  ds.getReqRepID());
+        throw new
+          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                 InternalErrorException.DATA_STREAM_UNKNOWN);
+      }
+    }
+
+    // Query the amount of space.
+    ds = null;
     try
     {
       // Issue a query space request.
-      IFSQuerySpaceReq req = new IFSQuerySpaceReq(0);  // 0 indicates "return attributes for user"
+      IFSQuerySpaceReq req = new IFSQuerySpaceReq(directoryHandle);
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -465,72 +853,15 @@ implements IFSFileImpl
     }
 
     // Verify the reply.
-    int rc = 0;
+    rc = 0;
     if (ds instanceof IFSQuerySpaceRep)
     {
-      freeSpaceForUser = ((IFSQuerySpaceRep) ds).getFreeSpace();
-    }
-    else if (ds instanceof IFSReturnCodeRep)
-    {
-      rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (rc != IFSReturnCodeRep.SUCCESS)
-      {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
-      }
-      throw new ExtendedIOException(fd_.path_, rc);
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ",
-                ds.getReqRepID());
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
-
-    if (Trace.traceOn_) {
-      if (freeSpaceForUser == IFSQuerySpaceRep.NO_MAX) {
-        Trace.log(Trace.DIAGNOSTIC, "MaxStorage appears to be set to *NOMAX");
+      if (availableSpaceOnly) {
+        amountOfSpace = ((IFSQuerySpaceRep) ds).getFreeSpace();
       }
       else {
-        Trace.log(Trace.DIAGNOSTIC, "MaxStorage does not appear to be set to *NOMAX");
+        amountOfSpace = ((IFSQuerySpaceRep) ds).getTotalSpace();
       }
-    }
-
-
-    // Now prepare to issue second query, to determine the total actual free space in the file system.
-
-    // To query the file system, we need to specify a "working directory handle" to the directory.  Get a handle.
-    String path = fd_.path_;
-    if (isDirectory() != IFSReturnCodeRep.SUCCESS) {
-      path = IFSFile.getParent(fd_.path_);
-    }
-    byte[] pathname = fd_.getConverter().stringToByteArray(path);
-    ds = null;
-    try
-    {
-      // Issue a Create Working Directory Handle request.
-      IFSCreateDirHandleReq req = new IFSCreateDirHandleReq(pathname, fd_.preferredServerCCSID_);
-      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify the reply.
-    rc = 0;
-    int dirHandle = 0;
-    if (ds instanceof IFSCreateDirHandleRep)
-    {
-      dirHandle = ((IFSCreateDirHandleRep) ds).getHandle();
     }
     else if (ds instanceof IFSReturnCodeRep)
     {
@@ -551,62 +882,16 @@ implements IFSFileImpl
                                InternalErrorException.DATA_STREAM_UNKNOWN);
     }
 
-
-    // Query the actual total available space in the file system.
-    ds = null;
-    try
-    {
-      // Issue a query space request.
-      IFSQuerySpaceReq req = new IFSQuerySpaceReq(dirHandle);
-      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify the reply.
-    rc = 0;
-    if (ds instanceof IFSQuerySpaceRep)
-    {
-      freeSpaceInFileSystem = ((IFSQuerySpaceRep) ds).getFreeSpace();
-    }
-    else if (ds instanceof IFSReturnCodeRep)
-    {
-      rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (rc != IFSReturnCodeRep.SUCCESS)
-      {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
-      }
-      throw new ExtendedIOException(fd_.path_, rc);
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ",
-                ds.getReqRepID());
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
-
-    return Math.min(freeSpaceForUser, freeSpaceInFileSystem);
+    return amountOfSpace;
   }
 
 
   /**
    Returns the name of the user profile that is the owner of the file.
    Returns "" if called against a directory.
-   @exception ExtendedIOException if file does not exist.
    **/
   public String getOwnerName()
-    throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
+    throws IOException, AS400SecurityException
   {
     // Design note: This method demonstrates how to get attributes that are returned in the OA1* structure (as opposed to the OA2).
     String ownerName = null;
@@ -757,6 +1042,255 @@ implements IFSFileImpl
   }
 
 
+  /**
+   Returns the path of the integrated file system object that is directly pointed to by the symbolic link represented by this object.  Returns <tt>null</tt> if the file is not a symbolic link, does not exist, or is in an unsupported file system.
+   <p>
+   This method is not supported for files in the following file systems:
+   <ul>
+   <li>QSYS.LIB
+   <li>Independent ASP QSYS.LIB
+   <li>QDLS
+   <li>QOPT
+   <li>QNTC
+   </ul>
+
+   @return The path directly pointed to by the symbolic link, or <tt>null</tt> if the IFS object is not a symbolic link or does not exist. Depending on how the symbolic link was defined, the path may be either relative or absolute.
+
+   @exception IOException If an error occurs while communicating with the system.
+   @exception AS400SecurityException If a security or authority error occurs.
+   **/
+  public String getPathPointedTo()
+    throws IOException, AS400SecurityException
+  {
+    // Ensure that we are connected to the server.
+    fd_.connect();
+
+    // We will call the QlgReadlink API, to determine the path of the immediately pointed-to file.  Note that QlgReadlink is only _conditionally_ threadsafe.
+
+    String resolvedPathname = null;
+    try
+    {
+      // Create the pgm call object
+      if (servicePgm_ == null) {
+        setupServiceProgram();
+      }
+
+      int bufferSizeProvided = 1024;  // large enough for most anticipated paths
+
+      ProgramParameter[] parameters = new ProgramParameter[]
+      {
+        // Parameter 1: Qlg_Path_Name_T *path (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, createPathName()),
+        // Parameter 2: Qlg_Path_Name_T *buf (output) :
+        new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, bufferSizeProvided),
+        // Parameter 3: size_t bufsiz (input) :
+        new ProgramParameter(ProgramParameter.PASS_BY_VALUE, BinaryConverter.intToByteArray(bufferSizeProvided))
+      };
+
+      final int HEADER_LENGTH = 32;  // fixed header of returned Qlg_Path_Name_T structure
+
+      boolean repeatRun;
+      do
+      {
+        repeatRun = false;
+        // Call the service program.
+        byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgReadlink", parameters);
+        if (returnedBytes == null)
+        {
+          Trace.log(Trace.ERROR, "Call to QlgReadlink() returned null.");
+          throw new AS400Exception(servicePgm_.getMessageList());
+        }
+
+        int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
+
+        if (returnValue == -1)  // this indicates that we got an "errno" back
+        {
+          int errno = BinaryConverter.byteArrayToInt(returnedBytes, 4);
+          switch (errno)
+          {
+            case 3021:  // EINVAL: "The value specified for the argument is not correct."
+              // Assume that we got this error because the file isn't a symlink.
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Received errno "+errno+" from QlgReadlink() for file " + fd_.path_ + ". Assuming that the file is not a symbolic link.");
+              break;
+            case 3025:  // ENOENT: "No such path or directory."
+              // Assume that we got this error because the file isn't a symlink.
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Received errno "+errno+" from QlgReadlink() for file " + fd_.path_ + ". Assuming that the file does not exist.");
+              break;
+            default:    // some other errno
+              Trace.log(Trace.ERROR, "Received errno " + errno + " from QlgReadlink() for file " + fd_.path_);
+              throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR, errno);
+          }
+        }
+
+        else if ((returnValue + HEADER_LENGTH) > bufferSizeProvided)
+        {
+          repeatRun = true;
+          // Note: returnValue is number of bytes required to hold complete path.
+          int bufferSizeNeeded = returnValue + HEADER_LENGTH;
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QlgReadlink() buffer too small. Buffer size provided: " + bufferSizeProvided + ". Buffer size needed: " + bufferSizeNeeded+". Calling QlgReadLink() with larger buffer.");
+          bufferSizeProvided = bufferSizeNeeded;
+          parameters[1].setOutputDataLength(bufferSizeProvided);
+          parameters[2].setInputData(BinaryConverter.intToByteArray(bufferSizeProvided));
+        }
+
+        else  // We allocated a sufficiently large buffer for the returned data.
+        {
+          // Parse the pathname from the returned pathname structure (second parameter).
+          resolvedPathname = parsePathName(parameters[1].getOutputData());
+        }
+      }
+      while (repeatRun);
+    } // try
+    catch (AS400SecurityException e) {
+      throw e;
+    }
+    catch (IOException e) {
+      throw e;
+    }
+    catch (Exception e) {
+      Trace.log(Trace.ERROR, "Error while resolving symbolic link.", e);
+      throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR);
+    }
+
+    return resolvedPathname;
+  }
+
+
+//
+// Path name structure for QlgAccess():
+// 
+//  0 INPUT 	BINARY(4)  CCSID
+//  4 INPUT 	CHAR(2)    Country or region ID
+//  6 INPUT 	CHAR(3)    Language ID
+//  9 INPUT 	CHAR(3)    Reserved
+// 12 INPUT 	BINARY(4)  Path type indicator
+// 16 INPUT 	BINARY(4)  Length of path name
+// 20 INPUT 	CHAR(2)    Path name delimiter character
+// 22 INPUT 	CHAR(10)   Reserved
+// 32 INPUT 	CHAR(*)    Path name
+// 
+// 
+// Value of "path type indicator" field:
+//   2:  The path name is a character string, and the path name delimiter character is 2 characters long.
+//
+
+
+  // Utility method to convert String path into path name parameter used by the QlgAccess() API.
+  private byte[] createPathName() throws IOException
+  {
+    ConverterImplRemote conv = new ConverterImplRemote();
+    conv.setCcsid(1200, fd_.system_);
+    int pathLength = fd_.path_.length();  // number of Unicode chars
+
+    byte[] buf = new byte[32 + pathLength * 2];    // 2 bytes per Unicode char
+    BinaryConverter.intToByteArray(1200, buf, 0);  // CCSID
+    BinaryConverter.intToByteArray(2, buf, 12);    // path type indicator
+    BinaryConverter.intToByteArray(pathLength * 2, buf, 16); // length of path name (#bytes)
+    conv.stringToByteArray("/", buf, 20, 2);       // path name delimiter
+    conv.stringToByteArray(fd_.path_, buf, 32);    // path name
+    return buf;
+  }
+
+
+  // Utility method to parse the path name parameter returned by the QlgAccess() API.
+  private String parsePathName(byte[] buf) throws IOException
+  {
+    ConverterImplRemote conv = new ConverterImplRemote();
+    conv.setCcsid(1200, fd_.system_);
+    int offset = 0;
+    int nameLength;
+    if (DEBUG)
+    {
+      System.out.println("Buffer length: " + buf.length);
+      System.out.println("CCSID: " + BinaryConverter.byteArrayToInt(buf, offset));
+      offset += 4;
+      //System.out.println("Country: " + conv.byteArrayToString(buf, offset, 2));
+      offset += 2;
+      //System.out.println("LangID: " + conv.byteArrayToString(buf, offset, 3));
+      offset += 3;
+      offset += 3;  // reserved field
+      System.out.println("Path type: " + BinaryConverter.byteArrayToInt(buf, offset));
+      offset += 4;
+      nameLength = BinaryConverter.byteArrayToInt(buf, offset);
+      System.out.println("Path name length: " + nameLength);
+      offset += 4;
+      System.out.println("Delimiter: " + conv.byteArrayToString(buf, offset, 2));
+      offset += 2;
+      offset += 10;  // reserved field
+    }
+    else {
+      offset += 16;
+      nameLength = BinaryConverter.byteArrayToInt(buf, offset);
+      offset += 16;
+    }
+
+    // We will assume that the caller has verified that the buffer was big enough to accommodate the returned data.
+    String pathname = conv.byteArrayToString(buf, offset, nameLength);
+    return pathname;
+  }
+
+
+  // Utility method to parse the structure returned by the QlgStat() API.
+  private int parseStatInfo(byte[] buf) throws IOException
+  {
+    ConverterImplRemote conv = new ConverterImplRemote();
+    conv.setCcsid(37, fd_.system_); // always EBCDIC
+
+    int fileMode = BinaryConverter.byteArrayToInt(buf, 0);
+    return fileMode;
+
+
+// This is for future reference, in case we ever want to exploit other returned fields.
+// Note that the QlgStat structure is specified in system header files stat.h and types.h
+//
+//    int offset = 0;
+//    System.out.println("File mode (octal): " + Integer.toOctalString(fileMode) );
+//    offset += 4;
+//    System.out.println("File serial number: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Number of links: " + BinaryConverter.byteArrayToShort(buf, offset));
+//    offset += 2;
+//    offset += 2;  // reserved field
+//    System.out.println("UID of owner: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Group ID: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("File size (#bytes): " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Time of last access: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Time of last mod: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Time of status chg: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Device ID: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Block size (#bytes): " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Allocation size (#bytes): " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Object type: " + conv.byteArrayToString(buf, offset, 10)); // field is 11 characters, null-terminated, so exclude the final null
+//    offset += 11;
+//    offset += 1;  // reserved
+//    System.out.println("Data codepage: " + BinaryConverter.byteArrayToShort(buf, offset));
+//    offset += 2;
+//    System.out.println("Data CCSID: " + BinaryConverter.byteArrayToShort(buf, offset));
+//    offset += 2;
+//    System.out.println("Device ID: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Number of links: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    System.out.println("Device ID (64bit): " + BinaryConverter.byteArrayToLong(buf, offset));
+//    offset += 8;
+//    System.out.println("File system ID (64bit): " + BinaryConverter.byteArrayToLong(buf, offset));
+//    offset += 8;
+//    System.out.println("Mount ID: " + BinaryConverter.byteArrayToInt(buf, offset));
+//    offset += 4;
+//    offset += 32;  // reserved
+//    System.out.println("Serial# gen ID: " + BinaryConverter.byteArrayToInt(buf, offset));
+  }
+
+
   // @B5a
   // Returns zero-length string if the file has no subtype.
   public String getSubtype()
@@ -863,43 +1397,8 @@ implements IFSFileImpl
 
     if (attributesReply_ == null)
     {
-      try
-      {
-        attributesReply_ = getAttributeSetFromServer(fd_.path_);
-      }
-      catch (AS400SecurityException e)
-      {
-        returnCode = IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY;
-      }
+      attributesReply_ = getAttributeSetFromServer(fd_.path_);
     }
-
-    //@B1D Moved this code to determineIsDirectory().
-    //Determine if the file attributes indicate a directory.
-    //if (reply != null)
-    //{
-    //  boolean answer = false;
-    //  switch(reply.getObjectType())
-    //  {
-    //    case IFSListAttrsRep.DIRECTORY:
-    //    case IFSListAttrsRep.FILE:
-    //      answer = ((reply.getFixedAttributes() &
-    //                 IFSListAttrsRep.FA_DIRECTORY) != 0);
-    //      break;
-    //    case IFSListAttrsRep.AS400_OBJECT:
-    //      // Server libraries and database files look like directories.
-    //      answer = (path_.endsWith(".LIB") || path_.endsWith(".FILE") ||
-    //                path_.endsWith(".LIB" + IFSFile.separator) ||
-    //                path_.endsWith(".FILE" + IFSFile.separator));
-    //      break;
-    //    default:
-    //      answer = false;
-    //  }
-    //@B1D Deleted during move for rework below.
-    //  if (answer == true)
-    //  {
-    //   returnCode = IFSReturnCodeRep.SUCCESS;
-    //  }
-    //}
 
     //@B1A Added code to call determineIsDirectory().
     if (attributesReply_ != null)
@@ -926,43 +1425,8 @@ implements IFSFileImpl
 
     if (attributesReply_ == null)
     {
-      try
-      {
-          attributesReply_ = getAttributeSetFromServer(fd_.path_);
-      }
-      catch (AS400SecurityException e)
-      {
-        returnCode = IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY;
-      }
+      attributesReply_ = getAttributeSetFromServer(fd_.path_);
     }
-
-    //@B1D Moved this code to determineIsFile().
-    //Determine if the file attributes indicate a directory.
-    //if (reply != null)
-    //{
-    //  boolean answer = false;
-    //  switch(reply.getObjectType())
-    //  {
-    //    case IFSListAttrsRep.DIRECTORY:
-    //    case IFSListAttrsRep.FILE:
-    //      answer = ((reply.getFixedAttributes() &
-    //                 IFSListAttrsRep.FA_DIRECTORY) == 0);
-    //      break;
-    //    case IFSListAttrsRep.AS400_OBJECT:
-    //      // Server libraries and database files look like directories.
-    //      answer = !(path_.endsWith(".LIB") || path_.endsWith(".FILE") ||
-    //                 path_.endsWith(".LIB" + IFSFile.separator) ||
-    //                 path_.endsWith(".FILE" + IFSFile.separator));
-    //      break;
-    //    default:
-    //      answer = false;
-    //  }
-    //@B1D Deleted this during move for rework below.
-    //  if (answer == true)
-    //  {
-    //    returnCode = IFSReturnCodeRep.SUCCESS;
-    //  }
-    //}
 
     //@B1A Added code to call determineIsFile().
     if (attributesReply_ != null)
@@ -1042,8 +1506,9 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    if (Trace.traceOn_ && fd_.getSystemVRM() < 0x00050300) {
-      Trace.log(Trace.WARNING, "Server is V5R2 or lower, so isSymbolicLink() will always report false.");
+    if (fd_.getSystemVRM() < 0x00050300)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Server is V5R2 or lower, so isSymbolicLink() will always report false.");
       return false;
     }
 
@@ -1432,7 +1897,7 @@ implements IFSFileImpl
         if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
         ||  returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
         {
-          throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
+          throw new AS400SecurityException(directory, AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
         }
       }
       else
@@ -1676,29 +2141,17 @@ implements IFSFileImpl
                      attributes.  They replace the existing fixed
                      attributes of the file.
    @return true if successful; false otherwise.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setFixedAttributes(int attributes)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the argument has been validated by the public class.
 
     // Ensure that we are connected to the server.
-    try
-    {
-      fd_.connect();
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    fd_.connect();
+
     // Issue a change attributes request.
     ClientAccessDataStream ds = null;
     try
@@ -1761,45 +2214,23 @@ implements IFSFileImpl
                      attribute is the second bit from the right.
 
    @return true if successful; false otherwise.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setHidden(boolean attribute)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the argument has been validated by the public class.
 
     // Ensure that we are connected to the server.
-    try
-    {
-      fd_.connect();
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    fd_.connect();
 
     boolean success = false;
-    IFSListAttrsRep attributes = null;
 
     // Setting the fixed attributes of a file involves
     // replacing the current set of attributes.  The first
     // set is to get the current set.
-    try
-    {
-       attributes = getAttributeSetFromServer(fd_.path_);
-    }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, "Failed to get attribute set", e);
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    IFSListAttrsRep attributes = getAttributeSetFromServer(fd_.path_);
 
     if (attributes != null)
     {
@@ -1882,16 +2313,10 @@ implements IFSFileImpl
    since January 1, 1970 00:00:00 GMT), or -1 to set the last modification time to the current system time.
 
    @return true if successful; false otherwise.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
    **/
 
   public boolean setLastModified(long time)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the argument has been validated by the public class.
 
@@ -1993,9 +2418,6 @@ implements IFSFileImpl
       // Clear any cached attributes.
       attributesReply_ = null;
     }
-    catch (AS400SecurityException e) {
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
     finally {
       if (fileHandle != UNINITIALIZED) fd_.close(fileHandle);
     }
@@ -2009,12 +2431,6 @@ implements IFSFileImpl
    Sets the length of the integrated file system object represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
    @param length The new length, in bytes.
    @return true if successful; false otherwise.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
    **/
   public boolean setLength(int length)
     throws IOException, AS400SecurityException
@@ -2022,14 +2438,7 @@ implements IFSFileImpl
     // Assume the argument has been validated by the public class.
 
     // Ensure that we are connected to the server.
-    try
-    {
-      fd_.connect();
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    fd_.connect();
 
     // Clear any cached attributes.
     attributesReply_ = null;
@@ -2096,42 +2505,19 @@ implements IFSFileImpl
    @param attributes The new state of the read only attribute
 
    @return true if successful; false otherwise.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
   public boolean setReadOnly(boolean attribute)
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     // Assume the argument has been validated by the public class.
 
     // Ensure that we are connected to the server.
-    try
-    {
-      fd_.connect();
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    fd_.connect();
 
     boolean success = false;
-    IFSListAttrsRep attributes = null;
-
-    try
-    {
-       attributes = getAttributeSetFromServer(fd_.path_);
-    }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, "Failed to get attribute set", e);
-      throw new ExtendedIOException(fd_.path_, ExtendedIOException.ACCESS_DENIED);
-    }
+    IFSListAttrsRep attributes = getAttributeSetFromServer(fd_.path_);
 
     // Same as setHidden -- setting fixed attributes is a total replacement
     // of the fixed attributes.  So, we have to get the current set, fix up
@@ -2210,9 +2596,6 @@ implements IFSFileImpl
    Sets the sorting behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is <tt>false</tt> (unsorted).
    @param sort If <tt>true</tt>: Return lists of files in sorted order.
    If <tt>false</tt>: Return lists of files in whatever order the file system provides.
-
-   @exception IOException If an error occurs while communicating with the server.
-   @exception AS400SecurityException If a security or authority error occurs.
    **/
   public void setSorted(boolean sort)
   {
@@ -2229,6 +2612,33 @@ implements IFSFileImpl
     // Assume the argument has been validated by the public class.
 
     fd_.system_ = (AS400ImplRemote)system;
+  }
+
+
+  // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+  protected synchronized void setupServiceProgram() throws IOException
+  {
+    // If not already setup.
+    if (servicePgm_ == null)
+    {
+      if (fd_.system_.canUseNativeOptimizations())
+      {
+        try
+        {
+          servicePgm_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
+          // Avoid direct reference - it can cause NoClassDefFoundError at class loading time on Sun JVM's.
+        }
+        catch (Throwable e) {
+          // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
+          Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative.", e);
+        }
+      }
+      if (servicePgm_ == null)
+      {
+        servicePgm_ = new RemoteCommandImplRemote();
+      }
+      servicePgm_.setSystem(fd_.system_);
+    }
   }
 
 }
