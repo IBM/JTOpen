@@ -618,12 +618,14 @@ class JDSQLStatement
         }
         else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
         {
-            canBeBatched_ = true;   //@blksql
+            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)   //@blksql
+                canBeBatched_ = true;   //@blksql
             isUpdateOrDelete_ = true;
         }
         else if(firstWord.equals(MERGE_)) //@blksql
         {
-            canBeBatched_ = true;   //@blksql
+            if(((AS400JDBCConnection)connection).getVRM() >= JDUtilities.vrm710)   //@blksql
+                canBeBatched_ = true;   //@blksql
         }
         else if(firstWord.equals(DECLARE_))
         {
