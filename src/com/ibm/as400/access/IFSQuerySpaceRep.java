@@ -21,7 +21,6 @@ Query available file system space reply.
 **/
 class IFSQuerySpaceRep extends IFSDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
   static final long NO_MAX = Long.MAX_VALUE;  // indicates user has no maximum storage limit
 
   private static final int UNIT_SIZE_OFFSET = 22;
@@ -45,10 +44,10 @@ Generate a new instance of this type.
   }
 
 /**
-Determine the unused space in the file system (in bytes).
+Return the available space (in bytes).
 Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *NOMAX.
 (The File Server returns a bogus value in the Space Available field in that case.)
-@return the number of unused bytes in the file system
+@return the available space (in bytes)
 **/
   long getFreeSpace()
   {
@@ -56,12 +55,30 @@ Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *N
     // as a 4-byte signed value.  On large systems, where the most significant bit was
     // set (in the IFSQuerySpaceRep response), we were returning a negative value.
     // BinaryConverter.byteArrayToUnsignedInt() treats the data as unsigned.
+
     long totalSpace = BinaryConverter.byteArrayToUnsignedInt(data_, TOTAL_SPACE_OFFSET);
     long spaceAvail = BinaryConverter.byteArrayToUnsignedInt(data_, SPACE_AVAILABLE_OFFSET);
     long unitSize = BinaryConverter.byteArrayToUnsignedInt(data_, UNIT_SIZE_OFFSET);
 
-    if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // special value indicates no maximum storage limit
+    // Note: According to the PWSI Datastream Spec:
+    // "The value 0x7FFFFFFF is returned to indicate there is no maximum size for the Total Space and Space Available fields."
+    if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // no maximum storage limit
     else return (unitSize * spaceAvail);
+  }
+
+/**
+Return the total space (in bytes).
+@return the total space (in bytes)
+**/
+  long getTotalSpace()
+  {
+    long totalSpace = BinaryConverter.byteArrayToUnsignedInt(data_, TOTAL_SPACE_OFFSET);
+    long unitSize = BinaryConverter.byteArrayToUnsignedInt(data_, UNIT_SIZE_OFFSET);
+
+    // Note: According to the PWSI Datastream Spec:
+    // "The value 0x7FFFFFFF is returned to indicate there is no maximum size for the Total Space and Space Available fields."
+    if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // no maximum storage limit
+    else return (unitSize * totalSpace);
   }
 
 /**
