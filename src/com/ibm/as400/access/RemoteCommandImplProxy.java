@@ -160,6 +160,25 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     }
 
     // Run the service program on the proxy server.
+    public byte[] runServiceProgram(String library, String name, String procedureName, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+        try
+        {
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, ProgramParameter[].class }, new Object[] { library,  name, procedureName, parameterList }, new boolean[] { false, false, false, true }, true);
+            ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
+            for (int i = 0; i < parameterList.length; ++i)
+            {
+                parameterList[i].setOutputData(returnParmL[i].getOutputData());
+            }
+            return (byte[])rv.getReturnValue();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow5(e);
+        }
+    }
+
+    // Run the service program on the proxy server.
     public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] parameterList, Boolean threadSafety, int procedureNameCCSID, int messageCount, boolean alignOn16Bytes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         try
