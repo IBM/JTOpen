@@ -26,9 +26,6 @@ import java.io.IOException;
 public class ExtendedIOException extends IOException
      implements ReturnCodeException
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-  
     static final long serialVersionUID = 4L;
 
   private int rc_;  // Return code associated with this exception
@@ -37,9 +34,10 @@ public class ExtendedIOException extends IOException
   private static ResourceBundleLoader loader_;
    
   // Return code values used by this class. 
-  // If a value is added here, it must also be added to MRI.properties.
+  // If a value is added here, it must also be added to MRI.properties,
+  // and possibly also to IFSReturnCodeRep, which references most of these constants.
   // The numbers assigned to these constants are significant
-  // and should not be changed.
+  // and must not be changed.
 
   /**
       The return code indicating that
@@ -177,29 +175,38 @@ public class ExtendedIOException extends IOException
   **/
   public final static int LOCK_VIOLATION = 33;
   /**
+     The return code indicating that
+     the handle is stale.
+  **/
+  public final static int STALE_HANDLE = 34;
+
+
+  // Additional constants, that are not referenced by IFSReturnCodeRep.
+
+  /**
     The return code indicating that
     no certificate was found.
    "Certificate was not found."
   **/
-  public final static int CERTIFICATE_NOT_FOUND = 34; 
+  public final static int CERTIFICATE_NOT_FOUND = 40; 
   /**
       The return code indicating that
       the certificate was already added.
    "Certificate association already exists."
   **/
-  public final static int CERTIFICATE_ALREADY_ADDED = 35;
+  public final static int CERTIFICATE_ALREADY_ADDED = 41;
     /**
       The return code indicating that
      the certificate or certificate format was not valid.
      "Certificate or certificate type is not valid."
   **/
-  public final static int INVALID_CERTIFICATE = 36; 
+  public final static int INVALID_CERTIFICATE = 42; 
  
   
 
 
   /**
-     Constructs a ExtendedIOException object. It indicates 
+     Constructs an ExtendedIOException object. It indicates 
      that an IO Exception occurred.
      Exception message will look like this: End of file reached.
      @param returnCode The return code which identifies the message to be returned.
@@ -216,7 +223,7 @@ public class ExtendedIOException extends IOException
 
 
   /**
-     Constructs a ExtendedIOException object. It indicates 
+     Constructs an ExtendedIOException object. It indicates 
      that an IO Exception occurred.
      Exception message will look like this:  myuserid: User ID not valid.
      @param objectName The name of the object.
@@ -226,6 +233,24 @@ public class ExtendedIOException extends IOException
   {
     // Create the message
     super(objectName + ": " + loader_.getText(getMRIKey(returnCode)));
+    rc_ =  returnCode;
+ 
+  }
+
+
+
+  /**
+     Constructs an ExtendedIOException object. It indicates 
+     that an IO Exception occurred.
+     Exception message will look like this:  myuserid: User ID not valid. (errno: 2345)
+     @param objectName The name of the object.
+     @param returnCode The return code which identifies the message to be returned.
+     @param errno The errno value associated with the error.
+  **/
+  ExtendedIOException(String objectName, int returnCode, int errno)
+  {
+    // Create the message
+    super(objectName + ": " + loader_.getText(getMRIKey(returnCode)) + " (errno: " + errno + ")");
     rc_ =  returnCode;
  
   }
