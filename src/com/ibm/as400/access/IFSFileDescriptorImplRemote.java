@@ -1273,7 +1273,7 @@ implements IFSFileDescriptorImpl
     if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY ||
         returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
     {
-      Trace.log(Trace.ERROR, "Access denied to file " + path_ + ". " +
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Access denied to file " + path_ + ". " +
                 "IFSReturnCodeRep return code ", returnCode);
       throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
     }
