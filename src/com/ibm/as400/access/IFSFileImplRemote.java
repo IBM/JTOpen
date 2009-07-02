@@ -726,7 +726,7 @@ implements IFSFileImpl
    @param forUserOnly Whether to report only the space for the user. If false, report space in entire file system.
    @return The number of bytes of storage available.
    **/
-  public long getFreeSpace(boolean forUserOnly)
+  public long getAvailableSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
   {
     long spaceAvailable = getAmountOfSpace(forUserOnly, SPACE_AVAILABLE);
@@ -857,7 +857,7 @@ implements IFSFileImpl
     if (ds instanceof IFSQuerySpaceRep)
     {
       if (availableSpaceOnly) {
-        amountOfSpace = ((IFSQuerySpaceRep) ds).getFreeSpace();
+        amountOfSpace = ((IFSQuerySpaceRep) ds).getSpaceAvailable();
       }
       else {
         amountOfSpace = ((IFSQuerySpaceRep) ds).getTotalSpace();

@@ -37,7 +37,7 @@ interface IFSFileImpl
   int  delete() throws IOException, AS400SecurityException;
   int  exists() throws IOException, AS400SecurityException;
 
-  long getFreeSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
+  long getAvailableSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   long getTotalSpace(boolean forUserOnly) throws IOException, AS400SecurityException;
   int getCCSID() throws IOException, AS400SecurityException;            //@A2a
   String getOwnerName() throws IOException, AS400SecurityException;

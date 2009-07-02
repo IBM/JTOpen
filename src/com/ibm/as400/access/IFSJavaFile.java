@@ -704,7 +704,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   {
     try
     {
-      return ifsFile_.getFreeSpace0(false);
+      return ifsFile_.getAvailableSpace(false);
     }
     catch (AS400SecurityException e)
     {
@@ -730,7 +730,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   {
     try
     {
-      return ifsFile_.getTotalSpace0(false);
+      return ifsFile_.getTotalSpace(false);
     }
     catch (AS400SecurityException e)
     {
@@ -760,7 +760,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   {
     try
     {
-      return ifsFile_.getFreeSpace0(true);
+      return ifsFile_.getAvailableSpace(true);
     }
     catch (AS400SecurityException e)
     {
@@ -2006,7 +2006,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
    @param executable  If true, sets the access permission to allow execute operations; if false, to disallow execute operations.
    @param ownerOnly  If true, the execute permission applies only to the owner's execute permission; otherwise, it applies to everybody.
-   @returns true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname.
+   @return true if and only if the operation succeeded. The operation will fail if the user does not have permission to change the access permissions of this abstract pathname.
    @exception SecurityException  If the user is denied access to the file.
    **/
   public boolean setExecutable(boolean executable,

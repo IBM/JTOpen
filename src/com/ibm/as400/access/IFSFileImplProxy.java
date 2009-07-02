@@ -153,11 +153,11 @@ implements IFSFileImpl
     }
   }
 
-  public long getFreeSpace(boolean forUserOnly)
+  public long getAvailableSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "getFreeSpace",
+      return connection_.callMethod (pxId_, "getAvailableSpace",
                               new Class[] { Boolean.TYPE },
                               new Object[] { new Boolean(forUserOnly) })
         .getReturnValueLong();

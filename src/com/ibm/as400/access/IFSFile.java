@@ -684,25 +684,7 @@ public class IFSFile
     if (impl_ == null) chooseImpl();
     return impl_.copyTo(path, replace);
   }
-    
-    
-//internal created method.  It throws a security exception.
-  long created0()                                               //@D3a
-    throws IOException, AS400SecurityException                  //@D3a
-  {                                                             //@D3a
-    //@A7A Added check for cached attributes.                   //@D3a
-    if (cachedAttributes_ != null)                              //@D3a
-    {                                                           //@D3a
-       return cachedAttributes_.getCreationDate();              //@D3a
-    }                                                           //@D3a
-    else                                                        //@D3a
-    {                                                           //@D3a
-       if (impl_ == null)                                       //@D3a
-         chooseImpl();                                          //@D3a
-                                                                //@D3a
-       return impl_.created();                                 //@D3a
-    }                                                           //@D3a
-  }                                                             //@D3a
+
 
   /**
    Determines the time that the integrated file system object represented by this
@@ -723,7 +705,18 @@ public class IFSFile
   {                                                             //D3a
     try                                                         //D3a
     {                                                           //D3a
-      return created0();                                        //D3a
+      //@A7A Added check for cached attributes.                   //@D3a
+      if (cachedAttributes_ != null)                              //@D3a
+      {                                                           //@D3a
+         return cachedAttributes_.getCreationDate();              //@D3a
+      }                                                           //@D3a
+      else                                                        //@D3a
+      {                                                           //@D3a
+         if (impl_ == null)                                       //@D3a
+           chooseImpl();                                          //@D3a
+         //@D3a
+         return impl_.created();                                 //@D3a
+      }                                                           //@D3a
     }                                                           //D3a
     catch (AS400SecurityException e)                            //D3a
     {                                                           //D3a
@@ -1225,7 +1218,7 @@ public class IFSFile
       if (impl_ == null)
         chooseImpl();
 
-      return impl_.getFreeSpace(true);
+      return impl_.getAvailableSpace(true);
     }
     catch (AS400SecurityException e)
     {
@@ -1262,7 +1255,7 @@ public class IFSFile
       system.connectService(AS400.FILE);
       impl.setSystem(system.getImpl());
       impl.setPath("/");
-      return impl.getFreeSpace(true);
+      return impl.getAvailableSpace(true);
     }
     catch (AS400SecurityException e)
     {
@@ -1275,7 +1268,8 @@ public class IFSFile
 
   /**
    Returns the amount of unused storage space that is available to the user.
-   Note: If the user profile has a "maximum storage allowed" setting of *NOMAX, then getFreeSpace0(true) returns the same value as getFreeSpace0(false).
+   Note: If the user profile has a "maximum storage allowed" setting of *NOMAX, then getAvailableSpace(true) returns the same value as getAvailableSpace(false).
+   @param forUserOnly Whether to report only the space for the user. If false, report space available in the entire file system.
    @return The number of bytes of storage available.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1285,18 +1279,19 @@ public class IFSFile
    @exception UnknownHostException If the system cannot be located.
 
    **/
-  long getFreeSpace0(boolean forUserOnly)
+  long getAvailableSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
   {
     if (impl_ == null)
       chooseImpl();
 
-    return impl_.getFreeSpace(forUserOnly);
+    return impl_.getAvailableSpace(forUserOnly);
   }
 
 
   /**
    Returns the total amount of storage space on the file system.
+   @param forUserOnly Whether to report only the space for the user. If false, report total space in the entire file system.
    @return The total number of bytes on the file system.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1306,7 +1301,7 @@ public class IFSFile
    @exception UnknownHostException If the system cannot be located.
 
    **/
-  long getTotalSpace0(boolean forUserOnly)
+  long getTotalSpace(boolean forUserOnly)
     throws IOException, AS400SecurityException
   {
     if (impl_ == null)

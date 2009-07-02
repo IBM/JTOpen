@@ -44,12 +44,12 @@ Generate a new instance of this type.
   }
 
 /**
-Return the available space (in bytes).
+Return the space available (in bytes).
 Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *NOMAX.
 (The File Server returns a bogus value in the Space Available field in that case.)
 @return the available space (in bytes)
 **/
-  long getFreeSpace()
+  long getSpaceAvailable()
   {
     // Previously used get32bit(), but get32bit() incorrectly treated the 4 byte field 
     // as a 4-byte signed value.  On large systems, where the most significant bit was
