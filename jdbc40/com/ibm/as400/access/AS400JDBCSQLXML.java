@@ -214,7 +214,11 @@ public class AS400JDBCSQLXML implements SQLXML
                 byte[] bytes = null;
                 if (lobType == SQLData.BLOB)
                 {
-                    bytes = blobValue_.getBytes(1, 4);
+                    if(blobValue_.length() > 4)//@xmlzero
+                        bytes = blobValue_.getBytes(1, 4);
+                    else
+                        bytes = new byte[0]; //@xmlzero
+                        
                 } else
                 {
                     InputStream is = blobLocatorValue_.getBinaryStream();
