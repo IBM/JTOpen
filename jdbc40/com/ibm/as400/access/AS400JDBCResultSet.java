@@ -37,6 +37,7 @@ import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -5181,7 +5182,11 @@ implements ResultSet
         if(scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-        updateValue (columnIndex, columnValue, null, scale); //@P0C
+
+        if (columnValue instanceof SQLXML)                   //@xmlspec
+            updateSQLXML(columnIndex, (SQLXML)columnValue);  //@xmlspec
+        else
+            updateValue (columnIndex, columnValue, null, scale); //@P0C
     }
 
 
@@ -6126,7 +6131,19 @@ implements ResultSet
      */
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
-        updateValue (columnIndex, xmlObject, null, -1); 
+        //@xmlspec special handling of blob/clob column types
+        SQLData sqlData = getValue(columnIndex);                                   //@xmlspec
+        int sqlDataType = sqlData.getType();                                       //@xmlspec
+        switch(sqlDataType) {                                                      //@xmlspec
+            case Types.CLOB:                                                       //@xmlspec
+                updateCharacterStream(columnIndex, xmlObject.getCharacterStream());//@xmlspec
+                break;                                                             //@xmlspec
+            case Types.BLOB:                                                       //@xmlspec
+                updateBinaryStream(columnIndex,  xmlObject.getBinaryStream());     //@xmlspec
+                break;                                                             //@xmlspec
+            default:                                                               //@xmlspec
+                updateValue (columnIndex, xmlObject, null, -1); 
+        }
     }
 
 

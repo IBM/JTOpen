@@ -2704,7 +2704,10 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         if(scale < 0)
             JDError.throwSQLException (this, JDError.EXC_SCALE_INVALID);
 
-        setValue (parameterIndex, parameterValue, null, scale); //@P0C
+        if (parameterValue instanceof SQLXML)                   //@xmlspec
+            setSQLXML(parameterIndex, (SQLXML)parameterValue);  //@xmlspec
+        else
+            setValue (parameterIndex, parameterValue, null, scale); //@P0C
     }
 
 
@@ -3493,7 +3496,19 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
              else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + len); 
          }                                                                
 
-         setValue (parameterIndex, xmlObject, null, -1);
+         //@xmlspec special handling of blob/clob column types
+         SQLData sqlData = parameterRow_.getSQLType(parameterIndex);                //@xmlspec
+         int sqlDataType = sqlData.getType();                                       //@xmlspec
+         switch(sqlDataType) {                                                      //@xmlspec
+             case Types.CLOB:                                                       //@xmlspec
+                 setCharacterStream(parameterIndex, xmlObject.getCharacterStream());//@xmlspec
+                 break;                                                             //@xmlspec
+             case Types.BLOB:                                                       //@xmlspec
+                 setBinaryStream(parameterIndex,  xmlObject.getBinaryStream());     //@xmlspec
+                 break;                                                             //@xmlspec
+             default:                                                               //@xmlspec
+                 setValue (parameterIndex, xmlObject, null, -1);
+         }
      }
 
 
