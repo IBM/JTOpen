@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
@@ -433,7 +434,8 @@ Reads a reader and returns its data as a String.
                 int length2 = input.read (rawChars);
                 if (length2 < 0)
                     break;
-                buffer.append (new String (rawChars, 0, length2));
+                //buffer.append (new String (rawChars, 0, length2));  //@pdd jdbc40
+                buffer.append (rawChars, 0, length2);                 //@pda jdbc40 performance
                 actualLength += length2;
             }
 
@@ -452,6 +454,41 @@ Reads a reader and returns its data as a String.
         return buffer.toString ();
     }
 
+
+    //@pda jdbc40 new method for unknown length
+    /**
+     Reads a reader and returns its data as a String.
+     Reads until reader returns -1 for eof.
+     
+     @param  input       The reader.
+     @return             The string.
+     
+     **/
+    static final String readerToString (Reader input)
+    throws SQLException
+    {
+        StringBuffer buffer = new StringBuffer ();
+        try {
+            
+            char[] rawChars = new char[32000];
+            int actualLength = 0;
+            while (input.ready ()) {
+                int length2 = input.read (rawChars);
+                if (length2 < 0)
+                    break;
+                //buffer.append (new String (rawChars, 0, length2));  //@pdd jdbc40
+                buffer.append (rawChars, 0, length2);                 //@pda jdbc40 performance
+                actualLength += length2;
+            }
+            
+        }
+        catch (IOException e) {
+            JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        }
+
+        
+        return buffer.toString ();
+    }
 
 
 
@@ -549,6 +586,68 @@ Reads an input stream and returns its data as a byte array.
         return buffer;
     }
 
+   
+
+    //@PDA jdbc40
+    /**
+    Reads an input stream and returns its data as a byte array.
+
+    @param  input       The input stream.
+    @return             The string.
+
+    @exception SQLException If the length is not valid or the
+                            conversion is not possible.
+    **/
+        static final byte[] streamToBytes (InputStream input)
+            throws SQLException
+        {
+            //@pda copy code from native since ByteBuffer is not available on ibm java
+        	ByteArrayOutputStream outBuffer = new ByteArrayOutputStream();
+
+            
+            int blocksize = 4096;
+            byte[] buffer = new byte[blocksize];
+            try {
+        	int length2 = input.read (buffer);             
+
+        	while (length2 >=  0) {
+        	    outBuffer.write(buffer, 0, length2);
+        	    length2 = input.read (buffer);         
+        	}
+            } catch (IOException e) {
+            	JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+            }
+
+            return outBuffer.toByteArray();
+        }
+
+ 
+
+
+        //@pda method from native
+        /**
+        Reads an input stream and returns its data as a String.
+
+        @param  input       The input stream.
+        @param  encoding    The encoding.
+        @return             The string.
+
+        @exception SQLException If the length is not valid or the 
+                                conversion is not possible.
+         **/
+        static String streamToString (InputStream input, 
+        		String encoding)
+        throws SQLException
+        {
+        	byte[] rawBytes = streamToBytes(input);
+
+        	try {
+        		return new String (rawBytes, 0, rawBytes.length, encoding);
+        	}  catch (IOException e) {
+        		JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        		return null;
+        	}
+        }
 
 /**
 Reads an input stream and returns its data as a String.
@@ -664,9 +763,25 @@ Reads an input stream and returns its data as a String.
 
 
     //@xml3
-    //stub jdbc40 method
+    //removes declaration (header)
+    //returns input string if there is no xml declaration
     static final String stripXMLDeclaration(String xml) throws SQLException
     {
-       return null;
+        //declaration starts with "<?xml " and ends with "?>"
+        if(xml.substring(0, 7).indexOf("<?xml ") == 0) //avoid having to search whole 2 gig
+        {
+            int end = xml.indexOf("?>") + 2; //if start is xml, then it will have a valid ending since hostserver created it!
+            if(end == 1)
+                JDError.throwSQLException(JDError.EXC_XML_PARSING_ERROR); //signal that decl starts, but does not end
+           
+            //next skip to start of xml (ie skip newline)
+            int nextStart = xml.indexOf("<", end);
+            if(nextStart == -1)
+                nextStart = end;
+            
+            return xml.substring(nextStart);
+        }
+        else
+            return xml;
     }
 }

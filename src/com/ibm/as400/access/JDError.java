@@ -70,6 +70,7 @@ final class JDError
   static final String EXC_SAVEPOINT_ALREADY_EXISTS     = "3B501"; // @E10a 
   static final String EXC_SAVEPOINT_DOES_NOT_EXIST     = "3B502"; // @E10a 
   static final String EXC_RDB_DOES_NOT_EXIST           = "42705"; // @J2a 
+  static final String EXC_XML_PARSING_ERROR            = "2200M"; // @xml2
 
   static final String WARN_ATTRIBUTE_VALUE_CHANGED     = "01608";
   static final String WARN_EXTENDED_DYNAMIC_DISABLED   = "01H11";

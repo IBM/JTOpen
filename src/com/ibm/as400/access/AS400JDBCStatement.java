@@ -1630,9 +1630,11 @@ public class AS400JDBCStatement implements Statement
             for(int i = 1; i <= fieldCount; ++i)
             {    // @B2A
                 SQLData sqlData = resultRow.getSQLData(i);
-                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))    // @B2A
+                int sqlType = sqlData.getSQLType();  //@xml3
+                if(sqlType == SQLData.CLOB_LOCATOR ||  
+                     sqlType == SQLData.BLOB_LOCATOR ||    
+                     sqlType == SQLData.DBCLOB_LOCATOR ||        
+                     sqlType == SQLData.XML_LOCATOR)     //@xml3
 
                     lastPrepareContainsLocator_ = true;    // @B2A
             }    // @B2A
@@ -1860,7 +1862,7 @@ public class AS400JDBCStatement implements Statement
     to navigate through multiple result sets, an update count, or
     both.
      
-    <p><B>This method is not supported when connecting to i5/OS V5R4 or earlier systems.</B>
+    <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
     
     @param  sql               The SQL statement.
     @param  columnIndexes     Indicates that auto-generated keys for the indicated 
@@ -1868,7 +1870,7 @@ public class AS400JDBCStatement implements Statement
     @return                   true if a result set was returned, false
                               if an update count was returned or nothing
                               was returned.
-    @exception      java.sql.SQLException - If connecting to i5/OS V5R4 or earlier systems, 
+    @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
                               if the statement is not open,
                               the SQL statement contains a syntax
                               error, the query timeout limit is
@@ -1940,7 +1942,7 @@ public class AS400JDBCStatement implements Statement
     to navigate through multiple result sets, an update count, or
     both.
     
-    <p><B>This method is not supported when connecting to i5/OS V5R4 or earlier systems.</B>
+    <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
     
     @param  sql               The SQL statement.
     @param  columnNames     Indicates that auto-generated keys for the indicated 
@@ -1948,7 +1950,7 @@ public class AS400JDBCStatement implements Statement
     @return                   true if a result set was returned, false
                               if an update count was returned or nothing
                               was returned.
-    @exception      java.sql.SQLException - If connecting to i5/OS V5R4 or earlier systems, 
+    @exception      java.sql.SQLException - If connecting to IBM i V5R4 or earlier systems, 
                               if the statement is not open,
                               the SQL statement contains a syntax
                               error, the query timeout limit is
@@ -2304,7 +2306,7 @@ public class AS400JDBCStatement implements Statement
     This closes the current result set and clears warnings
     before executing the new SQL statement.
     
-    <p><B>This method is not supported when connecting to i5/OS V5R4 or earlier systems.</B>
+    <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
     
     @param  sql            The SQL statement.
     @param  columnIndexes  The indexes of columns for which auto-generated keys should be made 
@@ -2312,7 +2314,7 @@ public class AS400JDBCStatement implements Statement
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
                     return nothing.
-    @exception      SQLException    If connection to i5/OS V5R4 or earlier systems,
+    @exception      SQLException    If connection to IBM i V5R4 or earlier systems,
                                     the statement is not open,
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is
@@ -2395,7 +2397,7 @@ public class AS400JDBCStatement implements Statement
     This closes the current result set and clears warnings
     before executing the new SQL statement.
     
-    <p><B>This method is not supported when connecting to i5/OS V5R4 or earlier systems.</B>
+    <p><B>This method is not supported when connecting to IBM i V5R4 or earlier systems.</B>
      
     @param  sql          The SQL statement.
     @param  columnNames  The column names for which auto-generated keys should be made 
@@ -2403,7 +2405,7 @@ public class AS400JDBCStatement implements Statement
     @return         Either the row count for INSERT, UPDATE, or
                     DELETE, or 0 for SQL statements that
                     return nothing.
-    @exception      SQLException    If connection to i5/OS V5R4 or earlier systems,
+    @exception      SQLException    If connection to IBM i V5R4 or earlier systems,
                                     the statement is not open,
                                     the SQL statement contains a syntax
                                     error, the query timeout limit is

@@ -83,6 +83,8 @@ extends Cloneable
     public static final int LONG_NVARCHAR = 37; //@pda jdbc40
     public static final int DECFLOAT = 38;      //@DFA 
     public static final int ARRAY = 39;         //@array
+    public static final int XML_LOCATOR = 40;   //@xml3
+    
     /**
     Returns a clone of the SQLData object.  Use this sparingly
     so that we minimize the number of copies.

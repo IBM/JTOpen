@@ -2516,6 +2516,7 @@ public class AS400JDBCResultSet implements ResultSet
                && (!(data.getSQLType() == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
                && (!(data.getSQLType() == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
                && (!(data.getSQLType() == SQLData.ROWID))                                  // @M0A
+               && (!(data.getSQLType() == SQLData.XML_LOCATOR))                                  //@xml3
                && (row_ instanceof JDServerRow))                                       // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
                                                                                         // @C1A
@@ -3655,10 +3656,12 @@ public class AS400JDBCResultSet implements ResultSet
 
         //@KBL if a locator is used, tell the statement associated with it
         SQLData sqlData = row_.getSQLType(columnIndex);             //@KBL
-        if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||          //@KBL
-           sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||          //@KBL
-           sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR)          //@KBL
-           && statement_ != null) //@mdrs2
+        int sqlType = sqlData.getSQLType();  //@xml3
+        if((sqlType == SQLData.CLOB_LOCATOR ||          //@KBL
+             sqlType == SQLData.BLOB_LOCATOR ||          //@KBL
+             sqlType == SQLData.DBCLOB_LOCATOR ||        //@KBL
+             sqlType == SQLData.XML_LOCATOR) 
+             && statement_ != null) //@mdrs2                  //@xml3
             statement_.setAssociatedWithLocators(true);             //@KBL
 
         if(wasNull_ || wasDataMappingError_)
@@ -5661,9 +5664,11 @@ public class AS400JDBCResultSet implements ResultSet
             int columnIndex0 = columnIndex - 1;
 
             //@G7A If the data is a locator, then set its handle.
-            if(columnValue != null && (sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                                       sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                                       sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
+            int sqlType = sqlData.getSQLType();  //@xml3
+            if(columnValue != null && (sqlType == SQLData.CLOB_LOCATOR ||
+                    sqlType == SQLData.BLOB_LOCATOR ||
+                    sqlType == SQLData.DBCLOB_LOCATOR ||
+                    sqlType == SQLData.XML_LOCATOR))                   //@xml3
             {     //@G8C                                              //@G7A
                 statement_.setAssociatedWithLocators(true);   //@KBL
                 try
