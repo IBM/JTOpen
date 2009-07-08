@@ -39,6 +39,7 @@ class UserSpaceImplRemote implements UserSpaceImpl
 
     // Impl object for remote command server delete, getAttributes, setAttributes.
     protected RemoteCommandImpl remoteCommand_;
+    private Boolean runOnThread_;  // whether to call remote commands on-thread
 
     // The integrated file system object used for read and write.
     private IFSRandomAccessFileImplRemote file_;
@@ -136,8 +137,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
         if (remoteCommand_ == null) {
           setupRemoteCommand();
         }
-        // Run create user space (QUSCRTUS) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSCRTUS", parameters))
+        // Run create user space (QUSCRTUS) API.  This is a threadsafe API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSCRTUS", parameters, runOnThread_))
         {
             // Throw the returned messages.
             throw buildException();
@@ -176,8 +177,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
         if (remoteCommand_ == null) {
           setupRemoteCommand();
         }
-        // Run delete user space (QUSDLTUS) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSDLTUS", parameters))
+        // Run delete user space (QUSDLTUS) API.  This is a threadsafe API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSDLTUS", parameters, runOnThread_))
         {
             // Throw the returned messages.
             throw buildException();
@@ -231,8 +232,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
         if (remoteCommand_ == null) {
           setupRemoteCommand();
         }
-        // Run retrieve user space attributes (QUSRUSAT) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSRUSAT", parameters))
+        // Run retrieve user space attributes (QUSRUSAT) API.  This is a threadsafe API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSRUSAT", parameters, runOnThread_))
         {
             // Throw the returned messages.
             throw buildException();
@@ -267,8 +268,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
             if (remoteCommand_ == null) {
               setupRemoteCommand();
             }
-            // Run retrieve user space (QUSRTVUS) API.
-            if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters))
+            // Run retrieve user space (QUSRTVUS) API.  This is a threadsafe API.
+            if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, runOnThread_))
             {
                 String id = remoteCommand_.getMessageList()[0].getID();
                 if (!id.equals("CPF3C14") && !id.equals("CPD3C14"))
@@ -289,7 +290,7 @@ class UserSpaceImplRemote implements UserSpaceImpl
                     Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
                     throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
                 }
-                if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters))
+                if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, runOnThread_))
                 {
                     // Throw the returned messages.
                     throw buildException();
@@ -362,8 +363,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
         if (remoteCommand_ == null) {
           setupRemoteCommand();
         }
-        // Run change user space attributes (QUSCUSAT) API.
-        if (!remoteCommand_.runProgram("QSYS", "QUSCUSAT", parameters))
+        // Run change user space attributes (QUSCUSAT) API.  This is a threadsafe API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSCUSAT", parameters, runOnThread_))
         {
             // Throw the returned messages.
             throw buildException();
@@ -461,27 +462,34 @@ class UserSpaceImplRemote implements UserSpaceImpl
       // If not already setup.
       if (remoteCommand_ == null)
       {
+        boolean runningNatively = false;
         if (system_.canUseNativeOptimizations())
         {
           try
           {
             remoteCommand_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
             // Avoid direct reference - it can cause NoClassDefFoundError at class loading time on Sun JVM's.
+            runningNatively = true;
           }
           catch (Throwable e) {
             // A ClassNotFoundException would be unexpected, since canUseNativeOptions() returned true.
             Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative.", e);
           }
-
-          // Note: All the API's we call from this class, are threadsafe API's.
-          // However, we need to stay consistent with the Toolbox's default threadsafety behavior.
-          // So we'll just let the RemoteCommand object decide whether to run on-thread.
         }
         if (remoteCommand_ == null)
         {
           remoteCommand_ = new RemoteCommandImplRemote();
+          runOnThread_ = RemoteCommandImpl.OFF_THREAD;
         }
         remoteCommand_.setSystem(system_);
+
+        // Note: All the API's that are called from this class, are threadsafe API's.
+        // However, we need to stay consistent with the Toolbox's default threadsafety behavior.
+        // So we'll indicate that the remote commands can safely be run on-thread, but only if the threadSafe property hasn't been set.  This will enable applications to use UserSpace natively using profiles that are disabled or that have password *NONE.
+        if (runningNatively && ProgramCall.getThreadSafetyProperty() == null)
+        {
+          runOnThread_ = RemoteCommandImpl.ON_THREAD;
+        }
       }
     }
 
@@ -517,8 +525,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
             if (remoteCommand_ == null) {
               setupRemoteCommand();
             }
-            // Run change user space (QUSCHGUS) API.
-            if (!remoteCommand_.runProgram("QSYS", "QUSCHGUS", parameters))
+            // Run change user space (QUSCHGUS) API.  This is a threadsafe API.
+            if (!remoteCommand_.runProgram("QSYS", "QUSCHGUS", parameters, runOnThread_))
             {
                 // Throw the returned messages.
                 throw buildException();

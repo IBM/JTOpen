@@ -540,6 +540,7 @@ public class UserSpace implements Serializable
     /**
      Indicates if Toolbox ProgramCall class will be used internally to perform user space read and write requests.  If false, Toolbox Integrated File System classes will be used to perform user space read and write requests.
      @return  true if user space read and write requests will be performed via program call; false otherwise.
+     @see #setMustUseProgramCall
      **/
     public boolean isMustUseProgramCall()
     {
@@ -775,8 +776,9 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Sets the method used to perform user space read and write operations.  If false (the default), read and write requests are made via the File Server.  Internally, an IFSRandomAccessFile object is used to perform read and write requests.  If true, internally a ProgramCall object is used to perform read and write requests, which are made via the Remote Command Host Server.  In general, requests made via the File object are faster but the behavior of requests made via a ProgramCall object are more consistent with user space API's.  If accessing user spaces located in QTEMP, it is strongly advised that <tt>setMustUseProgramCall(true)</tt> be called.
-     <br>This option cannot be reset once a connection has been established.
+     Specifies the API set that is used to perform user space read and write operations.  If false (the default), read and write requests are made via the File Server.  Internally, an IFSRandomAccessFile object is used to perform read and write requests.  If true, internally a ProgramCall object is used to perform read and write requests, which are made via the Remote Command Host Server.  In general, requests made via the File object are faster, but the behavior of requests made via a ProgramCall object is more consistent with user space API's.
+     <p>If accessing user spaces located in QTEMP, it is strongly advised that <tt>setMustUseProgramCall(true)</tt> be called.  A side-effect of <tt>setMustUseProgramCall(true)</tt> is that, when running on IBM i, the Toolbox by default will call internal User Space API's on-thread.
+     <p>This option cannot be reset once a connection has been established.
      @param  useProgramCall  Internally use ProgramCall to perform read and write requests.
      **/
     public void setMustUseProgramCall(boolean useProgramCall)
