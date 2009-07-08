@@ -723,8 +723,14 @@ public class ConvTableReader extends InputStreamReader
                 r = read(buf);
                 if (r > 0) total += r;
             }
-            if((r!=total) && (length > (total-r))) //@xml5 (if length is > than the total read from previous reads (skips))
+
+            if (isXML_)
+            {
+              if((r!=total) && (length > (total-r))) //@xml5 (if length is > than the total read from previous reads (skips))
+              {
                 nextRead_ = (int)(length - (total-(long)r));//@xml5 (set nextRead_ to offset that could be after reading in first buffer of chars)
+              }
+            }
         }
         return total;
     }
