@@ -13,13 +13,7 @@
 package com.ibm.as400.security.auth;
 
 import com.ibm.as400.access.AS400;
-import com.ibm.as400.access.AS400Exception;
-import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
-import com.ibm.as400.access.BinaryConverter;
-import com.ibm.as400.access.CharConverter;
-import com.ibm.as400.access.ProgramParameter;
-import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
@@ -30,13 +24,12 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Vector;
 /**
- * The AS400Credential class provides an abstract superclass for
+ * Provides an abstract superclass for
  * representations of IBM i system security-related attributes.
  *
  * <p> Credentials may be used for authenticating to system 
@@ -1413,164 +1406,17 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    void validateVRM() throws AS400SecurityException {
       try
       {
-	 if (getVRM(getSystem()) < typeMinVRM() )	// @A2C
-         {
-            Trace.log(Trace.ERROR, "VRM<" + typeMinVRM());
-            throw new AS400AuthenticationException(
-                                                  AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
-         }
+        if (getSystem().getVRM() < typeMinVRM() )
+        {
+          Trace.log(Trace.ERROR, "VRM<" + typeMinVRM());
+          throw new AS400AuthenticationException(
+                                                 AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
       }
       catch ( Exception ioe )
       {
          AuthenticationSystem.handleUnexpectedException(ioe);
       }
    }
-
-
-// @A2A
-/**
- Returns the version, release, and modification level for the server.
- <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
- @return  The high 16-bit is the version, the next 8 bits is the release, and the low 8 bits is the modification level.  Thus version 4, release 1, modification level 0, returns 0x00040100.
-   If VRM cannot be determined, returns 0.
- **/
-   private int getVRM(AS400 system) throws Exception
-{
-  int result;
-  
-    // Format for "Retrieve Product Information" API (QSZRTVPR):
-    // 1 - Receiver variable - Output - Char *
-    // 2 - Length of receiver variable - Input - Bin 4
-    // 3 - Format name - Input - Char 8
-    // 4 - Product information - Input - Char *
-    // 5 - Error code - I/O - Char *
-    // Threadsafe: Yes
-
-    CharConverter conv = new CharConverter(37, system);
-
-    // Set up the parameter list.
-
-    ProgramParameter[] parmList = new ProgramParameter[5];
-
-    // First parameter: output, is the receiver variable.
-    //
-    // Format of data returned:
-    // Offset - Type - Field
-    // 0  - Bin 4 - Bytes returned
-    // 4  - Bin 4 - Bytes available
-    // 8  - Bin 4 - Number of releases returned
-    // 12 - Char 4 - Reserved
-    // 16 - Array of Char 6 - Release level
-    //       (for each returned operating system release level)
-    byte[] dataReceived = new byte[350];
-    parmList[0] = new ProgramParameter(dataReceived.length);
-
-
-    // Second parameter: input, length of receiver variable.
-    byte[] receiverLength = new byte[4];
-    BinaryConverter.intToByteArray(dataReceived.length, receiverLength, 0);
-    parmList[1] = new ProgramParameter(receiverLength);
-
-    // Third parameter: input, format name.
-    byte[] formatName = new byte[8];
-    conv.stringToByteArray("PRDR0700", formatName);
-    parmList[2] = new ProgramParameter(formatName);
-
-    // Fourth parameter: input, product information.
-    //
-    // Product information 
-    // INPUT; CHAR(*) 
-    // PRDI0100 Format (this is the default format)
-    // 
-    //   Offset Type      Field 
-    //   0      CHAR(7)   Product ID 
-    //   7      CHAR(6)   Release level 
-    //   13     CHAR(4)   Product option 
-    //   17     CHAR(10)  Load ID
-    byte[] prodInfo = new byte[27];
-    for (int i=0; i<prodInfo.length; i++)     // Fill the prodInfo array with blanks.
-      prodInfo[i] = (byte)0x40;
-    conv.stringToByteArray("*OPSYS", prodInfo);     // product ID
-    conv.stringToByteArray("*CUR",   prodInfo, 7);  // release level
-    conv.stringToByteArray("0000",   prodInfo, 13); // product option
-    conv.stringToByteArray("*CODE",  prodInfo, 17); // load ID
-    parmList[3] = new ProgramParameter(prodInfo);
-
-
-    // Fifth parameter: input/output, error code
-    //
-    // Format ERRC0100:
-    // Offset - Use - Type - Field
-    // 0 - Input - Bin 4 - Bytes provided
-    // 4 - Output - Bin 4 - Bytes available
-    // 8 - Output - Char 7 - Exception ID
-    // 15 - Output - Char 1 - Reserved
-    // 16 - Output - Char * - Exception data
-    byte[] errorCode = new byte[17];
-    // A value >=8 of bytes provided means the 400 will return exception
-    // information on the parameter instead of throwing an exception
-    // to the application. We provide 0 to ensure it does indeed
-    // throw us an exception.
-    BinaryConverter.intToByteArray(0, errorCode, 0);
-    parmList[4] = new ProgramParameter(errorCode, 17);
-
-
-    // Prepare to call the API.
-    ProgramCall pgm = new ProgramCall();
-    pgm.setSystem(system);
-    pgm.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
-
-    // Retrieve Product Information.  Failure is returned as a message list.
-    if(!pgm.run("/QSYS.LIB/QSZRTVPR.PGM", parmList))
-    {
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
-        Trace.log(Trace.ERROR, "Unable to retrieve command information.");
-      }
-      throw new AS400Exception(pgm.getMessageList());
-    }
-
-
-    // Get the data returned from the program
-    dataReceived = parmList[0].getOutputData();
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
-      Trace.log(Trace.DIAGNOSTIC, "Product Information retrieved:", dataReceived);
-
-
-    // PRDR0700 Format
-    // 
-    // When this format is requested, valid values for the release level field
-    // are V1R3M0 and all release levels for which the operating system was
-    // made available through the currently installed release level of the
-    // operating system. 
-    // 
-    // If the release level field is not a valid value, an error (CPF0C1C)
-    // will occur. Error CPF0C1B is returned if this format is requested
-    // without specifying the product option as 0000, product ID as *OPSYS,
-    // and load ID as *CODE.
-    //
-    //   Offset  Type      Field 
-    //   0       BINARY(4) Bytes returned 
-    //   04      BINARY(4) Bytes available 
-    //   08      BINARY(4) Number of releases returned 
-    //   12      CHAR(4)   Reserved 
-    //   16      ARRAY of
-    //            CHAR(6)  Release level (for each returned operating system
-    //                     release level).
-    //                     Format is VvRrMm (e.g. "V5R1M0"). 
-
-    // Examine the "number of releases returned" field (should be 1).
-    //int numReleases = BinaryConverter.byteArrayToInt(dataReceived, 8);
-    
-    // Examine the first "release level" field.
-    String relLevel = conv.byteArrayToString(dataReceived, 16,6);
-    
-    // Parse the string (VvRrMm) into an int (VVVVRRMM).
-    int ver = Character.digit(relLevel.charAt(1),10);  // 10 is radix.
-    int rel = Character.digit(relLevel.charAt(3),10);
-    int mod = Character.digit(relLevel.charAt(5),10);
-    result = (ver<<16) | (rel<<8) | mod;
-
-    return result;
-}
 
 } //end class 
