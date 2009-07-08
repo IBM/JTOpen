@@ -279,6 +279,11 @@ public class ServiceProgramCall extends ProgramCall
             Trace.log(Trace.ERROR, "Attempt to run before setting procedure name.");
             throw new ExtendedIllegalStateException("procedureName", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
+        if (parameterList_.length > 7)
+        {
+            Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 7 parameters.");
+            throw new ExtendedIllegalArgumentException("parameterList", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
 
         chooseImpl();
 
