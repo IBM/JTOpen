@@ -363,12 +363,22 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       // Base the decision on the setting the "threadSafe" system property.
 
       String property = ProgramCall.getThreadSafetyProperty();
+      Boolean threadSafety;
       if (property != null && property.equals("true")) {
-        // call the program on-thread
+        threadSafety = ON_THREAD;
+      }
+      else threadSafety = OFF_THREAD;
+
+      return runProgram(library, name, parameterList, threadSafety);
+    }
+
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+      // Note: We don't have a way to look up the thread safety of programs.
+      if (threadSafety == ON_THREAD) {
         return runProgramOnThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT, false);
       }
       else {
-        // call the program off-thread
         return runProgramOffThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT);
       }
     }

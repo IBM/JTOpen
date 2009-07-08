@@ -463,6 +463,13 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     }
 
     // The ImplNative class overrides this method.
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+      // The ImplRemote class only knows how to call commands/programs off-thread.
+      return runProgramOffThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT);
+    }
+
+    // The ImplNative class overrides this method.
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
       // The ImplRemote class only knows how to call commands/programs off-thread.
