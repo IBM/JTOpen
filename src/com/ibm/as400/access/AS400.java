@@ -28,11 +28,11 @@ import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
-import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
+import com.ibm.as400.security.auth.ProfileTokenProvider;
 
 /**
  Represents the authentication information and a set of connections to the IBM i host servers.
@@ -271,14 +271,13 @@ public class AS400 implements Serializable
 
     }
 
-    // System list:  elements are 3 element Object[]: systemName, userId, bytes.
+    // System list:  elements are 3 element Object[]: systemName, userId, credential vault
     private static Vector systemList = new Vector();
     // Default users is a hash from systemName to userId.
     private static Hashtable defaultUsers = new Hashtable();
     // Number of days previous to password expiration to start to warn user.
     private static int expirationWarning = 7;
-    // Random number generator for seeds.
-    static Random rng = new Random();
+
     private static int alreadyCheckedForMultipleVersions_ = 0;
 
     // System name.
@@ -287,11 +286,18 @@ public class AS400 implements Serializable
     private boolean systemNameLocal_ = false;
     // User ID.
     private String userId_ = "";
-    // Password, GSS token, or profile token bytes twiddled.
-    private transient byte[] bytes_ = null;
-    // Type of authentication bytes, start by default in password mode.
-    private transient int byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
-    // GSS Credential object, for Kerberos.  Type set to Object to prevent dependancy on 1.4 JDK.
+
+    // Credential vault used to store password, GSS token, identity token,
+    // or profile token.  An AS400 object must always have its own copy of
+    // a credential vault (i.e. there must be a 1-to-1 correlation between
+    // AS400 objects and CredentialVault objects).  Sharing a credential vault
+    // amongst two different AS400 objects is NEVER allowed.
+    // If you need to share the credential in the vault with another AS400 object,
+    // you must provide a copy of the credential vault.  This is achieved using
+    // the clone() method provided by the CredentialVault class.
+    private transient CredentialVault credVault_;  // never null after construction
+
+    // GSS Credential object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
     private transient Object gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
@@ -347,6 +353,7 @@ public class AS400 implements Serializable
 
     // Flag for when object state is allowed to change.
     transient boolean propertiesFrozen_ = false;
+
     // Implementation object.
     private transient AS400Impl impl_ = null;
 
@@ -365,7 +372,7 @@ public class AS400 implements Serializable
     In JDBC, we do some pre-validation of id/password.  So JDBC may flag the id/password as invalid and then need
     to let AS400 know that it just needs to display the logon dialog. */
     private boolean forcePrompt_ = false;  //@prompt
-    
+
     /**
      Constructs an AS400 object.
      <p>If running on IBM i, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
@@ -378,6 +385,9 @@ public class AS400 implements Serializable
         construct();
         systemNameLocal_ = resolveSystemNameLocal("");
         proxyServer_ = resolveProxyServer(proxyServer_);
+
+        // Default to password authentication
+        credVault_ = new PasswordVault();
     }
 
     /**
@@ -399,6 +409,9 @@ public class AS400 implements Serializable
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         proxyServer_ = resolveProxyServer(proxyServer_);
+
+        // Default to password authentication
+        credVault_ = new PasswordVault();
     }
 
     /**
@@ -430,6 +443,9 @@ public class AS400 implements Serializable
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
         proxyServer_ = resolveProxyServer(proxyServer_);
+
+        // Default to password authentication
+        credVault_ = new PasswordVault();
     }
 
     /**
@@ -442,21 +458,78 @@ public class AS400 implements Serializable
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with profile token, system name: '" + systemName + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token: " + profileToken);
-        if (systemName == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
-            throw new NullPointerException("systemName");
-        }
+
         if (profileToken == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'profileToken' is null.");
             throw new NullPointerException("profileToken");
         }
+
+    	constructWithProfileToken(systemName, new ProfileTokenVault(profileToken));
+    }
+
+    /**
+     * Constructs an AS400 object.  The specified ProfileTokenProvider is used.
+     * The token refresh threshold is determined by the ProfileTokenProvider.
+     * @param tokenProvider The provider to use when a new profile token needs to be generated.
+     * @see #AS400(String,ProfileTokenProvider,int)
+     */
+    public AS400(String systemName, ProfileTokenProvider tokenProvider)
+    {
+      this(systemName, tokenProvider, null);
+    }
+
+    /**
+     * Constructs an AS400 object.  The specified ProfileTokenProvider is used.
+     * @param tokenProvider The provider to use when a new profile token needs to be generated.
+     * @param refreshThreshold The refresh threshold, in seconds, for the profile token.
+     *                         Used by the vault to manage the currency of the profile token
+     *                         to help ensure it remains current for an indefinite period of time.
+     * @see #AS400(String,ProfileTokenProvider)
+     */
+    public AS400(String systemName, ProfileTokenProvider tokenProvider, int refreshThreshold)
+    {
+      this(systemName, tokenProvider, new Integer(refreshThreshold));
+    }
+
+    private AS400(String systemName, ProfileTokenProvider tokenProvider, Integer refreshThreshold)
+    {
+        super();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with a profile token provider, system name: '" + systemName + "'");
+
+        if (tokenProvider == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'tokenProvider' is null.");
+            throw new NullPointerException("tokenProvider");
+        }
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token provider: " + tokenProvider.getClass().getName());
+
+        // Was a refresh threshold specified?
+        if (refreshThreshold != null) {
+        	constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider, refreshThreshold.intValue()));
+        }
+        else {
+        	constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider));
+        }
+    }
+
+    /**
+     * Common code for constructing an AS400 object that uses profile token authentication
+     */
+    private void constructWithProfileToken(String systemName, ProfileTokenVault credVault)
+    {
+        if (systemName == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
+            throw new NullPointerException("systemName");
+        }
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        bytes_ = store(profileToken.getToken());
-        byteType_ = AUTHENTICATION_SCHEME_PROFILE_TOKEN;
+
+        // Assumption: The caller of this method has ensured that the credential
+        // vault has been created and initialized correctly.
+        credVault_ = credVault;
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -500,17 +573,17 @@ public class AS400 implements Serializable
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
-        bytes_ = store(password);
+        credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
     // Private constructor for use when a new object is needed and the password is already twiddled.
     // Used by password cache and password verification code.
-    private AS400(String systemName, String userId, byte[] bytes)
+    private AS400(String systemName, String userId, CredentialVault pwVault)
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing internal AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
-        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "bytes:", bytes);
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, pwVault.trace());
         // System name and user ID validation has been deferred to here.
         if (systemName == null)
         {
@@ -531,7 +604,17 @@ public class AS400 implements Serializable
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
-        bytes_ = bytes;
+
+        // Create a copy of the supplied credential vault.  This allows the AS400
+        // object to have its own credential vault object while making the vault
+        // contain the the same credential as the original vault we have been provided.
+        // It is VERY important that the copy of the vault contain the same credential
+        // as the original vault.  This is because the Toolbox implementation has
+        // always allowed two AS400 objects to share a credential (i.e. two AS400
+        // objects can both share the same password credential).  So we must maintain
+        // that behavior, but we need to do so using two different credential vaults,
+        // because each AS400 object must always have its very own credential vault.
+        credVault_ = (CredentialVault)pwVault.clone();
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -581,7 +664,7 @@ public class AS400 implements Serializable
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         userId_ = userId.toUpperCase();
-        bytes_ = store(password);
+        credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer);
     }
 
@@ -602,8 +685,17 @@ public class AS400 implements Serializable
         systemName_ = system.systemName_;
         systemNameLocal_ = system.systemNameLocal_;
         userId_ = system.userId_;
-        bytes_ = system.bytes_;
-        byteType_ = system.byteType_;
+
+        // Create a copy of the supplied credential vault.  This allows the AS400
+        // object to have its own credential vault object while making the vault
+        // contain the the same credential as the original vault we have been provided.
+        // It is VERY important that the copy of the vault contain the same credential
+        // as the original vault.  This is because the Toolbox implementation has
+        // always allowed two AS400 objects to share a credential (i.e. two AS400
+        // objects can both share the same password credential).  So we must maintain
+        // that behavior, but we need to do so using two different credential vaults,
+        // because each AS400 object must always have its very own credential vault.
+        credVault_ = (CredentialVault)system.credVault_.clone();
 
         gssCredential_ = system.gssCredential_;
         gssName_ = system.gssName_;
@@ -713,7 +805,7 @@ public class AS400 implements Serializable
     static void addPasswordCacheEntry(AS400 system) throws AS400SecurityException, IOException
     {
         system.validateSignon();  // Exception thrown if info not valid.
-        setCacheEntry(system.systemName_, system.userId_, system.bytes_);
+        setCacheEntry(system.systemName_, system.userId_, system.credVault_);
     }
 
     /**
@@ -824,7 +916,7 @@ public class AS400 implements Serializable
      **/
     public boolean canUseNativeOptimizations()
     {
-        if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && getNativeVersion() == 2)
+        if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD && getNativeVersion() == 2)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
             return true;
@@ -846,8 +938,8 @@ public class AS400 implements Serializable
             if (proxyServer_.length() != 0) {
               Trace.log(Trace.DIAGNOSTIC, "proxyServer: " + proxyServer_);
             }
-            if (byteType_ != AUTHENTICATION_SCHEME_PASSWORD) {
-              Trace.log(Trace.DIAGNOSTIC, "byteType: " + byteType_);
+            if (credVault_.getType() != AUTHENTICATION_SCHEME_PASSWORD) {
+              Trace.log(Trace.DIAGNOSTIC, "byteType: " + credVault_.getType());
             }
             if (getNativeVersion() != 2) {
               Trace.log(Trace.DIAGNOSTIC, "nativeVersion: " + getNativeVersion());
@@ -911,20 +1003,29 @@ public class AS400 implements Serializable
         synchronized (this)
         {
             byte[] proxySeed = new byte[9];
-            AS400.rng.nextBytes(proxySeed);
+            CredentialVault.rng.nextBytes(proxySeed);
             byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
+
             if (PASSWORD_TRACE)
             {
                 Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
                 Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
             }
 
-            signonInfo_ = impl_.changePassword(systemName_, systemNameLocal_, userId_, encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
+            // Note that in this particular case it is OK to just pass byte arrays
+            // instead of credential vaults.  That is because we have the clear text
+            // passwords, so all we need to do is encode them and send them over
+            // to the impl.  After the password has been changed, we will update
+            // our own credential vault with the new password, and create ourselves
+            // the appropriate type of credential vault to store the password in.
+
+            signonInfo_ = impl_.changePassword(systemName_, systemNameLocal_, userId_, CredentialVault.encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), CredentialVault.encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
+
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
 
-            // Change instance variable to match.
-            bytes_ = store(newPassword);
-            byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
+            // Update credential vault with new password.
+            credVault_.empty();
+            credVault_ = new PasswordVault(newPassword);
         }
     }
 
@@ -955,7 +1056,10 @@ public class AS400 implements Serializable
     public static void clearPasswordCache()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache.");
-        AS400.systemList.removeAllElements();
+        synchronized (AS400.systemList)
+        {
+	        AS400.systemList.removeAllElements();
+        }
     }
 
     /**
@@ -1030,33 +1134,6 @@ public class AS400 implements Serializable
         }
     }
 
-    // Unscramble some bytes.
-    private static byte[] decode(byte[] adder, byte[] mask, byte[] bytes)
-    {
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object decode:");
-            Trace.log(Trace.DIAGNOSTIC, "     adder:", adder);
-            Trace.log(Trace.DIAGNOSTIC, "     mask:", mask);
-            Trace.log(Trace.DIAGNOSTIC, "     bytes:", bytes);
-        }
-        int length = bytes.length;
-        byte[] buf = new byte[length];
-        for (int i = 0; i < length; ++i)
-        {
-            buf[i] = (byte)(mask[i % 7] ^ bytes[i]);
-        }
-        for (int i = 0; i < length; ++i)
-        {
-            buf[i] = (byte)(buf[i] - adder[i % 9]);
-        }
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "     return:", buf);
-        }
-        return buf;
-    }
-
     /**
      Disconnects all services.  All socket connections associated with this object will be closed.
      **/
@@ -1103,34 +1180,6 @@ public class AS400 implements Serializable
 
         if (impl_ == null) return;
         impl_.disconnect(service);
-    }
-
-    // Scramble some bytes.
-    private static byte[] encode(byte[] adder, byte[] mask, byte[] bytes)
-    {
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object encode:");
-            Trace.log(Trace.DIAGNOSTIC, "     adder:", adder);
-            Trace.log(Trace.DIAGNOSTIC, "     mask:", mask);
-            Trace.log(Trace.DIAGNOSTIC, "     bytes:", bytes);
-        }
-        if (bytes == null) return null;
-        int length = bytes.length;
-        byte[] buf = new byte[length];
-        for (int i = 0; i < length; ++i)
-        {
-            buf[i] = (byte)(bytes[i] + adder[i % 9]);
-        }
-        for (int i = 0; i < length; ++i)
-        {
-            buf[i] = (byte)(buf[i] ^ mask[i % 7]);
-        }
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "     return:", buf);
-        }
-        return buf;
     }
 
     // Fire connect events here so source is public object.
@@ -1241,8 +1290,8 @@ public class AS400 implements Serializable
      **/
     public int getAuthenticationScheme()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting authentication scheme, scheme:", byteType_);
-        return byteType_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting authentication scheme, scheme:", credVault_.getType());
+        return credVault_.getType();
     }
 
     /**
@@ -1553,7 +1602,7 @@ public class AS400 implements Serializable
             return (ProfileTokenCredential)signonInfo_.profileToken;
         }
         // If the password is not set and we are not using Kerberos.
-        if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
+        if (credVault_.isEmpty() && credVault_.getType() != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
@@ -1573,10 +1622,18 @@ public class AS400 implements Serializable
         }
 
         byte[] proxySeed = new byte[9];
-        AS400.rng.nextBytes(proxySeed);
+        CredentialVault.rng.nextBytes(proxySeed);
+
         synchronized (this)
         {
-            impl_.generateProfileToken(profileToken, userId_, encode(proxySeed, impl_.exchangeSeed(proxySeed), resolve(bytes_)), byteType_);
+          // The 'impl' needs our credential to authenticate with the system
+          // (i.e. to make sure we have enough authority to generate the profile token).
+          // Note that we do not send across the bytes in the clear, but encode them
+          // using random seeds generated and exchanged with the 'impl' object.
+
+          CredentialVault tempVault = (CredentialVault)credVault_.clone();
+          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));  // Don't re-encode our own vault; we might need to reuse it later.
+          impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);	// @mds
         }
         signonInfo_.profileToken = profileToken;
         return profileToken;
@@ -1601,7 +1658,7 @@ public class AS400 implements Serializable
         connectService(AS400.SIGNON);
 
         // If the password is not set and we are not using Kerberos.
-        if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
+        if (credVault_.isEmpty() && credVault_.getType() != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
@@ -1626,10 +1683,16 @@ public class AS400 implements Serializable
         }
 
         byte[] proxySeed = new byte[9];
-        AS400.rng.nextBytes(proxySeed);
+        CredentialVault.rng.nextBytes(proxySeed);
         synchronized (this)
         {
-            impl_.generateProfileToken(profileToken, userId_, encode(proxySeed, impl_.exchangeSeed(proxySeed), resolve(bytes_)), byteType_);
+          // The 'impl' needs our credential to authenticate with the system
+          // (i.e. to make sure we have enough authority to generate the profile token).
+          // Note that we do not send across the bytes in the clear, but encode them
+          // using random seeds generated and exchanged with the 'impl' object.
+          CredentialVault tempVault = (CredentialVault)credVault_.clone();
+          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
+          impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);	// @mds
         }
         return profileToken;
     }
@@ -1713,10 +1776,12 @@ public class AS400 implements Serializable
         }
 
         byte[] proxySeed = new byte[9];
-        AS400.rng.nextBytes(proxySeed);
+        CredentialVault.rng.nextBytes(proxySeed);
         synchronized (this)
         {
-            impl_.generateProfileToken(profileToken, userId, encode(proxySeed, impl_.exchangeSeed(proxySeed), BinaryConverter.charArrayToByteArray(password.toCharArray())), 0);
+            PasswordVault tempVault = new PasswordVault(password);
+            tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
+            impl_.generateProfileToken(profileToken, userId, tempVault, gssName_);
         }
         return profileToken;
     }
@@ -1876,7 +1941,7 @@ public class AS400 implements Serializable
     public String getUserId()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID: " + userId_);
-        userId_ = resolveUserId(userId_, byteType_, mustUseSuppliedProfile_);
+        userId_ = resolveUserId(userId_, credVault_.getType(), mustUseSuppliedProfile_);
         return userId_;
     }
 
@@ -2010,6 +2075,7 @@ public class AS400 implements Serializable
      This is similar in concept to "pinging" the system over the connection.
      <p>Note: This method is <b>not fully supported until the release following IBM i V6R1</b>.  If running to V6R1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
      <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
+     </ul>
      @return  true if the connection is still working; false otherwise.
      @see #isConnected
      @see AS400JPing
@@ -2119,7 +2185,6 @@ public class AS400 implements Serializable
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Comparing local address " + localInet + " to " + remoteInet[i]);
                     if (localInet.equals(remoteInet[i]))
                     {
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is local: " + systemName);
                         return true;
                     }
                 }
@@ -2129,7 +2194,7 @@ public class AS400 implements Serializable
                 Trace.log(Trace.ERROR, "Error retrieving host address information:", e);
             }
         }
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is not local: " + systemName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is not local.");
         return false;
     }
 
@@ -2340,7 +2405,7 @@ public class AS400 implements Serializable
             SignonHandler soHandler = getSignonHandler();
 
             // If something isn't set, go to prompt state.
-            if (byteType_ == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))  //@prompt
+            if (credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || credVault_.isEmpty() || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))  //@prompt   @mds
             {
                 pwState = PROMPT;
             }
@@ -2371,7 +2436,7 @@ public class AS400 implements Serializable
                             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling SignonHandler...");
                             // If bytes_ has not been set, tell the handler something is missing.
                             SignonEvent soEvent = new SignonEvent(this, reconnecting);
-                            proceed = soHandler.connectionInitiated(soEvent, (bytes_ == null));
+                            proceed = soHandler.connectionInitiated(soEvent, credVault_.isEmpty());
                             if (!proceed)
                             {
                                 // User canceled.
@@ -2383,10 +2448,10 @@ public class AS400 implements Serializable
                             sendSignonRequest();
 
                             // See if we should cache the password.
-                            if (isUsePasswordCache() && byteType_ == AUTHENTICATION_SCHEME_PASSWORD)
+                            if (isUsePasswordCache() && credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD)
                             {
                                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from SignonHandler...");
-                                setCacheEntry(systemName_, userId_, bytes_);
+                                setCacheEntry(systemName_, userId_, credVault_);
                             }
                             break;
                         default:  // This should never happen.
@@ -2490,6 +2555,10 @@ public class AS400 implements Serializable
         propertiesFrozen_ = false;
         // impl_ can stay null.
         // signonInfo_ can stay null.
+
+        // Default to password authentication, just like we would if
+        // an AS400 object was constructed with no parameters.
+        credVault_ = new PasswordVault();
     }
 
     /**
@@ -2624,29 +2693,6 @@ public class AS400 implements Serializable
         ccsid_ = 0;
     }
 
-    // Get clear password bytes back.
-    private static byte[] resolve(byte[] info)
-    {
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object resolve:", info);
-        }
-
-        if (info == null)
-        {
-            return null;
-        }
-
-        byte[] adder = new byte[9];
-        System.arraycopy(info, 0, adder, 0, 9);
-        byte[] mask = new byte[7];
-        System.arraycopy(info, 9, mask, 0, 7);
-        byte[] infoBytes = new byte[info.length - 16];
-        System.arraycopy(info, 16, infoBytes, 0, info.length - 16);
-
-        return decode(adder, mask, infoBytes);
-    }
-
     // Resolves the proxy server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
     private static String resolveProxyServer(String proxyServer)
     {
@@ -2770,31 +2816,32 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signing-on without prompting...");
         // No prompting.
-        if (bytes_ == null && !userIdMatchesLocal(userId_, mustUseSuppliedProfile_))
+        if (credVault_.isEmpty() && !userIdMatchesLocal(userId_, mustUseSuppliedProfile_))
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
         }
 
-        byte[] proxySeed = new byte[9];
-        AS400.rng.nextBytes(proxySeed);
-        byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
-        if (PASSWORD_TRACE)
+        // If using GSS tokens, don't bother encoding the authentication info.
+        if (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
-        }
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, credVault_, gssName_);  // @mds
 
-        // If using GSS tokens.
-        if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN)
-        {
-            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, bytes_, byteType_, gssName_, gssOption_);
-            if (gssCredential_ != null) ((AS400ImplRemote)impl_).setGSSCredential(gssCredential_);
-            bytes_ = null;  // GSSToken is single use only.
+            if (gssCredential_ != null) impl_.setGSSCredential(gssCredential_);
+            credVault_.empty();  // GSSToken is single use only.	@mds
         }
-        else
+        else  // Encode the authentication info before sending vault to impl.
         {
-            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_, gssName_, gssOption_);
+          byte[] proxySeed = new byte[9];
+          CredentialVault.rng.nextBytes(proxySeed);
+          CredentialVault tempVault = (CredentialVault)credVault_.clone();
+          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));	// @mds
+
+          if (PASSWORD_TRACE)
+          {
+            Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
+          }
+          signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
@@ -2817,14 +2864,14 @@ public class AS400 implements Serializable
 
         synchronized (this)
         {
-            bytes_ = store(identityToken);
-            byteType_ = AUTHENTICATION_SCHEME_IDENTITY_TOKEN;
+            credVault_.empty();
+            credVault_ = new IdentityTokenVault(identityToken);
             signonInfo_ = null;
         }
     }
 
     // Store information in password cache.
-    private static void setCacheEntry(String systemName, String userId, byte[] bytes)
+    private static void setCacheEntry(String systemName, String userId, CredentialVault pwVault) // @mds
     {
         synchronized (AS400.systemList)
         {
@@ -2843,7 +2890,7 @@ public class AS400 implements Serializable
 
             // Now add the new one.
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry.");
-            AS400.systemList.addElement(new Object[] {systemName, userId, bytes} );
+            AS400.systemList.addElement(new Object[] {systemName, userId, pwVault.clone()} );	// @mds
         }
     }
 
@@ -2972,21 +3019,24 @@ public class AS400 implements Serializable
      **/
     public void setGSSCredential(Object gssCredential)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential: '" + gssCredential + "'");
-
         if (gssCredential == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'gssCredential' is null.");
             throw new NullPointerException("gssCredential");
         }
 
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential: '" + gssCredential + "'");
+
         synchronized (this)
         {
             gssCredential_ = gssCredential;
             gssName_ = "";
-            bytes_ = null;
-            byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+            credVault_.empty();
+            credVault_ = new GSSTokenVault();
             signonInfo_ = null;
+
+            if (impl_ != null) impl_.setGSSCredential(gssCredential_);
+
         }
     }
 
@@ -3028,8 +3078,8 @@ public class AS400 implements Serializable
         {
             gssName_ = gssName;
             gssCredential_ = null;
-            bytes_ = null;
-            byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+            credVault_.empty();
+            credVault_ = new GSSTokenVault();
             signonInfo_ = null;
         }
     }
@@ -3237,8 +3287,8 @@ public class AS400 implements Serializable
 
         synchronized (this)
         {
-            bytes_ = store(password);
-            byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
+            credVault_.empty();
+            credVault_ = new PasswordVault(password);
             signonInfo_ = null;
         }
     }
@@ -3269,8 +3319,8 @@ public class AS400 implements Serializable
 
         synchronized (this)
         {
-            bytes_ = store(profileToken.getToken());
-            byteType_ = AUTHENTICATION_SCHEME_PROFILE_TOKEN;
+            credVault_.empty();
+            credVault_ = new ProfileTokenVault(profileToken);
             signonInfo_ = null;
         }
     }
@@ -3612,7 +3662,7 @@ public class AS400 implements Serializable
         if (signonInfo_ == null)
         {
             chooseImpl();
-            userId_ = resolveUserId(userId_, byteType_, mustUseSuppliedProfile_);
+            userId_ = resolveUserId(userId_, credVault_.getType(), mustUseSuppliedProfile_);
             // If system name is set.
             if (systemName_.length() != 0)
             {
@@ -3625,7 +3675,7 @@ public class AS400 implements Serializable
                     if (defaultUserId != null) userId_ = defaultUserId;
                 }
                 // If the user ID is set and the password is not set and we can use the password cache.
-                if (userId_.length() != 0 && bytes_ == null && usePasswordCache_)
+                if (userId_.length() != 0 && credVault_.isEmpty() && usePasswordCache_)
                 {
                     // Get password from password cache.
                     synchronized (AS400.systemList)
@@ -3635,7 +3685,15 @@ public class AS400 implements Serializable
                             Object[] secobj = (Object[])AS400.systemList.elementAt(i);
                             if (systemName_.equalsIgnoreCase((String)secobj[0]) && userId_.equals(secobj[1]))
                             {
-                                bytes_ = (byte[])secobj[2];
+                              // We are taking an entry from the password cache
+                              // and using it for our own AS400 object.
+                              // Thus we must take a copy of it, to maintain
+                              // the protocol of never using a credential vault
+                              // that someone else has a reference to.
+                              // Note that we do not need to bother emptying
+                              // our existing vault; the if-check above has
+                              // assured us that our vault is currently empty.
+                              credVault_ = (CredentialVault)((CredentialVault)secobj[2]).clone();
                             }
                         }
                     }
@@ -3645,16 +3703,20 @@ public class AS400 implements Serializable
             try
             {
                 // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
-                if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null && (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
+                if (systemName_.length() != 0 && proxyServer_.length() == 0 && credVault_.isEmpty() && (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
                 {
                     // Try for Kerberos.
-                    bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
-                    byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+                    byte[] newBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) :
+                      TokenManager2.getGSSToken(systemName_, gssCredential_);
+
+                    // We do not have to empty the existing vault because the
+                    // previous if-check assures us it is already empty.
+                    credVault_ = new GSSTokenVault(newBytes);
                 }
             }
             catch (Throwable e)
             {
-                if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ == AS400.GSS_OPTION_MANDATORY)
+                if (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ == AS400.GSS_OPTION_MANDATORY)
                 {
                     Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
                     throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
@@ -3672,58 +3734,6 @@ public class AS400 implements Serializable
               impl_.disconnect(AS400.SIGNON);
             }
         }
-    }
-
-    // Twiddle profile token bytes.
-    private static byte[] store(byte[] info)
-    {
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object store, profile token: '" + info + "'");
-        }
-        byte[] adder = new byte[9];
-        AS400.rng.nextBytes(adder);
-
-        byte[] mask = new byte[7];
-        AS400.rng.nextBytes(mask);
-
-        byte[] infoBytes = encode(adder, mask, info);
-        byte[] returnBytes = new byte[infoBytes.length + 16];
-        System.arraycopy(adder, 0, returnBytes, 0, 9);
-        System.arraycopy(mask, 0, returnBytes, 9, 7);
-        System.arraycopy(infoBytes, 0, returnBytes, 16, infoBytes.length);
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object store, bytes:", returnBytes);
-        }
-        return returnBytes;
-    }
-
-    // Twiddle password bytes.
-    private static byte[] store(String info)
-    {
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object store, password: '" + info + "'");
-        }
-        if (AS400.onAS400) if (info.equalsIgnoreCase("*CURRENT") || info.equals("")) return null;
-
-        byte[] adder = new byte[9];
-        AS400.rng.nextBytes(adder);
-
-        byte[] mask = new byte[7];
-        AS400.rng.nextBytes(mask);
-
-        byte[] infoBytes = encode(adder, mask, BinaryConverter.charArrayToByteArray(info.toCharArray()));
-        byte[] returnBytes = new byte[infoBytes.length + 16];
-        System.arraycopy(adder, 0, returnBytes, 0, 9);
-        System.arraycopy(mask, 0, returnBytes, 9, 7);
-        System.arraycopy(infoBytes, 0, returnBytes, 16, infoBytes.length);
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object store, bytes:", returnBytes);
-        }
-        return returnBytes;
     }
 
     /**
@@ -3775,8 +3785,7 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Cannot validate signon before user ID is set.");
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
-
-        return validateSignon(userId_, bytes_);
+        return validateSignon(userId_, credVault_);
     }
 
     /**
@@ -3814,7 +3823,8 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        return validateSignon(userId_, store(password));
+        PasswordVault tempVault = new PasswordVault(password);
+        return validateSignon(userId_, tempVault);
     }
 
     /**
@@ -3857,17 +3867,18 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        return validateSignon(userId.toUpperCase(), store(password));
+        PasswordVault tempVault = new PasswordVault(password);
+        return validateSignon(userId.toUpperCase(), tempVault);
     }
 
     // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
     // If the signon info is not valid, an exception is thrown.
-    private boolean validateSignon(String userId, byte[] bytes) throws AS400SecurityException, IOException
+    private boolean validateSignon(String userId, CredentialVault pwVault) throws AS400SecurityException, IOException
     {
       if (Trace.traceOn_) {
         Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
       }
-        AS400 validationSystem = new AS400(systemName_, userId, bytes);
+        AS400 validationSystem = new AS400(systemName_, userId, pwVault);
         validationSystem.proxyServer_ = proxyServer_;
         // proxyClientConnection_ is not needed.
         validationSystem.guiAvailable_ = false;

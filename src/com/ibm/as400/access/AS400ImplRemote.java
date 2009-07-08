@@ -36,7 +36,7 @@ class AS400ImplRemote implements AS400Impl
     private static final boolean PASSWORD_TRACE = false;
     private static final boolean DEBUG = false;
 
-    // The pool of systems.  Tne systems are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
+    // The pool of systems.  The systems are in service constant order: FILE, PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
     private Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector() };
 
     // System name.
@@ -45,20 +45,16 @@ class AS400ImplRemote implements AS400Impl
     private String userId_ = "";
     // Flag indicating if system name refers to local system.
     private boolean systemNameLocal_ = false;
-    // Password bytes twiddled.
-    private byte[] bytes_ = null;
-    // Type of authentication bytes, start by default in password mode.
-    private int byteType_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
-    // GSS Credential object, for Kerberos.  Type set to Object to prevent dependancy on 1.4 JDK.
+
+    // Credential to the IBM i system
+    private CredentialVault credVault_ = new PasswordVault();	// @mds
+
+    // GSS Credential object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
     private Object gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
     // How to use the GSS framework.
     //int gssOption_;                    // not used
-    // Adder for twiddled password bytes.
-    private byte[] adder_ = null;
-    // Mask for twiddled password bytes.
-    private byte[] mask_ = null;
 
     // Flag that indicates if we connect to SSL ports.
     private SSLOptions useSSLConnection_ = null;
@@ -260,10 +256,11 @@ class AS400ImplRemote implements AS400Impl
         userId_ = userId;
 
         // Decode passwords and discard seeds.
-        char[] oldPassword = BinaryConverter.byteArrayToCharArray(decode(proxySeed_, remoteSeed_, oldBytes));
-        char[] newPassword = BinaryConverter.byteArrayToCharArray(decode(proxySeed_, remoteSeed_, newBytes));
+        char[] oldPassword = BinaryConverter.byteArrayToCharArray(CredentialVault.decode(proxySeed_, remoteSeed_, oldBytes));	// @mds
+        char[] newPassword = BinaryConverter.byteArrayToCharArray(CredentialVault.decode(proxySeed_, remoteSeed_, newBytes));	// @mds
         proxySeed_ = null;
         remoteSeed_ = null;
+
         if (PASSWORD_TRACE)
         {
             Trace.log(Trace.DIAGNOSTIC, "Old password unscrambled: '" + new String(oldPassword) + "'");
@@ -358,13 +355,13 @@ class AS400ImplRemote implements AS400Impl
             int rc = chgRep.getRC();
             if (rc == 0)
             {
-                // Change password worked, so retrive signon information using new password.
+                // Change password worked, so retrieve signon information using new password.
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password change implementation successful.");
 
                 byte[] tempSeed = new byte[9];
-                AS400.rng.nextBytes(tempSeed);
+                CredentialVault.rng.nextBytes(tempSeed);
 
-                SignonInfo returnInfo = signon(systemName, systemNameLocal, userId, encode(tempSeed, exchangeSeed(tempSeed), BinaryConverter.charArrayToByteArray(newPassword)), 0, gssName_, 1);
+                SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId, CredentialVault.encode(tempSeed, exchangeSeed(tempSeed), BinaryConverter.charArrayToByteArray(newPassword)), AS400.AUTHENTICATION_SCHEME_PASSWORD); // @mds
                 if (needToDisconnect) signonDisconnect();
                 return returnInfo;
             }
@@ -404,21 +401,6 @@ class AS400ImplRemote implements AS400Impl
         {
             getConnection(service, false);
         }
-    }
-
-    // Unscramble some bytes.
-    private static byte[] decode(byte[] adder, byte[] mask, byte[] bytes)
-    {
-        byte[] buf = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; ++i)
-        {
-            buf[i] = (byte)(mask[i % 7] ^ bytes[i]);
-        }
-        for (int i = 0; i < bytes.length; i++)
-        {
-            buf[i] = (byte)(buf[i] - adder[i % 9]);
-        }
-        return buf;
     }
 
     // Implementation for disconnect.
@@ -485,22 +467,8 @@ class AS400ImplRemote implements AS400Impl
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server disconnected");
     }
 
-    // Scramble some bytes.
-    private static byte[] encode(byte[] adder, byte[] mask, byte[] bytes)
-    {
-        byte[] buf = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; ++i)
-        {
-            buf[i] = (byte)(bytes[i] + adder[i % 9]);
-        }
-        for (int i = 0; i < bytes.length; ++i)
-        {
-            buf[i] = (byte)(buf[i] ^ mask[i % 7]);
-        }
-        return buf;
-    }
-
-    // Exchange of seeds between public object and this class.
+    // Exchange of seeds between public 'AS400' object and this class.
+    // If the public class and the implRemote class are running on different machines, the authentication information must be transmitted securely between the public class and the implRemote class.  The transmitted authentication information can be encoded/decoded using the exchanged seeds.
     public byte[] exchangeSeed(byte[] proxySeed)
     {
         // Hold the seed they send us.
@@ -508,7 +476,8 @@ class AS400ImplRemote implements AS400Impl
 
         // Generate, hold, and send them our seed.
         remoteSeed_ = new byte[7];
-        AS400.rng.nextBytes(remoteSeed_);
+        CredentialVault.rng.nextBytes(remoteSeed_);		// @mds
+
         return remoteSeed_;
     }
 
@@ -560,7 +529,7 @@ class AS400ImplRemote implements AS400Impl
             }
 
             int serverId = AS400Server.getServerId(AS400.SIGNON);
-            AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, byteType_);
+            AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType());
             AS400StrSvrReplyDS reply = (AS400StrSvrReplyDS)signonServer_.sendAndReceive(req);
 
             if (reply.getRC() != 0)
@@ -609,19 +578,21 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Flow the generate profile token datastream.
-    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException, InterruptedException
+    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException
     {
         signonConnect();
         try
         {
             byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
             byte[] authenticationBytes = null;
+            int byteType = vault.getType();
+
             switch (byteType)
             {
                 case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
                     try
                     {
-                        authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                        authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName) : TokenManager2.getGSSToken(systemName_, gssCredential_);
                     }
                     catch (Exception e)
                     {
@@ -631,10 +602,11 @@ class AS400ImplRemote implements AS400Impl
                     break;
                 case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
                 case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
-                    authenticationBytes = decode(proxySeed_, remoteSeed_, bytes);
+                    authenticationBytes = vault.decode(proxySeed_, remoteSeed_);
+                    // @mds should we null out the seeds here
                     break;
                 default:  // Password.
-                    char[] password = BinaryConverter.byteArrayToCharArray(decode(proxySeed_, remoteSeed_, bytes));
+                    char[] password = BinaryConverter.byteArrayToCharArray(vault.decode(proxySeed_, remoteSeed_));	// @mds
                     proxySeed_ = null;
                     remoteSeed_ = null;
 
@@ -788,7 +760,7 @@ class AS400ImplRemote implements AS400Impl
             writer.println("USER " + userId_);
             readFTPLine(reader);
 
-            writer.println("PASS " + new String(BinaryConverter.byteArrayToCharArray(decode(adder_, mask_, bytes_))));
+            writer.println("PASS " + new String(BinaryConverter.byteArrayToCharArray(credVault_.getClearCredential())));
             if (!readFTPLine(reader).startsWith("230")) throw new IOException();
 
             return socket;
@@ -868,7 +840,7 @@ class AS400ImplRemote implements AS400Impl
                 Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
             }
 
-            AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, byteType_);
+            AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType());
             if (Trace.traceOn_) req.setConnectionID(connectionID);
             req.write(outStream);
 
@@ -977,7 +949,7 @@ class AS400ImplRemote implements AS400Impl
 
             if (service == AS400.RECORDACCESS)
             {
-                Object[] seeds = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, byteType_, connectionID);
+                Object[] seeds = ClassDecoupler.connectDDMPhase1(outStream, inStream, passwordType_, credVault_.getType(), connectionID);
                 byte[] clientSeed = (byte[])seeds[0];
                 byte[] serverSeed = (byte[])seeds[1];
 
@@ -1001,7 +973,7 @@ class AS400ImplRemote implements AS400Impl
                   AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
                   iaspBytes = text18.toBytes(ddmRDB_);
                 }
-                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes, byteType_, ddmRDB_, systemName_, connectionID);
+                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes, credVault_.getType(), ddmRDB_, systemName_, connectionID);
             }
             else  // service != RECORDACCESS
             {
@@ -1039,7 +1011,7 @@ class AS400ImplRemote implements AS400Impl
                     Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
                 }
 
-                AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, byteType_);
+                AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType());
                 if (Trace.traceOn_) req.setConnectionID(connectionID);
                 req.write(outStream);
 
@@ -1127,7 +1099,9 @@ class AS400ImplRemote implements AS400Impl
     // Get the encrypted password with the seeds folded in.
     private byte[] getPassword(byte[] clientSeed, byte[] serverSeed) throws AS400SecurityException, IOException
     {
-        if (byteType_ == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        int credType = credVault_.getType();
+
+        if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             try
             {
@@ -1139,16 +1113,16 @@ class AS400ImplRemote implements AS400Impl
                 throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
             }
         }
-        if (byteType_ == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN || byteType_ == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
+        else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN || credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
         {
-            return decode(adder_, mask_, bytes_);
+        	return credVault_.getClearCredential();
         }
 
         byte[] encryptedPassword = null;
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted password.");
 
-        if (bytes_ == null)
+        if (credVault_.isEmpty())
         {
             if (!mustUseSuppliedProfile_ &&
                 AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
@@ -1164,7 +1138,7 @@ class AS400ImplRemote implements AS400Impl
         else
         {
             byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
-            char[] password = BinaryConverter.byteArrayToCharArray(decode(adder_, mask_, bytes_));
+            char[] password = BinaryConverter.byteArrayToCharArray(credVault_.getClearCredential());
             if (PASSWORD_TRACE)
             {
                 Trace.log(Trace.DIAGNOSTIC, "  user ID: '" + userId_ + "'");
@@ -2022,7 +1996,7 @@ class AS400ImplRemote implements AS400Impl
         return message;
     }
 
-    void setGSSCredential(Object gssCredential)
+    public void setGSSCredential(Object gssCredential)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential into impl: '" + gssCredential + "'");
         gssCredential_ = gssCredential;
@@ -2078,9 +2052,9 @@ class AS400ImplRemote implements AS400Impl
             Trace.log(Trace.DIAGNOSTIC, "  NLV: " + nlv);
             Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
             Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: " + ddmRDB);
-            Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets: " + mustUseNetSockets);
-            Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile: " + mustUseSuppliedProfile);
-            Trace.log(Trace.DIAGNOSTIC, "  Must add language library: " + mustAddLanguageLibrary);
+            Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets:", mustUseNetSockets);
+            Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile:", mustUseSuppliedProfile);
+            Trace.log(Trace.DIAGNOSTIC, "  Must add language library:", mustAddLanguageLibrary);
         }
         useSSLConnection_ = useSSLConnection;
         canUseNativeOptimization_ = canUseNativeOptimization;
@@ -2098,33 +2072,82 @@ class AS400ImplRemote implements AS400Impl
         mustUseSuppliedProfile_ = mustUseSuppliedProfile;
     }
 
+
+    private SignonInfo signon2(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException
+    {
+      CredentialVault tempVault;
+
+      if (bytes == null) {
+        tempVault = new PasswordVault();
+      }
+      else if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
+        tempVault = new GSSTokenVault(bytes);
+      }
+      else
+      {
+        //
+        // Create a credential vault based on the type of bytes,
+        // and populate it with the raw decoded credential bytes.
+        //
+        byte[] newBytes = CredentialVault.decode(proxySeed_, remoteSeed_, bytes);
+
+        switch (byteType)
+        {
+          case AS400.AUTHENTICATION_SCHEME_PASSWORD:
+            tempVault = new PasswordVault(newBytes);
+            break;
+          case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
+            tempVault = new ProfileTokenVault(newBytes);
+            break;
+          case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
+            tempVault = new IdentityTokenVault(newBytes);
+            break;
+          default:
+            Trace.log(Trace.ERROR, "Unsupported byte type: " + byteType);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        }
+        // This code is a bit strange, but necessary.
+        // We decoded the raw bytes above and created a new credential vault using the decoded bytes.
+        // This is because a credential vault always requires clear bytes when constructed.
+        // Once constructed, we must encode the credential in the vault using the same seeds we just decoded it with.
+        // Why?  Because the signon() method we are going to invoke expects that the credential in the vault will always be encoded,
+        // so we satisfy this expectation by re-encoding here.
+        tempVault.storeEncodedUsingExternalSeeds(proxySeed_, remoteSeed_);
+      }
+      return signon(systemName, systemNameLocal, userId, tempVault, gssName_);
+    }
+
+
     // Exchange sign-on flows with sign-on server.
-    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
+    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException	// @mds
     {
         systemName_ = systemName;
         systemNameLocal_ = systemNameLocal;
         userId_ = userId;
         gssName_ = gssName;
+
+        // We are accepting a credential vault from the caller.
+        // This vault will replace our existing one.
+        // So if our existing one is not the same as the one being given to us,
+        // then empty our existing one since we are discarding it.
+        if (!vault.equals(credVault_)) {
+        	credVault_.empty();
+        }
+        credVault_ = vault;		// @mds
+
         //gssOption_ = gssOption;   // not used
 
-        if (bytes != null)
+        if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
-            {
-                bytes_ = bytes;
-            }
-            else
-            {
-                adder_ = new byte[9];
-                AS400.rng.nextBytes(adder_);
-
-                mask_ = new byte[7];
-                AS400.rng.nextBytes(mask_);
-
-                bytes_ = encode(adder_, mask_, decode(proxySeed_, remoteSeed_, bytes));
-            }
-            byteType_ = byteType;
+        	// No decoding to do.
         }
+        else
+        {
+            // Must first decode the credential using the seeds that were previously exchanged between the public AS400 class and this class.
+            credVault_.storeEncodedUsingInternalSeeds(proxySeed_, remoteSeed_);
+            // Note: The called method ends up storing a "twiddled" representation of the credential info.
+        }
+
         proxySeed_ = null;
         remoteSeed_ = null;
 
@@ -2162,8 +2185,8 @@ class AS400ImplRemote implements AS400Impl
             signonConnect();
             try
             {
-                byte[] userIDbytes = byteType_ == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter.stringToByteArray(userId) : null;
-                byte[] encryptedPassword = byteType_ == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? bytes_ : getPassword(clientSeed_, serverSeed_);
+                byte[] userIDbytes = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter.stringToByteArray(userId) : null;
+                byte[] encryptedPassword = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? credVault_.getClearCredential() : getPassword(clientSeed_, serverSeed_);		// @mds
 
                 if (PASSWORD_TRACE)
                 {
@@ -2175,7 +2198,7 @@ class AS400ImplRemote implements AS400Impl
                     Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
                 }
 
-                SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, byteType_, serverLevel_);
+                SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, credVault_.getType(), serverLevel_);
                 SignonInfoRep signonRep = (SignonInfoRep)signonServer_.sendAndReceive(signonReq);
 
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
@@ -2248,7 +2271,7 @@ class AS400ImplRemote implements AS400Impl
                 InputStream inStream = signonConnection.getInputStream();
                 OutputStream outStream = signonConnection.getOutputStream();
 
-                clientSeed_ = byteType_ == AS400.AUTHENTICATION_SCHEME_PASSWORD ? BinaryConverter.longToByteArray(System.currentTimeMillis()) : null;
+                clientSeed_ = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? BinaryConverter.longToByteArray(System.currentTimeMillis()) : null;
 
                 SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(clientSeed_);
                 if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
@@ -2324,14 +2347,15 @@ class AS400ImplRemote implements AS400Impl
     boolean swapTo(byte[] swapToPH, byte[] swapFromPH) throws AS400SecurityException, IOException
     {
         if (AS400.onAS400 && AS400.currentUserAvailable() && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification()))) return false;
-        if (bytes_ == null)
+
+        if (credVault_.isEmpty())
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
         }
         try
         {
-            byte[] temp = decode(adder_, mask_, bytes_);
+            byte[] temp = credVault_.getClearCredential();
             // Screen out passwords that start with a star.
             if (temp[0] == 0x00 && temp[1] == 0x2A)
             {

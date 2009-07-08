@@ -119,11 +119,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Sets the raw bytes for the provided profile token.
-    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException, InterruptedException
+    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException
     {
         try
         {
-            connection_.callMethod(pxId_, "generateProfileToken", new Class[] { ProfileTokenCredential.class, String.class, byte[].class, Integer.TYPE }, new Object[] { profileToken, userId, bytes, new Integer(byteType) });
+            connection_.callMethod(pxId_, "generateProfileToken", new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class, String.class }, new Object[] { profileToken, userId, vault, gssName });
         }
         catch (InvocationTargetException e)
         {
@@ -218,6 +218,19 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         connection_.removeListener(pxId_, listener, "Connection");
     }
 
+    // Set the GSS credential.
+    public void setGSSCredential(Object gssCredential)
+    {
+        try
+        {
+            connection_.callMethod(pxId_, "setGSSCredential", new Class[] { Object.class }, new Object[] { gssCredential });
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow(e);
+        }
+    }
+
     // Set the port for a service.
     public void setServicePort(String systemName, int service, int port)
     {
@@ -258,15 +271,16 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Sign-on.
-    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
+    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException
     {
         try
         {
-            return (SignonInfo)connection_.callMethod(pxId_, "signon", new Class[] { String.class, Boolean.TYPE, String.class, byte[].class, Integer.TYPE, String.class, Integer.TYPE }, new Object[] { systemName, new Boolean(systemNameLocal), userId, bytes, new Integer(byteType), gssName, new Integer(gssOption) }).getReturnValue();
+            return (SignonInfo)connection_.callMethod(pxId_, "signon", new Class[] { String.class, Boolean.TYPE, String.class, CredentialVault.class, String.class }, new Object[] { systemName, new Boolean(systemNameLocal), userId, vault, gssName }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
             throw ProxyClientConnection.rethrow2(e);
         }
     }
+
 }

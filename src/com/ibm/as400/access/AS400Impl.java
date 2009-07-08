@@ -38,7 +38,7 @@ interface AS400Impl
     // Sets the raw bytes for the provided profile token.
     void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException;
     // Sets the raw bytes for the provided profile token.
-    void generateProfileToken(ProfileTokenCredential profileToken, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException, InterruptedException;
+    void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException;
     // Get the port for a service.
     int getServicePort(String systemName, int service);
     // Check service connection.
@@ -51,6 +51,8 @@ interface AS400Impl
     void newConverter(int ccsid) throws UnsupportedEncodingException;
     // Remove the connection event dispatcher.
     void removeConnectionListener(ConnectionListener listener);
+    // Set the GSS credential.
+    void setGSSCredential(Object gssCredential);
     // Set the port for a service.
     void setServicePort(String systemName, int service, int port);
     // Set the service ports to their default values.
@@ -58,5 +60,5 @@ interface AS400Impl
     // Set significant instance variables into implementation object.
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary);
     // Sign-on to system.
-    SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException;
+    SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException;
 }
