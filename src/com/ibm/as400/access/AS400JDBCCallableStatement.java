@@ -328,8 +328,54 @@ implements CallableStatement
     public Array getArray(int parameterIndex)
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        //@array3 implement this method
+        synchronized(internalLock_)
+        {
+            checkOpen();
+
+            SQLData data = null;
+
+            // Check if the parameter index refers to the return value parameter.
+            // If it is not parameter index 1, then decrement the parameter index,
+            // since we are "faking" the return value parameter.
+            if(useReturnValueParameter_ && parameterIndex == 1)
+            {
+                if(!returnValueParameterRegistered_)
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+                data = returnValueParameter_;
+            }
+            else
+            {
+                if(useReturnValueParameter_)
+                {
+                    --parameterIndex;
+                }
+
+                // Validate the parameter index.
+                if((parameterIndex < 1) || (parameterIndex > parameterCount_))
+                    JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+
+                // Check that the parameter is an output parameter.
+                if(!parameterRow_.isOutput(parameterIndex))
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+                // Verify that the output parameter is registered.
+                if(registered_[parameterIndex-1] == false)
+                    JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
+
+                // make sure the registered type is valid for this get method
+                if(registeredTypes_[parameterIndex-1] != Types.ARRAY)
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+
+                // Get the data and check for SQL NULL.
+                data = getValue(parameterIndex);
+            }
+
+            Array value = (data == null) ? null : data.getArray();
+            testDataTruncation(parameterIndex, data);
+            return value;
+        }
     }
 
     //@G4A JDBC 3.0
@@ -345,8 +391,7 @@ implements CallableStatement
     public Array getArray(String parameterName)
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        return getArray(findParameterIndex(parameterName)); //@array3
     }
 
     // JDBC 2.0
