@@ -367,36 +367,35 @@ will not be put in the JAR unless explicitly specified.
 
 public class ToolboxJarMaker extends JarMaker
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
   // Constants.
 
   // Component names that can be specified on the -component option.
   static final String[] VALID_COMPONENTS = {
-    "AS400", "CommandCall", "DataArea", "DataDescription", "DataQueue",
-    "DigitalCertificate", "FTP", "IntegratedFileSystem", "JAAS",
+    "AS400", "CommandCall", "ConnectionPool",
+    "DataArea", "DataDescription", "DataQueue", "DigitalCertificate",
+    "FTP", "IntegratedFileSystem", "JAAS",
     "JavaApplicationCall",
-    "JDBC", "Job", "Message", "NumericDataTypes",
-    "Print", "ProgramCall", "RecordLevelAccess", "SecureAS400",
+    "JDBC", "Job", "Message",
+    "NetServer", "NumericDataTypes",
+    "PCML", "Print", "ProgramCall", "RecordLevelAccess", "SecureAS400",
     "ServiceProgramCall", "SystemStatus", "SystemValue",
     "Trace", "User", "UserSpace",
     "AS400Visual", "CommandCallVisual", "DataQueueVisual",
     "IntegratedFileSystemVisual", "JavaApplicationCallVisual",
     "JDBCVisual", "JobVisual",
     "MessageVisual", "PrintVisual", "ProgramCallVisual",
-    "RecordLevelAccessVisual", "UserVisual",
-    "ConnectionPool",
-    "NetServer"
+    "RecordLevelAccessVisual", "UserVisual"
     };
 
   // Component abbreviations can be specified on the -component option.
   static final String[] VALID_COMPONENT_ABBREVS = {
-    "AS400", "CmdCall", "DA", "DD", "DQ",
-    "DigCert", "FTP", "IFS", "JAAS",
+    "AS400", "CmdCall", "ConnPool",
+    "DA", "DD", "DQ", "DigCert",
+    "FTP", "IFS", "JAAS",
     "JavaApp",
-    "JDBC", "Job", "Msg", "DataType",
-    "Prt", "PgmCall", "RLA", "Secure",
+    "JDBC", "Job", "Msg",
+    "NetS", "DataType",
+    "PCML", "Prt", "PgmCall", "RLA", "Secure",
     "SvcPgmCall", "SysStat", "SysVal",
     "Trace", "User", "UserSpc",
     "AS400V", "CmdCallV", "DQV",
@@ -404,8 +403,6 @@ public class ToolboxJarMaker extends JarMaker
     "JDBCV", "JobV",
     "MsgV", "PrtV", "PgmCallV",
     "RLAV", "UserV",
-    "ConnPool",
-    "NetS"
     };
   // Note: The following list must be kept in sync with VALID_COMPONENTS.
 
@@ -413,89 +410,92 @@ public class ToolboxJarMaker extends JarMaker
   public static final Integer AS400 = new Integer(0);
   /** Specifies the <b>Command Call</b> component. **/
   public static final Integer COMMAND_CALL = new Integer(1);
+  /** Specifies the <b>Connection Pool</b> component. **/
+  public static final Integer CONNECTION_POOL = new Integer(2);
   /** Specifies the <b>Data Area</b> component. **/
-  public static final Integer DATA_AREA = new Integer(2);
+  public static final Integer DATA_AREA = new Integer(3);
   /** Specifies the <b>Data Description</b> component. **/
-  public static final Integer DATA_DESCRIPTION = new Integer(3);
+  public static final Integer DATA_DESCRIPTION = new Integer(4);
   /** Specifies the <b>Data Queue</b> component. **/
-  public static final Integer DATA_QUEUE = new Integer(4);
+  public static final Integer DATA_QUEUE = new Integer(5);
   /** Specifies the <b>Digital Certificate</b> component. **/
-  public static final Integer DIGITAL_CERTIFICATE = new Integer(5);
+  public static final Integer DIGITAL_CERTIFICATE = new Integer(6);
   /** Specifies the <b>FTP</b> component. **/
-  public static final Integer FTP = new Integer(6);
+  public static final Integer FTP = new Integer(7);
   /** Specifies the <b>Integrated File System</b> component. **/
-  public static final Integer INTEGRATED_FILE_SYSTEM = new Integer(7);
+  public static final Integer INTEGRATED_FILE_SYSTEM = new Integer(8);
   /** Specifies the <b>JAAS</b> component. **/
-  public static final Integer JAAS = new Integer(8);
+  public static final Integer JAAS = new Integer(9);
   /** Specifies the <b>Java Application Call</b> component. **/
-  public static final Integer JAVA_APPLICATION_CALL = new Integer(9);
+  public static final Integer JAVA_APPLICATION_CALL = new Integer(10);
   /** Specifies the <b>JDBC</b> component. **/
-  public static final Integer JDBC = new Integer(10);
+  public static final Integer JDBC = new Integer(11);
   /** Specifies the <b>Job</b> component. **/
-  public static final Integer JOB = new Integer(11);
+  public static final Integer JOB = new Integer(12);
   /** Specifies the <b>Message Queue</b> component. **/
-  public static final Integer MESSAGE = new Integer(12);
+  public static final Integer MESSAGE = new Integer(13);
+  /** Specifies the <b>NetServer</b> component. **/
+  public static final Integer NETSERVER = new Integer(14);
   /** Specifies the <b>Numeric Data Types</b> component. **/
-  public static final Integer NUMERIC_DATA_TYPES = new Integer(13);
+  public static final Integer NUMERIC_DATA_TYPES = new Integer(15);
+  /** Specifies the <b>PCML</b> component. **/
+  public static final Integer PCML = new Integer(16);
   /** Specifies the <b>Network Print</b> component. **/
-  public static final Integer PRINT = new Integer(14);
+  public static final Integer PRINT = new Integer(17);
   /** Specifies the <b>Program Call</b> component. **/
-  public static final Integer PROGRAM_CALL = new Integer(15);
+  public static final Integer PROGRAM_CALL = new Integer(18);
   /** Specifies the <b>Record Level Access</b> component. **/
-  public static final Integer RECORD_LEVEL_ACCESS = new Integer(16);
+  public static final Integer RECORD_LEVEL_ACCESS = new Integer(19);
   /** Specifies the <b>Secure AS400</b> component.
    This component performs SSL (Secure Sockets Layer) processing. **/
-  public static final Integer SECURE_AS400 = new Integer(17);
+  public static final Integer SECURE_AS400 = new Integer(20);
   /** Specifies the <b>Service Program Call</b> component. **/
-  public static final Integer SERVICE_PROGRAM_CALL = new Integer(18);
+  public static final Integer SERVICE_PROGRAM_CALL = new Integer(21);
   /** Specifies the <b>System Status</b> component. **/
-  public static final Integer SYSTEM_STATUS = new Integer(19);
+  public static final Integer SYSTEM_STATUS = new Integer(22);
   /** Specifies the <b>System Value</b> component. **/
-  public static final Integer SYSTEM_VALUE = new Integer(20);
+  public static final Integer SYSTEM_VALUE = new Integer(23);
   /** Specifies the <b>Trace</b> component. **/
-  public static final Integer TRACE = new Integer(21);
+  public static final Integer TRACE = new Integer(24);
   /** Specifies the <b>User</b> component. **/
-  public static final Integer USER = new Integer(22);
+  public static final Integer USER = new Integer(25);
   /** Specifies the <b>User Space</b> component. **/
-  public static final Integer USER_SPACE = new Integer(23);
+  public static final Integer USER_SPACE = new Integer(26);
   /** Specifies the <b>Visual AS400</b> component. **/
-  public static final Integer AS400_VISUAL = new Integer(24);
+  public static final Integer AS400_VISUAL = new Integer(27);
   /** Specifies the <b>Visual Command Call</b> component. **/
-  public static final Integer COMMAND_CALL_VISUAL = new Integer(25);
+  public static final Integer COMMAND_CALL_VISUAL = new Integer(28);
   /** Specifies the <b>Visual Data Queue</b> component. **/
-  public static final Integer DATA_QUEUE_VISUAL = new Integer(26);
+  public static final Integer DATA_QUEUE_VISUAL = new Integer(29);
   /** Specifies the <b>Visual Integrated File System </b> component. **/
-  public static final Integer INTEGRATED_FILE_SYSTEM_VISUAL = new Integer(27);
+  public static final Integer INTEGRATED_FILE_SYSTEM_VISUAL = new Integer(30);
   /** Specifies the <b>Visual Java Application Call</b> component. **/
-  public static final Integer JAVA_APPLICATION_CALL_VISUAL = new Integer(28);
+  public static final Integer JAVA_APPLICATION_CALL_VISUAL = new Integer(31);
   /** Specifies the <b>Visual JDBC</b> component. **/
-  public static final Integer JDBC_VISUAL = new Integer(29);  // and Visual SQL
+  public static final Integer JDBC_VISUAL = new Integer(32);  // and Visual SQL
   /** Specifies the <b>Visual Job</b> component. **/
-  public static final Integer JOB_VISUAL = new Integer(30);
+  public static final Integer JOB_VISUAL = new Integer(33);
   /** Specifies the <b>Visual Message Queue</b> component. **/
-  public static final Integer MESSAGE_VISUAL = new Integer(31);
+  public static final Integer MESSAGE_VISUAL = new Integer(34);
   /** Specifies the <b>Visual Network Print</b> component. **/
-  public static final Integer PRINT_VISUAL = new Integer(32);
+  public static final Integer PRINT_VISUAL = new Integer(35);
   /** Specifies the <b>Visual Program Call</b> component. **/
-  public static final Integer PROGRAM_CALL_VISUAL = new Integer(33);
+  public static final Integer PROGRAM_CALL_VISUAL = new Integer(36);
   /** Specifies the <b>Visual Record Level Access</b> component. **/
-  public static final Integer RECORD_LEVEL_ACCESS_VISUAL = new Integer(34);
+  public static final Integer RECORD_LEVEL_ACCESS_VISUAL = new Integer(37);
   /** Specifies the <b>Visual User</b> component. **/
-  public static final Integer USER_VISUAL = new Integer(35);
-  /** Specifies the <b>Connection Pool</b> component. **/
-  public static final Integer CONNECTION_POOL = new Integer(36);
-  /** Specifies the <b>NetServer</b> component. **/
-  public static final Integer NETSERVER = new Integer(37);
+  public static final Integer USER_VISUAL = new Integer(38);
 
   private static final Integer NO_SUCH_COMPONENT = new Integer(-1);
 
 
 
-  private static final String CAIA = "com/ibm/as400/access/";  // for convenience
-  private static final String CAIV = "com/ibm/as400/vaccess/";
-  private static final String CAISA = "com/ibm/as400/security/auth/";
+  private static final String CIAA  = "com/ibm/as400/access/";  // for convenience
+  private static final String CIAD  = "com/ibm/as400/data/";
+  private static final String CIAV  = "com/ibm/as400/vaccess/";
+  private static final String CIASA = "com/ibm/as400/security/auth/";
 
-  private static final String COPYRIGHT_ENTRY_NAME = CAIA + "Copyright.class";
+  private static final String COPYRIGHT_ENTRY_NAME = CIAA + "Copyright.class";
 
   static final String DEFAULT_SOURCE_JAR_NAME = "jt400.jar";
 
@@ -739,7 +739,7 @@ public class ToolboxJarMaker extends JarMaker
       while (e3.hasMoreElements())
       {
         Integer ccsid = (Integer)e3.nextElement();
-        String entry = CAIA + "ConvTable" + ccsid.toString() +
+        String entry = CIAA + "ConvTable" + ccsid.toString() +
           CLASS_SUFFIX;
         if (!neededJarEntries.contains(entry))
         {
@@ -809,7 +809,7 @@ public class ToolboxJarMaker extends JarMaker
       // and we intend to deprecate getJob().                           @A4a
 
       // Note: If we're dealing with a pre-V5R2 jt400.jar file, the user will need to specify RJob as a "required file" if they want to use it.
-      // Eventually: Remove the getJob() method of CommandCall and ProgramCall.
+      // Note: The getJob() method was eliminated from CommandCall and ProgramCall in JTOpen 6.5.
 
       // If the 'resource' package isn't on the packages list,
       // and neither RJob nor JobLog is on the required files list,
@@ -1026,7 +1026,7 @@ public class ToolboxJarMaker extends JarMaker
     // If the source jar file contains ConvTableJavaMap.class, it is Mod4 or later.
     // Otherwise it is pre-Mod4.
     boolean jarIsPreMod4;
-    String entry1 = CAIA + "ConvTableJavaMap" + CLASS_SUFFIX;
+    String entry1 = CIAA + "ConvTableJavaMap" + CLASS_SUFFIX;
     if (jarMap.contains(entry1))
       jarIsPreMod4 = false;
     else
@@ -1034,7 +1034,7 @@ public class ToolboxJarMaker extends JarMaker
 
     // See if ConvTable.class was referenced.  If so, make sure we end up with
     // exactly the ConvTableXXX entries that we need, no more and no less.
-    if (neededJarEntries.contains(new String(CAIA + "ConvTable" + CLASS_SUFFIX)))
+    if (neededJarEntries.contains(new String(CIAA + "ConvTable" + CLASS_SUFFIX)))
     {  // Some or all of the ConvTableXXX files are needed, so include the right ones.
 
       if (ccsids_.size() == 0)
@@ -1124,7 +1124,7 @@ public class ToolboxJarMaker extends JarMaker
             while (e3.hasMoreElements())
             {
               Integer ccsid = (Integer)e3.nextElement();
-              String entry = CAIA + "ConvTable" + ccsid.toString() +
+              String entry = CIAA + "ConvTable" + ccsid.toString() +
                 CLASS_SUFFIX;
               if (!neededJarEntries.contains(entry))
               {
@@ -1149,7 +1149,7 @@ public class ToolboxJarMaker extends JarMaker
       while (e.hasMoreElements())
       {
         Integer ccsid = (Integer)e.nextElement();
-        String entry = CAIA + "ConvTable" + ccsid.toString() +
+        String entry = CIAA + "ConvTable" + ccsid.toString() +
           CLASS_SUFFIX;
         neededJarEntries.removeElement(entry);
         if (!jarMap.contains(entry))
@@ -1303,521 +1303,529 @@ public class ToolboxJarMaker extends JarMaker
 
     if (comp.equals(AS400))
     {
-      deps.addElement   (CAIA+"AS400.class");
+      deps.addElement   (CIAA+"AS400.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400BeanInfo.class");
+        deps.addElement (CIAA+"AS400BeanInfo.class");
       }
     }
     else if (comp.equals (COMMAND_CALL))
     {
-      deps.addElement   (CAIA+"CommandCall.class");
+      deps.addElement   (CIAA+"CommandCall.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"CommandCallBeanInfo.class");
+        deps.addElement (CIAA+"CommandCallBeanInfo.class");
       }
     }
     else if (comp.equals (CONNECTION_POOL))
     {
-      deps.addElement   (CAIA+"AS400ConnectionPool.class");
+      deps.addElement   (CIAA+"AS400ConnectionPool.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400ConnectionPoolBeanInfo.class");
-        deps.addElement (CAIA+"ConnectionPoolBeanInfo.class");
+        deps.addElement (CIAA+"AS400ConnectionPoolBeanInfo.class");
+        deps.addElement (CIAA+"ConnectionPoolBeanInfo.class");
       }
     }
     else if (comp.equals (DATA_AREA))
     {
-      deps.addElement   (CAIA+"CharacterDataArea.class");
-      deps.addElement   (CAIA+"DecimalDataArea.class");
-      deps.addElement   (CAIA+"LocalDataArea.class");
-      deps.addElement   (CAIA+"LogicalDataArea.class");
+      deps.addElement   (CIAA+"CharacterDataArea.class");
+      deps.addElement   (CIAA+"DecimalDataArea.class");
+      deps.addElement   (CIAA+"LocalDataArea.class");
+      deps.addElement   (CIAA+"LogicalDataArea.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"CharacterDataAreaBeanInfo.class");
-        deps.addElement (CAIA+"DecimalDataAreaBeanInfo.class");
-        deps.addElement (CAIA+"LocalDataAreaBeanInfo.class");
-        deps.addElement (CAIA+"LogicalDataAreaBeanInfo.class");
+        deps.addElement (CIAA+"CharacterDataAreaBeanInfo.class");
+        deps.addElement (CIAA+"DecimalDataAreaBeanInfo.class");
+        deps.addElement (CIAA+"LocalDataAreaBeanInfo.class");
+        deps.addElement (CIAA+"LogicalDataAreaBeanInfo.class");
       }
     }
     else if (comp.equals (DATA_DESCRIPTION))
     {
       // Field description classes:
-      deps.addElement   (CAIA+"ArrayFieldDescription.class");
-      deps.addElement   (CAIA+"BinaryFieldDescription.class");
-      deps.addElement   (CAIA+"CharacterFieldDescription.class");
-      deps.addElement   (CAIA+"DateFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSEitherFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSGraphicFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSOnlyFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSOpenFieldDescription.class");
-      deps.addElement   (CAIA+"FloatFieldDescription.class");
-      deps.addElement   (CAIA+"HexFieldDescription.class");
-      deps.addElement   (CAIA+"PackedDecimalFieldDescription.class");
-      deps.addElement   (CAIA+"TimeFieldDescription.class");
-      deps.addElement   (CAIA+"TimestampFieldDescription.class");
-      deps.addElement   (CAIA+"VariableLengthFieldDescription.class");
-      deps.addElement   (CAIA+"ZonedDecimalFieldDescription.class");
+      deps.addElement   (CIAA+"ArrayFieldDescription.class");
+      deps.addElement   (CIAA+"BinaryFieldDescription.class");
+      deps.addElement   (CIAA+"CharacterFieldDescription.class");
+      deps.addElement   (CIAA+"DateFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSEitherFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSGraphicFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSOnlyFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSOpenFieldDescription.class");
+      deps.addElement   (CIAA+"FloatFieldDescription.class");
+      deps.addElement   (CIAA+"HexFieldDescription.class");
+      deps.addElement   (CIAA+"PackedDecimalFieldDescription.class");
+      deps.addElement   (CIAA+"TimeFieldDescription.class");
+      deps.addElement   (CIAA+"TimestampFieldDescription.class");
+      deps.addElement   (CIAA+"VariableLengthFieldDescription.class");
+      deps.addElement   (CIAA+"ZonedDecimalFieldDescription.class");
 
-      deps.addElement   (CAIA+"AS400Array.class");
-      deps.addElement   (CAIA+"AS400Bin2.class");
-      deps.addElement   (CAIA+"AS400Bin4.class");
-      deps.addElement   (CAIA+"AS400ByteArray.class");
-      deps.addElement   (CAIA+"AS400Float4.class");
-      deps.addElement   (CAIA+"AS400Float8.class");
-      deps.addElement   (CAIA+"AS400PackedDecimal.class");
-      deps.addElement   (CAIA+"AS400Structure.class");
-      deps.addElement   (CAIA+"AS400Text.class");
-      deps.addElement   (CAIA+"AS400UnsignedBin2.class");
-      deps.addElement   (CAIA+"AS400UnsignedBin4.class");
-      deps.addElement   (CAIA+"AS400ZonedDecimal.class");
-      deps.addElement   (CAIA+"Record.class"); // references RecordFormat
+      deps.addElement   (CIAA+"AS400Array.class");
+      deps.addElement   (CIAA+"AS400Bin2.class");
+      deps.addElement   (CIAA+"AS400Bin4.class");
+      deps.addElement   (CIAA+"AS400ByteArray.class");
+      deps.addElement   (CIAA+"AS400Float4.class");
+      deps.addElement   (CIAA+"AS400Float8.class");
+      deps.addElement   (CIAA+"AS400PackedDecimal.class");
+      deps.addElement   (CIAA+"AS400Structure.class");
+      deps.addElement   (CIAA+"AS400Text.class");
+      deps.addElement   (CIAA+"AS400UnsignedBin2.class");
+      deps.addElement   (CIAA+"AS400UnsignedBin4.class");
+      deps.addElement   (CIAA+"AS400ZonedDecimal.class");
+      deps.addElement   (CIAA+"Record.class"); // references RecordFormat
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400ArrayBeanInfo.class");
-        deps.addElement (CAIA+"AS400StructureBeanInfo.class");
-        deps.addElement (CAIA+"RecordBeanInfo.class");
-        deps.addElement (CAIA+"RecordFormatBeanInfo.class");
+        deps.addElement (CIAA+"AS400ArrayBeanInfo.class");
+        deps.addElement (CIAA+"AS400StructureBeanInfo.class");
+        deps.addElement (CIAA+"RecordBeanInfo.class");
+        deps.addElement (CIAA+"RecordFormatBeanInfo.class");
       }
     }
     else if (comp.equals (DATA_QUEUE))
     {
-      deps.addElement   (CAIA+"DataQueue.class");
-      deps.addElement   (CAIA+"KeyedDataQueue.class");
+      deps.addElement   (CIAA+"DataQueue.class");
+      deps.addElement   (CIAA+"KeyedDataQueue.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"BaseDataQueueBeanInfo.class");
-        deps.addElement (CAIA+"DataQueueAttributesBeanInfo.class");
-        deps.addElement (CAIA+"DataQueueBeanInfo.class");
-        deps.addElement (CAIA+"KeyedDataQueueBeanInfo.class");
+        deps.addElement (CIAA+"BaseDataQueueBeanInfo.class");
+        deps.addElement (CIAA+"DataQueueAttributesBeanInfo.class");
+        deps.addElement (CIAA+"DataQueueBeanInfo.class");
+        deps.addElement (CIAA+"KeyedDataQueueBeanInfo.class");
       }
     }
     else if (comp.equals (DIGITAL_CERTIFICATE))
     {
-      deps.addElement   (CAIA+"AS400Certificate.class");
-      deps.addElement   (CAIA+"AS400CertificateAttribute.class");
-      deps.addElement   (CAIA+"AS400CertificateUserProfileUtil.class");
-      deps.addElement   (CAIA+"AS400CertificateVldlUtil.class");
+      deps.addElement   (CIAA+"AS400Certificate.class");
+      deps.addElement   (CIAA+"AS400CertificateAttribute.class");
+      deps.addElement   (CIAA+"AS400CertificateUserProfileUtil.class");
+      deps.addElement   (CIAA+"AS400CertificateVldlUtil.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400CertificateUserProfileUtilBeanInfo.class");
-        deps.addElement (CAIA+"AS400CertificateUtilBeanInfo.class");
-        deps.addElement (CAIA+"AS400CertificateVldlUtilBeanInfo.class");
+        deps.addElement (CIAA+"AS400CertificateUserProfileUtilBeanInfo.class");
+        deps.addElement (CIAA+"AS400CertificateUtilBeanInfo.class");
+        deps.addElement (CIAA+"AS400CertificateVldlUtilBeanInfo.class");
       }
     }
     else if (comp.equals (FTP))
     {
-      deps.addElement   (CAIA+"AS400FTP.class");
+      deps.addElement   (CIAA+"AS400FTP.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400FTPBeanInfo.class");
-        deps.addElement (CAIA+"FTPBeanInfo.class");
+        deps.addElement (CIAA+"AS400FTPBeanInfo.class");
+        deps.addElement (CIAA+"FTPBeanInfo.class");
       }
     }
     else if (comp.equals (INTEGRATED_FILE_SYSTEM))
     {
-      deps.addElement   (CAIA+"IFSFile.class");
-      deps.addElement   (CAIA+"IFSRandomAccessFile.class");
-      deps.addElement   (CAIA+"IFSTextFileInputStream.class");  // deprecated
-      deps.addElement   (CAIA+"IFSTextFileOutputStream.class"); // deprecated
-      deps.addElement   (CAIA+"IFSFileReader.class");
-      deps.addElement   (CAIA+"IFSFileWriter.class");
+      deps.addElement   (CIAA+"IFSFile.class");
+      deps.addElement   (CIAA+"IFSRandomAccessFile.class");
+      deps.addElement   (CIAA+"IFSTextFileInputStream.class");  // deprecated
+      deps.addElement   (CIAA+"IFSTextFileOutputStream.class"); // deprecated
+      deps.addElement   (CIAA+"IFSFileReader.class");
+      deps.addElement   (CIAA+"IFSFileWriter.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"IFSFileBeanInfo.class");
-        deps.addElement (CAIA+"IFSRandomAccessFileBeanInfo.class");
-        deps.addElement (CAIA+"IFSTextFileInputStreamBeanInfo.class");
-        deps.addElement (CAIA+"IFSTextFileOutputStreamBeanInfo.class");
+        deps.addElement (CIAA+"IFSFileBeanInfo.class");
+        deps.addElement (CIAA+"IFSRandomAccessFileBeanInfo.class");
+        deps.addElement (CIAA+"IFSTextFileInputStreamBeanInfo.class");
+        deps.addElement (CIAA+"IFSTextFileOutputStreamBeanInfo.class");
       }
     }
     else if (comp.equals (JAAS))
     {
-      deps.addElement   (CAISA+"ProfileHandleCredential.class");
-      deps.addElement   (CAISA+"ProfileTokenCredential.class");
-      deps.addElement   (CAISA+"UserProfilePrincipal.class");
+      deps.addElement   (CIASA+"ProfileHandleCredential.class");
+      deps.addElement   (CIASA+"ProfileTokenCredential.class");
+      deps.addElement   (CIASA+"UserProfilePrincipal.class");
       if (includeBeans)
       {
-        deps.addElement (CAISA+"ProfileHandleCredentialBeanInfo.class");
-        deps.addElement (CAISA+"ProfileTokenCredentialBeanInfo.class");
-        deps.addElement (CAISA+"UserProfilePrincipalBeanInfo.class");
+        deps.addElement (CIASA+"ProfileHandleCredentialBeanInfo.class");
+        deps.addElement (CIASA+"ProfileTokenCredentialBeanInfo.class");
+        deps.addElement (CIASA+"UserProfilePrincipalBeanInfo.class");
       }
     }
     else if (comp.equals (JAVA_APPLICATION_CALL))
     {
-      deps.addElement   (CAIA+"JavaApplicationCall.class");
+      deps.addElement   (CIAA+"JavaApplicationCall.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"JavaApplicationCallBeanInfo.class");
+        deps.addElement (CIAA+"JavaApplicationCallBeanInfo.class");
       }
     }
     else if (comp.equals (JDBC))
     {
-      deps.addElement   (CAIA+"AS400JDBCDriver.class");
-      deps.addElement   (CAIA+"AS400JDBCRowSet.class");
-      deps.addElement   (CAIA+"AS400JDBCXAConnection.class");
-      deps.addElement   (CAIA+"AS400JDBCConnectionPool.class");
+      deps.addElement   (CIAA+"AS400JDBCDriver.class");
+      deps.addElement   (CIAA+"AS400JDBCRowSet.class");
+      deps.addElement   (CIAA+"AS400JDBCXAConnection.class");
+      deps.addElement   (CIAA+"AS400JDBCConnectionPool.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400JDBCRowSetBeanInfo.class");
-        deps.addElement (CAIA+"AS400JDBCDataSourceBeanInfo.class");
-        deps.addElement (CAIA+"AS400JDBCXADataSourceBeanInfo.class");
-        deps.addElement (CAIA+"AS400JDBCConnectionPoolBeanInfo.class");
-        deps.addElement (CAIA+"AS400JDBCConnectionPoolDataSourceBeanInfo.class");
-        deps.addElement (CAIA+"ConnectionPoolBeanInfo.class");
+        deps.addElement (CIAA+"AS400JDBCRowSetBeanInfo.class");
+        deps.addElement (CIAA+"AS400JDBCDataSourceBeanInfo.class");
+        deps.addElement (CIAA+"AS400JDBCXADataSourceBeanInfo.class");
+        deps.addElement (CIAA+"AS400JDBCConnectionPoolBeanInfo.class");
+        deps.addElement (CIAA+"AS400JDBCConnectionPoolDataSourceBeanInfo.class");
+        deps.addElement (CIAA+"ConnectionPoolBeanInfo.class");
       }
     }
     else if (comp.equals (JOB))
     {
-      deps.addElement   (CAIA+"JobList.class");
-      deps.addElement   (CAIA+"JobLog.class");
+      deps.addElement   (CIAA+"JobList.class");
+      deps.addElement   (CIAA+"JobLog.class");
       if (includeBeans)
       {  // No beans for this component.
       }
     }
     else if (comp.equals (MESSAGE))
     {
-      deps.addElement   (CAIA+"MessageQueue.class");
+      deps.addElement   (CIAA+"MessageQueue.class");
       if (includeBeans)
       {  // No beans for this component.
       }
     }
     else if (comp.equals (NETSERVER))
     {
-      deps.addElement   (CAIA+"ISeriesNetServer.class");
+      deps.addElement   (CIAA+"ISeriesNetServer.class");
       // TBD: The following NetServer* classes are deprecated in favor of ISeriesNetServer.  Delete them from JarMaker eventually.
-      deps.addElement   (CAIA+"NetServer.class");
+      deps.addElement   (CIAA+"NetServer.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"NetServerBeanInfo.class");
-        deps.addElement (CAIA+"NetServerFileShareBeanInfo.class");
-        deps.addElement (CAIA+"NetServerPrintShareBeanInfo.class");
+        deps.addElement (CIAA+"NetServerBeanInfo.class");
+        deps.addElement (CIAA+"NetServerFileShareBeanInfo.class");
+        deps.addElement (CIAA+"NetServerPrintShareBeanInfo.class");
       }
     }
     else if (comp.equals (NUMERIC_DATA_TYPES))
     {  // All the DataType classes except for AS400Text.
-      deps.addElement   (CAIA+"AS400Array.class");
-      deps.addElement   (CAIA+"AS400Bin2.class");
-      deps.addElement   (CAIA+"AS400Bin4.class");
-      deps.addElement   (CAIA+"AS400ByteArray.class");
-      deps.addElement   (CAIA+"AS400Float4.class");
-      deps.addElement   (CAIA+"AS400Float8.class");
-      deps.addElement   (CAIA+"AS400PackedDecimal.class");
-      deps.addElement   (CAIA+"AS400Structure.class");
-      deps.addElement   (CAIA+"AS400UnsignedBin2.class");
-      deps.addElement   (CAIA+"AS400UnsignedBin4.class");
-      deps.addElement   (CAIA+"AS400ZonedDecimal.class");
+      deps.addElement   (CIAA+"AS400Array.class");
+      deps.addElement   (CIAA+"AS400Bin2.class");
+      deps.addElement   (CIAA+"AS400Bin4.class");
+      deps.addElement   (CIAA+"AS400ByteArray.class");
+      deps.addElement   (CIAA+"AS400Float4.class");
+      deps.addElement   (CIAA+"AS400Float8.class");
+      deps.addElement   (CIAA+"AS400PackedDecimal.class");
+      deps.addElement   (CIAA+"AS400Structure.class");
+      deps.addElement   (CIAA+"AS400UnsignedBin2.class");
+      deps.addElement   (CIAA+"AS400UnsignedBin4.class");
+      deps.addElement   (CIAA+"AS400ZonedDecimal.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400ArrayBeanInfo.class");
-        deps.addElement (CAIA+"AS400StructureBeanInfo.class");
+        deps.addElement (CIAA+"AS400ArrayBeanInfo.class");
+        deps.addElement (CIAA+"AS400StructureBeanInfo.class");
+      }
+    }
+    else if (comp.equals (PCML))
+    {
+      deps.addElement   (CIAD+"ProgramCallDocument.class");
+      deps.addElement   (CIAD+"RecordFormatDocument.class");
+      if (includeBeans)
+      {  // No beans for this component.
       }
     }
     else if (comp.equals (PRINT))
     {
-      deps.addElement   (CAIA+"AFPResourceList.class");
-      deps.addElement   (CAIA+"OutputQueueList.class");
-      deps.addElement   (CAIA+"PrinterList.class");
-      deps.addElement   (CAIA+"PrintObjectInputStream.class");
-      deps.addElement   (CAIA+"SpooledFileList.class");
-      deps.addElement   (CAIA+"SpooledFileOutputStream.class");
-      deps.addElement   (CAIA+"SCS3812Writer.class");
-      deps.addElement   (CAIA+"SCS5553Writer.class");
+      deps.addElement   (CIAA+"AFPResourceList.class");
+      deps.addElement   (CIAA+"OutputQueueList.class");
+      deps.addElement   (CIAA+"PrinterList.class");
+      deps.addElement   (CIAA+"PrintObjectInputStream.class");
+      deps.addElement   (CIAA+"SpooledFileList.class");
+      deps.addElement   (CIAA+"SpooledFileOutputStream.class");
+      deps.addElement   (CIAA+"SCS3812Writer.class");
+      deps.addElement   (CIAA+"SCS5553Writer.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AFPResourceBeanInfo.class");
-        deps.addElement (CAIA+"AFPResourceListBeanInfo.class");
-        deps.addElement (CAIA+"OutputQueueBeanInfo.class");
-        deps.addElement (CAIA+"OutputQueueListBeanInfo.class");
-        deps.addElement (CAIA+"PrintObjectBeanInfo.class");
-        deps.addElement (CAIA+"PrintObjectListBeanInfo.class");
-        deps.addElement (CAIA+"PrinterBeanInfo.class");
-        deps.addElement (CAIA+"PrinterFileBeanInfo.class");
-        deps.addElement (CAIA+"PrinterFileListBeanInfo.class");
-        deps.addElement (CAIA+"PrinterListBeanInfo.class");
-        deps.addElement (CAIA+"SpooledFileListBeanInfo.class");
-        deps.addElement (CAIA+"WriterJobListBeanInfo.class");
+        deps.addElement (CIAA+"AFPResourceBeanInfo.class");
+        deps.addElement (CIAA+"AFPResourceListBeanInfo.class");
+        deps.addElement (CIAA+"OutputQueueBeanInfo.class");
+        deps.addElement (CIAA+"OutputQueueListBeanInfo.class");
+        deps.addElement (CIAA+"PrintObjectBeanInfo.class");
+        deps.addElement (CIAA+"PrintObjectListBeanInfo.class");
+        deps.addElement (CIAA+"PrinterBeanInfo.class");
+        deps.addElement (CIAA+"PrinterFileBeanInfo.class");
+        deps.addElement (CIAA+"PrinterFileListBeanInfo.class");
+        deps.addElement (CIAA+"PrinterListBeanInfo.class");
+        deps.addElement (CIAA+"SpooledFileListBeanInfo.class");
+        deps.addElement (CIAA+"WriterJobListBeanInfo.class");
       }
     }
     else if (comp.equals (PROGRAM_CALL))
     {
-      deps.addElement   (CAIA+"ProgramCall.class");
+      deps.addElement   (CIAA+"ProgramCall.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"ProgramCallBeanInfo.class");
-        deps.addElement (CAIA+"ProgramParameterBeanInfo.class");
+        deps.addElement (CIAA+"ProgramCallBeanInfo.class");
+        deps.addElement (CIAA+"ProgramParameterBeanInfo.class");
       }
     }
     else if (comp.equals (RECORD_LEVEL_ACCESS))
     {
-      deps.addElement   (CAIA+"AS400FileRecordDescription.class");
-      deps.addElement   (CAIA+"KeyedFile.class");  // extends AS400File
-      deps.addElement   (CAIA+"SequentialFile.class");
-      deps.addElement   (CAIA+"DDMAS400MessageReply.class"); // extends DDMReplyDataStream
-      deps.addElement   (CAIA+"DDMEndUnitOfWorkReply.class");
-      deps.addElement   (CAIA+"DDMObjectDataStream.class"); // extends DDMDataStream
-      deps.addElement   (CAIA+"DDMRecordCache.class");
-      deps.addElement   (CAIA+"DDMRequestDataStream.class"); // extends DDMDataStream
-      deps.addElement   (CAIA+"DDMS38IOFB.class");
+      deps.addElement   (CIAA+"AS400FileRecordDescription.class");
+      deps.addElement   (CIAA+"KeyedFile.class");  // extends AS400File
+      deps.addElement   (CIAA+"SequentialFile.class");
+      deps.addElement   (CIAA+"DDMAS400MessageReply.class"); // extends DDMReplyDataStream
+      deps.addElement   (CIAA+"DDMEndUnitOfWorkReply.class");
+      deps.addElement   (CIAA+"DDMObjectDataStream.class"); // extends DDMDataStream
+      deps.addElement   (CIAA+"DDMRecordCache.class");
+      deps.addElement   (CIAA+"DDMRequestDataStream.class"); // extends DDMDataStream
+      deps.addElement   (CIAA+"DDMS38IOFB.class");
       // Field description classes:
-      deps.addElement   (CAIA+"ArrayFieldDescription.class");
-      deps.addElement   (CAIA+"BinaryFieldDescription.class");
-      deps.addElement   (CAIA+"CharacterFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSEitherFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSGraphicFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSOnlyFieldDescription.class");
-      deps.addElement   (CAIA+"DBCSOpenFieldDescription.class");
-      deps.addElement   (CAIA+"DateFieldDescription.class");
-      deps.addElement   (CAIA+"FloatFieldDescription.class");
-      deps.addElement   (CAIA+"HexFieldDescription.class");
-      deps.addElement   (CAIA+"PackedDecimalFieldDescription.class");
-      deps.addElement   (CAIA+"TimeFieldDescription.class");
-      deps.addElement   (CAIA+"TimestampFieldDescription.class");
-      deps.addElement   (CAIA+"ZonedDecimalFieldDescription.class");
+      deps.addElement   (CIAA+"ArrayFieldDescription.class");
+      deps.addElement   (CIAA+"BinaryFieldDescription.class");
+      deps.addElement   (CIAA+"CharacterFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSEitherFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSGraphicFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSOnlyFieldDescription.class");
+      deps.addElement   (CIAA+"DBCSOpenFieldDescription.class");
+      deps.addElement   (CIAA+"DateFieldDescription.class");
+      deps.addElement   (CIAA+"FloatFieldDescription.class");
+      deps.addElement   (CIAA+"HexFieldDescription.class");
+      deps.addElement   (CIAA+"PackedDecimalFieldDescription.class");
+      deps.addElement   (CIAA+"TimeFieldDescription.class");
+      deps.addElement   (CIAA+"TimestampFieldDescription.class");
+      deps.addElement   (CIAA+"ZonedDecimalFieldDescription.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"AS400FileBeanInfo.class");
-        deps.addElement (CAIA+"AS400FileRecordDescriptionBeanInfo.class");
-        deps.addElement (CAIA+"KeyedFileBeanInfo.class");
-        deps.addElement (CAIA+"SequentialFileBeanInfo.class");
+        deps.addElement (CIAA+"AS400FileBeanInfo.class");
+        deps.addElement (CIAA+"AS400FileRecordDescriptionBeanInfo.class");
+        deps.addElement (CIAA+"KeyedFileBeanInfo.class");
+        deps.addElement (CIAA+"SequentialFileBeanInfo.class");
       }
     }
     else if (comp.equals (SECURE_AS400))
     {
-      deps.addElement   (CAIA+"SecureAS400.class");
+      deps.addElement   (CIAA+"SecureAS400.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"SecureAS400BeanInfo.class");
+        deps.addElement (CIAA+"SecureAS400BeanInfo.class");
       }
     }
     else if (comp.equals (SERVICE_PROGRAM_CALL))
     {
-      deps.addElement   (CAIA+"ServiceProgramCall.class");
+      deps.addElement   (CIAA+"ServiceProgramCall.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"ServiceProgramCallBeanInfo.class");
+        deps.addElement (CIAA+"ServiceProgramCallBeanInfo.class");
       }
     }
     else if (comp.equals (SYSTEM_STATUS))
     {
-      deps.addElement   (CAIA+"SystemStatus.class");
-      deps.addElement   (CAIA+"SystemPool.class");
+      deps.addElement   (CIAA+"SystemStatus.class");
+      deps.addElement   (CIAA+"SystemPool.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"SystemStatusBeanInfo.class");
-        deps.addElement (CAIA+"SystemPoolBeanInfo.class");
+        deps.addElement (CIAA+"SystemStatusBeanInfo.class");
+        deps.addElement (CIAA+"SystemPoolBeanInfo.class");
       }
     }
     else if (comp.equals (SYSTEM_VALUE))
     {
-      deps.addElement   (CAIA+"SystemValueList.class");
+      deps.addElement   (CIAA+"SystemValueList.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"SystemValueListBeanInfo.class");
-        deps.addElement (CAIA+"SystemValueBeanInfo.class");
+        deps.addElement (CIAA+"SystemValueListBeanInfo.class");
+        deps.addElement (CIAA+"SystemValueBeanInfo.class");
       }
     }
     else if (comp.equals (TRACE))
     {
-      deps.addElement   (CAIA+"Trace.class");
+      deps.addElement   (CIAA+"Trace.class");
     }
     else if (comp.equals (USER))
     {
-      deps.addElement   (CAIA+"UserList.class");
+      deps.addElement   (CIAA+"UserList.class");
       if (includeBeans)
       {  // No beans for this component.
       }
     }
     else if (comp.equals (USER_SPACE))
     {
-      deps.addElement   (CAIA+"UserSpace.class");
+      deps.addElement   (CIAA+"UserSpace.class");
       if (includeBeans)
       {
-        deps.addElement (CAIA+"UserSpaceBeanInfo.class");
+        deps.addElement (CIAA+"UserSpaceBeanInfo.class");
       }
     }
     else if (comp.equals (AS400_VISUAL))
     {
-      deps.addElement   (CAIV+"AS400ListPane.class");
-      deps.addElement   (CAIV+"AS400ExplorerPane.class");
-      deps.addElement   (CAIV+"ErrorDialogAdapter.class");
+      deps.addElement   (CIAV+"AS400ListPane.class");
+      deps.addElement   (CIAV+"AS400ExplorerPane.class");
+      deps.addElement   (CIAV+"ErrorDialogAdapter.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"AS400DetailsModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ExplorerPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreeModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreePaneBeanInfo.class");
-        deps.addElement (CAIV+"ErrorDialogAdapterBeanInfo.class");
-        deps.addElement (CAIV+"VActionAdapterBeanInfo.class");
-        deps.addElement (CAIV+"VPropertiesActionBeanInfo.class");
-        deps.addElement (CAIV+"WorkingCursorAdapterBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ExplorerPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreeModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreePaneBeanInfo.class");
+        deps.addElement (CIAV+"ErrorDialogAdapterBeanInfo.class");
+        deps.addElement (CIAV+"VActionAdapterBeanInfo.class");
+        deps.addElement (CIAV+"VPropertiesActionBeanInfo.class");
+        deps.addElement (CIAV+"WorkingCursorAdapterBeanInfo.class");
       }
     }
     else if (comp.equals (COMMAND_CALL_VISUAL))
     {
-      deps.addElement   (CAIV+"CommandCallButton.class");
-      deps.addElement   (CAIV+"CommandCallMenuItem.class");
+      deps.addElement   (CIAV+"CommandCallButton.class");
+      deps.addElement   (CIAV+"CommandCallMenuItem.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"CommandCallButtonBeanInfo.class");
-        deps.addElement (CAIV+"CommandCallMenuItemBeanInfo.class");
+        deps.addElement (CIAV+"CommandCallButtonBeanInfo.class");
+        deps.addElement (CIAV+"CommandCallMenuItemBeanInfo.class");
       }
     }
     else if (comp.equals (DATA_QUEUE_VISUAL))
     {
-      deps.addElement   (CAIV+"DataQueueDocument.class");
-      deps.addElement   (CAIV+"KeyedDataQueueDocument.class");
+      deps.addElement   (CIAV+"DataQueueDocument.class");
+      deps.addElement   (CIAV+"KeyedDataQueueDocument.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"DataQueueDocumentBeanInfo.class");
-        deps.addElement (CAIV+"KeyedDataQueueDocumentBeanInfo.class");
+        deps.addElement (CIAV+"DataQueueDocumentBeanInfo.class");
+        deps.addElement (CIAV+"KeyedDataQueueDocumentBeanInfo.class");
       }
     }
     else if (comp.equals (INTEGRATED_FILE_SYSTEM_VISUAL))
     {
-      deps.addElement   (CAIV+"IFSFileDialog.class"); // not a bean
-      deps.addElement   (CAIV+"IFSTextFileDocument.class");
-      deps.addElement   (CAIV+"VIFSDirectory.class");
-      deps.addElement   (CAIV+"AS400ExplorerPane.class");
-      deps.addElement   (CAIV+"AS400ListPane.class");
+      deps.addElement   (CIAV+"IFSFileDialog.class"); // not a bean
+      deps.addElement   (CIAV+"IFSTextFileDocument.class");
+      deps.addElement   (CIAV+"VIFSDirectory.class");
+      deps.addElement   (CIAV+"AS400ExplorerPane.class");
+      deps.addElement   (CIAV+"AS400ListPane.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"IFSTextFileDocumentBeanInfo.class");
-        deps.addElement (CAIV+"VIFSDirectoryBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ExplorerPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreeModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreePaneBeanInfo.class");
+        deps.addElement (CIAV+"IFSTextFileDocumentBeanInfo.class");
+        deps.addElement (CIAV+"VIFSDirectoryBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ExplorerPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreeModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreePaneBeanInfo.class");
       }
     }
     else if (comp.equals (JAVA_APPLICATION_CALL_VISUAL))
     {
-      deps.addElement   (CAIV+"VJavaApplicationCall.class");
+      deps.addElement   (CIAV+"VJavaApplicationCall.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"VJavaApplicationCallBeanInfo.class");
+        deps.addElement (CIAV+"VJavaApplicationCallBeanInfo.class");
       }
     }
     else if (comp.equals (JDBC_VISUAL))
     {
-      deps.addElement   (CAIV+"SQLResultSetFormPane.class");
-      deps.addElement   (CAIV+"SQLResultSetTablePane.class");
-      deps.addElement   (CAIV+"SQLStatementButton.class");
-      deps.addElement   (CAIV+"SQLStatementMenuItem.class");
-      deps.addElement   (CAIV+"SQLStatementDocument.class");
-      deps.addElement   (CAIV+"SQLQueryBuilderPane.class");
+      deps.addElement   (CIAV+"SQLResultSetFormPane.class");
+      deps.addElement   (CIAV+"SQLResultSetTablePane.class");
+      deps.addElement   (CIAV+"SQLStatementButton.class");
+      deps.addElement   (CIAV+"SQLStatementMenuItem.class");
+      deps.addElement   (CIAV+"SQLStatementDocument.class");
+      deps.addElement   (CIAV+"SQLQueryBuilderPane.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"SQLConnectionBeanInfo.class");
-        deps.addElement (CAIV+"SQLQueryBuilderPaneBeanInfo.class");
-        deps.addElement (CAIV+"SQLResultSetFormPaneBeanInfo.class");
-        deps.addElement (CAIV+"SQLResultSetTableModelBeanInfo.class");
-        deps.addElement (CAIV+"SQLResultSetTablePaneBeanInfo.class");
-        deps.addElement (CAIV+"SQLStatementButtonBeanInfo.class");
-        deps.addElement (CAIV+"SQLStatementDocumentBeanInfo.class");
-        deps.addElement (CAIV+"SQLStatementMenuItemBeanInfo.class");
+        deps.addElement (CIAV+"SQLConnectionBeanInfo.class");
+        deps.addElement (CIAV+"SQLQueryBuilderPaneBeanInfo.class");
+        deps.addElement (CIAV+"SQLResultSetFormPaneBeanInfo.class");
+        deps.addElement (CIAV+"SQLResultSetTableModelBeanInfo.class");
+        deps.addElement (CIAV+"SQLResultSetTablePaneBeanInfo.class");
+        deps.addElement (CIAV+"SQLStatementButtonBeanInfo.class");
+        deps.addElement (CIAV+"SQLStatementDocumentBeanInfo.class");
+        deps.addElement (CIAV+"SQLStatementMenuItemBeanInfo.class");
       }
     }
     else if (comp.equals (JOB_VISUAL))
     {
-      deps.addElement   (CAIV+"VJobList.class");
-      deps.addElement   (CAIV+"AS400ExplorerPane.class");
-      deps.addElement   (CAIV+"AS400ListPane.class");
+      deps.addElement   (CIAV+"VJobList.class");
+      deps.addElement   (CIAV+"AS400ExplorerPane.class");
+      deps.addElement   (CIAV+"AS400ListPane.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"VJobBeanInfo.class");
-        deps.addElement (CAIV+"VJobListBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ExplorerPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreeModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreePaneBeanInfo.class");
+        deps.addElement (CIAV+"VJobBeanInfo.class");
+        deps.addElement (CIAV+"VJobListBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ExplorerPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreeModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreePaneBeanInfo.class");
       }
     }
     else if (comp.equals (MESSAGE_VISUAL))
     {
-      deps.addElement   (CAIV+"VMessageList.class");
-      deps.addElement   (CAIV+"VMessageQueue.class");
-      deps.addElement   (CAIV+"AS400ExplorerPane.class");
-      deps.addElement   (CAIV+"AS400ListPane.class");
+      deps.addElement   (CIAV+"VMessageList.class");
+      deps.addElement   (CIAV+"VMessageQueue.class");
+      deps.addElement   (CIAV+"AS400ExplorerPane.class");
+      deps.addElement   (CIAV+"AS400ListPane.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"VMessageListBeanInfo.class");
-        deps.addElement (CAIV+"VMessageQueueBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ExplorerPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreeModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreePaneBeanInfo.class");
+        deps.addElement (CIAV+"VMessageListBeanInfo.class");
+        deps.addElement (CIAV+"VMessageQueueBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ExplorerPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreeModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreePaneBeanInfo.class");
       }
     }
     else if (comp.equals (PRINT_VISUAL))
     {
-      deps.addElement   (CAIV+"VPrinters.class");
-      deps.addElement   (CAIV+"AS400ExplorerPane.class");
-      deps.addElement   (CAIV+"AS400ListPane.class");
+      deps.addElement   (CIAV+"VPrinters.class");
+      deps.addElement   (CIAV+"AS400ExplorerPane.class");
+      deps.addElement   (CIAV+"AS400ListPane.class");
       // Note - Pre-mod2 Toolbox erroneously refers to
       //        VOutput16.GIF, VOutput32.GIF (uppercase),
       //        therefore they won't get included.
       if (includeBeans)
       {
-        deps.addElement (CAIV+"VPrinterBeanInfo.class");
-        deps.addElement (CAIV+"VPrinterOutputBeanInfo.class");
-        deps.addElement (CAIV+"VPrintersBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ExplorerPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreeModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreePaneBeanInfo.class");
+        deps.addElement (CIAV+"VPrinterBeanInfo.class");
+        deps.addElement (CIAV+"VPrinterOutputBeanInfo.class");
+        deps.addElement (CIAV+"VPrintersBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ExplorerPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreeModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreePaneBeanInfo.class");
       }
     }
     else if (comp.equals (PROGRAM_CALL_VISUAL))
     {
-      deps.addElement   (CAIV+"ProgramCallButton.class");
-      deps.addElement   (CAIV+"ProgramCallMenuItem.class");
+      deps.addElement   (CIAV+"ProgramCallButton.class");
+      deps.addElement   (CIAV+"ProgramCallMenuItem.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"ProgramCallButtonBeanInfo.class");
-        deps.addElement (CAIV+"ProgramCallMenuItemBeanInfo.class");
+        deps.addElement (CIAV+"ProgramCallButtonBeanInfo.class");
+        deps.addElement (CIAV+"ProgramCallMenuItemBeanInfo.class");
       }
     }
     else if (comp.equals (RECORD_LEVEL_ACCESS_VISUAL))
     {
-      deps.addElement   (CAIV+"RecordListFormPane.class");
-      deps.addElement   (CAIV+"RecordListTablePane.class");
+      deps.addElement   (CIAV+"RecordListFormPane.class");
+      deps.addElement   (CIAV+"RecordListTablePane.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"RecordListFormPaneBeanInfo.class");
-        deps.addElement (CAIV+"RecordListTableModelBeanInfo.class");
-        deps.addElement (CAIV+"RecordListTablePaneBeanInfo.class");
+        deps.addElement (CIAV+"RecordListFormPaneBeanInfo.class");
+        deps.addElement (CIAV+"RecordListTableModelBeanInfo.class");
+        deps.addElement (CIAV+"RecordListTablePaneBeanInfo.class");
       }
     }
     else if (comp.equals (USER_VISUAL))
     {
-      deps.addElement   (CAIV+"VUserList.class");
-      deps.addElement   (CAIV+"AS400ExplorerPane.class");
-      deps.addElement   (CAIV+"AS400ListPane.class");
+      deps.addElement   (CIAV+"VUserList.class");
+      deps.addElement   (CIAV+"AS400ExplorerPane.class");
+      deps.addElement   (CIAV+"AS400ListPane.class");
       if (includeBeans)
       {
-        deps.addElement (CAIV+"VUserListBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400DetailsPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ExplorerPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400ListPaneBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreeModelBeanInfo.class");
-        deps.addElement (CAIV+"AS400TreePaneBeanInfo.class");
+        deps.addElement (CIAV+"VUserListBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400DetailsPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ExplorerPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400ListPaneBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreeModelBeanInfo.class");
+        deps.addElement (CIAV+"AS400TreePaneBeanInfo.class");
       }
     }
 
