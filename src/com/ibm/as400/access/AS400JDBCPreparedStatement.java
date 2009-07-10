@@ -92,6 +92,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     boolean             executed_;              // private protected
     private boolean             outputParametersExpected_;
     int                 parameterCount_;        // private protected
+    int                 parameterInputCount_;        // private protected //@array4
     boolean             batchExecute_;          // private protected            @G9A
     private int[]               parameterLengths_;
     private int[]               parameterOffsets_;
@@ -193,6 +194,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         batchExecute_               = false;                                        // @G9A
         outputParametersExpected_   = outputParametersExpected;
         parameterCount_             = sqlStatement.countParameters();
+        parameterInputCount_        = 0;  //@array4 calculate while we prepare
         parameterLengths_           = new int[parameterCount_];
         parameterNulls_             = new boolean[parameterCount_];
         parameterDefaults_          = new boolean[parameterCount_];          //@EIA
@@ -597,6 +599,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
                 if(parameterRow_.isOutput(i+1))    //  @K2A
                     outputExpected_ = true;        //  @K2A
+                if(parameterRow_.isInput(i+1))      //@array4
+                    parameterInputCount_ ++;        //@array4
             }
             if(!outputExpected_)                   //  @K2A
                 outputParametersExpected_ = false; //  @K2A
@@ -613,30 +617,33 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 indicatorTotalSize_ = 0;   //@array
                 headerTotalSize_ = 2; //@array start with 2 since column count is 2 bytes 
                 for(int i = 0; i < parameterCount_; ++i)
-                {
-                    SQLData sqlData = parameterRow_.getSQLData(i+1);    //@array
-                    int arrayLen = 1;  //@array 1 by default so size can be multiplied for non arrays also
-                    boolean arrayIndicatorSet = false; //@array
-                    if(sqlData.getType() == java.sql.Types.ARRAY)       //@array
+                {       
+                    if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4
                     {
-                        arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array
-                        if (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])  //@array
-                            headerTotalSize_ += 4; //@array space for x9911ffff 
+                        SQLData sqlData = parameterRow_.getSQLData(i+1);    //@array
+                        int arrayLen = 1;  //@array 1 by default so size can be multiplied for non arrays also
+                        boolean arrayIndicatorSet = false; //@array
+                        if(sqlData.getType() == java.sql.Types.ARRAY)       //@array
+                        {
+                            arrayLen = ((SQLArray)sqlData).getArrayCount();    //@array
+                            if (parameterNulls_[i] || parameterDefaults_[i] || parameterUnassigned_[i])  //@array
+                                headerTotalSize_ += 4; //@array space for x9911ffff 
+                            else
+                                headerTotalSize_ += 12;  //@array (array column requires 12 bytes in header x9911) //@array2
+                        }
                         else
-                            headerTotalSize_ += 12;  //@array (array column requires 12 bytes in header x9911) //@array2
+                        {
+                            //non array value
+                            headerTotalSize_ += 8;  //@array (assuming row has array.  x9912 is length 8)
+                        }
+                        //@array set input (to host) array lengths of data
+                        //@array if null array or 0 length array, then data length is 0
+                        parameterLengths_[i] = parameterRow_.getLength (i+1) * arrayLen;  //@array 0, 1, or more datatype-length blocks 
+                        parameterOffsets_[i] = parameterTotalSize_;
+                        parameterTotalSize_ += parameterLengths_[i];
+
+                        indicatorTotalSize_ += (arrayLen*2);//@array
                     }
-                    else
-                    {
-                        //non array value
-                        headerTotalSize_ += 8;  //@array (assuming row has array.  x9912 is length 8)
-                    }
-                    //@array set input (to host) array lengths of data
-                    //@array if null array or 0 length array, then data length is 0
-                    parameterLengths_[i] = parameterRow_.getLength (i+1) * arrayLen;  //@array 0, 1, or more datatype-length blocks 
-                    parameterOffsets_[i] = parameterTotalSize_;
-                    parameterTotalSize_ += parameterLengths_[i];
-                    
-                    indicatorTotalSize_ += (arrayLen*2);//@array
                     
                     if(isjvm16Synchronizer)
                         dummyPrint.print("!!!commonExecuteBefore:  Parameter " + (i+1) + " length = " + parameterLengths_[i] );
@@ -678,7 +685,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                         //@array create new x382f here if parms contain array
                         if(parameterRow_.containsArray_)  //@array
                         {                                 //@array
-                            parameterMarkerData = new DBVariableData(parameterCount_, 2, headerTotalSize_, indicatorTotalSize_, parameterTotalSize_); //@array x382f codepoint
+                            parameterMarkerData = new DBVariableData(parameterInputCount_, 2, headerTotalSize_, indicatorTotalSize_, parameterTotalSize_); //@array x382f codepoint //@array4
                         }                                 //@array
                         else if(connection_.useExtendedFormats ())
                         {
@@ -753,7 +760,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                     }
                                     
                                     //@array If the row contains an array, then we must also set the columnInfo in stream header
-                                    if(parameterRow_.containsArray_) //@array
+                                    if(parameterRow_.containsArray_ && parameterRow_.isInput(i+1)) //@array //@array4
                                     {                                                         //@array
                                         int arrayLen = -1;                                   //@array
                                         int elementType = -1;                                //@array
@@ -770,20 +777,23 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                 else
                                 {
                                     SQLData sqlData = parameterRow_.getSQLType(i+1);                   //@array
-                                    //Setting array null value here for elements inside of array)
-                                    if(sqlData.getType() == java.sql.Types.ARRAY)                      //@array
-                                    {                                                                  //@array 
-                                        //iterate through elements and set null indicators.  Array as a whole null is not set here (see above)
-                                        for (int e = 0 ; e < ((SQLArray)sqlData).getArrayCount() ; e++) //@array 
-                                        {                                                        //@array 
-                                            if(((SQLArray)sqlData).isElementNull(e))             //@array 
-                                                parameterMarkerData.setIndicator(0, i, -1);      //@array 
-                                            else                                                 //@array 
-                                                parameterMarkerData.setIndicator(0, i, 0);       //@array 
-                                        }                                                        //@array 
-                                    }else
+                                    if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4
                                     {
-                                        parameterMarkerData.setIndicator(rowLoop, i, (short) 0);     // @G9C
+                                        //Setting array null value here for elements inside of array)
+                                        if(sqlData.getType() == java.sql.Types.ARRAY )   //@array
+                                        {                                                                  //@array 
+                                            //iterate through elements and set null indicators.  Array as a whole null is not set here (see above)
+                                            for (int e = 0 ; e < ((SQLArray)sqlData).getArrayCount() ; e++) //@array 
+                                            {                                                        //@array 
+                                                if(((SQLArray)sqlData).isElementNull(e))             //@array 
+                                                    parameterMarkerData.setIndicator(0, i, -1);      //@array 
+                                                else                                                 //@array 
+                                                    parameterMarkerData.setIndicator(0, i, 0);       //@array 
+                                            }                                                        //@array 
+                                        }else
+                                        {
+                                            parameterMarkerData.setIndicator(rowLoop, i, (short) 0);     // @G9C
+                                        }
                                     }
                                     ConvTable ccsidConverter = connection_.getConverter (parameterRow_.getCCSID (i+1)); //@P0C
 
@@ -809,13 +819,16 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
                                     try
                                     {
-                                        //@CRS - This is the only place convertToRawBytes is ever called.
-                                        sqlData.convertToRawBytes(parameterMarkerData.getRawBytes(), rowDataOffset + parameterOffsets_[i], ccsidConverter);
-                                        if(ccsidConverter.getCcsid() == 5035) //@trnc this is not caught at setX() time
-                                            testDataTruncation(i+1, sqlData); //@trnc
+                                        if(!parameterRow_.containsArray_ || parameterRow_.isInput(i+1)) //@array4 (if array then only send input parm data)
+                                        { 
+                                            //@CRS - This is the only place convertToRawBytes is ever called.
+                                            sqlData.convertToRawBytes(parameterMarkerData.getRawBytes(), rowDataOffset + parameterOffsets_[i], ccsidConverter);
+                                            if(ccsidConverter.getCcsid() == 5035) //@trnc this is not caught at setX() time
+                                                testDataTruncation(i+1, sqlData); //@trnc
+                                        }
                                         
                                         //@array If the row contains an array, then we must also set the columnInfo in stream header
-                                        if(parameterRow_.containsArray_) //@array
+                                        if(parameterRow_.containsArray_ && parameterRow_.isInput(i+1)) //@array //@array4
                                         {                                                         //@array
                                             //Set the stream header info for each column in addition to data in rawbytes above.
                                             int arrayLen = -1;                                   //@array
