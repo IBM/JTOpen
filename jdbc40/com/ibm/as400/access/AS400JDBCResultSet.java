@@ -6133,7 +6133,11 @@ implements ResultSet
     {
         //@xmlspec special handling of blob/clob column types
         SQLData sqlData = getValue(columnIndex);                                   //@xmlspec
-        int sqlDataType = sqlData.getType();                                       //@xmlspec
+        int sqlDataType;                                                           //@xmlspec2
+        if(sqlData != null)                                                        //@xmlspec2
+            sqlDataType = sqlData.getType();                                       //@xmlspec2
+        else                                                                       //@xmlspec2
+            sqlDataType = Types.SQLXML;                                            //@xmlspec2
         switch(sqlDataType) {                                                      //@xmlspec
             case Types.CLOB:                                                       //@xmlspec
                 updateCharacterStream(columnIndex, xmlObject.getCharacterStream());//@xmlspec
