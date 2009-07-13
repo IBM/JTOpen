@@ -784,4 +784,14 @@ Reads an input stream and returns its data as a String.
         else
             return xml;
     }
+    
+    //@xmlutf8
+    static final boolean hasXMLDeclaration(String xml)
+    {
+        if(xml.substring(0, 7).indexOf("<?xml ") == 0)
+            return true;  //if invalid decl, then let hostserver return error
+        else
+            return false;
+    }
+
 }

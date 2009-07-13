@@ -39,6 +39,7 @@ final class SQLXMLLocator implements SQLLocator
     //reading from host, we do all the conversion
     private ConvTable               converter_; //used when reading from host
     private ConvTable               unicodeConverter_; //1200 unicode to simulate no conversion //used when writing to host
+    private ConvTable               unicodeUtf8Converter_; //1208 when no XML declaration  //@xmlutf8
     private int                     id_;
     private JDLobLocator            locator_;
     private int                     maxLength_;
@@ -74,7 +75,10 @@ final class SQLXMLLocator implements SQLLocator
         columnIndex_    = columnIndex;
         xmlType_       = xmlType; //@xml3  0=SB 1=DB 2=binary XML
         try{
-            unicodeConverter_ =  connection.getConverter(1200);
+            //Since we want to pass string's bytes as 1200 (java default for String) 
+            //But if XML does not have a declaration then hostserver expects 1208
+            unicodeConverter_ =  connection.getConverter(1200); 
+            unicodeUtf8Converter_ =  connection.getConverter(1208); //@xmlutf8 
         }catch(SQLException e){
             unicodeConverter_ = connection.converter_;//should never happen
         }
@@ -227,7 +231,11 @@ final class SQLXMLLocator implements SQLLocator
         else if(savedObject_ instanceof String)
         {
                 String string = (String)savedObject_;
-                byte[] bytes = unicodeConverter_.stringToByteArray(string); //just get bytes
+                byte[] bytes;
+                if(JDUtilities.hasXMLDeclaration(string))                                 //@xmlutf8
+                    bytes = unicodeConverter_.stringToByteArray(string); //just get bytes
+                else                                                          //@xmlutf8
+                    bytes = unicodeUtf8Converter_.stringToByteArray(string);  //@xmlutf8
                 locator_.writeData(0L, bytes, true); 
         }
         else if(savedObject_ instanceof Reader)
@@ -242,46 +250,60 @@ final class SQLXMLLocator implements SQLLocator
             }
             else if(length > 0)
             {
-                try
+                //@xmlutf8 (for reader and stream, don't do any conversion)
+                //@xmlutf8 added code here similar to SQLBlob.set() for Reader input.
+                byte[] bytes = null;
+                if(length >= 0)
                 {
-                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                  
-                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, unicodeConverter_.getCcsid()); 
-                    byte[] byteBuffer = new byte[blockSize];
-                    int totalBytesRead = 0;
-                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    while(bytesRead > -1 && totalBytesRead < length)
+                    try
                     {
-                        if(xmlType_ == 1)
-                            locator_.writeData((long)totalBytesRead/2, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset. 
-                        else
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); 
-                        totalBytesRead += bytesRead;
-                        int bytesRemaining = length - totalBytesRead;
-                        if(bytesRemaining < blockSize)
+                        int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        HexReaderInputStream stream = new HexReaderInputStream((Reader)savedObject_);
+                        byte[] byteBuffer = new byte[blockSize];
+                        int totalBytesRead = 0;
+                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                        while(bytesRead > -1 && totalBytesRead < length)
                         {
-                            blockSize = bytesRemaining;
-                            if(stream.available() == 0 && blockSize != 0)
+                            baos.write(byteBuffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
+                            int bytesRemaining = length - totalBytesRead;
+                            if(bytesRemaining < blockSize)
                             {
-                                stream.close(); //@scan1
-                                stream = new ReaderInputStream((Reader)savedObject_, unicodeConverter_.getCcsid());   
+                                blockSize = bytesRemaining;
                             }
+                            bytesRead = stream.read(byteBuffer, 0, blockSize);
                         }
-                        bytesRead = stream.read(byteBuffer, 0, blockSize);
-                    }
-                    stream.close(); //@scan1
-                    
-                    if(totalBytesRead < length)
-                    {
-                        // a length longer than the stream was specified
-                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                    }
 
+                        bytes = baos.toByteArray();
+
+                        if(bytes.length < length)
+                        {
+                            // a length longer than the stream was specified
+                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                        }
+
+                        int objectLength = bytes.length;
+                        if(bytes.length > maxLength_)
+                        {
+                            byte[] newValue = new byte[maxLength_];
+                            System.arraycopy(bytes, 0, newValue, 0, maxLength_);
+                            bytes = newValue;
+                        }
+                        stream.close(); //@scan1
+                        locator_.writeData(0, bytes, true);   
+                    }
+                    catch(ExtendedIOException eie)
+                    {
+                        // the Reader contains non-hex characters
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
+                    }
+                    catch(IOException ie)
+                    {
+                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
+                    }
                 }
-                catch(IOException ie)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
-                }
+                
             }
             else
             {
@@ -318,7 +340,10 @@ final class SQLXMLLocator implements SQLLocator
                 Clob clob = (Clob)savedObject_;
                 int length = (int)clob.length();
                 String substring = clob.getSubString(1, length);
-                locator_.writeData(0L, unicodeConverter_.stringToByteArray(substring), 0, length, true); 
+                if(JDUtilities.hasXMLDeclaration(substring))                                 //@xmlutf8
+                    locator_.writeData(0L, unicodeConverter_.stringToByteArray(substring), 0, length, true); 
+                else
+                    locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(substring), 0, length, true);  //@xmlutf8
                 set = true;
             }
             else
@@ -332,8 +357,10 @@ final class SQLXMLLocator implements SQLLocator
            
            //getString() handles internal representation of clob/dbclob/blob...
            String stringVal = xml.getString();
-           locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length(), true);           
-           
+           if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
+               locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length(), true); 
+           else
+               locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);  //@xmlutf8
         }
         else
         {
