@@ -148,11 +148,11 @@ public class AS400 implements Serializable
         try
         {
             String s = System.getProperty("os.name");
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Detected os.name: " + s);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Detected os.name:", s);
             if (s != null && s.equalsIgnoreCase("OS/400"))
             {
                 String version = System.getProperty("os.version");
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Detected os.version: " + version);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Detected os.version:", version);
                 if (version != null)
                 {
                     char[] versionChars = version.toCharArray();
@@ -183,7 +183,7 @@ public class AS400 implements Serializable
             }
             catch (Exception e)
             {
-              Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", e);
+              Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property):", e);
               defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
             }
           }
@@ -200,7 +200,7 @@ public class AS400 implements Serializable
             }
             catch (Exception e)
             {
-              Trace.log(Trace.WARNING, "Error retrieving mustAddLanguageLibrary property value: ", e);
+              Trace.log(Trace.WARNING, "Error retrieving mustAddLanguageLibrary property value:", e);
             }
           }
         }
@@ -216,7 +216,7 @@ public class AS400 implements Serializable
             }
             catch (Exception e)
             {
-              Trace.log(Trace.WARNING, "Error retrieving mustUseSockets property value: ", e);
+              Trace.log(Trace.WARNING, "Error retrieving mustUseSockets property value:", e);
             }
           }
         }
@@ -232,7 +232,7 @@ public class AS400 implements Serializable
             }
             catch (Exception e)
             {
-              Trace.log(Trace.WARNING, "Error retrieving mustUseNetSockets property value: ", e);
+              Trace.log(Trace.WARNING, "Error retrieving mustUseNetSockets property value:", e);
             }
           }
         }
@@ -248,7 +248,7 @@ public class AS400 implements Serializable
             }
             catch (Exception e)
             {
-              Trace.log(Trace.WARNING, "Error retrieving mustUseSuppliedProfile property value: ", e);
+              Trace.log(Trace.WARNING, "Error retrieving mustUseSuppliedProfile property value:", e);
             }
           }
         }
@@ -264,7 +264,7 @@ public class AS400 implements Serializable
             }
             catch (Exception e)
             {
-              Trace.log(Trace.WARNING, "Error retrieving threadUsed property value: ", e);
+              Trace.log(Trace.WARNING, "Error retrieving threadUsed property value:", e);
             }
           }
         }
@@ -402,7 +402,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "'");
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         construct();
@@ -425,17 +424,14 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         construct();
@@ -461,7 +457,6 @@ public class AS400 implements Serializable
 
         if (profileToken == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'profileToken' is null.");
             throw new NullPointerException("profileToken");
         }
 
@@ -499,10 +494,9 @@ public class AS400 implements Serializable
 
         if (tokenProvider == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'tokenProvider' is null.");
             throw new NullPointerException("tokenProvider");
         }
-        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token provider: " + tokenProvider.getClass().getName());
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token provider:", tokenProvider.getClass().getName());
 
         // Was a refresh threshold specified?
         if (refreshThreshold != null) {
@@ -520,7 +514,6 @@ public class AS400 implements Serializable
     {
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         construct();
@@ -546,27 +539,22 @@ public class AS400 implements Serializable
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         if (password == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'password' is null.");
             throw new NullPointerException("password");
         }
         if (password.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid: " + password.length());
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         construct();
@@ -587,17 +575,14 @@ public class AS400 implements Serializable
         // System name and user ID validation has been deferred to here.
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         construct();
@@ -632,32 +617,26 @@ public class AS400 implements Serializable
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         if (password == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'password' is null.");
             throw new NullPointerException("password");
         }
         if (password.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid: " + password.length());
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         if (proxyServer == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'proxyServer' is null.");
             throw new NullPointerException("proxyServer");
         }
         construct();
@@ -678,7 +657,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system: " + system);
         if (system == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
             throw new NullPointerException("system");
         }
         construct();
@@ -741,7 +719,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding connection listener.");
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -817,7 +794,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -840,7 +816,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -927,22 +902,22 @@ public class AS400 implements Serializable
           {
             Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations. Reason follows:");
             if (!AS400.onAS400) {
-              Trace.log(Trace.DIAGNOSTIC, "onAS400: " + AS400.onAS400);
+              Trace.log(Trace.DIAGNOSTIC, "onAS400:", AS400.onAS400);
             }
             if (mustUseSockets_) {
-              Trace.log(Trace.DIAGNOSTIC, "mustUseSockets: " + mustUseSockets_);
+              Trace.log(Trace.DIAGNOSTIC, "mustUseSockets:", mustUseSockets_);
             }
             if (!systemNameLocal_) {
-              Trace.log(Trace.DIAGNOSTIC, "systemNameLocal: " + systemNameLocal_);
+              Trace.log(Trace.DIAGNOSTIC, "systemNameLocal:", systemNameLocal_);
             }
             if (proxyServer_.length() != 0) {
-              Trace.log(Trace.DIAGNOSTIC, "proxyServer: " + proxyServer_);
+              Trace.log(Trace.DIAGNOSTIC, "proxyServer:", proxyServer_);
             }
             if (credVault_.getType() != AUTHENTICATION_SCHEME_PASSWORD) {
-              Trace.log(Trace.DIAGNOSTIC, "byteType: " + credVault_.getType());
+              Trace.log(Trace.DIAGNOSTIC, "byteType:", credVault_.getType());
             }
             if (getNativeVersion() != 2) {
-              Trace.log(Trace.DIAGNOSTIC, "nativeVersion: " + getNativeVersion());
+              Trace.log(Trace.DIAGNOSTIC, "nativeVersion:", getNativeVersion());
             }
           }
           return false;
@@ -966,22 +941,18 @@ public class AS400 implements Serializable
         }
         if (oldPassword == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'oldPassword' is null.");
             throw new NullPointerException("oldPassword");
         }
         if (oldPassword.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'oldPassword' is not valid: " + oldPassword.length());
             throw new ExtendedIllegalArgumentException("oldPassword.length {" + oldPassword.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         if (newPassword == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'newPassword' is null.");
             throw new NullPointerException("newPassword");
         }
         if (newPassword.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'newPassword' is not valid: " + newPassword.length());
             throw new ExtendedIllegalArgumentException("newPassword.length {" + newPassword.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -1068,10 +1039,9 @@ public class AS400 implements Serializable
      **/
     public static void clearPasswordCache(String systemName)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache, system name: " + systemName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache, system name:", systemName);
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         systemName = resolveSystem(systemName);
@@ -1111,14 +1081,13 @@ public class AS400 implements Serializable
         // Validate parameter.
         if (service < 0 || service > 7)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         chooseImpl();
         signon(service == AS400.SIGNON);
         impl_.connect(service);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected: " + AS400.getServerName(service));
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
     }
 
     // Common code for all the constuctors and readObject.
@@ -1174,7 +1143,6 @@ public class AS400 implements Serializable
         // Validate parameter.
         if (service < 0 || service > 7)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
@@ -1225,7 +1193,6 @@ public class AS400 implements Serializable
 
         if (userIdentity == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userIdentity' is null.");
             throw new NullPointerException("userIdentity");
         }
 
@@ -1262,17 +1229,14 @@ public class AS400 implements Serializable
         // Check for valid input.
         if (version < 0 || version > 0xFFFF)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'version' is not valid:", version);
             throw new ExtendedIllegalArgumentException("version (" + version + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         if (release < 0 || release > 0xFF)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'release' is not valid:", release);
             throw new ExtendedIllegalArgumentException("release (" + release + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         if (modification < 0 || modification > 0xFF)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'modification' is not valid:", modification);
             throw new ExtendedIllegalArgumentException("modification (" + modification + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         return (version << 16) + (release << 8)  + modification;
@@ -1378,14 +1342,13 @@ public class AS400 implements Serializable
      **/
     public static String getDefaultUser(String systemName)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting the default user, system name: " + systemName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting the default user, system name:", systemName);
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         String defaultUser = (String)AS400.defaultUsers.get(resolveSystem(systemName));
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Default user: " + defaultUser);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Default user:", defaultUser);
         return defaultUser;
     }
 
@@ -1395,7 +1358,7 @@ public class AS400 implements Serializable
      **/
     public String getGSSName()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS name: " + gssName_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS name:", gssName_);
         return gssName_;
     }
 
@@ -1427,7 +1390,7 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job CCSID.");
         chooseImpl();
         signon(false);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID: " + signonInfo_.serverCCSID);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID:", signonInfo_.serverCCSID);
         return signonInfo_.serverCCSID;
     }
 
@@ -1445,7 +1408,7 @@ public class AS400 implements Serializable
         signon(false);
         int ccsid = signonInfo_.serverCCSID;
         String encoding = impl_.ccsidToEncoding(ccsid);
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID encoding: " + encoding);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID encoding:", encoding);
         return encoding;
     }
 
@@ -1480,7 +1443,7 @@ public class AS400 implements Serializable
         Job[] jobs = new Job[jobStrings.length];
         for (int i = 0; i < jobStrings.length; ++i)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job: " + jobStrings[i]);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job:", jobStrings[i]);
             if (jobStrings[i] == null || jobStrings[i].length() == 0) return new Job[0];
             StringTokenizer tokenizer = new StringTokenizer(jobStrings[i], "/");
             String jobNumber = tokenizer.nextToken();
@@ -1528,7 +1491,7 @@ public class AS400 implements Serializable
      **/
     public String getNLV()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV: " + nlv_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV:", nlv_);
         return nlv_;
     }
 
@@ -1604,7 +1567,6 @@ public class AS400 implements Serializable
         // If the password is not set and we are not using Kerberos.
         if (credVault_.isEmpty() && credVault_.getType() != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
         }
 
@@ -1660,7 +1622,6 @@ public class AS400 implements Serializable
         // If the password is not set and we are not using Kerberos.
         if (credVault_.isEmpty() && credVault_.getType() != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
         }
         if (tokenType == ProfileTokenCredential.TYPE_MULTIPLE_USE_RENEWABLE)
@@ -1741,23 +1702,19 @@ public class AS400 implements Serializable
         // Validate parms.
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of 'userId' parameter is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         if (password == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'password' is null.");
             throw new NullPointerException("password");
         }
         if (password.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of 'password' parameter is not valid: " + password.length());
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("password.length (" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
         userId = resolveUserId(userId.toUpperCase());
@@ -1792,7 +1749,7 @@ public class AS400 implements Serializable
      **/
     public String getProxyServer()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting proxy server: " + proxyServer_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting proxy server:", proxyServer_);
         return proxyServer_;
     }
 
@@ -1837,7 +1794,6 @@ public class AS400 implements Serializable
             case AS400.SIGNON:
                 return "as-signon";
             default:
-                Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
                 throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
     }
@@ -1863,7 +1819,6 @@ public class AS400 implements Serializable
         // Validate parameter.
         if (service < 0 || service > 7)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
@@ -1940,7 +1895,7 @@ public class AS400 implements Serializable
      **/
     public String getUserId()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID: " + userId_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID:", userId_);
         userId_ = resolveUserId(userId_, credVault_.getType(), mustUseSuppliedProfile_);
         return userId_;
     }
@@ -2059,7 +2014,6 @@ public class AS400 implements Serializable
         // Validate parameter.
         if (service < 0 || service > 7)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
@@ -2253,8 +2207,8 @@ public class AS400 implements Serializable
                   {
                     String thisPath = thisUrl.getPath();
                     String loadPath = loadUrl.getPath();
-                    Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class: " + thisPath);
-                    Trace.log(Trace.DIAGNOSTIC, "Path of loaded impl class: " + loadPath);
+                    Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class:", thisPath);
+                    Trace.log(Trace.DIAGNOSTIC, "Path of loaded impl class:", loadPath);
                     String thisDirPath = thisPath.length() <= thisFileName.length() ? "" : thisPath.substring(0, thisPath.length() - thisFileName.length() - 1);
                     String loadDirPath = loadPath.length() <= loadFileName.length() ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
                     if (!thisDirPath.equals(loadDirPath))
@@ -2266,7 +2220,7 @@ public class AS400 implements Serializable
             }
             catch (ClassNotFoundException e)
             {
-                Trace.log(Trace.DIAGNOSTIC, "Class not found: " + e.getMessage());
+                Trace.log(Trace.DIAGNOSTIC, "Class not found:", e.getMessage());
             }
             catch (Throwable e)
             {
@@ -2280,7 +2234,7 @@ public class AS400 implements Serializable
         }
         catch (ClassNotFoundException e1)
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Class not found: " + e1.getMessage());
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Class not found:", e1.getMessage());
         }
         catch (IllegalAccessException e2)
         {
@@ -2291,7 +2245,7 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Unexpected InstantiationException:", e3);
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Load of implementation failed: " + impl);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Load of implementation failed:", impl);
 
         return null;
     }
@@ -2570,7 +2524,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing connection listener.");
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -2595,10 +2548,9 @@ public class AS400 implements Serializable
      **/
     public static void removeDefaultUser(String systemName)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing the default user, system name: " + systemName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing the default user, system name:", systemName);
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         AS400.defaultUsers.remove(resolveSystem(systemName));
@@ -2614,17 +2566,14 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing password cache entry, system name: " + systemName + " user ID: " + userId);
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of 'userId' parameter is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         systemName = resolveSystem(systemName);
@@ -2652,7 +2601,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -2671,7 +2619,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
         if (listener == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -2713,12 +2660,12 @@ public class AS400 implements Serializable
             // If system name is null, then make it a localhost.
             if (systemName.length() == 0)
             {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial system name to localhost.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial system name to 'localhost'.");
                 return "localhost";
             }
             else if (isSystemNameLocal(systemName))
             {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving system name to localhost.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving system name to 'localhost'.");
                 return "localhost";
             }
         }
@@ -2785,7 +2732,7 @@ public class AS400 implements Serializable
             if (tryToGetCurrentUserID)
             {
                 String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID: "  + currentUserID);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID:", currentUserID);
                 if (currentUserID != null) return currentUserID;
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID information not available, user ID: '"  + userId + "'");
             }
@@ -2803,7 +2750,7 @@ public class AS400 implements Serializable
                     return userId;
                 }
             }
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric user ID.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending 'Q' to numeric user ID.");
             userId = "Q" + userId;
         }
 
@@ -2818,7 +2765,6 @@ public class AS400 implements Serializable
         // No prompting.
         if (credVault_.isEmpty() && !userIdMatchesLocal(userId_, mustUseSuppliedProfile_))
         {
-            Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
         }
 
@@ -2858,7 +2804,6 @@ public class AS400 implements Serializable
 
         if (identityToken == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'identityToken' is null.");
             throw new NullPointerException("identityToken");
         }
 
@@ -2983,17 +2928,14 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting the default user, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of 'userId' parameter is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -3021,7 +2963,6 @@ public class AS400 implements Serializable
     {
         if (gssCredential == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'gssCredential' is null.");
             throw new NullPointerException("gssCredential");
         }
 
@@ -3054,7 +2995,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS option:", gssOption);
         if (gssOption < 0 || gssOption > 2)
         {
-            Trace.log(Trace.ERROR, "Parameter 'gssOption' is not valid.");
             throw new ExtendedIllegalArgumentException("gssOption (" + gssOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         gssOption_ = gssOption;
@@ -3070,7 +3010,6 @@ public class AS400 implements Serializable
 
         if (gssName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'gssName' is null.");
             throw new NullPointerException("gssName");
         }
 
@@ -3124,7 +3063,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting locale: " + locale);
         if (locale == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'locale' is null.");
             throw new NullPointerException("locale");
         }
         if (propertiesFrozen_)
@@ -3159,12 +3097,10 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting locale: " + locale + ", nlv: " + nlv_);
         if (locale == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'locale' is null.");
             throw new NullPointerException("locale");
         }
         if (nlv == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'nlv' is null.");
             throw new NullPointerException("nlv");
         }
         if (propertiesFrozen_)
@@ -3276,12 +3212,10 @@ public class AS400 implements Serializable
 
         if (password == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'password' is null.");
             throw new NullPointerException("password");
         }
         if (password.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of 'password' parameter is not valid: " + password.length());
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -3313,7 +3247,6 @@ public class AS400 implements Serializable
 
         if (profileToken == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'profileToken' is null.");
             throw new NullPointerException("profileToken");
         }
 
@@ -3333,7 +3266,7 @@ public class AS400 implements Serializable
      **/
     public void setProxyServer(String proxyServer) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting proxy server: " + proxyServer);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting proxy server:", proxyServer);
 
         if (impl_ != null)
         {
@@ -3384,12 +3317,10 @@ public class AS400 implements Serializable
         // Validate parameters.
         if (service < 0 || service > 7)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         if (port < -1)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'port' is not valid:", port);
             throw new ExtendedIllegalArgumentException("port (" + port + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
@@ -3457,7 +3388,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket properties: " + socketProperties);
         if (socketProperties == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'socketProperties' is null.");
             throw new NullPointerException("socketProperties");
         }
         if (propertiesFrozen_)
@@ -3475,10 +3405,9 @@ public class AS400 implements Serializable
      **/
     public void setSystemName(String systemName) throws PropertyVetoException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system name: " + systemName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system name:", systemName);
         if (systemName == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
             throw new NullPointerException("systemName");
         }
         if (systemName.equals(systemName_)) return;
@@ -3618,13 +3547,11 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting user ID: '" + userId + "'");
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.equals(userId_)) return;
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of 'userId' parameter is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -3723,7 +3650,7 @@ public class AS400 implements Serializable
                 }
                 else
                 {  // Tolerate the exception - we don't require GSS.
-                    Trace.log(Trace.DIAGNOSTIC, "GSSToken is not available: " + e.getMessage());
+                    Trace.log(Trace.DIAGNOSTIC, "GSSToken is not available:", e.getMessage());
                 }
             }
 
@@ -3802,12 +3729,10 @@ public class AS400 implements Serializable
 
         if (password == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'password' is null.");
             throw new NullPointerException("password");
         }
         if (password.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of 'password' parameter is not valid: " + password.length());
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -3842,22 +3767,18 @@ public class AS400 implements Serializable
 
         if (userId == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
         if (userId.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Length of 'userId' parameter is not valid: '" + userId + "'");
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         if (password == null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'password' is null.");
             throw new NullPointerException("password");
         }
         if (password.length() > 128)
         {
-            Trace.log(Trace.ERROR, "Length of 'password' parameter is not valid: " + password.length());
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 

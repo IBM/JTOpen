@@ -343,7 +343,7 @@ class AS400ImplRemote implements AS400Impl
             if (PASSWORD_TRACE)
             {
                 Trace.log(Trace.DIAGNOSTIC, "Sending Change Password Request...");
-                Trace.log(Trace.DIAGNOSTIC, "  User ID: " + userId);
+                Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
                 Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIdEbcdic);
                 Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
                 Trace.log(Trace.DIAGNOSTIC, "  Protected old password:", oldProtected);
@@ -421,7 +421,7 @@ class AS400ImplRemote implements AS400Impl
                 }
             }
         }
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service disconnected implementation: " + AS400.getServerName(service));
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service disconnected implementation:", AS400.getServerName(service));
     }
 
     // Disconnect all services.
@@ -521,7 +521,7 @@ class AS400ImplRemote implements AS400Impl
             if (PASSWORD_TRACE)
             {
                 Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-                Trace.log(Trace.DIAGNOSTIC, "  User ID: " + userId_);
+                Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
                 Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                 Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
                 Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
@@ -833,7 +833,7 @@ class AS400ImplRemote implements AS400Impl
             if (PASSWORD_TRACE)
             {
                 Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-                Trace.log(Trace.DIAGNOSTIC, "  User ID: " + userId_);
+                Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
                 Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                 Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
                 Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
@@ -961,7 +961,7 @@ class AS400ImplRemote implements AS400Impl
                 if (PASSWORD_TRACE)
                 {
                     Trace.log(Trace.DATASTREAM, "Sending DDM SECCHK request...");
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID: " + userId_);
+                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
                     Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                     Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
                     Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
@@ -1004,7 +1004,7 @@ class AS400ImplRemote implements AS400Impl
                 if (PASSWORD_TRACE)
                 {
                     Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID: " + userId_);
+                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
                     Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                     Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
                     Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
@@ -1022,7 +1022,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] jobBytes = reply.getJobNameBytes();
                 ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
                 jobString = converter.byteArrayToString(jobBytes);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System job: " + jobString);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
 
                 if (reply.getRC() != 0)
                 {
@@ -1092,7 +1092,7 @@ class AS400ImplRemote implements AS400Impl
     // The NLV to send to the system.
     String getNLV()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation: " + clientNlv_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation:", clientNlv_);
         return clientNlv_;
     }
 
@@ -1103,20 +1103,22 @@ class AS400ImplRemote implements AS400Impl
 
         if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            try
-            {
+            try {
                 return (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                 Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
                 throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
             }
         }
-        else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN || credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
+        else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN ||
+                 credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
         {
         	return credVault_.getClearCredential();
         }
+
+        // If we got this far:
+        // credType is AS400.AUTHENTICATION_SCHEME_PASSWORD
 
         byte[] encryptedPassword = null;
 
@@ -1141,7 +1143,7 @@ class AS400ImplRemote implements AS400Impl
             char[] password = BinaryConverter.byteArrayToCharArray(credVault_.getClearCredential());
             if (PASSWORD_TRACE)
             {
-                Trace.log(Trace.DIAGNOSTIC, "  user ID: '" + userId_ + "'");
+                Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
                 Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
                 Trace.log(Trace.DIAGNOSTIC, "  password untwiddled: '" + new String(password) + "'");
                 Trace.log(Trace.DIAGNOSTIC, "  client seed: ", clientSeed);
@@ -1243,7 +1245,7 @@ class AS400ImplRemote implements AS400Impl
     // Get user ID.
     String getUserId()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation user ID: " + userId_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation user ID:", userId_);
         return userId_;
     }
 
@@ -2049,9 +2051,9 @@ class AS400ImplRemote implements AS400Impl
             Trace.log(Trace.DIAGNOSTIC, "  Native optimizations allowed:", canUseNativeOptimization);
             Trace.log(Trace.DIAGNOSTIC, "  Use threaded communications:", threadUsed);
             Trace.log(Trace.DIAGNOSTIC, "  User specified CCSID:", ccsid);
-            Trace.log(Trace.DIAGNOSTIC, "  NLV: " + nlv);
+            Trace.log(Trace.DIAGNOSTIC, "  NLV:", nlv);
             Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
-            Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: " + ddmRDB);
+            Trace.log(Trace.DIAGNOSTIC, "  DDM RDB:", ddmRDB);
             Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets:", mustUseNetSockets);
             Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile:", mustUseSuppliedProfile);
             Trace.log(Trace.DIAGNOSTIC, "  Must add language library:", mustAddLanguageLibrary);
@@ -2191,7 +2193,7 @@ class AS400ImplRemote implements AS400Impl
                 if (PASSWORD_TRACE)
                 {
                     Trace.log(Trace.DIAGNOSTIC, "Sending Retrieve Signon Information Request...");
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID: " + userId);
+                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
                     Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                     Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
                     Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
@@ -2238,7 +2240,7 @@ class AS400ImplRemote implements AS400Impl
                 ConverterImplRemote converter = ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this);
                 signonJobString_ = converter.byteArrayToString(signonJobBytes_);
                 signonServer_.setJobString(signonJobString_);
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server job: " + signonJobString_);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server job:", signonJobString_);
             }
             catch (IOException e)
             {
@@ -2643,7 +2645,7 @@ class AS400ImplRemote implements AS400Impl
         }
         if (PASSWORD_TRACE)
         {
-            Trace.log(Trace.DIAGNOSTIC, "In generateToken, folded user ID: ", workBuffer1);
+            Trace.log(Trace.DIAGNOSTIC, "In generateToken, folded user ID:", workBuffer1);
         }
 
         // work with password
