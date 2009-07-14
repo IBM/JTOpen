@@ -25,7 +25,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 
 /**
-  The Trace class logs trace points and diagnostic messages.  Each trace
+  Logs trace points and diagnostic messages.  Each trace
   point and diagnostic message is logged by category.  The valid categories are:
   <br>
   <ul>
@@ -100,8 +100,8 @@ import java.util.Enumeration;
 
   <P>
   The following example logs data for Function123 into log file
-  c:\Function123.log, and logs data for Function456 into log file
-  c:\Function456.log.  Data for these two components is also traced to
+  C:\Function123.log, and logs data for Function456 into log file
+  C:\Function456.log.  Data for these two components is also traced to
   the normal trace file (standard output in this case since that is the
   default for normal tracing).  The result is three sets of data --
   a file containing trace data for only Function123, a file containing trace
@@ -117,8 +117,8 @@ import java.util.Enumeration;
 
                                              // Specify where data should go
                                              // for the two components.
-      Trace.setFileName(cmpF123, "c:\\Function123.log");
-      Trace.setFileName(cmpF456, "c:\\Function456.log");
+      Trace.setFileName(cmpF123, "C:\\Function123.log");
+      Trace.setFileName(cmpF456, "C:\\Function456.log");
 
       Trace.setTraceInformationOn(true);     // Trace only the information category.
       Trace.setTraceOn(true);                // Turn tracing on.
@@ -144,7 +144,7 @@ import java.util.Enumeration;
       String myComponent = "com.myCompany";      // More efficient to create an object
                                                  // than many String literals.
 
-      Trace.setFileName("c:\\bit.bucket");       // Send default trace data to
+      Trace.setFileName("C:\\bit.bucket");       // Send default trace data to
                                                  // a file.
 
       Trace.setTraceInformationOn(true);         // Enable information messages.
@@ -703,24 +703,16 @@ public class Trace
                                     String    message,
                                     Throwable e)
   {
-    // See if tracing is activated for specified category.
+    // See if tracing is activated for the specified category.
     if ((traceOn_ && traceCategory(category)) ||
         (findLogger() && logger_.isLoggable(category)))
     {
+      if (message == null) message = "(null)";
+
       // Two different cases: Either traditional Toolbox trace, or Java Logging.
 
       if (logger_ == null || userSpecifiedDestination_)  // traditional trace
       {
-        // Validate parameters.
-        //@D2 - note: It doesn't make sense to log something to Trace.ALL,
-        // so we count it as an illegal argument.
-        // if (category < FIRST_ONE || category > LAST_ONE) // @D0C @D3C
-        // {
-        //    throw new ExtendedIllegalArgumentException("category ("
-        //          + Integer.toString(category)
-        //          + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        // }
-
         // First, write to the default log
         synchronized(destination_)
         {
@@ -804,13 +796,6 @@ public class Trace
    **/
   public static final void log(int category, String message)
   {
-    //@W1 - validating the category was moved to the common routine
-
-    if (message == null)
-    {
-      throw new NullPointerException("message");
-    }
-
     logData(null, category, message, null);
   }
 
@@ -826,17 +811,6 @@ public class Trace
    **/
   public static final void log(Object component, int category, String message)
   {
-    //@W1 - validating the category was moved to the common routine
-
-    if (message == null)
-    {
-      throw new NullPointerException("message");
-    }
-    if (component == null)
-    {
-      throw new NullPointerException("component");
-    }
-
     logData(component, category, message, null);
   }
 
@@ -850,17 +824,6 @@ public class Trace
    **/
   public static final void log(int category, String message, Throwable e)
   {
-    //@W1 - validating the category was moved to the common routine
-
-    if (message == null)
-    {
-      throw new NullPointerException("message");
-    }
-    if (e == null)
-    {
-      throw new NullPointerException("e");
-    }
-
     logData(null, category, message, e);
   }
 
@@ -876,20 +839,6 @@ public class Trace
    **/
   public static final void log(Object component, int category, String message, Throwable e)
   {
-    //@W1 - validating the category was moved to the common routine
-    if (message == null)
-    {
-      throw new NullPointerException("message");
-    }
-    if (e == null)
-    {
-      throw new NullPointerException("e");
-    }
-    if (component == null)
-    {
-      throw new NullPointerException("component");
-    }
-
     logData(component, category, message, e);
   }
 
@@ -937,10 +886,8 @@ public class Trace
    **/
   public static final void log(int category, String message, int value)
   {
-    if (message == null)
-      throw new NullPointerException("message");
-    else
-      log(category, message + "  " + value);
+    if (message == null) message = "(null)";
+    log(category, message + "  " + value);
   }
 
 
@@ -956,10 +903,8 @@ public class Trace
    **/
   public static final void log(int category, String message, String value)
   {
-    if (message == null)
-      throw new NullPointerException("message");
-    else
-      log(category, message + "  " + (value == null ? "null" : value));
+    if (message == null) message = "(null)";
+    log(category, message + "  " + (value == null ? "(null)" : value));
   }
 
 
@@ -977,10 +922,8 @@ public class Trace
    **/
   public static final void log(Object component, int category, String message, int value)
   {
-    if (message == null)
-      throw new NullPointerException("message");
-    else
-      log(component, category, message + "  " + value);
+    if (message == null) message = "(null)";
+    log(component, category, message + "  " + value);
   }
 
 
@@ -1013,10 +956,8 @@ public class Trace
    **/
   public static final void log(int category, String message, boolean value)
   {
-    if (message == null)
-      throw new NullPointerException("message");
-    else
-      log(category, message + "  " + value);
+    if (message == null) message = "(null)";
+    log(category, message + "  " + value);
   }
 
   /**
@@ -1033,10 +974,8 @@ public class Trace
    **/
   public static final void log(Object component, int category, String message, boolean value)
   {
-    if (message == null)
-      throw new NullPointerException("message");
-    else
-      log(component, category, message + "  " + value);
+    if (message == null) message = "(null)";
+    log(component, category, message + "  " + value);
   }
 
 
@@ -1052,9 +991,7 @@ public class Trace
   {
     if (data == null)
     {
-      if (message == null)                             //@D2a
-        throw new NullPointerException("message");    //@D2a
-
+      if (message == null) message = "(null)";
       log(category, message + "  " + "(null)");
     }
     else
@@ -1080,9 +1017,7 @@ public class Trace
   {
     if (data == null)
     {
-      if (message == null)                             //@D2a
-        throw new NullPointerException("message");    //@D2a
-
+      if (message == null) message = "(null)";
       log(component, category, message + "  " + "(null)");
     }
     else
@@ -1107,24 +1042,6 @@ public class Trace
 
   public static final void log(int category, String message, byte[] data, int offset, int length)
   {
-    // Validate parameters.
-    //@D2 - note: It doesn't make sense to log something to Trace.ALL,
-    //  so we count it as an illegal argument.
-    //if (category < FIRST_ONE || category > LAST_ONE)                  // @D0C @D3C
-    //{
-    //    throw new ExtendedIllegalArgumentException("category ("
-    //                  + Integer.toString(category)
-    //                  + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    //}
-    if (message == null)
-    {
-      throw new NullPointerException("message");
-    }
-    if (data == null)
-    {
-      throw new NullPointerException("data");
-    }
-
     if ((traceOn_ && traceCategory(category)) ||
         (findLogger() && logger_.isLoggable(category)))
     {
@@ -1133,7 +1050,7 @@ public class Trace
         synchronized(destination_)
         {
           logTimeStamp(null, destination_);
-          destination_.println(message);
+          if (message != null) destination_.println(message);
           printByteArray(destination_, data, offset, length);
           if (category == ERROR)
           {
@@ -1173,26 +1090,10 @@ public class Trace
   public static final void log(Object component, int category, String message,
                                byte[] data, int offset, int length)
   {
-    // Validate parameters.
-    //@D2 - note: It doesn't make sense to log something to Trace.ALL,
-    // so we count it as an illegal argument.
-    //if (category < DATASTREAM || category > LAST_ONE)                  // @D0C @D3C
-    //{
-    //    throw new ExtendedIllegalArgumentException("category ("
-    //                  + Integer.toString(category)
-    //                  + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    //}
-    if (message == null)
-    {
-      throw new NullPointerException("message");
-    }
-    if (data == null)
-    {
-      throw new NullPointerException("data");
-    }
+    if (message == null) message = "(null)";
     if (component == null)
     {
-      throw new NullPointerException("category");
+      throw new NullPointerException("component");
     }
 
     if ((traceOn_ && traceCategory(category)) ||
@@ -1228,6 +1129,11 @@ public class Trace
   // space between bytes.
   static void printByteArray(PrintWriter pw, byte[] data, int offset, int length)
   {
+    if (data == null) {
+      pw.println("(null)");
+      return;
+    }
+
     for (int i = 0; i < length; i++, offset++)
     {
       int leftDigitValue = (data[offset] >>> 4) & 0x0F;
@@ -1266,6 +1172,11 @@ public class Trace
   // space between bytes.
   static void printByteArray(StringBuffer buf, byte[] data, int offset, int length)
   {
+    if (data == null) {
+      buf.append("(null)\n");
+      return;
+    }
+
     for (int i = 0; i < length; i++, offset++)
     {
       int leftDigitValue = (data[offset] >>> 4) & 0x0F;
