@@ -41,7 +41,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
 
     // Impl object for remote command server delete, getAttributes, setAttributes.
     protected RemoteCommandImpl remoteCommand_;
-    private Boolean runOnThread_;  // whether to call remote commands on-thread
+    // Whether to call remote commands on-thread.
+    private Boolean runOnThread_ = RemoteCommandImpl.OFF_THREAD;
 
     // The integrated file system object used for read and write.
     private IFSRandomAccessFileImplRemote file_;
@@ -465,9 +466,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
       // If not already setup.
       if (remoteCommand_ == null)
       {
-        // See if we'll be able (and permitted) to run natively.
         boolean runningNatively = false;
-        if (!mustUseSockets_ && system_.canUseNativeOptimizations())
+        if (system_.canUseNativeOptimizations())
         {
           try
           {
@@ -483,17 +483,21 @@ class UserSpaceImplRemote implements UserSpaceImpl
         if (remoteCommand_ == null)
         {
           remoteCommand_ = new RemoteCommandImplRemote();
-          runOnThread_ = RemoteCommandImpl.OFF_THREAD;
         }
         remoteCommand_.setSystem(system_);
 
         // Note: All the API's that are called from this class, are threadsafe API's.
         // However, we need to stay consistent with the Toolbox's default threadsafety behavior.
-        // So we'll indicate that the remote commands can safely be run on-thread (but only if the threadSafe property isn't set to 'false').  This will enable applications to use UserSpace natively using profiles that are disabled or that have password *NONE.
+        // So we'll indicate that the remote commands can safely be run on-thread (but only if the threadSafe property isn't set to 'false').  This will enable applications to use UserSpace when running on IBM i and using a profile that is disabled or has password *NONE.
 
-        if (runningNatively && !ProgramCall.getThreadSafetyProperty().equals("false"))
+        if (runningNatively && !mustUseSockets_)
         {
-          runOnThread_ = RemoteCommandImpl.ON_THREAD;
+          // Abide by the setting of the thread-safety property (if it's set).
+          String propVal = ProgramCall.getThreadSafetyProperty();
+          if (propVal == null || !propVal.equals("false"))
+          {
+            runOnThread_ = RemoteCommandImpl.ON_THREAD;
+          }
         }
       }
     }
