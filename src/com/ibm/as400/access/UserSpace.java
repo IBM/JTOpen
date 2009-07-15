@@ -114,14 +114,10 @@ public class UserSpace implements Serializable
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing UserSpace object, system: " + system + " path: " + path);
         // Validate arguments.
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
-        if (path == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'path' is null.");
+        if (path == null) {
             throw new NullPointerException("path");
         }
         // Verify path is valid IFS path name.
@@ -141,9 +137,7 @@ public class UserSpace implements Serializable
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If first add.
@@ -167,9 +161,7 @@ public class UserSpace implements Serializable
     public void addUserSpaceListener(UserSpaceListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding user space listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If first add.
@@ -193,9 +185,7 @@ public class UserSpace implements Serializable
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If first add.
@@ -310,9 +300,7 @@ public class UserSpace implements Serializable
     public void create(String domain, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         // Validate the domain parameter.
-        if (domain == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'domain' is null.");
+        if (domain == null) {
             throw new NullPointerException("domain");
         }
         byte[] domainBytes;
@@ -333,7 +321,6 @@ public class UserSpace implements Serializable
         }
         else
         {
-            Trace.log(Trace.ERROR, "Parameter 'domain' is not valid.");
             throw new ExtendedIllegalArgumentException("domain (" + domain + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         create(domainBytes, length, replace, extendedAttribute, initialValue, textDescription, authority);
@@ -346,42 +333,32 @@ public class UserSpace implements Serializable
         // Validate the length parameter.
         if (length < 1 || length > MAX_USER_SPACE_SIZE)
         {
-            Trace.log(Trace.ERROR, "Parameter 'length' is not valid.");
             throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         // Validate the extended attribute parameter.
-        if (extendedAttribute == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'extendedAttribute' is null.");
-            throw new NullPointerException("Extended Attribute");
+        if (extendedAttribute == null) {
+            throw new NullPointerException("extendedAttribute");
         }
         if (extendedAttribute.length() == 0) extendedAttribute = " ";
         if (extendedAttribute.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Parameter 'extendedAttribute' is not valid.");
             throw new ExtendedIllegalArgumentException("extendedAttribute (" + extendedAttribute + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         // Validate the text description parameter.
-        if (textDescription == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'textDescription' is null.");
+        if (textDescription == null) {
             throw new NullPointerException("textDescription");
         }
         if (textDescription.length() == 0) textDescription = " ";
         if (textDescription.length() > 50)
         {
-            Trace.log(Trace.ERROR, "Parameter 'textDescription' is not valid.");
             throw new ExtendedIllegalArgumentException("textDescription (" + textDescription + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         // Validate the authority parameter.
-        if (authority == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'authority' is null.");
+        if (authority == null) {
             throw new NullPointerException("authority");
         }
         if (authority.length() == 0 || authority.length() > 10)
         {
-            Trace.log(Trace.ERROR, "Parameter 'authority' is not valid.");
             throw new ExtendedIllegalArgumentException("authority (" + authority + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -562,9 +539,7 @@ public class UserSpace implements Serializable
     public int read(byte[] dataBuffer, int userSpaceOffset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         // Validate the data buffer parameter.
-        if (dataBuffer == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is null.");
+        if (dataBuffer == null) {
             throw new NullPointerException("dataBuffer");
         }
 
@@ -587,33 +562,27 @@ public class UserSpace implements Serializable
     public int read(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         // Validate the data buffer parameter.
-        if (dataBuffer == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is null.");
+        if (dataBuffer == null) {
             throw new NullPointerException("dataBuffer");
         }
         if (dataBuffer.length == 0)
         {
-            Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is not valid.");
             throw new ExtendedIllegalArgumentException("dataBuffer.length (" + dataBuffer.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         // Validate the user space offset parameter.
         if (userSpaceOffset < 0 || userSpaceOffset > MAX_USER_SPACE_SIZE)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userSpaceOffset' is not valid.");
             throw new ExtendedIllegalArgumentException("userSpaceOffset (" + userSpaceOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
         // Validate the data offset parameter.
         if (dataOffset < 0 || dataOffset >= dataBuffer.length)
         {
-            Trace.log(Trace.ERROR, "Parameter 'dataOffset' is not valid.");
             throw new ExtendedIllegalArgumentException("dataOffset (" + dataOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         // Validate the length parameter.
         if (length < 0 || length > (dataBuffer.length - dataOffset))
         {
-            Trace.log(Trace.ERROR, "Parameter 'length' is not valid.");
             throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
@@ -646,7 +615,6 @@ public class UserSpace implements Serializable
         // Validate the length parameter.
         if (length <= 0)
         {
-            Trace.log(Trace.ERROR, "Parameter 'length' is not valid.");
             throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
@@ -673,9 +641,7 @@ public class UserSpace implements Serializable
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -692,9 +658,7 @@ public class UserSpace implements Serializable
     public void removeUserSpaceListener(UserSpaceListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing user space listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -711,9 +675,7 @@ public class UserSpace implements Serializable
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -767,8 +729,7 @@ public class UserSpace implements Serializable
         // Validate the length parameter.
         if (length < 1 || length > MAX_USER_SPACE_SIZE)
         {
-            Trace.log(Trace.ERROR, "Parameter 'length' is not valid.");
-            throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
         chooseImpl();
@@ -814,9 +775,7 @@ public class UserSpace implements Serializable
     public void setPath(String path) throws PropertyVetoException
     {
         // Check parameter.
-        if (path == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'path' is null.");
+        if (path == null) {
             throw new NullPointerException("path");
         }
         // Verify path is valid IFS path name.
@@ -863,9 +822,7 @@ public class UserSpace implements Serializable
     public void setSystem(AS400 system) throws PropertyVetoException
     {
         // Check parameter.
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
         // Verify that connection has not been made.
@@ -909,9 +866,7 @@ public class UserSpace implements Serializable
     public void write(byte[] dataBuffer, int userSpaceOffset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         // Validate the data buffer parameter.
-        if (dataBuffer == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is null.");
+        if (dataBuffer == null) {
             throw new NullPointerException("dataBuffer");
         }
         write(dataBuffer, userSpaceOffset, 0, dataBuffer.length, FORCE_NONE);
@@ -955,32 +910,26 @@ public class UserSpace implements Serializable
     public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         // Validate the data buffer parameter.
-        if (dataBuffer == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is null.");
+        if (dataBuffer == null) {
             throw new NullPointerException("dataBuffer");
         }
         if (dataBuffer.length == 0)
         {
-            Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is not valid.");
             throw new ExtendedIllegalArgumentException("dataBuffer.length (" + dataBuffer.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         // Validate the user space offset parameter.
         if (userSpaceOffset < 0 || userSpaceOffset > MAX_USER_SPACE_SIZE)
         {
-            Trace.log(Trace.ERROR, "Parameter 'userSpaceOffset' is not valid.");
             throw new ExtendedIllegalArgumentException("userSpaceOffset (" + userSpaceOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         // Validate the data offset parameter.
         if (dataOffset < 0 || dataOffset >= dataBuffer.length)
         {
-            Trace.log(Trace.ERROR, "Parameter 'dataOffset' is not valid.");
             throw new ExtendedIllegalArgumentException("dataOffset (" + dataOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         // Validate the length parameter.
         if (length < 0 || length > (dataBuffer.length - dataOffset))
         {
-            Trace.log(Trace.ERROR, "Parameter 'length' is not valid.");
             throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         // Validate the overflow possibility.
@@ -992,8 +941,7 @@ public class UserSpace implements Serializable
         // Validate the force auxiliary parameter.
         if (forceAuxiliary < 0 || forceAuxiliary > 2)
         {
-            Trace.log(Trace.ERROR, "Parameter 'forceAuxiliary' is not valid.");
-            throw new ExtendedIllegalArgumentException("forceAuxiliary", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("forceAuxiliary (" + forceAuxiliary + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         chooseImpl();
@@ -1016,15 +964,12 @@ public class UserSpace implements Serializable
     public void write(String data, int userSpaceOffset) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         // Validate the data parameter.
-        if (data == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'data' is null.");
+        if (data == null) {
             throw new NullPointerException("data");
         }
         if (data.length() == 0)
         {
-            Trace.log(Trace.ERROR, "Parameter 'data' is not valid.");
-            throw new ExtendedIllegalArgumentException("data.length (" + data.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("data (" + data + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
         chooseImpl();
