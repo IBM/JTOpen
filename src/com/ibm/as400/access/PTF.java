@@ -273,7 +273,7 @@ public class PTF
    * Constructs a PTF object. The product ID defaults to PRODUCT_ID_ONLY
    * and the release level defaults to PRODUCT_RELEASE_ONLY.
    * @param system The system.
-   * @param ptfID The PTF ID (e.g. "SF64578")
+   * @param ptfID The PTF ID. Example: "SF64578"
   **/
   public PTF(AS400 system, String ptfID)
   {
@@ -284,10 +284,10 @@ public class PTF
   /**
    * Constructs a PTF object.
    * @param system The system.
-   * @param ptfID The PTF ID (e.g. "SF64578")
-   * @param productID The product ID (e.g. "5722JC1"). This value must
+   * @param ptfID The PTF ID. Example: "SF64578"
+   * @param productID The product ID (for example: "5722JC1"). This value must
    * either be {@link #PRODUCT_ID_ONLY PRODUCT_ID_ONLY} or a valid product ID.
-   * @param releaseLevel The PTF release level (e.g. "V5R1M0"). This value
+   * @param releaseLevel The PTF release level (for example: "V5R1M0"). This value
    * must either be {@link #PRODUCT_RELEASE_ONLY PRODUCT_RELEASE_ONLY} or a valid release level.
   **/
   public PTF(AS400 system, String ptfID, String productID, String releaseLevel)
@@ -301,17 +301,17 @@ public class PTF
     String id = ptfID.toUpperCase().trim();
     if (id.length() != 7)
     {
-      throw new ExtendedIllegalArgumentException("ptfID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("ptfID (" + ptfID + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     String prod = productID.toUpperCase().trim();
     if (prod.length() != 7 && !prod.equals(PRODUCT_ID_ONLY))
     {
-      throw new ExtendedIllegalArgumentException("productID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("productID (" + productID + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     String release = releaseLevel.toUpperCase().trim();
     if (!prod.equals(PRODUCT_RELEASE_ONLY) && release.length() != 6)
     {
-      throw new ExtendedIllegalArgumentException("releaseLevel", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      throw new ExtendedIllegalArgumentException("releaseLevel (" + releaseLevel + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     ptfID_ = id;
     productID_ = prod;
@@ -594,8 +594,8 @@ public class PTF
 
 
   /**
-   * Returns the ID number for this PTF (e.g. "SF64578").
-   * @return The PTF ID.
+   * Returns the ID number for this PTF.
+   * @return The PTF ID. Example: "SF64578"
   **/
   public String getID()
   {
@@ -964,11 +964,11 @@ public class PTF
   }
 
   /**
-   * Returns the release level of this PTF (e.g. "V5R1M0").
+   * Returns the release level of this PTF.
    * If this value was initially set to PRODUCT_RELEASE_ONLY, it
    * will be overwritten with the value returned from the system
    * after the values have been refreshed.
-   * @return The release level.
+   * @return The release level. Example: "V5R1M0"
   **/
   public String getReleaseLevel()
   throws AS400Exception,
@@ -1083,8 +1083,8 @@ public class PTF
   
   /**
    * Returns the earliest release of the operating system on which you can load and apply
-   * this PTF (e.g. "V4R5M0").
-   * @return The target release.
+   * this PTF.
+   * @return The target release. Example: "V4R5M0"
   **/
   public String getTargetRelease()
   throws AS400Exception,
