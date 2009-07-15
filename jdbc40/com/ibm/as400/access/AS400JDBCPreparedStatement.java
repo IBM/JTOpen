@@ -3510,6 +3510,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
          }                                                                
 
          //@xmlspec special handling of blob/clob column types
+         if(xmlObject == null)                                                      //@xmlspec3
+         {                                                                          //@xmlspec3
+             setValue (parameterIndex, xmlObject, null, -1);                        //@xmlspec3
+             return;                                                                //@xmlspec3
+         }                                                                          //@xmlspec3
          SQLData sqlData = parameterRow_.getSQLType(parameterIndex);                //@xmlspec
          int sqlDataType = sqlData.getType();                                       //@xmlspec
          switch(sqlDataType) {                                                      //@xmlspec
