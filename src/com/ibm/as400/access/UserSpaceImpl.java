@@ -38,7 +38,7 @@ interface UserSpaceImpl
 
     public void setLength(int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall);
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall, boolean mustUseSockets);
 
     public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 }

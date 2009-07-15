@@ -30,6 +30,8 @@ class UserSpaceImplRemote implements UserSpaceImpl
     protected String name_ = null;
     // Use ProgramCall instead of IFS.
     protected boolean mustUseProgramCall_ = false;
+    // Use sockets instead of native methods when running natively.
+    protected boolean mustUseSockets_ = false;
     // The string to byte data converter.
     protected ConverterImplRemote converter_;
     // Qualified user space name parameter, set on first touch.
@@ -372,13 +374,14 @@ class UserSpaceImplRemote implements UserSpaceImpl
     }
 
     // Set needed implementation properties.
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall)
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall, boolean mustUseSockets)
     {
         system_ = (AS400ImplRemote)system;
         path_ = path;
         library_ = library;
         name_ = name;
         mustUseProgramCall_ = mustUseProgramCall;
+        mustUseSockets_ = mustUseSockets;
     }
 
     // Setup error code program parameter object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
@@ -462,8 +465,9 @@ class UserSpaceImplRemote implements UserSpaceImpl
       // If not already setup.
       if (remoteCommand_ == null)
       {
+        // See if we'll be able (and permitted) to run natively.
         boolean runningNatively = false;
-        if (system_.canUseNativeOptimizations())
+        if (!mustUseSockets_ && system_.canUseNativeOptimizations())
         {
           try
           {
@@ -485,8 +489,9 @@ class UserSpaceImplRemote implements UserSpaceImpl
 
         // Note: All the API's that are called from this class, are threadsafe API's.
         // However, we need to stay consistent with the Toolbox's default threadsafety behavior.
-        // So we'll indicate that the remote commands can safely be run on-thread, but only if the threadSafe property hasn't been set.  This will enable applications to use UserSpace natively using profiles that are disabled or that have password *NONE.
-        if (runningNatively && ProgramCall.getThreadSafetyProperty() == null)
+        // So we'll indicate that the remote commands can safely be run on-thread (but only if the threadSafe property isn't set to 'false').  This will enable applications to use UserSpace natively using profiles that are disabled or that have password *NONE.
+
+        if (runningNatively && !ProgramCall.getThreadSafetyProperty().equals("false"))
         {
           runOnThread_ = RemoteCommandImpl.ON_THREAD;
         }

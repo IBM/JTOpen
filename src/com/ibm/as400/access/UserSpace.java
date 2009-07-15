@@ -236,7 +236,7 @@ public class UserSpace implements Serializable
                 impl_ = (com.ibm.as400.access.UserSpaceImpl)system_.loadImpl3("com.ibm.as400.access.UserSpaceImplNative", "com.ibm.as400.access.UserSpaceImplRemote", "com.ibm.as400.access.UserSpaceImplProxy");
 
             // Set the fixed properties in the implementation object.
-            impl_.setProperties(system_.getImpl(), path_, name_, library_, mustUseProgramCall_);
+            impl_.setProperties(system_.getImpl(), path_, name_, library_, mustUseProgramCall_, mustUseSockets_);
         }
     }
 

@@ -34,12 +34,6 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
     }
 
-    // Set needed implementation properties.
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall)
-    {
-        super.setProperties(system, path, name, library, true);
-    }
-
     // declare constants for the attribute type.  These types
     // are used on getAttrs and setAttrs.  *** Warning *** these
     // values are duplicated in the "C" code.  Since there is no

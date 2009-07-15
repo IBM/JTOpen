@@ -152,11 +152,11 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
         }
     }
 
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall)
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall, boolean mustUseSockets)
     {
         try
         {
-            connection_.callMethod(pxId_, "setProperties", new Class[] { AS400Impl.class, String.class, String.class, String.class, Boolean.TYPE }, new Object[] { system, path, name, library, new Boolean(mustUseProgramCall) } );
+            connection_.callMethod(pxId_, "setProperties", new Class[] { AS400Impl.class, String.class, String.class, String.class, Boolean.TYPE, Boolean.TYPE }, new Object[] { system, path, name, library, new Boolean(mustUseProgramCall), new Boolean(mustUseSockets) } );
         }
         catch (InvocationTargetException e)
         {
