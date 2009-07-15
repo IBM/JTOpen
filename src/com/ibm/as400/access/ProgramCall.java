@@ -166,9 +166,7 @@ public class ProgramCall implements Serializable
     public ProgramCall(AS400 system)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramCall object, system: " + system);
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
 
@@ -185,9 +183,7 @@ public class ProgramCall implements Serializable
     public ProgramCall(AS400 system, String program, ProgramParameter[] parameterList)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramCall object, system: " + system + " program: " + program);
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
 
@@ -212,9 +208,7 @@ public class ProgramCall implements Serializable
     public void addActionCompletedListener(ActionCompletedListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding action completed listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -236,9 +230,7 @@ public class ProgramCall implements Serializable
     public void addParameter(ProgramParameter parameter) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding parameter to parameter list.");
-        if (parameter == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'parameter' is null.");
+        if (parameter == null) {
             throw new NullPointerException("parameter");
         }
 
@@ -256,9 +248,7 @@ public class ProgramCall implements Serializable
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -279,9 +269,7 @@ public class ProgramCall implements Serializable
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -545,9 +533,7 @@ public class ProgramCall implements Serializable
     public void removeActionCompletedListener(ActionCompletedListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing action completed listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -564,9 +550,7 @@ public class ProgramCall implements Serializable
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -583,9 +567,7 @@ public class ProgramCall implements Serializable
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -618,7 +600,6 @@ public class ProgramCall implements Serializable
         {
             if (parameterList_[i] == null)
             {
-                Trace.log(Trace.ERROR, "Parameter list value " + i + " null.");
                 throw new ExtendedIllegalArgumentException("parameterList[" + i + "] (" + parameterList_[i] + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
             }
         }
@@ -686,14 +667,12 @@ public class ProgramCall implements Serializable
     public void setParameterList(ProgramParameter[] parameterList) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting parameter list.");
-        if (parameterList == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'parameterList' is null.");
+        if (parameterList == null) {
             throw new NullPointerException("parameterList");
         }
         else if (parameterList.length > 35)
         {
-            Trace.log(Trace.ERROR, "Length of parameter 'parameterList' is not valid:", parameterList.length);
+            Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 35 parameters:", parameterList.length);
             throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
@@ -733,9 +712,7 @@ public class ProgramCall implements Serializable
     public void setProgram(String program) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting program: " + program);
-        if (program == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'program' is null.");
+        if (program == null) {
             throw new NullPointerException("program");
         }
         if (Trace.traceOn_ && program.length() == 0)
@@ -776,7 +753,6 @@ public class ProgramCall implements Serializable
         // Validate the messageOption parameter.
         if (messageOption < 0 || messageOption > 2)
         {
-            Trace.log(Trace.ERROR, "Parameter 'messageOption' is not valid.");
             throw new ExtendedIllegalArgumentException("messageOption (" + messageOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         messageOption_ = messageOption;
@@ -790,9 +766,7 @@ public class ProgramCall implements Serializable
     public void setSystem(AS400 system) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system: " + system);
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
         if (impl_ != null)

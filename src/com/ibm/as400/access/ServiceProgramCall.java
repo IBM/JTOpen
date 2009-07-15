@@ -152,9 +152,7 @@ public class ServiceProgramCall extends ProgramCall
     {
         super(system, serviceProgram, parameterList);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object, procedureName: " + procedureName);
-        if (procedureName == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'procedureName' is null.");
+        if (procedureName == null) {
             throw new NullPointerException("procedureName");
         }
         procedureName_ = procedureName;
@@ -177,14 +175,11 @@ public class ServiceProgramCall extends ProgramCall
         super(system, serviceProgram, parameterList);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object, procedureName: " + procedureName + " return value format:", returnValueFormat);
 
-        if (procedureName == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'procedureName' is null.");
+        if (procedureName == null) {
             throw new NullPointerException("procedureName");
         }
         if (returnValueFormat < NO_RETURN_VALUE || returnValueFormat > RETURN_INTEGER)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'returnValueFormat' is not valid:", returnValueFormat);
             throw new ExtendedIllegalArgumentException("returnValueFormat (" + returnValueFormat + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
@@ -281,8 +276,8 @@ public class ServiceProgramCall extends ProgramCall
         }
         if (parameterList_.length > 7)
         {
-            Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 7 parameters.");
-            throw new ExtendedIllegalArgumentException("parameterList", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 7 parameters:", parameterList_.length);
+            throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList_.length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         chooseImpl();
@@ -387,9 +382,7 @@ public class ServiceProgramCall extends ProgramCall
     public void setProcedureName(String procedureName) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting procedure name: " + procedureName);
-        if (procedureName == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'procedureName' is null.");
+        if (procedureName == null) {
             throw new NullPointerException("procedureName");
         }
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
@@ -433,9 +426,7 @@ public class ServiceProgramCall extends ProgramCall
     public void setProgram(String serviceProgram) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting service program: " + serviceProgram);
-        if (serviceProgram == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'program' is null.");
+        if (serviceProgram == null) {
             throw new NullPointerException("program");
         }
         // Verify serviceProgram is valid IFS path name.
@@ -480,7 +471,6 @@ public class ServiceProgramCall extends ProgramCall
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting return value format:", returnValueFormat);
         if (returnValueFormat < NO_RETURN_VALUE || returnValueFormat > RETURN_INTEGER)
         {
-            Trace.log(Trace.ERROR, "Value of parameter 'returnValueFormat' is not valid:", returnValueFormat);
             throw new ExtendedIllegalArgumentException("returnValueFormat (" + returnValueFormat + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 

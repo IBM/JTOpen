@@ -171,9 +171,7 @@ public class CommandCall implements Serializable
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing CommandCall object, system: " + system);
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
         system_ = system;
@@ -189,14 +187,10 @@ public class CommandCall implements Serializable
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing CommandCall object, system: " + system + " command: " + command);
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
-        if (command == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'command' is null.");
+        if (command == null) {
             throw new NullPointerException("command");
         }
 
@@ -212,9 +206,7 @@ public class CommandCall implements Serializable
     public void addActionCompletedListener(ActionCompletedListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding action completed listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -235,9 +227,7 @@ public class CommandCall implements Serializable
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -258,9 +248,7 @@ public class CommandCall implements Serializable
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         synchronized (this)
@@ -600,9 +588,7 @@ public class CommandCall implements Serializable
     public void removeActionCompletedListener(ActionCompletedListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing action completed listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -619,9 +605,7 @@ public class CommandCall implements Serializable
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -638,9 +622,7 @@ public class CommandCall implements Serializable
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
-        if (listener == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
         // If we have listeners.
@@ -720,15 +702,12 @@ public class CommandCall implements Serializable
     public boolean run(byte[] command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Running command:", command);
-        if (command == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'command' is null.");
+        if (command == null) {
             throw new NullPointerException("command");
         }
         if (command.length == 0)
         {
-            Trace.log(Trace.ERROR, "Length of 'command' parameter is not valid:", command);
-            throw new ExtendedIllegalArgumentException("command (" + command.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("command.length (" + command.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
         chooseImpl();
@@ -761,9 +740,7 @@ public class CommandCall implements Serializable
     public void setCommand(String command) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting command: " + command);
-        if (command == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'command' is null.");
+        if (command == null) {
             throw new NullPointerException("command");
         }
         if (Trace.traceOn_ && command.length() == 0)
@@ -830,7 +807,6 @@ public class CommandCall implements Serializable
         // Validate the messageOption parameter.
         if (messageOption < 0 || messageOption > 2)
         {
-            Trace.log(Trace.ERROR, "Parameter 'messageOption' is not valid.");
             throw new ExtendedIllegalArgumentException("messageOption (" + messageOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         messageOption_ = messageOption;
@@ -844,9 +820,7 @@ public class CommandCall implements Serializable
     public void setSystem(AS400 system) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system: " + system);
-        if (system == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+        if (system == null) {
             throw new NullPointerException("system");
         }
         if (impl_ != null)
