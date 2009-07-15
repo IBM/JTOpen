@@ -6132,6 +6132,8 @@ implements ResultSet
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
         //@xmlspec special handling of blob/clob column types
+        if(xmlObject == null)                                                      //@xmlspec3
+            updateValue (columnIndex, xmlObject, null, -1);                        //@xmlspec3
         SQLData sqlData = getValue(columnIndex);                                   //@xmlspec
         int sqlDataType;                                                           //@xmlspec2
         if(sqlData != null)                                                        //@xmlspec2
