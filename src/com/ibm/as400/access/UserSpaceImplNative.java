@@ -40,24 +40,24 @@ class UserSpaceImplNative extends UserSpaceImplRemote
     // way to share a common header file, it is manual process to
     // keep them in sync.  If you add, change or delete one of
     // these constants also change qyjspjus.C in yjsp.xpf.
-    private final int INITIAL_VALUE   = 0;
-    private final int LENGTH          = 1;
-    private final int AUTO_EXTENDIBLE = 2;
+    private static final int INITIAL_VALUE   = 0;
+    private static final int LENGTH          = 1;
+    private static final int AUTO_EXTENDIBLE = 2;
 
     // declare constants for parameter type.
-    private final short IN     = 0;
-    private final short OUT    = 1;
-    private final short INOUT  = 2;
+    private static final short IN     = 0;
+    private static final short OUT    = 1;
+    private static final short INOUT  = 2;
 
     // declare constants for the entry points.  These constants
     // are used when converting Native exceptions to the exception
     // thrown to the user.
-    private final int CREATE         = 0;
-    private final int READ           = 1;
-    private final int WRITE          = 2;
-    private final int DELETE         = 3;
-    private final int GET_ATTRIBUTES = 4;
-    private final int SET_ATTRIBUTES = 5;
+    private static final int CREATE         = 0;
+    private static final int READ           = 1;
+    private static final int WRITE          = 2;
+    private static final int DELETE         = 3;
+    private static final int GET_ATTRIBUTES = 4;
+    private static final int SET_ATTRIBUTES = 5;
 
     // ----------------------------------------------------------------------
     //
