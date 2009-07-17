@@ -178,6 +178,30 @@ final class SQLDBClob implements SQLData
                         JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                     }
                 }
+                else if(length_ == -2) //@readerlen new else-if block (read all data)
+                {
+                    try
+                    {
+                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                        Reader stream = (Reader)object;
+                        StringBuffer buf = new StringBuffer();
+                        char[] charBuffer = new char[blockSize];
+                        int totalCharsRead = 0;
+                        int charsRead = stream.read(charBuffer, 0, blockSize);
+                        while(charsRead > -1 )
+                        {
+                            buf.append(charBuffer, 0, charsRead);
+                            totalCharsRead += charsRead;
+                          
+                            charsRead = stream.read(charBuffer, 0, blockSize);
+                        }
+                        value_ = buf.toString();
+                    }
+                    catch(IOException ie)
+                    {
+                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                    }
+                }
                 else
                 {
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);

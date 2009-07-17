@@ -3840,11 +3840,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                         SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                         sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
                         if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                        sqlData.set(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -1);
+                        sqlData.set(x, null, -2);//new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -2); //@readerlen -2 flag to read all of reader bytes
                     }
                     else
                     {
-                        sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1);
+                        sqlData.set(x, null, -2);//sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1); //@readerlen -2 flag to read all of reader bytes
                     }
                 }
                 catch(UnsupportedEncodingException uee)
@@ -3999,7 +3999,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                    sqlData.set(reader, null, -1); // @J0M hacked this to use the scale parameter for the length
+                    sqlData.set(reader, null, -2); //@readerlen -2 flag to read all of reader chars
                 }
                 else
                 {

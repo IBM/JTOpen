@@ -186,6 +186,30 @@ final class SQLDBClobLocator implements SQLLocator
                         JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                     }
                 }
+                else if(length_ == -2) //@readerlen new else-if block (read all data)
+                {
+                    try
+                    {
+                        int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                        Reader stream = (Reader)object;
+                        StringBuffer buf = new StringBuffer();
+                        char[] charBuffer = new char[blockSize];
+                        int totalCharsRead = 0;
+                        int charsRead = stream.read(charBuffer, 0, blockSize);
+                        while(charsRead > -1  )
+                        {
+                            buf.append(charBuffer, 0, charsRead);
+                            totalCharsRead += charsRead;
+                             
+                            charsRead = stream.read(charBuffer, 0, blockSize);
+                        }
+                        value_ = buf.toString();
+                    }
+                    catch(IOException ie)
+                    {
+                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                    }
+                }
                 else
                 {
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -286,6 +310,38 @@ final class SQLDBClobLocator implements SQLLocator
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                 }
             }
+            else if(length == -2) //@readerlen new else-if block (read all data)
+            {
+                try
+                {
+                    int blockSize =  AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    int bidiStringType = settings_.getBidiStringType();
+                    if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
+                             
+                    BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+                    bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+                    bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+
+                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
+                    byte[] byteBuffer = new byte[blockSize];
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1)
+                    {
+                        locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.      //@K1C  //@K2C totalBytesRead is our offset (offset should be in number of characters, not bytes)
+                        totalBytesRead += bytesRead;
+  
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+                    
+                    stream.close(); //@scan1
+                   
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                }
+            }
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -326,6 +382,28 @@ final class SQLDBClobLocator implements SQLLocator
                     {
                         // a length longer than the stream was specified
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    }
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                }
+            }
+            else if(length == -2) //@readerlen new else-if block (read all data)
+            {
+                InputStream stream = (InputStream)savedObject_;
+                int blockSize =  AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                byte[] byteBuffer = new byte[blockSize];
+                try
+                {
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1 )
+                    {
+                        locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  //@K1C //@K2C  offset should be in number of characters not bytes
+                        totalBytesRead += bytesRead;
+                      
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
                     }
                 }
                 catch(IOException ie)
