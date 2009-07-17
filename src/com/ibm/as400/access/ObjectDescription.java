@@ -1484,6 +1484,7 @@ public class ObjectDescription
    // But if the user has indicated they want all programs to be called on-thread
    // (by setting the ProgramCall.threadSafe property), we will do as they wish.
    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWCLOBJL.PGM", parms);
+   // Note: The called API is not thread-safe.
 
    // Determine the needed scope of synchronization.
    Object lockObject;
@@ -1782,8 +1783,7 @@ public class ObjectDescription
     }													// @550A
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSROBJD.PGM", parms); // retrieve object description
-    // QUSROBJD is thread safe.
-    //pc.suggestThreadsafe();
+    pc.suggestThreadsafe();  // the called API is thread-safe
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());

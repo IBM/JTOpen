@@ -624,6 +624,7 @@ implements Serializable
     parms[6] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSRLSAVF.PGM", parms);
+    // Note: The called API is not thread-safe.
 
     // Determine the needed scope of synchronization.
     Object lockObject;
@@ -777,6 +778,7 @@ implements Serializable
     parms[3] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QLPLPRDS.PGM", parms);
+    // Note: The called API is not thread-safe.
 
     // Determine the needed scope of synchronization.
     Object lockObject;

@@ -67,6 +67,7 @@ public class PTFGroupList
       parms[3].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
       ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroups", ServiceProgramCall.NO_RETURN_VALUE, parms);
+      // Note: The called API is not thread-safe.
 
       // Determine the needed scope of synchronization.
       Object lockObject;

@@ -1064,6 +1064,7 @@ public class Product
     }
 
     ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZLSTFX.SRVPGM", "QpzListPTF", ServiceProgramCall.NO_RETURN_VALUE, parms);
+    // Note: The called API is not thread-safe.
 
     // Determine the needed scope of synchronization.
     Object lockObject;
@@ -1519,6 +1520,7 @@ public class Product
     parms[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information format name
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSZRTVPR.PGM", parms);
+    // Note: The called API is not thread-safe.
     if (!pc.run())
     {
       AS400Message[] messages = pc.getMessageList();

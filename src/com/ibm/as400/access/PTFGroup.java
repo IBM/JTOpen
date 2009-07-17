@@ -170,6 +170,7 @@ public class PTFGroup
         parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
+        // Note: The called API is not thread-safe.
 
         // Determine the needed scope of synchronization.
         Object lockObject;
@@ -369,6 +370,7 @@ public class PTFGroup
         parms[4].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         ServiceProgramCall pc = new ServiceProgramCall(system_, "/QSYS.LIB/QPZGROUP.SRVPGM", "QpzListPtfGroupDetails", ServiceProgramCall.NO_RETURN_VALUE, parms);
+        // Note: The called API is not thread-safe.
 
         // Determine the needed scope of synchronization.
         Object lockObject;

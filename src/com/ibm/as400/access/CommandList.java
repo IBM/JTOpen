@@ -199,7 +199,7 @@ public class CommandList implements Serializable
 
         CharConverter textConv = new CharConverter(sys_.getCcsid());
         ProgramCall pgm = new ProgramCall(sys_, "/QSYS.LIB/QUSLOBJ.PGM", parms);
-        //pgm.suggestThreadsafe();
+        pgm.suggestThreadsafe();  // the called API is thread-safe
         // Note: The program _must_ be allowed to run in the same job as is used for the UserSpace operations, otherwise a different QTEMP library will be used.
 
         // Determine the needed scope of synchronization.
