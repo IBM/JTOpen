@@ -3827,29 +3827,22 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             SQLData sqlData = parameterRow_.getSQLType(parameterIndex);
             if(x != null)
             {
-                try
+                // If the data is a locator, then set its handle.
+                int sqlType = sqlData.getSQLType();  //@xml3
+                if(sqlType == SQLData.CLOB_LOCATOR ||
+                   sqlType == SQLData.BLOB_LOCATOR ||
+                   sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
+                   sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
+                   sqlType == SQLData.XML_LOCATOR)                      //@xml3
                 {
-                    // If the data is a locator, then set its handle.
-                    int sqlType = sqlData.getSQLType();  //@xml3
-                    if(sqlType == SQLData.CLOB_LOCATOR ||
-                       sqlType == SQLData.BLOB_LOCATOR ||
-                       sqlType == SQLData.DBCLOB_LOCATOR ||                 //@pdc jdbc40
-                       sqlType == SQLData.NCLOB_LOCATOR ||                  //@pda jdbc40
-                       sqlType == SQLData.XML_LOCATOR)                      //@xml3
-                    {
-                        SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
-                        sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                        if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
-                        sqlData.set(x, null, -2);//new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -2); //@readerlen -2 flag to read all of reader bytes
-                    }
-                    else
-                    {
-                        sqlData.set(x, null, -2);//sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1); //@readerlen -2 flag to read all of reader bytes
-                    }
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
+                    sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                    if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
+                    sqlData.set(x, null, -2);//new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE), null, -2); //@readerlen -2 flag to read all of reader bytes
                 }
-                catch(UnsupportedEncodingException uee)
+                else
                 {
-                    /* do nothing */
+                    sqlData.set(x, null, -2);//sqlData.set (JDUtilities.readerToString(new ConvTableReader(x, 819, 0, LOB_BLOCK_SIZE)), null, -1); //@readerlen -2 flag to read all of reader bytes
                 }
 
                 testDataTruncation (parameterIndex, sqlData);
