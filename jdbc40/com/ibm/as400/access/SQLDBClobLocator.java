@@ -310,7 +310,7 @@ final class SQLDBClobLocator implements SQLLocator
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if(length == -4) //@readerlen new else-if block (read all data) (-2 * 2)
             {
                 try
                 {
@@ -389,7 +389,7 @@ final class SQLDBClobLocator implements SQLLocator
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                 }
             }
-            else if(length == -2) //@readerlen new else-if block (read all data)
+            else if(length == -4) //@readerlen new else-if block (read all data)
             {
                 InputStream stream = (InputStream)savedObject_;
                 int blockSize =  AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
