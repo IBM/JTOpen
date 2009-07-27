@@ -27,7 +27,7 @@ import java.util.ResourceBundle;
 
 
 /**
-This class is a JDBC 3.0 driver that accesses DB2 for IBM i databases.
+A JDBC 3.0 driver that accesses DB2 for IBM i databases.
 
 <p>To use this driver, the application or caller must register 
 the driver with the JDBC DriverManager.  This class also registers 
@@ -1036,7 +1036,7 @@ implements java.sql.Driver
 				as400 = new SecureAS400 (serverName, userName);
 			else
 				as400 = new SecureAS400 (serverName, userName, password);
-			if (keyRingName != null && keyRingPassword != null && keyRingName != "") //@B9A	@C1C
+			if (keyRingName != null && keyRingPassword != null && !keyRingName.equals("")) //@B9A	@C1C
 			{   
 				try
 				{															  //@B9A
