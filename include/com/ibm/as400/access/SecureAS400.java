@@ -21,7 +21,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.sslight.SSLightKeyRing;
 
 /**
- The SecureAS400 class represents a secure system sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable system at release V4R4 or later.
+ Represents a secure system sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable system at release V4R4 or later.
  **/
 public class SecureAS400 extends AS400
 {
@@ -219,6 +219,9 @@ public class SecureAS400 extends AS400
             Trace.log(Trace.ERROR, "Cannot set key ring class name after connection has been made.");
             throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
+        if (keyRingName == null) {
+            throw new NullPointerException("keyRingName");
+        }
 
         String oldValue = useSSLConnection_.keyRingName_;
         String newValue = keyRingName;
@@ -258,6 +261,9 @@ public class SecureAS400 extends AS400
         {
             Trace.log(Trace.ERROR, "Cannot set key ring class name after connection has been made.");
             throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+        if (keyRingName == null) {
+            throw new NullPointerException("keyRingName");
         }
 
         String oldValue = useSSLConnection_.keyRingName_;
