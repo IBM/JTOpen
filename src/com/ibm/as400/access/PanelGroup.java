@@ -18,7 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * The PanelGroup class represents an OS/400 panel group (*PNLGRP) object.
+ * Represents an IBM i panel group (*PNLGRP) object.
  * The help text for a given panel group and set of keywords can be retrieved
  * using the {@link #getHelpText getHelpText} method. 
  * <P>
@@ -153,8 +153,8 @@ public class PanelGroup implements Serializable
     parms[7] = new ProgramParameter(4);
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUHRHLPT.PGM", parms);
-    //pc.suggestThreadsafe();
-
+    // Note: This is a threadsafe API.  However, PanelGroup methods are invoked by the Command class, after calling ADDLIBLE.  Therefore we must be careful to stay in the same thread in which ADDLIBLE executed.
+ 
     if (!pc.run())
       throw new AS400Exception(pc.getMessageList());
 
@@ -286,6 +286,7 @@ public class PanelGroup implements Serializable
     parms[7] = new ProgramParameter(4);
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUHRHLPT.PGM", parms);
+    // Note: This is a threadsafe API.  However, PanelGroup methods are invoked by the Command class, after calling ADDLIBLE.  Therefore we must be careful to stay in the same thread in which ADDLIBLE executed.
 
     if (!pc.run())
       throw new AS400Exception(pc.getMessageList());

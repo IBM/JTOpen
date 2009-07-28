@@ -26,9 +26,9 @@ import javax.xml.parsers.*;
 import org.xml.sax.SAXException;
 
 /**
- * The Command class represents information about a CL command (*CMD) object on the system.
+ * Represents information about a CL command (*CMD) object on the system.
  * <P>
- * To actually execute a CL command, see the
+ * To actually execute a CL command, use the
  * {@link com.ibm.as400.access.CommandCall CommandCall} class.
  * <P>
  * To generate HTML help for a CL command, see the
@@ -882,7 +882,7 @@ public class Command implements Serializable
         {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpText: Adding "+prdLib+" to library list.");
           // We have to try to add it.
-          String addlible = "ADDLIBLE LIB("+prdLib+")";
+          String addlible = "ADDLIBLE LIB("+prdLib+")";  // not threadsafe
           CommandCall cc = new CommandCall(system_, addlible);
           added = cc.run();
         }
@@ -900,7 +900,7 @@ public class Command implements Serializable
       if (added)
       {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+prdLib+" from library list.");
-        String rmvlible = "RMVLIBLE LIB("+prdLib+")";
+        String rmvlible = "RMVLIBLE LIB("+prdLib+")";  // not threadsafe
         CommandCall cc = new CommandCall(system_, rmvlible);
         cc.run();
       }
@@ -983,7 +983,7 @@ public class Command implements Serializable
       {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs: Adding "+prdLib+" to library list.");
         // We have to try to add it.
-        String addlible = "ADDLIBLE LIB("+prdLib+")";
+        String addlible = "ADDLIBLE LIB("+prdLib+")";  // not threadsafe
         CommandCall cc = new CommandCall(system_, addlible);
         added = cc.run();
       }
@@ -1008,7 +1008,7 @@ public class Command implements Serializable
     if (added)
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+prdLib+" from library list.");
-      String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";
+      String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";  // not threadsafe
       CommandCall cc = new CommandCall(system_, rmvlible);
       cc.run();
     }
@@ -1239,7 +1239,7 @@ public class Command implements Serializable
       parms[5] = new ProgramParameter(new byte[] { (byte) 0xF1 });	// @A1A Follow proxy chain, input CHAR(1)
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDI.PGM", parms);
-    //pc.suggestThreadsafe();
+    // Note: This is a threadsafe API.  However, on some code paths we may have called ADDLIBLE before getting here.  Therefore we must be careful to stay in the same thread in which ADDLIBLE executed.
 
     boolean succeeded = pc.run();
     if (!succeeded)
@@ -1417,8 +1417,8 @@ public class Command implements Serializable
     parms[4] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, format)); // receiver format name
     parms[5] = errorCode_;
 
-    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDD.PGM", parms);
-    //pc.suggestThreadsafe();
+    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDD.PGM", parms); // this is a threadsafe API
+    // Note: This is a threadsafe API.  However, on some code paths we may have called ADDLIBLE before getting here.  Therefore we must be careful to stay in the same thread in which ADDLIBLE executed.
 
     if (!pc.run())
     {
