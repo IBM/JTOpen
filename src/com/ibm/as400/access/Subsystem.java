@@ -151,7 +151,7 @@ public class Subsystem
       throw new ExtendedIllegalArgumentException("sequenceNumber", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") POOLS(("+sequenceNumber+" "+poolName+"))");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") POOLS(("+sequenceNumber+" "+poolName+"))"); // not a threadsafe API
     if (DEBUG) System.out.println("Command string: " + cmd.getCommand());
     // Note: Pool size must be at least 256 (meaning 256 kilobytes).
     if (!cmd.run())
@@ -187,7 +187,7 @@ public class Subsystem
       throw new ExtendedIllegalArgumentException("sequenceNumber", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") POOLS(("+sequenceNumber+" "+size+" "+activityLevel+"))");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") POOLS(("+sequenceNumber+" "+size+" "+activityLevel+"))"); // not a threadsafe API
     if (DEBUG) System.out.println("Command string: " + cmd.getCommand());
     // Note: Pool size must be at least 256 (meaning 256 kilobytes).
     if (!cmd.run())
@@ -218,7 +218,7 @@ public class Subsystem
     if (text == null) throw new NullPointerException("text");
 
     if (text.length() == 0) text = "*BLANK";
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") TEXT('"+text+"')");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") TEXT('"+text+"')"); // not a threadsafe API
     if (!cmd.run())
     {
       AS400Message[] msgs = cmd.getMessageList();
@@ -249,7 +249,7 @@ public class Subsystem
 
     QSYSObjectPathName qpath = new QSYSObjectPathName(path);
 
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") SGNDSPF("+qpath.getLibraryName()+"/"+qpath.getObjectName()+")");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") SGNDSPF("+qpath.getLibraryName()+"/"+qpath.getObjectName()+")"); // not a threadsafe API
     if (!cmd.run())
     {
       AS400Message[] msgs = cmd.getMessageList();
@@ -279,7 +279,7 @@ public class Subsystem
 
     if (library.trim().length() == 0) library = "*NONE";
 
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") SYSLIBLE("+library+")");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") SYSLIBLE("+library+")"); // not a threadsafe API
 
     if (!cmd.run())
     {
@@ -308,7 +308,7 @@ public class Subsystem
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
     String max = (maxJobs == NO_MAX ? "*NOMAX" : Integer.toString(maxJobs));
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") MAXJOBS("+max+")");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") MAXJOBS("+max+")"); // not a threadsafe API
     if (!cmd.run())
     {
       AS400Message[] msgs = cmd.getMessageList();
@@ -360,7 +360,7 @@ public class Subsystem
       throw new ObjectAlreadyExistsException(path_, ObjectAlreadyExistsException.OBJECT_ALREADY_EXISTS);
     }
 
-    String cmdString = "QSYS/CRTSBSD SBSD("+library_+"/"+name_+") AUT(" + authority + ") POOLS((1 *BASE))";
+    String cmdString = "QSYS/CRTSBSD SBSD("+library_+"/"+name_+") AUT(" + authority + ") POOLS((1 *BASE))"; // not a threadsafe API
 
     CommandCall cmd = new CommandCall(system_, cmdString);
     if (!cmd.run()) {
@@ -381,7 +381,7 @@ public class Subsystem
   public void delete()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
   {
-    CommandCall cmd = new CommandCall(system_, "QSYS/DLTSBSD SBSD("+library_+"/"+name_+")");
+    CommandCall cmd = new CommandCall(system_, "QSYS/DLTSBSD SBSD("+library_+"/"+name_+")"); // not a threadsafe API
     if (!cmd.run())
     {
       AS400Message[] msgs = cmd.getMessageList();
@@ -730,38 +730,67 @@ public class Subsystem
     final int ccsid = system_.getCcsid();
     final ConvTable conv = ConvTable.getTable(ccsid, null);
 
-    // Call the API, specifying format SBSI0200.  This will retrieve most of the attributes.
-
-    ProgramParameter[] parms = new ProgramParameter[5];
-    int outputSize = 200;
-    parms[0] = new ProgramParameter(outputSize);
-    parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(outputSize));
-    parms[2] = new ProgramParameter(conv.stringToByteArray("SBSI0200"));
-    QSYSObjectPathName qsys = new QSYSObjectPathName(path_);
-    AS400Text text10 = new AS400Text(10, ccsid);
-    byte[] qualifiedSubsystemName = new byte[20];
-    text10.toBytes(qsys.getObjectName(), qualifiedSubsystemName, 0);
-    text10.toBytes(qsys.getLibraryName(), qualifiedSubsystemName, 10);
-    parms[3] = new ProgramParameter(qualifiedSubsystemName);
-    parms[4] = new ProgramParameter(new byte[4]);
-
-    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWDRSBSD.PGM", parms);
-    if (!pc.run())
+    try
     {
-      throw new AS400Exception(pc.getMessageList());
-    }
-    byte[] data = parms[0].getOutputData();
-    int bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
-    int bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
-    while (bytesReturned < bytesAvailable)
-    {
-      outputSize += bytesAvailable*2;
-      try
+      // Call the API, specifying format SBSI0200.  This will retrieve most of the attributes.
+
+      ProgramParameter[] parms = new ProgramParameter[5];
+      int outputSize = 200;
+      parms[0] = new ProgramParameter(outputSize);
+      parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(outputSize));
+      parms[2] = new ProgramParameter(conv.stringToByteArray("SBSI0200"));
+      QSYSObjectPathName qsys = new QSYSObjectPathName(path_);
+      AS400Text text10 = new AS400Text(10, ccsid);
+      byte[] qualifiedSubsystemName = new byte[20];
+      text10.toBytes(qsys.getObjectName(), qualifiedSubsystemName, 0);
+      text10.toBytes(qsys.getLibraryName(), qualifiedSubsystemName, 10);
+      parms[3] = new ProgramParameter(qualifiedSubsystemName);
+      parms[4] = new ProgramParameter(new byte[4]);
+
+      ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWDRSBSD.PGM", parms);
+      pc.suggestThreadsafe();
+      if (!pc.run())
       {
+        throw new AS400Exception(pc.getMessageList());
+      }
+      byte[] data = parms[0].getOutputData();
+      int bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
+      int bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
+      while (bytesReturned < bytesAvailable)
+      {
+        outputSize += bytesAvailable*2;
         parms[0].setOutputDataLength(outputSize);
         parms[1].setInputData(BinaryConverter.intToByteArray(outputSize));
+        if (!pc.run())
+        {
+          throw new AS400Exception(pc.getMessageList());
+        }
+        data = parms[0].getOutputData();
+        bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
+        bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
       }
-      catch (PropertyVetoException pve) {Trace.log(Trace.ERROR,pve);} // this will never happen
+      int offset = BinaryConverter.byteArrayToInt(data, 8);
+      //int numEntries = BinaryConverter.byteArrayToInt(data, 12); // This had better be 1.
+      //int entrySize = BinaryConverter.byteArrayToInt(data, 16);
+      name_ = conv.byteArrayToString(data, offset, 10).trim();
+      library_ = conv.byteArrayToString(data, offset+10, 10).trim();
+      extendedStatus_ = conv.byteArrayToString(data, offset+20, 12).trim();
+      maxActiveJobs_ = BinaryConverter.byteArrayToInt(data, offset+32);
+      currentActiveJobs_ = BinaryConverter.byteArrayToInt(data, offset+36);
+      monitorJobName_ = conv.byteArrayToString(data, offset+40, 10).trim();
+      monitorJobUser_ = conv.byteArrayToString(data, offset+50, 10).trim();
+      monitorJobNumber_ = conv.byteArrayToString(data, offset+60, 6).trim();
+      descriptionText_ = conv.byteArrayToString(data, offset+66, 50).trim();
+
+
+      // Call the API again, specifying format SBSI0100.  This will retrieve some additional attributes.
+
+      outputSize = 500;
+      parms[0] = new ProgramParameter(outputSize);
+      parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(outputSize));
+      parms[2] = new ProgramParameter(conv.stringToByteArray("SBSI0100"));
+
+      pc.setParameterList(parms);
       if (!pc.run())
       {
         throw new AS400Exception(pc.getMessageList());
@@ -769,88 +798,58 @@ public class Subsystem
       data = parms[0].getOutputData();
       bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
       bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
-    }
-    int offset = BinaryConverter.byteArrayToInt(data, 8);
-    //int numEntries = BinaryConverter.byteArrayToInt(data, 12); // This had better be 1.
-    //int entrySize = BinaryConverter.byteArrayToInt(data, 16);
-    name_ = conv.byteArrayToString(data, offset, 10).trim();
-    library_ = conv.byteArrayToString(data, offset+10, 10).trim();
-    extendedStatus_ = conv.byteArrayToString(data, offset+20, 12).trim();
-    maxActiveJobs_ = BinaryConverter.byteArrayToInt(data, offset+32);
-    currentActiveJobs_ = BinaryConverter.byteArrayToInt(data, offset+36);
-    monitorJobName_ = conv.byteArrayToString(data, offset+40, 10).trim();
-    monitorJobUser_ = conv.byteArrayToString(data, offset+50, 10).trim();
-    monitorJobNumber_ = conv.byteArrayToString(data, offset+60, 6).trim();
-    descriptionText_ = conv.byteArrayToString(data, offset+66, 50).trim();
-
-
-    // Call the API again, specifying format SBSI0100.  This will retrieve some additional attributes.
-
-    outputSize = 500;
-    parms[0] = new ProgramParameter(outputSize);
-    parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(outputSize));
-    parms[2] = new ProgramParameter(conv.stringToByteArray("SBSI0100"));
-
-    pc = new ProgramCall(system_, "/QSYS.LIB/QWDRSBSD.PGM", parms);
-    if (!pc.run())
-    {
-      throw new AS400Exception(pc.getMessageList());
-    }
-    data = parms[0].getOutputData();
-    bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
-    bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
-    while (bytesReturned < bytesAvailable)
-    {
-      outputSize += bytesAvailable*2;
-      try
+      while (bytesReturned < bytesAvailable)
       {
+        outputSize += bytesAvailable*2;
         parms[0].setOutputDataLength(outputSize);
         parms[1].setInputData(BinaryConverter.intToByteArray(outputSize));
+        if (!pc.run())
+        {
+          throw new AS400Exception(pc.getMessageList());
+        }
+        data = parms[0].getOutputData();
+        bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
+        bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
       }
-      catch (PropertyVetoException pve) {Trace.log(Trace.ERROR,pve);} // this will never happen
-      if (!pc.run())
+
+      dspFileName_ = conv.byteArrayToString(data, 38, 10).trim();
+      dspFileLibrary_ = conv.byteArrayToString(data, 48, 10).trim();
+      langLibrary_ = conv.byteArrayToString(data, 58, 10).trim();
+      int numPools = BinaryConverter.byteArrayToInt(data, 76);
+      pools_ = new SystemPool[10];
+      if (DEBUG) System.out.println("SubSystem.refresh(): Number of pools reported: " + numPools);
+
+      int poolID = 0;
+      for (int i=0; i<numPools; i++)
       {
-        throw new AS400Exception(pc.getMessageList());
+        // Note: Offset to start of pool list is 80.  Each entry is 28 bytes long.
+        int offsetToEntry = 80 + 28*i;
+        poolID = BinaryConverter.byteArrayToInt(data, offsetToEntry);
+        if (DEBUG) {
+          System.out.println("Pool ID: " + poolID);
+          if (poolID < 1 || poolID > 10) System.out.println("ERROR: Unexpected poolID value: " + poolID);  // This should never happen.
+        }
+        String poolName = conv.byteArrayToString(data, offsetToEntry+4, 10).trim();
+        if (DEBUG) System.out.println("Subsystem.refresh(): Returned poolName is: " + poolName);
+        int size = BinaryConverter.byteArrayToInt(data, offsetToEntry+20);
+        int activityLevel = BinaryConverter.byteArrayToInt(data, offsetToEntry+24);
+        SystemPool pool = null;
+        if (poolName.equals("*USERPOOL")) {  // it's a private pool
+          pool = new SystemPool(this, poolID, size, activityLevel);
+        }
+        else {  // it's a shared pool
+          pool = new SystemPool(system_, poolName);
+        }
+        pool.setCaching(true);
+        pools_[poolID-1] = pool;
       }
-      data = parms[0].getOutputData();
-      bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
-      bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
+      for (int i=poolID; i<10; i++) { pools_[i] = null; }  // fill remaining slots with nulls
+
+      refreshed_ = true;
     }
-
-    dspFileName_ = conv.byteArrayToString(data, 38, 10).trim();
-    dspFileLibrary_ = conv.byteArrayToString(data, 48, 10).trim();
-    langLibrary_ = conv.byteArrayToString(data, 58, 10).trim();
-    int numPools = BinaryConverter.byteArrayToInt(data, 76);
-    pools_ = new SystemPool[10];
-    if (DEBUG) System.out.println("SubSystem.refresh(): Number of pools reported: " + numPools);
-
-    int poolID = 0;
-    for (int i=0; i<numPools; i++)
-    {
-      // Note: Offset to start of pool list is 80.  Each entry is 28 bytes long.
-      int offsetToEntry = 80 + 28*i;
-      poolID = BinaryConverter.byteArrayToInt(data, offsetToEntry);
-      if (DEBUG) {
-        System.out.println("Pool ID: " + poolID);
-        if (poolID < 1 || poolID > 10) System.out.println("ERROR: Unexpected poolID value: " + poolID);  // This should never happen.
-      }
-      String poolName = conv.byteArrayToString(data, offsetToEntry+4, 10).trim();
-      if (DEBUG) System.out.println("Subsystem.refresh(): Returned poolName is: " + poolName);
-      int size = BinaryConverter.byteArrayToInt(data, offsetToEntry+20);
-      int activityLevel = BinaryConverter.byteArrayToInt(data, offsetToEntry+24);
-      SystemPool pool = null;
-      if (poolName.equals("*USERPOOL")) {  // it's a private pool
-        pool = new SystemPool(this, poolID, size, activityLevel);
-      }
-      else {  // it's a shared pool
-        pool = new SystemPool(system_, poolName);
-      }
-      pool.setCaching(true);
-      pools_[poolID-1] = pool;
+    catch (PropertyVetoException pve) { // this will never happen
+      Trace.log(Trace.ERROR,pve);
     }
-    for (int i=poolID; i<10; i++) { pools_[i] = null; }  // fill remaining slots with nulls
-
-    refreshed_ = true;
   }
 
 
@@ -872,7 +871,7 @@ public class Subsystem
       throw new ExtendedIllegalArgumentException("sequenceNumber", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") POOLS(("+sequenceNumber+" *RMV))");
+    CommandCall cmd = new CommandCall(system_, "QSYS/CHGSBSD SBSD("+library_+"/"+name_+") POOLS(("+sequenceNumber+" *RMV))"); // not a threadsafe API
     if (DEBUG) System.out.println("Command string: " + cmd.getCommand());
     if (!cmd.run())
     {
@@ -898,7 +897,7 @@ public class Subsystem
   public void start()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
-    CommandCall cmd = new CommandCall(system_, "QSYS/STRSBS SBSD("+library_+"/"+name_+")");
+    CommandCall cmd = new CommandCall(system_, "QSYS/STRSBS SBSD("+library_+"/"+name_+")"); // not a threadsafe API
     if (!cmd.run())
     {
       AS400Message[] msgs = cmd.getMessageList();
@@ -934,7 +933,7 @@ public class Subsystem
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
   {
     String endOption = (immediate ? "*IMMED" : "*CNTRLD");
-    StringBuffer cmdBuf = new StringBuffer("QSYS/ENDSBS SBS("+subsystemName+") OPTION("+endOption+")");
+    StringBuffer cmdBuf = new StringBuffer("QSYS/ENDSBS SBS("+subsystemName+") OPTION("+endOption+")"); // not a threadsafe API
     if (!immediate) cmdBuf.append(" DELAY("+timeLimit+")");
     CommandCall cmd = new CommandCall(system, cmdBuf.toString());
     if (!cmd.run())
