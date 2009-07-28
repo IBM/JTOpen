@@ -19,7 +19,7 @@ import java.util.*;
 import java.beans.*;
 
 /**
-The ClusteredHashTable class provides access to an IBM i highly available Clustered Hash Table.
+Provides access to an IBM i highly available Clustered Hash Table.
 A Clustered Hash Table is represented as an IBM i server job.
 A Clustered Hash Table is a container for small to medium-sized non-persistent data that is
 replicated to the Clustered Hash Table domain. The Clustered Hash Table domain is comprised of
@@ -243,7 +243,7 @@ implements java.io.Serializable
         sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
         // Set the call to be thread safe
-        //sPGMCall.suggestThreadsafe();
+        sPGMCall.suggestThreadsafe();
 
         // Call the service program.  If true is returned the program was successfully called.  If
         // false is returned the program could not be started.  A list of messages is returned when
@@ -478,7 +478,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      //sPGMCall.suggestThreadsafe();
+      sPGMCall.suggestThreadsafe();
     }
     catch (PropertyVetoException pve)
     {
@@ -608,7 +608,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      //sPGMCall.suggestThreadsafe();
+      sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
@@ -717,7 +717,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      //sPGMCall.suggestThreadsafe();
+      sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
@@ -896,7 +896,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      //sPGMCall.suggestThreadsafe();
+      sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
@@ -1056,7 +1056,7 @@ implements java.io.Serializable
       sPGMCall.setReturnValueFormat(ServiceProgramCall.NO_RETURN_VALUE);
 
       // Set the call to be thread safe
-      //sPGMCall.suggestThreadsafe();
+      sPGMCall.suggestThreadsafe();
 
       // Call the service program.  If true is returned the program was successfully called.  If
       // false is returned the program could not be started.  A list of messages is returned when
