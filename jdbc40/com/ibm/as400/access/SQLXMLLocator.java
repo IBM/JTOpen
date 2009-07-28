@@ -259,7 +259,10 @@ final class SQLXMLLocator implements SQLLocator
                 String string = (String)savedObject_;
                 byte[] bytes;
                 if(JDUtilities.hasXMLDeclaration(string))                                 //@xmlutf8
+                {
+                    string = JDUtilities.handleXMLDeclarationEncoding(string); //if encoding is non utf-16 then remove to match Java Strings  //@xmlutf16
                     bytes = unicodeConverter_.stringToByteArray(string); //just get bytes
+                }
                 else                                                          //@xmlutf8
                     bytes = unicodeUtf8Converter_.stringToByteArray(string);  //@xmlutf8
                 locator_.writeData(0L, bytes, true); 

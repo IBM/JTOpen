@@ -793,5 +793,24 @@ Reads an input stream and returns its data as a String.
         else
             return false;
     }
+    
+    //@xmlutf16 remove encoding inside of XML declaration if not utf-16
+    static final String handleXMLDeclarationEncoding(String xml)
+    {
+        if(xml.substring(0, 7).indexOf("<?xml ") == 0)
+        {
+            int end = xml.indexOf("?>") ;
+            int encStart = xml.indexOf("encoding=");
+            if(end != -1 && encStart != -1)
+            {
+                int encEnd = xml.indexOf(" ",encStart);
+                if(encEnd == -1 || encEnd > end)
+                    encEnd = end; //end of declaration with no space after encoding
+
+                return xml.substring(0, encStart) + xml.substring(encEnd);
+            }
+        }
+        return xml;
+    }
 
 }
