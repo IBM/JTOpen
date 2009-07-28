@@ -22,7 +22,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateUtilImplRemote provides the implementation of the remote methods for accessing certificates from an AS400CertificateUtil object.
+   Provides the implementation of the remote methods for accessing certificates from an AS400CertificateUtil object.
 **/
 class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
 {
@@ -112,7 +112,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      //pgmCall.suggestThreadsafe();  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -242,7 +242,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      //pgmCall.suggestThreadsafe();  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)

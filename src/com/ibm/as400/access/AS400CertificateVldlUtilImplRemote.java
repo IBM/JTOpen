@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateVldlUtilImplRemote provides the implementation of the remote methods for accessing certificates in an IBM i validation list object.
+   Provides the implementation of the remote methods for accessing certificates in an IBM i validation list object.
 **/
 class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
 {
@@ -83,7 +83,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      //pgmCall.suggestThreadsafe();  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -174,7 +174,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      //pgmCall.suggestThreadsafe();  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -349,7 +349,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      //pgmCall.suggestThreadsafe();  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
@@ -454,7 +454,7 @@ class AS400CertificateVldlUtilImplRemote  extends AS400CertificateVldlUtilImpl
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      //pgmCall.suggestThreadsafe();  //@A1A
+      pgmCall.suggestThreadsafe();  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall.run() != true)
