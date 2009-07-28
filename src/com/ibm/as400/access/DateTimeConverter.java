@@ -25,7 +25,7 @@ import java.util.TimeZone; //@A1A
 
 
 /**
- The DateTimeConverter class represents a converted date and time.
+ A utility for converting date/time values.
  The system API QWCCVTDT is used to convert a date and time value
  from one format to another format.
 **/
@@ -137,7 +137,7 @@ public class DateTimeConverter
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
 
-    //program_.suggestThreadsafe();  //@A2A
+    program_.suggestThreadsafe();  //@A2A
 
     // Run the program
     if (!program_.run())

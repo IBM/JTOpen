@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- The EnvironmentVariable class represents an IBM i system-level environment variable.  An environment variable is uniquely identified by the system and the environment variable name.  Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
+ Represents an IBM i system-level environment variable.  An environment variable is uniquely identified by the system and the environment variable name.  Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
  <p>This class can only access system-level environment variables.  You must have *JOBCTL special authority to add, change, or delete system-level environment variables.
  <p>Every environment variable has a CCSID associated with it which describes the CCSID in which its contents are stored.  The default CCSID is that of the current job.
  <p>Note that environment variables are different than system values, although they are often used for the same purpose.  See <a href="SystemValue.html">SystemValue</a> for more information on how to access system values.
@@ -76,7 +76,7 @@ public class EnvironmentVariable implements Serializable
         try
         {
             spc.setProgram("/QSYS.LIB/QP0ZSYSE.SRVPGM");
-            //spc.suggestThreadsafe();
+            spc.suggestThreadsafe();
             spc.setReturnValueFormat(ServiceProgramCall.RETURN_INTEGER);
         }
         catch (PropertyVetoException e)
