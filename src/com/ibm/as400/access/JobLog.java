@@ -394,7 +394,7 @@ public class JobLog implements Serializable
             new ProgramParameter(handle_),
             ERROR_CODE
         };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);  // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -517,7 +517,7 @@ public class JobLog implements Serializable
             ERROR_CODE
         };
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);  // not a threadsafe API
 
         int recordsReturned = 0;
         do
@@ -734,7 +734,7 @@ public class JobLog implements Serializable
         };
 
         // Call the program. This API is not thread safe. 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLJBL.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLJBL.PGM", parameters);  // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -1371,11 +1371,10 @@ public class JobLog implements Serializable
 
         ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QMHSNDPM.PGM", parameters);
 
-        // The QMHSNDPM is threadsafe, but we only want to stay on-thread
-        // if the user wants to write to the current job log instead of the
-        // remote command server's job log.
-        //if (onThread) pc.suggestThreadsafe();
-        if (onThread) pc.setThreadSafe(true);
+        // The QMHSNDPM is threadsafe, but we want to stay on-thread
+        // if (and only if) the user wants to write to the current job's log,
+        // rather than to the remote command server's job log.
+        if (onThread) pc.setThreadSafe(true); // force on-thread
         if (!pc.run())
         {
             // If one message came back and it is the one we sent,
@@ -1384,7 +1383,7 @@ public class JobLog implements Serializable
             if (msgs.length == 1 && msgs[0].getID().equals(messageID) &&
                 msgs[0].getType() == messageType)
             {
-                if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Expected escape message ignored.");
+                if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "The expected escape message is ignored.");
                 return;
             }
             throw new AS400Exception(msgs);
