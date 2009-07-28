@@ -208,7 +208,7 @@ public class MessageQueue implements Serializable
     private int length_;
     // Length of the data in the message queue message list.
     private int dataLength_;
-    // Handle that references the user space used by the open list APIs.
+    // "Request handle" that can be used for subsequent requests for information via the open list APIs.
     private byte[] handle_;
     // If the list info has changed, close the old handle before loading the new one.
     private boolean closeHandle_ = false;
@@ -372,7 +372,7 @@ public class MessageQueue implements Serializable
             new ProgramParameter(handle_),
             ERROR_CODE
         };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters); // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -528,7 +528,7 @@ public class MessageQueue implements Serializable
             ERROR_CODE
         };
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters); // not a threadsafe API
 
         int recordsReturned = 0;
         do
@@ -893,7 +893,7 @@ public class MessageQueue implements Serializable
         };
 
         // Call the program.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLMSG.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLMSG.PGM", parameters); // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -1102,7 +1102,8 @@ public class MessageQueue implements Serializable
             // Error code, I/O, char(*).
             ERROR_CODE
         };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHRCVM.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHRCVM.PGM", parameters); // a threadsafe API
+        // Note: Even though this is a threadsafe API, some other API's called by this class aren't threadsafe. So to stay consistent, we won't indicate that it can be called on-thread.
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -1260,7 +1261,8 @@ public class MessageQueue implements Serializable
             ERROR_CODE
         };
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHRMVM.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHRMVM.PGM", parameters); // a threadsafe API
+        // Note: Even though this is a threadsafe API, some other API's called by this class aren't threadsafe. So to stay consistent, we won't indicate that it can be called on-thread.
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -1400,7 +1402,8 @@ public class MessageQueue implements Serializable
             ERROR_CODE
         };
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHSNDRM.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHSNDRM.PGM", parameters); // a threadsafe API
+        // Note: Even though this is a threadsafe API, some other API's called by this class aren't threadsafe. So to stay consistent, we won't indicate that it can be called on-thread.
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -1473,7 +1476,8 @@ public class MessageQueue implements Serializable
             // Error code, I/O, char(*).
             ERROR_CODE
         };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHSNDM.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHSNDM.PGM", parameters); // a threadsafe API
+        // Note: Even though this is a threadsafe API, some other API's called by this class aren't threadsafe. So to stay consistent, we won't indicate that it can be called on-thread.
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
