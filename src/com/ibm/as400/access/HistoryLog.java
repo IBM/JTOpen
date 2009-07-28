@@ -188,7 +188,7 @@ public class HistoryLog
             new ProgramParameter(handle_),
             ERROR_CODE
         };
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYCLST.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYCLST.PGM", parameters); // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -298,7 +298,7 @@ public class HistoryLog
             ERROR_CODE
         };
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters); // not a threadsafe API
 
         int recordsReturned = 0;
         do
@@ -498,7 +498,7 @@ public class HistoryLog
         };
 
         // Call the program.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHOLHST.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QMHOLHST.PGM", parameters); // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
