@@ -24,8 +24,6 @@ import java.io.Serializable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-//import com.ibm.as400.resource.RJob;
-
 /**
  Represents an IBM i command object.  This class allows the user to call any non-interactive CL command.  Results of the command are returned in a message list.
  <P>Note: CommandCall is not designed to return interactive (screen-oriented) results, such as from "WRK..." and "DSP..." commands.  The recommended approach in such cases is to identify an equivalent IBM i API or program, and use {@link ProgramCall ProgramCall} instead.
@@ -112,33 +110,24 @@ public class CommandCall implements Serializable
      **/
     public static final Boolean THREADSAFE_LOOKUP = null;
 
-    /**
-     Threadsafe indicator value returned from system, indicating that the command is not threadsafe and should not be used in a multithreaded job.
-     **/
-    static final int THREADSAFE_NO = 0;
-
-    /**
-     Threadsafe indicator value returned from system, indicating that the command is threadsafe and can be used safely in a multithreaded job.
-     **/
-    static final int THREADSAFE_YES = 1;
-
-    /**
-     Threadsafe indicator value returned from system, indicating that the command is threadsafe under certain conditions. See the documentation for the command to determine the conditions under which the command can be used safely in a multithreaded job.
-     **/
-    static final int THREADSAFE_CONDITIONAL = 2;
-
     // The system where the command is located.
     private AS400 system_ = null;
     // The command to run.
     private String command_ = "";
     // The messages returned by the command.
     private AS400Message[] messageList_ = new AS400Message[0];
+
     // The assumed thread safety of command.
-    private Boolean threadSafety_valueToUse_ = THREADSAFE_FALSE; // default: assume not threadsafe
+    private transient Boolean threadSafetyValue_ = THREADSAFE_FALSE; // default: assume not threadsafe
+
+    // The following field is needed in order to preserve cross-release serializability between JTOpen 6.4 and later releases.
+    // Thread safety of command.
+    private boolean threadSafety_ = false; // must be kept in sync with threadSafetyValue_
+
     // Indicates whether threadsafety is to be looked-up at run time.
-    private boolean threadSafetyIsLookedUp_ = false;
+    private transient boolean threadSafetyIsLookedUp_ = false;
     // How thread safety was specified by user.
-    private int threadSafety_howSpecified_ = UNSPECIFIED;
+    private int threadSafetyDetermined_ = UNSPECIFIED;
 
     // The number of messages to retrieve.
     private int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
@@ -285,25 +274,26 @@ public class CommandCall implements Serializable
         }
 
         // If needed, look up the threadsafety indicator on the system.
-        if (threadSafety_valueToUse_ == THREADSAFE_LOOKUP)
+        if (threadSafetyValue_ == THREADSAFE_LOOKUP)
         {
           if (command_ == null || command_.length() == 0) {
             // Until the command is set, assume it will be non-threadsafe.
-            threadSafety_valueToUse_ = THREADSAFE_FALSE;
+            threadSafetyValue_ = THREADSAFE_FALSE;
           }
           else if (!impl_.isNative()) {
             // If not running natively, don't bother to lookup the threadsafe indicator.
-            threadSafety_valueToUse_ = THREADSAFE_FALSE;
+            threadSafetyValue_ = THREADSAFE_FALSE;
           }
           else {
             int indicator = impl_.getThreadsafeIndicator(command_); // look it up
-            if (indicator == THREADSAFE_YES) {
-              threadSafety_valueToUse_ = THREADSAFE_TRUE;
+            if (indicator == RemoteCommandImpl.THREADSAFE_INDICATED_YES) {
+              threadSafetyValue_ = THREADSAFE_TRUE;
             }
             else {
-              threadSafety_valueToUse_ = THREADSAFE_FALSE; // treat *COND the same as *NO
+              threadSafetyValue_ = THREADSAFE_FALSE; // treat *COND the same as *NO
             }
           }
+          threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
         }
     }
 
@@ -406,7 +396,7 @@ public class CommandCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
         chooseImpl();
-        String jobInfo = impl_.getJobInfo(threadSafety_valueToUse_);
+        String jobInfo = impl_.getJobInfo(threadSafetyValue_);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job: " + jobInfo);
         // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
         return new Job(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
@@ -461,18 +451,22 @@ public class CommandCall implements Serializable
       else
       {
         if (property.equals("true")) {
-          threadSafety_valueToUse_ = THREADSAFE_TRUE;
+          threadSafetyValue_ = THREADSAFE_TRUE;
+          threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
         }
         else if (property.equals("false")) {
-          threadSafety_valueToUse_ = THREADSAFE_FALSE;
+          threadSafetyValue_ = THREADSAFE_FALSE;
+          threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
         }
         else if (property.equals("lookup")) {
-          threadSafety_valueToUse_ = THREADSAFE_LOOKUP;
+          threadSafetyValue_ = THREADSAFE_LOOKUP;
+          threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
           threadSafetyIsLookedUp_ = true;
         }
         else {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized value for CommandCall.threadSafe property: " + property + ". Defaulting to 'false'.");
         }
+        threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
       }
     }
 
@@ -518,7 +512,7 @@ public class CommandCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if command will actually get run on the current thread.");
         chooseImpl();
-        boolean isStayOnThread = (threadSafety_valueToUse_ == THREADSAFE_TRUE &&
+        boolean isStayOnThread = ((threadSafetyValue_ == THREADSAFE_TRUE) &&
                                   impl_.isNative());
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Will command actually get run on the current thread:", isStayOnThread);
         return isStayOnThread;
@@ -547,38 +541,54 @@ public class CommandCall implements Serializable
 
         chooseImpl();
 
-        return threadSafety_valueToUse_.booleanValue();
+        return threadSafetyValue_.booleanValue();
     }
 
 
     // Deserializes and initializes the transient data.
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "De-serializing CommandCall object.");
-        in.defaultReadObject();
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "De-serializing CommandCall object.");
+      in.defaultReadObject();
 
-        // impl_ remains null.
-        // actionCompletedListeners_ remains null.
-        // propertyChangeListeners_ remains null.
-        // vetoableChangeListeners_ remains null.
+      // impl_ remains null.
+      // actionCompletedListeners_ remains null.
+      // propertyChangeListeners_ remains null.
+      // vetoableChangeListeners_ remains null.
 
-        // (Re)initialize the thread-safe attribute.  Note:  The threadSafety attribute is persistent, not transient.  First see if object was previously serialized when its thread-safe behavior was determined by a system property (and not specified via setThreadSafe()).  This system property may have since changed.
-        if (threadSafety_howSpecified_ == SPECIFIED_BY_PROPERTY)
+      threadSafetyIsLookedUp_ = false; // to maintain cross-version serializability
+
+      // Prior to JTOpen 6.5, threadSafetyDetermined_ could have an additional value: BY_LOOK_UP = 3.  If we get that obsolete value, convert it to UNSPECIFIED.
+      if (threadSafetyDetermined_ == 3)  // old value that indicated "threadsafety is looked up"
+      {
+        threadSafetyDetermined_ = UNSPECIFIED;
+        // Note: Don't set threadSafetyIsLookedUp_ here; let applyThreadSafetyProperty() set it.  We will tolerate the potential loss of "lookup" behavior during serialization/deserialization.
+      }
+
+
+      // See how we determined this object's thread-safety before it was serialized.
+      if (threadSafetyDetermined_ == SPECIFIED_BY_SETTER)
+      {
+        threadSafetyValue_ = (threadSafety_ == true ? THREADSAFE_TRUE : THREADSAFE_FALSE);
+      }
+      else  // the thread-safety value was not explicitly specified by the application
+      {
+        // (Re)initialize the thread-safe attribute.  Note:  The threadSafety_ attribute is persistent, not transient.  First see if object was previously serialized when its thread-safe behavior was determined by a system property (and not specified via setThreadSafe()).  This system property may have since changed.
+        // Disregard any previous settings, since they were derived from properties.
+        threadSafetyValue_ = THREADSAFE_FALSE;
+        threadSafety_ = false;
+        threadSafetyIsLookedUp_ = false;
+        String property = getThreadSafetyProperty();
+        if (property == null) // The property is not set in the current environment.
         {
-            // Disregard any previous settings, since they were derived from properties.
-            threadSafety_valueToUse_ = THREADSAFE_FALSE;
-            threadSafetyIsLookedUp_ = false;
-            String property = getThreadSafetyProperty();
-            if (property == null) // The property is not set in the current environment.
-            {
-                threadSafety_howSpecified_ = UNSPECIFIED;
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, so thread safety property changed to unspecified.");
-            }
-            else  // The property is set in the current environment, so use it.
-            {
-              applyThreadSafetyProperty();
-            }
+          threadSafetyDetermined_ = UNSPECIFIED;
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, so thread safety property changed to unspecified.");
         }
+        else  // The property is set in the current environment, so use it.
+        {
+          applyThreadSafetyProperty();
+        }
+      }
     }
 
     /**
@@ -653,7 +663,7 @@ public class CommandCall implements Serializable
         chooseImpl();
 
         // Run the command.
-        boolean result = impl_.runCommand(command_, threadSafety_valueToUse_, messageOption_);
+        boolean result = impl_.runCommand(command_, threadSafetyValue_, messageOption_);
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
         // Set our system into each of the messages.
@@ -713,7 +723,7 @@ public class CommandCall implements Serializable
         chooseImpl();
 
         // Run the command.
-        boolean success = impl_.runCommand(command, threadSafety_valueToUse_, messageOption_);
+        boolean success = impl_.runCommand(command, threadSafetyValue_, messageOption_);
 
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
@@ -748,11 +758,12 @@ public class CommandCall implements Serializable
             Trace.log(Trace.WARNING, "Parameter 'command' is has length of 0.");
         }
 
+        // See if we need to force another lookup of command's threadsafety.
         boolean forceLookup = false;
-        if (threadSafetyIsLookedUp_ && threadSafety_valueToUse_ != THREADSAFE_LOOKUP)
+        if (threadSafetyIsLookedUp_ && (threadSafetyValue_ != THREADSAFE_LOOKUP))
         {
           // If the command name is different from before, force another lookup of threadsafety.
-          // We can disregard the command arguments when doing the compare.
+          // We can disregard the command argument string when doing the compare.
           if (!firstToken(command).equalsIgnoreCase(firstToken(command_)))
           {
             forceLookup = true;
@@ -773,7 +784,8 @@ public class CommandCall implements Serializable
         }
 
         if (forceLookup) {
-          threadSafety_valueToUse_ = THREADSAFE_LOOKUP;
+          threadSafetyValue_ = THREADSAFE_LOOKUP;
+          threadSafety_ = false;
         }
     }
 
@@ -860,12 +872,13 @@ public class CommandCall implements Serializable
         Boolean newValue = (threadSafe ? THREADSAFE_TRUE : THREADSAFE_FALSE);
         if (propertyChangeListeners_ != null)
         {
-            Boolean oldValue = threadSafety_valueToUse_;
+            Boolean oldValue = threadSafetyValue_;
             propertyChangeListeners_.firePropertyChange ("threadSafe", oldValue, newValue);
         }
 
-        threadSafety_valueToUse_ = newValue;
-        threadSafety_howSpecified_ = SPECIFIED_BY_SETTER;
+        threadSafetyValue_ = newValue;
+        threadSafety_ = threadSafe;
+        threadSafetyDetermined_ = SPECIFIED_BY_SETTER;
         threadSafetyIsLookedUp_ = false;
     }
 
@@ -908,12 +921,13 @@ public class CommandCall implements Serializable
 
         if (propertyChangeListeners_ != null)
         {
-            Boolean oldValue = threadSafety_valueToUse_;
+            Boolean oldValue = threadSafetyValue_;
             propertyChangeListeners_.firePropertyChange ("threadSafe", oldValue, newValue);
         }
 
-        threadSafety_valueToUse_ = newValue;
-        threadSafety_howSpecified_ = SPECIFIED_BY_SETTER;
+        threadSafetyValue_ = newValue;
+        threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
+        threadSafetyDetermined_ = SPECIFIED_BY_SETTER;
     }
 
     /**

@@ -146,10 +146,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     }
 
     // Return the value of the command's Threadsafe Indicator attribute, as designated on the system.
-    // @return The value of the command's Threadsafe Indicator attribute.
+    // @return Either THREADSAFE_INDICATED_YES, THREADSAFE_INDICATED_NO, or THREADSAFE_INDICATED_CONDITIONAL.
     public int getThreadsafeIndicator(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving command Threadsafe indicator.");
+        int threadsafeIndicator;
         openOnThread();  // The QCDRCMDI API is itself threadsafe.
 
         // Isolate out the command name from the argument(s), as the first token.
@@ -210,7 +211,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         try
         {
-          // Retrieve command information.  Failure is returned as a message list.
+          // Retrieve command information.  Failure is indicated as a message list.
           boolean succeeded = runProgramOnThread("QSYS", "QCDRCMDI", parameterList, MESSAGE_OPTION_DEFAULT, true);
           if (!succeeded)
           {
@@ -236,13 +237,13 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
               if (id.equals("CPF9801") && cmdName.equals(converter_.byteArrayToString(substitutionBytes, 0, 10).trim()) && libName.equals(converter_.byteArrayToString(substitutionBytes, 10, 10).trim()) && "CMD".equals(converter_.byteArrayToString(substitutionBytes, 20, 7).trim()))
               {
                 Trace.log(Trace.WARNING, "Command not found.");
-                return 0;  // If cmd doesn't exist, say it's not threadsafe.
+                return THREADSAFE_INDICATED_NO;  // If cmd doesn't exist, say it's not threadsafe.
               }
               // CPF9810 - Library &1 not found.
               if (id.equals("CPF9810") && libName.equals(converter_.byteArrayToString(substitutionBytes).trim()))
               {
                 Trace.log(Trace.WARNING, "Command library not found.");
-                return 0;  // If cmd doesn't exist, say it's not threadsafe.
+                return THREADSAFE_INDICATED_NO;  // If cmd doesn't exist, say it's not threadsafe.
               }
               else throw new AS400Exception(messageList_);
             }
@@ -254,7 +255,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
-        // Get the data returned from the program.
+        // Get the output data from the program.
         byte[] dataReceived = parameterList[0].getOutputData();
         if (Trace.traceOn_)
         {
@@ -283,11 +284,25 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         // 0   The command is not threadsafe and should not be used in a multithreaded job.
         // 1   The command is threadsafe and can be used safely in a multithreaded job.
         // 2   The command is threadsafe under certain conditions.  See the documentation for the command to determine the conditions under which the command can be used safely in a multithreaded job.
-        // If the threadsafe indicator is either threadsafe or conditionally threadsafe, the multithreaded job action value will be returned as 1.
-        int threadsafeIndicator = dataReceived[333] & 0x0F;
-        if (Trace.traceOn_)
+
+        int fieldValue = dataReceived[333] & 0x0F;  // the "threadsafe indicator" field
+        switch (fieldValue)
         {
-          Trace.log(Trace.DIAGNOSTIC, "Threadsafe indicator: " + threadsafeIndicator);
+            case 0:
+              threadsafeIndicator = THREADSAFE_INDICATED_NO;
+              break;
+            case 1:
+              threadsafeIndicator = THREADSAFE_INDICATED_YES;
+              break;
+            case 2:
+              threadsafeIndicator = THREADSAFE_INDICATED_CONDITIONAL;
+              break;
+            default:
+              threadsafeIndicator = THREADSAFE_INDICATED_NO;
+              if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized threadsafe indicator value reported by QCDRCMDI:", fieldValue);
+        }
+        if (Trace.traceOn_) {
+          Trace.log(Trace.DIAGNOSTIC, "Threadsafe indicator:", threadsafeIndicator);
         }
         return threadsafeIndicator;
     }

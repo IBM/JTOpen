@@ -23,8 +23,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Vector;
 
-//import com.ibm.as400.resource.RJob;
-
 /**
  The ProgramCall class allows a user to call an IBM i system program, pass parameters to it (input and output), and access data returned in the output parameters after the program runs.  Use ProgramCall to call programs.  To call service programs, use ServiceProgramCall.
  <P>The following example demonstrates the use of Program Call:
@@ -111,10 +109,13 @@ public class ProgramCall implements Serializable
 
     static final long serialVersionUID = 4L;
 
-    // Constants that indicate how thread safety was determined.
-    private static final int BY_DEFAULT = 0;
-    private static final int BY_PROPERTY = 1;
-    private static final int BY_SET_METHOD = 2;
+    // Constants that indicate how thread safety is specified/determined.
+    private static final int UNSPECIFIED = 0;
+                     // property not specified; setThreadSafe() not called
+    private static final int SPECIFIED_BY_PROPERTY = 1;
+                     // property was set
+    private static final int SPECIFIED_BY_SETTER = 2;
+                     // setThreadSafe() was called
 
     static final Boolean THREADSAFE_TRUE = CommandCall.THREADSAFE_TRUE;
     static final Boolean THREADSAFE_FALSE = CommandCall.THREADSAFE_FALSE;
@@ -133,10 +134,17 @@ public class ProgramCall implements Serializable
     ProgramParameter[] parameterList_ = new ProgramParameter[0];
     // The messages returned by the program.
     AS400Message[] messageList_ = new AS400Message[0];
+
     // Thread safety of program.
-    Boolean threadSafety_ = THREADSAFE_FALSE;  // never null
+    transient Boolean threadSafetyValue_ = THREADSAFE_FALSE;  // never null; there is no "lookup" for API's
+
+    // The following field is needed in order to preserve cross-release serializability between JTOpen 6.4 and later releases.
+    // Thread safety of program.
+    boolean threadSafety_ = false; // must be kept in sync with threadSafetyValue_
+
     // How thread safety was determined.
-    private int threadSafetyDetermined_ = BY_DEFAULT;
+    private int threadSafetyDetermined_ = UNSPECIFIED;
+
     // The number of messages to retrieve.
     int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
 
@@ -336,7 +344,7 @@ public class ProgramCall implements Serializable
 //    {
 //        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
 //        chooseImpl();
-//        String jobInfo = impl_.getJobInfo(threadSafety_);
+//        String jobInfo = impl_.getJobInfo(threadSafetyValue_);
 //        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
 //        // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
 //        return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
@@ -404,7 +412,7 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job.");
         chooseImpl();
-        String jobInfo = impl_.getJobInfo(threadSafety_);
+        String jobInfo = impl_.getJobInfo(threadSafetyValue_);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing Job for job: " + jobInfo);
         // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
         return new Job(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
@@ -460,8 +468,9 @@ public class ProgramCall implements Serializable
         }
         else
         {
-          threadSafety_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
-          threadSafetyDetermined_ = BY_PROPERTY;
+          threadSafetyValue_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
+          threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
+          threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " +  property);
         }
     }
@@ -479,7 +488,8 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will actually get run on the current thread.");
         chooseImpl();
-        boolean isStayOnThread = (threadSafety_ == THREADSAFE_TRUE && impl_.isNative());
+        boolean isStayOnThread = ((threadSafetyValue_ == THREADSAFE_TRUE) &&
+                                  impl_.isNative());
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Will program actually get run on the current thread:", isStayOnThread);
         return isStayOnThread;
     }
@@ -493,7 +503,7 @@ public class ProgramCall implements Serializable
     public boolean isThreadSafe()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if program will be assumed thread-safe.");
-        return threadSafety_.booleanValue();
+        return threadSafetyValue_.booleanValue();
     }
 
     // Deserializes and initializes the transient data.
@@ -507,22 +517,28 @@ public class ProgramCall implements Serializable
         // propertyChangeListeners_ remains null.
         // vetoableChangeListeners_ remains null.
 
-        // See if this object was serialized when its thread-safe behavior was determined by a system property (and not explicitly specified by setThreadSafe()).  This property may have since changed, so we want to reflect the current property.
-        if (threadSafetyDetermined_ != BY_SET_METHOD)
+        // See how we determined this object's thread-safety before it was serialized.
+        if (threadSafetyDetermined_ == SPECIFIED_BY_SETTER)
         {
+          threadSafetyValue_ = (threadSafety_ == true ? THREADSAFE_TRUE : THREADSAFE_FALSE);
+        }
+        else  // Not specified by 'set' method.
+        {
+          // This object was serialized when its thread-safe behavior was determined by a system property (that is, not explicitly specified by setThreadSafe()).  This property may have since changed, and we must honor the current local property value.
             String property = getThreadSafetyProperty();
             if (property == null)  // Property is not set.
             {
-                threadSafety_ = THREADSAFE_FALSE;
-                threadSafetyDetermined_ = BY_DEFAULT;
+                threadSafetyValue_ = THREADSAFE_FALSE;
+                threadSafetyDetermined_ = UNSPECIFIED;
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, thread safety property changed to unspecified.");
             }
-            else
+            else  // Property is set.
             {
-                threadSafety_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
-                threadSafetyDetermined_ = BY_PROPERTY;
+                threadSafetyValue_ = (property.equals("true") ? THREADSAFE_TRUE : THREADSAFE_FALSE);
+                threadSafetyDetermined_ = SPECIFIED_BY_PROPERTY;
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property: " + property);
             }
+            threadSafety_ = (threadSafetyValue_ == THREADSAFE_TRUE);
         }
     }
 
@@ -609,7 +625,7 @@ public class ProgramCall implements Serializable
         // Run the program.
         try
         {
-            boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafety_, messageOption_);
+            boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafetyValue_, messageOption_);
             // Retrieve the messages.
             messageList_ = impl_.getMessageList();
             // Set our system object into each of the messages.
@@ -805,12 +821,13 @@ public class ProgramCall implements Serializable
 
         if (propertyChangeListeners_ != null)
         {
-          Boolean oldValue = threadSafety_;
+          Boolean oldValue = threadSafetyValue_;
           propertyChangeListeners_.firePropertyChange ("threadSafe", oldValue, newValue);
         }
 
-        threadSafety_ = newValue;
-        threadSafetyDetermined_ = BY_SET_METHOD;
+        threadSafetyValue_ = newValue;
+        threadSafety_ = threadSafe;
+        threadSafetyDetermined_ = SPECIFIED_BY_SETTER;
     }
 
     /**

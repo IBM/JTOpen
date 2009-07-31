@@ -254,7 +254,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       {
         // Look up the command's indicated threadsafety on the system.
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
-        runOnThread = (getThreadsafeIndicator(command) == CommandCall.THREADSAFE_YES);
+        runOnThread = (getThreadsafeIndicator(command) == THREADSAFE_INDICATED_YES);
       }
 
       if (runOnThread) {
@@ -697,7 +697,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       else if (property.equals("lookup")) {
         // Look it up on the system.
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
-        runOnThread = (getThreadsafeIndicator(command) == CommandCall.THREADSAFE_YES);
+        runOnThread = (getThreadsafeIndicator(command) == THREADSAFE_INDICATED_YES);
       }
       else {
         runOnThread = false;

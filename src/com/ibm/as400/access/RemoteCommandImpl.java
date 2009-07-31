@@ -24,6 +24,11 @@ interface RemoteCommandImpl
 
     static final int MESSAGE_OPTION_DEFAULT = AS400Message.MESSAGE_OPTION_UP_TO_10;
 
+    // Values returned by getThreadsafeIndicator.
+    static final int THREADSAFE_INDICATED_NO = 0;
+    static final int THREADSAFE_INDICATED_YES = 1;
+    static final int THREADSAFE_INDICATED_CONDITIONAL = 2;
+
     // Get job name, user, job number for the correct job.
     public String getJobInfo(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException;
     // Report whether the command is designated as threadsafe on the system.
