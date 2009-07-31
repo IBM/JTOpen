@@ -29,8 +29,14 @@ import java.util.*;
  * attributes can be retrieved by calling {@link #getValue getValue()} and
  * passing one of the integer attribute constants defined in this class.
  * <P>
+ * Performance hint:
+ * If you anticipate retrieving multiple attributes for a given QSYS object,
+ * first call {@link #refresh refresh()}, which will make a single API call
+ * to retrieve (and cache) all of the object's attribute values.
+ * <P>
  * Implementation note:
- * This class internally uses the Retrieve Object Description (QUSROBJD) API.
+ * This class internally uses the Retrieve Object Description (QUSROBJD) and
+ * List Object Locks (QWCLOBJL) APIs.
  *
  * @see ObjectList
 **/
@@ -1104,7 +1110,7 @@ public class ObjectDescription
   {
     try
     {
-      refresh();
+      getValue(DOMAIN); // retrieve arbitrary attribute in smallest format
     }
     catch(AS400Exception e)
     {
@@ -1277,8 +1283,11 @@ public class ObjectDescription
 
   /**
    * Returns the value of the given attribute of this ObjectDescription. If the value is not found,
-   * it is retrieved from the system. The values are cached. Call
-   * {@link #refresh refresh()} to retrieve all of the known attributes of this object from the system.
+   * it is retrieved from the system. The values are cached.
+   * <P>
+   * Performance hint: If multiple attribute values are to be retrieved for a
+   * single ObjectDescription, first call {@link #refresh refresh()} to retrieve
+   * (and cache) all of the known attributes of this object from the system.
    * @param attribute One of the attribute constants.
    * @return The value for the attribute, or null if one was not found.
    * @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
@@ -1403,8 +1412,11 @@ public class ObjectDescription
 
   /**
    * Returns the value of the given attribute of this ObjectDescription, as a String. If the value is not found,
-   * it is retrieved from the system. The values are cached. Call
-   * {@link #refresh refresh()} to retrieve all of the known attributes of this object from the system.
+   * it is retrieved from the system. The values are cached.
+   * <P>
+   * Performance hint: If multiple attribute values are to be retrieved for a
+   * single ObjectDescription, first call {@link #refresh refresh()} to retrieve
+   * (and cache) all of the known attributes of this object from the system.
    * @param attribute One of the attribute constants.
    * @return The value for the attribute, or null if one was not found.
    * @exception ObjectDoesNotExistException If the system API that retrieves object information is missing.
@@ -1654,7 +1666,7 @@ public class ObjectDescription
       case DOMAIN:
       case CREATION_DATE:
       case CHANGE_DATE:
-
+        return 100;
       case EXTENDED_ATTRIBUTE:
       case TEXT_DESCRIPTION:
       case SOURCE_FILE:
