@@ -344,6 +344,11 @@ Writes part of the contents of the lob.
     return graphic_;
   }
   
+  //@xmlgraphic
+  void setGraphic(boolean isGraphic)
+  {
+    graphic_ = isGraphic;
+  }  
 
   //@pda 550
   /**
