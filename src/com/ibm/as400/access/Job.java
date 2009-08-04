@@ -3484,7 +3484,7 @@ public class Job implements Serializable
         Boolean threadMode;
         if (callOnThread) threadMode = ON_THREAD;
         else threadMode = OFF_THREAD;
-        program = getProgramCall("/QSYS.LIB/QWTCHGJB.PGM", parmList, threadMode);
+        program = getProgramCall("/QSYS.LIB/QWTCHGJB.PGM", parmList, threadMode); // conditionally threadsafe
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting job information for job: " + toString());
         if (!program.run())
@@ -3515,7 +3515,7 @@ public class Job implements Serializable
             throw new ExtendedIllegalArgumentException("delay (" + delay + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         StringBuffer buf = new StringBuffer();
-        buf.append("QSYS/ENDJOB JOB(");
+        buf.append("QSYS/ENDJOB JOB(");  // conditionally threadsafe
         buf.append(number_);
         buf.append('/');
         buf.append(user_);
@@ -3755,6 +3755,7 @@ public class Job implements Serializable
         parms[5] = new ProgramParameter(new byte[4]);
 
         ProgramCall pc = getProgramCall("/QSYS.LIB/QWVRCSTK.PGM", parms); // threadsafe
+        // Note: Even though this API is threadsafe, we won't suggest that it be called on-thread, since all other API's and CL's called by this class are either conditionally threadsafe or non-threadsafe, and we should stay consistent.
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
@@ -5245,7 +5246,7 @@ public class Job implements Serializable
     public void hold(boolean holdSpooledFiles) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("QSYS/HLDJOB JOB(");
+        buf.append("QSYS/HLDJOB JOB(");  // not threadsafe
         buf.append(number_);
         buf.append('/');
         buf.append(user_);
@@ -5799,7 +5800,7 @@ public class Job implements Serializable
     public void release() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("QSYS/RLSJOB JOB(");
+        buf.append("QSYS/RLSJOB JOB(");  // not threadsafe
         buf.append(number_);
         buf.append('/');
         buf.append(user_);
