@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 
@@ -119,6 +120,14 @@ Constructor.
             buffer.append(";user=" + user);                                     //@native
         if(pass!=null)                                                          //@native
             buffer.append(";password=" + pass);                                 //@native
+        
+        Enumeration en = properties_.keys(); //@natprops
+        while(en.hasMoreElements())          //@natprops
+        {                                    //@natprops
+            String key= (String)en.nextElement(); //@natprops
+            buffer.append(";" + key + "=" + (String)properties_.getProperty(key));              //@natprops
+        }                                    //@natprops
+        
             		
         
         return buffer.toString();
