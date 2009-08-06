@@ -62,7 +62,7 @@ final class SQLXMLLocator implements SQLLocator
         maxLength = AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH; //@xml3 //for xml, length is unknown. use max for single byte lobs since xml is returned via bloblocator
         id_             = id;
         if(xmlType == 1)
-            locator_        = new JDLobLocator(connection, id, maxLength, true);   //DB
+            locator_        = new JDLobLocator(connection, id, maxLength, false);   //DB //@xmlgraphic (xml is always sent with bytecount)
         else
             locator_        = new JDLobLocator(connection, id, maxLength, false);  //SB
         maxLength_      = maxLength; 
@@ -255,20 +255,14 @@ final class SQLXMLLocator implements SQLLocator
         {
                 String string = (String)savedObject_;
                 byte[] bytes;
-                boolean isDoubleByte = locator_.isGraphic();  //@xmlgraphic
                 if(JDUtilities.hasXMLDeclaration(string))                                 //@xmlutf8
                 {
-                    locator_.setGraphic(false);  //@xmlgraphic
                     string = JDUtilities.handleXMLDeclarationEncoding(string); //if encoding is non utf-16 then remove to match Java Strings  //@xmlutf16
                     bytes = unicodeConverter_.stringToByteArray(string); //just get bytes
                 }
                 else                                                          //@xmlutf8
-                {
-                    locator_.setGraphic(false);  //@xmlgraphic
                     bytes = unicodeUtf8Converter_.stringToByteArray(string);  //@xmlutf8
-                }
                 locator_.writeData(0L, bytes, true); 
-                locator_.setGraphic(isDoubleByte);  //@xmlgraphic
         }
         else if(savedObject_ instanceof Reader)
         {
@@ -411,18 +405,10 @@ final class SQLXMLLocator implements SQLLocator
                 Clob clob = (Clob)savedObject_;
                 int length = (int)clob.length();
                 String substring = clob.getSubString(1, length);
-                boolean isDoubleByte = locator_.isGraphic();  //@xmlgraphic
                 if(JDUtilities.hasXMLDeclaration(substring))                                 //@xmlutf8
-                {
-                    locator_.setGraphic(false);  //@xmlgraphic
                     locator_.writeData(0L, unicodeConverter_.stringToByteArray(substring), 0, length, true); 
-                }
                 else
-                {
-                    locator_.setGraphic(false);  //@xmlgraphic
                     locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(substring), 0, length, true);  //@xmlutf8
-                }
-                locator_.setGraphic(isDoubleByte); //@xmlgraphic
                 set = true;
             }
             else
