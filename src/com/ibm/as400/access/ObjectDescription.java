@@ -1110,7 +1110,8 @@ public class ObjectDescription
   {
     try
     {
-      getValue(DOMAIN); // retrieve arbitrary attribute in smallest format
+      // Retrieve an arbitrary attribute that's a field in the 0100 (smallest) format.
+      retrieve(DOMAIN);
     }
     catch(AS400Exception e)
     {
@@ -1306,9 +1307,9 @@ public class ObjectDescription
     Object o = values_.get(attribute);
     if (o == null)
     {
-      // Can only retrieve this via ObjectList
       if (attribute == ORDER_IN_LIBRARY_LIST)
       {
+        // Can only retrieve this via ObjectList
         return new Integer(-1);
       }
       
@@ -1429,9 +1430,9 @@ public class ObjectDescription
       Object o = values_.get(attribute);
       if (o == null)
       {
-        // Can only retrieve this via ObjectList
         if (attribute == ORDER_IN_LIBRARY_LIST)
         {
+          // Can only retrieve this via ObjectList
           return "-1";
         }
 
