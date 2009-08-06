@@ -313,16 +313,21 @@ implements JDRow
                     int offset = 0;                                                 //@array
                     int numOfFields = serverFormat_.getNumberOfFields();            //@array
                     int[] dataLengths = ((DBVariableData)serverData_).getDataLengthsFromHost(); //@array
+                    int outCount = 0;  //@arrayout
                     for(int j=0; j<numOfFields; j++)                                 //@array
                     {                                                               //@array
-                        String typeName = sqlData_[j].getTypeName();                //@array
-                        int length = 0;                                             //@array
-                        dataOffset_[j] = offset;                                    //@array
-                        length = dataLengths[j];                                    //@array  
-                        
-                        offset += length;                                           //@array
-                        dataLength_[j] = length;                                    //@array //set full array length here if array
-                    }                                                               //@array        
+                        if(isOutput(j+1))                                                 //@arrayout
+                        {                                                               //@array
+                            String typeName = sqlData_[j].getTypeName();                //@array
+                            int length = 0;                                             //@array
+                            dataOffset_[j] = offset;                                    //@array
+                            length = dataLengths[outCount];                                    //@arrayout  
+
+                            offset += length;                                           //@array
+                            dataLength_[j] = length;                                    //@array //set full array length here if array
+                            outCount++;                                                 //@arrayout
+                        }                                                               //@array     
+                    }
                 }                                                                   //@array
                 else if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
                 {                                                              //@K54
@@ -545,7 +550,8 @@ implements JDRow
                     //set array length so convertFromRawBytes knows how many to convert
                     if(sqlData_[index0].getType() == java.sql.Types.ARRAY)                                          //@array
                     {                                                                                               //@array
-                        int arrayCount = ((DBVariableData)serverData_).getIndicatorCountsFromHost()[index0] ;
+                        int outputIndex0 = getVariableOutputIndex(index0);                           //@arrayout (arrays in DBVariableData only contain output parms here, so need to skip any input parms in other JDServer arrays)
+                        int arrayCount = ((DBVariableData)serverData_).getIndicatorCountsFromHost()[outputIndex0] ; //@arrayout
                         ((SQLArray)sqlData_[index0]).setArrayCount( arrayCount );        //@array indicatorCountsFromHost will be array count if array type
                         //SQLArray.convertFromRawBytes will create array elements and iterate calling convertFromRayBytes and it knows array length from above call
                         sqlData_[index0].convertFromRawBytes (rawBytes_,
@@ -555,7 +561,7 @@ implements JDRow
                         //For an array elements, a null value is just a null array element.
                         for(int i = 0; i < arrayCount; i++)                                                       //@array
                         {                                                                                         //@array
-                            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, index0, i) == -1))   //@array
+                            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex0, i) == -1))   //@array //@arrayout
                                 ((SQLArray)sqlData_[i]).setElementNull(i);                                        //@array
                         }                                                                                         //@array
                     }                                                                                             //@array
@@ -579,7 +585,22 @@ implements JDRow
         }
     }
 
-
+    //@arrayout 
+    /**
+    Calculates the index by skipping any non output parms (inout parms are output)
+    
+    @param  index   The field index (0-based).
+    @return         new index into an output-only parm list (-1 if non are output parms)
+    
+    @exception  SQLException    If an error occurs.
+    **/
+    int getVariableOutputIndex(int index) throws SQLException
+    {
+        int newIndex = 0;
+        if(isOutput(index+1))
+            newIndex++;
+        return newIndex-1;
+    }
 
     public SQLData getSQLType (int index)
     throws SQLException
@@ -600,7 +621,11 @@ implements JDRow
     {
         try
         {
-            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, index - 1) == -2))
+            int outputIndex = index;                                  //@arrayout 
+            if(serverData_ instanceof DBVariableData)                 //@arrayout 
+                outputIndex = getVariableOutputIndex(index-1) + 1;    //@arrayout (arrays in DBVariableData only contain output parms here, so need to skip any input parms in other JDServer arrays)
+            
+            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex - 1) == -2))  //@arrayout 
                 return true;
             else
                 return false;
@@ -625,7 +650,11 @@ implements JDRow
     {
         try
         {
-            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, index - 1) == -1))
+            int outputIndex = index;                                  //@arrayout 
+            if(serverData_ instanceof DBVariableData)                 //@arrayout 
+                outputIndex = getVariableOutputIndex(index-1) + 1;    //@arrayout (arrays in DBVariableData only contain output parms here, so need to skip any input parms in other JDServer arrays)
+            
+            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex - 1) == -1)) //@arrayout
                 return true;
             else
                 return false;

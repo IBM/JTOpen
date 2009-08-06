@@ -75,9 +75,32 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
         Object[][] data = new Object[2][];
         // initialize "INDEX" column
-        data[0] = new Integer[contents.length];
-        for (int i = 0; i < contents.length; i++)
-            data[0][i] = new Integer (i + 1);
+        if(isSQLData)
+        {
+            data[0] = new SQLInteger[contents.length]; //since array data will be sqlX, then make the index sqlInteger also
+            for (int i = 0; i < contents.length; i++)
+            {
+                try{
+                    data[0][i] = SQLDataFactory.newData(con, 0, 496, 4, 4,0, 0, false, null, 0, 1, 0, 0, 0, 0);
+                    ((SQLInteger)data[0][i]).set(i + 1);
+                }catch(Exception e){
+                    //should neve happen
+                    System.out.println(e);
+                }
+            }
+        }else
+        {
+            data[0] = new Integer[contents.length]; 
+            for (int i = 0; i < contents.length; i++)
+            {
+                try{
+                    data[0][i] = new Integer(i + 1);
+                }catch(Exception e){
+                    //should neve happen
+                    System.out.println(e);
+                }
+            }
+        }
         // initialize "VALUE" column
         data[1] = contents;
         contentTemplate_ = contentTemplate;
