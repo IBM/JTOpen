@@ -84,9 +84,9 @@ implements DBData
     //now always variable private int     rowSize_            = -1;
 
     //for input parms, offset_, add +4 to get to count of parms.  
-    //for output parms, here, we addjust +20 to get to begining of array data (count of parms)
+    //for output parms, here, we addjust +4 to get to begining of array data (count of parms)
     final private  int actual382fInArrayStart_ = 4;
-    final private  int actual3901OutArrayStart_ = 20;  
+    final private  int actual3901OutArrayStart_ = 4; //@arraylen
     private int     headerOffsetFromHost_     = -1;  //same as offset_, but a user-friendly name
     private int     indicatorOffsetFromHost_    = -1;
     private int     dataOffsetFromHost_         = -1;
@@ -155,7 +155,7 @@ implements DBData
             //on reply stream, we only need one array rawBytes_[] since host already assembled it.
             //ouput 3901: useful data starts at offset 20, not 4 like input.
             columnCount_       = BinaryConverter.byteArrayToShort(rawBytes, offset_ + actual3901OutArrayStart_);  //count of 9911s or 9912s
-            rowCount_    = 1;  //always 1 column
+            rowCount_    = 1;  //always 1 row
             indicatorSize_  = 2;  //always 2 bytes
             
             indicatorOffsetsFromHost_ = new int[columnCount_]; //one per column
@@ -165,14 +165,14 @@ implements DBData
             
             //iterate through columns to get total length of data and indicators
             //colDescs used to iterate through each of the 9911/9912 col descriptions.
-            int colDescs = offset_ + actual3901OutArrayStart_ + 2; //start of first col description: offset + 20 + 2 (length field # of 9911 and 9912 descriptors)
+            int colDescs = offset_ + actual3901OutArrayStart_ + 2; //start of first col description: offset + 4 + 2 (# of 9911 and 9912 descriptors)
             int dataLenAll = 0;
             int indicatorLenAll = 0;
             
             for(int i = 0; i < columnCount_; i++){
-                int descType = BinaryConverter.byteArrayToInt (rawBytes, colDescs); //9911=array or 9912=non-array
-                
-                if(descType == 0X9911){
+                short descType = BinaryConverter.byteArrayToShort(rawBytes, colDescs); //9911=array or 9912=non-array
+    
+                if(descType == (short)0x9911){
                     //array
                     boolean isNull = BinaryConverter.byteArrayToInt (rawBytes, colDescs + 4) == 0Xffff ? true : false;
                    
@@ -193,7 +193,7 @@ implements DBData
                         dataLengthsFromHost_[i] = arrayLen * dataLen;
                         colDescs += 12; //0x9911=2, datatype=2, datalen=4, arraylen=4 -> 12  //@array2
                     }
-                }else if(descType == 0X9912){
+                }else if(descType == 0x9912){
                     //non-array
 
                     int dataLen = BinaryConverter.byteArrayToInt (rawBytes, colDescs + 4);
