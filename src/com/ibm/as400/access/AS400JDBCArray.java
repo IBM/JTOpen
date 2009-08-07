@@ -82,9 +82,9 @@ public class AS400JDBCArray implements Array
         {
             //in this case, we will create our own temporary SQLData object used for potential conversion in AS400JDBCArrayResultSet
             isSQLData_ = false; 
-            con_ = con;
         }
         
+        con_ = con; //@arrayrs
        
         if(data_.length > 0 && isSQLData_)
             contentTemplate_ = (SQLData)data_[0];

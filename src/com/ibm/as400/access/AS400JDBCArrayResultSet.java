@@ -77,15 +77,16 @@ public class AS400JDBCArrayResultSet implements ResultSet
         // initialize "INDEX" column
         if(isSQLData)
         {
-            data[0] = new SQLInteger[contents.length]; //since array data will be sqlX, then make the index sqlInteger also
+            data[0] = new SQLInteger[contents.length]; //@arrayrs //since array data will be sqlX, then make the index sqlInteger also
             for (int i = 0; i < contents.length; i++)
             {
                 try{
-                    data[0][i] = SQLDataFactory.newData(con, 0, 496, 4, 4,0, 0, false, null, 0, 1, 0, 0, 0, 0);
+                    SQLInteger si = (SQLInteger)SQLDataFactory.newData("INTEGER", Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 37, null, vrm_, null);
+                    data[0][i] = si;
                     ((SQLInteger)data[0][i]).set(i + 1);
                 }catch(Exception e){
                     //should neve happen
-                    System.out.println(e);
+                    
                 }
             }
         }else
@@ -97,7 +98,7 @@ public class AS400JDBCArrayResultSet implements ResultSet
                     data[0][i] = new Integer(i + 1);
                 }catch(Exception e){
                     //should neve happen
-                    System.out.println(e);
+                  
                 }
             }
         }
