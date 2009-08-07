@@ -1414,6 +1414,17 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
        return getServerTraceCategories();
    }
 
+   //@STIMEOUT
+   /**
+    * Gets the socket timeout option in milliseconds.
+    * @return The value of the socket timeout option.
+    **/
+   public long getSocketTimeout()
+   {
+       return getSoTimeout(); 
+   }
+    
+   
   /**
    Returns how the IBM i system sorts records before sending them to the
    client.
@@ -2949,7 +2960,7 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
   public void setLoginTimeout(int timeout) throws SQLException
   {
     //This sets the socket timeout
-    setSoTimeout(timeout * 1000);
+    //@STIMEOUT setSoTimeout(timeout * 1000); //@STIMEOUT separate login and socket timeout into two separtate properties
 
     properties_.setString(JDProperties.LOGIN_TIMEOUT, Integer.toString(timeout));
   }
@@ -3724,7 +3735,19 @@ public class AS400JDBCManagedDataSource implements DataSource, Referenceable, Se
     logProperty(property, String.valueOf(savePasswordWhenSerialized_)); //@jvm13 Boolean.toString(savePasswordWhenSerialized_));
   }
 
-
+  //@STIMEOUT
+  /**
+   * This property enables/disables socket timeout with the
+   * specified value in milliseconds.  A timeout value must be
+   * greater than zero, a value of zero for this property indicates
+   * infinite timeout.
+   * @param milliseconds The socket timeout option value.
+   **/
+   public void setSocketTimeout(int milliseconds)
+   {
+       setSoTimeout(milliseconds);
+   }
+   
   /**
    Sets the three-character language id to use for selection of a sort sequence.
    This property has no effect unless the sort property is set to "language".

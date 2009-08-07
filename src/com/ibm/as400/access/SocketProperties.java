@@ -35,6 +35,8 @@ public class SocketProperties implements Serializable
     int soTimeout_ = 0;
     boolean tcpNoDelaySet_ = false;
     boolean tcpNoDelay_ = false;
+    boolean loginTimeoutSet_ = false; //@STIMEOUT
+    int loginTimeout_ = 0; //@STIMEOUT this is an option in java.net.Socket.connect(SocketAddress endpoint, int timeout) (java 1.4)
 
     // Internal method to copy all the options from one object to another.
     void copyValues(SocketProperties properties)
@@ -121,6 +123,17 @@ public class SocketProperties implements Serializable
         return soLinger_;
     }
 
+    //@STIMEOUT
+    /**
+    Indicates the value to which the login timeout socket option is set in milliseconds.
+    @return  The value in milliseconds.
+     **/
+    public int getLoginTimeout()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting so socket login timeout:", loginTimeout_);
+        return loginTimeout_;
+    }
+
     /**
      Indicates the value to which the SO_TIMEOUT socket option is set.
      @return  The value of SO_TIMEOUT, in milliseconds.
@@ -195,7 +208,18 @@ public class SocketProperties implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting so linger is set:", soLingerSet_);
         return soLingerSet_;
     }
-
+   
+    //@STIMEOUT
+    /**
+    Indicates if the value of the login timeout socket option will be set.
+    @return  true if login timeout will be set; false otherwise.
+     **/
+    public boolean isLoginTimeoutSet()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting socket login timeout is set:", loginTimeoutSet_);
+        return loginTimeoutSet_;
+    }
+   
     /**
      Indicates if the value of the SO_TIMEOUT socket option will be set.
      @return  true if SO_TIMEOUT will be set; false otherwise.
@@ -235,6 +259,18 @@ public class SocketProperties implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting keep alive:", keepAlive);
         keepAliveSet_ = true;
         keepAlive_ = keepAlive;
+    }
+
+    //@STIMEOUT
+    /**
+    Indicates the value to for timeout when creating a new socket connection in milliseconds.
+    @param  loginTimeout  The value in milliseconds.
+     **/
+    public void setLoginTimeout(int loginTimeout)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket login timeout:", loginTimeout);
+        loginTimeoutSet_ = true;
+        loginTimeout_ = loginTimeout;
     }
 
     /**

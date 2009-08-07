@@ -1250,6 +1250,16 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
          return getServerTraceCategories();
      }
 
+     //@STIMEOUT
+     /**
+      * Gets the socket timeout option in milliseconds.
+      * @return The value of the socket timeout option.
+      **/
+     public int getSocketTimeout()
+     {
+         return getSoTimeout(); 
+     }
+      
     /**
     *  Returns how the system sorts records before sending them to the 
     *  client.
@@ -3000,8 +3010,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public void setLoginTimeout(int timeout) throws SQLException
     {
-        //This sets the socket timeout
-        setSoTimeout(timeout * 1000);                                                   //@K5A  setSoTimeout takes milliseconds as a parameter
+        
+        //@STIMEOUT setSoTimeout(timeout * 1000);    //@K5A  setSoTimeout takes milliseconds as a parameter //@STIMEOUT separate login and socket timeout into two separtate properties
         String property = "loginTimeout";                                               //@K5A
 
         Integer oldValue = new Integer(getLoginTimeout());                              //@K5A
@@ -4423,6 +4433,19 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         sockProps_.setSoTimeout(milliseconds);
     }
 
+    //@STIMEOUT
+    /**
+     * This property enables/disables socket timeout with the
+     * specified value in milliseconds.  A timeout value must be
+     * greater than zero, a value of zero for this property indicates
+     * infinite timeout.
+     * @param milliseconds The socket timeout option value.
+     **/
+     public void setSocketTimeout(int milliseconds)
+     {
+         setSoTimeout(milliseconds);
+     }
+     
     /**
     * This property allows the turning on of the TCP no delay socket option.
     * @param noDelay The socket TCP no delay option value.

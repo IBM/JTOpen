@@ -613,7 +613,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             }  //@pw3
         }                                                                 //@pw1
         
-        //Next, hack for nulls to work on i5
+        //Next, hack for nulls to work on IBM i
         //New security: replace null with "" to mimic old behavior to allow null logons...disallowing "" above.
         if (user == null)                                                         //@pw1
             user = "";                                                            //@pw1
@@ -1131,7 +1131,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Returns the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @return The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or IBM i object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
     *  The default value is "system".
     **/
     public String getRemarks()
@@ -1251,6 +1251,16 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
          return getServerTraceCategories();
      }
 
+     //@STIMEOUT
+     /**
+      * Gets the socket timeout option in milliseconds.
+      * @return The value of the socket timeout option.
+      **/
+     public int getSocketTimeout()
+     {
+         return getSoTimeout(); 
+     }
+      
     /**
     *  Returns how the system sorts records before sending them to the 
     *  client.
@@ -3001,8 +3011,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setLoginTimeout(int timeout) throws SQLException
     {
-        //This sets the socket timeout
-        setSoTimeout(timeout * 1000);                                                   //@K5A  setSoTimeout takes milliseconds as a parameter
+        
+        //@STIMEOUT setSoTimeout(timeout * 1000);    //@K5A  setSoTimeout takes milliseconds as a parameter //@STIMEOUT separate login and socket timeout into two separtate properties
         String property = "loginTimeout";                                               //@K5A
 
         Integer oldValue = new Integer(getLoginTimeout());                              //@K5A
@@ -3657,7 +3667,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @param remarks The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or IBM i object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (IBM i object description).
     *  The default value is "system".
     **/
     public void setRemarks(String remarks)
@@ -4424,6 +4434,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         sockProps_.setSoTimeout(milliseconds);
     }
 
+    //@STIMEOUT
+    /**
+     * This property enables/disables socket timeout with the
+     * specified value in milliseconds.  A timeout value must be
+     * greater than zero, a value of zero for this property indicates
+     * infinite timeout.
+     * @param milliseconds The socket timeout option value.
+     **/
+     public void setSocketTimeout(int milliseconds)
+     {
+         setSoTimeout(milliseconds);
+     }
+     
     /**
     * This property allows the turning on of the TCP no delay socket option.
     * @param noDelay The socket TCP no delay option value.

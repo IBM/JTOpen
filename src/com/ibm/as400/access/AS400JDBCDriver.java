@@ -1317,7 +1317,7 @@ implements java.sql.Driver
         {
             if(sockProps == null)
                 sockProps = as400.getSocketProperties();
-            sockProps.setSoTimeout(DriverManager.getLoginTimeout() * 1000);
+            sockProps.setLoginTimeout(DriverManager.getLoginTimeout() * 1000); //@STIMEOUT
         }
         
         //@timeout
@@ -1325,8 +1325,17 @@ implements java.sql.Driver
         {
             if(sockProps == null)
                 sockProps = as400.getSocketProperties();
-            sockProps.setSoTimeout(jdProperties.getInt(JDProperties.LOGIN_TIMEOUT) * 1000);
+            sockProps.setLoginTimeout(jdProperties.getInt(JDProperties.LOGIN_TIMEOUT) * 1000); //@STIMEOUT
         }
+
+        //@STIMEOUT
+        if( jdProperties.getString(JDProperties.SOCKET_TIMEOUT).equals("") == false)
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            sockProps.setSoTimeout(jdProperties.getInt(JDProperties.SOCKET_TIMEOUT)); //@STIMEOUT already in milliseconds
+        }
+        
         
         if(sockProps != null)
             as400.setSocketProperties(sockProps);

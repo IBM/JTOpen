@@ -235,13 +235,13 @@ class PortMapper
                      
             pmSocket = new Socket();                        //@timeout 
 
-            int timeout = 0;                                //@timeout
-            if(socketProperties.isSoTimeoutSet())           //@timeout
+            int loginTimeout = 0;                                //@timeout //@STIMEOUT
+            if(socketProperties.isLoginTimeoutSet())           //@timeout //@STIMEOUT
             {                                               //@timeout
-                timeout = socketProperties.getSoTimeout();  //@timeout
+                loginTimeout = socketProperties.getSoTimeout();  //@timeout //@STIMEOUT
             }                                               //@timeout
             
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + timeout + "ms"); //@timeout
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + loginTimeout + "ms"); //@timeout //@STIMEOUT
             
 
             InetSocketAddress hostAddr = systemName != null ? new InetSocketAddress(systemName, port) :  //@timeout
@@ -254,7 +254,7 @@ class PortMapper
                 //method.setAccessible(true);                   //@timeout //@CRS (applet gets exception when calling setAccessible())
                 Object[] args = new Object[2];                //@timeout
                 args[0] = hostAddr;                           //@timeout
-                args[1] = new Integer(timeout);               //@timeout
+                args[1] = new Integer(loginTimeout);               //@timeout //@STIMEOUT
 
                 method.invoke(pmSocket, args);                //@timeout
             } catch (InvocationTargetException e) {           //@timeout
@@ -279,7 +279,7 @@ class PortMapper
         }catch(ClassNotFoundException e){                            //@timeout 
             //Here we catch any exception related to running in jdk 1.3 or reflection exceptions
             //Just create socket the way we did before without a timeout.
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.3 or lower.  Connect to port mapper without timeout");//@timeout
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.3 or lower.  Connect to port mapper without login timeout");//@timeout
             pmSocket = new Socket(systemName, port); //for pre jdk1.4  //@timeout 
         }                                                             //@timeout
         return pmSocket;
