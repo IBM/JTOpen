@@ -5029,7 +5029,19 @@ implements ResultSet
     {
          updateValueExtendedIndicator (columnIndex, 1);  //1 is default    
     }
-    
+
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Default.  Same as updateDB2Default.
+    @param  columnIndex  The column index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDBDefault(int columnIndex) throws SQLException
+    {
+         updateDB2Default(columnIndex);   
+    }
     
     //@EIA 550 extended indicator defaults
     /**
@@ -5044,6 +5056,19 @@ implements ResultSet
         updateDB2Default (findColumn (columnName));  
     }
     
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Default.  Same as updateDB2Default.
+    @param  columnName  The column name.
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDBDefault(String columnName) throws SQLException
+    {
+        updateDB2Default (findColumn (columnName));  
+    }
+   
     
     //@EIA 550 extended indicator defaults
     /**
@@ -5058,6 +5083,18 @@ implements ResultSet
         updateValueExtendedIndicator (columnIndex, 2);  //2 is unassigned
     }
 
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Unassigned.  Same as updtaeDB2Unassigned.
+    @param  columnIndex  The column index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDBUnassigned(int columnIndex) throws SQLException
+    {                                          
+        updateDB2Unassigned(columnIndex);
+    }
     
 
     //@EIA 550 extended indicator defaults
@@ -5073,7 +5110,20 @@ implements ResultSet
         updateDB2Unassigned (findColumn (columnName));  
     }
 
-    
+
+    //@EIA 550 extended indicator defaults
+    /**
+    Updates a column in the current row to the SQL Unassigned.  Same as updateDB2Unassigned.
+    @param  columnName  The column name.
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void updateDBUnassigned(String columnName) throws SQLException
+    {                                          
+        updateDB2Unassigned (findColumn (columnName));  
+    }
+
     
     // JDBC 2.0
     /**

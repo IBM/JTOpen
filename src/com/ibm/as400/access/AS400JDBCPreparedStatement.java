@@ -2381,6 +2381,19 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     
     //@EIA 550 extended indicator defaults
     /**
+    Sets an input parameter to the default value.  This is a the same as setDB2Default.
+    @param  parameterIndex  The parameter index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void setDBDefault(int parameterIndex) throws SQLException
+    {
+        setDB2Default(parameterIndex);         
+    }
+    
+    //@EIA 550 extended indicator defaults
+    /**
     Sets an input parameter to unassigned
     @param  parameterIndex  The parameter index (1-based).
     @exception  SQLException    If the statement is not open,
@@ -2399,6 +2412,21 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     	
     }
 
+    
+    //@EIA 550 extended indicator defaults
+    /**
+    Sets an input parameter to unassigned.  This is a the same as setDB2Unassigned.
+    @param  parameterIndex  The parameter index (1-based).
+    @exception  SQLException    If the statement is not open,
+                                the index is not valid, the parameter
+                                is not an input parameter.
+    **/
+    public void setDBUnassigned(int parameterIndex) throws SQLException
+    {
+        setDB2Unassigned(parameterIndex); //2 is unassigned   
+    }
+
+    
     /**
     Sets an input parameter to a Java double value.  The driver
     converts this to an SQL DOUBLE value.
