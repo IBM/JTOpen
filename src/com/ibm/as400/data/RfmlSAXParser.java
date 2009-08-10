@@ -241,7 +241,10 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
 //@E0D            SAXParser parser = new SAXParser();
 //@E0D             try {
 //@E0D               parser.setFeature("http://xml.org/sax/features/validation", true);
-      factory.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); // Note: This is to eliminate hang condition if rfml.dtd is not found by SAXParser.parse().  See below.
+      factory.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false);
+      // Note: This is to eliminate a hang condition if rfml.dtd is not found by SAXParser.parse().
+      // Note: The above setFeature() call causes a SAXNotRecognizedException on Sun JDK 1.4.2.  Even if we swallow this exception, we encounter another exception when we subsequently call SAXParser.parse(): "SAXParseException: Relative URI 'rfml.dtd' can not be resolved without a base URI."  So we just allow it to be thrown.
+
       SAXParser parser = factory.newSAXParser(); //@E0A
 
 //@E0D               parser.setFeature( "http://xml.org/sax/features/namespaces", false );
