@@ -602,10 +602,10 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
 
             //@STIMEOUT - added support for socket timeout
             PropertyDescriptor socketTimeout = new PropertyDescriptor("socketTimeout", beanClass, "getSocketTimeout", "setSocketTimeout"); 
-            loginTimeout.setBound(true);                                                                                                       
-            loginTimeout.setConstrained(false);                                                                                        
-            loginTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SOCKET_TIMEOUT"));                                       
-            loginTimeout.setShortDescription(AS400JDBCDriver.getResource("SOCKET_TIMEOUT_DESC"));                                       
+            socketTimeout.setBound(true);                                                                                                       
+            socketTimeout.setConstrained(false);                                                                                        
+            socketTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SOCKET_TIMEOUT"));                                       
+            socketTimeout.setShortDescription(AS400JDBCDriver.getResource("SOCKET_TIMEOUT_DESC"));                                       
            
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
