@@ -325,7 +325,7 @@ public class DateTimeConverter
   /**
    * Returns a TimeZone object to represent the time zone for the system.
    * The TimeZone object will have the correct UTC offset for the system.
-   * @return A TimeZone object representing the time zone for the system.
+   * @return A TimeZone object representing the system's configured time zone setting.
    * @exception AS400SecurityException If a security or authority error
    *            occurs.
    * @exception ErrorCompletingRequestException If an error occurs before
@@ -333,7 +333,7 @@ public class DateTimeConverter
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
    *            the system.
-   * @exception ObjectDoesNotExistException If the object does not exist on the system.
+   * @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
   **/
   final TimeZone getSystemTimeZone()
       throws AS400SecurityException,
@@ -361,9 +361,9 @@ public class DateTimeConverter
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
    *            the system.
-   * @exception ObjectDoesNotExistException If the object does not exist on the system.
+   * @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
   **/
-  final static TimeZone timeZoneForSystem(AS400 system)
+  public static TimeZone timeZoneForSystem(AS400 system)
       throws AS400SecurityException,
              ErrorCompletingRequestException,
              InterruptedException,
