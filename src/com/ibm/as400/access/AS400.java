@@ -45,6 +45,7 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
  *    ...
  *    system.connectService(AS400.FILE);        // This does not cause a prompt.
  </pre>
+ @see DateTimeConverter#timeZoneForSystem
  **/
 public class AS400 implements Serializable
 {
