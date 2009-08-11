@@ -1119,7 +1119,8 @@ public class ObjectDescription
       if (id.equalsIgnoreCase("CPF9801") ||  // Object &2 in library &3 not found.
           id.equalsIgnoreCase("CPF9810") ||  // Library &1 not found.
           id.equalsIgnoreCase("CPF9811") ||  // Program &1 in library &2 not found.  @A1A
-          id.equalsIgnoreCase("CPF9812"))    // File &1 in library &2 not found.
+          id.equalsIgnoreCase("CPF9812") ||  // File &1 in library &2 not found.
+          id.equalsIgnoreCase("CPF9814"))    // Device &1 not found.
       {
         return false;
       }
