@@ -768,7 +768,9 @@ Reads an input stream and returns its data as a String.
     static final String stripXMLDeclaration(String xml) throws SQLException
     {
         //declaration starts with "<?xml " and ends with "?>"
-        if(xml.substring(0, 7).indexOf("<?xml ") == 0) //avoid having to search whole 2 gig
+        if(xml.length() < 6) //@BE1
+            return xml;      //@BE1
+        if(xml.substring(0, 7).indexOf("<?xml") != -1) //avoid having to search whole 2 gig //@BE1 (utf-16be has byteordermark in first char)
         {
             int end = xml.indexOf("?>") + 2; //if start is xml, then it will have a valid ending since hostserver created it!
             if(end == 1)
@@ -788,7 +790,9 @@ Reads an input stream and returns its data as a String.
     //@xmlutf8
     static final boolean hasXMLDeclaration(String xml)
     {
-        if(xml.substring(0, 7).indexOf("<?xml ") == 0)
+        if(xml.length() < 6) //@BE1
+            return false;      //@BE1
+        if(xml.substring(0, 7).indexOf("<?xml") != -1) //@BE1 (utf-16be has byteordermark in first char)
             return true;  //if invalid decl, then let hostserver return error
         else
             return false;
@@ -797,7 +801,9 @@ Reads an input stream and returns its data as a String.
     //@xmlutf16 remove encoding inside of XML declaration if not utf-16
     static final String handleXMLDeclarationEncoding(String xml)
     {
-        if(xml.substring(0, 7).indexOf("<?xml ") == 0)
+        if(xml.length() < 6) //@BE1
+            return xml;      //@BE1
+        if(xml.substring(0, 7).indexOf("<?xml") != -1) //@BE1 (utf-16be has byteordermark in first char)
         {
             int end = xml.indexOf("?>") ;
             int encStart = xml.indexOf("encoding=");
