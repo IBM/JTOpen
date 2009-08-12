@@ -23,17 +23,12 @@ import java.util.ResourceBundle;
 
 
 /**
-The ResourceBeanInfo class represents the bean information
-for Resource objects.
+Represents the bean information for Resource objects.
 @deprecated Use packages <tt>com.ibm.as400.access</tt> and <tt>com.ibm.as400.access.list</tt> instead. 
 **/
 public class ResourceBeanInfo 
 extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     // Private data.
 
             // Technically, this would belong in "ChangeableResourceBeanInfo",
@@ -79,7 +74,7 @@ Static initializer.
             resource.setDisplayName(resourceBundle_.getString("EVENT_RESOURCE_NAME"));
             resource.setShortDescription(resourceBundle_.getString("EVENT_RESOURCE_DESCRIPTION"));
 
-            EventSetDescriptor vetoableChange = new EventSetDescriptor(beanClass_, "vetoableChange", VetoableChangeListener.class, "vetoableChange");
+            EventSetDescriptor vetoableChange = new EventSetDescriptor(beanClass_, "propertyChange", VetoableChangeListener.class, "vetoableChange");
             vetoableChange.setDisplayName(resourceBundle_.getString("EVENT_VETOABLE_CHANGE_NAME"));
             vetoableChange.setShortDescription(resourceBundle_.getString("EVENT_VETOABLE_CHANGE_DESCRIPTION"));
 

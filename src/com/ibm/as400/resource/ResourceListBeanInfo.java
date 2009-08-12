@@ -23,16 +23,11 @@ import java.util.ResourceBundle;
 
 
 /**
-The ResourceListBeanInfo class represents the bean information
-for ResourceList objects.
+Represents the bean information for ResourceList objects.
 **/
 class ResourceListBeanInfo 
 extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     // Private data.
     private static final Class                  beanClass_              = ResourceList.class;
 
@@ -73,7 +68,7 @@ Static initializer.
             resourceList.setDisplayName(resourceBundle_.getString("EVENT_RESOURCE_LIST_NAME"));
             resourceList.setShortDescription(resourceBundle_.getString("EVENT_RESOURCE_LIST_DESCRIPTION"));
 
-            EventSetDescriptor vetoableChange = new EventSetDescriptor(beanClass_, "vetoableChange", VetoableChangeListener.class, "vetoableChange");
+            EventSetDescriptor vetoableChange = new EventSetDescriptor(beanClass_, "propertyChange", VetoableChangeListener.class, "vetoableChange");
             vetoableChange.setDisplayName(resourceBundle_.getString("EVENT_VETOABLE_CHANGE_NAME"));
             vetoableChange.setShortDescription(resourceBundle_.getString("EVENT_VETOABLE_CHANGE_DESCRIPTION"));
 
