@@ -244,7 +244,7 @@ public class BinaryConverter
     Convert the specified IBM i data type to an int.
     @param  serverValue  The array containing the data type in IBM i format.
     @param  offset  The offset into the byte array for the start of the IBM i value.
-    @return  an int corresponding to the data type.
+    @return  an int corresponding to the data type, derived from the 2 bytes of data starting at the specified offset.
    **/
   public static int byteArrayToUnsignedShort(byte[] serverValue, int offset)
   {
