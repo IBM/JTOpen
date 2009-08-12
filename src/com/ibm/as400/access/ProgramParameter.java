@@ -23,12 +23,10 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
- The ProgramParameter class is used with ProgramCall and ServiceProgramCall to pass parameter data to a program, from a program, or both.  Input data is passed to a program as a byte array with <i>setInputData</i>.  Output data is requested from a program by specifying the amount of data to return with <i>setOutputDataLength</i>.  To get the output data once the program has run use <i>getOutputData</i>.  These values may also be set on the constructor.
+ Used with {@link ProgramCall ProgramCall} and {@link ServiceProgramCall ServiceProgramCall} to pass parameter data, either to a program, from a program, or both.  Input data is passed to a program as a byte array with {@link #setInputData setInputData()}.  Output data is requested from a program by specifying the amount of data to return with {@link #setOutputDataLength setOutputDataLength()}.  To get the output data once the program has run, use {@link #getOutputData getOutputData()}.  These values may also be set on the constructor.
  **/
 public class ProgramParameter implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     /**
@@ -90,7 +88,7 @@ public class ProgramParameter implements Serializable
 
     /**
      Constructs a ProgramParameter object.  An output parameter is created, since the size of the output data is passed on this constructor.
-     @param  outputDataLength  The amount of data to be returned from the program.
+     @param  outputDataLength  The amount of data to be returned from the program (number of bytes).
      **/
     public ProgramParameter(int outputDataLength)
     {
@@ -107,7 +105,7 @@ public class ProgramParameter implements Serializable
     /**
      Constructs ProgramParameter object.  A parameter that is both an input and an output parameter is created, since both data passed to the program and the amount of data returned from the program are passed on this constructor.
      @param  inputData  Parameter data passed to the program.
-     @param  outputDataLength  The amount of data to be returned from the program.
+     @param  outputDataLength  The amount of data to be returned from the program (number of bytes).
      **/
     public ProgramParameter(byte[] inputData, int outputDataLength)
     {
@@ -145,7 +143,7 @@ public class ProgramParameter implements Serializable
      Constructs a ProgramParameter object.  An output parameter is created, since the size of the output data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
         Valid values are {@link #PASS_BY_VALUE PASS_BY_VALUE} and {@link #PASS_BY_REFERENCE PASS_BY_REFERENCE}.  The default is PASS_BY_VALUE.
-     @param  outputDataLength  The amount of data to be returned from the program.
+     @param  outputDataLength  The amount of data to be returned from the program (number of bytes).
      **/
     public ProgramParameter(int parameterType, int outputDataLength)
     {
@@ -170,7 +168,7 @@ public class ProgramParameter implements Serializable
      @param  parameterType  The type of parameter.
         Valid values are {@link #PASS_BY_VALUE PASS_BY_VALUE} and {@link #PASS_BY_REFERENCE PASS_BY_REFERENCE}.  The default is PASS_BY_VALUE.
      @param  inputData  The parameter data to be used as input to the program.
-     @param  outputDataLength  The amount of data to be returned from the program.
+     @param  outputDataLength  The amount of data to be returned from the program (number of bytes).
      **/
     public ProgramParameter(int parameterType, byte[] inputData, int outputDataLength)
     {
