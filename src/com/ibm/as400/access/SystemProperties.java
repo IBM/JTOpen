@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Vector;
 
-// The SystemProperties class contains constants representing names of all system properties recognized by the IBM Toolbox for Java.
+// Contains constants representing names of all system properties recognized by the IBM Toolbox for Java.
 class SystemProperties
 {
     // System property constants.
@@ -28,6 +28,7 @@ class SystemProperties
     private static final String PROPERTIES_FILE_NAME_WITH_SLASHES = "com/ibm/as400/access/jt400.properties";
 
     // System property names.
+    public static final String AS400_GUI_AVAILABLE = ACCESS_PREFIX + "AS400.guiAvailable";
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
     public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
     public static final String AS400_MUST_ADD_LANGUAGE_LIBRARY = ACCESS_PREFIX + "AS400.mustAddLanguageLibrary";

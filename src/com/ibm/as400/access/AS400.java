@@ -134,6 +134,8 @@ public class AS400 implements Serializable
     // The static default sign-on handler.
     static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
     static SignonHandler defaultSignonHandler_;
+    // Default setting for guiAvailable property.
+    private static boolean defaultGuiAvailable_ = true;
     // Default setting for mustAddLanguageLibrary property.
     private static boolean defaultMustAddLanguageLibrary_ = false;
     // Default setting for mustUseSockets property.
@@ -186,6 +188,22 @@ public class AS400 implements Serializable
             {
               Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property):", e);
               defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+            }
+          }
+        }
+
+        // Get the "GUI available" property.
+        {
+          String propVal = SystemProperties.getProperty(SystemProperties.AS400_GUI_AVAILABLE);
+          if (propVal != null)
+          {
+            try
+            {
+              defaultGuiAvailable_ = Boolean.valueOf(propVal).booleanValue();
+            }
+            catch (Exception e)
+            {
+              Trace.log(Trace.WARNING, "Error retrieving guiAvailable property value:", e);
             }
           }
         }
@@ -311,7 +329,7 @@ public class AS400 implements Serializable
     private transient Object proxyClientConnection_ = null;  // Tolerate not having class ProxyClientConnection in the jar.
 
     // This controls the prompting.  If set to true, then prompting will occur during sign-on if needed.  If set to false, no prompting will occur and all security errors are returned as exceptions.
-    private boolean guiAvailable_ = true;
+    private boolean guiAvailable_ = defaultGuiAvailable_;
     // Use the password cache.
     private boolean usePasswordCache_ = true;
     // Use the default user.
@@ -2905,6 +2923,7 @@ public class AS400 implements Serializable
      <br>Users are advised to implement the default sign-on handler in a thread-safe manner, since it may occasionally be in simultaneous use by multiple threads.
      <br>If a default sign-on handler is not set, then the name of the default sign-on handler class is retrieved from the <em>com.ibm.as400.access.AS400.signonHandler</em> <a href="doc-files/SystemProperties.html">system property</a>.
      <br>If not specified, an internal AWT-based sign-on handler is used.
+     <p>Note: This property may also be set by specifying a fully-qualified class name in Java system property <tt>com.ibm.as400.access.AS400.signonHandler</tt>
      @param handler The sign-on handler.  Specifying <tt>null</tt> will reset the default sign-on handler to the internal AWT-based handler.
      @see #getDefaultSignonHandler
      **/
@@ -3026,6 +3045,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then error conditions or missing information will result in exceptions.  Applications that are running as IBM i applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.guiAvailable</tt>
      @param  guiAvailable  true to prompt; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      @see SignonHandler
@@ -3115,6 +3135,7 @@ public class AS400 implements Serializable
 
     /**
      Sets this object to attempt to add the appropriate secondary language library to the library list, when running on the system.  The default is false.  Setting the language library will ensure that any system error messages that are returned, will be returned in the appropriate national language for the client locale.  If the user profile has insufficient authority to call CHGSYSLIBL, an error entry will appear in the job log, and the Toolbox will disregard the error and proceed normally.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustAddLanguageLibrary</tt>
      @param  mustAddLanguageLibrary  true to add language library; false otherwise.
      **/
     public void setMustAddLanguageLibrary(boolean mustAddLanguageLibrary)
@@ -3140,6 +3161,7 @@ public class AS400 implements Serializable
 
     /**
      Sets this object to using sockets.  When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. The must use sockets property cannot be changed once a connection to the system has been established.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustUseSockets</tt>
      @param  mustUseSockets  true to use sockets; false otherwise.
      **/
     public void setMustUseSockets(boolean mustUseSockets)
@@ -3165,6 +3187,7 @@ public class AS400 implements Serializable
 
     /**
      Sets this object to using Internet domain sockets only.  When your Java program runs on the system, some Toolbox classes create UNIX domain socket connections.  Using this method forces the Toolbox to only use Internet domain sockets.  The default is false. The must use net sockets property cannot be changed once a connection to the system has been established.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustUseNetSockets</tt>
      @param  mustUseNetSockets  true to use Internet domain sockets only; false otherwise.
      **/
     public void setMustUseNetSockets(boolean mustUseNetSockets)
@@ -3190,6 +3213,7 @@ public class AS400 implements Serializable
 
     /**
      Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the currently signed-on user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The <tt>must use supplied profile</tt> property cannot be changed once a connection to the system has been established.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustUseSuppliedProfile</tt>
      @param  mustUseSuppliedProfile  true to use a supplied profile only; false otherwise.
      **/
     public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
@@ -3443,6 +3467,7 @@ public class AS400 implements Serializable
 
     /**
      Sets whether the IBM Toolbox for Java uses threads in communication with the host servers.  The default is true. Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be necessary if your application needs to be compliant with the Enterprise Java Beans specification. The thread used property cannot be changed once a connection to the system has been established.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.threadUsed</tt>
      @param  useThreads  true to use threads; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
