@@ -20,17 +20,18 @@ import java.util.Date;
 
 
 /**
- * Represents a licensed product on the system. The {@link #isInstalled isInstalled()}
- * method should be called to verify the
- * product is installed on the system. If it is not, other information returned by getters in this
- * class may not be valid.
+ * Represents a licensed product on the system.
+ * The {@link #isInstalled isInstalled()} method should be called to verify that
+ * the product is installed on the system. If the product is not installed, other information
+ * returned by getters in this class might not be valid.
 **/
 public class Product
 {
   private static final String USERSPACE_NAME = "JT4PTF    QTEMP     ";
   private static final String USERSPACE_PATH = "/QSYS.LIB/QTEMP.LIB/JT4PTF.USRSPC";
 
-  private boolean loaded_ = false; // Have we retrieved values from the system yet
+  private boolean loaded_ = false; // Have we loaded the common (PRDR0100 format) values
+  private boolean loadedLoadID_ = false; // Have we loaded the load ID yet
   private boolean partiallyLoaded_ = false; // Were we constructed from a ProductList
   private boolean loadedOptions_ = false; // Have we loaded our option information
   private boolean loadedDescriptionText_ = false; // Have we loaded the description yet
@@ -48,15 +49,18 @@ public class Product
   private String descriptionText_;
   private String messageFile_;
   private boolean installed_ = true; // Default to true; if the API throws an exception, switch to false.
-  private boolean supported_;
-  private String registrationType_;
-  private String registrationValue_;
   private String loadID_;
 
+  // PRDR0100 format   (fields that are meaningfully returned in all formats)
+  // Note: The loaded_ flag indicates that the following fields have been loaded.
+  //       The loadID_ field gets its own separate flag: loadedLoadID_
   private String loadType_;
   private String symbolicLoadState_;
   private boolean loadErrorIndicator_;
   private String loadState_;
+  private boolean supported_;
+  private String registrationType_;
+  private String registrationValue_;
   private String primaryLanguageLoadID_;
   private String minimumTargetRelease_;
   private String minimumBaseVRM_;
@@ -760,7 +764,7 @@ public class Product
          IOException,
          ObjectDoesNotExistException
   {
-    if (loadID_ == null && !loaded_) refresh(100);
+    if (loadID_ == null && !loadedLoadID_) refresh(100);
     return loadID_;
   }
 
@@ -1409,14 +1413,25 @@ public class Product
               IOException,
               ObjectDoesNotExistException
   {
+    loadedLoadID_ = false;  // disregard any previously-loaded value
+
+    // If no previous error with formats 0500 or 0100, get the format 0500 values.
     if (!error500_ && !error100_) refresh(500);
+
+    // If no previous error with formats 0800 or 0100, get the format 0800 values.
     if (!error800_ && !error100_) refresh(800);
+
+    // If there were errors with formats 0500 and 0800, and no errors with format 0100, get the format 0100 values.
     if (error500_ && error800_ && !error100_) refresh(100);
+
+    
+    // If no previous error with format 0500, get description text.
     if (!error500_)
     {
       loadedDescriptionText_ = false;
       getDescriptionText();
     }
+
     fillInOptionInformation();
     return !error100_;
   }
@@ -1572,7 +1587,10 @@ public class Product
       return;
     }
     releaseLevel_ = conv.byteArrayToString(outputData, 19, 6);
-    if (whichFormat != 500) loadID_ = conv.byteArrayToString(outputData, 29, 4); // Since 500 uses *CODE, we don't want to reset it.
+    if (whichFormat != 500) { // Since 0500 uses *CODE, we don't want to reset it.
+      loadID_ = conv.byteArrayToString(outputData, 29, 4);
+      loadedLoadID_ = true;
+    }
     loadType_ = conv.byteArrayToString(outputData, 33, 10).trim();
     symbolicLoadState_ = conv.byteArrayToString(outputData, 43, 10);
     loadErrorIndicator_ = !conv.byteArrayToString(outputData, 53, 10).trim().equals("*NONE"); // *ERROR for error, *NONE for not.
@@ -1585,7 +1603,8 @@ public class Product
     minimumBaseVRM_ = conv.byteArrayToString(outputData, 98, 6);
     requirementsMet_ = (int)(outputData[104] & 0x000F); // 0xF0 = 0, 0xF1 = 1, etc...
     level_ = conv.byteArrayToString(outputData, 105, 3);
-    loaded_ = true;
+
+    loaded_ = true;  // indicate that the above 0100 fields have been loaded
 
     if (whichFormat == 500)
     {
@@ -1640,7 +1659,6 @@ public class Product
         String msgID = conv.byteArrayToString(outputData, offset, 7);
         offset += 7;
         String minVRM = conv.byteArrayToString(outputData, offset, 6);
-//        options_[i] = new Product(system_, productID_, prodOption, releaseLevel_, loadID_, allow, msgID, minVRM);
         options_[i] = new Product(system_, productID_, prodOption, releaseLevel_, getFeatureID(), allow, msgID, minVRM);
       }
       loaded500_ = true;
