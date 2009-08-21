@@ -16,17 +16,13 @@ package com.ibm.as400.access;
 
 
 /**
-   The InternalErrorException class represents an exception
+   Represents an exception
    that indicates that an internal error has occurred.  Instances
    of this class represent problems in the supplied code.  Contact your
    service representative to report the problem.
 **/
 public class InternalErrorException extends RuntimeException
 implements ReturnCodeException {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
     private int rc_;  // Return code associated with this exception
@@ -126,6 +122,7 @@ implements ReturnCodeException {
       at the end of the message.
       @param returnCode The return code which identifies the message to be displayed.
       @param text  The string to add to the end of the message
+                   Note: This parameter does not get translated.
       @param value The value to display at the end of the message
     **/
     InternalErrorException(int returnCode, String text, int value) {
@@ -139,6 +136,7 @@ implements ReturnCodeException {
       at the end of the message.
       @param returnCode The return code which identifies the message to be displayed.
       @param text  The string to add to the end of the message
+                   Note: This parameter does not get translated.
     **/
     InternalErrorException(int returnCode, String text) {
         super(loader_.getText(getMRIKey(returnCode)) + " " + text);
@@ -148,11 +146,12 @@ implements ReturnCodeException {
     /**
        Constructs an InternalErrorException object.
        It indicates that an internal error has occurred.
-       @param errorInfo Additional error information.
+       @param pathname The pathname of the object or file, where the error was encountered.
+                       Note: This parameter does not get translated.
        @param returnCode The return code which identifies the message to be returned.
     **/
     InternalErrorException(String pathname, int returnCode) { 
-        // Create the message
+        // Create the message.
         super(pathname + ": " + loader_.getText(getMRIKey(returnCode)));
         rc_ =  returnCode;
     }
