@@ -1406,8 +1406,8 @@ public class ObjectDescription
     }
     catch (NumberFormatException e)
     {
-      Trace.log(Trace.ERROR, "NumberFormatException - Invalid number conversion.");
-      throw new InternalErrorException("NumberFormatException - Invalid number conversion.", InternalErrorException.UNKNOWN);
+      Trace.log(Trace.ERROR, "Invalid number conversion for attribute " + attribute, e);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
     }
   }
 
@@ -1546,7 +1546,7 @@ public class ObjectDescription
        if (size < 144) // Size of General header info that we are interested in
        {
          Trace.log(Trace.ERROR, "User Space size is too small (" + size + ")");
-         throw new InternalErrorException("User Space size is too small.", InternalErrorException.UNKNOWN);
+         throw new InternalErrorException(InternalErrorException.UNKNOWN, size);
        }
        buf = new byte[size];
        space.read(buf, 0);
@@ -1648,8 +1648,8 @@ public class ObjectDescription
    }
    catch(ArrayIndexOutOfBoundsException e)
    {
-     Trace.log(Trace.ERROR, "ArrayIndexOutOfBoundsException - Buffer from QWCLOBJL API was too small.", e);
-     throw new InternalErrorException("ArrayIndexOutOfBoundsException - Buffer from QWCLOBJL API was too small.", InternalErrorException.UNKNOWN);
+     Trace.log(Trace.ERROR, "Buffer from QWCLOBJL API was too small.", e);
+     throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
    }
 
    return entries;

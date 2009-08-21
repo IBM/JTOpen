@@ -25,7 +25,7 @@ import java.util.*;
 
 
 /**
-The ObjectList class represents a list of system objects in a
+Represents a list of system objects in a
 specific library, multiple libraries, or system-wide.
 <p>
 Implementation note:
@@ -35,8 +35,6 @@ This class internally uses the Open List APIs (e.g. QGYOLOBJ).
 **/
 public class ObjectList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
   static final long serialVersionUID = 5L;
 
   /**
@@ -1191,7 +1189,8 @@ public class ObjectList implements Serializable
 */          
           else
           {
-            throw new InternalErrorException("Unknown key type for key "+key+": "+type, InternalErrorException.SYNTAX_ERROR);
+            Trace.log(Trace.ERROR, "Unknown key type for key "+key+": "+type);
+            throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR, new String(key+": "+type));
           }
           fieldOffset += infoLength;
         }
@@ -1437,8 +1436,9 @@ public class ObjectList implements Serializable
     recLen_ = BinaryConverter.byteArrayToInt(listInfo2, 12);     //@A2A
     if (recLen_ <= 0)                                            //@A2A
     {                                                            //@A2A
+        Trace.log(Trace.ERROR, "invalid record length", recLen_);
         throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, 
-                                         "invalid record length", recLen_);
+                                         recLen_);
     }                                                            //@A2A
 
     if (Trace.traceOn_)

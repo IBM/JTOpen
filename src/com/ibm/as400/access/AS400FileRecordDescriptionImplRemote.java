@@ -361,7 +361,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         else    //@A1A: This should never occur, but for completeness....
         {
           //@A1A
-          throw new InternalErrorException("FloatFieldDescription error in byte length", InternalErrorException.UNKNOWN);  //@A1A
+          Trace.log(Trace.ERROR, "FloatFieldDescription error in byte length");  //@A1A
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);  //@A1A
         }       //@A1A
         break;
       case 'G': // DBCS-Graphic field
@@ -809,7 +810,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        throw new InternalErrorException("DSPFFD failed to return success message", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, "DSPFFD failed to return success message");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       // Read all the records from the file so we can extract the field information locally
@@ -847,7 +849,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        throw new InternalErrorException("DSPFD failed to return success message", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, "DSPFD failed to return success message");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       // Read all the records from the file so we can extract the key field information locally
@@ -999,7 +1002,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       if(sourceFile.checkError())
       {
         sourceFile.close();
-        throw new InternalErrorException("Error writing to sourceFile.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, "Error writing to sourceFile.");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
       sourceFile.close();
       filesToWrite[i+1] = sourceString.toString(); //@C0A
@@ -1042,7 +1046,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        throw new InternalErrorException("DSPFFD failed to return success message.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, "DSPFFD failed to return success message.");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       // Read all the records from the file so we can extract the key field information locally
@@ -1139,7 +1144,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        throw new InternalErrorException("DSPFFD failed to return success message", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, "DSPFFD failed to return success message");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       // Read all the records from the file so we can extract the field information locally
@@ -1184,7 +1190,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       }
       else
       { // Unexpected reply
-        throw new InternalErrorException("DSPFFD failed to return success message", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, "DSPFFD failed to return success message");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       // Read all the records from the file so we can extract the key field information locally
@@ -1588,7 +1595,8 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         else    //@A1A: This should never occur, but for completeness....
         {
           //@A1A
-          throw new InternalErrorException("FloatFieldDescription error in byte length", InternalErrorException.UNKNOWN);  //@A1A
+          Trace.log(Trace.ERROR, "FloatFieldDescription error in byte length");
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);  //@A1A
         }       //@A1A
         // Set if null values are allowed
         if(((String)record.getField("WHNULL")).equals("Y"))

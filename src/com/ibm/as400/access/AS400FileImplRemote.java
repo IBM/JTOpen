@@ -147,10 +147,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       {
         // Status of logical unit of work committed not returned; should not happen unless
         // we are constructing the request wrong.
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "Wrong status returned from commit ds", uowReply.data_);
-        }
+        Trace.log(Trace.ERROR, "Wrong status returned from commit ds", uowReply.data_);
         throw new InternalErrorException(InternalErrorException.UNKNOWN, uowReply.getStatus());
       }
     }
@@ -248,7 +245,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         msgs = execute("QSYS/CLRPFM QTEMP/JT400DSSRC"); //@B0C
         if (msgs.length > 0)
         {
-          if (!msgs[0].getID().equals("CPC3101"))
+          if (!msgs[0].getID().equals("CPC3101")) // "member cleared"
           {
             // Clear failed.  Throw exception.
             Trace.log(Trace.ERROR, "QSYS/CLRPFM QTEMP/JT400DSSRC");
@@ -257,8 +254,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         }
         else
         {
-          throw new InternalErrorException("QSYS/CLRPFM QTEMP/JT400DSSRC",
-                                           InternalErrorException.UNKNOWN);
+          Trace.log(Trace.ERROR, "No messages were returned from QSYS/CLRPFM QTEMP/JT400DSSRC");
+          throw new InternalErrorException("QTEMP/JT400DSSRC", InternalErrorException.UNKNOWN);
         }
       }
       else if (!msgs[0].getID().equals("CPC7301"))
@@ -272,8 +269,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     else
     {
       // No messages.  This shouldn't happen.
-      throw new InternalErrorException("No messages from server.",
-                                       InternalErrorException.UNKNOWN);
+      Trace.log(Trace.ERROR, "No messages from server.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -479,8 +476,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       else
       {
-        throw new InternalErrorException(e.getMessage(),
-                                         InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, e);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
       }
     }
   }
@@ -592,17 +589,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         case DDMTerm.RSCLMTRM:
         case DDMTerm.SYNTAXRM:
         case DDMTerm.VALNSPRM:
-          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-          {
-            Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
-          }
-          throw new InternalErrorException(codePoint);
+          Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN, codePoint);
         default:
           // We don't know what the reply is.  Throw exception and be done.
-          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-          {
-            Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
-          }
+          Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
           throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, codePoint);
       }
     }
@@ -632,6 +623,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       throw new AS400Exception(msgs);
     }
+    Trace.log(Trace.ERROR, "No messages from server.");
     throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
   }
 
@@ -1388,17 +1380,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           case DDMTerm.RSCLMTRM:
           case DDMTerm.SYNTAXRM:
           case DDMTerm.VALNSPRM:
-            if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-            {
-              Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
-            }
-            throw new InternalErrorException(codePoint);
+            Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, codePoint);
           default:
             // We don't know what the reply is.  Throw exception and be done.
-            if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-            {
-              Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
-            }
+            Trace.log(Trace.ERROR, "handleErrorReply()", reply.data_);
             throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, codePoint);
         }
       }
@@ -1866,12 +1852,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       {
         // Status of logical unit of work committed not returned; should not happen unless
         // we are constructing the request wrong.
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "AS400FileImplRemote.rollback()",
+        Trace.log(Trace.ERROR, "AS400FileImplRemote.rollback()",
                     uowReply.data_);
-        }
-        throw new InternalErrorException(uowReply.getStatus());
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, uowReply.getStatus());
       }
     }
     else

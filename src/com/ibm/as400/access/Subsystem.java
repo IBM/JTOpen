@@ -52,6 +52,8 @@ public class Subsystem
   static final long serialVersionUID = 4L;
 
   private static final boolean DEBUG = false;
+  private static final String NO_MESSAGES_RETURNED = "No messages returned from failed command.";
+  private static final String REFRESH_METHOD_NOT_YET_CALLED = "The refresh() method has not yet been called.";
 
   /**
    Value for the maximumActiveJobs property, indicating "no maximum".
@@ -161,7 +163,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -197,7 +200,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -226,7 +230,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -257,7 +262,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -288,7 +294,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -316,7 +323,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -394,8 +402,8 @@ public class Subsystem
         }
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.",
-                                         InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -475,7 +483,7 @@ public class Subsystem
    **/
   public boolean equals(Object obj)
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     try
     {
@@ -525,7 +533,7 @@ public class Subsystem
    **/
   public int getCurrentActiveJobs()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     return currentActiveJobs_;
   }
@@ -536,7 +544,7 @@ public class Subsystem
    **/
   public String getDescriptionText()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     return descriptionText_;
   }
@@ -547,7 +555,7 @@ public class Subsystem
    **/
   public String getDisplayFilePath()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     if (dspFileLibrary_ == null) return null;
     else return QSYSObjectPathName.toPath(dspFileLibrary_, dspFileName_, "FILE");
@@ -566,7 +574,7 @@ public class Subsystem
   public String getLanguageLibrary()
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     return langLibrary_;
   }
@@ -586,7 +594,7 @@ public class Subsystem
    **/
   public int getMaximumActiveJobs()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     return maxActiveJobs_;
   }
@@ -597,7 +605,7 @@ public class Subsystem
    **/
   public Job getMonitorJob()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     if (monitorJobName_ == null || monitorJobUser_ == null ||
         monitorJobNumber_ == null || monitorJobName_.length() == 0) {
@@ -643,7 +651,7 @@ public class Subsystem
    **/
   public SystemPool getPool(int sequenceNumber)
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
     if (sequenceNumber<1 || sequenceNumber>10) {
       throw new ExtendedIllegalArgumentException("sequenceNumber", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
@@ -659,7 +667,7 @@ public class Subsystem
    **/
   public SystemPool[] getPools()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     return pools_;
   }
@@ -671,7 +679,7 @@ public class Subsystem
    **/
   public String getStatus()
   {
-    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, "The refresh() method has not yet been called.");
+    if (Trace.isTraceOn() && !refreshed_) Trace.log(Trace.WARNING, REFRESH_METHOD_NOT_YET_CALLED);
 
     return extendedStatus_;
   }
@@ -880,7 +888,8 @@ public class Subsystem
         throw new AS400Exception(msgs);
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.", InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -909,8 +918,8 @@ public class Subsystem
         }
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.",
-                                         InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }
@@ -955,8 +964,8 @@ public class Subsystem
         }
       }
       else {
-        throw new InternalErrorException("No messages returned from failed command.",
-                                         InternalErrorException.UNKNOWN);
+        Trace.log(Trace.ERROR, NO_MESSAGES_RETURNED);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
     }
   }

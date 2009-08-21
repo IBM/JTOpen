@@ -232,7 +232,7 @@ class AS400FileImplNative extends AS400FileImplBase
                 msgs = execute("QSYS/CLRPFM QTEMP/JT400DSSRC"); //@B0C
                 if (msgs.length > 0)
                 {
-                    if (!msgs[0].getID().equals("CPC3101"))
+                    if (!msgs[0].getID().equals("CPC3101")) // "member cleared"
                     {
                         // Clear failed.  Throw exception.
                         Trace.log(Trace.ERROR, "QSYS/CLRPFM QTEMP/JT400DSSRC");
@@ -241,8 +241,8 @@ class AS400FileImplNative extends AS400FileImplBase
                 }
                 else
                 {
-                    throw new InternalErrorException("QSYS/CLRPFM QTEMP/JT400DSSRC",
-                                                     InternalErrorException.UNKNOWN);
+                    Trace.log(Trace.ERROR, "No messages were returned from QSYS/CLRPFM QTEMP/JT400DSSRC");
+                    throw new InternalErrorException("QTEMP/JT400DSSRC", InternalErrorException.UNKNOWN);
                 }
             }
             else if (!msgs[0].getID().equals("CPC7301"))
@@ -256,8 +256,8 @@ class AS400FileImplNative extends AS400FileImplBase
         else
         {
             // No messages.  This shouldn't happen.
-            throw new InternalErrorException("No messages from server.",
-                                             InternalErrorException.UNKNOWN);
+            Trace.log(Trace.ERROR, "No messages from server.");
+            throw new InternalErrorException(InternalErrorException.UNKNOWN);
         }
 
         /////////////////////////////////////////////////////////////////////////////////
@@ -454,8 +454,8 @@ class AS400FileImplNative extends AS400FileImplBase
             }
             else
             {
-                throw new InternalErrorException(e.getMessage(),
-                                                 InternalErrorException.UNKNOWN);
+                Trace.log(Trace.ERROR, e);
+                throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
             }
         }
     }
@@ -710,8 +710,8 @@ class AS400FileImplNative extends AS400FileImplBase
         // Throw an exception if the open failed and there are no AS400Messages
         if (handle_ <= 0)
         {
-            throw new InternalErrorException("Invalid handle returned from QYSTRART",
-                                             InternalErrorException.UNKNOWN);
+            Trace.log(Trace.ERROR, "Invalid handle returned from QYSTRART");
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, handle_);
         }
         // Log warning messages if the open was successful (handle_ > 0)
         // and there are AS400Messages

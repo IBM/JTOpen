@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 
 /**
- This entry represents a single IBM i lock placed on an ObjectDescription. 
+ Represents a single IBM i lock placed on an ObjectDescription. 
  <p>Each entry corresponds to an entry from the List Object Locks (QWCLOBJL) API.<br>  
  Instances of this class are created by the {@link ObjectDescription#getObjectLockList() ObjectDescription.getObjectLockList()} method.
 **/
@@ -211,7 +211,7 @@ public class ObjectLockListEntry
         !(lockState_.equals(LOCK_STATE_EXCLUSIVE_NO_READ)))
     {
       Trace.log(Trace.ERROR, "Invalid lock state: "+ lockState_);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Invalid lock state: "+lockState_,0);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, lockState_);
     }
     return lockState_;
   }
@@ -233,7 +233,7 @@ public class ObjectLockListEntry
         (lockStatus_ != LOCK_STATUS_LOCK_REQUEST_OUTSTANDING_ASYNC))
     {
       Trace.log(Trace.ERROR, "Invalid lock status:", lockStatus_);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Invalid lock status", lockStatus_);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, lockStatus_);
     }
     return lockStatus_;
   }
@@ -256,7 +256,7 @@ public class ObjectLockListEntry
         (lockType_ != LOCK_TYPE_DATA_WITHIN_MEMBER))
     {
       Trace.log(Trace.ERROR, "Invalid lock type:", lockType_);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Invalid lock type", lockType_);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, lockType_);
     }
     return lockType_;
   }
@@ -278,14 +278,14 @@ public class ObjectLockListEntry
     catch (NumberFormatException e)
     {
       Trace.log(Trace.ERROR, "Invalid number conversion for (" + share_ +")");
-      throw new InternalErrorException("Invalid number conversion for (" + share_ +")", InternalErrorException.UNKNOWN);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
     }
     
     if ((intShare != LOCK_SHARE_FILE_NOT_SHARED) &&
         (intShare != LOCK_SHARE_FILE_SHARED))
     {
       Trace.log(Trace.ERROR, "Invalid lock share:", intShare);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Invalid lock share", intShare);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, intShare);
     }
 
     return intShare;
@@ -309,7 +309,7 @@ public class ObjectLockListEntry
     catch (NumberFormatException e)
     {
       Trace.log(Trace.ERROR, "Invalid number conversion for (" + lockScope_ +")");
-      throw new InternalErrorException("Invalid number conversion for (" + lockScope_ +")", InternalErrorException.UNKNOWN);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, e.getMessage());
     }
 
     if ((intLockScope != LOCK_SCOPE_JOB) &&
@@ -317,7 +317,7 @@ public class ObjectLockListEntry
         (intLockScope != LOCK_SCOPE_LOCK_SPACE))
     {
       Trace.log(Trace.ERROR, "Invalid lock scope:", intLockScope);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN, "Invalid lock scope", intLockScope);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN, intLockScope);
     }
 
     return intLockScope;

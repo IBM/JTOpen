@@ -186,9 +186,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e2)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e2.toString(), e2);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
     }
   }
 
@@ -217,7 +216,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     else if (e2 instanceof Error) {
       throw (Error)e2;
     }
-    else return new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+    else return new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e2.getMessage());
   }
 
   public void doItNoExceptions(String methodName, Class[] classes, Object[] objects)
@@ -228,9 +227,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e2)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e2.toString(), e2);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
     }
   }
 
@@ -247,9 +245,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e2)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e2.toString(), e2);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
     }
   }
 
@@ -266,9 +263,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e2)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e2);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
     }
   }
 
@@ -286,9 +282,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e2)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e2.toString(), e2);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e2);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e2.getMessage());
     }
   }
 
@@ -300,9 +295,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e.toString(), e);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e.getMessage());
     }
   }
 
@@ -314,9 +308,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e.toString(), e);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e.getMessage());
     }
   }
 
@@ -329,9 +322,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (Exception e)
     {
-      if (Trace.isTraceErrorOn())
-        Trace.log(Trace.ERROR, e.toString(), e);
-      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+      Trace.log(Trace.ERROR, e);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR, e.getMessage());
     }
   }
 
@@ -1175,8 +1167,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     else
     {
-      throw new InternalErrorException("No messages from server",
-                                       InternalErrorException.UNKNOWN);
+      Trace.log(Trace.ERROR, "No messages from server");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
   }
 
@@ -1448,7 +1440,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         cmd.append("/");
         cmd.append(file_);
         cmd.append(" *FILE ");
-        switch (((Integer) e.nextElement()).intValue())
+        int lockType =  ((Integer)e.nextElement()).intValue();
+        switch (lockType)
         {
           case AS400File.READ_ALLOW_SHARED_READ_LOCK:
             cmd.append("*SHRNUP ");
@@ -1467,7 +1460,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
             cmd.append("*SHRUPD ");
             break;
           default:
-            throw new InternalErrorException(InternalErrorException.UNKNOWN);
+            Trace.log(Trace.ERROR, "Unrecognized lock type: " + lockType);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, lockType);
         }
         cmd.append(member_);
         cmd.append(") ");
@@ -1823,8 +1817,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     else
     {
-      throw new InternalErrorException("No messages from server",
-                                       InternalErrorException.UNKNOWN);
+      Trace.log(Trace.ERROR, "No messages from server");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
   }
 
@@ -1890,7 +1884,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           cmd.append("*SHRUPD ");
           break;
         default:
-          throw new InternalErrorException(InternalErrorException.UNKNOWN);
+          throw new InternalErrorException(InternalErrorException.UNKNOWN, lockToObtain);
       }
       cmd.append(member_);
       cmd.append("))");
