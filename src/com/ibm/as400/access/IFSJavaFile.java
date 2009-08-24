@@ -508,7 +508,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    * @return true if the file is created, false otherwise.
    * @exception IOException If an I/O error occurs while communicating with the IBM i system.
    **/
-   // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean createNewFile()
                  throws IOException
   {
@@ -612,7 +611,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Returns An IFSJavaFile object based on the absolute path name of the
- * current object.  If the system property is set, it is copied to
+ * current object.  If the <tt>system</tt> property is set, it is copied to
  * the returned object.
  *
  * @return an IFSJavaFile object based on the absolute path name
@@ -620,8 +619,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @see  #getAbsolutePath()
 **/
-  // @D1 - new method because of changes to java.io.file in Java 2.
-
   public File getAbsoluteFile()
   {
     if (getSystem() != null)
@@ -653,7 +650,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Returns An IFSJavaFile object based on the canonical path name of the
- * current object.  If the system property is set, it is
+ * current object.  If the <tt>system</tt> property is set, it is
  * copied to the returned object.
  *
  * @return an IFSJavaFile object based on the canonical path name
@@ -662,8 +659,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @exception IOException If an I/O error occurs while communicating with the IBM i system.
  * @see #getCanonicalPath
 **/
-  // @D1 - new method because of changes to java.io.file in Java 2.
-
   public File getCanonicalFile() throws IOException
   {
     if (getSystem() != null)
@@ -825,6 +820,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * </pre>
  *
  * @return The parent directory if one exists; null otherwise.
+ * @see  #getParentFile()
 **/
   public String getParent()
   {
@@ -840,17 +836,15 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * Returns an IFSJavaFile object that represents the parent of
  * the current object. The parent is the path name before the
  * last occurrence of the separator character.  Null is returned
- * null if the separator character does not appear in the path
- * the path or the current object is the file system root.
- * If the system property is set, it is also copied to the returned object.
+ * if the separator character does not appear in the path
+ * or the current object is the file system root.
+ * If the <tt>system</tt> property is set, it is also copied to the returned object.
  *
  * @return an IFSJavaFile object representing the
  * parent directory if one exists; null otherwise.
  *
  * @see  #getParent()
 **/
-  // @D1 - new method because of changes to java.io.file in Java 2.
-
   public File getParentFile()
   {
     if (getParent() == null)
@@ -1017,8 +1011,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return <code>true</code> if the file is hidden; <code>false</code> otherwise.
  * @exception SecurityException  If the user is denied access to the file.
 **/
-  // @D1 - new method because of changes to java.io.file in Java 2.
-
   public boolean isHidden()
     throws SecurityException
   {
@@ -1674,7 +1666,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          has only one root, the returned
  *          array contains only one element.
 **/
-  //@D1a New method because of changes in Java 2.
   public static File[] listRoots()
   {
      IFSJavaFile[] roots = new IFSJavaFile[1];
@@ -1834,9 +1825,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return <code>true</code> if the time is set; <code>false</code> otherwise.
  * @exception SecurityException  If the user is denied access to the file.
 **/
-  // @D1 - new method because of changes to java.io.file in Java 2.
-  // @B8c - Documented new behavior if argument is -1.
-
   public boolean setLastModified(long time)
     throws SecurityException
   {
@@ -1936,8 +1924,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return <code>true</code> if the read only attribute is set; <code>false</code> otherwise.
  * @exception SecurityException  If the user is denied access to the file.
 **/
-   // @D1 - new method because of changes to java.io.file in Java 2.
-
   public boolean setReadOnly()
     throws SecurityException
   {
@@ -2157,8 +2143,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @exception MalformedURLException If the URL cannot be formed.
  *
 **/
-   // @D1 - new method because of changes to java.io.file in Java 2.
-
   public URL toURL() throws MalformedURLException
   {
      String objectName = null;
