@@ -98,7 +98,7 @@ class DataAreaImplRemote implements DataAreaImpl
                 break;
             default:
                 Trace.log (Trace.ERROR, "Programming error: clear() was called as dataAreaType=" + dataAreaType_);
-                throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Run the command.
@@ -132,7 +132,7 @@ class DataAreaImplRemote implements DataAreaImpl
         {
             Trace.log (Trace.ERROR, "Programming error: create(int,String,String,String) " +
                        "was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         length_ = length;
@@ -172,7 +172,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.DECIMAL_DATA_AREA)
         {
             Trace.log(Trace.ERROR, "Programming error: create(int,int,BigDecimal,String,String) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         length_ = length;
@@ -212,7 +212,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.LOGICAL_DATA_AREA)
         {
             Trace.log (Trace.ERROR, "Programming error: create(boolean,String,String) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Build the string for the create.
@@ -244,7 +244,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ == DataArea.LOCAL_DATA_AREA)
         {
             Trace.log(Trace.ERROR, "Programming error: delete() was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Do the delete.
@@ -276,7 +276,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.DECIMAL_DATA_AREA)
         {
             Trace.log(Trace.ERROR, "Programming error: create(int,String,String,String) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         if (!attributesRetrieved_)
@@ -412,7 +412,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.DECIMAL_DATA_AREA)
         {
             Trace.log (Trace.ERROR, "Programming error: readBigDecimal() was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Do the read.
@@ -436,7 +436,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.LOGICAL_DATA_AREA)
         {
             Trace.log(Trace.ERROR, "Programming error: readBoolean() was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Do the read
@@ -558,7 +558,7 @@ class DataAreaImplRemote implements DataAreaImpl
      if (numBytesReturned > dataLength)
      {
        Trace.log(Trace.ERROR, "Unexpected number of bytes returned: "+numBytesReturned);
-       throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+       throw new InternalErrorException (InternalErrorException.UNKNOWN, numBytesReturned);
      }
      else if (numBytesReturned < dataLength)
      {
@@ -728,7 +728,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.CHARACTER_DATA_AREA && dataAreaType_ != DataArea.LOCAL_DATA_AREA)
         {
             Trace.log(Trace.ERROR, "Programming error: retrieve(int,int) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Do the read
@@ -825,7 +825,7 @@ class DataAreaImplRemote implements DataAreaImpl
                 return retrieveAttributesBoolean();
             default:
                 Trace.log (Trace.ERROR, "Programming error: retrieveAttributes() was called as dataAreaType=" + dataAreaType_);
-                throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
     }
 
@@ -1029,7 +1029,7 @@ class DataAreaImplRemote implements DataAreaImpl
                 break;
             default:
                 Trace.log (Trace.ERROR, "Programming error: setType() was called with arg=" + dataAreaType);
-                throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType);
         }
         dataAreaType_ = dataAreaType;
     }
@@ -1107,7 +1107,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.CHARACTER_DATA_AREA && dataAreaType_ != DataArea.LOCAL_DATA_AREA)
         {
             Trace.log (Trace.ERROR, "Programming error: write(String,int) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Build the string for the write.
@@ -1160,7 +1160,7 @@ class DataAreaImplRemote implements DataAreaImpl
                 break;
             default:
                 Trace.log(Trace.ERROR, "Programming error: write(String,int) was called as dataAreaType=" + dataAreaType_);
-                throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Allocate the proper byte array size for the command.
@@ -1209,7 +1209,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.DECIMAL_DATA_AREA)
         {
             Trace.log (Trace.ERROR, "Programming error: write(BigDecimal) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Build the string for the write.
@@ -1240,7 +1240,7 @@ class DataAreaImplRemote implements DataAreaImpl
         if (dataAreaType_ != DataArea.LOGICAL_DATA_AREA)
         {
             Trace.log(Trace.ERROR, "Programming error: write(boolean) was called when dataAreaType=" + dataAreaType_);
-            throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
         }
 
         // Build the string for the write.
@@ -1277,11 +1277,6 @@ class DataAreaImplRemote implements DataAreaImpl
     ObjectDoesNotExistException
     {
       // Assume the arguments have been validated by the public class.
-      if (dataAreaType_ != DataArea.CHARACTER_DATA_AREA && dataAreaType_ != DataArea.LOCAL_DATA_AREA)
-      {
-        Trace.log (Trace.ERROR, "Programming error: write(byte[],int) was called when dataAreaType=" + dataAreaType_);
-        throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-      }
 
       // Build the string for the write.
       String dataAreaIdentifier = null;
@@ -1294,8 +1289,8 @@ class DataAreaImplRemote implements DataAreaImpl
           dataAreaIdentifier = "*LDA";
           break;
         default:
-          Trace.log(Trace.ERROR, "Programming error: write(byte[],int,int,int) was called as dataAreaType=" + dataAreaType_);
-          throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+          Trace.log(Trace.ERROR, "Programming error: write(byte[],int,int,int) was called when dataAreaType=" + dataAreaType_);
+          throw new InternalErrorException (InternalErrorException.UNKNOWN, dataAreaType_);
       }
       String wrtcmd = "QSYS/CHGDTAARA DTAARA(" + dataAreaIdentifier +
         " (" + (dataAreaOffset+1) + " " + dataLength + "))" +

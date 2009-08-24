@@ -30,7 +30,7 @@ import java.util.Vector;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
-// AS400ImplRemote is the functional implementation of the AS400Impl interface.
+// This is the functional implementation of the AS400Impl interface.
 class AS400ImplRemote implements AS400Impl
 {
     private static final boolean PASSWORD_TRACE = false;
@@ -186,7 +186,7 @@ class AS400ImplRemote implements AS400Impl
         catch (NoSuchAlgorithmException e)
         {
             Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
     }
 
@@ -212,7 +212,7 @@ class AS400ImplRemote implements AS400Impl
         catch (NoSuchAlgorithmException e)
         {
             Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
     }
 
@@ -558,7 +558,7 @@ class AS400ImplRemote implements AS400Impl
             catch (PropertyVetoException e)
             {
                 Trace.log(Trace.ERROR, e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
             }
         }
         catch (IOException e)
@@ -687,7 +687,7 @@ class AS400ImplRemote implements AS400Impl
             catch (PropertyVetoException e)
             {
                 Trace.log(Trace.ERROR, e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
             }
         }
         catch (IOException e)
@@ -2106,7 +2106,7 @@ class AS400ImplRemote implements AS400Impl
             break;
           default:
             Trace.log(Trace.ERROR, "Unsupported byte type: " + byteType);
-            throw new InternalErrorException(InternalErrorException.UNKNOWN);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, byteType);
         }
         // This code is a bit strange, but necessary.
         // We decoded the raw bytes above and created a new credential vault using the decoded bytes.

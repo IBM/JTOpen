@@ -1225,7 +1225,7 @@ public class AS400 implements Serializable
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
 
         chooseImpl();
@@ -1599,7 +1599,7 @@ public class AS400 implements Serializable
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
 
         byte[] proxySeed = new byte[9];
@@ -1659,7 +1659,7 @@ public class AS400 implements Serializable
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
 
         byte[] proxySeed = new byte[9];
@@ -1748,7 +1748,7 @@ public class AS400 implements Serializable
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
         }
 
         byte[] proxySeed = new byte[9];
