@@ -717,8 +717,27 @@ public class AS400JDBCSQLXML implements SQLXML
                 if(isXML_) //@xml6 if xml column and thus also a locator, then get bytes from bloblocator code
                     is = blobLocatorValue_.getBinaryStream();   //@xml6 (no trim of XML declaration because it is binary)
                 else
-                    is = clobLocatorValue_.getAsciiStream();
-
+                {
+                    
+                    try
+                    {
+                        // Check for an internal encoding in the string. If there is
+                        // one, we must use it
+                        String clobString = clobLocatorValue_.getSubString((long)0, (int)clobLocatorValue_.length());
+                        String internalEncoding = getInternalEncoding(clobString);
+                        if (internalEncoding != null)
+                        {
+                            is = new ByteArrayInputStream(clobString.getBytes(internalEncoding));
+                        } else
+                        {
+                            is = new ByteArrayInputStream(clobString.getBytes("UTF-8"));
+                        }
+                    } catch (UnsupportedEncodingException e)
+                    {
+                        JDError.throwSQLException(this, JDError.EXC_XML_PARSING_ERROR, e);
+                        return null;
+                    }
+                }
                 break;
             case SQLData.BLOB:  
                 //
