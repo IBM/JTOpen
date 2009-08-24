@@ -277,6 +277,17 @@ implements IFSFileImpl
     }
   }
 
+  public boolean isSourcePhysicalFile()
+    throws IOException, AS400SecurityException, AS400Exception
+  {
+    try {
+      return connection_.callMethodReturnsBoolean (pxId_, "isSymbolicLink");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow3 (e);
+    }
+  }
+
   public boolean isSymbolicLink()
     throws IOException, AS400SecurityException
   {
@@ -426,6 +437,20 @@ implements IFSFileImpl
       throw (IOException) e2;
     else if (e2 instanceof AS400SecurityException)
       throw (AS400SecurityException) e2;
+    else
+      return ProxyClientConnection.rethrow (e);
+  }
+
+  private static InternalErrorException rethrow3 (InvocationTargetException e)
+    throws IOException, AS400SecurityException, AS400Exception
+  {
+    Throwable e2 = e.getTargetException ();
+    if (e2 instanceof IOException)
+      throw (IOException) e2;
+    else if (e2 instanceof AS400SecurityException)
+      throw (AS400SecurityException) e2;
+    else if (e2 instanceof AS400Exception)
+      throw (AS400Exception) e2;
     else
       return ProxyClientConnection.rethrow (e);
   }

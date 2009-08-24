@@ -167,6 +167,7 @@ public class IFSFile
   private AS400 system_;
   private String path_ = "";  // Note: This is never allowed to be null.
   private Permission permission_; //@A6A
+  private String subType_;
 
   //@D2C Changed IFSListAttrsRep to IFSCachedAttributes
   transient private IFSCachedAttributes cachedAttributes_;//@A7A
@@ -183,6 +184,7 @@ public class IFSFile
   private int     listFiles0LastNumObjsReturned_;                           //@D5A
   private String  listFiles0LastRestartName_=null;                          //@D5A
   private byte[]  listFiles0LastRestartID_;                                 //@D5A
+
 
   /**
    Constructs an IFSFile object.
@@ -1473,11 +1475,12 @@ public class IFSFile
   }
 
   /**
-   Returns the parent directory of the integrated file system object
+   Returns the path of the parent directory of the integrated file system object
    represented by this object. The parent directory is everything in
    the path name before the last occurrence of the separator character,
    or null if the separator character does not appear in the path name.
    @return The parent directory.
+   @see  #getParentFile()
    **/
   public String getParent()
   {
@@ -1494,6 +1497,7 @@ public class IFSFile
     // the last occurrence of the file separator character.
     if (!directory.equals(separator))
     {
+      if (directory.length() == 0) return null;
       int index = directory.lastIndexOf(separatorChar);
       if (index <= 0)
       {
@@ -1512,6 +1516,40 @@ public class IFSFile
     }
 
     return parent;
+  }
+
+  /**
+   Returns the parent directory of the current object.
+   The parent is the path name before the
+   last occurrence of the separator character.
+   Null is returned if the separator character does not appear in the path,
+   or if the current object is the file system root.
+   If the <tt>system</tt> property is not yet set in the current object,
+   then the <tt>system</tt> property will not be set in the returned object.
+
+   @return an IFSJavaFile object representing the
+   parent directory if one exists; null otherwise.
+
+   @see  #getParent()
+   **/
+  public IFSFile getParentFile()
+  {
+    String parentPath = getParent();
+
+    if (parentPath == null)
+      return null;
+
+    if (system_ == null)
+    {
+      IFSFile parent = new IFSFile();
+      try { parent.setPath(parentPath); }
+      catch (PropertyVetoException e) {  // will never happen
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e.getMessage());
+      }
+      return parent;
+    }
+
+    return new IFSFile(system_, parentPath);
   }
 
 
@@ -1635,11 +1673,42 @@ public class IFSFile
   public String getSubtype()
     throws IOException, AS400SecurityException
   {
-    if (impl_ == null)
+    if (subType_ == null)
     {
-      chooseImpl();
+      if (impl_ == null)
+      {
+        chooseImpl();
+      }
+      subType_ = impl_.getSubtype();
     }
-    return impl_.getSubtype();
+    return subType_;
+  }
+
+
+  /**
+   Determines if the file is an IBM i "source physical file".
+   Physical files reside under QSYS, and can be either source files (type *SRC) or data files (type *DATA).
+   For further information, refer to the specification of the QDBRTVFD (Retrieve Database File Description) API.
+   @return Whether the file is a source file.
+
+   @exception AS400Exception If the system returns an error message.
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the system.
+   @see AS400File#TYPE_SOURCE
+   @see AS400File#TYPE_DATA
+   **/
+  public boolean isSourcePhysicalFile()
+    throws AS400Exception, AS400SecurityException, IOException
+  {
+    if (!path_.endsWith(".FILE") ||
+        path_.indexOf("/QSYS.LIB") == -1 ||
+        !getSubtype().equals("PF"))
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not a physical file.");
+      return false;
+    }
+
+    return impl_.isSourcePhysicalFile();
   }
 
 

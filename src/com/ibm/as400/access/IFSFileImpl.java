@@ -48,6 +48,7 @@ interface IFSFileImpl
   int isFile() throws IOException, AS400SecurityException;
   boolean isHidden()   throws IOException, AS400SecurityException;      //@D1a
   boolean isReadOnly() throws IOException, AS400SecurityException;      //@D1a
+  boolean isSourcePhysicalFile() throws IOException, AS400SecurityException, AS400Exception;
   boolean isSymbolicLink() throws IOException, AS400SecurityException;
 
   long lastAccessed() throws IOException, AS400SecurityException;      //@D3a

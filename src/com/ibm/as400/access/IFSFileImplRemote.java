@@ -74,8 +74,10 @@ implements IFSFileImpl
   private boolean isSymbolicLink_;
   private boolean determinedIsSymbolicLink_;
   private boolean sortLists_;  // whether file-lists are returned from the File Server in sorted order
-  private RemoteCommandImpl servicePgm_;  // Impl object for remote command host server.
+  private RemoteCommandImpl rmtCmd_;  // Impl object for remote command host server.
 
+  private byte[] qualifiedFileName_;
+  private Integer databaseFileAttributes_;
 
   /**
    Determines if the application can execute the integrated file system object represented by this object.  If the file does not exist, returns false.
@@ -146,8 +148,8 @@ implements IFSFileImpl
     try
     {
       // Create the pgm call object
-      if (servicePgm_ == null) {
-        setupServiceProgram();
+      if (rmtCmd_ == null) {
+        setupRemoteCommand();
       }
 
       ProgramParameter[] parameters = new ProgramParameter[]
@@ -159,11 +161,11 @@ implements IFSFileImpl
       };
 
       // Call the service program.
-      byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgAccess", parameters);
+      byte[] returnedBytes = rmtCmd_.runServiceProgram("QSYS", "QP0LLIB1", "QlgAccess", parameters);
       if (returnedBytes == null)
       {
         Trace.log(Trace.ERROR, "Call to QlgAccess() returned null.");
-        throw new AS400Exception(servicePgm_.getMessageList());
+        throw new AS400Exception(rmtCmd_.getMessageList());
       }
 
       int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
@@ -241,8 +243,8 @@ implements IFSFileImpl
     try
     {
       // Create the pgm call object
-      if (servicePgm_ == null) {
-        setupServiceProgram();
+      if (rmtCmd_ == null) {
+        setupRemoteCommand();
       }
 
       // Get the current access modes, so that we can selectively turn on/off the desired bit(s).
@@ -272,11 +274,11 @@ implements IFSFileImpl
       };
 
       // Call the service program.
-      byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgChmod", parameters);
+      byte[] returnedBytes = rmtCmd_.runServiceProgram("QSYS", "QP0LLIB1", "QlgChmod", parameters);
       if (returnedBytes == null)
       {
         Trace.log(Trace.ERROR, "Call to QlgChmod() returned null.");
-        throw new AS400Exception(servicePgm_.getMessageList());
+        throw new AS400Exception(rmtCmd_.getMessageList());
       }
 
       int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
@@ -318,7 +320,7 @@ implements IFSFileImpl
 
   /**
    Calls QlgStat() to get status information about the file.
-   If the file does not exist, returns null.
+   If the file does not exist, throws an ObjectDoesNotExistException.
    Note: The QlgStat API was introduced in V5R1.  Do not call this method without checking VRM.
    **/
   private int getAccess()
@@ -334,8 +336,8 @@ implements IFSFileImpl
     try
     {
       // Create the pgm call object
-      if (servicePgm_ == null) {
-        setupServiceProgram();
+      if (rmtCmd_ == null) {
+        setupRemoteCommand();
       }
 
       int bufferSizeProvided = 128;  // large enough to accommodate a 'stat' structure
@@ -349,11 +351,11 @@ implements IFSFileImpl
       };
 
       // Call the service program.
-      byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgStat", parameters);
+      byte[] returnedBytes = rmtCmd_.runServiceProgram("QSYS", "QP0LLIB1", "QlgStat", parameters);
       if (returnedBytes == null)
       {
         Trace.log(Trace.ERROR, "Call to QlgStat() returned null.");
-        throw new AS400Exception(servicePgm_.getMessageList());
+        throw new AS400Exception(rmtCmd_.getMessageList());
       }
 
       int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
@@ -413,6 +415,7 @@ implements IFSFileImpl
   public void clearCachedAttributes()                  //@D9A
   {
     attributesReply_ = null;
+    databaseFileAttributes_ = null;
   }
 
   /**
@@ -545,8 +548,8 @@ implements IFSFileImpl
       // Unknown data stream.
       Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
       throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
+        InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                               Integer.toHexString(ds.getReqRepID()));
     }
 
     // Clear any cached file attributes.
@@ -878,8 +881,8 @@ implements IFSFileImpl
       Trace.log(Trace.ERROR, "Unknown reply data stream ",
                 ds.getReqRepID());
       throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
+        InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                               Integer.toHexString(ds.getReqRepID()));
     }
 
     return amountOfSpace;
@@ -1071,8 +1074,8 @@ implements IFSFileImpl
     try
     {
       // Create the pgm call object
-      if (servicePgm_ == null) {
-        setupServiceProgram();
+      if (rmtCmd_ == null) {
+        setupRemoteCommand();
       }
 
       int bufferSizeProvided = 1024;  // large enough for most anticipated paths
@@ -1094,11 +1097,11 @@ implements IFSFileImpl
       {
         repeatRun = false;
         // Call the service program.
-        byte[] returnedBytes = servicePgm_.runServiceProgram("QSYS", "QP0LLIB1", "QlgReadlink", parameters);
+        byte[] returnedBytes = rmtCmd_.runServiceProgram("QSYS", "QP0LLIB1", "QlgReadlink", parameters);
         if (returnedBytes == null)
         {
           Trace.log(Trace.ERROR, "Call to QlgReadlink() returned null.");
-          throw new AS400Exception(servicePgm_.getMessageList());
+          throw new AS400Exception(rmtCmd_.getMessageList());
         }
 
         int returnValue = BinaryConverter.byteArrayToInt(returnedBytes, 0);
@@ -1381,6 +1384,144 @@ implements IFSFileImpl
       }
     }
     return subtype;
+  }
+
+
+  /**
+   Determines if the file is a "source physical file".
+   **/
+  public boolean isSourcePhysicalFile()
+    throws IOException, AS400SecurityException, AS400Exception
+  {
+    // Assume that the caller has verified that the file is a Physical File in QSYS.
+
+    // Layout of first 2 attribute bytes returned in FILD0100 format:
+    //
+    // BIT(2):  Reserved.
+    // BIT(1):  Type of file. If on, the file is a logical database file.
+    //          If off, a physical database file.
+    // BIT(1):  Reserved.
+    // BIT(1):  File type (FILETYPE). If on, the file is a source file (*SRC).
+    //          If off, a data file (*DATA).
+    // BIT(1):  Reserved.
+    // BIT(1):  Access path. If on, the file has a keyed sequence access path.
+    //          If off, an arrival sequence access path.
+    // BIT(1):  Reserved.
+    // BIT(1):  Record format level check (LVLCHK).
+    //          If on, the record format level identifiers are checked when the file is opened (*YES).
+    //          If off, they are not checked when the file is opened (*NO).
+    // BIT(1):  Select/omit. If on, the file is a select/omit logical file.
+    // BIT(4):  Reserved.
+    // BIT(1):  Double-byte character set (DBCS) or Graphic data.
+    //          If on, the file's record format(s) contains DBCS or Graphic data fields.
+    // BIT(1):  Double-byte character set (DBCS) or Graphic literals.
+    //          If on, the file's record format(s) contains DBCS or Graphic literals.
+    //
+
+    // Examine the FILETYPE bit (the 12th bit from the right).
+    // If the bit is on, that indicates the file is a source file (*SRC).
+    // If the bit is off, that indicates the file is a data file (*DATA).
+    int attributeFlags = retrieveDatabaseFileAttributes();
+    return ((attributeFlags & 0x00000800) != 0);  // 12th bit from the right
+  }
+
+  /**
+   Call QDBRTVFD (if necessary) to get additional status information about the file.
+   If the file does not exist, throws an ObjectDoesNotExistException.
+   **/
+  private int retrieveDatabaseFileAttributes() throws IOException, AS400SecurityException, AS400Exception
+  {
+    if (databaseFileAttributes_ == null)
+    {
+      try
+      {
+        int bufferSizeProvided = 400; // the FILD0100-format structure occupies 400 bytes
+        ProgramParameter[] parameters = new ProgramParameter[]
+        {
+          // Receiver variable, Output, Char(*)
+          new ProgramParameter(bufferSizeProvided),
+          // Length of receiver variable, Input, Binary(4)
+          new ProgramParameter(BinaryConverter.intToByteArray(bufferSizeProvided)),
+          // Qualified returned file name, Output, Char(20)
+          new ProgramParameter(20),
+          // Format name, Input, Char(8) : EBCDIC 'FILD0100'
+          new ProgramParameter(new byte[] { (byte)0xC6, (byte)0xC9, (byte)0xD3, (byte)0xC4, (byte)0xF0, (byte)0xF1, (byte)0xF0, (byte)0xF0 } ),
+          // Qualified file name, Input, Char(20) : fileName + libraryName
+          new ProgramParameter(composeQualifiedNameBytes()),
+          // Record format name, Input, Char(10) : 10 EBCDIC blanks
+          new ProgramParameter(new byte[] { (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 } ),
+          // Override processing, Input, Char(1) : EBCDIC '0' (no override processing)
+          new ProgramParameter(new byte[] { (byte)0xF0 } ),
+          // System, Input, Char(10) : EBCDIC '*LCL' (local files only)
+          new ProgramParameter(new byte[] { (byte)0x5C, (byte)0xD3, (byte)0xC3, (byte)0xD3, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 } ),
+          // Format type, Input, Char(10) : EBCDIC '*INT'
+          new ProgramParameter(new byte[] { (byte)0x5C, (byte)0xC9, (byte)0xD5, (byte)0xE3, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 } ),
+          // Error Code, I/O, Char(*)
+          new ErrorCodeParameter()
+        };
+
+        // Create the pgm call object
+        if (rmtCmd_ == null) {
+          setupRemoteCommand();
+        }
+
+        if (!rmtCmd_.runProgram("QSYS", "QDBRTVFD", parameters)) // conditionally threadsafe
+        {
+          throw new AS400Exception(rmtCmd_.getMessageList());
+        }
+
+        byte[] outputData = parameters[0].getOutputData();
+        int bytesReturned = BinaryConverter.byteArrayToInt(outputData, 0);
+        if (bytesReturned < 10)
+        {
+          Trace.log(Trace.ERROR, "Insufficient output bytes returned from QDBRTVFD: " + bytesReturned);
+          throw new InternalErrorException(fd_.path_, InternalErrorException.UNKNOWN);
+        }
+
+        // Grab the "attribute bytes". These are the 2 bytes starting at offset 8.
+        databaseFileAttributes_ = new Integer(BinaryConverter.byteArrayToUnsignedShort(outputData, 8));
+      }
+      catch (AS400Exception e) {
+        throw e;
+      }
+      catch (AS400SecurityException e) {
+        throw e;
+      }
+      catch (IOException e) {
+        throw e;
+      }
+      catch (Exception e) {
+        Trace.log(Trace.ERROR, "Error while retrieving database file attributes.", e);
+        throw new ExtendedIOException(fd_.path_, ExtendedIOException.UNKNOWN_ERROR);
+      }
+    }
+
+    return databaseFileAttributes_.intValue();
+  }
+
+  // Setup qualified file name program parameter object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+  private synchronized byte[] composeQualifiedNameBytes() throws IOException
+  {
+    // If not already setup.
+    if (qualifiedFileName_ == null)
+    {
+      CharConverter converter = new CharConverter(37); // converts Unicode chars to EBCDIC bytes
+
+      // Start with 20 EBCDIC spaces.
+      qualifiedFileName_ = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+
+      // Parse out the library and filename from the path.
+      QSYSObjectPathName qsysPath = new QSYSObjectPathName(fd_.path_);
+      String libraryName = qsysPath.getLibraryName();
+      String fileName    = qsysPath.getObjectName();
+
+      // Put the converted file name at the beginning of the array.
+      converter.stringToByteArray(fileName, qualifiedFileName_, 0);
+      // Put the converted library name at position ten.
+      converter.stringToByteArray(libraryName, qualifiedFileName_, 10);
+    }
+
+    return qualifiedFileName_;
   }
 
 
@@ -2040,8 +2181,8 @@ implements IFSFileImpl
       // Unknown data stream.
       Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
       throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
+        InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                               Integer.toHexString(ds.getReqRepID()));
     }
 
     if (success)
@@ -2123,8 +2264,8 @@ implements IFSFileImpl
       // Unknown data stream.
       Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
       throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
+        InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                               Integer.toHexString(ds.getReqRepID()));
     }
 
     return success;
@@ -2193,8 +2334,8 @@ implements IFSFileImpl
       // Unknown data stream.
       Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
       throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
+        InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN,
+                               Integer.toHexString(ds.getReqRepID()));
     }
 
     // Clear any cached attributes.
@@ -2615,17 +2756,17 @@ implements IFSFileImpl
   }
 
 
-  // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
-  protected synchronized void setupServiceProgram() throws IOException
+  // Setup remote service program object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+  protected synchronized void setupRemoteCommand() throws IOException
   {
     // If not already setup.
-    if (servicePgm_ == null)
+    if (rmtCmd_ == null)
     {
       if (fd_.system_.canUseNativeOptimizations())
       {
         try
         {
-          servicePgm_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
+          rmtCmd_ = (RemoteCommandImpl)Class.forName("com.ibm.as400.access.RemoteCommandImplNative").newInstance();
           // Avoid direct reference - it can cause NoClassDefFoundError at class loading time on Sun JVM's.
         }
         catch (Throwable e) {
@@ -2633,11 +2774,11 @@ implements IFSFileImpl
           Trace.log(Trace.WARNING, "Unable to instantiate class RemoteCommandImplNative.", e);
         }
       }
-      if (servicePgm_ == null)
+      if (rmtCmd_ == null)
       {
-        servicePgm_ = new RemoteCommandImplRemote();
+        rmtCmd_ = new RemoteCommandImplRemote();
       }
-      servicePgm_.setSystem(fd_.system_);
+      rmtCmd_.setSystem(fd_.system_);
     }
   }
 
