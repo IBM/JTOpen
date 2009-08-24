@@ -35,8 +35,6 @@ import java.util.TimeZone;
 public class User implements Serializable
 {
     static final long serialVersionUID = 5L;
-    private static final boolean COMMAND_CALL = true;
-    private static final boolean PROGRAM_CALL = false;
 
     // These need to be in this order so we can easily reference them from the code that parses the API return information in loadUserInformation().
     private static final String[] SPECIAL_AUTHORITIES = new String[]
@@ -376,7 +374,7 @@ public class User implements Serializable
     }
 
     /**
-     Determines if this user profile exists on the system.  This method just calls {@link #loadUserInformation loadUserInformation()} and if no exception is thrown, the user profile exists, if a CPF9801 then the user profile does not exist.  Any other exceptions (e.g. not enough authority) are still thrown.
+     Determines if this user profile exists on the system.  This method simply calls the CHKOBJ API and if no exception is thrown, the user profile exists; if a CPF9801 occurs then the user profile does not exist.  Any other exceptions are still thrown.
      <p>The value returned by this method is not cached.  That is, every time exists() is called, a call to the system is made to determine if the user profile still exists.
      @return  true if the profile exists, false if it does not.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -388,9 +386,25 @@ public class User implements Serializable
     public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Determining user existence.");
+        if (system_ == null)
+        {
+            Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+            throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        if (name_ == null)
+        {
+            Trace.log(Trace.ERROR, "Cannot connect to server before setting name.");
+            throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
         try
         {
-            loadUserInformation();
+            String cmdString = "QSYS/CHKOBJ OBJ(QSYS/"+name_+") OBJTYPE(*USRPRF) AUT(*NONE)"; // not a threadsafe API prior to V5R3
+            CommandCall cmd = new CommandCall(system_, cmdString);
+            if (!cmd.run())
+            {
+              throw new AS400Exception(cmd.getMessageList());
+            }
         }
         catch (AS400Exception e)
         {
