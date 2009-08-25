@@ -1058,7 +1058,7 @@ public class AS400JDBCSQLXML implements SQLXML
         }
         if (blobLocatorValue_ != null)
         {
-            blobLocatorValue_.free();
+            //blobLocatorValue_.free(); //@olddesc
             blobLocatorValue_ = null;
         }
 
@@ -1070,7 +1070,7 @@ public class AS400JDBCSQLXML implements SQLXML
 
         if (clobLocatorValue_ != null)
         {
-            clobLocatorValue_.free();
+            //clobLocatorValue_.free();//@olddesc
             clobLocatorValue_ = null;
         }
 

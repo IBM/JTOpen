@@ -5762,6 +5762,15 @@ implements ResultSet
                 {
                     /*ignore*/
                 }            
+                try                                                                              //@olddesc
+                {                                                                                 //@olddesc
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@olddesc
+                    sqlDataAsLocator.setHandle (((AS400JDBCSQLXMLLocator)columnValue).getHandle()); //@olddesc
+                }                                                                                 //@olddesc
+                catch(ClassCastException cce)                                                    //@olddesc
+                {
+                    /*ignore*/
+                }            
             }
 
             if(columnValue != null)

@@ -95,5 +95,22 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCSQLXML
         lobType = SQLData.BLOB_LOCATOR;
     }
 
+    //@olddesc
+    /**
+    Returns the handle to this locator in the database.
+
+    @return             The handle to this locator in the databaes.
+    **/
+    int getHandle()throws SQLException  
+    {
+         
+        if(clobLocatorValue_ != null)
+            return clobLocatorValue_.getHandle();
+        else if(blobLocatorValue_ != null)
+            return blobLocatorValue_.getHandle();
+        else
+            return -1; //not set or updated by non-locator value and not needed
+
+    }
        
 }

@@ -419,16 +419,48 @@ final class SQLXMLLocator implements SQLLocator
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
-        else if( savedObject_ instanceof SQLXML ) 
+        else if( savedObject_ instanceof SQLXML ) //@olddesc
         {
            SQLXML xml = (SQLXML)savedObject_;
            
-           //getString() handles internal representation of clob/dbclob/blob...
-           String stringVal = xml.getString();
-           if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
-               locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length(), true); 
-           else
-               locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);  //@xmlutf8
+           boolean set = false;
+           if(savedObject_ instanceof AS400JDBCSQLXMLLocator)
+           {
+               AS400JDBCSQLXMLLocator xmlLocator = (AS400JDBCSQLXMLLocator)savedObject_;
+
+               //Synchronize on a lock so that the user can't keep making updates
+               //to the xml while we are taking updates off the vectors.
+               synchronized(xmlLocator)
+               {
+                   // See if we saved off our real object from earlier.
+                   if(xmlLocator.clobLocatorValue_ != null && xmlLocator.clobLocatorValue_.savedObject_ != null)
+                   {
+                       savedObject_ = xmlLocator.clobLocatorValue_.savedObject_;
+                       scale_ = xmlLocator.clobLocatorValue_.savedScale_;
+                       xmlLocator.clobLocatorValue_.savedObject_ = null;
+                       writeToServer();
+                       return;
+                   }
+                   else if(xmlLocator.blobLocatorValue_ != null && xmlLocator.blobLocatorValue_.savedObject_ != null)
+                   {
+                       savedObject_ = xmlLocator.blobLocatorValue_.savedObject_;
+                       scale_ = xmlLocator.blobLocatorValue_.savedScale_;
+                       xmlLocator.blobLocatorValue_.savedObject_ = null;
+                       writeToServer();
+                       return;
+                   }
+               }
+           }
+           
+           if(!set)
+           {
+               //getString() handles internal representation of clob/dbclob/blob...
+               String stringVal = xml.getString();
+               if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
+                   locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length(), true); 
+               else
+                   locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);  //@xmlutf8
+           }
         }
         else
         {
