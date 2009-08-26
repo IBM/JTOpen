@@ -287,7 +287,9 @@ final class SQLXMLLocator implements SQLLocator
                 {
                     int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    HexReaderInputStream stream = new HexReaderInputStream((Reader)savedObject_);
+                    //assume reader is utf-8 since setAsciiStream() 
+                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, unicodeUtf8Converter_.getCcsid(), null, blockSize); //@xmlreader
+                    
                     byte[] byteBuffer = new byte[blockSize];
                     int totalBytesRead = 0;
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
@@ -323,7 +325,7 @@ final class SQLXMLLocator implements SQLLocator
                 }
                 catch(ExtendedIOException eie)
                 {
-                    // the Reader contains non-hex characters
+                    // the Reader contains bad chars that can't convert
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
                 }
                 catch(IOException ie)
@@ -339,7 +341,9 @@ final class SQLXMLLocator implements SQLLocator
                 {
                     int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    HexReaderInputStream stream = new HexReaderInputStream((Reader)savedObject_);
+                    //assume reader is utf-8 since setAsciiStream()
+                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, unicodeUtf8Converter_.getCcsid(), null,  blockSize); //@xmlreader
+                   
                     byte[] byteBuffer = new byte[blockSize];
                     int totalBytesRead = 0;
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
@@ -365,7 +369,7 @@ final class SQLXMLLocator implements SQLLocator
                 }
                 catch(ExtendedIOException eie)
                 {
-                    // the Reader contains non-hex characters
+                    // the Reader contains bad chars that can't convert
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
                 }
                 catch(IOException ie)
