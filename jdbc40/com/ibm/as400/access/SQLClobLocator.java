@@ -197,26 +197,19 @@ final class SQLClobLocator implements SQLLocator
                 {
                     try
                     {
-                        //String readerStr = JDUtilities.readerToString((Reader)savedObject_);
                         int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        int bidiStringType = settings_.getBidiStringType();
-                        if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
-
-                        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
-                        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
-                        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
-
-                        ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
-                        byte[] byteBuffer = new byte[blockSize];
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 )
+                        Reader stream = (Reader)object;
+                        StringBuffer buf = new StringBuffer();
+                        char[] charBuffer = new char[blockSize];
+                        int totalCharsRead = 0;
+                        int charsRead = stream.read(charBuffer, 0, blockSize);
+                        while(charsRead > -1)
                         {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1C
-                            totalBytesRead += bytesRead;
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
+                            buf.append(charBuffer, 0, charsRead);
+                            totalCharsRead += charsRead;
+                            charsRead = stream.read(charBuffer, 0, blockSize);
                         }
-                        stream.close(); //@scan1
+                        value_ = buf.toString();
 
                     }
                     catch(IOException ie)
