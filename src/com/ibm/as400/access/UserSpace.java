@@ -24,7 +24,9 @@ import java.util.Vector;
 
 /**
  Represents a user space object in the IBM i operating system.
- By default, the UserSpace class will make use of two distinct host servers.  The File Server will be used for read() and write() requests, and the Remote Command Host Server will be used for create() and other requests.  This behavior can be changed with the {@link #setMustUseProgramCall setMustUseProgramCall()} method.  For applications that access user spaces located in <tt>QTEMP</tt>, users are strongly advised to call <tt>setMustUseProgramCall(true)</tt>, since different jobs get different QTEMP libraries. 
+ <p>Usage note: By default, the UserSpace class will make use of two different host servers.  For performance reasons, the File Server will be used for read() and write() requests, and the Remote Command Host Server will be used for create() and other requests.  This behavior can be changed with the {@link #setMustUseProgramCall setMustUseProgramCall()} method.
+ <p>Similarly, when running directly on IBM i, by default the UserSpace class will call internal API's and commands on-thread when possible, bypassing the Remote Command Host Server.  This behavior can be changed with the {@link #setMustUseSockets setMustUseSockets()} method.
+ <p>For applications that access user spaces located in <tt>QTEMP</tt>, users are strongly advised to keep everything in the same job, by calling <tt>setMustUseProgramCall(true)</tt> and <tt>setMustUseSockets(true)</tt>, since different jobs have different QTEMP libraries. 
  **/
 public class UserSpace implements Serializable
 {
@@ -79,7 +81,7 @@ public class UserSpace implements Serializable
     private String name_ = "";
     // Use ProgramCall instead of IFS.
     private boolean mustUseProgramCall_ = false;
-    // Use sockets instead of native methods when running natively
+    // Use sockets instead of native methods when running natively.
     private boolean mustUseSockets_ = false;
 
     // Data converter for reads and writes with string objects.
@@ -515,7 +517,7 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Indicates if Toolbox ProgramCall class will be used internally to perform user space read and write requests.  If false, Toolbox Integrated File System classes will be used to perform user space read and write requests.
+     Indicates if the Toolbox ProgramCall class will be used internally to perform user space read and write requests.  If false, Toolbox Integrated File System classes will be used to perform user space read and write requests.
      @return  true if user space read and write requests will be performed via program call; false otherwise.
      @see #setMustUseProgramCall
      **/
@@ -737,10 +739,13 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Specifies the API set that is used to perform user space read and write operations.  If false (the default), read and write requests are made via the File Server.  Internally, an IFSRandomAccessFile object is used to perform read and write requests.  If true, internally a ProgramCall object is used to perform read and write requests, which are made via the Remote Command Host Server.  In general, requests made via the File object are faster, but the behavior of requests made via a ProgramCall object is more consistent with user space API's.
-     <p>If accessing user spaces located in QTEMP, it is strongly advised that <tt>setMustUseProgramCall(true)</tt> be called.  A side-effect of <tt>setMustUseProgramCall(true)</tt> is that, when running on IBM i, the Toolbox by default will call internal User Space API's on-thread.
-     <p>This option cannot be reset once a connection has been established.
+     Specifies the API set that is used to perform user space read and write operations.
+     This method is useful when using ProgramCall or CommandCall objects in conjunction with user spaces.
+     If false (the default), read and write requests are made via the File Server;  internally, an IFSRandomAccessFile object is used to perform read and write requests.  If true, internally a ProgramCall object is used to perform read and write requests, which are made via the Remote Command Host Server.  In general, requests made via the File object are faster, but the behavior of requests made via a ProgramCall object is more consistent with user space API's.
+     <p>If accessing user spaces located in QTEMP, it is strongly advised that <tt>setMustUseProgramCall(true)</tt> be called.  In addition, depending on whether subsequent accesses of the user space (such as by program calls) will be run on- or off-thread, you should also call {@link #setMustUseSockets setMustUseSockets(true)}.
+     <p>This property cannot be reset once a connection has been established.
      @param  useProgramCall  Internally use ProgramCall to perform read and write requests.
+     @see #isMustUseProgramCall
      **/
     public void setMustUseProgramCall(boolean useProgramCall)
     {
@@ -987,11 +992,16 @@ public class UserSpace implements Serializable
     }
 
     /**
-     * Sets this object to using sockets.  When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  
-     * There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. 
-     * The must use sockets property cannot be changed once a connection to the system has been established.
-     * This method is useful for non-thread safe APIs that use user spaces. 
+     * Sets this object to using sockets.
+     * This method is useful when running directly on IBM i, using ProgramCall or CommandCall objects in conjunction with user spaces.
+     * When your Java program runs on the IBM i system, some Toolbox classes access data via a direct API call instead of making a socket call to the system (for example, to the Remote Command Host Server).
+     * There are minor differences in the behavior of the classes when they use direct API calls instead of socket calls.  If your program is affected by these differences you can use this method to force the Toolbox classes to use socket calls instead of direct API calls.  The default is false. 
+     * <p>Note: This method has no effect if the Java application is running remotely, that is, not running directly on an IBM i system.  When running remotely, the Toolbox submits <i>all</i> program and command calls via sockets, regardless of the setting of this property.
+     * <p>This property cannot be reset once a connection has been established.
      * @param  mustUseSockets  true to use sockets; false otherwise.
+     * @see #isMustUseSockets
+     * @see CommandCall#setThreadSafe(Boolean)
+     * @see ProgramCall#setThreadSafe(boolean)
     **/
     public void setMustUseSockets(boolean mustUseSockets)
     {
@@ -1019,8 +1029,10 @@ public class UserSpace implements Serializable
     }
 
     /**
-     When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
-     @return  true if you have indicated that the user space must use sockets; false otherwise.
+     Indicates whether sockets must be used when internally calling programs and commands.
+     When your Java program runs on the system, some Toolbox classes access data via a direct call to an API instead of making a socket call to the system (for example, to the Remote Command Host Server).  There are minor differences in the behavior of the classes when they use direct API calls instead of socket calls.  If your program is affected by these differences you can check whether this object will use socket calls instead of API calls by using this method.
+     @return  true if this object must use sockets; false otherwise.
+     @see #setMustUseSockets
      **/
     public boolean isMustUseSockets()
     {
