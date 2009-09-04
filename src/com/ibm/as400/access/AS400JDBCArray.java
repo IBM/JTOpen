@@ -89,7 +89,7 @@ public class AS400JDBCArray implements Array
         if(data_.length > 0 && isSQLData_)
             contentTemplate_ = (SQLData)data_[0];
         else
-            contentTemplate_ = SQLDataFactory.newData(typeName, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, 37, null, vrm_, con.getProperties());
+            contentTemplate_ = SQLDataFactory.newData(typeName, 1, 1, 1, 37, null, vrm_, con.getProperties());
         //allow max for local conversion only since it is not associated with a column on hostserver yet
     }
 
@@ -98,7 +98,7 @@ public class AS400JDBCArray implements Array
     /**
      This method will free the internal memory that this object holds.
      **/
-    synchronized public void free () throws java.sql.SQLException
+    synchronized public void free () throws SQLException
     { 
     	//na  no locators can be in arrays.
     }
@@ -157,7 +157,7 @@ public class AS400JDBCArray implements Array
      *                if an error occurs while attempting to access the array
      * 
      */
-    synchronized public Object getArray() throws java.sql.SQLException
+    synchronized public Object getArray() throws SQLException
     { 
         //data could be sqlData if output from query or input Ojbects such as Integer or Clob
 
@@ -183,7 +183,7 @@ public class AS400JDBCArray implements Array
      *                if an error occurs while attempting to access the array
      */
     synchronized public Object getArray(long index, int count)
-            throws java.sql.SQLException
+            throws SQLException
     {
        
         if ((index <= 0) || (count < 0) || (index > data_.length)
@@ -194,25 +194,23 @@ public class AS400JDBCArray implements Array
     }
 
     /**
-     * Retrieves a result set that contains the elements of the SQL
+     * Retrieves  Array ResultSet that contains the elements of the SQL
      * <code>ARRAY</code> value designated by this <code>Array</code>
-     * object. If appropriate, the elements of the array are mapped using the
-     * connection's type map; otherwise, the standard mapping is used.
-     * <p>
+     * object. 
      * The result set contains one row for each array element, with two columns
      * in each row. The second column stores the element value; the first column
      * stores the index into the array for that element (with the first array
      * element being at index 1). The rows are in ascending order corresponding
      * to the order of the indices.
      * 
-     * @return a {@link ResultSet} object containing one row for each of the
+     * @return an Array ResultSet object containing one row for each of the
      *         elements in the array designated by this <code>Array</code>
      *         object, with the rows in ascending order based on the indices.
      * @exception SQLException
      *                if an error occurs while attempting to access the array
      */
-    synchronized public java.sql.ResultSet getResultSet()
-            throws java.sql.SQLException
+    synchronized public ResultSet getResultSet()
+            throws SQLException
     {
         
 
@@ -249,8 +247,8 @@ public class AS400JDBCArray implements Array
      *                if an error occurs while attempting to access the array
      * 
      */
-    synchronized public java.sql.ResultSet getResultSet(long index, int count)
-            throws java.sql.SQLException
+    synchronized public ResultSet getResultSet(long index, int count)
+            throws SQLException
     {
         
         
@@ -304,7 +302,7 @@ public class AS400JDBCArray implements Array
      * 
      */
     synchronized public Object getArray(java.util.Map map)
-            throws java.sql.SQLException
+            throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
@@ -341,7 +339,7 @@ public class AS400JDBCArray implements Array
      * 
      */
     synchronized public Object getArray(long index, int count, java.util.Map map)
-            throws java.sql.SQLException
+            throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
@@ -373,8 +371,8 @@ public class AS400JDBCArray implements Array
      *                if an error occurs while attempting to access the array
      * 
      */
-    synchronized public java.sql.ResultSet getResultSet(java.util.Map map)
-            throws java.sql.SQLException
+    synchronized public ResultSet getResultSet(java.util.Map map)
+            throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
@@ -414,8 +412,8 @@ public class AS400JDBCArray implements Array
      *                if an error occurs while attempting to access the array
      * 
      */
-    synchronized public java.sql.ResultSet getResultSet(long index, int count,
-            java.util.Map map) throws java.sql.SQLException
+    synchronized public ResultSet getResultSet(long index, int count,
+            java.util.Map map) throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
@@ -428,7 +426,7 @@ public class AS400JDBCArray implements Array
     /* Get part or all of array.  index is 1-based.  
      * If array content is output from database, then convert data via getObject().
      */
-    private Object getArrayX(long index, int count) throws java.sql.SQLException
+    private Object getArrayX(long index, int count) throws SQLException
     {
          
         
