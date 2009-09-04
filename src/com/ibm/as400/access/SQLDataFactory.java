@@ -764,7 +764,7 @@ class SQLDataFactory
                 return new SQLDouble(settings);
         }
 
-        else if(nativeType.equals("GRAPHIC"))
+        else if(nativeType.equals("GRAPHIC") || nativeType.equals("NCHAR")) //@j40type
             return new SQLGraphic(length, settings, ccsid); // @C1C @C4C @cca1
 
         else if(nativeType.equals("GRAPHIC VARYING"))
@@ -840,7 +840,7 @@ class SQLDataFactory
         else if(nativeType.equals("VARGRAPH"))
             return new SQLVargraphic(length, settings, ccsid);      // @E1C @cca1
 
-        else if(nativeType.equals("VARGRAPHIC"))
+        else if(nativeType.equals("VARGRAPHIC") || nativeType.equals("NVARCHAR")) //@j40type
             return new SQLVargraphic(length, settings, ccsid); //@KKB @cca1
         else if(nativeType.equals("ARRAY"))
             return new SQLArray( length, newData( nativeType,
