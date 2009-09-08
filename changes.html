@@ -35,7 +35,8 @@ Calendar, or GregorianCalendar. Some of these methods assume that the client
 Java application is running in the same time zone as the IBM i server.
 This behavior is long-standing, and will be corrected in a future Toolbox release.
 
-The constructor for class RecordFormatDocument fails on Sun's 1.4.2 JVM,
+The constructor for the main class for RFML (RecordFormatDocument)
+fails on Sun's 1.4.2 JVM, and when running on IBM i using the native 1.4.2 JVM,
 with the following error:
   "org.xml.sax.SAXNotRecognizedException:
    Feature: http://apache.org/xml/features/continue-after-fatal-error"
@@ -44,6 +45,7 @@ with the following error:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#66">Fixes and enhancements in JTOpen 6.6</A><BR>
 <A HREF="#65_1">Fixes and enhancements in JTOpen 6.5.1</A><BR>
 <A HREF="#65">Fixes and enhancements in JTOpen 6.5</A><BR>
 <A HREF="#64">Fixes and enhancements in JTOpen 6.4</A><BR>
@@ -70,6 +72,78 @@ with the following error:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="66">Fixes and enhancements in JTOpen 6.6</A> <i>(released 2009-09-11)</i></H3>
+<PRE>
+- <i>Various:</i> Eliminated trace calls that were redundant with thrown exceptions.
+- <i>Various:</i> Improved construction of InternalErrorExceptions.
+- <i>Various:</i> For threadsafe API's and CL's, perform internal calls on-thread when allowed by properties.
+- <i>Various:</i> Javadoc enhancements.
+- Beans: Corrected EventSetDescriptor argument, to eliminate ExceptionInInitializerError on some JVMs.
+- Build: Include JarMaker classes in jt400Native.jar
+- Command call, Program call: Restore cross-version serializability between old/new releases of JTOpen.
+- Command call: Refined processing of threadSafe property.
+- Connection: Added system property: AS400.guiAvailable.
+- Connection: Don't print stack trace if class NativeVersion not found.
+- Connection: In setGSS* methods, clear any prior signon info.
+- Connection: New infrastructure to support use of auto-renewing Profile Tokens.
+- Connection: Normalized trace calls. Eliminated trace calls that were redundant with thrown exceptions.
+- Connection: Re-enable Toolbox native PASE code.
+- Data conversion: (AS400Structure) Made defaultValue_ non-static. Synchronized access to elements_ and defaultValue_. Throw ExtendedIllegalArgumentException instead of ArrayIndexOutOfBoundsException.
+- Date conversion: Made 'public' the DateTimeConverter.timeZoneForSystem() method.
+- IFS: Added IFSFile methods: getParentFile(), getPathPointedTo(), and isSourcePhysicalFile().
+- IFS: For default IFSFile objects, changed getParent() to return null instead of "/".  Side effect: For default VIFSFile and VIFSDirectory objects, getParentDirectory() will now return null instead of "/".
+- IFS: Renamed some internal methods for better maintainability.
+- IFS: Support new File methods introduced in Java 6.0.
+- JDBC: Add stronger date, time, and timestamp validation.
+- JDBC: Add wrapper methods around set/update Default to match JCC's new names.
+- JDBC: Allow JDBC connection properties to propagate to Native JDBC driver.
+- JDBC: Change lob locator block size to 1MB for Stream input.
+- JDBC: Corrected an empty-string comparison in initializeAS400().
+- JDBC: Fix AS400JDBCResultSet.updateSQLXML to handle null values.
+- JDBC: Fix JDBC 4.0 XML internal encoding check.
+- JDBC: Fix SQL Array output parm index.
+- JDBC: Fix for XML with no declaration to default to utf-8.
+- JDBC: Fix for setting an SQLXML object into a Blob/Clob column.
+- JDBC: Fix in CallableStatement.getArray method to support SQL Arrays.
+- JDBC: Fix metadata statement leak.
+- JDBC: Fix to SQL Array output parm filtering.
+- JDBC: Fix to XML zero length stream.
+- JDBC: Fix to double-byte clob when reader/stream length is not specified.
+- JDBC: Fix to multi-row merge.
+- JDBC: Fix update and set SQLXML for null data.
+- JDBC: Fix updateSQLXML for null data.
+- JDBC: Handle JDBC readers and input streams with length not specified.
+- JDBC: Multi-row update support.
+- JDBC: New XML message.
+- JDBC: New functionality for XML and Array support.
+- JDBC: Port of new XML code to JDBC 3.0.
+- JDBC: Remove incorrect catch block.
+- JDBC: Remove some references to old versions and rename IBM i.
+- JDBC: Separate login timeout property from socket time out.
+- JDBC: Trim XML encoding when PS.setString() is used.
+- JDBC: XML binary stream fix to not trim off XML declaration.
+- JDBC: XML double-byte/single-byte when CCSID does not match conversion bug fix.
+- JDBC: XML fix to account for byte order mark in utf-15be string.
+- JarMaker: Added component: PCML. Rearranged constants for better readability. Renamed some private constants.
+- Object description: Improved performance of refresh(). Exploit QUSROBJD format OBJD0100.
+- Permission: Added new Permission constructor with 'followLinks' parameter. Added isFollowSymbolicLinks().
+- Permission: Improved messages in some thrown exceptions.
+- Product: Eliminated 'NullPointerException: featureID' along certain paths.
+- Program call: (ServiceProgramCall) Added check for more than 7 parameters.
+- Program call: Added new method: suggestThreadSafe().
+- Program call: Added new streamlined runProgram() method.
+- Program call: Added static utility method getDefaultThreadSafety().
+- QSYS object types: Added new type: SQLXSR.
+- RFML: Added clarifying comment.
+- Security: Added checks for null keyRingName.
+- Trace: Added new variation of printByteArray().
+- Trace: Tolerate null arguments in log() methods.
+- User space: Call UserSpace API's on-thread by default.
+- User space: Respect setting of 'mustUseSockets' property when calling programs internally.
+- User: Changed User.exists() method to call CHKOBJ instead of QSYRUSRI.
+</PRE>
 
 <HR>
 <H3><A NAME="65_1">Fixes and enhancements in JTOpen 6.5.1</A> <i>(released 2009-05-20)</i></H3>
@@ -106,7 +180,7 @@ with the following error:
   However, setting threadSafe=true is not advised unless your application
   is known to call only thread-safe programs.
 
-- <i>Various:</i>: Changes to support modified default command thread-safety behavior.
+- <i>Various:</i> Changes to support modified default command thread-safety behavior.
 - <i>Various:</i> Javadoc updates.
 - <i>Various:</i> Renamed private constant names and variables for better readability.
 - <i>Various:</i> Enhancements suggested by static analysis:
