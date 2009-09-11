@@ -102,6 +102,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final String SOCKET_SEND_BUFFER_SIZE = "soSendBufferSize"; // @F1A
     private static final String SOCKET_LINGER = "soLinger"; // @F1A
     private static final String SOCKET_TIMEOUT = "soTimeout"; // @F1A
+    private static final String SOCKET_LOGIN_TIMEOUT = "loginTimeout"; // @st3
     private static final String SOCKET_TCP_NO_DELAY = "soTCPNoDelay"; // @F1A
 
     // Data source properties.
@@ -401,6 +402,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             }
             else if (property.equals(SOCKET_TIMEOUT)) {
                 sockProps_.setSoTimeout(Integer.parseInt(value));
+            }
+            else if (property.equals(SOCKET_LOGIN_TIMEOUT)) {        //@st3
+                sockProps_.setLoginTimeout(Integer.parseInt(value)); //@st3
             }
             else if (property.equals(SOCKET_TCP_NO_DELAY)) {
                 sockProps_.setTcpNoDelay((value.equals(TRUE_)? true : false));
@@ -1101,6 +1105,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         if (sockProps_.sendBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_SEND_BUFFER_SIZE, Integer.toString(sockProps_.sendBufferSize_)));
         if (sockProps_.soLingerSet_) ref.add(new StringRefAddr(SOCKET_LINGER, Integer.toString(sockProps_.soLinger_)));
         if (sockProps_.soTimeoutSet_) ref.add(new StringRefAddr(SOCKET_TIMEOUT, Integer.toString(sockProps_.soTimeout_)));
+        if (sockProps_.loginTimeoutSet_) ref.add(new StringRefAddr(SOCKET_LOGIN_TIMEOUT, Integer.toString(sockProps_.loginTimeout_))); //@st3
         if (sockProps_.tcpNoDelaySet_) ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, (sockProps_.tcpNoDelay_ ? "true" : "false")));
 
         // Add the data source properties.  (unique constant identifiers for storing in JNDI).
@@ -3012,6 +3017,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         
         //@STIMEOUT setSoTimeout(timeout * 1000);    //@K5A  setSoTimeout takes milliseconds as a parameter //@STIMEOUT separate login and socket timeout into two separtate properties
+        sockProps_.setLoginTimeout(timeout * 1000); //@st3
         String property = "loginTimeout";                                               //@K5A
 
         Integer oldValue = new Integer(getLoginTimeout());                              //@K5A

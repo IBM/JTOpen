@@ -238,7 +238,7 @@ class PortMapper
             int loginTimeout = 0;                                //@timeout //@STIMEOUT
             if(socketProperties.isLoginTimeoutSet())           //@timeout //@STIMEOUT
             {                                               //@timeout
-                loginTimeout = socketProperties.getSoTimeout();  //@timeout //@STIMEOUT
+                loginTimeout = socketProperties.getLoginTimeout();  //@timeout //@STIMEOUT //@st3
             }                                               //@timeout
             
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running under jvm 1.4 or higher.  Connect to port mapper with timeout of " + loginTimeout + "ms"); //@timeout //@STIMEOUT

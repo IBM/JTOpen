@@ -51,6 +51,8 @@ public class SocketProperties implements Serializable
         soLinger_ = properties.soLinger_;
         soTimeoutSet_ = properties.soTimeoutSet_;
         soTimeout_ = properties.soTimeout_;
+        loginTimeoutSet_ = properties.loginTimeoutSet_;  //@st3
+        loginTimeout_ = properties.loginTimeout_;        //@st3
         tcpNoDelaySet_ = properties.tcpNoDelaySet_;
         tcpNoDelay_ = properties.tcpNoDelay_;
     }
