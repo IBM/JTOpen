@@ -89,7 +89,7 @@ public class AS400JDBCArray implements Array
         if(data_.length > 0 && isSQLData_)
             contentTemplate_ = (SQLData)data_[0];
         else
-            contentTemplate_ = SQLDataFactory.newData(typeName, 1, 1, 1, 37, null, vrm_, con.getProperties());
+            contentTemplate_ = SQLDataFactory.newData(typeName, 1, 1, 1, 37, null, vrm_, (con == null ? null: con.getProperties())); //@array
         //allow max for local conversion only since it is not associated with a column on hostserver yet
     }
 

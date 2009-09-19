@@ -663,6 +663,8 @@ class SQLDataFactory
                            JDProperties properties)  // @M0C - added JDProperties parm
     throws SQLException
     {
+        if(properties == null)                 //@array7
+            properties = new JDProperties();   //@array7
         if(nativeType.equals("BINARY"))
         {                                                           // @M0C - changed to return SQLBinary
             if(vrm >= JDUtilities.vrm530)                           // @M0C - only for v5r3 and newer
