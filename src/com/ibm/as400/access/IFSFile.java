@@ -402,6 +402,29 @@ public class IFSFile
     isSymbolicLink_ = attributes.isSymbolicLink();
   }
 
+/**
+ * Creates a new IFSFile instance from a parent abstract pathname and a child pathname string.
+ * <p>
+ * The <tt>directory</tt> argument cannot be null.  The constructed
+ * IFSFile instance uses the following settings taken from
+ * <tt>directory</tt>:
+ * <ul compact>
+ * <li>system
+ * <li>path
+ * </ul>
+ * The resulting file name is taken from the path name of <i>directory</i>,
+ * followed by the separator character, followed by <i>name</i>.
+ *
+ * @param   directory The directory where the IFSFile is or will be stored.
+ * @param   name      The name of the IFSFile object.
+**/
+  public IFSFile(IFSFile directory, String name)
+  {
+    this((directory == null ? null : directory.getSystem()),
+         (directory == null ? null : directory.getPath()),
+         name);
+  }
+
 
   /**
    Adds a file listener to receive file events from this IFSFile.
