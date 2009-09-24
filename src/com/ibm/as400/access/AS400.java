@@ -2760,15 +2760,15 @@ public class AS400 implements Serializable
         // Prepend Q to numeric user ID.
         if (userId.length() > 0 && Character.isDigit(userId.charAt(0)))
         {
-            char[] userIdChars = userId.toCharArray();
-            for (int i = 0; i < userIdChars.length; ++i)
-            {
-                if (userIdChars[i] < '\u0030' || userIdChars[i] > '\u0039')
-                {
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "User ID: '"  + userId + "'");
-                    return userId;
-                }
-            }
+//            char[] userIdChars = userId.toCharArray();
+//            for (int i = 0; i < userIdChars.length; ++i)
+//            {
+//                if (userIdChars[i] < '\u0030' || userIdChars[i] > '\u0039')
+//                {
+//                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "User ID: '"  + userId + "'");
+//                    return userId;
+//                }
+//            }
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending 'Q' to numeric user ID.");
             userId = "Q" + userId;
         }
