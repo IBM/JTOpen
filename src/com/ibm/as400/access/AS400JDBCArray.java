@@ -86,7 +86,7 @@ public class AS400JDBCArray implements Array
         
         con_ = con; //@arrayrs
        
-        if(data_.length > 0 && isSQLData_)
+        if(data_.length > 0 && isSQLData_ && data_[0] != null) //@nullelem
             contentTemplate_ = (SQLData)data_[0];
         else
             contentTemplate_ = SQLDataFactory.newData(typeName, 1, 1, 1, 37, null, vrm_, (con == null ? null: con.getProperties())); //@array
@@ -431,15 +431,28 @@ public class AS400JDBCArray implements Array
          
         
         int intIndex = (int)index - 1;  //make 0 based
-        if((data_.length > 0) && isSQLData_)
+        if((data_.length >= 0) && isSQLData_) //@nullelem
         {
         
             //create array of same type as data_
-            Object dummySQLXType = ((SQLData) data_[0]).getObject(); //returns column's rs.getX() type (ie Integer, String, etc)
-            Object retArry = java.lang.reflect.Array.newInstance (dummySQLXType.getClass(), count);
+            Class dummySQLXType = null; //@nullelem
+            try{
+                dummySQLXType = Class.forName( contentTemplate_.getJavaClassName()); //data_[0]).getObject(); //returns column's rs.getX() type (ie Integer, String, etc) //@nullelem
+            }catch( Exception e)
+            {
+                try{
+                    dummySQLXType = Class.forName("java.lang.Object");
+                }catch(Exception ee){
+                    dummySQLXType = null;
+                }
+             }
+            Object retArry = java.lang.reflect.Array.newInstance (dummySQLXType, count);
             for(int x = 0 ; x < count; x++)
             {
-                ((Object[]) retArry)[x] = ((SQLData) data_[x + intIndex]).getObject();  //convert based on SQLData
+                if(data_[x + intIndex] != null)
+                    ((Object[]) retArry)[x] = ((SQLData) data_[x + intIndex]).getObject();  //convert based on SQLData
+                else
+                    ((Object[]) retArry)[x] = null; //@nullelem
             }
             return retArry; //returns array of types such as Ingeter[] etc
         }

@@ -101,7 +101,9 @@ implements DBData
     private int[]   dataOffsetsFromHost_      = null; //@array 
     private int[]   indicatorCountsFromHost_  = null; //@array number of indicators for a given column (1 if non-array, else array length)
     private int[]   dataLengthsFromHost_      = null; //@array total length of data portion in stream
-
+    private int[]   dataIsArrayFromHost_      = null; //@nullelem flag 1 = array 0 = non-array
+    private int[]   dataIsNullArrayFromHost_      = null; //@nullelem flag -1 = null array 0 = non null
+    
     /**
     Constructs a DBVariableData object.  Use this when overlaying
     on a reply datastream.  The cached data will be set when overlay()
@@ -162,6 +164,8 @@ implements DBData
             indicatorCountsFromHost_ = new int[columnCount_]; //one per column - number of indicators for a given column
             dataOffsetsFromHost_ = new int[columnCount_];  //one per column
             dataLengthsFromHost_ = new int[columnCount_];  //one per column
+            dataIsArrayFromHost_ = new int[columnCount_];  //one per column //@nullelem
+            dataIsNullArrayFromHost_ = new int[columnCount_];  //one per column //@nullelem
             
             //iterate through columns to get total length of data and indicators
             //colDescs used to iterate through each of the 9911/9912 col descriptions.
@@ -174,14 +178,17 @@ implements DBData
     
                 if(descType == (short)0x9911){
                     //array
-                    boolean isNull = BinaryConverter.byteArrayToInt (rawBytes, colDescs + 4) == 0Xffff ? true : false;
+                    boolean isNull = BinaryConverter.byteArrayToShort (rawBytes, colDescs + 2) == (short)0Xffff ? true : false; //is whole array null //@nullelem
+                    dataIsArrayFromHost_[i] = 1; //@nullelem array type
                    
                     if(isNull){
                         colDescs += 4;  //null = x9911 xffff skip 4 to next description
                         indicatorOffsetsFromHost_[i] = (i == 0 ? 0 : indicatorOffsetsFromHost_[i-1] + (indicatorCountsFromHost_[i-1] * indicatorSize_));  
-                        indicatorCountsFromHost_[i] = 0;  
+                        indicatorCountsFromHost_[i] = 0;  //flag that array is null or zero length array if 0 indicator counts and type of array
                         dataOffsetsFromHost_[i] = (i == 0 ? 0 : dataOffsetsFromHost_[i-1]); //keep same as prev since null arrays have no data (so we can later keep a running total)(ie no -1 values)
                         dataLengthsFromHost_[i] = 0;
+                        
+                        dataIsNullArrayFromHost_[i] = -1; //@nullelem null array
                     }else{
                         int dataLen = BinaryConverter.byteArrayToInt (rawBytes, colDescs + 4);
                         int arrayLen = BinaryConverter.byteArrayToInt(rawBytes, colDescs + 8); //element count //@array2
@@ -192,10 +199,13 @@ implements DBData
                         dataOffsetsFromHost_[i] = (i == 0 ? 0 : dataOffsetsFromHost_[i-1] + dataLengthsFromHost_[i-1]); //keep same as prev since null arrays have no data (so we can later keep a running total)(ie no -1 values)
                         dataLengthsFromHost_[i] = arrayLen * dataLen;
                         colDescs += 12; //0x9911=2, datatype=2, datalen=4, arraylen=4 -> 12  //@array2
+                        
+                        dataIsNullArrayFromHost_[i] = 0; //@nullelem null array
                     }
                 }else if(descType == 0x9912){
                     //non-array
-
+                    dataIsArrayFromHost_[i] = 0; //@nullelem non-array type
+                    
                     int dataLen = BinaryConverter.byteArrayToInt (rawBytes, colDescs + 4);
                     dataLenAll += dataLen;
                     indicatorLenAll += indicatorSize_;
@@ -286,7 +296,7 @@ implements DBData
 
     public int getIndicator (int rowIndex, int columnIndex)
     {
-        return getIndicator(rowIndex, columnIndex, 0); 
+        return getIndicator(rowIndex, columnIndex, -1);  //@nullelem -1 is for getting indicator of array (not element) or non-array data type
     }
 
 
@@ -480,13 +490,33 @@ implements DBData
     
 
     //@array
-    //Returns indicator
+    //Returns indicator (-1 array index means to get indicator of array or non-array data) 0-x means indicator of that elem in the array
     public int getIndicator (int rowIndex, int columnIndex, int arrayIndex){
-        if(indicatorCountsFromHost_[columnIndex] == 0)
-            return 0;  //array type and it is null (special case)
-        else 
+        if(arrayIndex == -1) //@nullelem
+        {
+            if( dataIsArrayFromHost_[columnIndex] == 0)
+            {
+                //non array
+                return BinaryConverter.byteArrayToShort (rawBytes_,
+                        indicatorOffsetFromHost_ + indicatorOffsetsFromHost_[columnIndex] ); //first elem in indicatorOffsetsFromHost_ is for non-array data 
+            }else
+            {
+                return dataIsNullArrayFromHost_[columnIndex]; //@nullelem already set above in this array
+                //is array
+               /* if (  indicatorCountsFromHost_[columnIndex] == 0)  //@nullelem  
+                    return -1;  //array type and it is null (special case)  (whole array is null, no elements)
+                else
+                { 
+                    //not null
+                    return 0;
+                }*/
+            }
+        }
+        else //get indicator of array element 
+        {
             return BinaryConverter.byteArrayToShort (rawBytes_,
-                indicatorOffsetFromHost_ + indicatorOffsetsFromHost_[columnIndex] + (arrayIndex * indicatorSize_));
+                    indicatorOffsetFromHost_ + indicatorOffsetsFromHost_[columnIndex] + (arrayIndex * indicatorSize_)); //get indicator of array elem
+        }
     }
 
     //@array

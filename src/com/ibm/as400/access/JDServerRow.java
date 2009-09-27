@@ -562,7 +562,7 @@ implements JDRow
                         for(int i = 0; i < arrayCount; i++)                                                       //@array
                         {                                                                                         //@array
                             if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex0, i) == -1))   //@array //@arrayout
-                                ((SQLArray)sqlData_[i]).setElementNull(i);                                        //@array
+                                ((SQLArray)sqlData_[index0]).setElementNull(i);                                        //@array //@nullelem
                         }                                                                                         //@array
                     }                                                                                             //@array
                     else

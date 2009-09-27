@@ -2014,7 +2014,12 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         Object result; 
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getObject();
+        {
+            if(columnData[currentRowInRowset_] == null) //@nullelem
+                result = null;                           //@nullelem
+            else                                         //@nullelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getObject();
+        }
         else
         {
             contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
