@@ -461,7 +461,7 @@ final class SQLXMLLocator implements SQLLocator
                //getString() handles internal representation of clob/dbclob/blob...
                String stringVal = xml.getString();
                if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
-                   locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length(), true); 
+                   locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length()*2, true); //@xmlupdate
                else
                    locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);  //@xmlutf8
            }
@@ -991,6 +991,8 @@ final class SQLXMLLocator implements SQLLocator
         // the prepared statement is calling toObject() to store off the parameters,
         // but it's all we can do for now.
         truncated_ = 0;
+        if(savedObject_ != null)//@xmlupdate //either return savedObject_ here, or add two iterations of getting savedObject_ in writeToServer if type is AS400JDBCSQLXML since it contains clob which contains savedObject_
+            return savedObject_;    //@xmlupdate
         return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);  //@xml4   
     }
 
