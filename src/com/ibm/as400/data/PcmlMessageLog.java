@@ -462,8 +462,8 @@ public class PcmlMessageLog
     
     private static String byteToHexString(byte aByte) 
     {
-        int highNibble = ((aByte << 24) >>> 28);
-        int lowNibble =  ((aByte << 28) >>> 28);
+        int highNibble = (aByte >>> 4) & 0x0F;  // isolate the higher 4 bits
+        int lowNibble  =  aByte        & 0x0F;  // isolate the lower 4 bits
         return m_hexDigits.substring(highNibble, highNibble+1) + m_hexDigits.substring(lowNibble, lowNibble+1); 
     }
 }
