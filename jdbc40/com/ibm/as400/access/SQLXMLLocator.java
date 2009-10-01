@@ -413,7 +413,7 @@ final class SQLXMLLocator implements SQLLocator
                 int length = (int)clob.length();
                 String substring = clob.getSubString(1, length);
                 if(JDUtilities.hasXMLDeclaration(substring))                                 //@xmlutf8
-                    locator_.writeData(0L, unicodeConverter_.stringToByteArray(substring), 0, length, true); 
+                    locator_.writeData(0L, unicodeConverter_.stringToByteArray(JDUtilities.handleXMLDeclarationEncoding(substring)), 0, length, true); //@xmldecl
                 else
                     locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(substring), 0, length, true);  //@xmlutf8
                 set = true;
@@ -458,12 +458,19 @@ final class SQLXMLLocator implements SQLLocator
            
            if(!set)
            {
+               
                //getString() handles internal representation of clob/dbclob/blob...
                String stringVal = xml.getString();
                if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
+               {
+                   //here, we have a string, so it has to be in utf-16, so just take out encoding and sq and detect encoding
+                   stringVal = JDUtilities.handleXMLDeclarationEncoding(stringVal); //@xmldecl
                    locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length()*2, true); //@xmlupdate
+               }
                else
+               {
                    locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);  //@xmlutf8
+               }
            }
         }
         else

@@ -798,7 +798,7 @@ Reads an input stream and returns its data as a String.
             return false;
     }
     
-    //@xmlutf16 remove encoding inside of XML declaration if not utf-16
+    //@xmlutf16 remove encoding inside of XML declaration
     static final String handleXMLDeclarationEncoding(String xml)
     {
         if(xml.length() < 6) //@BE1
