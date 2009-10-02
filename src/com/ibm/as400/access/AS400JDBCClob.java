@@ -49,6 +49,7 @@ public class AS400JDBCClob implements Clob
   private char[] data_;
   private int maxLength_;
 
+private boolean isXML_ = false;      //@xmltrim true if this data originated from a native XML column type
 /**
 Constructs an AS400JDBCClob object.  The data is contained
 in the String.  No further communication with the IBM i system is necessary.
@@ -66,7 +67,31 @@ in the String.  No further communication with the IBM i system is necessary.
   {
     data_ = data;
   }
+  
+  //@xmltrim
+  /**
+  Constructs an AS400JDBCClob object.  The data is contained
+  in the String.  No further communication with the IBM i system is necessary.
+  If this clob has a source of a columne of type XML, then any getX method that returns xml as string will trim the xml declaration.
+  
+  @param  data     The CLOB data.
+  @param maxLength
+  @param isXML flag to signal if source is xml
+  **/
+    AS400JDBCClob(String data, int maxLength, boolean isXML)
+    {
+      data_ = data.toCharArray();
+      maxLength_ = maxLength;
+      isXML_ = isXML;
+    }
 
+   //@xmltrim
+    AS400JDBCClob(char[] data, boolean isXML)
+    {
+      data_ = data;
+      isXML_ = isXML;
+    }
+  
 
 
   //@PDA 550
@@ -101,7 +126,10 @@ Returns the entire CLOB as a stream of ASCII characters.
       
     try
     {
-      return new ByteArrayInputStream((new String(data_)).getBytes("ISO8859_1"));
+      if(isXML_)//@xmltrim
+          return new ByteArrayInputStream((JDUtilities.stripXMLDeclaration(new String(data_))).getBytes("ISO8859_1"));  //@xmltrim
+      else
+          return new ByteArrayInputStream((new String(data_)).getBytes("ISO8859_1"));
     }
     catch (UnsupportedEncodingException e)
     {
@@ -124,7 +152,10 @@ Returns the entire CLOB as a character stream.
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
       
-    return new CharArrayReader(data_);
+    if(isXML_)//@xmltrim
+        return new CharArrayReader( JDUtilities.stripXMLDeclaration( new String(data_) ).toCharArray());  //@xmltrim
+    else
+        return new CharArrayReader(data_);
   }
 
 
@@ -151,6 +182,12 @@ Returns part of the contents of the CLOB.
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
+    //@xmltrim
+    if(isXML_)
+    {
+        data_ = JDUtilities.stripXMLDeclaration( new String(data_) ).toCharArray();
+    }
+    
     int lengthToUse = data_.length - offset;
     if (lengthToUse < 0) return "";
     if (lengthToUse > length) lengthToUse = length;
@@ -272,10 +309,10 @@ Returns the position at which a pattern is found in the CLOB.
   specified is greater than the length of the CLOB.
   **/
   public OutputStream setAsciiStream(long position) throws SQLException
-  {
+  {   
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+     
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -306,10 +343,10 @@ Returns the position at which a pattern is found in the CLOB.
   specified is greater than the length of the CLOB.
   **/
   public Writer setCharacterStream(long position) throws SQLException
-  {
+  {      
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+     
     if (position <= 0 || position > maxLength_)
     {
       JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -335,7 +372,7 @@ Returns the position at which a pattern is found in the CLOB.
   {
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+     
     int offset = (int)position-1;
 
     if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
@@ -386,7 +423,7 @@ Returns the position at which a pattern is found in the CLOB.
   {
     if(data_ == null)//@free
         JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); //@free
-      
+     
     int clobOffset = (int)position-1;
     if (clobOffset < 0 || clobOffset >= maxLength_ ||
         string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||

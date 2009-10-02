@@ -97,8 +97,11 @@ public class AS400JDBCSQLXML implements SQLXML
      */
     AS400JDBCSQLXML(String data, int maxLength)
     {
+        isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
+        
         lobType   = SQLData.CLOB;                         
-        clobValue_ = new AS400JDBCClob(data, maxLength);   
+        clobValue_ = new AS400JDBCClob(data, maxLength, isXML_); //@xmltrim   
+        
     }
 
     /**
@@ -109,8 +112,10 @@ public class AS400JDBCSQLXML implements SQLXML
      */
     AS400JDBCSQLXML(char[] data)
     {
+        isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
+        
         lobType   = SQLData.CLOB;                         
-        clobValue_ = new AS400JDBCClob(data);              
+        clobValue_ = new AS400JDBCClob(data, isXML_); //@xmltrim              
     }
 
 
@@ -124,6 +129,8 @@ public class AS400JDBCSQLXML implements SQLXML
      */
     AS400JDBCSQLXML (byte [] data, long maxLength)         
     {
+        isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
+        
         lobType   = SQLData.BLOB;                              
         blobValue_ = new AS400JDBCBlob(data, (int)maxLength);   
     } 

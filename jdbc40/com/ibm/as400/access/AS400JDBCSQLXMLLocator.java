@@ -69,12 +69,16 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCSQLXML
         super();
         //Since SQLXML has both text and binary getter methods, we need to preserve converter, but need to be able to get 
         //to the bits as binary without doing any conversion or trimming of XML declaration
+        
+        //Native JDBC changed to always trim off xml header if accessing data through SQLXML object even it column is not XML...(TB also will now do this)
+        isXml = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
+        
         clobLocatorValue_ = new AS400JDBCClobLocator( locator, converter, savedObject, savedScale, isXml); //@xml4 allow AS400JDBCClobLocator to trim off xml header if needed 
         if(isXml)
             blobLocatorValue_ = new AS400JDBCBlobLocator( locator, savedObject, savedScale); //@xml6 also need ref to bloblocator in case SQLXML.getBinaryStream is called 
         
         lobType = SQLData.CLOB_LOCATOR;
-        isXML_ = isXml;      //@xml4
+        isXML_ = isXml;      //@xml4 
     }
 
      
@@ -93,6 +97,7 @@ public class AS400JDBCSQLXMLLocator extends AS400JDBCSQLXML
         super();
         blobLocatorValue_ = new AS400JDBCBlobLocator( locator, savedObject, savedScale); 
         lobType = SQLData.BLOB_LOCATOR;
+        isXML_ = true;//@xmltrim (match native jdbc for trimming xml decl if using sqlxml)
     }
 
     //@olddesc
