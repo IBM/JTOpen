@@ -492,7 +492,10 @@ public class AS400JDBCSQLXML implements SQLXML
                 return null;
             }
         }
-        return s;
+        if(isXML_)//@xmltrim
+            return JDUtilities.stripXMLDeclaration(s); //@xmltrim
+        else
+            return s;
     }
     
 
