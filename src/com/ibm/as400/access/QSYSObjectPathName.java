@@ -29,12 +29,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 // @A1 - 12/04/2007 - Added code to better handle IASPs in QSYS paths.
-//       parse() - Code to handle /QSYS.LIB and /iasp/qsys.lib without any 
+//       parse() - Code to handle /QSYS.LIB and /iasp/qsys.lib without any
 //                 further object types.
-//       buildPathName() - 
+//       buildPathName() -
 //       QSYSObjectPathName - new constructor which takes IASP parameter
 //       toPath() - additional method which takes IASP parameter
-// 
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -275,7 +275,7 @@ public class QSYSObjectPathName implements Serializable
        objectName_ = toQSYSName(objectName);
        memberName_ = toQSYSName(memberName);
        objectType_ = "MBR";
-       aspName_   = aspName; 
+       aspName_   = aspName;
 
        path_ = buildPathName(aspName_, libraryName_, objectName_, memberName_, objectType_);
    }
@@ -327,19 +327,19 @@ public class QSYSObjectPathName implements Serializable
       // First build the path (without the ASP name), then prepend the asp name
       String result1 = buildPathName(libraryName, objectName, memberName, objectType);
       StringBuffer result2 = new StringBuffer(75);
-      
+
       if (!result1.equals(""))
       {
         if (!aspName.equals(""))
         {
-          result2.append("/");     
+          result2.append("/");
           result2.append(aspName); // Prepend the ASP name
         }
         result2.append(result1);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QSYSObjectPathName buildPathName(asp): result: " + result2.toString());
         return result2.toString();
       }
-      else 
+      else
       {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QSYSObjectPathName buildPathName(asp): result: EMPTY STRING");
         return "";
@@ -515,7 +515,7 @@ public class QSYSObjectPathName implements Serializable
     }
 
     /**
-    Returns the ASP on which the object resides. 
+    Returns the ASP on which the object resides.
     @return  The name of the ASP.  If the ASP name has not been set, an empty string is returned.
     **/
     public String getAspName() //@A1A
@@ -585,10 +585,10 @@ public class QSYSObjectPathName implements Serializable
         //------------------------------------------------------
         // Process the prefix.
         //------------------------------------------------------
-        // Take into account possible IASP prefix to QSYS path.    @A1A  
+        // Take into account possible IASP prefix to QSYS path.    @A1A
         // So determine index of "/QSYS.LIB"                       @A1A
         int indexOfQsysLib = upperCasePath.indexOf("/QSYS.LIB"); //@A1A
-        
+
         // Required prefix.
         if (indexOfQsysLib == -1)                                //@A1C
         {
@@ -602,10 +602,10 @@ public class QSYSObjectPathName implements Serializable
           // Assume absolute path starts with delimiter
           aspName_ = upperCasePath.substring(1, indexOfQsysLib); //@A1A
         }
-          
-          
+
+
         // Special case the "/QSYS.LIB" scenario (no other nested objects specified)            //@A1A
-        if ((upperCasePath.substring(indexOfQsysLib).equals("/QSYS.LIB")) || (upperCasePath.substring(indexOfQsysLib).equals("/QSYS.LIB/"))) 
+        if ((upperCasePath.substring(indexOfQsysLib).equals("/QSYS.LIB")) || (upperCasePath.substring(indexOfQsysLib).equals("/QSYS.LIB/")))
         {
           libraryName_ = "QSYS";                                                                //@A1A
           objectType_ = "LIB";                                                                  //@A1A
@@ -623,7 +623,7 @@ public class QSYSObjectPathName implements Serializable
           // Move past "/iaspname"
           currentOffset = currentOffset  + 1 + aspName_.length();     //@A1A
         }
-        
+
         // Find suffix after library name.
         int nextOffset = upperCasePath.indexOf(".LIB/", currentOffset);
         // If a qualifying library name was specified.
@@ -683,7 +683,7 @@ public class QSYSObjectPathName implements Serializable
         //------------------------------------------------------
         // Process member name.
         //------------------------------------------------------
-        
+
         // Only needs to be done if the type is MBR.
         if (objectType_.equals("MBR"))
         {
@@ -1188,6 +1188,39 @@ public class QSYSObjectPathName implements Serializable
       }
 
     }
+
+    /**
+     * Returns a qualified object name, for use in API parameters.
+     * This is a 20-character blank-filled String,
+     * where the first 10 characters represent the object name,
+     * and the final 10 characters represent the object library.
+     *
+     * @return Qualified object name
+     */
+    public String toQualifiedObjectName()
+    {
+      // Start with 20 blanks.
+      StringBuffer buffer = new StringBuffer("                    ");
+
+      // Set the object name into the first 10 characters.
+      if (objectName_.length() > 10) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Truncating object name to 10 characters:" , objectName_);
+        buffer.replace(0, 10, objectName_.substring(0,10));
+      }
+      else
+        buffer.replace(0, objectName_.length(), objectName_);
+
+      // Set the library name into the second 10 characters.
+      if (libraryName_.length() > 10) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Truncating library name to 10 characters:" , libraryName_);
+        buffer.replace(10, 20, libraryName_.substring(0,10));
+      }
+      else
+        buffer.replace(10, libraryName_.length()+10, libraryName_);
+
+      return buffer.toString();
+    }
+
 
     // Validates a path.
     // @param  path  The fully qualified integrated file system name of an object in the QSYS file system.
