@@ -412,10 +412,14 @@ final class SQLXMLLocator implements SQLLocator
                 Clob clob = (Clob)savedObject_;
                 int length = (int)clob.length();
                 String substring = clob.getSubString(1, length);
+                byte[] inputBytes;                                                            //@len2utf8
                 if(JDUtilities.hasXMLDeclaration(substring))                                 //@xmlutf8
-                    locator_.writeData(0L, unicodeConverter_.stringToByteArray(JDUtilities.handleXMLDeclarationEncoding(substring)), 0, length, true); //@xmldecl
+                    inputBytes = unicodeConverter_.stringToByteArray(JDUtilities.handleXMLDeclarationEncoding(substring));      //@len2utf8 //here, we have a string, so it has to be in utf-16, so just take out encoding and sq and detect encoding
                 else
-                    locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(substring), 0, length, true);  //@xmlutf8
+                    inputBytes = unicodeUtf8Converter_.stringToByteArray(substring); //@len2utf8
+                    
+               
+                locator_.writeData(0L, inputBytes, 0, inputBytes.length, true);  //@xmlutf8
                 set = true;
             }
             else
@@ -461,16 +465,14 @@ final class SQLXMLLocator implements SQLLocator
                
                //getString() handles internal representation of clob/dbclob/blob...
                String stringVal = xml.getString();
+               byte[] inputBytes;                                                            //@len2utf8
                if(JDUtilities.hasXMLDeclaration(stringVal))                                 //@xmlutf8
-               {
-                   //here, we have a string, so it has to be in utf-16, so just take out encoding and sq and detect encoding
-                   stringVal = JDUtilities.handleXMLDeclarationEncoding(stringVal); //@xmldecl
-                   locator_.writeData(0L, unicodeConverter_.stringToByteArray(stringVal), 0, stringVal.length()*2, true); //@xmlupdate
-               }
+                   inputBytes = unicodeConverter_.stringToByteArray(JDUtilities.handleXMLDeclarationEncoding(stringVal));      //@len2utf8 //here, we have a string, so it has to be in utf-16, so just take out encoding and sq and detect encoding
                else
-               {
-                   locator_.writeData(0L, unicodeUtf8Converter_.stringToByteArray(stringVal), 0, stringVal.length(), true);  //@xmlutf8
-               }
+                   inputBytes = unicodeUtf8Converter_.stringToByteArray(stringVal); //@len2utf8
+                   
+              
+               locator_.writeData(0L, inputBytes, 0, inputBytes.length, true);  //@xmlutf8
            }
         }
         else
