@@ -64,12 +64,10 @@ import java.math.BigDecimal;
  *<li>PropertyChangeEvent
  *<li>VetoableChangeEvent
  *</ul>
+ *@see MemberList
 **/
 public class KeyedFile extends AS400File implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
 

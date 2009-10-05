@@ -70,6 +70,7 @@ import java.beans.PropertyVetoException;
  *<li>VetoableChangeEvent
  *</ul>
  *@see AS400FileRecordDescription
+ *@see MemberList
  **/
 abstract public class AS400File implements Serializable
 {
