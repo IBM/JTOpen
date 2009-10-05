@@ -504,11 +504,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             String parseMsg;                                        // @B2A
             if (m_indices.size() > 0)                               // @B2A
             {                                                       // @B2A
-                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA_W_INDICES, new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), m_indices.toString(), PcmlMessageLog.byteArrayToHexString(byteArray, 0, bytesConverted)} ); // @B2A
+                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA_W_INDICES, new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), m_indices.toString(), PcmlMessageLog.toHexString(byteArray, 0, bytesConverted)} ); // @B2A
             }                                                       // @B2A
             else                                                    // @B2A
             {                                                       // @B2A
-                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA,           new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), PcmlMessageLog.byteArrayToHexString(byteArray, 0, bytesConverted)} ); // @B2A
+                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA,           new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), PcmlMessageLog.toHexString(byteArray, 0, bytesConverted)} ); // @B2A
             }                                                       // @B2A
             parseMsg = parseMsg + "\t  " + Thread.currentThread();  // @B2A
             Trace.log(Trace.PCML, parseMsg);                        // @D3C
@@ -663,11 +663,11 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             String parseMsg;
             if (m_indices.size() > 0)
             {
-                parseMsg = SystemResourceFinder.format(DAMRI.READ_DATA_W_INDICES, new Object[] {Integer.toHexString(offset+ skipBytes), Integer.toString(nbrBytes), getNameForException(), m_indices.toString(), PcmlMessageLog.byteArrayToHexString(newBytes)} );
+                parseMsg = SystemResourceFinder.format(DAMRI.READ_DATA_W_INDICES, new Object[] {Integer.toHexString(offset+ skipBytes), Integer.toString(nbrBytes), getNameForException(), m_indices.toString(), PcmlMessageLog.toHexString(newBytes)} );
             }
             else
             {
-                parseMsg = SystemResourceFinder.format(DAMRI.READ_DATA,           new Object[] {Integer.toHexString(offset+ skipBytes), Integer.toString(nbrBytes), getNameForException(), PcmlMessageLog.byteArrayToHexString(newBytes)} );
+                parseMsg = SystemResourceFinder.format(DAMRI.READ_DATA,           new Object[] {Integer.toHexString(offset+ skipBytes), Integer.toString(nbrBytes), getNameForException(), PcmlMessageLog.toHexString(newBytes)} );
             }
             parseMsg = parseMsg + "\t  " + Thread.currentThread();
             Trace.log(Trace.PCML, parseMsg);
