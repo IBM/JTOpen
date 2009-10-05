@@ -144,8 +144,8 @@ final class SQLXMLLocator implements SQLLocator
         else if(savedObject_ instanceof InputStream)
         {
             int length = scale_; // hack to get the length into the set method
-            if(xmlType_ == 1)
-                length *=2; //double-byte
+            //if(xmlType_ == 1)   
+            //    length *=2; //double-byte
             
             // Need to write even if there are 0 bytes in case we are batching and
             // the host server reuses the same handle for the previous locator; otherwise,
