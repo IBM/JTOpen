@@ -59,7 +59,7 @@ public class ConvTableReader extends InputStreamReader
 
     private int nextRead_ = 0;  // Cache needs to be filled when nextRead_ >= nextWrite_
     private int nextWrite_ = 0;
-    private boolean isXML_ = false;      //@xml3 true if this data originated from a native XML column type //@xml4
+    boolean isXML_ = false;      //@xml3 true if this data originated from a native XML column type //@xml4 @ascii
     private boolean isFirstRead_ = true; //@xml3
 
     /**

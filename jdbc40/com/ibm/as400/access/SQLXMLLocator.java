@@ -487,7 +487,11 @@ final class SQLXMLLocator implements SQLLocator
         //no need to check truncation since xml does not have size
         savedObject_ = object;
         if(object instanceof ConvTableReader) //@ascii
+        {
+            //set xml flag so ConvTableReader will trim off xml declaration since we will be transmitting in utf-8
+            ((ConvTableReader)savedObject_).isXML_ = true; //@ascii
             scale_ = -2;//@ascii flag -2 to read to end of stream (xml transmits in utf8 which may have 2-byte chars, which does not match length)
+        }
         else if(scale != -1) 
             scale_ = scale; // Skip resetting it if we don't know the real length
     }
