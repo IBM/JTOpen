@@ -25,6 +25,7 @@ import java.util.Map;
  * This class is mostly based on a prototype contributed by Mihael Schmidt.
  *
  * @see MemberList
+ * @see AS400File
 **/
 public class MemberDescription
 {
@@ -268,14 +269,13 @@ public class MemberDescription
 
   /**
    * Specifies that all member information (all fields) should be retrieved.
-   * @see #setAttribute(int, Object)
    */
   public static final int ALL_MEMBER_INFORMATION = Integer.MAX_VALUE;
 
 
   private AS400 system_;
-  private QSYSObjectPathName path_;
-  private final HashMap attributes_ = new HashMap();
+  private QSYSObjectPathName pathName_;
+  private HashMap attributes_ = new HashMap();
 
   private final AS400Bin4 intConverter_ = new AS400Bin4();
 
@@ -291,7 +291,7 @@ public class MemberDescription
     if (path == null) throw new NullPointerException("path");
 
     system_ = system;
-    path_ = path;
+    pathName_ = path;
   }
 
   /**
@@ -499,9 +499,9 @@ public class MemberDescription
     // Format name:
     parameterList[2] = new ProgramParameter(charConverter.stringToByteArray(system_, format));
     // Qualified database file name:
-    parameterList[3] = new ProgramParameter(charConverter.stringToByteArray(system_, path_.toQualifiedObjectName()));
+    parameterList[3] = new ProgramParameter(charConverter.stringToByteArray(system_, pathName_.toQualifiedObjectName()));
     // Database member name:
-    parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(path_.getMemberName()));
+    parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(pathName_.getMemberName()));
     // Override processing:  (1 == "overrides are processed")
     parameterList[5] = new ProgramParameter(charConverter.stringToByteArray(system_, "1"));
     // Error code:
@@ -770,6 +770,6 @@ public class MemberDescription
    */
   public String getPath()
   {
-    return path_.getPath();
+    return pathName_.getPath();
   }
 }
