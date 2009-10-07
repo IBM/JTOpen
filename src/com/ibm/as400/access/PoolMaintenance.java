@@ -14,13 +14,10 @@
 package com.ibm.as400.access;
 
 /**
-*  The AS400JDBCConnectionPoolMaintenance class cleans up pooled connections
-*  that have expired.
+*  Periodically cleans up pooled connections that have expired.
 **/
 class PoolMaintenance extends Thread
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-  
   private boolean run_ = false;        // Whether the maintenance is running.
   private boolean stayAlive_ = true;   // Whether thread should stay alive.
   private transient long lastRun_;     // Last time maintenance was run.
@@ -67,40 +64,51 @@ class PoolMaintenance extends Thread
       Trace.log(Trace.INFORMATION, "Connection pool maintenance daemon is started...");
     }
     run_ = true;
-    while (stayAlive_)
-    {
-      if (run_)
-      {
-        try
-        {
-          // sleep for cleanup interval.
-          synchronized(waitLock_)
-          {
-            waitLock_.wait(pool_.getCleanupInterval());
-          }
-        }
-        catch (InterruptedException ie)
-        {
-          Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
-        }
-        pool_.cleanupConnections();
 
-        lastRun_ = System.currentTimeMillis();       // set the time of last run.
-      }
-      else
+    try
+    {
+      while (stayAlive_)
       {
-        try
+        if (run_)
         {
-          // sleep until someone notifies me to continue.
-          synchronized(waitLock_)
+          try
           {
-            waitLock_.wait();
+            // sleep for cleanup interval.
+            synchronized(waitLock_)
+            {
+              waitLock_.wait(pool_.getCleanupInterval());
+            }
+          }
+          catch (InterruptedException ie)
+          {
+            Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
+          }
+          pool_.cleanupConnections();
+
+          lastRun_ = System.currentTimeMillis();       // set the time of last run.
+        }
+        else
+        {
+          try
+          {
+            // sleep until someone notifies me to continue.
+            synchronized(waitLock_)
+            {
+              waitLock_.wait();
+            }
+          }
+          catch (InterruptedException e)
+          {
+            Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
           }
         }
-        catch (InterruptedException e)
-        {
-          Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
-        }
+      }
+    }
+    finally
+    {
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.INFORMATION, "Connection pool maintenance daemon has ended.");
       }
     }
   }
