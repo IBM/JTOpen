@@ -685,9 +685,9 @@ public class MemberDescription
       setAttribute(RECORD_CAPACITY,
                    new Integer(intConverter_.toInt(entryBytes, offsetOf(RECORD_CAPACITY))));
       setAttribute(RECORD_FORMAT_SELECTOR_PROGRAM_NAME,
-                   charConverter.byteArrayToString(entryBytes, RECORD_FORMAT_SELECTOR_PROGRAM_NAME, 10).trim());
+                   charConverter.byteArrayToString(entryBytes, offsetOf(RECORD_FORMAT_SELECTOR_PROGRAM_NAME), 10).trim());
       setAttribute(RECORD_FORMAT_SELECTOR_LIBRARY_NAME,
-                   charConverter.byteArrayToString(entryBytes, RECORD_FORMAT_SELECTOR_LIBRARY_NAME, 10).trim());
+                   charConverter.byteArrayToString(entryBytes, offsetOf(RECORD_FORMAT_SELECTOR_LIBRARY_NAME), 10).trim());
     }
   }
 
