@@ -6196,12 +6196,14 @@ implements ResultSet
             updateValue (columnIndex, xmlObject, null, -1);                        //@xmlspec3
             return;                                                                //@xmlspec3
         }                                                                          //@xmlspec3
-        SQLData sqlData = getValue(columnIndex);                                   //@xmlspec
-        int sqlDataType;                                                           //@xmlspec2
-        if(sqlData != null)                                                        //@xmlspec2
-            sqlDataType = sqlData.getType();                                       //@xmlspec2
-        else                                                                       //@xmlspec2
-            sqlDataType = Types.SQLXML;                                            //@xmlspec2
+        
+        int sqlDataType; 
+        if(updateRow_ != null) //@nulltype
+            sqlDataType = updateRow_.getSQLData (columnIndex).getType();                     //@xmlspec  //@nulltype
+        else  
+            sqlDataType = Types.SQLXML;  //@nulltype dummy type so processing continues
+        
+        
         switch(sqlDataType) {                                                      //@xmlspec
             case Types.CLOB:                                                       //@xmlspec
                 updateCharacterStream(columnIndex, xmlObject.getCharacterStream());//@xmlspec
