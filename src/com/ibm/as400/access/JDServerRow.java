@@ -597,8 +597,11 @@ implements JDRow
     int getVariableOutputIndex(int index) throws SQLException
     {
         int newIndex = 0;
-        if(isOutput(index+1))
-            newIndex++;
+        for(int x = 0; x <= index; x++) //@index
+        {
+            if(isOutput(x+1)) //isOutput is 1 based //@index
+                newIndex++;
+        }
         return newIndex-1;
     }
 
@@ -821,7 +824,10 @@ implements JDRow
         }
       }
 
-      return parameterTypes_[i] == 0xF1 || parameterTypes_[i] == 0xF2;
+      if(parameterTypes_[i] == 0x000000F1 || parameterTypes_[i] == 0x000000F2) //@index
+          return true;
+      else
+          return false;
     }
 
 
