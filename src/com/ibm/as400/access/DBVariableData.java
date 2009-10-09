@@ -202,7 +202,7 @@ implements DBData
                         
                         dataIsNullArrayFromHost_[i] = 0; //@nullelem null array
                     }
-                }else if(descType == 0x9912){
+                }else if(descType == (short)0x9912){
                     //non-array
                     dataIsArrayFromHost_[i] = 0; //@nullelem non-array type
                     
