@@ -770,13 +770,19 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         checkGetterPreconditions (column);
       
         Object[] columnData = data_[column - 1];
-        boolean result;
+        boolean result = false; //@nulllocalarrelem
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getBoolean();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getBoolean();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getBoolean();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getBoolean();  
+            }
         }
          
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getBoolean");
@@ -818,13 +824,19 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
         checkGetterPreconditions (column);
         Object[] columnData = data_[column - 1];
         
-        byte result;
+        byte result = 0;
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getByte();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getByte();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getByte();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getByte();  
+            }
         }
          
          
@@ -865,15 +877,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
          
         checkGetterPreconditions (column);
-        short result;
+        short result = 0;
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getShort();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getShort();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getShort();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getShort();  
+            }
         }
         
        
@@ -914,15 +932,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
          
         checkGetterPreconditions (column);
-        int result;
+        int result = 0;  //@nulllocalarrelem
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getInt();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getInt();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getInt();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getInt();  
+            }
         }
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getInt");
@@ -962,15 +986,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
        
         checkGetterPreconditions (column);
-        long result;
+        long result = 0;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getLong();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getLong();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getLong();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getLong();  
+            }
         }
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getLong");
@@ -1009,15 +1039,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     public float getFloat (int column) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        float result;
+        float result = 0;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getFloat();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getFloat();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getFloat();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getFloat();  
+            }
         }
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getFloat");
@@ -1056,15 +1092,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     public double getDouble (int column) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        double result;
+        double result = 0;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getDouble();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getDouble();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getDouble();  
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getDouble();  
+            }
         }
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getDouble");
@@ -1104,15 +1146,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
        
         checkGetterPreconditions (column);
-        java.math.BigDecimal result;
+        java.math.BigDecimal result = null;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getBigDecimal(-1);
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getBigDecimal(-1);
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getBigDecimal(-1);
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getBigDecimal(-1);
+            }
         }
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getBigDecimal");
@@ -1335,15 +1383,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     private java.sql.Date getDateX (int column, java.util.TimeZone timeZone) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        java.sql.Date date;
+        java.sql.Date date = null;
         Object[] columnData = data_[column - 1];
     
         if(isSQLData_)
-            date = ((SQLData)columnData[currentRowInRowset_]).getDate(getCalendar(timeZone));
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                date = ((SQLData)columnData[currentRowInRowset_]).getDate(getCalendar(timeZone));
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], getCalendar(timeZone), -1); 
-            date = contentTemplate_.getDate(getCalendar(timeZone));
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], getCalendar(timeZone), -1); 
+                date = contentTemplate_.getDate(getCalendar(timeZone));
+            }
         } 
         
         wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
@@ -1392,15 +1446,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     private java.sql.Time getTimeX (int column, java.util.TimeZone timeZone) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        java.sql.Time time;
+        java.sql.Time time = null;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            time = ((SQLData)columnData[currentRowInRowset_]).getTime(getCalendar(timeZone));
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                time = ((SQLData)columnData[currentRowInRowset_]).getTime(getCalendar(timeZone));
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], getCalendar(timeZone), -1); 
-            time = contentTemplate_.getTime(getCalendar(timeZone));
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], getCalendar(timeZone), -1); 
+                time = contentTemplate_.getTime(getCalendar(timeZone));
+            }
         } 
         
          
@@ -1452,15 +1512,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     private java.sql.Timestamp getTimestampX (int column, java.util.TimeZone timeZone) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        java.sql.Timestamp timestamp;
+        java.sql.Timestamp timestamp = null;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            timestamp = ((SQLData)columnData[currentRowInRowset_]).getTimestamp(getCalendar(timeZone));
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                timestamp = ((SQLData)columnData[currentRowInRowset_]).getTimestamp(getCalendar(timeZone));
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], getCalendar(timeZone), -1); 
-            timestamp = contentTemplate_.getTimestamp(getCalendar(timeZone));
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], getCalendar(timeZone), -1); 
+                timestamp = contentTemplate_.getTimestamp(getCalendar(timeZone));
+            }
         } 
         
         wasNull_ = (columnData[currentRowInRowset_] == null) ? WAS_NULL : WAS_NOT_NULL;
@@ -1487,14 +1553,20 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
        
         checkGetterPreconditions (column);
-        byte[] result;
+        byte[] result = null;
         Object[] columnData = data_[column - 1];
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getBytes();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getBytes();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getBytes();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getBytes();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getBytes");
@@ -1538,15 +1610,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     synchronized public String getString (int column) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        String result;
+        String result = null;
         Object[] columnData = data_[column - 1];
      
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getString();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getString();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getString();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getString();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getString");
@@ -1586,15 +1664,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     public java.io.InputStream getBinaryStream (int column) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        java.io.InputStream result;
+        java.io.InputStream result = null;
         Object[] columnData = data_[column - 1];
     
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getBinaryStream();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getBinaryStream();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getBinaryStream();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getBinaryStream();
+            }
         } 
        
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getBinaryStream");
@@ -1636,15 +1720,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
      
         checkGetterPreconditions (column);
-        java.io.InputStream result;
+        java.io.InputStream result = null;
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getAsciiStream();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getAsciiStream();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getAsciiStream();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getAsciiStream();
+            }
         } 
       
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getAsciiStream");
@@ -1690,15 +1780,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     public java.io.InputStream getUnicodeStream (int column) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        java.io.InputStream result;
+        java.io.InputStream result = null;
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getUnicodeStream();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getUnicodeStream();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getUnicodeStream();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getUnicodeStream();
+            }
         } 
       
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getUnicodeStream");
@@ -1742,15 +1838,23 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
        
         checkGetterPreconditions (column);
-        java.io.Reader result;
+        java.io.Reader result = null;
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getCharacterStream();
+        {
+        	if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                result = ((SQLData)columnData[currentRowInRowset_]).getCharacterStream();
+            }
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getCharacterStream();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getCharacterStream();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getCharacterStream");
@@ -1789,15 +1893,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     public java.sql.Blob getBlob (int column) throws java.sql.SQLException
     {
         checkGetterPreconditions (column);
-        java.sql.Blob result;
+        java.sql.Blob result = null;
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getBlob();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getBlob();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getBlob();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getBlob();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getBlob");
@@ -1837,15 +1947,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
 
         checkGetterPreconditions (column);
-        java.sql.Clob result;
+        java.sql.Clob result = null;
         Object[] columnData = data_[column - 1];
         
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getClob();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getClob();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getClob();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getClob();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getClob");
@@ -1945,16 +2061,22 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
 
         checkGetterPreconditions (column);
-        java.net.URL result;
+        java.net.URL result = null;
         Object[] columnData = data_[column - 1];
-        String stringResult;
+        String stringResult = null;
         
         if(isSQLData_)
-            stringResult = ((SQLData)columnData[currentRowInRowset_]).getString();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                stringResult = ((SQLData)columnData[currentRowInRowset_]).getString();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            stringResult = contentTemplate_.getString();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                stringResult = contentTemplate_.getString();
+            }
         } 
         
         try
@@ -2011,19 +2133,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
         checkGetterPreconditions (column);
         Object[] columnData = data_[column - 1];
-        Object result; 
+        Object result = null; 
         
         if(isSQLData_)
         {
-            if(columnData[currentRowInRowset_] == null) //@nullelem
-                result = null;                           //@nullelem
-            else                                         //@nullelem
+            
+            if(columnData[currentRowInRowset_] != null) //@nullelem
                 result = ((SQLData)columnData[currentRowInRowset_]).getObject();
         }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getObject();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getObject();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getObject");
@@ -3194,15 +3318,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
        
         checkGetterPreconditions (column);
-        java.io.Reader result;
+        java.io.Reader result = null;
         Object[] columnData = data_[column - 1];
        
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getNCharacterStream();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getNCharacterStream();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getNCharacterStream();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getNCharacterStream();
+            }
         } 
 
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNCharacterStream");
@@ -3242,15 +3372,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
         
         checkGetterPreconditions (column);
-        java.sql.NClob result;
+        java.sql.NClob result = null;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getNClob();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getNClob();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getNClob();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getNClob();
+            }
         } 
 
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNClob");
@@ -3293,15 +3429,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
        
         checkGetterPreconditions (column);
-        String result;
+        String result = null;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getNString();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem  
+                result = ((SQLData)columnData[currentRowInRowset_]).getNString();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getNString();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getNString();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getNString");
@@ -3342,15 +3484,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
         checkGetterPreconditions (column);
-        java.sql.RowId result;
+        java.sql.RowId result = null;
         Object[] columnData = data_[column - 1];
 
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getRowId();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getRowId();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getRowId();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getRowId();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getRowId");
@@ -3386,15 +3534,21 @@ public class AS400JDBCArrayResultSet  extends ToolboxWrapper implements ResultSe
     {
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
         checkGetterPreconditions (column);
-        java.sql.SQLXML result;
+        java.sql.SQLXML result = null;
         Object[] columnData = data_[column - 1];
        
         if(isSQLData_)
-            result = ((SQLData)columnData[currentRowInRowset_]).getSQLXML();
+        {
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+                result = ((SQLData)columnData[currentRowInRowset_]).getSQLXML();
+        }
         else
         {
-            contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
-            result = contentTemplate_.getSQLXML();
+            if(columnData[currentRowInRowset_] != null) //@nulllocalarrelem
+            {
+                contentTemplate_.set(columnData[currentRowInRowset_], calendar_, -1); 
+                result = contentTemplate_.getSQLXML();
+            }
         } 
         
         if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "getSQLXML");
