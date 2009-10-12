@@ -1993,7 +1993,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 {
                   SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                   sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));
-                  sqlData.set (parameterValue, null, length); // @J0M hacked this to use the scale parm for the length
+                  sqlData.set (JDUtilities.streamToBytes(parameterValue, length), null, length);//@set1 allow setX one time and reuse execute() without having to reset stream
                 }
                 else
                 {
