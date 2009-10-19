@@ -50,6 +50,9 @@ class SystemProperties
     public static final String JDBC_STATEMENT_LISTENERS = ACCESS_PREFIX + "JDBC.statementListeners";
     public static final String JDBC_SECURE_CURRENT_USER = ACCESS_PREFIX + "JDBC.secureCurrentUser"; //@pw3 not documented in html
     public static final String JDBC_JVM16_SYNCHRONIZE = ACCESS_PREFIX + "JDBC.jvm16Synchronize"; //@dmy temp fix for jvm 1.6 memory stomping
+    public static final String TRACE_MONITOR = ACCESS_PREFIX + "Trace.monitor";
+    public static final String TRACE_MONITOR_PORT = ACCESS_PREFIX + "Trace.monitorPort";
+    
     //  *** Note: ***
     //
     // If you add a new system property, remember to also add it to the

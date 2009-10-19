@@ -23,6 +23,11 @@ import java.util.StringTokenizer;                                   // $D0A
 import java.util.Hashtable;                                         // $W1A
 import java.util.Vector;
 import java.util.Enumeration;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.UnknownHostException;
 
 /**
   Logs trace points and diagnostic messages.  Each trace
@@ -195,9 +200,10 @@ import java.util.Enumeration;
  **/
 
 
-public class Trace
+public class Trace implements Runnable
 {
   private static final String CLASSNAME = "com.ibm.as400.access.Trace";
+  private static final int DEFAULT_MONITOR_PORT = 55555;
 
   static boolean traceOn_; //@P0C
   static boolean traceInfo_;
@@ -546,52 +552,7 @@ public class Trace
   {
     // Load and apply the trace categories system property.
     String categories = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORY);
-    if (categories != null)
-    {
-      //setTraceOn (true);  //@pdd
-      StringTokenizer tokenizer = new StringTokenizer (categories, ", ;");
-      if(!tokenizer.hasMoreTokens ())                       //@pda
-      {                                                     //@pda
-          //-Dcom.ibm.as400.access.Trace.category=""        //@pda
-          setTraceOn(false);                                //@pda
-      }                                                     //@pda
-      else                                                  //@pda
-          setTraceOn (true);                                //@pda
-      
-      while (tokenizer.hasMoreTokens ())
-      {
-        String category = tokenizer.nextToken ();
-        if (category.equalsIgnoreCase ("datastream"))
-          setTraceDatastreamOn (true);
-        else if (category.equalsIgnoreCase ("diagnostic"))
-          setTraceDiagnosticOn (true);
-        else if (category.equalsIgnoreCase ("error"))
-          setTraceErrorOn (true);
-        else if (category.equalsIgnoreCase ("information"))
-          setTraceInformationOn (true);
-        else if (category.equalsIgnoreCase ("warning"))
-          setTraceWarningOn (true);
-        else if (category.equalsIgnoreCase ("conversion"))
-          setTraceConversionOn (true);
-        else if (category.equalsIgnoreCase ("proxy"))
-          setTraceProxyOn (true);
-        else if (category.equalsIgnoreCase ("thread")) //@D3A
-          setTraceThreadOn (true); //@D3A
-        else if (category.equalsIgnoreCase ("jdbc"))   // @D5A
-          setTraceJDBCOn (true);   // @D5A
-        else if (category.equalsIgnoreCase ("pcml"))   // @D5A
-          setTracePCMLOn (true);   // @D5A
-        else if (category.equalsIgnoreCase ("all")) //@D2A
-          setTraceAllOn (true); //@D2A
-        else if (category.equalsIgnoreCase ("none"))                                   //@pda
-            setTraceOn(false);  //fix for -Dcom.ibm.as400.access.Trace.category="none" //@pda 
-        else
-        {
-          if (isTraceOn ())
-            Trace.log (Trace.WARNING, "Trace category not valid: " + category + ".");
-        }
-      }
-    }  // categories != null
+    setTraceCategories(categories);
 
     // Load and apply the trace file system property.
     String file = SystemProperties.getProperty (SystemProperties.TRACE_FILE);
@@ -605,7 +566,12 @@ public class Trace
       catch (IOException e)
       {
         if (isTraceOn ())
-          Trace.log (Trace.WARNING, "Trace file not valid: " + file + ".", e);
+        {
+          String msg = "Trace file not valid: " + file;
+          System.err.println(msg);
+          e.printStackTrace(System.err);
+          Trace.log(Trace.WARNING, msg, e);
+        }
       }
     }
 
@@ -616,7 +582,8 @@ public class Trace
       boolean value = Boolean.valueOf(enabled).booleanValue();
       traceOn_ = value;
     }
-
+    
+    startTraceMonitorIfNeeded();
   }
 
   /**
@@ -632,7 +599,7 @@ public class Trace
       String loadPath = null;
       try
       {
-        ClassLoader loader =  Class.forName(className).getClassLoader();
+        ClassLoader loader = Class.forName(className).getClassLoader();
         if (loader != null)
         {
           String resourceName = className.replace('.', '/') + ".class";
@@ -853,7 +820,7 @@ public class Trace
     if (e.getLocalizedMessage() == null)                           //$B2A
       log(category, "Exception does not contain a message.", e);  //$B2A
     else                                                           //$B2A
-      log (category, e.getLocalizedMessage (), e);                //$B2C
+      log(category, e.getLocalizedMessage (), e);                //$B2C
   }
 
 
@@ -870,7 +837,7 @@ public class Trace
     if (e.getLocalizedMessage() == null)                                       //$B2A
       log(component, category, "Exception does not contain a message.", e);   //$B2A
     else                                                                       //$B2A
-      log (component, category, e.getLocalizedMessage (), e);                 //$B2C
+      log(component, category, e.getLocalizedMessage (), e);                 //$B2C
   }
 
 
@@ -1672,5 +1639,209 @@ public class Trace
     }
 
     return trace;
+  }
+  
+
+  /**
+   * Determines if the user has requested the trace monitor be started.  If so, starts the
+   * monitor thread.
+   */
+  private static void startTraceMonitorIfNeeded()
+  {
+    String shouldMonitor = SystemProperties.getProperty(SystemProperties.TRACE_MONITOR);
+    if (shouldMonitor==null) return; //Not set, return
+    if (Boolean.valueOf(shouldMonitor)==Boolean.TRUE) {
+      try {
+        Thread monitor = new Thread(new Trace(), "Toolbox Trace Monitor");
+        monitor.setDaemon(true); //So this thread ends with the JVM
+        monitor.start();			  
+      }
+      catch (Exception e)
+      {
+        System.err.println("Failed to start trace monitor: " + e.getMessage());
+        e.printStackTrace(System.err);
+      }
+    }
+  }
+  
+  /**
+   * Handle the commands submitted to the monitor thread.
+   * @param commands
+   */
+  private static String handleTraceStatusChange(String command)
+  {
+    int index = command.indexOf('=');
+    if (index<0) {
+      String msg = "Invalid trace command: " + command;
+      System.err.println(msg);
+      logData(null, ERROR, msg, null);
+      return msg;
+    }
+
+    String property = command.substring(0,index);
+    String value = command.substring(index+1);
+    if (value.length()==0) value = null; //com.ibm.as400.access.Trace.categories=	  
+
+    if (property.equals(SystemProperties.TRACE_CATEGORY)) {
+      setTraceCategories(value);
+    }
+    else if (property.equals(SystemProperties.TRACE_FILE)) {
+      if (value==null || !value.equals(fileName_)) {
+        try {
+          setFileName(value);
+        }
+        catch (IOException e) {
+          String msg = "Failed to set file name to "+value+": " + e.getMessage();
+          System.err.println(msg);
+          e.printStackTrace(System.err);
+          return msg;
+        }
+      }
+    }
+    else return ("Unrecognized command: " + command);
+
+    return "Command processed: " + command;	  
+  }
+
+  /**
+   * Listens for trace status changes.
+   */
+  public void run()
+  {
+    int port;
+    try {
+      String portNum = SystemProperties.getProperty(SystemProperties.TRACE_MONITOR_PORT);
+      if (portNum!=null) port = Integer.parseInt(portNum);
+      else               port = DEFAULT_MONITOR_PORT;
+    }
+    catch (Exception e) {
+      System.err.println("Failed to get TRACE_MONITOR_PORT property: " + e.getMessage());
+      e.printStackTrace(System.err);
+      return;
+    }
+
+    try {
+      ServerSocket monitorSocket_ = new ServerSocket(port, 1); //Only 1 connection at a time
+      while (true)
+      {
+        Socket currentSocket = monitorSocket_.accept(); //Wait for connect requests.
+        BufferedReader in = new BufferedReader(new InputStreamReader(currentSocket.getInputStream()));
+        PrintWriter out = new PrintWriter(currentSocket.getOutputStream(), true);
+        String command = in.readLine();			  
+        String result = handleTraceStatusChange(command);
+        out.println(result);
+        currentSocket.close();
+      }
+    }
+    catch (Exception e) {
+      System.err.println("Exception in trace monitor daemon: " + e.getMessage());
+      e.printStackTrace(System.err);
+    }
+  }
+  
+  /**
+   * Update trace parameters.
+   * @param args
+   */
+  public static void main(String[] args)
+  {
+    if (args.length<3) printUsage();
+    else {
+      int port = 0;
+      try {
+        port = Integer.parseInt(args[1]);  // assume the 2nd arg is portNum
+      } catch (Exception e) {
+        System.err.println("Invalid port specified (" + args[1] + ")");
+        e.printStackTrace(System.err);
+        return;
+      }
+
+      try {
+        for (int i=2; i<args.length; i++)
+        {
+          Socket s = new Socket(args[0], port);  // assume the 1st arg is systemName
+          PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+          BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));				  
+          out.println(args[i]);
+          String result = in.readLine();
+          System.out.println(result);
+          s.close();
+        }			  
+      }
+      catch (UnknownHostException e) {
+        System.err.println("Host " + args[0] + " is not known.");
+        e.printStackTrace(System.err);
+      }
+      catch (Exception e) {
+        System.err.println("Exception contacting trace monitor: " + e.getMessage());
+        e.printStackTrace(System.err);
+      }
+    }	  
+  }
+  
+  /**
+   * Print out how to start, and issue commands to, the trace monitor.
+   */
+  private static void printUsage()
+  {
+    System.out.println();
+    System.out.println("Usage:  " +
+                       "java com.ibm.as400.access.Trace " +
+                       "[systemName] " +
+                       "[monitorPort] " +
+                       "[traceCommands]");
+    System.out.println();
+    System.out.println("  This assumes that the target JVM (the JVM in which the application of interest is running) has been started with the following Java system properties set: ");
+    System.out.println("     com.ibm.as400.access.Trace.monitor=true     [REQUIRED]");
+    System.out.println("     com.ibm.as400.access.Trace.monitorPort=xxx  [OPTIONAL]");
+    System.out.println("");
+    System.out.println("  If [monitorPort] is not specified, the monitor port number is set to " + DEFAULT_MONITOR_PORT);
+    System.out.println("");
+    System.out.println("  [traceCommands] is one or more of (separated by spaces):");
+    System.out.println("     com.ibm.as400.access.Trace.category=[listOfCategories]");
+    System.out.println("        listOfCategories is a comma-delimited list of valid Toolbox trace categories");
+
+    System.out.println();
+    System.out.println("Example invocation:  " +
+                       "java com.ibm.as400.access.Trace " +
+                       "mysystem " +
+                       "55555 " +
+                       "com.ibm.as400.access.Trace.category=error,warning " +
+                       "com.ibm.as400.access.Trace.file=/tmp/out.txt");
+  }
+  
+  /**
+   * Set the trace categories based on a comma delimited list
+   */
+  private static void setTraceCategories(String categories)
+  {
+    if (categories != null) {
+      StringTokenizer tokenizer = new StringTokenizer (categories, ", ;");
+      if (!tokenizer.hasMoreTokens ()) { //-Dcom.ibm.as400.access.Trace.category=""        //@pda
+          setTraceOn(false);
+      } else {              
+          setTraceOn (true);
+      }
+      
+      setTraceAllOn(false); //Temporarily turn off all categories.
+      while (tokenizer.hasMoreTokens ()) {
+        String category = tokenizer.nextToken ();
+        if (category.equalsIgnoreCase ("datastream"))       setTraceDatastreamOn (true);
+        else if (category.equalsIgnoreCase ("diagnostic"))  setTraceDiagnosticOn (true);
+        else if (category.equalsIgnoreCase ("error"))       setTraceErrorOn (true);
+        else if (category.equalsIgnoreCase ("information")) setTraceInformationOn (true);
+        else if (category.equalsIgnoreCase ("warning"))     setTraceWarningOn (true);
+        else if (category.equalsIgnoreCase ("conversion"))  setTraceConversionOn (true);
+        else if (category.equalsIgnoreCase ("proxy"))       setTraceProxyOn (true);
+        else if (category.equalsIgnoreCase ("thread"))      setTraceThreadOn (true); //@D3A
+        else if (category.equalsIgnoreCase ("jdbc"))        setTraceJDBCOn (true);   // @D5A
+        else if (category.equalsIgnoreCase ("pcml"))        setTracePCMLOn (true);   // @D5A
+        else if (category.equalsIgnoreCase ("all"))         setTraceAllOn (true); //@D2A
+        else if (category.equalsIgnoreCase ("none"))        setTraceOn(false);  //fix for -Dcom.ibm.as400.access.Trace.category="none" //@pda 
+        else {
+          if (isTraceOn ()) Trace.log(Trace.WARNING, "Trace category not valid: " + category);
+        }        
+      }	  
+    } else setTraceOn(false); //Categories null, so turn off tracing
   }
 }
