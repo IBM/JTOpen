@@ -837,7 +837,9 @@ public class AS400JDBCSQLXML implements SQLXML
                 DocumentBuilder parser = factory.newDocumentBuilder();
                 //parser.setErrorHandler(errorHandler);
                 org.w3c.dom.Document doc;
-                if (lobType == SQLData.CLOB_LOCATOR
+                if (lobType == SQLData.CLOB           //@clob
+                        || lobType == SQLData.DBCLOB  //@clob
+                        || lobType == SQLData.CLOB_LOCATOR
                         || lobType == SQLData.DBCLOB_LOCATOR)
                 {
                     // Do something different for CLOB locators because
