@@ -30,7 +30,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.MalformedURLException;
 /**
- * <p>The AS400ToolboxInstaller class is used to
+ * Provides a utility to
  * install, update, compare, and uninstall the IBM Toolbox for Java
  * packages.  Note that this class writes to the local file system,
  * so it may fail if used in an applet.
@@ -103,16 +103,16 @@ import java.net.MalformedURLException;
  * <a name="InstallEx"> </a>
  * <p><strong>Install Example</strong></p>
  * <p>The following example will install all packages.
- * <ul>
+ *
  * <pre>
  * java AS400ToolboxInstaller -install
  *                            -source http://myAS400/QIBM/ProdData/HTTP/Public/jt400/
  *                            -target c:\java\
  *
  * </pre>
- * </UL>
+ *
  * <p>The following examples will install the access package.
- * <ul>
+ *
  * <pre>
  * java AS400ToolboxInstaller -install -package ACCESS
  *                            -source http://myAS400/QIBM/ProdData/HTTP/Public/jt400/
@@ -126,44 +126,41 @@ import java.net.MalformedURLException;
  *                            -s mySystem
  *                            -t c:\java\
  * </pre>
- * </UL>
  *
  *
  * <p><strong>Uninstall Example</strong></p>
  * <p>This example will remove the access package.
- * <ul>
+ *
  * <pre>
  * java AS400ToolboxInstaller -uninstall -package ACCESS -target c:\java\
  * </pre>
- * </UL>
+ *
  *
  *
  * <a name="CompareEx"> </a>
  * <p><strong>Compare Example</strong></p>
  * <p>This example will compare the current level of the OPNAV package.
- * <ul>
+ *
  * <pre>
  * java AS400ToolboxInstaller -compare
  *                            -package OPNAV
  *                            -source http://myAS400/QIBM/ProdData/HTTP/Public/jt400/
  *                            -target c:\java\
  * </pre>
- * </ul>
+ *
  *
  * <p><strong>Help Example</strong></p>
  * <P>The following will display help information:
- * <UL>
+ * <pre>
  * java AS400ToolboxInstaller -? <br>
  * java AS400ToolboxInstaller -help <br>
  * java AS400ToolboxInstaller -h
- * </UL>
+ * </pre>
  *
  * @deprecated This class is no longer being enhanced, since it has no known users.
 **/
-public class AS400ToolboxInstaller {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
+public class AS400ToolboxInstaller
+{
 private static final int INSTALL = 0;   // when installing      @A2a
 private static final int UNINSTALL = 1; // when uninstalling    @A2a
 private static final int COMPARE = 2;   // when comparing       @A2a

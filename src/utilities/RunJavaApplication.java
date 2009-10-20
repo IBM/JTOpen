@@ -31,8 +31,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
-  * <P>
-  * RunJavaApplication demonstrates the use of com.ibm.as400.access.JavaApplicationCall.
+  * Demonstrates the use of {@link com.ibm.as400.access.JavaApplicationCall JavaApplicationCall}.
   * It gathers information from the user about the class to run, then uses a
   * JavaApplicationCall object to run the program on the IBM i system's JVM.  It
   * uses the capabilities of JavaApplicationCall to send input to the Java
@@ -43,9 +42,9 @@ import java.util.Vector;
   * RunJavaApplication has three command line parameters.  All parameters are optional.
   *
   * <UL>
-  * <i>system</i> - the name of the system.
-  * <i>userid</i> - run the Java program under this userid.<BR>
-  * <i>password</i> - the password of the user. <BR>
+  * <li><i>system</i> - the name of the system.
+  * <li><i>userid</i> - run the Java program under this userid.
+  * <li><i>password</i> - the password of the user.
   * </UL>
   *
   * <p>
@@ -78,9 +77,9 @@ import java.util.Vector;
   * <p>
   * The format of the java command is:
   * <a name="ex"> </a>
-  * <UL>
+  * <PRE>
   * java [-classpath=<value>] [-verbose] [-D<property>=<value> [...]] class [<programParameter1> [...]]
-  * </UL>
+  * </PRE>
   *
  **/
 

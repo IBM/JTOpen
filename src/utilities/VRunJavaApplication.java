@@ -27,9 +27,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- * <P>
- * VRunJavaApplication demonstrates the use of the Toolbox
- * com.ibm.as400.vaccess.VJavaApplicationCall component.
+ * Demonstrates the use of
+ * {@link com.ibm.as400.vaccess.VJavaApplicationCall VJavaApplicationCall}.
  * The component (VJavaApplicationCall) does processing necessary to
  * call a Java program on the system but it is not a complete
  * application.  This class is a complete application.  It does
@@ -41,28 +40,27 @@ import javax.swing.border.*;
  * VRunJavaApplication has three parameters command line parameters.  All
  * parameters are optional.  The parameters are:
  * <UL>
- *   <i>System</i> - the system that contains the Java program <BR>
- *   <i>UserID</i> - run the Java program under this userid    <BR>
- *   <i>Password</i> - the password for the userid             <BR>
+ *   <li><i>System</i> - the system that contains the Java program
+ *   <li><i>UserID</i> - run the Java program under this userid
+ *   <li><i>Password</i> - the password for the userid
  * </UL>
  *
  * <P>
  * For example, to run Java programs on system "mySystem":
  * <a name="ex"> </a>
- * <UL>
+ * <PRE>
  * java utilities.VRunJavaApplication mySystem
- * </UL>
+ * </PRE>
  *
  * <P>
- * See the javadoc for Toolbox class VJavaApplicationCall and
- * JavaApplicationCall for a list of commands to run once
- * the program is started.
+ * See the javadoc for Toolbox classes VJavaApplicationCall and
+ * {@link com.ibm.as400.access.JavaApplicationCall JavaApplicationCall}
+ * for a list of commands to run once the program is started.
  *
 **/
 
 public class VRunJavaApplication
 {
-    //private VJavaApplicationCall vJavaAppCall = null;
     private static ResourceBundle resources_ = null;
 
     /**
